@@ -2,7 +2,10 @@
 AI Router — Lightweight model routing for Claude Code.
 
 Usage:
-    from ai_router import route, verify, query, get_costs, print_cost_report
+    from ai_router import (
+        route, verify, query, get_costs, print_cost_report,
+        send_pushover_notification, send_session_complete_notification
+    )
 
     # Route a task to the best model automatically
     # (if the task type is in auto_verify_task_types, verification happens
@@ -52,6 +55,11 @@ from .prompting import build_prompt
 from .rate_limiter import RateLimiter
 from .session_log import SessionLog
 from .escalation import should_escalate, get_escalation_model
+from .notifications import (
+    NotificationResult,
+    send_pushover_notification,
+    send_session_complete_notification,
+)
 from .verification import (
     pick_verifier_model, build_verification_prompt,
     parse_verification_response

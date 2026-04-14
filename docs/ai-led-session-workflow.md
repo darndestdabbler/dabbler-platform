@@ -41,6 +41,7 @@ Orchestrator (Claude / Codex / Gemini)
   |
   |-- prints cost report
   |-- commits and pushes
+  |-- sends session-complete notification (if configured)
   +-- STOPS (one session per conversation)
 ```
 
@@ -224,10 +225,14 @@ The router requires API keys as environment variables:
 ```
 ANTHROPIC_API_KEY   (for Claude Sonnet/Opus)
 GEMINI_API_KEY      (for Gemini Flash/Pro)
+PUSHOVER_API_KEY    (optional, for end-of-session phone notifications)
+PUSHOVER_USER_KEY   (optional, for end-of-session phone notifications)
 ```
 
 On Windows, set these as User environment variables. The orchestrator
-instruction files include the commands to export them into the shell.
+instruction files include the commands to export them into the shell. The
+notification helper also falls back to the Windows User/Machine environment if
+the current process environment does not already contain the Pushover keys.
 
 ### 5. Create the Python Virtual Environment
 
@@ -353,7 +358,7 @@ dispatches to a different AI provider for independent review.
 4. Re-run verification (max 2 retries). Use `complexity_hint=85` if any
    issue is Major or Critical.
 
-### Step 8: Cost Report and Commit
+### Step 8: Cost Report, Commit, and Notify
 
 ```python
 from ai_router import print_cost_report
@@ -366,6 +371,27 @@ git add -A
 git commit -m "Session N of M: <description>"
 git push
 ```
+
+Then send a session-complete notification through the reusable helper in
+`ai-router/`:
+
+```python
+from ai_router import send_session_complete_notification
+
+try:
+    send_session_complete_notification(
+        session_set=SESSION_SET,
+        session_number=next_session,
+        total_sessions=log.total_sessions,
+        verification_verdict="VERIFIED",
+        summary="<short description>"
+    )
+except Exception as exc:
+    print(f"Session completed, but Pushover notification failed: {exc}")
+```
+
+If notification delivery fails, report it, but do not undo or fail an
+otherwise successful session.
 
 ### Step 9: Stop
 
@@ -405,8 +431,9 @@ Each agent-specific file should contain:
 3. **AI router import snippet** -- how to load the `ai-router` module
 4. **API key export commands** -- platform-specific commands to load keys
 5. **Build and test commands** -- `dotnet build`, `dotnet test`
-6. **Code style rules** -- naming conventions, patterns to follow
-7. **Mandatory rules** -- never skip verification, one session only, log every step, delegate reasoning
+6. **Notification helper usage** -- reusable end-of-session alert via `ai-router`
+7. **Code style rules** -- naming conventions, patterns to follow
+8. **Mandatory rules** -- never skip verification, one session only, log every step, delegate reasoning
 
 ### Switching Orchestrators Between Sessions
 

@@ -59,6 +59,9 @@ print(result.total_cost_usd)
 ```
 
 Use `.venv/Scripts/python.exe` to run Python scripts on Windows.
+The same module also exposes reusable notification helpers, including
+`send_session_complete_notification()`, which reads `PUSHOVER_API_KEY` and
+`PUSHOVER_USER_KEY` from the environment or Windows User environment.
 
 ## Session Set Workflow
 
@@ -108,7 +111,7 @@ dotnet test
 You MUST NOT verify your own work. Call `route(task_type="session-verification")`
 to dispatch to an external AI model for independent review.
 
-### Step 7: Cost Report, Commit, Stop
+### Step 7: Cost Report, Commit, Notify, Stop
 
 ```python
 from ai_router import print_cost_report
@@ -120,6 +123,25 @@ git add -A
 git commit -m "Session N of M: <description>"
 git push
 ```
+
+```python
+from ai_router import send_session_complete_notification
+
+try:
+    send_session_complete_notification(
+        session_set=SESSION_SET,
+        session_number=next_session,
+        total_sessions=log.total_sessions,
+        verification_verdict="VERIFIED",
+        summary="<short description>"
+    )
+except Exception as exc:
+    print(f"Session completed, but Pushover notification failed: {exc}")
+```
+
+If Pushover keys are configured, send the notification after a successful push.
+If the notification fails, report it, but do not treat the session itself as
+failed or roll back the successful work.
 
 Do NOT start the next session. Wait for the human.
 

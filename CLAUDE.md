@@ -58,6 +58,10 @@ print(result.content)
 print(result.total_cost_usd)
 ```
 
+The same module also exposes reusable notification helpers, including
+`send_session_complete_notification()`, which reads `PUSHOVER_API_KEY` and
+`PUSHOVER_USER_KEY` from the environment or Windows User environment.
+
 ## Session Set Workflow
 
 When the human says **"Start the next session"**, follow this procedure exactly:
@@ -185,7 +189,7 @@ The call to `route()` dispatches to a Gemini model — a separate AI provider.
 4. Re-run verification (max 2 retries). Use `complexity_hint=85` if any
    issue is Major or Critical.
 
-### Step 9: Cost Report and Completion
+### Step 9: Cost Report, Completion, and Notification
 
 ```python
 from ai_router import print_cost_report
@@ -201,6 +205,27 @@ git commit -m "Session N of M: <short description>
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 git push
 ```
+
+Then send the session-complete notification:
+
+```python
+from ai_router import send_session_complete_notification
+
+try:
+    send_session_complete_notification(
+        session_set=SESSION_SET,
+        session_number=next_session,
+        total_sessions=log.total_sessions,
+        verification_verdict="VERIFIED",
+        summary="<short description>"
+    )
+except Exception as exc:
+    print(f"Session completed, but Pushover notification failed: {exc}")
+```
+
+If Pushover is configured, the notification is required after a successful
+push. If the notification fails, report it clearly, but do not treat the
+session itself as failed.
 
 ### Step 10: Last Session Only
 
