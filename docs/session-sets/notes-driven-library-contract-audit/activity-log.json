@@ -124,6 +124,67 @@
           "costUsd": 0.220605
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/decision-ledger",
+      "dateTime": "2026-04-14T21:56:38.927358+00:00",
+      "description": "Converted the audit baseline into a Session 3 decision ledger in docs/planning/notes-driven-library-contract-audit.md and used the AI router to pressure-test feature-level keep/collapse/isolate/retire recommendations.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 10338,
+          "outputTokens": 937,
+          "costUsd": 0.0222925
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/human-decision-queue",
+      "dateTime": "2026-04-14T21:56:38.927358+00:00",
+      "description": "Recorded the explicit human decision queue for inline editing, default dashboard composition, and external user authentication breadth in the planning audit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/spec-rebaseline",
+      "dateTime": "2026-04-14T21:56:38.927358+00:00",
+      "description": "Rebaselined the downstream simplification, app-alignment, and template-encoding session specs so later work starts from the Session 3 retirement/isolation decisions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-14T21:57:44.886013+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln successfully; only the existing preview SDK message plus pre-existing XML-documentation warnings remained.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-14T21:58:38.250890+00:00",
+      "description": "Completed independent external session verification with an Opus review, saved the raw verifier output, and received a VERIFIED verdict with only low-severity non-blocking notes.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 14495,
+          "outputTokens": 280,
+          "costUsd": 0.238425
+        }
+      ]
     }
   ]
 }

@@ -19,6 +19,10 @@ It should only encode what survived the audit, simplification, and app-alignment
 work. Templates must not become the hiding place for advanced functionality that
 the narrowed contract no longer wants to lead with.
 
+The template should explicitly avoid reintroducing retired public surfaces or
+isolated advanced defaults just because they once existed in the broader
+library story.
+
 ## Session Plan
 
 ### Session 1 of 3: Template Contract Audit
@@ -46,7 +50,8 @@ than speculation
 1. Update `template-seed/` assets, bootstrap docs, and starter session-set
    guidance so they expose only the retained notes-driven defaults.
 2. Ensure advanced or intentionally isolated features are not scaffolded by
-   default.
+   default, including retired catalog/query-report surfaces and non-core
+   grid/filter/combo/dashboard extras.
 3. Update any workflow/bootstrap guidance that still implies the older broader
    library surface.
 

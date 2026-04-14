@@ -20,6 +20,10 @@ The target is not to preserve every existing app/library integration point. The
 target is to ensure the app demonstrates the notes-driven workflows using only
 the retained core surfaces.
 
+The audit decision ledger should be treated as binding input for this set. The
+app should align to retained core surfaces and focused replacements, not keep
+retired library surfaces alive by continuing to depend on them.
+
 ## Session Plan
 
 ### Session 1 of 4: App Dependency Audit And Migration Map
@@ -49,7 +53,8 @@ before edits begin
 2. Remove app-side reliance on advanced grid/filter/query/report behaviors that
    were isolated or retired.
 3. Preserve user-facing behavior that still belongs to the notes-driven
-   contract.
+   contract, while moving dashboard defaults away from favorites/recent-items
+   if those widgets remain non-core.
 
 **Creates:** Aligned app pages using the simplified library surface
 **Touches:** `src/Apps/AcmeCoffeeOnline.Web/` and related tests
@@ -66,7 +71,9 @@ instead of the broader historical one
 **Steps:**
 1. Align shell, navigation, popup, and security-admin usage with the simplified
    core surfaces.
-2. Remove app-side dependencies on isolated shell/catalog/dashboard extras.
+2. Remove app-side dependencies on isolated shell/catalog/dashboard extras and
+   treat the app's focused catalog experience as the proven path unless a later
+   simplification session introduces a replacement core surface.
 3. Add or strengthen integration and Playwright coverage that proves the
    notes-driven workflows end to end.
 4. Confirm at least one representative mutating workflow remains backend

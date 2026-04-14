@@ -5,7 +5,7 @@
 > grounding decisions in current `src/Apps/` usage and the actual public
 > library surface.
 > **Created:** 2026-04-14
-> **Status:** Session 2 consumption baseline completed
+> **Status:** Session 3 decision ledger completed
 
 ---
 
@@ -60,6 +60,19 @@ Session 2 mapped the Session 1 surface inventory to real repo consumption:
 
 This session still does not trim code. It sharpens the evidence for the
 decision ledger that Session 3 will produce.
+
+---
+
+## Session 3 Outcome
+
+Session 3 turned the audit baseline into a durable decision ledger:
+
+- converted the Session 1 classification and Session 2 consumption evidence
+  into feature-level keep/collapse/isolate/retire recommendations
+- separated proven core capabilities from broader historical public surfaces
+- recorded the remaining policy-level decisions that still need a human owner
+- rebaselined later session-set specs so downstream work starts from the
+  decision ledger instead of reopening the same classification debate
 
 ---
 
@@ -303,6 +316,93 @@ template seed does not currently depend on any of these broader surfaces.
 
 ---
 
+## Session 3 Decision Ledger
+
+| Feature Area | App usage | Notes support | Maintenance/testing cost | Recommendation | Decision notes |
+|---|---|---|---|---|---|
+| `DabblerQueryPage<T>` core query composition | `direct` | `strong` | `medium` | `keep as core` | Keep the query-page composition pattern as a first-class supported surface because the app proves it directly and the notes depend on it |
+| `DabblerDataGrid<T>` core CRUD/search behavior | `indirect-through-composition` | `partial` | `medium` | `keep as core` | Keep the grid behaviors needed by list/query workflows, but do not treat the broader grid extras as part of the supported default contract |
+| Grid extras: grouping, aggregates, clipboard, CSV export, column pinning, detail expansion | `none` | `none` | `high` | `remove/retire when simplification starts` | No direct app proof or notes support justifies carrying these higher-cost behaviors as first-class reusable defaults |
+| `DabblerFilterGrid<T>` QBE/filter-summary behavior | `indirect-through-composition` | `strong` | `medium` | `keep as core` | Keep the structured QBE filter grid and English summary as core because they directly match the notes-driven contract |
+| Filter extras: quick filter, presets, expression line, column toggles | `none` | `none` | `medium` | `remove/retire when simplification starts` | These broaden the filter surface beyond the notes-backed QBE workflow without current app proof |
+| `DabblerComboBox<T>` search/multi-column/cascading behavior | `direct` | `strong` | `medium` | `keep as core` | The app and notes both justify searchable multi-column selection as a primary reusable surface |
+| `DabblerMultiComboBox<T>` multiselect capability | `none` | `strong` | `low` | `keep capability but collapse public surface` | Multiselect stays in scope, but current evidence does not justify preserving a distinct public component if the same capability can live behind the main combo surface |
+| Combo add-new and grouping behavior | `none` | `none` | `medium` | `remove/retire when simplification starts` | These features complicate the combo contract and do not support the current notes-driven app workflows |
+| `DabblerDetailForm<T>` and `DabblerRecordPopup<T>` | `direct` | `strong` | `medium` | `keep as core` | Detail and popup editing remain core because the app uses them directly and the notes rely on them |
+| `DabblerReportPage`, `ParameterPromptForm`, and `ReportViewer` | `direct` / `indirect-through-composition` | `strong` | `medium` | `keep as core` | Report prompting and viewing remain part of the proven notes-driven surface |
+| `DabblerQueryReportPage<T>` | `none` | `none` | `medium` | `remove/retire when simplification starts` | The combined query/report page is neither notes-backed nor app-proven, so later work should retire it instead of treating it as a likely supported surface |
+| `DabblerDashboardPage` core landing-page behavior | `direct` | `strong` | `medium` | `keep as core` | Keep the dashboard shell/page concept, but split the core landing-page surface from optional widget families |
+| Dashboard favorites and recent-items widgets | `direct` | `weak` | `medium` | `isolate as advanced/non-core` | The app currently uses these widgets, but the notes do not justify them as default supported behavior for the reusable platform |
+| `DabblerShell` plus navigation/runtime provider contracts | `direct` | `strong` | `medium` | `keep as core` | The shell, navigation, pinned-item, and workspace integration points are directly used and belong in the supported platform story |
+| `DabblerCatalogPage` and broad catalog browsing abstractions | `none` | `weak` | `medium` | `remove/retire when simplification starts` | The app already proved a custom catalog experience instead, so the reusable generic catalog browser should not remain part of the primary contract |
+| Security UI/runtime authorization surfaces | `direct` | `strong` | `medium` | `keep as core` | Runtime authorization, page/control security, role switching, and row filtering remain foundational and strongly notes-backed |
+| External-login and MFA breadth inside the security story | `partial` | `policy-dependent` | `medium` | `isolate as advanced/non-core` | Keep the core runtime authorization surface, but treat broader identity-policy breadth as an explicit product/security decision rather than default reusable UI scope |
+
+### Decision Rules For Later Sessions
+
+- keep capabilities that are directly proven by the app or strongly required by
+  the notes
+- collapse separate public surfaces when the capability matters but the extra
+  abstraction is not currently earning its keep
+- isolate advanced widget families only when there is some current product
+  value, but the notes do not justify carrying them as defaults
+- retire speculative surfaces early when neither the app nor the notes support
+  keeping them in the primary reusable contract
+
+---
+
+## Human Decision Queue
+
+These items still need explicit human ownership because the remaining choice is
+policy-level or intentionally product-shaped rather than simple engineering
+cleanup:
+
+- **Inline editing versus popup-only editing:** the notes describe inline
+  editing as helpful but not mandatory, while popup editing is already proven
+  by the app. Decide whether inline editing stays a supported core capability
+  worth its extra complexity and testing cost, or whether popup editing becomes
+  the standard default editing model.
+- **Default dashboard experience:** the dashboard page remains core, but the
+  audit does not justify favorites and recent-items widgets as default platform
+  behavior. Decide whether a new app should start with a minimal/empty
+  dashboard or with a narrowly defined starter widget set.
+- **External user authentication breadth:** runtime authorization remains core,
+  but the long-term reusable scope for external login and MFA still depends on
+  product/security policy choices rather than current app proof alone.
+
+---
+
+## Session 3 Rebaseline For Later Sets
+
+### `notes-driven-core-surface-simplification`
+
+- treat `DabblerQueryReportPage<T>` and `DabblerCatalogPage` as retirement
+  candidates, not just generic "maybe advanced" surfaces
+- preserve multiselect capability while allowing `DabblerMultiComboBox<T>` to
+  disappear as a distinct public surface if the main combo contract can absorb
+  it cleanly
+- split dashboard core from favorites/recent-items widgets instead of carrying
+  the whole dashboard surface as one indivisible contract
+
+### `notes-driven-app-alignment`
+
+- assume the app's custom catalog experience is the proven path unless later
+  simplification work produces a new focused replacement
+- remove app-side dependence on dashboard favorites/recent-items as defaults
+  unless a later human decision explicitly keeps them
+- migrate the app away from any retired combo/grid/filter/report extras instead
+  of treating those behaviors as compatibility requirements
+
+### `notes-driven-template-encoding`
+
+- do not scaffold retired or isolated surfaces by default, including generic
+  catalog browsing, query/report composition, grid/filter extras, combo
+  add-new/grouping, or dashboard favorites/recent-items widgets
+- encode only the retained core navigation, query/detail/report, and runtime
+  authorization story once the simplification and app-alignment sets finish
+
+---
+
 ## Session 1 Recommendations For Later Sets
 
 - Session 2 should map actual app and template consumption to this matrix
@@ -326,3 +426,12 @@ template seed does not currently depend on any of these broader surfaces.
   before trimming the proven list/detail/report/security core
 - template work should wait until the library contract is smaller and backed by
   proven app usage rather than today's broader surface area
+
+## Session 3 Recommendations For Later Sets
+
+- simplification work should default to retiring unproven public surfaces
+  before spending effort on compatibility shims for them
+- app-alignment work should prove the narrowed contract with real pages and
+  tests rather than preserving broad historical library affordances
+- template work should encode the kept core only after the app proves which
+  narrowed defaults are actually worth inheriting

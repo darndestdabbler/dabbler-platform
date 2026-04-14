@@ -22,6 +22,12 @@ misleading public API or a hard-to-test implementation.
 The immediate goal is not to remove every extra code path. The goal is to make
 the supported surface obvious, narrow, and testable.
 
+The decision ledger from `notes-driven-library-contract-audit` is expected to
+drive removal/retirement of unproven public surfaces, not just softer
+de-emphasis. In particular, `DabblerQueryReportPage<T>` and
+`DabblerCatalogPage` should be treated as retirement candidates unless new
+evidence appears during simplification work.
+
 ## Session Plan
 
 ### Session 1 of 5: Supported Surface Definitions
@@ -72,12 +78,14 @@ changes begin
 **Steps:**
 1. Keep the notes-aligned combo/detail/popup behavior as core.
 2. Narrow combo-box behavior around search, multiple columns, multiselect, and
-   cascading coordination.
+   cascading coordination, allowing multiselect to survive without preserving a
+   distinct `DabblerMultiComboBox<T>` public surface if the main combo contract
+   can absorb it cleanly.
 3. Isolate or remove add-new and grouping features unless the decision ledger
    explicitly retained them.
 4. Confirm report surfaces remain aligned with the notes-driven report/query
-   behavior and isolate advanced composed report-query surfaces that are not yet
-   proven.
+   behavior and retire advanced composed report-query surfaces that are not yet
+   proven, especially `DabblerQueryReportPage<T>`.
 5. Add or update tests for the retained core behavior.
 
 **Creates:** Simplified combo/report/detail contract and tests
@@ -97,8 +105,9 @@ without advertising speculative extras
 1. Simplify `DabblerShell`, dashboard, and navigation surfaces around the top
    menu, left nav, pinned-item, workspace, and dashboard behaviors required by
    the notes.
-2. Remove or isolate favorites/recent-items widgets and any generic catalog
-   abstractions that the audit did not justify as part of the primary contract.
+2. Remove or isolate favorites/recent-items widgets and retire generic catalog
+   abstractions, including `DabblerCatalogPage`, when the audit did not justify
+   them as part of the primary contract.
 3. Keep the security UI surfaces aligned with the notes-driven runtime
    authorization model, while pruning any admin surfaces the audit explicitly
    marked as non-core.
