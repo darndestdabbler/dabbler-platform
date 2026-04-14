@@ -11,7 +11,7 @@ public sealed class PlatformController : ControllerBase
     {
         return Ok(new PlatformStatusResponse(
             Status: "ready",
-            Stage: "session-2-foundation",
+            Stage: "session-4-guardrails",
             UtcTimestamp: DateTimeOffset.UtcNow));
     }
 }

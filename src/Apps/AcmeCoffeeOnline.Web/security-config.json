@@ -1,0 +1,30 @@
+{
+  "SecurityConfig": {
+    "Policies": [
+      {
+        "Name": "OperationsViewer",
+        "Roles": [
+          "OperationsViewer",
+          "CoffeeAdmin",
+          "SystemAdministrator"
+        ]
+      }
+    ],
+    "Pages": [
+      {
+        "Route": "/login",
+        "AllowAnonymous": true
+      },
+      {
+        "Route": "/access-denied",
+        "AllowAnonymous": true
+      }
+    ],
+    "Endpoints": [
+      {
+        "Pattern": "/auth-check",
+        "Policy": "OperationsViewer"
+      }
+    ]
+  }
+}

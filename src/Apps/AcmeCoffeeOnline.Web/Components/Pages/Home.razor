@@ -1,5 +1,8 @@
 @page "/"
 @inject PlatformStatusClient PlatformStatusClient
+@using AcmeCoffeeOnline.Web.Configuration
+@using Microsoft.Extensions.Options
+@inject IOptions<AppAuthenticationOptions> AuthenticationOptions
 
 <PageTitle>Home</PageTitle>
 
@@ -10,9 +13,17 @@
     and reach the paired API through the same contract the Docker stack uses.
 </p>
 
-@if (_status is null)
+<p data-testid="auth-delivery-mode">
+    Auth delivery mode: @AuthenticationOptions.Value.DeliveryMode
+</p>
+
+@if (_status is null && _statusError is null)
 {
     <p data-testid="api-status">Checking API connectivity...</p>
+}
+else if (_statusError is not null)
+{
+    <p data-testid="api-status">API reachable: @_statusError</p>
 }
 else
 {
@@ -20,23 +31,45 @@ else
         <div class="card-body">
             <h2 class="h5 mb-3">Platform smoke status</h2>
             <p class="mb-2" data-testid="api-status">
-                API reachable: @_status.Status
+                API reachable: @_status!.Status
             </p>
             <p class="mb-2" data-testid="api-stage">
-                Stage: @_status.Stage
+                Stage: @_status!.Stage
             </p>
             <p class="mb-0 text-muted" data-testid="api-timestamp">
-                Last API timestamp: @_status.UtcTimestamp.ToString("u")
+                Last API timestamp: @_status!.UtcTimestamp.ToString("u")
             </p>
         </div>
     </div>
 }
 
+<div class="card shadow-sm mt-4">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Guardrail checks</h2>
+        <p class="mb-2">
+            Anonymous auth pages stay outside the main shell, and seeded sessions are
+            only available in Development or Test with a shared secret.
+        </p>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-outline-primary" href="/login">Open sign in page</a>
+            <a class="btn btn-outline-secondary" href="/access-denied">Open access denied page</a>
+        </div>
+    </div>
+</div>
+
 @code {
     private PlatformStatusResponse? _status;
+    private string? _statusError;
 
     protected override async Task OnInitializedAsync()
     {
-        _status = await PlatformStatusClient.GetStatusAsync();
+        try
+        {
+            _status = await PlatformStatusClient.GetStatusAsync();
+        }
+        catch
+        {
+            _statusError = "API unavailable";
+        }
     }
 }

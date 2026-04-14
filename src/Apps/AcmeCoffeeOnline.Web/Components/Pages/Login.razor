@@ -1,0 +1,32 @@
+@page "/login"
+@layout Layout.AuthLayout
+@using AcmeCoffeeOnline.Web.Configuration
+@using Microsoft.Extensions.Options
+@inject IOptions<AppAuthenticationOptions> AuthenticationOptions
+
+<PageTitle>Sign In</PageTitle>
+
+<section class="card shadow-sm border-0" data-testid="login-page">
+    <div class="card-body p-4 p-md-5">
+        <p class="text-uppercase text-muted small mb-2">AcmeCoffeeOnline</p>
+        <h1 class="h3 mb-3">Sign in</h1>
+        <p class="mb-4">
+            The rebuilt foundation keeps auth pages outside the main shell so
+            anonymous login flows can render even when shell navigation is unavailable.
+        </p>
+
+        <dl class="row mb-4" data-testid="login-delivery-mode">
+            <dt class="col-sm-5">Delivery mode</dt>
+            <dd class="col-sm-7">@AuthenticationOptions.Value.DeliveryMode</dd>
+        </dl>
+
+        @if (AuthenticationOptions.Value.SeededSession.Enabled)
+        {
+            <div class="alert alert-secondary mb-4" data-testid="seeded-session-hint">
+                Development and Test builds expose a loopback-only seeded-session endpoint for automation.
+            </div>
+        }
+
+        <a class="btn btn-outline-primary" href="/">Back to foundation home</a>
+    </div>
+</section>

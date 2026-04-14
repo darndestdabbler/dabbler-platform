@@ -1,31 +1,29 @@
 # Dabbler Platform
 
-This repository is the integrated home for the AcmeCoffeeOnline rebuild and the
-supporting Dabbler libraries.
+This repository is the integrated development home for the AcmeCoffeeOnline
+rebuild, the required Dabbler libraries, and the AI-led workflow assets used
+to run session-set development from one place.
 
-## Session 2 foundation
+## Current foundation
 
-Session 2 establishes:
+The repo currently includes:
 
-- a single solution with app and test projects
+- the rebuilt AcmeCoffeeOnline Web and API foundations
+- consolidated `Dabbler.Security` and `Dabbler.Security.Blazor` source projects
 - central build and package management
 - Docker Compose for web, api, sql server, MailHog, and Playwright
-- xUnit test project defaults
-- a smoke Playwright path that proves the web app can reach the API in a
-  containerized stack
-
-The real Dabbler library move is intentionally deferred to Session 3 to avoid
-placeholder project churn.
+- xUnit and Playwright test foundations
+- repo-root AI workflow assets: `ai-router/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
 
 ## Project layout
 
-- `src/Apps/AcmeCoffeeOnline.Web/` - rebuilt Blazor Server host foundation
-- `src/Apps/AcmeCoffeeOnline.Api/` - rebuilt REST API foundation
-- `src/Libs/` - reserved for Dabbler library consolidation in Session 3
-- `tests/AcmeCoffeeOnline.Api.Tests/` - xUnit API smoke/integration tests
-- `tests/AcmeCoffeeOnline.Web.Tests/` - xUnit web smoke/integration tests
-- `tests/AcmeCoffeeOnline.Playwright/` - browser smoke coverage
+- `src/Apps/AcmeCoffeeOnline.Web/` - rebuilt Blazor Server host
+- `src/Apps/AcmeCoffeeOnline.Api/` - rebuilt REST API host
+- `src/Libs/` - integrated Dabbler libraries used by the rebuild
+- `tests/` - xUnit, bUnit, and Playwright coverage
 - `docker/` - compose and container definitions
+- `ai-router/` - router code, prompt templates, and workflow utilities
+- `docs/` - workflow docs and session-set artifacts
 
 ## Local commands
 

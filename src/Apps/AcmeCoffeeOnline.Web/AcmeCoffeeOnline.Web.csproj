@@ -5,4 +5,10 @@
     <RootNamespace>AcmeCoffeeOnline.Web</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Update="security-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

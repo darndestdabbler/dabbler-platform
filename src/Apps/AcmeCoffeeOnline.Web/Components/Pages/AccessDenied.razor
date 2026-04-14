@@ -1,0 +1,15 @@
+@page "/access-denied"
+@layout Layout.AuthLayout
+
+<PageTitle>Access Denied</PageTitle>
+
+<section class="card shadow-sm border-0" data-testid="access-denied-page">
+    <div class="card-body p-4 p-md-5">
+        <p class="text-uppercase text-muted small mb-2">AcmeCoffeeOnline</p>
+        <h1 class="h3 mb-3">Access denied</h1>
+        <p class="mb-4">
+            Your current session does not satisfy the required policy for this action.
+        </p>
+        <a class="btn btn-outline-primary" href="/login">Go to sign in</a>
+    </div>
+</section>
