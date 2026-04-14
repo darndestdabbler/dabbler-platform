@@ -1,0 +1,13 @@
+@page "/access-denied"
+
+<PageTitle>Access Denied</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16 text-center">
+    <MudIcon Icon="@Icons.Material.Filled.Lock" Color="Color.Error" Style="font-size: 4rem;" Class="mb-4" />
+    <MudText Typo="Typo.h4" Class="mb-2">Access Denied</MudText>
+    <MudText Typo="Typo.body1" Class="mb-6" Color="Color.Secondary">
+        You do not have permission to view this page.
+        Contact an administrator to request access.
+    </MudText>
+    <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary">Go Home</MudButton>
+</MudContainer>

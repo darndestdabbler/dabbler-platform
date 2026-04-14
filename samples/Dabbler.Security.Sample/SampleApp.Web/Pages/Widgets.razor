@@ -1,0 +1,146 @@
+@page "/widgets"
+@attribute [DabblerPageAuthorize("/widgets")]
+@using System.Security.Claims
+@using Dabbler.Security.Blazor.Components
+@inject SecurityConfigurationManager ConfigManager
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>Widgets</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Widgets</MudText>
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    @* ── Toolbar ──────────────────────────────────────────────────────────── *@
+    <div class="d-flex gap-2 mb-4">
+        <DabblerSecured PageKey="/widgets" ControlKey="AddButton">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       data-testid="add-widget-button"
+                       StartIcon="@Icons.Material.Filled.Add">
+                Add Widget
+            </MudButton>
+        </DabblerSecured>
+        <DabblerSecured PageKey="/widgets" ControlKey="ExportButton">
+            <MudButton Variant="Variant.Outlined" Color="Color.Default"
+                       data-testid="export-widgets-button"
+                       StartIcon="@Icons.Material.Filled.Download">
+                Export CSV
+            </MudButton>
+        </DabblerSecured>
+    </div>
+
+    @* ── Widget table ─────────────────────────────────────────────────────── *@
+    <MudTable Items="_widgets" Hover="true" Striped="true" Dense="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Owner ID</MudTh>
+            <MudTh Style="text-align:right">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="ID">@context.Id</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Status">
+                <MudChip T="string" Size="Size.Small"
+                         Color="@(context.Status == "Active" ? Color.Success : Color.Default)">
+                    @context.Status
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Owner ID">@context.OwnerId</MudTd>
+            <MudTd Style="text-align:right">
+                <DabblerSecured PageKey="/widgets" ControlKey="EditButton">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   data-testid="edit-widget-button"
+                                   Size="Size.Small" Color="Color.Primary" />
+                </DabblerSecured>
+                <DabblerSecured PageKey="/widgets" ControlKey="DeleteButton">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   data-testid="delete-widget-button"
+                                   Size="Size.Small" Color="Color.Error" />
+                </DabblerSecured>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+    @* ── Row-filter callout ───────────────────────────────────────────────── *@
+    @if (_rowFilterDescription is not null)
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-4" Icon="@Icons.Material.Filled.FilterAlt">
+            <strong>Active row filter for your role:</strong>
+            <code class="ml-2">@_rowFilterDescription.Expression</code>
+            @if (!string.IsNullOrWhiteSpace(_rowFilterDescription.Description))
+            {
+                <MudText Typo="Typo.caption" Class="d-block mt-1">@_rowFilterDescription.Description</MudText>
+            }
+        </MudAlert>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Success" Class="mt-4" Icon="@Icons.Material.Filled.FilterAltOff">
+            No row filter is active for your role — all widgets are visible.
+        </MudAlert>
+    }
+
+    @* ── How-it-works callout ────────────────────────────────────────────── *@
+    <MudExpansionPanels Class="mt-4">
+        <MudExpansionPanel Text="How does this page work?">
+            <MudText Typo="Typo.body2" Class="mb-2">
+                This page demonstrates three runtime authorization features:
+            </MudText>
+            <MudList T="string" Dense="true">
+                <MudListItem Icon="@Icons.Material.Filled.Pages">
+                    <strong>Page access</strong> is controlled by <code>[DabblerPageAuthorize("/widgets")]</code>.
+                    If your role isn't in the allowed list, you see a 403 instead of this page.
+                </MudListItem>
+                <MudListItem Icon="@Icons.Material.Filled.ToggleOn">
+                    <strong>Control visibility</strong> is managed by <code>&lt;DabblerSecured&gt;</code> wrappers.
+                    The Add, Edit, Delete, and Export buttons each have an independent runtime state
+                    (Enabled / Disabled / Hidden) per role. Change them live in the Security Dashboard.
+                </MudListItem>
+                <MudListItem Icon="@Icons.Material.Filled.FilterAlt">
+                    <strong>Row filters</strong> are configured per role in the Security Dashboard.
+                    The callout above shows the expression that would be applied to an EF Core query
+                    for your current role.
+                </MudListItem>
+            </MudList>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+}
+
+@code {
+    private bool _loading = true;
+    private RowFilterInfo? _rowFilterDescription;
+
+    private readonly List<WidgetRow> _widgets =
+    [
+        new(1, "Widget A", "Active",   1),
+        new(2, "Widget B", "Active",   2),
+        new(3, "Widget C", "Archived", 1),
+        new(4, "Widget D", "Active",   3),
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        var userRoles = auth.User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToHashSet();
+
+        // Find the first row filter configured for any of the user's effective roles.
+        var filter = ConfigManager.Current.RowFilters
+            .FirstOrDefault(f => userRoles.Contains(f.RoleName, StringComparer.OrdinalIgnoreCase));
+
+        if (filter is not null)
+            _rowFilterDescription = new RowFilterInfo(filter.FilterExpression, filter.Description);
+
+        _loading = false;
+    }
+
+    private sealed record WidgetRow(int Id, string Name, string Status, int OwnerId);
+    private sealed record RowFilterInfo(string Expression, string Description);
+}

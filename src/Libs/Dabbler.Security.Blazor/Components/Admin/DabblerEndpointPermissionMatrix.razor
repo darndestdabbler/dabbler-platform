@@ -1,0 +1,186 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using Dabbler.Security.Services
+@using MudBlazor
+@inject SecurityConfigurationManager ConfigManager
+@inject ResourceRegistry Registry
+@inject AuthorizationStateNotifier Notifier
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+<MudPaper Elevation="3" Class="pa-4">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h6">Endpoint Permissions</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="SaveAsync">Save All</MudButton>
+    </div>
+
+    @if (_roles.Count == 0)
+    {
+        <MudText Class="pa-4">No roles defined. Add roles in Role Management first.</MudText>
+    }
+    else if (Registry.Endpoints.Count == 0)
+    {
+        <MudText Class="pa-4">No endpoints registered. Register endpoints via options.RegisterEndpoints() at startup.</MudText>
+    }
+    else
+    {
+        <MudTextField @bind-Value="_filter"
+                      Placeholder="Filter endpoints…"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Clearable="true"
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Class="mb-4" />
+
+        <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+        @foreach (var ep in Registry.Endpoints.Where(e => MatchesFilter(e.Key, e.DisplayName)))
+        {
+            <MudCard Elevation="1" Style="min-width:260px; flex:1 1 260px; max-width:480px;">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <div class="d-flex align-center gap-2">
+                            <MudText Typo="Typo.subtitle1"><b>@ep.DisplayName</b></MudText>
+                            @if (!string.IsNullOrEmpty(ep.HttpMethod))
+                            {
+                                <MudChip T="string" Size="Size.Small"
+                                         Color="@HttpMethodColor(ep.HttpMethod)">
+                                    @ep.HttpMethod
+                                </MudChip>
+                            }
+                        </div>
+                        <div style="font-size:0.75rem; color:#495057;">@ep.Key</div>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent Class="pt-0">
+                    <table style="width:100%;border-collapse:collapse;"
+                           aria-label="@($"Endpoint permissions for {ep.DisplayName}")">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="padding:4px 8px;text-align:left;min-width:160px;">Role</th>
+                                <th scope="col" style="padding:4px 8px;text-align:center;min-width:80px;">Allow</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in _roles)
+                            {
+                                <tr style="border-top:1px solid #e0e0e0;">
+                                    <th scope="row" style="padding:4px 8px;text-align:left;">
+                                        <MudText Typo="Typo.body2">@role</MudText>
+                                    </th>
+                                    <td style="padding:2px 8px;text-align:center;">
+                                        <MudCheckBox T="bool"
+                                                     Value="@IsAllowed(role, ep.Key)"
+                                                     ValueChanged="@(v => SetAllowed(role, ep.Key, v))"
+                                                     title="@($"Allow {role} access to {ep.DisplayName}")"
+                                                     aria-label="@($"Allow {role} access to {ep.DisplayName}")"
+                                                     Color="Color.Success"
+                                                     Size="Size.Small" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MudCardContent>
+            </MudCard>
+        }
+        </div>
+    }
+</MudPaper>
+
+@code {
+    /// <summary>
+    /// A user interface for managing access permissions for all registered API endpoints across all defined roles.
+    /// It displays a filterable list of cards, each representing an endpoint. For each endpoint,
+    /// administrators can allow or deny access for each role.
+    /// </summary>
+
+    private List<string> _roles = [];
+    private string _filter = string.Empty;
+
+    // roleName → set of allowed endpointKeys
+    private readonly Dictionary<string, HashSet<string>> _allowed = new(StringComparer.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        LoadFromConfig();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private void LoadFromConfig()
+    {
+        var config = ConfigManager.Current;
+        _roles = config.Roles.Select(r => r.RoleName).ToList();
+
+        _allowed.Clear();
+        foreach (var role in _roles)
+            _allowed[role] = [];
+
+        foreach (var ep in config.EndpointPermissions)
+        {
+            foreach (var role in ep.AllowedRoles)
+                if (_allowed.TryGetValue(role, out var s)) s.Add(ep.EndpointKey);
+        }
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        LoadFromConfig();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool MatchesFilter(string key, string displayName) =>
+        string.IsNullOrEmpty(_filter) ||
+        key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
+        displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
+
+    private bool IsAllowed(string role, string endpointKey) =>
+        _allowed.TryGetValue(role, out var s) && s.Contains(endpointKey);
+
+    private void SetAllowed(string role, string endpointKey, bool value)
+    {
+        if (!_allowed.ContainsKey(role)) _allowed[role] = [];
+        if (value) _allowed[role].Add(endpointKey);
+        else _allowed[role].Remove(endpointKey);
+    }
+
+    private async Task SaveAsync()
+    {
+        var config = ConfigManager.Current;
+        var endpointKeys = Registry.Endpoints.Select(e => e.Key).ToList();
+
+        var endpointPerms = endpointKeys.Select(epKey => new EndpointPermission
+        {
+            EndpointKey = epKey,
+            AllowedRoles = _roles.Where(r => IsAllowed(r, epKey)).ToList()
+        }).ToList();
+
+        var updated = new SecurityConfiguration
+        {
+            Roles = config.Roles,
+            PagePermissions = config.PagePermissions,
+            EntityPermissions = config.EntityPermissions,
+            FieldPermissions = config.FieldPermissions,
+            EndpointPermissions = endpointPerms,
+            ControlPermissions = config.ControlPermissions,
+            RowFilters = config.RowFilters,
+            RoleSwitching = config.RoleSwitching
+        };
+
+        await ConfigManager.SaveAsync(updated);
+        Snackbar.Add("Endpoint permissions saved.", Severity.Success);
+    }
+
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+
+    private static Color HttpMethodColor(string method) => method.ToUpperInvariant() switch
+    {
+        "GET" => Color.Info,
+        "POST" => Color.Success,
+        "PUT" or "PATCH" => Color.Warning,
+        "DELETE" => Color.Error,
+        _ => Color.Default
+    };
+}

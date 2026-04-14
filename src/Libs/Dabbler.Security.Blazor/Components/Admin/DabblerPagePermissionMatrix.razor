@@ -1,0 +1,201 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using Dabbler.Security.Services
+@using MudBlazor
+@inject SecurityConfigurationManager ConfigManager
+@inject ResourceRegistry Registry
+@inject AuthorizationStateNotifier Notifier
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+<MudPaper Elevation="3" Class="pa-4">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h6">Page Permissions</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="SaveAsync">Save All</MudButton>
+    </div>
+
+    @if (_roles.Count == 0)
+    {
+        <MudText Class="pa-4">No roles defined. Add roles in Role Management first.</MudText>
+    }
+    else if (Registry.Pages.Count == 0)
+    {
+        <MudText Class="pa-4">No pages registered. Register pages via options.RegisterPages() at startup.</MudText>
+    }
+    else
+    {
+        <MudTextField @bind-Value="_filter"
+                      Placeholder="Filter pages…"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Clearable="true"
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Class="mb-4" />
+
+        <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+        @foreach (var pg in Registry.Pages.Where(p => MatchesFilter(p.Key, p.DisplayName)))
+        {
+                <MudCard Elevation="1" Style="min-width:260px; flex:1 1 260px; max-width:480px;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.subtitle1"><b>@pg.DisplayName</b></MudText>
+                            <div style="font-size:0.75rem; color:#495057;">@pg.Key</div>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                <MudCardContent Class="pt-0">
+                    <table style="width:100%;border-collapse:collapse;"
+                           aria-label="@($"Page permissions for {pg.DisplayName}")">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="padding:4px 8px;text-align:left;min-width:160px;">Role</th>
+                                <th scope="col" style="padding:4px 8px;text-align:center;min-width:80px;">Allow</th>
+                                <th scope="col" style="padding:4px 8px;text-align:center;min-width:80px;">Deny</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in _roles)
+                            {
+                                <tr style="border-top:1px solid #e0e0e0;">
+                                    <th scope="row" style="padding:4px 8px;text-align:left;">
+                                        <MudText Typo="Typo.body2">@role</MudText>
+                                    </th>
+                                    <td style="padding:2px 8px;text-align:center;">
+                                        <MudCheckBox T="bool"
+                                                     Value="@IsAllowed(role, pg.Key)"
+                                                     ValueChanged="@(v => SetAllowed(role, pg.Key, v))"
+                                                     title="@($"Allow {role} access to {pg.DisplayName}")"
+                                                     aria-label="@($"Allow {role} access to {pg.DisplayName}")"
+                                                     Color="Color.Success"
+                                                     Size="Size.Small" />
+                                    </td>
+                                    <td style="padding:2px 8px;text-align:center;">
+                                        <MudCheckBox T="bool"
+                                                     Value="@IsDenied(role, pg.Key)"
+                                                     ValueChanged="@(v => SetDenied(role, pg.Key, v))"
+                                                     title="@($"Deny {role} access to {pg.DisplayName}")"
+                                                     aria-label="@($"Deny {role} access to {pg.DisplayName}")"
+                                                     Color="Color.Error"
+                                                     Size="Size.Small" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MudCardContent>
+            </MudCard>
+        }
+        </div>
+
+        <MudText Typo="Typo.caption" Class="mt-2">
+            <b>Allow</b> = role may access this page. <b>Deny</b> = role is explicitly denied (takes precedence over Allow).
+        </MudText>
+    }
+</MudPaper>
+
+@code {
+    /// <summary>
+    /// A component for managing page access permissions.
+    /// It displays a matrix of registered pages and defined roles, allowing administrators
+    /// to grant or deny access for each role-page combination.
+    /// </summary>
+    private List<string> _roles = [];
+    private string _filter = string.Empty;
+
+    // roleName → set of allowed pageKeys
+    private readonly Dictionary<string, HashSet<string>> _allowed = new(StringComparer.OrdinalIgnoreCase);
+    // roleName → set of denied pageKeys
+    private readonly Dictionary<string, HashSet<string>> _denied = new(StringComparer.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        LoadFromConfig();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private void LoadFromConfig()
+    {
+        var config = ConfigManager.Current;
+        _roles = config.Roles.Select(r => r.RoleName).ToList();
+
+        _allowed.Clear();
+        _denied.Clear();
+        foreach (var role in _roles)
+        {
+            _allowed[role] = [];
+            _denied[role] = [];
+        }
+
+        foreach (var pp in config.PagePermissions)
+        {
+            foreach (var role in pp.AllowedRoles)
+                if (_allowed.TryGetValue(role, out var a)) a.Add(pp.PageKey);
+            foreach (var role in pp.DeniedRoles)
+                if (_denied.TryGetValue(role, out var d)) d.Add(pp.PageKey);
+        }
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        LoadFromConfig();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool MatchesFilter(string key, string displayName) =>
+        string.IsNullOrEmpty(_filter) ||
+        key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
+        displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
+
+    private bool IsAllowed(string role, string pageKey) =>
+        _allowed.TryGetValue(role, out var s) && s.Contains(pageKey);
+
+    private bool IsDenied(string role, string pageKey) =>
+        _denied.TryGetValue(role, out var s) && s.Contains(pageKey);
+
+    private void SetAllowed(string role, string pageKey, bool value)
+    {
+        if (!_allowed.ContainsKey(role)) _allowed[role] = [];
+        if (value) _allowed[role].Add(pageKey);
+        else _allowed[role].Remove(pageKey);
+    }
+
+    private void SetDenied(string role, string pageKey, bool value)
+    {
+        if (!_denied.ContainsKey(role)) _denied[role] = [];
+        if (value) _denied[role].Add(pageKey);
+        else _denied[role].Remove(pageKey);
+    }
+
+    private async Task SaveAsync()
+    {
+        var config = ConfigManager.Current;
+
+        var pageKeys = Registry.Pages.Select(p => p.Key).ToList();
+        var pagePerms = pageKeys.Select(pageKey => new PagePermission
+        {
+            PageKey = pageKey,
+            AllowedRoles = _roles.Where(r => IsAllowed(r, pageKey)).ToList(),
+            DeniedRoles = _roles.Where(r => IsDenied(r, pageKey)).ToList()
+        }).ToList();
+
+        var updated = new SecurityConfiguration
+        {
+            Roles = config.Roles,
+            PagePermissions = pagePerms,
+            EntityPermissions = config.EntityPermissions,
+            FieldPermissions = config.FieldPermissions,
+            EndpointPermissions = config.EndpointPermissions,
+            ControlPermissions = config.ControlPermissions,
+            RowFilters = config.RowFilters,
+            RoleSwitching = config.RoleSwitching
+        };
+
+        await ConfigManager.SaveAsync(updated);
+        Snackbar.Add("Page permissions saved.", Severity.Success);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+}

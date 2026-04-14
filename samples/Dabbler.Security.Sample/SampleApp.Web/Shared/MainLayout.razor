@@ -1,0 +1,55 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       OnClick="@ToggleDrawer"
+                       title="Toggle navigation menu"
+                       aria-label="Toggle navigation menu" />
+        <MudText Typo="Typo.h6" Class="ml-3">Dabbler Security Sample</MudText>
+        <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                <Dabbler.Security.Blazor.Components.DabblerRoleSwitcher />
+                <MudText Typo="Typo.body2" Class="mr-3">@context.User.Identity!.Name</MudText>
+                <MudButton Href="/auth/logout" Variant="Variant.Text" Color="Color.Inherit" data-testid="logout-button">Sign out</MudButton>
+            </Authorized>
+            <NotAuthorized>
+                <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit">Sign in</MudButton>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.subtitle1">Navigation</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+            <AuthorizeView>
+                <Authorized>
+                    <MudNavLink Href="/widgets" Icon="@Icons.Material.Filled.Widgets">Widgets</MudNavLink>
+                </Authorized>
+            </AuthorizeView>
+            <Dabbler.Security.Blazor.Components.DabblerSecurityNav />
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4 px-4">
+            <main id="app-main">
+                @Body
+            </main>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

@@ -1,0 +1,254 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using Dabbler.Security.Services
+@using MudBlazor
+@inject SecurityConfigurationManager ConfigManager
+@inject ResourceRegistry Registry
+@inject AuthorizationStateNotifier Notifier
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+@{
+    var entity = Registry.Entities.FirstOrDefault(e =>
+        string.Equals(e.Key, EntityKey, StringComparison.OrdinalIgnoreCase));
+}
+
+<MudPaper Elevation="2" Class="pa-4">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h6">Row Filters — @(entity?.DisplayName ?? EntityKey)</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="OpenAddDialog">Add Filter</MudButton>
+    </div>
+
+    @if (_filters.Count == 0)
+    {
+        <MudText Class="pa-4">No row filters defined for this entity. Add a filter to restrict which rows each role can see.</MudText>
+    }
+    else
+    {
+        <MudTable Items="@_filters" Dense="true" Hover="true" Striped="true">
+            <HeaderContent>
+                <MudTh>Role</MudTh>
+                <MudTh>Filter Expression</MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Role">
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">@context.RoleName</MudChip>
+                </MudTd>
+                <MudTd DataLabel="Filter Expression">
+                    <MudText Typo="Typo.body2" Style="font-family:monospace;">@context.FilterExpression</MudText>
+                </MudTd>
+                <MudTd DataLabel="Description">@context.Description</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                   OnClick="@(() => OpenEditDialog(context))"
+                                   title="@($"Edit filter for role {context.RoleName}")"
+                                   aria-label="@($"Edit filter for role {context.RoleName}")" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="@(() => DeleteFilter(context))"
+                                   title="@($"Delete filter for role {context.RoleName}")"
+                                   aria-label="@($"Delete filter for role {context.RoleName}")" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</MudPaper>
+
+<MudDialog @bind-Visible="_dialogVisible" Options="@_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_editingFilter == null ? "Add Row Filter" : "Edit Row Filter")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudSelect T="string" @bind-Value="_form.RoleName" Label="Role" Required="true" Class="mb-3">
+            @foreach (var role in _roles)
+            {
+                <MudSelectItem Value="@role">@role</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudText Typo="Typo.subtitle2" Class="mb-1">Common Patterns</MudText>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            @foreach (var pattern in _commonPatterns)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Secondary"
+                         OnClick="@(() => ApplyPattern(pattern.Expression))">
+                    @pattern.Label
+                </MudChip>
+            }
+        </div>
+
+        <MudTextField @bind-Value="_form.FilterExpression"
+                      Label="Filter Expression"
+                      Required="true"
+                      HelperText="@_filterHelperText"
+                      Lines="3"
+                      Variant="Variant.Outlined" />
+
+        <MudTextField @bind-Value="_form.Description"
+                      Label="Description"
+                      Class="mt-3"
+                      HelperText="Describe what this filter does" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveFilter">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    /// <summary>
+    /// A UI component for creating, editing, and deleting row-level security filters for a specific entity.
+    /// </summary>
+
+    /// <summary>
+    /// Gets or sets the unique key for the entity whose row filters are being managed.
+    /// This parameter is required.
+    /// </summary>
+    [Parameter, EditorRequired] public string EntityKey { get; set; } = string.Empty;
+
+    private List<string> _roles = [];
+    private List<RowFilter> _filters = [];
+    private bool _dialogVisible;
+    private readonly DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Small, FullWidth = true };
+    private RowFilter? _editingFilter;
+    private FilterFormModel _form = new();
+
+    private const string _filterHelperText = "e.g. OwnerId == @CurrentUserId  or  Status == 'Active'";
+
+    private static readonly (string Label, string Expression)[] _commonPatterns =
+    [
+        ("Own Records", "OwnerId == @CurrentUserId"),
+        ("Active Only", "Status == 'Active'"),
+        ("Not Deleted", "DeletedAt == null"),
+        ("Current Tenant", "TenantId == @CurrentTenantId")
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        LoadFromConfig();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        LoadFromConfig();
+    }
+
+    private void LoadFromConfig()
+    {
+        var config = ConfigManager.Current;
+        _roles = config.Roles.Select(r => r.RoleName).ToList();
+        _filters = config.RowFilters
+            .Where(f => string.Equals(f.EntityKey, EntityKey, StringComparison.OrdinalIgnoreCase))
+            .Select(f => new RowFilter
+            {
+                EntityKey = f.EntityKey,
+                RoleName = f.RoleName,
+                FilterExpression = f.FilterExpression,
+                Description = f.Description
+            })
+            .ToList();
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        LoadFromConfig();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OpenAddDialog()
+    {
+        _editingFilter = null;
+        _form = new FilterFormModel { RoleName = _roles.FirstOrDefault() ?? string.Empty };
+        _dialogVisible = true;
+    }
+
+    private void OpenEditDialog(RowFilter filter)
+    {
+        _editingFilter = filter;
+        _form = new FilterFormModel
+        {
+            RoleName = filter.RoleName,
+            FilterExpression = filter.FilterExpression,
+            Description = filter.Description
+        };
+        _dialogVisible = true;
+    }
+
+    private void CloseDialog() => _dialogVisible = false;
+
+    private void ApplyPattern(string expression) => _form.FilterExpression = expression;
+
+    private async Task SaveFilter()
+    {
+        if (string.IsNullOrWhiteSpace(_form.RoleName) ||
+            string.IsNullOrWhiteSpace(_form.FilterExpression)) return;
+
+        if (_editingFilter is null)
+        {
+            _filters.Add(new RowFilter
+            {
+                EntityKey = EntityKey,
+                RoleName = _form.RoleName,
+                FilterExpression = _form.FilterExpression,
+                Description = _form.Description ?? string.Empty
+            });
+        }
+        else
+        {
+            _editingFilter.RoleName = _form.RoleName;
+            _editingFilter.FilterExpression = _form.FilterExpression;
+            _editingFilter.Description = _form.Description ?? string.Empty;
+        }
+
+        await PersistAsync();
+        CloseDialog();
+    }
+
+    private async Task DeleteFilter(RowFilter filter)
+    {
+        _filters.Remove(filter);
+        await PersistAsync(successMessage: "Row filter deleted.");
+    }
+
+    private async Task PersistAsync(string successMessage = "Row filters saved.")
+    {
+        var config = ConfigManager.Current;
+
+        // Keep filters for other entities; replace this entity's filters
+        var otherEntityFilters = config.RowFilters
+            .Where(f => !string.Equals(f.EntityKey, EntityKey, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var updated = new SecurityConfiguration
+        {
+            Roles = config.Roles,
+            PagePermissions = config.PagePermissions,
+            EntityPermissions = config.EntityPermissions,
+            FieldPermissions = config.FieldPermissions,
+            EndpointPermissions = config.EndpointPermissions,
+            ControlPermissions = config.ControlPermissions,
+            RowFilters = [.. otherEntityFilters, .. _filters],
+            RoleSwitching = config.RoleSwitching
+        };
+
+        await ConfigManager.SaveAsync(updated);
+        Snackbar.Add(successMessage, Severity.Success);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+
+    private sealed class FilterFormModel
+    {
+        public string RoleName { get; set; } = string.Empty;
+        public string FilterExpression { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+}

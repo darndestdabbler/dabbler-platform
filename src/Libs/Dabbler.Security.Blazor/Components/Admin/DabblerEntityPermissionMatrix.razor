@@ -1,0 +1,236 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using Dabbler.Security.Services
+@using MudBlazor
+@inject SecurityConfigurationManager ConfigManager
+@inject ResourceRegistry Registry
+@inject AuthorizationStateNotifier Notifier
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+<MudPaper Elevation="3" Class="pa-4">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h6">Entity Permissions</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="SaveAsync">Save All</MudButton>
+    </div>
+
+    @if (_roles.Count == 0)
+    {
+        <MudText Class="pa-4">No roles defined. Add roles in Role Management first.</MudText>
+    }
+    else if (Registry.Entities.Count == 0)
+    {
+        <MudText Class="pa-4">No entities registered. Register entities via options.RegisterEntities() at startup.</MudText>
+    }
+    else
+    {
+        <MudTextField @bind-Value="_filter"
+                      Placeholder="Filter entities…"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Clearable="true"
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Class="mb-4" />
+
+        <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+        @foreach (var entity in Registry.Entities.Where(e => MatchesFilter(e.Key, e.DisplayName)))
+        {
+            <MudCard Elevation="1" Style="min-width:260px; flex:1 1 260px; max-width:480px;">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <div class="d-flex align-center gap-2">
+                            <MudText Typo="Typo.subtitle1"><b>@entity.DisplayName</b></MudText>
+                            @if (entity.Fields.Count > 0)
+                            {
+                                <MudTooltip Text="@($"Field permissions for {entity.DisplayName}")">
+                                    <MudIconButton Icon="@Icons.Material.Filled.TableChart"
+                                                   Size="Size.Small"
+                                                   Color="@(_drillDownEntity == entity.Key ? Color.Primary : Color.Default)"
+                                                   OnClick="@(() => ShowFieldEditor(entity.Key))"
+                                                   title="@($"Edit field permissions for {entity.DisplayName}")"
+                                                   aria-label="@($"Edit field permissions for {entity.DisplayName}")" />
+                                </MudTooltip>
+                            }
+                        </div>
+                        <div style="font-size:0.75rem; color:#495057;">@entity.Key</div>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent Class="pt-0">
+                    <table style="width:100%;border-collapse:collapse;"
+                           aria-label="@($"Entity permissions for {entity.DisplayName}")">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="padding:4px 8px;text-align:left;min-width:160px;">Role</th>
+                                @foreach (var op in _crudOps)
+                                {
+                                    <th scope="col" style="padding:4px 8px;text-align:center;min-width:70px;">
+                                        <span style="@($"font-size:0.75rem; color:{OpTextColor(op)};")">@op</span>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in _roles)
+                            {
+                                <tr style="border-top:1px solid #e0e0e0;">
+                                    <th scope="row" style="padding:4px 8px;text-align:left;">
+                                        <MudText Typo="Typo.body2">@role</MudText>
+                                    </th>
+                                    @foreach (var op in _crudOps)
+                                    {
+                                        <td style="padding:2px 8px;text-align:center;">
+                                            <MudCheckBox T="bool"
+                                                         Value="@HasOp(role, entity.Key, op)"
+                                                         ValueChanged="@(v => SetOp(role, entity.Key, op, v))"
+                                                         title="@($"{op} permission for {role} on {entity.DisplayName}")"
+                                                         aria-label="@($"{op} permission for {role} on {entity.DisplayName}")"
+                                                         Color="@OpColor(op)"
+                                                         Size="Size.Small" />
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    @if (_drillDownEntity == entity.Key)
+                    {
+                        <MudDivider Class="mt-3 mb-3" />
+                        <DabblerFieldPermissionEditor EntityKey="@entity.Key" />
+                    }
+                </MudCardContent>
+            </MudCard>
+        }
+        </div>
+
+        <MudText Typo="Typo.caption" Class="mt-2">
+            C = Create &nbsp;|&nbsp; R = Read &nbsp;|&nbsp; U = Update &nbsp;|&nbsp; D = Delete
+        </MudText>
+    }
+</MudPaper>
+
+@code {
+    /// <summary>
+    /// A user interface for managing entity-level CRUD (Create, Read, Update, Delete) permissions
+    /// for all registered entities across all defined roles.
+    /// It displays a filterable list of cards, each representing an entity with a permission matrix.
+    /// It also provides a drill-down to edit field-level permissions using the <see cref="DabblerFieldPermissionEditor"/> component.
+    /// </summary>
+
+    private static readonly string[] _crudOps = ["Create", "Read", "Update", "Delete"];
+
+    private List<string> _roles = [];
+    private string _filter = string.Empty;
+
+    // (roleName, entityKey) → set of allowed operations
+    private readonly Dictionary<(string role, string entity), HashSet<string>> _ops = new();
+
+    private string? _drillDownEntity;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        LoadFromConfig();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private void LoadFromConfig()
+    {
+        var config = ConfigManager.Current;
+        _roles = config.Roles.Select(r => r.RoleName).ToList();
+
+        _ops.Clear();
+        foreach (var ep in config.EntityPermissions)
+        {
+            foreach (var rp in ep.RolePermissions)
+            {
+                var key = (rp.RoleName, ep.EntityKey);
+                _ops[key] = new HashSet<string>(rp.AllowedOperations, StringComparer.OrdinalIgnoreCase);
+            }
+        }
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        LoadFromConfig();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool MatchesFilter(string key, string displayName) =>
+        string.IsNullOrEmpty(_filter) ||
+        key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
+        displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
+
+    private bool HasOp(string role, string entity, string op)
+    {
+        var key = (role, entity);
+        return _ops.TryGetValue(key, out var ops) && ops.Contains(op);
+    }
+
+    private void SetOp(string role, string entity, string op, bool value)
+    {
+        var key = (role, entity);
+        if (!_ops.ContainsKey(key)) _ops[key] = [];
+        if (value) _ops[key].Add(op);
+        else _ops[key].Remove(op);
+    }
+
+    private void ShowFieldEditor(string entityKey) =>
+        _drillDownEntity = _drillDownEntity == entityKey ? null : entityKey;
+
+    private async Task SaveAsync()
+    {
+        var config = ConfigManager.Current;
+        var entityKeys = Registry.Entities.Select(e => e.Key).ToList();
+
+        var entityPerms = entityKeys.Select(entityKey => new EntityPermission
+        {
+            EntityKey = entityKey,
+            RolePermissions = _roles
+                .Where(role => _ops.TryGetValue((role, entityKey), out var ops) && ops.Count > 0)
+                .Select(role => new EntityRolePermission
+                {
+                    RoleName = role,
+                    AllowedOperations = _ops[(role, entityKey)].ToList()
+                })
+                .ToList()
+        }).ToList();
+
+        var updated = new SecurityConfiguration
+        {
+            Roles = config.Roles,
+            PagePermissions = config.PagePermissions,
+            EntityPermissions = entityPerms,
+            FieldPermissions = config.FieldPermissions,
+            EndpointPermissions = config.EndpointPermissions,
+            ControlPermissions = config.ControlPermissions,
+            RowFilters = config.RowFilters,
+            RoleSwitching = config.RoleSwitching
+        };
+
+        await ConfigManager.SaveAsync(updated);
+        Snackbar.Add("Entity permissions saved.", Severity.Success);
+    }
+
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+
+    private static Color OpColor(string op) => op switch
+    {
+        "Create" => Color.Success,
+        "Read" => Color.Info,
+        "Update" => Color.Warning,
+        "Delete" => Color.Error,
+        _ => Color.Default
+    };
+
+    private static string OpTextColor(string op) => op switch
+    {
+        "Create" => "#0f5132",
+        "Read" => "#055160",
+        "Update" => "#664d03",
+        "Delete" => "#842029",
+        _ => "#212529"
+    };
+}

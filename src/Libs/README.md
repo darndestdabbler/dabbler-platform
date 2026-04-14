@@ -1,6 +1,12 @@
-# Future library home
+# Integrated library home
 
-Session 2 creates the integrated repo foundation only.
+Session 3 imports the Dabbler security libraries into this repo so app and
+library work can build from one solution without sibling-repo coordination.
 
-The Dabbler library projects move here in Session 3 so the consolidation can
-happen against real project files instead of temporary placeholders.
+Current consolidated paths:
+
+- `src/Libs/Dabbler.Security`
+- `src/Libs/Dabbler.Security.Blazor`
+
+Supporting library sample/test projects now live alongside the app solution so
+the integrated repo can validate the security libraries in one pass.

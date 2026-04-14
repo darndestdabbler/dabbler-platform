@@ -1,0 +1,13 @@
+@SampleApp.Api_HostAddress = http://localhost:5171
+
+#if (EnableOpenAPI)
+GET {{SampleApp.Api_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+#endif
+
+GET {{SampleApp.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

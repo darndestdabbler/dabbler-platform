@@ -1,0 +1,31 @@
+namespace Dabbler.Security.Configuration;
+
+/// <summary>
+/// Defines CRUD (Create, Read, Update, Delete) permissions for a specific entity.
+/// </summary>
+public sealed class EntityPermission
+{
+    /// <summary>The entity key as registered via options.RegisterEntities().</summary>
+    public string EntityKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// A collection of role-specific permissions detailing the allowed CRUD operations on this entity.
+    /// </summary>
+    public List<EntityRolePermission> RolePermissions { get; set; } = [];
+}
+
+/// <summary>
+/// Specifies the CRUD operations a particular role is permitted to perform on an entity.
+/// </summary>
+public sealed class EntityRolePermission
+{
+    /// <summary>
+    /// The name of the role to which these permissions apply.
+    /// </summary>
+    public string RoleName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The CRUD operations this role may perform. Valid values include: "Create", "Read", "Update", "Delete".
+    /// </summary>
+    public List<string> AllowedOperations { get; set; } = [];
+}

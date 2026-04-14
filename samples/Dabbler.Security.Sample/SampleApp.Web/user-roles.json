@@ -1,0 +1,5 @@
+{
+  "1": [ "SystemAdministrator" ],
+  "2": [ "UserAdministrator", "Manager" ],
+  "3": [ "Viewer" ]
+}

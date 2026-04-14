@@ -1,0 +1,249 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using Dabbler.Security.Services
+@using MudBlazor
+@inject SecurityConfigurationManager ConfigManager
+@inject ResourceRegistry Registry
+@inject AuthorizationStateNotifier Notifier
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+@{
+    var pageOptions = BuildPageOptions();
+    var visibleControls = Registry.Controls
+        .Where(c => string.Equals(c.PageKey, _selectedPage, StringComparison.OrdinalIgnoreCase)
+                 && MatchesFilter(c.Key, c.DisplayName))
+        .ToList();
+}
+
+@if (pageOptions.Count == 0)
+{
+    <MudText Class="pa-4">No controls registered. Call <code>options.RegisterControls()</code> at startup to use this feature.</MudText>
+}
+else
+{
+    <div class="d-flex align-center justify-space-between mb-4">
+        <div class="d-flex align-center gap-3">
+            <MudText Typo="Typo.subtitle1" Style="white-space:nowrap;">Page:</MudText>
+            <MudSelect T="string"
+                       Value="@_selectedPage"
+                       ValueChanged="OnPageSelected"
+                       aria-label="Select page for control permissions"
+                       Variant="Variant.Outlined"
+                       Style="min-width:240px;">
+                @foreach (var (key, label) in pageOptions)
+                {
+                    <MudSelectItem Value="@key">@label</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   Disabled="@(_roles.Count == 0)"
+                   OnClick="SaveAsync">Save</MudButton>
+    </div>
+
+    @if (_roles.Count == 0)
+    {
+        <MudText Class="pa-4">No roles defined. Add roles in Role Management first.</MudText>
+    }
+    else if (visibleControls.Count == 0 && !string.IsNullOrEmpty(_filter))
+    {
+        <MudTextField @bind-Value="_filter"
+                      Placeholder="Filter controls…"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      aria-label="Filter controls"
+                      Clearable="true"
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Class="mb-4" />
+        <MudText Class="pa-4">No controls match "@_filter".</MudText>
+    }
+    else
+    {
+        <MudTextField @bind-Value="_filter"
+                      Placeholder="Filter controls…"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      aria-label="Filter controls"
+                      Clearable="true"
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Class="mb-4" />
+
+        <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+            @foreach (var control in visibleControls)
+            {
+                    <MudCard Elevation="1" Style="min-width:260px; flex:1 1 260px; max-width:400px;">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.subtitle2"><b>@control.DisplayName</b></MudText>
+                                <div style="font-size:0.75rem; color:#495057;">@control.Key</div>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent Class="pt-0">
+                        <table style="width:100%;border-collapse:collapse;"
+                               aria-label="@($"Control permissions for {control.DisplayName}")">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="padding:4px 8px;text-align:left;min-width:130px;">Role</th>
+                                    <th scope="col" style="padding:4px 8px;text-align:left;">Permission</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in _roles)
+                                {
+                                    <tr style="border-top:1px solid #e0e0e0;">
+                                        <th scope="row" style="padding:4px 8px;text-align:left;">
+                                            <MudText Typo="Typo.body2">@role</MudText>
+                                        </th>
+                                        <td style="padding:4px 8px;">
+                                            <MudSelect T="ControlState"
+                                                       Value="@GetState(role, control.Key)"
+                                                       ValueChanged="@(v => SetState(role, control.Key, v))"
+                                                       aria-label="@($"{control.DisplayName} permission for {role}")"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="Margin.Dense"
+                                                       Style="min-width:130px;">
+                                                <MudSelectItem Value="ControlState.Enabled">Enabled</MudSelectItem>
+                                                <MudSelectItem Value="ControlState.Disabled">Disabled</MudSelectItem>
+                                                <MudSelectItem Value="ControlState.Hidden">Hidden</MudSelectItem>
+                                            </MudSelect>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </MudCardContent>
+                </MudCard>
+            }
+        </div>
+    }
+}
+
+@code {
+    /// <summary>
+    /// A user interface for managing UI control permissions, organized by page.
+    /// It provides a dropdown to select a page, and then displays a filterable list of cards
+    /// for each control registered on that page. Administrators can set the state of each control
+    /// (<see cref="ControlState.Enabled"/>, <see cref="ControlState.Disabled"/>, or <see cref="ControlState.Hidden"/>)
+    /// for each role.
+    /// </summary>
+
+    private string _selectedPage = string.Empty;
+    private string _filter = string.Empty;
+    private List<string> _roles = [];
+
+    // (roleName, controlKey) → ControlState
+    private readonly Dictionary<(string role, string control), ControlState> _states = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        _selectedPage = BuildPageOptions().FirstOrDefault().key ?? string.Empty;
+        LoadFromConfig();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private void OnPageSelected(string page)
+    {
+        _selectedPage = page;
+        _filter = string.Empty;
+        LoadFromConfig();
+    }
+
+    private void LoadFromConfig()
+    {
+        var config = ConfigManager.Current;
+        _roles = config.Roles.Select(r => r.RoleName).ToList();
+        _states.Clear();
+
+        foreach (var cp in config.ControlPermissions.Where(c =>
+            string.Equals(c.PageKey, _selectedPage, StringComparison.OrdinalIgnoreCase)))
+        {
+            foreach (var rp in cp.RolePermissions)
+                _states[(rp.RoleName, cp.ControlKey)] = rp.State;
+        }
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        LoadFromConfig();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // Returns (key, displayLabel) pairs for the page dropdown.
+    // Looks up display name from Registry.Pages; falls back to the raw PageKey.
+    private List<(string key, string label)> BuildPageOptions()
+    {
+        var distinctPageKeys = Registry.Controls
+            .Select(c => c.PageKey)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(k => k)
+            .ToList();
+
+        return distinctPageKeys.Select(key =>
+        {
+            var page = Registry.Pages.FirstOrDefault(p =>
+                string.Equals(p.Key, key, StringComparison.OrdinalIgnoreCase));
+            var label = page is not null ? $"{page.DisplayName}  ({key})" : key;
+            return (key, label);
+        }).ToList();
+    }
+
+    private bool MatchesFilter(string key, string displayName) =>
+        string.IsNullOrEmpty(_filter) ||
+        key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
+        displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
+
+    private ControlState GetState(string role, string controlKey)
+    {
+        var key = (role, controlKey);
+        return _states.TryGetValue(key, out var state) ? state : ControlState.Enabled;
+    }
+
+    private void SetState(string role, string controlKey, ControlState state)
+        => _states[(role, controlKey)] = state;
+
+    private async Task SaveAsync()
+    {
+        var config = ConfigManager.Current;
+        var controls = Registry.Controls
+            .Where(c => string.Equals(c.PageKey, _selectedPage, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var otherPages = config.ControlPermissions
+            .Where(c => !string.Equals(c.PageKey, _selectedPage, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var thisPagePerms = controls.Select(control => new ControlPermission
+        {
+            PageKey = _selectedPage,
+            ControlKey = control.Key,
+            RolePermissions = _roles.Select(role => new ControlRolePermission
+            {
+                RoleName = role,
+                State = GetState(role, control.Key)
+            }).ToList()
+        }).ToList();
+
+        var updated = new SecurityConfiguration
+        {
+            Roles = config.Roles,
+            PagePermissions = config.PagePermissions,
+            EntityPermissions = config.EntityPermissions,
+            FieldPermissions = config.FieldPermissions,
+            EndpointPermissions = config.EndpointPermissions,
+            ControlPermissions = [.. otherPages, .. thisPagePerms],
+            RowFilters = config.RowFilters,
+            RoleSwitching = config.RoleSwitching
+        };
+
+        await ConfigManager.SaveAsync(updated);
+
+        var pageLabel = BuildPageOptions().FirstOrDefault(o => o.key == _selectedPage).label ?? _selectedPage;
+        Snackbar.Add($"Control permissions for '{pageLabel}' saved.", Severity.Success);
+    }
+
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+}

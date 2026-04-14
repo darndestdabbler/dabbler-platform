@@ -1,0 +1,103 @@
+@using System.Security.Claims
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject SecurityConfigurationManager SecurityConfigManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IRoleSwitcher RoleSwitcher
+@inject AuthorizationStateNotifier Notifier
+@implements IDisposable
+
+@if (_state == ControlState.Hidden)
+{
+    @* content hidden — render nothing *@
+}
+else if (_state == ControlState.Disabled)
+{
+    <div aria-disabled="true" role="group" aria-label="Unavailable content" style="pointer-events:none;opacity:0.5;">
+        @ChildContent
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    /// <summary>
+    /// A declarative security component that wraps content and controls its visibility and interactivity
+    /// based on the current user's permissions. It can hide, disable, or enable its child content.
+    /// </summary>
+    
+    /// <summary>
+    /// Gets or sets the unique key for the page or view containing the control. This is required.
+    /// </summary>
+    [Parameter, EditorRequired] public string PageKey { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the unique key for the control being secured within the page. This is required.
+    /// </summary>
+    [Parameter, EditorRequired] public string ControlKey { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the content to be secured.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private ControlState _state = ControlState.Enabled;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        Notifier.Subscribe(OnConfigChangedAsync);
+        await EvaluatePermissionsAsync();
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        await EvaluatePermissionsAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task EvaluatePermissionsAsync()
+    {
+        await SecurityConfigManager.EnsureLoadedAsync();
+        var config = SecurityConfigManager.Current;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            _state = ControlState.Hidden;
+            return;
+        }
+
+        var permission = config.ControlPermissions.FirstOrDefault(c =>
+            string.Equals(c.PageKey, PageKey, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(c.ControlKey, ControlKey, StringComparison.OrdinalIgnoreCase));
+
+        if (permission == null)
+        {
+            // No config registered — leave Enabled (FailOpen default)
+            _state = ControlState.Enabled;
+            return;
+        }
+
+        var userRoles = new HashSet<string>(
+            RoleSwitcher.EffectiveRoles(user),
+            StringComparer.OrdinalIgnoreCase);
+
+        var matchingStates = permission.RolePermissions
+            .Where(rp => userRoles.Contains(rp.RoleName))
+            .Select(rp => rp.State)
+            .ToList();
+
+        _state = matchingStates.Count == 0
+            ? ControlState.Hidden
+            : (ControlState)matchingStates.Min(s => (int)s);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+}
