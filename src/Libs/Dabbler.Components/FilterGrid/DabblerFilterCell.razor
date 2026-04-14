@@ -1,0 +1,126 @@
+@namespace Dabbler.Components
+
+<div class="dabbler-filter-cell @(Column.CanFilter ? "" : "dabbler-filter-cell-disabled") @(ValidationError is not null ? "dabbler-filter-cell-error" : "")"
+     style="@CellStyle"
+     role="group"
+     aria-label="@(Column.Header ?? Column.PropertyName) filter">
+
+    @if (Column.ShowOperator && Column.CanFilter)
+    {
+        <FilterOperatorPopup AvailableOperators="@Column.EffectiveOperators"
+                             CurrentOperator="@_currentOperator"
+                             OperatorChanged="@OnOperatorChanged"
+                             Disabled="@(!Column.CanFilter)"
+                             ShowDatePresets="@(Column.EditorType == FilterEditorType.Date)"
+                             ActiveDatePreset="@_activeDatePreset"
+                             DatePresetSelected="@OnDatePresetSelected" />
+    }
+
+    <div class="dabbler-filter-cell-editor">
+        @if (Column.EditorTemplate is not null)
+        {
+            @Column.EditorTemplate(BuildCellContext())
+        }
+        else if (_activeDatePreset is not null)
+        {
+            @* Show the preset label as a read-only chip that can be cleared *@
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Variant="Variant.Filled"
+                     Color="Color.Primary"
+                     OnClose="@OnDatePresetCleared">
+                @DatePresetHelper.GetLabel(_activeDatePreset.Value)
+            </MudChip>
+        }
+        else
+        {
+            @switch (Column.EditorType)
+            {
+                case FilterEditorType.Text:
+                    <MudTextField T="string"
+                                  Value="@(_value as string)"
+                                  ValueChanged="@OnTextChanged"
+                                  Placeholder="@Column.Placeholder"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  DebounceInterval="300"
+                                  Disabled="@(!Column.CanFilter)"
+                                  Error="@(ValidationError is not null)"
+                                  ErrorText="@ValidationError"
+                                  Immediate="true"
+                                  UserAttributes="@FilterInputAttributes" />
+                    break;
+
+                case FilterEditorType.NumericText:
+                    <MudNumericField T="decimal?"
+                                     Value="@GetDecimalValue()"
+                                     ValueChanged="@OnNumericChanged"
+                                     Placeholder="@Column.Placeholder"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     DebounceInterval="300"
+                                     Disabled="@(!Column.CanFilter)"
+                                     Error="@(ValidationError is not null)"
+                                     ErrorText="@ValidationError"
+                                     UserAttributes="@FilterInputAttributes" />
+                    break;
+
+                case FilterEditorType.CheckBox:
+                    <div class="dabbler-filter-cell-checkbox-wrapper">
+                        <MudCheckBox T="bool?"
+                                     Value="@GetBoolValue()"
+                                     ValueChanged="@OnCheckBoxChanged"
+                                     TriState="true"
+                                     Disabled="@(!Column.CanFilter)"
+                                     aria-label="@FilterLabel" />
+                        @if (ValidationError is not null)
+                        {
+                            <span class="dabbler-filter-cell-error" role="alert">@ValidationError</span>
+                        }
+                    </div>
+                    break;
+
+                case FilterEditorType.Date:
+                    <MudDatePicker Date="@GetDateValue()"
+                                   DateChanged="@OnDateChanged"
+                                   Placeholder="@(Column.Placeholder ?? "Select date")"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   Editable="true"
+                                   Clearable="true"
+                                   Disabled="@(!Column.CanFilter)"
+                                   Error="@(ValidationError is not null)"
+                                   ErrorText="@ValidationError"
+                                   UserAttributes="@FilterInputAttributes" />
+                    break;
+
+                case FilterEditorType.ComboBox:
+                    <MudSelect T="object"
+                               Value="@_value"
+                               ValueChanged="@OnSelectChanged"
+                               Placeholder="@(Column.Placeholder ?? "Select...")"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Clearable="true"
+                               Disabled="@(!Column.CanFilter)"
+                               Error="@(ValidationError is not null)"
+                               ErrorText="@ValidationError"
+                               UserAttributes="@FilterInputAttributes">
+                        @if (Column.ItemsSource is not null)
+                        {
+                            @foreach (var item in Column.ItemsSource)
+                            {
+                                <MudSelectItem T="object" Value="@item">@item</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                    break;
+            }
+        }
+    </div>
+
+    @if (ValidationError is not null)
+    {
+        <span id="@FilterErrorId" class="dabbler-sr-only" role="alert">@ValidationError</span>
+    }
+</div>

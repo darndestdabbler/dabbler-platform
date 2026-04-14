@@ -1,0 +1,162 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+@using Dabbler.Reports.Core.Rdf
+@using Dabbler.Reports.Blazor
+@using MudBlazor
+
+<div class="dabbler-report-page @Class" style="@Style" @attributes="UserAttributes"
+     role="region" aria-label="@(Title ?? _reportDefinition?.Metadata?.Name ?? "Report")">
+    @if (HeaderTemplate is not null)
+    {
+        <div class="dabbler-page-header">
+            @HeaderTemplate
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(Title ?? _reportDefinition?.Metadata?.Name))
+    {
+        <div class="dabbler-page-header">
+            <MudText Typo="Typo.h6">@(Title ?? _reportDefinition?.Metadata?.Name)</MudText>
+        </div>
+    }
+
+    @* RDF parse errors *@
+    @if (_rdfErrors is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="dabbler-page-error">
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Report definition errors:</MudText>
+            @foreach (var err in _rdfErrors)
+            {
+                <div>@err</div>
+            }
+        </MudAlert>
+    }
+    else if (_reportDefinition is not null)
+    {
+        @* Parameter form section *@
+        @if (_reportDefinition.Parameters.Count > 0)
+        {
+            @if (_parametersCollapsed)
+            {
+                <MudPaper Class="pa-3" Elevation="1">
+                    <div class="dabbler-report-params-collapsed">
+                        <MudText Typo="Typo.body2" Class="dabbler-report-params-summary">
+                            @_parameterSummary
+                        </MudText>
+                        <MudLink OnClick="@ExpandParametersAsync" Typo="Typo.body2">
+                            Change Parameters
+                        </MudLink>
+                    </div>
+                </MudPaper>
+            }
+            else
+            {
+                <ParameterPromptForm @ref="_parameterForm"
+                                     Parameters="@_reportDefinition.Parameters"
+                                     DataProvider="@DataProvider"
+                                     InitialValues="@InitialParameterValues"
+                                     IsLoading="@_isLoading"
+                                     OnRunReport="@OnRunReportAsync" />
+            }
+        }
+        else if (!_hasRun && !AutoRunOnLoad)
+        {
+            @* No parameters — show a Run button directly *@
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@_isLoading"
+                       OnClick="@RunReportAsync">
+                @if (_isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Run Report
+            </MudButton>
+        }
+
+        <DabblerPageErrorBanner Error="@_error" OnDismiss="@DismissErrorAsync" />
+
+        <DabblerPageToolbar StatusText="@_statusText" IsLoading="@_isLoading">
+            <ChildContent>
+                @if (ToolbarTemplate is not null)
+                {
+                    @ToolbarTemplate
+                }
+            </ChildContent>
+            <ActionButtons>
+                @if (ShowZoom)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.ZoomOut"
+                                   Size="Size.Small"
+                                   OnClick="@ZoomOutAsync"
+                                   Disabled="@(_scale <= 0.25)"
+                                   aria-label="Zoom out" />
+                    <MudText Typo="Typo.body2" Class="mx-1"
+                             style="min-width:40px;text-align:center;user-select:none;"
+                             aria-live="polite"
+                             aria-label="@($"Zoom level: {ZoomPercentText}")">
+                        @ZoomPercentText
+                    </MudText>
+                    <MudIconButton Icon="@Icons.Material.Filled.ZoomIn"
+                                   Size="Size.Small"
+                                   OnClick="@ZoomInAsync"
+                                   Disabled="@(_scale >= 3.0)"
+                                   aria-label="Zoom in" />
+                }
+                @if (ShowPdfExport)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.PictureAsPdf"
+                                   Size="Size.Small"
+                                   OnClick="@ExportToPdfAsync"
+                                   Disabled="@(!_hasRun || _isLoading)"
+                                   aria-label="Export to PDF" />
+                }
+                @if (ShowPrint)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Print"
+                                   Size="Size.Small"
+                                   OnClick="@PrintAsync"
+                                   Disabled="@(!_hasRun || _isLoading)"
+                                   aria-label="Print" />
+                }
+            </ActionButtons>
+        </DabblerPageToolbar>
+
+        <div class="dabbler-page-content" aria-live="polite" aria-busy="@_isLoading">
+            @if (_isLoading && !_hasRun)
+            {
+                <div class="dabbler-page-loading">
+                    <MudProgressCircular Indeterminate="true" />
+                </div>
+            }
+            else if (!_hasRun)
+            {
+                @if (EmptyStateTemplate is not null)
+                {
+                    @EmptyStateTemplate
+                }
+                else
+                {
+                    <div class="dabbler-page-empty-state">
+                        <MudText Typo="Typo.body1">
+                            Set parameters and click "Run Report" to generate the report.
+                        </MudText>
+                    </div>
+                }
+            }
+            else if (_pages is not null)
+            {
+                <ReportViewer @ref="_viewer"
+                              Pages="@_pages"
+                              Report="@_reportDefinition"
+                              Scale="@_scale" />
+            }
+        </div>
+    }
+
+    @if (FooterTemplate is not null)
+    {
+        <div class="dabbler-page-footer">
+            @FooterTemplate
+        </div>
+    }
+</div>

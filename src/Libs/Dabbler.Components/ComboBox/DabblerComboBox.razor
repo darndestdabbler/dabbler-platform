@@ -1,0 +1,84 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+@typeparam T
+
+<div @ref="_wrapperRef">
+<MudAutocomplete T="T" @ref="_autocomplete"
+                 Value="@Value" ValueChanged="@HandleValueChangedAsync"
+                 SearchFunc="@SearchWithGroupingAsync"
+                 ToStringFunc="@ToStringFunc"
+                 CoerceText="false"
+                 Immediate="true"
+                 OnBlur="@HandleBlurAsync"
+                 Label="@Label"
+                 Placeholder="@Placeholder"
+                 Variant="@Variant"
+                 MaxItems="@MaxItems"
+                 DebounceInterval="@DebounceInterval"
+                 Clearable="@Clearable"
+                 Dense="@Dense"
+                 Class="@Class"
+                 Style="@Style"
+                 Disabled="@Disabled"
+                 ReadOnly="@ReadOnly"
+                 Required="@Required"
+                 RequiredError="@RequiredError"
+                 ResetValueOnEmptyText="@ResetValueOnEmptyText"
+                 OnClearButtonClick="@OnClearButtonClick"
+                 PopoverClass="dabbler-combobox-popover"
+                 ItemTemplate="@BuildItemTemplate()"
+                 UserAttributes="@_comboBoxAttributes">
+    <BeforeItemsTemplate>
+        @if (HasColumnHeaders && Columns is not null)
+        {
+            <div role="row" style="display: flex; gap: 8px; padding: 6px 16px; font-weight: 600; font-size: 0.75rem;
+                        text-transform: uppercase; letter-spacing: 0.05em; color: rgba(0,0,0,0.54);
+                        border-bottom: 1px solid rgba(0,0,0,0.12); background: var(--mud-palette-background-grey, rgba(0,0,0,0.04));
+                        position: sticky; top: 0; z-index: 1;">
+                @foreach (var col in Columns)
+                {
+                    var width = col.Width ?? $"{100.0 / Columns.Count:0.##}%";
+                    <div role="columnheader" style="flex: 0 0 @width; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        @col.Header
+                    </div>
+                }
+            </div>
+        }
+    </BeforeItemsTemplate>
+    <NoItemsTemplate>
+        @if (AllowAddNew && !string.IsNullOrEmpty(_searchHelper.CurrentSearchText))
+        {
+            <button type="button"
+                    style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; cursor: pointer; user-select: none; background: none; border: none; width: 100%; text-align: left;"
+                    @onclick="HandleAddNewClickAsync"
+                    @onclick:stopPropagation="true">
+                <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Size="Size.Small" Color="Color.Primary" />
+                <MudText Typo="Typo.body2" Color="Color.Primary">@GetAddNewPromptText()</MudText>
+            </button>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" Class="pa-4 mud-text-secondary">No items found</MudText>
+        }
+    </NoItemsTemplate>
+    <AfterItemsTemplate>
+        @if (AllowAddNew && !string.IsNullOrEmpty(_searchHelper.CurrentSearchText))
+        {
+            <button type="button"
+                    style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; cursor: pointer; border-top: 1px solid rgba(0,0,0,0.12); user-select: none; background: none; border: none; border-top: 1px solid rgba(0,0,0,0.12); width: 100%; text-align: left;"
+                    @onclick="HandleAddNewClickAsync"
+                    @onclick:stopPropagation="true">
+                <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Size="Size.Small" Color="Color.Primary" />
+                <MudText Typo="Typo.body2" Color="Color.Primary">@GetAddNewPromptText()</MudText>
+            </button>
+        }
+    </AfterItemsTemplate>
+</MudAutocomplete>
+
+@if (_showAddNewDialog && _addNewContext is not null && AddNewTemplate is not null)
+{
+    <div style="margin-top: 4px; border: 1px solid var(--mud-palette-lines-default); border-radius: 4px; padding: 16px; background: var(--mud-palette-surface); box-shadow: var(--mud-elevation-2);">
+        @AddNewTemplate(_addNewContext)
+    </div>
+}
+</div>

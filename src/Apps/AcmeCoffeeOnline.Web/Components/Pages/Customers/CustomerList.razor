@@ -1,0 +1,127 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Components.Data.Metadata
+@using MudBlazor
+
+<DabblerQueryPage T="CustomerDto"
+                  FilterColumns="_filterColumns"
+                  DataProvider="DataProvider"
+                  Title="@Title"
+                  PageSize="25"
+                  Dense="true"
+                  ShowFilterStatusBar="true"
+                  ShowRecordCount="true"
+                  ShowCsvExport="true"
+                  CsvFileName="customers.csv"
+                  AutoLoadOnFilterChange="true"
+                  GridColumnInfo="_gridColumnInfo">
+    <GridColumns>
+        <PropertyColumn Property="e => e.FirstName" Title="First Name" />
+        <PropertyColumn Property="e => e.LastName" Title="Last Name" />
+        <PropertyColumn Property="e => e.Email" Title="Email" />
+        <PropertyColumn Property="e => e.City" Title="City" />
+        <PropertyColumn Property="e => e.State" Title="State" />
+        <TemplateColumn Title="Active" Sortable="true">
+            <CellTemplate>
+                <MudIcon Icon="@(context.Item.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                         Color="@(context.Item.IsActive ? Color.Success : Color.Error)"
+                         Size="Size.Small" />
+            </CellTemplate>
+        </TemplateColumn>
+    </GridColumns>
+</DabblerQueryPage>
+
+@code {
+    [Parameter]
+    public IGridDataProvider<CustomerDto> DataProvider { get; set; } = default!;
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public SmartFilterDefinition? PreFilter { get; set; }
+
+    private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
+    {
+        new()
+        {
+            Header = "First Name",
+            PropertyName = "FirstName",
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = "contains",
+            ShowOperator = false,
+            Placeholder = "First name...",
+            Width = "150px"
+        },
+        new()
+        {
+            Header = "Last Name",
+            PropertyName = "LastName",
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = "contains",
+            ShowOperator = false,
+            Placeholder = "Last name...",
+            Width = "150px"
+        },
+        new()
+        {
+            Header = "City",
+            PropertyName = "City",
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = "contains",
+            ShowOperator = false,
+            Placeholder = "City...",
+            Width = "150px"
+        },
+        new()
+        {
+            Header = "State",
+            PropertyName = "State",
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = "eq",
+            ShowOperator = false,
+            Placeholder = "State...",
+            Width = "100px"
+        },
+        new()
+        {
+            Header = "Active",
+            PropertyName = "IsActive",
+            EditorType = FilterEditorType.CheckBox,
+            DefaultOperator = "eq",
+            ShowOperator = false,
+            Width = "100px"
+        },
+        new()
+        {
+            Header = "Created From",
+            PropertyName = "CreatedDate",
+            EditorType = FilterEditorType.Date,
+            DefaultOperator = "gte",
+            ShowOperator = false,
+            Placeholder = "From...",
+            Width = "150px"
+        },
+        new()
+        {
+            Header = "Created To",
+            PropertyName = "CreatedDate",
+            EditorType = FilterEditorType.Date,
+            DefaultOperator = "lte",
+            ShowOperator = false,
+            Placeholder = "To...",
+            Width = "150px"
+        }
+    };
+
+    private readonly IReadOnlyList<GridColumnInfo> _gridColumnInfo = new List<GridColumnInfo>
+    {
+        new() { PropertyName = "FirstName", Header = "First Name" },
+        new() { PropertyName = "LastName", Header = "Last Name" },
+        new() { PropertyName = "Email", Header = "Email" },
+        new() { PropertyName = "City", Header = "City" },
+        new() { PropertyName = "State", Header = "State" },
+        new() { PropertyName = "IsActive", Header = "Active" }
+    };
+}

@@ -1,0 +1,18 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+
+<div class="dabbler-widget-search @Class" style="@Style" @attributes="UserAttributes">
+    @if (!string.IsNullOrWhiteSpace(EntityName))
+    {
+        <MudTextField T="string"
+                      @bind-Value="_searchText"
+                      Placeholder="@(Placeholder ?? $"Find a {EntityName}...")"
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Margin="Margin.Dense"
+                      Immediate="true"
+                      OnKeyDown="HandleKeyDownAsync"
+                      aria-label="@($"Search {EntityName}")" />
+    }
+</div>

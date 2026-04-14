@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Dabbler.Reports.Blazor</PackageId>
+    <Description>Blazor components for rendering and interacting with Dabbler Reports: ReportViewer, ParameterPromptForm, and PDF export integration.</Description>
+    <PackageTags>blazor;reports;report-viewer;parameter-form;rdf</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591 suppression removed — all public members must have XML docs -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="MudBlazor" />
+  </ItemGroup>
+
+  <!-- Development: use ProjectReference for inner-loop builds -->
+  <ItemGroup Condition="'$(PackAsDependency)' != 'true'">
+    <ProjectReference Include="..\Dabbler.Reports.Core\Dabbler.Reports.Core.csproj" />
+    <ProjectReference Include="..\Dabbler.Reports.Export\Dabbler.Reports.Export.csproj" />
+    <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
+  </ItemGroup>
+
+  <!-- NuGet pack: use PackageReference so consumers resolve via NuGet -->
+  <ItemGroup Condition="'$(PackAsDependency)' == 'true'">
+    <PackageReference Include="Dabbler.Components" Version="$(DabblerVersion)" />
+    <PackageReference Include="Dabbler.Reports.Core" Version="$(DabblerVersion)" />
+    <PackageReference Include="Dabbler.Reports.Export" Version="$(DabblerVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

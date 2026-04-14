@@ -1,0 +1,118 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Shared.Enums
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Components.Data.Metadata
+@using MudBlazor
+
+<DabblerQueryPage T="ProductDto"
+                  FilterColumns="_filterColumns"
+                  DataProvider="DataProvider"
+                  Title="@Title"
+                  PageSize="25"
+                  Dense="true"
+                  ShowFilterStatusBar="true"
+                  ShowRecordCount="true"
+                  ShowCsvExport="true"
+                  CsvFileName="products.csv"
+                  AutoLoadOnFilterChange="true"
+                  GridColumnInfo="_gridColumnInfo">
+    <GridColumns>
+        <PropertyColumn Property="e => e.Name" Title="Name" />
+        <PropertyColumn Property="e => e.RoastLevel" Title="Roast Level" />
+        <PropertyColumn Property="e => e.CaffeineContent" Title="Caffeine" />
+        <PropertyColumn Property="e => e.GrindType" Title="Grind Type" />
+        <PropertyColumn Property="e => e.UnitPrice" Title="Unit Price" Format="C2" />
+        <TemplateColumn Title="Available" Sortable="true">
+            <CellTemplate>
+                <MudIcon Icon="@(context.Item.IsAvailable ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                         Color="@(context.Item.IsAvailable ? Color.Success : Color.Error)"
+                         Size="Size.Small" />
+            </CellTemplate>
+        </TemplateColumn>
+    </GridColumns>
+</DabblerQueryPage>
+
+@code {
+    [Parameter]
+    public IGridDataProvider<ProductDto> DataProvider { get; set; } = default!;
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public SmartFilterDefinition? PreFilter { get; set; }
+
+    private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
+    {
+        new()
+        {
+            Header = "Roast Level",
+            PropertyName = "RoastLevel",
+            EditorType = FilterEditorType.ComboBox,
+            ItemsSource = Enum.GetValues<RoastLevel>().Cast<object>(),
+            DefaultOperator = "eq",
+            ShowOperator = false,
+            Width = "160px"
+        },
+        new()
+        {
+            Header = "Caffeine",
+            PropertyName = "CaffeineContent",
+            EditorType = FilterEditorType.ComboBox,
+            ItemsSource = Enum.GetValues<CaffeineContent>().Cast<object>(),
+            DefaultOperator = "eq",
+            ShowOperator = false,
+            Width = "140px"
+        },
+        new()
+        {
+            Header = "Grind Type",
+            PropertyName = "GrindType",
+            EditorType = FilterEditorType.ComboBox,
+            ItemsSource = Enum.GetValues<GrindType>().Cast<object>(),
+            DefaultOperator = "eq",
+            ShowOperator = false,
+            Width = "150px"
+        },
+        new()
+        {
+            Header = "Available",
+            PropertyName = "IsAvailable",
+            EditorType = FilterEditorType.CheckBox,
+            DefaultOperator = "eq",
+            ShowOperator = false,
+            Width = "100px"
+        },
+        new()
+        {
+            Header = "Min Price",
+            PropertyName = "UnitPrice",
+            EditorType = FilterEditorType.NumericText,
+            DefaultOperator = "gte",
+            ShowOperator = false,
+            Placeholder = "Min $",
+            Width = "120px"
+        },
+        new()
+        {
+            Header = "Max Price",
+            PropertyName = "UnitPrice",
+            EditorType = FilterEditorType.NumericText,
+            DefaultOperator = "lte",
+            ShowOperator = false,
+            Placeholder = "Max $",
+            Width = "120px"
+        }
+    };
+
+    private readonly IReadOnlyList<GridColumnInfo> _gridColumnInfo = new List<GridColumnInfo>
+    {
+        new() { PropertyName = "Name", Header = "Name" },
+        new() { PropertyName = "RoastLevel", Header = "Roast Level" },
+        new() { PropertyName = "CaffeineContent", Header = "Caffeine" },
+        new() { PropertyName = "GrindType", Header = "Grind Type" },
+        new() { PropertyName = "UnitPrice", Header = "Unit Price", Format = "C2" },
+        new() { PropertyName = "IsAvailable", Header = "Available" }
+    };
+}

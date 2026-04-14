@@ -1,0 +1,116 @@
+@namespace Dabbler.Components
+@typeparam T
+
+<div class="dabbler-preset-selector">
+    <MudGrid Spacing="2">
+        <MudItem xs="12" sm="6">
+            <MudSelect T="string"
+                       Value="@_selectedPresetName"
+                       ValueChanged="@OnPresetSelected"
+                       Label="@Label"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Dense"
+                       Clearable="true"
+                       AnchorOrigin="Origin.BottomLeft"
+                       Class="dabbler-preset-select">
+                @foreach (var preset in Presets)
+                {
+                    <MudSelectItem T="string" Value="@preset.Name">@preset.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem>
+            <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" aria-label="Preset management">
+                @if (AllowSaveAs && SelectedPreset is not null)
+                {
+                    <MudTooltip Text="Overwrite selected preset with current filters">
+                        <MudButton Color="@(_isDirty ? Color.Warning : Color.Default)"
+                                   OnClick="@SaveAsCurrentPresetAsync"
+                                   Disabled="@(!_isDirty)">
+                            Save As
+                        </MudButton>
+                    </MudTooltip>
+                }
+
+                <MudTooltip Text="Save current filters as a new preset">
+                    <MudButton Color="Color.Primary" OnClick="@OpenSaveDialog">
+                        Save As New
+                    </MudButton>
+                </MudTooltip>
+
+                @if (AllowRename && SelectedPreset is not null)
+                {
+                    <MudTooltip Text="Rename selected preset">
+                        <MudButton Color="Color.Default" OnClick="@OpenRenameDialog">
+                            Rename
+                        </MudButton>
+                    </MudTooltip>
+                }
+
+                @if (SelectedPreset is not null)
+                {
+                    <MudTooltip Text="Delete selected preset">
+                        <MudButton Color="Color.Error" OnClick="@DeleteSelectedPresetAsync">
+                            Delete
+                        </MudButton>
+                    </MudTooltip>
+                }
+            </MudButtonGroup>
+        </MudItem>
+
+        @if (_isDirty && SelectedPreset is not null)
+        {
+            <MudItem>
+                <div aria-live="polite">
+                    <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined"
+                             aria-label="Preset has unsaved changes">
+                        Unsaved changes
+                    </MudChip>
+                </div>
+            </MudItem>
+        }
+    </MudGrid>
+
+    @* Save new preset dialog *@
+    <MudDialog @bind-Visible="_showSaveDialog">
+        <TitleContent>Save Filter Preset</TitleContent>
+        <DialogContent>
+            <MudTextField @bind-Value="_newPresetName"
+                          Label="Preset name"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          AutoFocus="true"
+                          Style="min-width: 400px" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@(() => _showSaveDialog = false)">Cancel</MudButton>
+            <MudButton Color="Color.Primary"
+                       Disabled="@string.IsNullOrWhiteSpace(_newPresetName)"
+                       OnClick="@SaveNewPresetAsync">
+                Save
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+
+    @* Rename preset dialog *@
+    <MudDialog @bind-Visible="_showRenameDialog">
+        <TitleContent>Rename Preset</TitleContent>
+        <DialogContent>
+            <MudTextField @bind-Value="_renamePresetName"
+                          Label="New name"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          AutoFocus="true"
+                          Style="min-width: 400px" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@(() => _showRenameDialog = false)">Cancel</MudButton>
+            <MudButton Color="Color.Primary"
+                       Disabled="@string.IsNullOrWhiteSpace(_renamePresetName)"
+                       OnClick="@ApplyRenameAsync">
+                Rename
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>

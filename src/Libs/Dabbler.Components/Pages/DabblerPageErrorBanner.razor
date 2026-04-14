@@ -1,0 +1,15 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+
+@if (Error is not null)
+{
+    <MudAlert Severity="Severity.Error"
+              Variant="Variant.Filled"
+              ShowCloseIcon="true"
+              CloseIconClicked="HandleDismissAsync"
+              Class="@($"dabbler-page-error {Class}")"
+              Style="@Style"
+              role="alert">
+        @Error.Message
+    </MudAlert>
+}

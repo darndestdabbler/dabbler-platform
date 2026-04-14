@@ -1,30 +1,196 @@
 {
-  "SecurityConfig": {
-    "Policies": [
-      {
-        "Name": "OperationsViewer",
-        "Roles": [
-          "OperationsViewer",
-          "CoffeeAdmin",
-          "SystemAdministrator"
-        ]
-      }
-    ],
-    "Pages": [
-      {
-        "Route": "/login",
-        "AllowAnonymous": true
-      },
-      {
-        "Route": "/access-denied",
-        "AllowAnonymous": true
-      }
-    ],
-    "Endpoints": [
-      {
-        "Pattern": "/auth-check",
-        "Policy": "OperationsViewer"
-      }
-    ]
+  "Roles": [
+    {
+      "RoleName": "SystemAdmin",
+      "Description": "Full system administrator with unrestricted access."
+    },
+    {
+      "RoleName": "BackofficeUserAdmin",
+      "Description": "Backoffice admin who can manage staff accounts and roles.",
+      "InheritsFrom": "BackofficeUser"
+    },
+    {
+      "RoleName": "BackofficeUser",
+      "Description": "Internal staff with read/update access to all customers and orders.",
+      "InheritsFrom": "Customer"
+    },
+    {
+      "RoleName": "Customer",
+      "Description": "Customer with self-service access to own orders and profile."
+    }
+  ],
+  "PagePermissions": [
+    {
+      "PageKey": "/",
+      "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ]
+    },
+    {
+      "PageKey": "/products",
+      "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ]
+    },
+    {
+      "PageKey": "/customers",
+      "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ]
+    },
+    {
+      "PageKey": "/orders",
+      "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ]
+    },
+    {
+      "PageKey": "/admin/users",
+      "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin" ]
+    },
+    {
+      "PageKey": "/admin/products",
+      "AllowedRoles": [ "SystemAdmin" ]
+    },
+    {
+      "PageKey": "/admin/security",
+      "AllowedRoles": [ "SystemAdmin" ]
+    }
+  ],
+  "EntityPermissions": [
+    {
+      "EntityKey": "Product",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUserAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUser", "AllowedOperations": [ "Read", "Update" ] },
+        { "RoleName": "Customer", "AllowedOperations": [ "Read" ] }
+      ]
+    },
+    {
+      "EntityKey": "Customer",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUserAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUser", "AllowedOperations": [ "Read", "Update" ] },
+        { "RoleName": "Customer", "AllowedOperations": [ "Read" ] }
+      ]
+    },
+    {
+      "EntityKey": "Order",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUserAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUser", "AllowedOperations": [ "Create", "Read", "Update" ] },
+        { "RoleName": "Customer", "AllowedOperations": [ "Create", "Read" ] }
+      ]
+    },
+    {
+      "EntityKey": "OrderItem",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUserAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUser", "AllowedOperations": [ "Create", "Read", "Update" ] },
+        { "RoleName": "Customer", "AllowedOperations": [ "Read" ] }
+      ]
+    },
+    {
+      "EntityKey": "OrderNote",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUserAdmin", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "BackofficeUser", "AllowedOperations": [ "Create", "Read", "Update", "Delete" ] },
+        { "RoleName": "Customer", "AllowedOperations": [ "Read" ] }
+      ]
+    }
+  ],
+  "FieldPermissions": [
+    {
+      "EntityKey": "Product",
+      "FieldKey": "UnitPrice",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "AccessLevel": "Editable" },
+        { "RoleName": "BackofficeUserAdmin", "AccessLevel": "Editable" },
+        { "RoleName": "BackofficeUser", "AccessLevel": "ReadOnly" },
+        { "RoleName": "Customer", "AccessLevel": "ReadOnly" }
+      ]
+    }
+  ],
+  "EndpointPermissions": [
+    { "EndpointKey": "GetProducts", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ] },
+    { "EndpointKey": "GetProductById", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ] },
+    { "EndpointKey": "CreateProduct", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin" ] },
+    { "EndpointKey": "UpdateProduct", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "ToggleProductAvailability", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin" ] },
+    { "EndpointKey": "GetCustomers", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "GetCustomerById", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "CreateCustomer", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin" ] },
+    { "EndpointKey": "UpdateCustomer", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "SearchCustomers", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "GetOrders", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ] },
+    { "EndpointKey": "GetOrderById", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ] },
+    { "EndpointKey": "GetOrdersByCustomer", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ] },
+    { "EndpointKey": "CreateOrder", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ] },
+    { "EndpointKey": "UpdateOrderStatus", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "AddOrderItem", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "RemoveOrderItem", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin" ] },
+    { "EndpointKey": "GetOrderNotes", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser", "Customer" ] },
+    { "EndpointKey": "CreateOrderNote", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "UpdateOrderNote", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin", "BackofficeUser" ] },
+    { "EndpointKey": "DeleteOrderNote", "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin" ] }
+  ],
+  "ControlPermissions": [
+    {
+      "PageKey": "/products",
+      "ControlKey": "CreateProductButton",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUserAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUser", "State": "Hidden" },
+        { "RoleName": "Customer", "State": "Hidden" }
+      ]
+    },
+    {
+      "PageKey": "/products",
+      "ControlKey": "EditPriceButton",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUserAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUser", "State": "Disabled" },
+        { "RoleName": "Customer", "State": "Hidden" }
+      ]
+    },
+    {
+      "PageKey": "/customers",
+      "ControlKey": "DeleteCustomerButton",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUserAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUser", "State": "Hidden" }
+      ]
+    },
+    {
+      "PageKey": "/orders",
+      "ControlKey": "DeleteOrderButton",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUserAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUser", "State": "Hidden" },
+        { "RoleName": "Customer", "State": "Hidden" }
+      ]
+    },
+    {
+      "PageKey": "/orders",
+      "ControlKey": "UpdateStatusButton",
+      "RolePermissions": [
+        { "RoleName": "SystemAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUserAdmin", "State": "Enabled" },
+        { "RoleName": "BackofficeUser", "State": "Enabled" },
+        { "RoleName": "Customer", "State": "Hidden" }
+      ]
+    }
+  ],
+  "RowFilters": [
+    {
+      "EntityKey": "Order",
+      "RoleName": "Customer",
+      "FilterExpression": "CustomerId == @CurrentUserId",
+      "Description": "Customers see only their own orders."
+    }
+  ],
+  "RoleSwitching": {
+    "AllowedRoles": [ "SystemAdmin", "BackofficeUserAdmin" ]
   }
 }

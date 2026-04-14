@@ -1,0 +1,209 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+@typeparam T
+@using Dabbler.Components.Data
+
+<div @ref="_wrapperRef"
+     class="dabbler-datagrid-wrapper @Class"
+     style="@Style"
+     tabindex="0"
+     role="grid"
+     aria-label="@AriaLabel"
+     aria-rowcount="@(DataRowTemplate is not null ? Navigation.RowCount : RowCount)"
+     aria-colcount="@ColumnCount"
+     aria-activedescendant="@_activeDescendantId"
+     @onkeydown="HandleKeyDown"
+     @onfocusin="HandleFocusIn"
+     @onfocusout="HandleFocusOut">
+
+    @if (DataRowTemplate is not null)
+    {
+        @* Grouped/detail table mode: DabblerDataGrid renders group headers and data rows.
+           When ShowDetailColumn is true, callers should include an empty <th style="width:40px">
+           as the first header cell to align with the indicator column. *@
+        <table class="mud-table mud-table-dense mud-table-hover mud-elevation-1"
+               style="@(AllowColumnPinning ? "min-width:100%" : "width:100%")">
+            @if (ColumnHeaderTemplate is not null)
+            {
+                <thead class="mud-table-head">
+                    @ColumnHeaderTemplate
+                </thead>
+            }
+            <tbody class="mud-table-body">
+                @foreach (var _row in _visibleRows)
+                {
+                    @if (_row.RowType == GridRowType.GroupHeader)
+                    {
+                        <tr class="dabbler-group-header dabbler-group-level-@_row.GroupLevel"
+                            role="row"
+                            aria-level="@(_row.GroupLevel + 1)">
+                            <td colspan="@EffectiveColumnSpan" role="gridcell" aria-colspan="@EffectiveColumnSpan">
+                                <div class="dabbler-group-header-content" style="padding-left:@(_row.GroupLevel * 16)px">
+                                    <MudIconButton Icon="@(_row.IsExpanded ? Icons.Material.Filled.ExpandMore : Icons.Material.Filled.ChevronRight)"
+                                                   Size="Size.Small"
+                                                   Edge="Edge.Start"
+                                                   aria-expanded="@_row.IsExpanded.ToString().ToLower()"
+                                                   aria-label="@($"{(_row.IsExpanded ? "Collapse" : "Expand")} group {_row.GroupKey}")"
+                                                   OnClick="@(() => ToggleGroupHeaderAsync(_row))" />
+                                    <strong>@_row.GroupKey</strong>
+                                    <span class="ml-1 mud-text-secondary">(@_row.GroupItemCount items)</span>
+                                    @if (AggregateColumns is not null && _row.Aggregates is not null)
+                                    {
+                                        foreach (var _agg in AggregateColumns)
+                                        {
+                                            if (_row.Aggregates.TryGetValue(_agg.AggregateKey, out var _val) && _val is not null)
+                                            {
+                                                <span class="ml-3 mud-text-secondary">
+                                                    @(_agg.Label ?? $"{_agg.AggregateFunction}:") @FormatAggregateValue(_val, _agg.Format)
+                                                </span>
+                                            }
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else if (_row.DataItem is not null)
+                    {
+                        <tr class="mud-table-row" role="row">
+                            @if (DetailTemplate is not null && ShowDetailColumn)
+                            {
+                                <td class="mud-table-cell dabbler-detail-indicator">
+                                    <MudIconButton Icon="@(IsDetailExpanded(_row.DataItem) ? Icons.Material.Filled.ExpandMore : Icons.Material.Filled.ChevronRight)"
+                                                   Size="Size.Small"
+                                                   Edge="Edge.Start"
+                                                   aria-expanded="@IsDetailExpanded(_row.DataItem).ToString().ToLower()"
+                                                   aria-controls="@($"dabbler-detail-{GetDetailKeyString(_row.DataItem)}")"
+                                                   aria-label="@($"{(IsDetailExpanded(_row.DataItem) ? "Collapse" : "Expand")} detail for {GetDetailKeyString(_row.DataItem)}")"
+                                                   OnClick="@(() => ToggleDetailAsync(_row.DataItem))" />
+                                </td>
+                            }
+                            @DataRowTemplate(_row.DataItem)
+                        </tr>
+                        @if (DetailTemplate is not null && IsDetailExpanded(_row.DataItem))
+                        {
+                            <tr class="dabbler-detail-row" role="row">
+                                <td colspan="@EffectiveColumnSpan" style="padding:0">
+                                    <div id="@($"dabbler-detail-{GetDetailKeyString(_row.DataItem)}")"
+                                         role="region"
+                                         aria-label="@($"Detail for {GetDetailKeyString(_row.DataItem)}")"
+                                         class="dabbler-detail-content">
+                                        @DetailTemplate(_row.DataItem)
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <CascadingValue Value="this" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
+    }
+
+    @* Screen reader live region for cell/edit announcements *@
+    <div aria-live="polite" aria-atomic="true" class="dabbler-sr-only">
+        @_liveAnnouncement
+    </div>
+
+    @* Popup form dialog *@
+    @if (PopupFormMode is not null)
+    {
+        <MudDialog @bind-Visible="_popupFormVisible"
+                   Options="@(new DialogOptions { MaxWidth = PopupFormDialogMaxWidth, FullWidth = true })"
+                   aria-label="@(PopupFormTitle ?? "Edit Row")"
+                   aria-modal="true">
+            <TitleContent>
+                @(PopupFormTitle ?? "Edit Row")
+            </TitleContent>
+            <DialogContent>
+                @if (_popupFormItem is not null && Columns is not null)
+                {
+                    <MudForm @ref="_popupForm" @bind-IsValid="_popupFormIsValid">
+                        @if (PopupFormMode == Data.PopupFormMode.OneColumn)
+                        {
+                            @* OneColumn: fields stack vertically, one per row *@
+                            <div class="dabbler-popup-form" style="@PopupFormContainerStyle">
+                                @foreach (var col in Columns.Where(c => !string.IsNullOrEmpty(c.PropertyName)))
+                                {
+                                    <div class="dabbler-popup-form-field mb-3">
+                                        @RenderPopupFormField(col)
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            @* TwoColumn: CSS grid with optional field groups *@
+                            @if (PopupFormFieldGroups is not null)
+                            {
+                                @foreach (var group in PopupFormFieldGroups)
+                                {
+                                    @if (!string.IsNullOrEmpty(group.Header))
+                                    {
+                                        <MudText Typo="Typo.h6" Class="mt-3 mb-2">@group.Header</MudText>
+                                        <MudDivider Class="mb-2" />
+                                    }
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                                        @foreach (var propName in group.PropertyNames)
+                                        {
+                                            var col = Columns.FirstOrDefault(c => c.PropertyName == propName);
+                                            @if (col is not null)
+                                            {
+                                                <div class="dabbler-popup-form-field">
+                                                    @RenderPopupFormField(col)
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                @* No groups defined: auto-arrange all fields in two columns *@
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                                    @foreach (var col in Columns.Where(c => !string.IsNullOrEmpty(c.PropertyName)))
+                                    {
+                                        <div class="dabbler-popup-form-field">
+                                            @RenderPopupFormField(col)
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </MudForm>
+                }
+                else
+                {
+                    <MudText Color="Color.Warning">No columns configured for popup form.</MudText>
+                }
+            </DialogContent>
+            <DialogActions>
+                @if (_popupFormShowDiscardConfirm)
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Warning" Class="mr-auto" Style="align-self:center">
+                        Discard unsaved changes?
+                    </MudText>
+                    <MudButton OnClick="@PopupFormDismissDiscard">Keep Editing</MudButton>
+                    <MudButton Color="Color.Error" Variant="Variant.Filled"
+                               OnClick="@PopupFormCancelAsync">
+                        Discard
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton OnClick="@PopupFormCancelAsync">Cancel</MudButton>
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                               Disabled="@(!_popupFormIsValid)"
+                               OnClick="@PopupFormSaveAsync">
+                        Save
+                    </MudButton>
+                }
+            </DialogActions>
+        </MudDialog>
+    }
+</div>

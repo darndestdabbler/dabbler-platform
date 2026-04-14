@@ -1,0 +1,68 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+@typeparam T where T : class, new()
+@using Dabbler.Components.Data.Metadata
+
+<MudDialog @bind-Visible="_isVisible"
+           Options="@(new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true })">
+    <TitleContent>
+        <MudText Typo="Typo.h6" id="dabbler-record-popup-title">
+            @if (IsNew)
+            {
+                @:New @(EntityMetadata?.DisplayNameSingular ?? "Record")
+            }
+            else
+            {
+                @(EntityMetadata?.DisplayNameSingular ?? "Record")
+            }
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <div aria-busy="@_isSaving" aria-live="polite">
+            <DabblerDetailForm @ref="_detailForm"
+                               T="T"
+                               EntityMetadata="EntityMetadata"
+                               Record="Record"
+                               RecordChanged="RecordChanged"
+                               IsNew="IsNew"
+                               OnSave="HandleSaveAsync"
+                               OnDirtyChanged="HandleDirtyChanged"
+                               MetadataProvider="MetadataProvider"
+                               IsReadOnly="IsReadOnly"
+                               FormColumns="2" />
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="HandleCancelClickAsync"
+                   aria-label="Cancel">
+            Cancel
+        </MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   Disabled="@(IsReadOnly || _isSaving)"
+                   OnClick="HandleSaveClickAsync"
+                   aria-label="Save">
+            @if (_isSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Save
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@* ── Dirty close confirmation ──────────────────────────────── *@
+<MudDialog @bind-Visible="_showDirtyCloseDialog" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Unsaved Changes</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>You have unsaved changes. Are you sure you want to close?</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="HandleDirtyCloseCancelAsync">Keep Editing</MudButton>
+        <MudButton Color="Color.Warning" OnClick="HandleDirtyCloseConfirmAsync">
+            Close Without Saving
+        </MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,201 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+@typeparam T
+@using Dabbler.Components.Data
+@using Dabbler.Reports.Core.Rdf
+@using Dabbler.Reports.Blazor
+@using MudBlazor
+
+<div class="dabbler-query-report-page @Class" style="@Style" @attributes="UserAttributes"
+     role="region" aria-label="@(Title ?? "Query and report")">
+    @if (HeaderTemplate is not null)
+    {
+        <div class="dabbler-page-header">
+            @HeaderTemplate
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(Title))
+    {
+        <div class="dabbler-page-header">
+            <MudText Typo="Typo.h6">@Title</MudText>
+        </div>
+    }
+
+    <DabblerFilterGrid T="T"
+                       @ref="_filterGrid"
+                       Columns="@FilterColumns"
+                       Layout="@FilterLayout"
+                       ShowStatusBar="@ShowFilterStatusBar"
+                       FilterChanged="@OnFilterChangedAsync" />
+
+    <DabblerPageErrorBanner Error="@_error" OnDismiss="@DismissErrorAsync" />
+
+    @if (_filtersChangedInReportMode)
+    {
+        <MudAlert Severity="Severity.Info"
+                  Variant="Variant.Text"
+                  Dense="true"
+                  Class="dabbler-page-filters-changed">
+            Filters changed.
+            <MudLink OnClick="@RerunReportAsync" Typo="Typo.body2" Class="ml-2">
+                Re-run report?
+            </MudLink>
+        </MudAlert>
+    }
+
+    <DabblerPageToolbar StatusText="@_statusText" IsLoading="@_isLoading">
+        <ChildContent>
+            @if (ShowViewToggle)
+            {
+                <div role="tablist" class="dabbler-view-toggle">
+                    <MudButton Variant="@(_currentView == PageViewMode.Grid ? Variant.Filled : Variant.Outlined)"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               OnClick="@(() => SwitchViewAsync(PageViewMode.Grid))"
+                               StartIcon="@Icons.Material.Filled.GridOn"
+                               role="tab"
+                               aria-selected="@(_currentView == PageViewMode.Grid)">
+                        Grid
+                    </MudButton>
+                    <MudButton Variant="@(_currentView == PageViewMode.Report ? Variant.Filled : Variant.Outlined)"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               OnClick="@(() => SwitchViewAsync(PageViewMode.Report))"
+                               StartIcon="@Icons.Material.Filled.Description"
+                               role="tab"
+                               aria-selected="@(_currentView == PageViewMode.Report)">
+                        Report
+                    </MudButton>
+                </div>
+            }
+            @if (ToolbarTemplate is not null)
+            {
+                @ToolbarTemplate
+            }
+            @if (!AutoLoadOnFilterChange && _currentView == PageViewMode.Grid)
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="@SearchClickedAsync"
+                           Disabled="@_isLoading"
+                           StartIcon="@Icons.Material.Filled.Search"
+                           Size="Size.Small">
+                    Search
+                </MudButton>
+            }
+        </ChildContent>
+        <ActionButtons>
+            @if (ShowCsvExport)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.FileDownload"
+                               OnClick="@ExportToCsvAsync"
+                               Disabled="@(_isLoading || _items is null || _currentView != PageViewMode.Grid)"
+                               Color="@(_currentView == PageViewMode.Grid ? Color.Default : Color.Surface)"
+                               aria-label="Export to CSV"
+                               Size="Size.Small" />
+            }
+            @if (ShowPdfExport)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.PictureAsPdf"
+                               Size="Size.Small"
+                               OnClick="@ExportToPdfAsync"
+                               Disabled="@(!_reportHasRun || _isLoading || _currentView != PageViewMode.Report)"
+                               Color="@(_currentView == PageViewMode.Report ? Color.Default : Color.Surface)"
+                               aria-label="Export to PDF" />
+            }
+            @if (ShowCopyToClipboard && _currentView == PageViewMode.Grid)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                               OnClick="@CopyToClipboardAsync"
+                               Disabled="@(_isLoading || _items is null)"
+                               aria-label="Copy to clipboard"
+                               Size="Size.Small" />
+            }
+            @if (ShowZoom && _currentView == PageViewMode.Report)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.ZoomOut"
+                               Size="Size.Small"
+                               OnClick="@ZoomOutAsync"
+                               Disabled="@(_scale <= 0.25)"
+                               aria-label="Zoom out" />
+                <MudText Typo="Typo.body2" Class="mx-1"
+                         style="min-width:40px;text-align:center;user-select:none;"
+                         aria-live="polite"
+                         aria-label="@($"Zoom level: {ZoomPercentText}")">
+                    @ZoomPercentText
+                </MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.ZoomIn"
+                               Size="Size.Small"
+                               OnClick="@ZoomInAsync"
+                               Disabled="@(_scale >= 3.0)"
+                               aria-label="Zoom in" />
+            }
+            @if (ShowPrint && _currentView == PageViewMode.Report)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Print"
+                               Size="Size.Small"
+                               OnClick="@PrintAsync"
+                               Disabled="@(!_reportHasRun || _isLoading)"
+                               aria-label="Print" />
+            }
+        </ActionButtons>
+    </DabblerPageToolbar>
+
+    <div class="dabbler-page-content" aria-live="polite" aria-busy="@_isLoading">
+        @if (_currentView == PageViewMode.Grid)
+        {
+            <DabblerDataGrid T="T" @ref="_dataGrid" DataGrid="@_mudDataGrid"
+                             Columns="@GridColumnInfo" Items="@_items"
+                             ReadOnly="@(!Editable)">
+                <MudDataGrid T="T" @ref="_mudDataGrid"
+                             ServerData="@ServerDataFuncAsync"
+                             Dense="@Dense"
+                             Hover="true"
+                             RowsPerPage="@PageSize"
+                             ReadOnly="@(!Editable)">
+                    <Columns>
+                        @GridColumns
+                    </Columns>
+                </MudDataGrid>
+            </DabblerDataGrid>
+        }
+        else
+        {
+            @if (_isLoading && !_reportHasRun)
+            {
+                <div class="dabbler-page-loading">
+                    <MudProgressCircular Indeterminate="true" />
+                </div>
+            }
+            else if (!_reportHasRun)
+            {
+                @if (EmptyStateTemplate is not null)
+                {
+                    @EmptyStateTemplate
+                }
+                else
+                {
+                    <div class="dabbler-page-empty-state">
+                        <MudText Typo="Typo.body1">
+                            Switch to Report view to generate a report from the current filters.
+                        </MudText>
+                    </div>
+                }
+            }
+            else if (_reportPages is not null)
+            {
+                <ReportViewer @ref="_viewer"
+                              Pages="@_reportPages"
+                              Report="@_reportDefinition"
+                              Scale="@_scale" />
+            }
+        }
+    </div>
+
+    @if (FooterTemplate is not null)
+    {
+        <div class="dabbler-page-footer">
+            @FooterTemplate
+        </div>
+    }
+</div>

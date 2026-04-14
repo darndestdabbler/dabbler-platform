@@ -1,0 +1,28 @@
+@page "/customers"
+@attribute [DabblerPageAuthorize("/customers")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Components.Data
+
+<PageTitle>Customers — AcmeCoffeeOnline</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">Customers</MudText>
+        <MudStack Row="true" Spacing="2">
+            <DabblerSecured PageKey="/customers" ControlKey="DeleteCustomerButton">
+                <MudButton Variant="Variant.Outlined" Color="Color.Error"
+                           StartIcon="@Icons.Material.Filled.Delete">
+                    Delete Customer
+                </MudButton>
+            </DabblerSecured>
+        </MudStack>
+    </MudStack>
+
+    <CustomerList DataProvider="CustomerDataProvider" Title="All Customers" />
+</MudContainer>
+
+@code {
+    [Inject]
+    private IGridDataProvider<CustomerDto> CustomerDataProvider { get; set; } = default!;
+}

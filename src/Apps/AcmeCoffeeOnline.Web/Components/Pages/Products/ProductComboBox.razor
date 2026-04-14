@@ -1,0 +1,62 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Components
+@using MudBlazor
+@inject ProductApiClient ProductClient
+
+<DabblerComboBox T="ProductDto"
+                 Value="Value"
+                 ValueChanged="OnValueChanged"
+                 SearchFunc="SearchProductsAsync"
+                 ToStringFunc="@(p => p?.Name)"
+                 Label="@Label"
+                 Placeholder="Search products…"
+                 Variant="Variant.Outlined"
+                 MaxItems="10"
+                 DebounceInterval="300"
+                 Clearable="true"
+                 Dense="true"
+                 Required="Required"
+                 RequiredError="Product is required"
+                 Columns="_columns" />
+
+@code {
+    [Parameter]
+    public ProductDto? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<ProductDto?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Label { get; set; } = "Product";
+
+    [Parameter]
+    public bool Required { get; set; }
+
+    private readonly IReadOnlyList<ComboBoxColumn<ProductDto>> _columns = new List<ComboBoxColumn<ProductDto>>
+    {
+        new() { Header = "Name", ValueFunc = p => p.Name, Width = "200px" },
+        new() { Header = "Roast", ValueFunc = p => p.RoastLevel.ToString(), Width = "100px" },
+        new() { Header = "Price", ValueFunc = p => p.UnitPrice.ToString("C2"), Width = "80px" }
+    };
+
+    private async Task<IEnumerable<ProductDto>> SearchProductsAsync(
+        string? searchText, CancellationToken cancellationToken)
+    {
+        var request = new PagedRequest
+        {
+            Page = 1,
+            PageSize = 10,
+            SearchTerm = searchText,
+            SortBy = "Name"
+        };
+        var response = await ProductClient.GetAllAsync(request, cancellationToken);
+        return response.Items;
+    }
+
+    private async Task OnValueChanged(ProductDto? value)
+    {
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+    }
+}

@@ -1,0 +1,565 @@
+{
+  "metadata": {
+    "name": "Orders by Customer",
+    "description": "Order listing grouped by customer with subtotals and grand total. Filterable by date range and order status.",
+    "author": "AcmeCoffeeOnline",
+    "version": "1.0",
+    "pageWidth": 11.0,
+    "pageHeight": 8.5,
+    "orientation": "Landscape",
+    "marginTop": 0.5,
+    "marginBottom": 0.5,
+    "marginLeft": 0.75,
+    "marginRight": 0.75,
+    "defaultFontFamily": "Segoe UI",
+    "defaultFontSize": 9
+  },
+  "dataSources": [
+    {
+      "name": "main",
+      "connectionName": "AcmeCoffeeApi",
+      "providerType": "Custom",
+      "query": "SELECT * FROM Orders WHERE OrderDate BETWEEN @StartDate AND @EndDate ORDER BY CustomerName, OrderDate"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "StartDate",
+      "dataType": "DateTime",
+      "controlType": "DatePicker",
+      "promptText": "Start Date",
+      "isRequired": true,
+      "sortOrder": 1
+    },
+    {
+      "name": "EndDate",
+      "dataType": "DateTime",
+      "controlType": "DatePicker",
+      "promptText": "End Date",
+      "isRequired": true,
+      "sortOrder": 2
+    },
+    {
+      "name": "Status",
+      "dataType": "String",
+      "controlType": "ComboBox",
+      "promptText": "Order Status",
+      "defaultValue": "",
+      "isRequired": false,
+      "sortOrder": 3,
+      "lookupQuery": "SELECT DISTINCT Status FROM OrderStatuses ORDER BY Status"
+    },
+    {
+      "name": "FilterSummary",
+      "dataType": "String",
+      "controlType": "TextBox",
+      "promptText": "Filter Summary",
+      "defaultValue": "",
+      "isRequired": false,
+      "sortOrder": 99,
+      "isHidden": true
+    }
+  ],
+  "fields": [
+    { "name": "CustomerName", "dataType": "String", "sourceColumn": "CustomerName" },
+    { "name": "OrderId", "dataType": "Int32", "sourceColumn": "OrderId" },
+    { "name": "OrderDate", "dataType": "DateTime", "sourceColumn": "OrderDate", "formatString": "d" },
+    { "name": "ShipDate", "dataType": "DateTime", "sourceColumn": "ShipDate", "formatString": "d" },
+    { "name": "Status", "dataType": "String", "sourceColumn": "Status" },
+    { "name": "ItemCount", "dataType": "Int32", "sourceColumn": "ItemCount" },
+    { "name": "Total", "dataType": "Decimal", "sourceColumn": "Total", "formatString": "C2" }
+  ],
+  "grouping": [
+    {
+      "fieldName": "CustomerName",
+      "sortDirection": "Ascending",
+      "headerBandName": "customerHeader",
+      "footerBandName": "customerFooter",
+      "keepTogether": false,
+      "resetAggregates": true,
+      "pageBreakBefore": false
+    }
+  ],
+  "bands": [
+    {
+      "name": "reportHeader",
+      "type": "ReportHeader",
+      "height": 1.2,
+      "elements": [
+        {
+          "type": "StaticText",
+          "x": 0,
+          "y": 0.1,
+          "width": 5.0,
+          "height": 0.4,
+          "value": "Orders by Customer",
+          "styleName": "reportTitle"
+        },
+        {
+          "type": "TextField",
+          "x": 0,
+          "y": 0.55,
+          "width": 6.0,
+          "height": 0.25,
+          "expression": "{@FilterSummary}",
+          "styleName": "filterSummary"
+        },
+        {
+          "type": "TextField",
+          "x": 7.0,
+          "y": 0.55,
+          "width": 2.5,
+          "height": 0.25,
+          "expression": "{Now}",
+          "formatString": "g",
+          "styleName": "dateStamp"
+        },
+        {
+          "type": "Line",
+          "x": 0,
+          "y": 1.0,
+          "width": 9.5,
+          "height": 0,
+          "lineDirection": "Horizontal",
+          "styleName": "thickLine"
+        }
+      ]
+    },
+    {
+      "name": "pageHeader",
+      "type": "PageHeader",
+      "height": 0.4,
+      "elements": [
+        {
+          "type": "StaticText",
+          "x": 0,
+          "y": 0.05,
+          "width": 0.6,
+          "height": 0.25,
+          "value": "Order #",
+          "styleName": "columnHeader"
+        },
+        {
+          "type": "StaticText",
+          "x": 0.6,
+          "y": 0.05,
+          "width": 1.2,
+          "height": 0.25,
+          "value": "Order Date",
+          "styleName": "columnHeader"
+        },
+        {
+          "type": "StaticText",
+          "x": 1.8,
+          "y": 0.05,
+          "width": 1.2,
+          "height": 0.25,
+          "value": "Ship Date",
+          "styleName": "columnHeader"
+        },
+        {
+          "type": "StaticText",
+          "x": 3.0,
+          "y": 0.05,
+          "width": 1.2,
+          "height": 0.25,
+          "value": "Status",
+          "styleName": "columnHeader"
+        },
+        {
+          "type": "StaticText",
+          "x": 4.2,
+          "y": 0.05,
+          "width": 0.8,
+          "height": 0.25,
+          "value": "Items",
+          "styleName": "columnHeaderRight"
+        },
+        {
+          "type": "StaticText",
+          "x": 5.0,
+          "y": 0.05,
+          "width": 1.0,
+          "height": 0.25,
+          "value": "Total",
+          "styleName": "columnHeaderRight"
+        },
+        {
+          "type": "Line",
+          "x": 0,
+          "y": 0.35,
+          "width": 9.5,
+          "height": 0,
+          "lineDirection": "Horizontal",
+          "styleName": "headerLine"
+        }
+      ]
+    },
+    {
+      "name": "customerHeader",
+      "type": "GroupHeader",
+      "height": 0.4,
+      "groupName": "CustomerName",
+      "elements": [
+        {
+          "type": "Rectangle",
+          "x": 0,
+          "y": 0,
+          "width": 9.5,
+          "height": 0.35,
+          "styleName": "groupHeaderBackground"
+        },
+        {
+          "type": "TextField",
+          "x": 0.1,
+          "y": 0.05,
+          "width": 5.0,
+          "height": 0.25,
+          "fieldName": "CustomerName",
+          "styleName": "groupHeaderText"
+        }
+      ]
+    },
+    {
+      "name": "detail",
+      "type": "Detail",
+      "height": 0.26,
+      "elements": [
+        {
+          "type": "TextField",
+          "x": 0,
+          "y": 0.02,
+          "width": 0.6,
+          "height": 0.2,
+          "fieldName": "OrderId",
+          "styleName": "detailText"
+        },
+        {
+          "type": "TextField",
+          "x": 0.6,
+          "y": 0.02,
+          "width": 1.2,
+          "height": 0.2,
+          "fieldName": "OrderDate",
+          "styleName": "detailText"
+        },
+        {
+          "type": "TextField",
+          "x": 1.8,
+          "y": 0.02,
+          "width": 1.2,
+          "height": 0.2,
+          "fieldName": "ShipDate",
+          "styleName": "detailText"
+        },
+        {
+          "type": "TextField",
+          "x": 3.0,
+          "y": 0.02,
+          "width": 1.2,
+          "height": 0.2,
+          "fieldName": "Status",
+          "styleName": "detailText"
+        },
+        {
+          "type": "TextField",
+          "x": 4.2,
+          "y": 0.02,
+          "width": 0.8,
+          "height": 0.2,
+          "fieldName": "ItemCount",
+          "styleName": "detailNumber"
+        },
+        {
+          "type": "TextField",
+          "x": 5.0,
+          "y": 0.02,
+          "width": 1.0,
+          "height": 0.2,
+          "fieldName": "Total",
+          "styleName": "detailCurrency"
+        }
+      ]
+    },
+    {
+      "name": "customerFooter",
+      "type": "GroupFooter",
+      "height": 0.4,
+      "groupName": "CustomerName",
+      "elements": [
+        {
+          "type": "Line",
+          "x": 4.2,
+          "y": 0.0,
+          "width": 1.8,
+          "height": 0,
+          "lineDirection": "Horizontal",
+          "styleName": "subtotalLine"
+        },
+        {
+          "type": "TextField",
+          "x": 0.1,
+          "y": 0.05,
+          "width": 3.0,
+          "height": 0.25,
+          "expression": "\"Subtotal for \" + [CustomerName]",
+          "styleName": "groupFooterLabel"
+        },
+        {
+          "type": "TextField",
+          "x": 4.2,
+          "y": 0.05,
+          "width": 0.8,
+          "height": 0.25,
+          "expression": "Count(*)",
+          "formatString": "N0",
+          "styleName": "groupFooterCount"
+        },
+        {
+          "type": "TextField",
+          "x": 5.0,
+          "y": 0.05,
+          "width": 1.0,
+          "height": 0.25,
+          "expression": "Sum([Total])",
+          "formatString": "C2",
+          "styleName": "groupFooterTotal"
+        }
+      ]
+    },
+    {
+      "name": "pageFooter",
+      "type": "PageFooter",
+      "height": 0.4,
+      "elements": [
+        {
+          "type": "Line",
+          "x": 0,
+          "y": 0.0,
+          "width": 9.5,
+          "height": 0,
+          "lineDirection": "Horizontal",
+          "styleName": "thinLine"
+        },
+        {
+          "type": "TextField",
+          "x": 0,
+          "y": 0.08,
+          "width": 3.0,
+          "height": 0.25,
+          "expression": "{Now}",
+          "formatString": "D",
+          "styleName": "footerDate"
+        },
+        {
+          "type": "TextField",
+          "x": 6.5,
+          "y": 0.08,
+          "width": 3.0,
+          "height": 0.25,
+          "expression": "\"Page \" + {PageNumber} + \" of \" + {PageCount}",
+          "styleName": "pageNumber"
+        }
+      ]
+    },
+    {
+      "name": "reportFooter",
+      "type": "ReportFooter",
+      "height": 0.6,
+      "elements": [
+        {
+          "type": "Line",
+          "x": 0,
+          "y": 0.0,
+          "width": 9.5,
+          "height": 0,
+          "lineDirection": "Horizontal",
+          "styleName": "thickLine"
+        },
+        {
+          "type": "StaticText",
+          "x": 0,
+          "y": 0.1,
+          "width": 2.0,
+          "height": 0.3,
+          "value": "Grand Total",
+          "styleName": "grandTotalLabel"
+        },
+        {
+          "type": "TextField",
+          "x": 3.5,
+          "y": 0.1,
+          "width": 1.5,
+          "height": 0.3,
+          "expression": "Count(*)",
+          "formatString": "N0",
+          "styleName": "grandTotalCount"
+        },
+        {
+          "type": "StaticText",
+          "x": 4.2,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.3,
+          "value": "orders",
+          "styleName": "grandTotalCountLabel"
+        },
+        {
+          "type": "TextField",
+          "x": 5.0,
+          "y": 0.1,
+          "width": 1.0,
+          "height": 0.3,
+          "expression": "Sum([Total], \"report\")",
+          "formatString": "C2",
+          "styleName": "grandTotalAmount"
+        }
+      ]
+    }
+  ],
+  "styles": [
+    {
+      "name": "reportTitle",
+      "fontFamily": "Segoe UI",
+      "fontSize": 18,
+      "isBold": true,
+      "foregroundColor": "#1A1A2E"
+    },
+    {
+      "name": "filterSummary",
+      "fontSize": 9,
+      "foregroundColor": "#666666",
+      "isItalic": true
+    },
+    {
+      "name": "dateStamp",
+      "fontSize": 9,
+      "foregroundColor": "#666666",
+      "isItalic": true,
+      "horizontalAlignment": "Right"
+    },
+    {
+      "name": "columnHeader",
+      "fontSize": 8,
+      "isBold": true,
+      "foregroundColor": "#333333",
+      "backgroundColor": "#F0F0F0",
+      "verticalAlignment": "Middle",
+      "paddingLeft": 0.03
+    },
+    {
+      "name": "columnHeaderRight",
+      "fontSize": 8,
+      "isBold": true,
+      "foregroundColor": "#333333",
+      "backgroundColor": "#F0F0F0",
+      "horizontalAlignment": "Right",
+      "verticalAlignment": "Middle",
+      "paddingRight": 0.03
+    },
+    {
+      "name": "groupHeaderBackground",
+      "backgroundColor": "#D6E4F0"
+    },
+    {
+      "name": "groupHeaderText",
+      "fontSize": 10,
+      "isBold": true,
+      "foregroundColor": "#1A1A2E",
+      "verticalAlignment": "Middle"
+    },
+    {
+      "name": "detailText",
+      "fontSize": 9,
+      "verticalAlignment": "Middle",
+      "paddingLeft": 0.03
+    },
+    {
+      "name": "detailNumber",
+      "fontSize": 9,
+      "horizontalAlignment": "Right",
+      "verticalAlignment": "Middle",
+      "paddingRight": 0.03
+    },
+    {
+      "name": "detailCurrency",
+      "fontSize": 9,
+      "horizontalAlignment": "Right",
+      "verticalAlignment": "Middle",
+      "paddingRight": 0.03
+    },
+    {
+      "name": "subtotalLine",
+      "foregroundColor": "#666666"
+    },
+    {
+      "name": "groupFooterLabel",
+      "fontSize": 9,
+      "isBold": true,
+      "foregroundColor": "#333333",
+      "isItalic": true
+    },
+    {
+      "name": "groupFooterCount",
+      "fontSize": 9,
+      "foregroundColor": "#666666",
+      "horizontalAlignment": "Right"
+    },
+    {
+      "name": "groupFooterTotal",
+      "fontSize": 9,
+      "isBold": true,
+      "horizontalAlignment": "Right",
+      "paddingRight": 0.03
+    },
+    {
+      "name": "grandTotalLabel",
+      "fontSize": 12,
+      "isBold": true,
+      "foregroundColor": "#1A1A2E"
+    },
+    {
+      "name": "grandTotalCount",
+      "fontSize": 10,
+      "isBold": true,
+      "foregroundColor": "#333333",
+      "horizontalAlignment": "Right"
+    },
+    {
+      "name": "grandTotalCountLabel",
+      "fontSize": 10,
+      "foregroundColor": "#333333"
+    },
+    {
+      "name": "grandTotalAmount",
+      "fontSize": 12,
+      "isBold": true,
+      "foregroundColor": "#1A1A2E",
+      "horizontalAlignment": "Right",
+      "paddingRight": 0.03
+    },
+    {
+      "name": "footerDate",
+      "fontSize": 8,
+      "foregroundColor": "#999999"
+    },
+    {
+      "name": "pageNumber",
+      "fontSize": 8,
+      "foregroundColor": "#999999",
+      "horizontalAlignment": "Right"
+    },
+    {
+      "name": "thickLine",
+      "foregroundColor": "#333333"
+    },
+    {
+      "name": "headerLine",
+      "foregroundColor": "#999999"
+    },
+    {
+      "name": "thinLine",
+      "foregroundColor": "#CCCCCC"
+    }
+  ]
+}

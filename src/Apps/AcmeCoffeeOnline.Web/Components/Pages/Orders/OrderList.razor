@@ -1,0 +1,130 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Shared.Enums
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Components.Data.Metadata
+@using MudBlazor
+
+<DabblerQueryPage T="OrderDto"
+                  FilterColumns="_filterColumns"
+                  DataProvider="DataProvider"
+                  Title="@Title"
+                  PageSize="25"
+                  Dense="true"
+                  ShowFilterStatusBar="true"
+                  ShowRecordCount="true"
+                  ShowCsvExport="true"
+                  CsvFileName="orders.csv"
+                  AutoLoadOnFilterChange="true"
+                  GridColumnInfo="_gridColumnInfo">
+    <GridColumns>
+        <PropertyColumn Property="e => e.Id" Title="Order #" />
+        <PropertyColumn Property="e => e.CustomerName" Title="Customer" />
+        <PropertyColumn Property="e => e.OrderDate" Title="Order Date" Format="d" />
+        <TemplateColumn Title="Status" Sortable="true">
+            <CellTemplate>
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Color="@GetStatusColor(context.Item.Status)"
+                         Variant="Variant.Filled">
+                    @context.Item.Status
+                </MudChip>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="e => e.Total" Title="Total" Format="C2" />
+    </GridColumns>
+</DabblerQueryPage>
+
+@code {
+    [Parameter]
+    public IGridDataProvider<OrderDto> DataProvider { get; set; } = default!;
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public SmartFilterDefinition? PreFilter { get; set; }
+
+    private static Color GetStatusColor(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => Color.Default,
+        OrderStatus.Confirmed => Color.Info,
+        OrderStatus.Shipped => Color.Warning,
+        OrderStatus.Delivered => Color.Success,
+        OrderStatus.Cancelled => Color.Error,
+        _ => Color.Default
+    };
+
+    private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
+    {
+        new()
+        {
+            Header = "Status",
+            PropertyName = "Status",
+            EditorType = FilterEditorType.ComboBox,
+            ItemsSource = Enum.GetValues<OrderStatus>().Cast<object>(),
+            DefaultOperator = "eq",
+            ShowOperator = false,
+            Width = "140px"
+        },
+        new()
+        {
+            Header = "Order From",
+            PropertyName = "OrderDate",
+            EditorType = FilterEditorType.Date,
+            DefaultOperator = "gte",
+            ShowOperator = false,
+            Placeholder = "From...",
+            Width = "150px"
+        },
+        new()
+        {
+            Header = "Order To",
+            PropertyName = "OrderDate",
+            EditorType = FilterEditorType.Date,
+            DefaultOperator = "lte",
+            ShowOperator = false,
+            Placeholder = "To...",
+            Width = "150px"
+        },
+        new()
+        {
+            Header = "Customer",
+            PropertyName = "CustomerName",
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = "contains",
+            ShowOperator = false,
+            Placeholder = "Customer name...",
+            Width = "180px"
+        },
+        new()
+        {
+            Header = "Min Total",
+            PropertyName = "Total",
+            EditorType = FilterEditorType.NumericText,
+            DefaultOperator = "gte",
+            ShowOperator = false,
+            Placeholder = "Min $",
+            Width = "120px"
+        },
+        new()
+        {
+            Header = "Max Total",
+            PropertyName = "Total",
+            EditorType = FilterEditorType.NumericText,
+            DefaultOperator = "lte",
+            ShowOperator = false,
+            Placeholder = "Max $",
+            Width = "120px"
+        }
+    };
+
+    private readonly IReadOnlyList<GridColumnInfo> _gridColumnInfo = new List<GridColumnInfo>
+    {
+        new() { PropertyName = "Id", Header = "Order #" },
+        new() { PropertyName = "CustomerName", Header = "Customer" },
+        new() { PropertyName = "OrderDate", Header = "Order Date", Format = "d" },
+        new() { PropertyName = "Status", Header = "Status" },
+        new() { PropertyName = "Total", Header = "Total", Format = "C2" }
+    };
+}

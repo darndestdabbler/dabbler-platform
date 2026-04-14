@@ -1,0 +1,13 @@
+@page "/products"
+@attribute [DabblerPageAuthorize("/products")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Components.Data
+
+<PageTitle>Products — AcmeCoffeeOnline</PageTitle>
+
+<ProductList DataProvider="DataProvider" Title="Products" />
+
+@code {
+    [Inject]
+    private IGridDataProvider<ProductDto> DataProvider { get; set; } = default!;
+}

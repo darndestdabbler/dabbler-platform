@@ -1,0 +1,263 @@
+@page "/products/catalog"
+@attribute [DabblerPageAuthorize("/products/catalog")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Shared.Enums
+@using AcmeCoffeeOnline.Web.Services
+
+<PageTitle>Product Catalog — AcmeCoffeeOnline</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Product Catalog</MudText>
+
+    @* ── Search and filter bar ───────────────────────────────── *@
+    <MudPaper Elevation="1" Class="pa-4 mb-4">
+        <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center">
+            <MudTextField @bind-Value="_searchText"
+                          Placeholder="Search products..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          DebounceInterval="300"
+                          OnDebounceIntervalElapsed="OnSearchChangedAsync"
+                          Style="flex: 1;" />
+
+            <MudSelect T="RoastLevel?" Value="_selectedRoastLevel"
+                       Label="Roast Level"
+                       Variant="Variant.Outlined"
+                       Clearable="true"
+                       Style="min-width: 180px;"
+                       ValueChanged="OnRoastFilterChangedAsync">
+                @foreach (var level in Enum.GetValues<RoastLevel>())
+                {
+                    <MudSelectItem T="RoastLevel?" Value="@level">@level</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudCheckBox Value="_availableOnly"
+                         Label="Available only"
+                         Color="Color.Primary"
+                         T="bool"
+                         ValueChanged="OnAvailableFilterChangedAsync" />
+        </MudStack>
+    </MudPaper>
+
+    @* ── Product cards grid ──────────────────────────────────── *@
+    @if (_loading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="py-8">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">Loading products...</MudText>
+        </MudStack>
+    }
+    else if (!_filteredProducts.Any())
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-4">
+            No products match your search criteria.
+        </MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            @foreach (var product in _filteredProducts)
+            {
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    <MudCard Elevation="2" Style="height: 100%; display: flex; flex-direction: column;">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <MudCardMedia Image="@product.ImageUrl" Height="180" />
+                        }
+                        else
+                        {
+                            <div style="height: 180px; display: flex; align-items: center; justify-content: center; background: var(--mud-palette-background-grey);">
+                                <MudIcon Icon="@Icons.Material.Filled.LocalCafe" Size="Size.Large"
+                                         Color="Color.Secondary" Style="font-size: 64px; opacity: 0.3;" />
+                            </div>
+                        }
+                        <MudCardContent Style="flex: 1;">
+                            <MudStack Spacing="1">
+                                <MudText Typo="Typo.h6">@product.Name</MudText>
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudChip T="string" Size="Size.Small" Color="GetRoastColor(product.RoastLevel)"
+                                             Variant="Variant.Filled">
+                                        @product.RoastLevel
+                                    </MudChip>
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">
+                                        @product.GrindType
+                                    </MudChip>
+                                    @if (!product.IsAvailable)
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Error"
+                                                 Variant="Variant.Filled">
+                                            Unavailable
+                                        </MudChip>
+                                    }
+                                </MudStack>
+                                @if (!string.IsNullOrEmpty(product.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary"
+                                             Style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        @product.Description
+                                    </MudText>
+                                }
+                            </MudStack>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudText Typo="Typo.h6" Color="Color.Primary" Class="ml-2">
+                                @product.UnitPrice.ToString("C")
+                            </MudText>
+                            <MudSpacer />
+                            <MudButton Variant="Variant.Text" Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.Visibility"
+                                       OnClick="@(() => ViewProductAsync(product.Id))">
+                                View
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudContainer>
+
+@if (_showProductDialog && _selectedProduct is not null)
+{
+    <MudDialog @bind-Visible="_showProductDialog" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+        <TitleContent>
+            <MudText Typo="Typo.h6">@_selectedProduct.Name</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudStack Spacing="2">
+                <MudStack Row="true" Spacing="1">
+                    <MudChip T="string" Size="Size.Small" Color="GetRoastColor(_selectedProduct.RoastLevel)"
+                             Variant="Variant.Filled">@_selectedProduct.RoastLevel</MudChip>
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@_selectedProduct.GrindType</MudChip>
+                    @if (!_selectedProduct.IsAvailable)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Filled">Unavailable</MudChip>
+                    }
+                </MudStack>
+                <MudText Typo="Typo.h5" Color="Color.Primary">@_selectedProduct.UnitPrice.ToString("C")</MudText>
+                @if (!string.IsNullOrEmpty(_selectedProduct.Description))
+                {
+                    <MudText Typo="Typo.body1">@_selectedProduct.Description</MudText>
+                }
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Caffeine: @_selectedProduct.CaffeineContent
+                </MudText>
+            </MudStack>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="CloseProductDialog">Close</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+
+@code {
+    [Inject]
+    private ProductApiClient ProductClient { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private List<ProductDto> _allProducts = new();
+    private List<ProductDto> _filteredProducts = new();
+    private string? _searchText;
+    private RoastLevel? _selectedRoastLevel;
+    private bool _availableOnly = true;
+    private bool _loading = true;
+    private bool _showProductDialog;
+    private ProductDto? _selectedProduct;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProductsAsync();
+    }
+
+    private async Task LoadProductsAsync()
+    {
+        _loading = true;
+
+        var request = new PagedRequest { Page = 1, PageSize = 200, SortBy = "Name" };
+        var response = await ProductClient.GetAllAsync(request);
+        _allProducts = response.Items.ToList();
+
+        ApplyFilters();
+        _loading = false;
+    }
+
+    private void ApplyFilters()
+    {
+        var query = _allProducts.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(_searchText))
+        {
+            query = query.Where(p =>
+                p.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+                || (p.Description?.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        if (_selectedRoastLevel.HasValue)
+        {
+            query = query.Where(p => p.RoastLevel == _selectedRoastLevel.Value);
+        }
+
+        if (_availableOnly)
+        {
+            query = query.Where(p => p.IsAvailable);
+        }
+
+        _filteredProducts = query.ToList();
+    }
+
+    private Task OnSearchChangedAsync(string _)
+    {
+        ApplyFilters();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnRoastFilterChangedAsync(RoastLevel? value)
+    {
+        _selectedRoastLevel = value;
+        ApplyFilters();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnAvailableFilterChangedAsync(bool value)
+    {
+        _availableOnly = value;
+        ApplyFilters();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task ViewProductAsync(int productId)
+    {
+        var product = _allProducts.FirstOrDefault(p => p.Id == productId)
+                      ?? await ProductClient.GetByIdAsync(productId);
+
+        if (product is not null)
+        {
+            _selectedProduct = product;
+            _showProductDialog = true;
+        }
+    }
+
+    private void CloseProductDialog()
+    {
+        _showProductDialog = false;
+        _selectedProduct = null;
+    }
+
+    private static Color GetRoastColor(RoastLevel level) => level switch
+    {
+        RoastLevel.DeepDark => Color.Dark,
+        RoastLevel.Dark => Color.Default,
+        RoastLevel.Medium => Color.Warning,
+        RoastLevel.Blonde => Color.Info,
+        RoastLevel.Light => Color.Success,
+        _ => Color.Default
+    };
+}

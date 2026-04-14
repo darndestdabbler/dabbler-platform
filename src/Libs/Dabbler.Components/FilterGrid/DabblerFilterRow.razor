@@ -1,0 +1,38 @@
+@namespace Dabbler.Components
+
+@if (IsVertical)
+{
+    <div class="dabbler-filter-row dabbler-filter-row-vertical">
+        @foreach (var column in Columns)
+        {
+            <div class="dabbler-filter-field">
+                @if (!string.IsNullOrEmpty(column.Header))
+                {
+                    <label class="dabbler-filter-field-label">
+                        @column.Header
+                        @if (column.IsRequired)
+                        {
+                            <span class="dabbler-filter-required" aria-hidden="true">*</span>
+                        }
+                    </label>
+                }
+                <DabblerFilterCell Column="@column"
+                                   GroupIndex="@GroupIndex"
+                                   Coordinator="@Coordinator"
+                                   ShowValidation="@ShowValidation" />
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="dabbler-filter-row" style="@GridTemplateStyle">
+        @foreach (var column in Columns)
+        {
+            <DabblerFilterCell Column="@column"
+                               GroupIndex="@GroupIndex"
+                               Coordinator="@Coordinator"
+                               ShowValidation="@ShowValidation" />
+        }
+    </div>
+}

@@ -1,0 +1,38 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+@using Dabbler.Components.Data.Metadata
+
+<div class="dabbler-widget-favorites @Class" style="@Style" @attributes="UserAttributes">
+    <MudText Typo="Typo.subtitle2" Class="dabbler-widget-favorites-title">Favorites</MudText>
+
+    @if (_isLoading)
+    {
+        <div class="dabbler-widget-loading">
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+        </div>
+    }
+    else if (_items.Count == 0)
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="dabbler-widget-favorites-empty">
+            No favorites yet. Pin items from the menu bar to see them here.
+        </MudText>
+    }
+    else
+    {
+        <div class="dabbler-widget-favorites-list">
+            @foreach (var item in _items)
+            {
+                <button class="dabbler-widget-favorites-item"
+                        @onclick="() => OnItemClick.InvokeAsync(item)"
+                        aria-label="@item.ArtifactId">
+                    <MudIcon Icon="@Icons.Material.Filled.Star"
+                             Size="Size.Small"
+                             Color="Color.Warning"
+                             Class="dabbler-widget-favorites-icon" />
+                    <span class="dabbler-widget-favorites-label">@item.ArtifactId</span>
+                    <span class="dabbler-widget-favorites-type">@item.ArtifactType</span>
+                </button>
+            }
+        </div>
+    }
+</div>

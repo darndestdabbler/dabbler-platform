@@ -1,16 +1,24 @@
-using AcmeCoffeeOnline.Web.Components;
 using AcmeCoffeeOnline.Web.Configuration;
-using AcmeCoffeeOnline.Web.Infrastructure;
-using AcmeCoffeeOnline.Web.Services;
 using System.Net;
 using System.Security.Claims;
+using AcmeCoffeeOnline.Shared.DTOs;
+using AcmeCoffeeOnline.Web.Data;
+using AcmeCoffeeOnline.Web.Services;
+using Dabbler.Components.Data;
+using Dabbler.Components.Data.Metadata;
+using Dabbler.Security.Abstractions;
+using Dabbler.Security.Blazor.Extensions;
+using Dabbler.Security.Data;
+using Dabbler.Security.Extensions;
+using Dabbler.Security.Options;
+using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Configuration.AddJsonFile("security-config.json", optional: false, reloadOnChange: true);
 
 builder.Services
     .AddOptions<DabblerAssetOptions>()
@@ -24,83 +32,149 @@ builder.Services
     .ValidateOnStart();
 builder.Services.AddSingleton<IValidateOptions<AppAuthenticationOptions>, AppAuthenticationOptionsValidator>();
 
-builder.Services
-    .AddOptions<SecurityConfigOptions>()
-    .Bind(builder.Configuration.GetSection(SecurityConfigOptions.SectionName))
-    .ValidateOnStart();
-builder.Services.AddSingleton<IValidateOptions<SecurityConfigOptions>, SecurityConfigOptionsValidator>();
-
-var securityConfig = builder.Configuration
-    .GetSection(SecurityConfigOptions.SectionName)
-    .Get<SecurityConfigOptions>() ?? new SecurityConfigOptions();
-
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/login";
-        options.AccessDeniedPath = "/access-denied";
-        options.SlidingExpiration = true;
-        options.Events = new CookieAuthenticationEvents
-        {
-            OnRedirectToLogin = context =>
-            {
-                if (context.Request.Path.StartsWithSegments("/auth-check"))
-                {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    return Task.CompletedTask;
-                }
 
-                context.Response.Redirect(context.RedirectUri);
-                return Task.CompletedTask;
-            },
-            OnRedirectToAccessDenied = context =>
-            {
-                if (context.Request.Path.StartsWithSegments("/auth-check"))
-                {
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                    return Task.CompletedTask;
-                }
+// ── Dabbler.Security (cookie auth + OIDC scheme + user lookup) ──────────────
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Server=(localdb)\\mssqllocaldb;Database=AcmeCoffeeOnline_Dev;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-                context.Response.Redirect(context.RedirectUri);
-                return Task.CompletedTask;
-            }
-        };
-    });
-builder.Services.AddAuthorization(options =>
+builder.Services.AddDabblerSecurity(options =>
 {
-    foreach (var policy in securityConfig.Policies)
-    {
-        if (string.IsNullOrWhiteSpace(policy.Name) || policy.Roles.Length == 0)
-        {
-            continue;
-        }
+    options.ConnectionString = connectionString;
+    options.InternalApiKey = builder.Configuration["DabblerSecurity:InternalApiKey"] ?? "dev-internal-key-acme";
+    options.MagicLinkExpiry = TimeSpan.FromMinutes(15);
+    options.RequireMfa = false;
+    options.UnregisteredResourcePolicy = UnregisteredResourcePolicy.FailOpen;
 
-        options.AddPolicy(policy.Name, configure =>
+    options.Email.SenderType = EmailSenderType.DevMailHog;
+
+    options.Mfa.EncryptionKey = builder.Configuration["DabblerSecurity:MfaEncryptionKey"]
+        ?? Convert.ToBase64String(new byte[32]);
+
+    // ── OIDC: register Entra ID (points to DevIdp in development) ────────
+    var oidcSection = builder.Configuration.GetSection("DabblerSecurity:Oidc");
+    if (oidcSection.Exists())
+    {
+        options.AddEntraId(entra =>
         {
-            configure.RequireAuthenticatedUser();
-            configure.RequireRole(policy.Roles);
+            entra.Authority = oidcSection["Authority"] ?? string.Empty;
+            entra.ClientId = oidcSection["ClientId"] ?? string.Empty;
+            entra.ClientSecret = oidcSection["ClientSecret"] ?? string.Empty;
+            entra.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+            entra.AutoProvisionUsers = true;
+            entra.DefaultRoles = ["Customer"];
         });
     }
 });
-builder.Services.AddHttpClient<PlatformStatusClient>((serviceProvider, client) =>
+
+builder.Services.UseJsonFileStore(
+    Path.Combine(builder.Environment.ContentRootPath, "security-config.json"));
+
+// Cookie overrides for development
+builder.Services.PostConfigure<CookieAuthenticationOptions>(
+    CookieAuthenticationDefaults.AuthenticationScheme,
+    options =>
+    {
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.Events ??= new CookieAuthenticationEvents();
+        options.Events.OnRedirectToLogin = context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/auth-check"))
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            }
+
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/auth-check"))
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
+    });
+
+builder.Services.PostConfigure<CookieAuthenticationOptions>(
+    "DabblerExternalAuth",
+    options =>
+    {
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+    });
+
+// Exchange-token store for Blazor Server auth hand-off
+builder.Services.AddMemoryCache();
+
+builder.Services.AddDabblerSecurityBlazor();
+
+// Typed HTTP clients backed by IHttpClientFactory with user identity forwarding
+var apiBaseUrl = builder.Configuration["Services:ApiBaseUrl"]
+    ?? builder.Configuration["ApiBaseUrl"]
+    ?? "http://localhost:5011";
+var internalApiKey = builder.Configuration["DabblerSecurity:InternalApiKey"] ?? "dev-internal-key-acme";
+
+builder.Services.AddHttpClient<ProductApiClient>(client =>
 {
-    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    var baseUrl = configuration["Services:ApiBaseUrl"] ?? "http://localhost:5011";
-    client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
-});
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+}).AddHttpMessageHandler<UserIdentityHandler>();
+
+builder.Services.AddHttpClient<CustomerApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+}).AddHttpMessageHandler<UserIdentityHandler>();
+
+builder.Services.AddHttpClient<OrderApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+}).AddHttpMessageHandler<UserIdentityHandler>();
+
+// Grid data providers
+builder.Services.AddTransient<IGridDataProvider<ProductDto>, ProductDataProvider>();
+builder.Services.AddTransient<IGridDataProvider<CustomerDto>, CustomerDataProvider>();
+builder.Services.AddTransient<IGridDataProvider<OrderDto>, OrderDataProvider>();
+builder.Services.AddTransient<OrderItemDataProvider>();
+builder.Services.AddTransient<OrderNoteDataProvider>();
+
+// Report data providers (concrete types for report page injection)
+builder.Services.AddTransient<OrderReportDataProvider>();
+builder.Services.AddTransient<SalesReportDataProvider>();
+
+// Dashboard: artifact catalog + usage tracking providers
+builder.Services.AddSingleton<IArtifactCatalogProvider, AcmeCoffeeCatalogProvider>();
+builder.Services.AddSingleton<IUsageTrackingProvider, InMemoryUsageTrackingProvider>();
+
+// Dabbler Components: metadata and navigation providers
+builder.Services.AddSingleton<IEntityMetadataProvider, AcmeCoffeeMetadataProvider>();
+builder.Services.AddScoped<INavigationDataProvider, AcmeCoffeeNavigationDataProvider>();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
@@ -111,7 +185,7 @@ app.MapGet("/health", () => Results.Ok(new
 {
     service = "web",
     status = "healthy",
-    stage = "session-4-guardrails",
+    stage = "session-5-parity",
     deliveryMode = authOptions.DeliveryMode
 }));
 
@@ -119,8 +193,8 @@ app.MapGet("/auth-check", (ClaimsPrincipal user) => Results.Ok(new
 {
     status = "authorized",
     user = user.Identity?.Name ?? user.FindFirstValue(ClaimTypes.NameIdentifier),
-    policy = SecurityPolicies.OperationsViewer
-})).RequireAuthorization(SecurityPolicies.OperationsViewer);
+    roles = user.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
+})).RequireAuthorization();
 
 if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
     && authOptions.SeededSession.Enabled)
@@ -145,7 +219,7 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
 
         var requestedRoles = ParseRequestedRoles(roles) is { Length: > 0 } parsedRoles
             ? parsedRoles
-            : [SecurityPolicies.OperationsViewer];
+            : [ "BackofficeUser" ];
 
         var allowedRoles = authOptions.SeededSession.AllowedRoles;
         if (requestedRoles.Any(role => !allowedRoles.Contains(role, StringComparer.Ordinal)))
@@ -153,15 +227,11 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
             return Results.BadRequest(new { error = "One or more requested roles are not allowed for seeded sessions." });
         }
 
-        var effectiveDisplayName = string.IsNullOrWhiteSpace(displayName)
-            ? "Seeded Session User"
-            : displayName;
-
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId ?? "seeded-user"),
-            new(ClaimTypes.Name, effectiveDisplayName),
-            new(ClaimTypes.Email, email ?? "seeded.user@acme.test")
+            new(ClaimTypes.Name, string.IsNullOrWhiteSpace(displayName) ? "Seeded Session User" : displayName),
+            new(ClaimTypes.Email, string.IsNullOrWhiteSpace(email) ? "seeded.user@acme.test" : email)
         };
 
         claims.AddRange(requestedRoles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -203,11 +273,250 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
     });
 }
 
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
+// ── Auth endpoints ──────────────────────────────────────────────────────────
+
+// OIDC challenge — redirects browser to DevIdp/Entra ID login
+app.MapGet("/auth/challenge/{scheme}", async (
+    string scheme,
+    string? returnUrl,
+    HttpContext context) =>
+{
+    var safeReturnUrl = IsLocalUrl(returnUrl) ? returnUrl! : "/";
+
+    var properties = new AuthenticationProperties
+    {
+        RedirectUri = $"/auth/external-callback?returnUrl={Uri.EscapeDataString(safeReturnUrl)}",
+        Items = { ["scheme"] = scheme, ["provider"] = scheme }
+    };
+
+    await context.ChallengeAsync(scheme, properties);
+    return Results.Empty;
+});
+
+// OIDC callback — exchanges external cookie for application cookie
+app.MapGet("/auth/external-callback", async (
+    string? returnUrl,
+    IExternalLoginService externalLoginService,
+    DabblerSecurityDbContext db,
+    ILoggerFactory loggerFactory,
+    HttpContext context) =>
+{
+    var logger = loggerFactory.CreateLogger("AcmeCoffeeOnline.ExternalAuth");
+
+    var authResult = await context.AuthenticateAsync("DabblerExternalAuth");
+    if (!authResult.Succeeded || authResult.Principal == null)
+    {
+        logger.LogWarning("External authentication failed: {Failure}",
+            authResult.Failure?.Message ?? "No principal");
+        return Results.Redirect("/login?error=external-auth-failed");
+    }
+
+    var providerName = authResult.Properties?.Items["provider"] ?? "EntraId";
+
+    ExternalClaimMapper.ExternalUserInfo userInfo;
+    try
+    {
+        userInfo = ExternalClaimMapper.ExtractUserInfo(providerName, authResult.Principal);
+    }
+    catch (InvalidOperationException ex)
+    {
+        logger.LogWarning(ex, "Failed to extract user info from external claims");
+        return Results.Redirect("/login?error=external-auth-failed");
+    }
+
+    var user = await externalLoginService.FindByExternalLoginAsync(providerName, userInfo.SubjectId);
+    if (user == null)
+    {
+        try
+        {
+            user = await externalLoginService.ProvisionAndLinkAsync(
+                providerName, userInfo.SubjectId, userInfo.Email, userInfo.DisplayName, ["Customer"]);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Failed to provision user from {Provider}", providerName);
+            return Results.Redirect("/login?error=provisioning-failed");
+        }
+    }
+
+    var claims = new List<Claim>
+    {
+        new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new(ClaimTypes.Email, user.Email),
+        new(ClaimTypes.Name, user.DisplayName)
+    };
+    claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r.Role!.Name)));
+
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    await context.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        new ClaimsPrincipal(identity));
+
+    await context.SignOutAsync("DabblerExternalAuth");
+
+    logger.LogInformation("External login successful: {Provider} user {UserId}", providerName, user.Id);
+
+    var safeReturnUrl = IsLocalUrl(returnUrl) ? returnUrl! : "/";
+    return Results.Redirect(safeReturnUrl);
+});
+
+// Magic link verify — exchanges token for exchange token (Blazor Server hand-off)
+app.MapPost("/auth/verify", async (
+    VerifyMagicLinkRequest req,
+    IMagicLinkService svc,
+    DabblerSecurityDbContext db,
+    IMemoryCache cache,
+    CancellationToken ct) =>
+{
+    var result = !string.IsNullOrWhiteSpace(req.Token)
+        ? await svc.VerifyByTokenAsync(req.Token, ct)
+        : await svc.VerifyByCodeAsync(req.Email ?? string.Empty, req.Code ?? string.Empty, ct);
+
+    if (!result.Success || result.UserId is null || result.Email is null)
+        return Results.BadRequest(result);
+
+    if (result.RequiresMfa)
+        return Results.Ok(new { result.Success, result.RequiresMfa, UserId = result.UserId.Value });
+
+    var user = await db.AppUsers
+        .Include(x => x.Roles)
+        .ThenInclude(x => x.Role)
+        .FirstAsync(x => x.Id == result.UserId.Value, ct);
+
+    var exchangeToken = Guid.NewGuid().ToString("N");
+    var userInfo = new ExchangeTokenInfo(
+        user.Id, user.Email, user.DisplayName,
+        user.Roles.Select(r => r.Role!.Name).ToArray());
+
+    cache.Set(exchangeToken, userInfo, TimeSpan.FromSeconds(60));
+
+    return Results.Ok(new { result.Success, result.RequiresMfa, user.Id, user.Email, ExchangeToken = exchangeToken });
+});
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapPost("/auth/dev-test-sign-in", async (
+        MagicLinkRequest req,
+        HttpContext http,
+        DabblerSecurityDbContext db,
+        IMemoryCache cache,
+        CancellationToken ct) =>
+    {
+        if (http.Connection.RemoteIpAddress is { } remoteIp && !IPAddress.IsLoopback(remoteIp))
+        {
+            return Results.NotFound();
+        }
+
+        var user = await db.AppUsers
+            .Include(x => x.Roles)
+            .ThenInclude(x => x.Role)
+            .FirstOrDefaultAsync(x => x.Email == req.Email, ct);
+
+        if (user is null)
+        {
+            return Results.NotFound();
+        }
+
+        var exchangeToken = Guid.NewGuid().ToString("N");
+        var userInfo = new ExchangeTokenInfo(
+            user.Id, user.Email, user.DisplayName,
+            user.Roles.Select(r => r.Role!.Name).ToArray());
+
+        cache.Set(exchangeToken, userInfo, TimeSpan.FromSeconds(60));
+
+        return Results.Ok(new { ExchangeToken = exchangeToken });
+    });
+}
+
+app.MapPost("/auth/send-magic-link", async (
+    MagicLinkRequest req,
+    HttpContext ctx,
+    IMagicLinkService svc,
+    CancellationToken ct) =>
+{
+    var baseUrl = $"{ctx.Request.Scheme}://{ctx.Request.Host}/login";
+    var result = await svc.IssueAsync(req.Email, baseUrl, ctx.Connection.RemoteIpAddress?.ToString(), ct);
+    return Results.Ok(result);
+});
+
+// Real browser request — sets cookie on the browser correctly
+app.MapGet("/auth/complete", async (
+    string token,
+    string? returnUrl,
+    HttpContext http,
+    IMemoryCache cache) =>
+{
+    if (!cache.TryGetValue<ExchangeTokenInfo>(token, out var userInfo) || userInfo is null)
+        return Results.Redirect("/login?error=expired");
+
+    cache.Remove(token);
+
+    var claims = new List<Claim>
+    {
+        new(ClaimTypes.NameIdentifier, userInfo.UserId.ToString()),
+        new(ClaimTypes.Email, userInfo.Email),
+        new(ClaimTypes.Name, userInfo.DisplayName)
+    };
+    claims.AddRange(userInfo.Roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    await http.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        new ClaimsPrincipal(identity));
+
+    var destination = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
+    return Results.Redirect(destination);
+});
+
+// MFA verification — validates TOTP code and completes login
+app.MapPost("/auth/verify-mfa", async (
+    VerifyMfaRequest req,
+    IMfaService mfaService,
+    DabblerSecurityDbContext db,
+    IMemoryCache cache,
+    CancellationToken ct) =>
+{
+    var valid = await mfaService.ValidateTotpAsync(req.UserId, req.Code);
+    if (!valid)
+    {
+        // Try recovery code as fallback
+        valid = await mfaService.ValidateRecoveryCodeAsync(req.UserId, req.Code);
+    }
+
+    if (!valid)
+        return Results.BadRequest(new { message = "Invalid code." });
+
+    var user = await db.AppUsers
+        .Include(x => x.Roles)
+        .ThenInclude(x => x.Role)
+        .FirstAsync(x => x.Id == req.UserId, ct);
+
+    var exchangeToken = Guid.NewGuid().ToString("N");
+    var userInfo = new ExchangeTokenInfo(
+        user.Id, user.Email, user.DisplayName,
+        user.Roles.Select(r => r.Role!.Name).ToArray());
+
+    cache.Set(exchangeToken, userInfo, TimeSpan.FromSeconds(60));
+
+    return Results.Ok(new { ExchangeToken = exchangeToken });
+});
+
+app.MapGet("/auth/logout", async (HttpContext http) =>
+{
+    await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Redirect("/login");
+});
+
+app.MapRazorComponents<AcmeCoffeeOnline.Web.Components.App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+
+static bool IsLocalUrl(string? url)
+{
+    if (string.IsNullOrEmpty(url)) return false;
+    return url.StartsWith('/') && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'));
+}
 
 static bool IsLoopbackOrInMemoryRequest(HttpContext context)
 {
@@ -222,8 +531,10 @@ static string[] ParseRequestedRoles(string? roles)
         return [];
     }
 
-    return roles
-        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    return roles.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 }
 
-public partial class Program;
+public record MagicLinkRequest(string Email);
+public record VerifyMagicLinkRequest(string? Token, string? Email, string? Code);
+public record VerifyMfaRequest(int UserId, string Code);
+public record ExchangeTokenInfo(int UserId, string Email, string DisplayName, string[] Roles);

@@ -1,0 +1,144 @@
+@page "/register"
+@layout AcmeCoffeeOnline.Web.Components.Layout.AuthLayout
+@attribute [AllowAnonymous]
+@using System.ComponentModel.DataAnnotations
+@using AcmeCoffeeOnline.Shared.DTOs
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+
+<PageTitle>Register — AcmeCoffeeOnline</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Elevation="2" Class="pa-8">
+        <MudText Typo="Typo.h4" GutterBottom="true">Create Your Account</MudText>
+        <MudText Typo="Typo.body2" Class="mb-6">
+            Sign up as a customer to browse products and place orders.
+        </MudText>
+
+        @if (_registered)
+        {
+            <MudAlert Severity="Severity.Success" Class="mb-4">
+                Registration successful! You can now
+                <MudLink Href="/login">sign in</MudLink> using your email.
+            </MudAlert>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+            }
+
+            <EditForm Model="_model" OnValidSubmit="HandleRegisterAsync" FormName="register">
+                <DataAnnotationsValidator />
+
+                <MudTextField @bind-Value="_model.Email"
+                              Label="Email"
+                              InputType="InputType.Email"
+                              Required="true"
+                              RequiredError="Email is required"
+                              Immediate="true"
+                              Class="mb-4"
+                              Disabled="_submitting"
+                              tabindex="1" />
+
+                <MudTextField @bind-Value="_model.FirstName"
+                              Label="First Name"
+                              Required="true"
+                              RequiredError="First name is required"
+                              Immediate="true"
+                              Class="mb-4"
+                              Disabled="_submitting"
+                              tabindex="2" />
+
+                <MudTextField @bind-Value="_model.LastName"
+                              Label="Last Name"
+                              Required="true"
+                              RequiredError="Last name is required"
+                              Immediate="true"
+                              Class="mb-4"
+                              Disabled="_submitting"
+                              tabindex="3" />
+
+                <MudTextField @bind-Value="_model.Phone"
+                              Label="Phone (optional)"
+                              InputType="InputType.Telephone"
+                              Immediate="true"
+                              Class="mb-6"
+                              Disabled="_submitting"
+                              tabindex="4" />
+
+                <MudButton ButtonType="ButtonType.Submit"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           Disabled="_submitting"
+                           tabindex="5">
+                    @if (_submitting)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        @:Creating account...
+                    }
+                    else
+                    {
+                        @:Create Account
+                    }
+                </MudButton>
+            </EditForm>
+        }
+
+        <MudDivider Class="my-6" />
+
+        <MudText Typo="Typo.body2" Align="Align.Center">
+            Already have an account?
+            <MudLink Href="/login">Sign in</MudLink>
+        </MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private readonly RegistrationRequest _model = new();
+    private bool _submitting;
+    private bool _registered;
+    private string? _errorMessage;
+
+    private async Task HandleRegisterAsync()
+    {
+        _submitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var apiBaseUrl = Configuration["ApiBaseUrl"] ?? "https://localhost:7001";
+            var internalApiKey = Configuration["DabblerSecurity:InternalApiKey"] ?? "dev-internal-key-acme";
+
+            var client = HttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(apiBaseUrl);
+            client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+
+            var response = await client.PostAsJsonAsync("api/registration", _model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _registered = true;
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                _errorMessage = "An account with this email address already exists.";
+            }
+            else
+            {
+                _errorMessage = "Registration failed. Please try again.";
+            }
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Unable to reach the server. Please try again later.";
+        }
+        finally
+        {
+            _submitting = false;
+        }
+    }
+}

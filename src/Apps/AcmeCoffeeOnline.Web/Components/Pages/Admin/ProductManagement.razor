@@ -1,0 +1,280 @@
+@page "/admin/products"
+@attribute [DabblerPageAuthorize("/admin/products")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Shared.Enums
+@using AcmeCoffeeOnline.Web.Services
+@inject ProductApiClient ProductClient
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Product Administration — AcmeCoffeeOnline</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Product Administration</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+    Manage pricing, availability, and product catalog.
+</MudText>
+
+<MudPaper Elevation="1" Class="pa-4">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+        <MudTextField @bind-Value="_searchTerm" Placeholder="Search products..." Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true"
+                      DebounceInterval="300" TextChanged="OnSearchAsync" Variant="Variant.Outlined"
+                      Margin="Margin.Dense" Style="max-width: 400px;" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add" OnClick="ShowNewProductDialogAsync">
+            Add Product
+        </MudButton>
+    </MudStack>
+
+    @if (_loading)
+    {
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" Class="d-flex mx-auto my-8" />
+    }
+    else
+    {
+        <MudDataGrid T="ProductDto" Items="_products" Dense="true" Hover="true" Striped="true"
+                     SortMode="SortMode.Single" Filterable="false">
+            <Columns>
+                <PropertyColumn Property="x => x.Name" Title="Name" />
+                <PropertyColumn Property="x => x.RoastLevel" Title="Roast" />
+                <PropertyColumn Property="x => x.CaffeineContent" Title="Caffeine" />
+                <PropertyColumn Property="x => x.GrindType" Title="Grind" />
+                <PropertyColumn Property="x => x.UnitPrice" Title="Price" Format="C2" />
+                <TemplateColumn Title="Available" Sortable="false">
+                    <CellTemplate>
+                        <MudSwitch T="bool" Value="context.Item.IsAvailable" Color="Color.Success"
+                                   ValueChanged="@(v => ToggleAvailabilityAsync(context.Item))" />
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Actions" Sortable="false">
+                    <CellTemplate>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                       OnClick="@(() => ShowEditProductDialogAsync(context.Item))"
+                                       aria-label="Edit product" />
+                        @if (context.Item.IsAvailable)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Size="Size.Small"
+                                           Color="Color.Error"
+                                           OnClick="@(() => RemoveProductAsync(context.Item))"
+                                           aria-label="Remove product from catalog" />
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+
+        <MudStack Row="true" Justify="Justify.Center" Class="mt-4">
+            <MudPagination Count="_totalPages" Selected="_currentPage"
+                           SelectedChanged="OnPageChangedAsync" />
+        </MudStack>
+    }
+</MudPaper>
+
+@* ── Inline edit dialog ──────────────────────────────────────────── *@
+<MudDialog @bind-Visible="_dialogVisible" Options="_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_isNewProduct ? "Add Product" : "Edit Product")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_formValid">
+            <MudTextField @bind-Value="_editProduct.Name" Label="Name" Required="true"
+                          RequiredError="Name is required" Variant="Variant.Outlined" Class="mb-3" />
+            <MudStack Row="true" Spacing="3">
+                <MudSelect @bind-Value="_editProduct.RoastLevel" Label="Roast Level"
+                           Variant="Variant.Outlined" Class="mb-3">
+                    @foreach (var level in Enum.GetValues<RoastLevel>())
+                    {
+                        <MudSelectItem Value="level">@level</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect @bind-Value="_editProduct.CaffeineContent" Label="Caffeine"
+                           Variant="Variant.Outlined" Class="mb-3">
+                    @foreach (var caffeine in Enum.GetValues<CaffeineContent>())
+                    {
+                        <MudSelectItem Value="caffeine">@caffeine</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect @bind-Value="_editProduct.GrindType" Label="Grind Type"
+                           Variant="Variant.Outlined" Class="mb-3">
+                    @foreach (var grind in Enum.GetValues<GrindType>())
+                    {
+                        <MudSelectItem Value="grind">@grind</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudStack>
+            <MudStack Row="true" Spacing="3">
+                <MudNumericField @bind-Value="_editProduct.UnitPrice" Label="Unit Price" Format="F2"
+                                 Min="0.01m" Max="9999.99m" Variant="Variant.Outlined" Class="mb-3" />
+                <MudSwitch @bind-Value="_editProduct.IsAvailable" Label="Available" Color="Color.Success"
+                           Class="mt-4" />
+            </MudStack>
+            <MudTextField @bind-Value="_editProduct.Description" Label="Description" Lines="3"
+                          Variant="Variant.Outlined" Class="mb-3" />
+            <MudTextField @bind-Value="_editProduct.ImageUrl" Label="Image URL"
+                          Variant="Variant.Outlined" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="!_formValid"
+                   OnClick="SaveProductAsync">
+            @(_isNewProduct ? "Create" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private const int PageSize = 20;
+    private bool _loading = true;
+    private string _searchTerm = "";
+    private int _currentPage = 1;
+    private int _totalPages = 1;
+    private List<ProductDto> _products = new();
+
+    // Dialog state
+    private bool _dialogVisible;
+    private bool _isNewProduct;
+    private bool _formValid;
+    private MudForm? _form;
+    private ProductDto _editProduct = new();
+    private readonly DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProductsAsync();
+    }
+
+    private async Task LoadProductsAsync()
+    {
+        _loading = true;
+        try
+        {
+            var request = new PagedRequest
+            {
+                Page = _currentPage,
+                PageSize = PageSize,
+                SortBy = "Name",
+                SearchTerm = _searchTerm
+            };
+            var response = await ProductClient.GetAllAsync(request);
+            _products = response.Items.ToList();
+            _totalPages = Math.Max(1, (int)Math.Ceiling((double)response.TotalCount / PageSize));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load products: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnSearchAsync(string searchTerm)
+    {
+        _searchTerm = searchTerm;
+        _currentPage = 1;
+        await LoadProductsAsync();
+    }
+
+    private async Task OnPageChangedAsync(int page)
+    {
+        _currentPage = page;
+        await LoadProductsAsync();
+    }
+
+    private async Task ToggleAvailabilityAsync(ProductDto product)
+    {
+        try
+        {
+            await ProductClient.ToggleAvailabilityAsync(product.Id);
+            product.IsAvailable = !product.IsAvailable;
+            Snackbar.Add($"{product.Name} is now {(product.IsAvailable ? "available" : "unavailable")}.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to update availability: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task RemoveProductAsync(ProductDto product)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            "Remove Product",
+            $"Are you sure you want to remove \"{product.Name}\" from the catalog? This will mark it as unavailable.",
+            yesText: "Remove", cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            await ToggleAvailabilityAsync(product);
+        }
+    }
+
+    private Task ShowNewProductDialogAsync()
+    {
+        _isNewProduct = true;
+        _editProduct = new ProductDto { IsAvailable = true };
+        _dialogVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task ShowEditProductDialogAsync(ProductDto product)
+    {
+        _isNewProduct = false;
+        _editProduct = new ProductDto
+        {
+            Id = product.Id,
+            Name = product.Name,
+            RoastLevel = product.RoastLevel,
+            CaffeineContent = product.CaffeineContent,
+            GrindType = product.GrindType,
+            UnitPrice = product.UnitPrice,
+            IsAvailable = product.IsAvailable,
+            Description = product.Description,
+            ImageUrl = product.ImageUrl
+        };
+        _dialogVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveProductAsync()
+    {
+        if (_form is not null)
+            await _form.Validate();
+
+        if (!_formValid)
+            return;
+
+        try
+        {
+            if (_isNewProduct)
+            {
+                var created = await ProductClient.CreateAsync(_editProduct);
+                if (created is not null)
+                {
+                    Snackbar.Add($"Product '{created.Name}' created.", Severity.Success);
+                }
+            }
+            else
+            {
+                var updated = await ProductClient.UpdateAsync(_editProduct.Id, _editProduct);
+                if (updated is not null)
+                {
+                    Snackbar.Add($"Product '{updated.Name}' updated.", Severity.Success);
+                }
+            }
+
+            _dialogVisible = false;
+            await LoadProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to save product: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void CloseDialog()
+    {
+        _dialogVisible = false;
+    }
+}

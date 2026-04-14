@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Round 1 verifier assumed an outdated .NET baseline",
+    "severity": "major",
+    "status": "deferred",
+    "resolution": "Round 2 verification used environment-specific build/test/docker evidence and confirmed net10.0 plus .NET 10 SDK/runtime images are valid in this 2026 workspace."
+  },
+  {
+    "title": "Round 1 suggested consolidating API and Web Dockerfiles",
+    "severity": "minor",
+    "status": "deferred",
+    "resolution": "Treated as optional cleanup. The session spec requires a working Docker-first stack, which is already satisfied."
+  }
+]

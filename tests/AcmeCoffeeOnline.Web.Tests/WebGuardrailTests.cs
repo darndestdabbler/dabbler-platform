@@ -17,15 +17,30 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
     [Fact]
     public async Task HomePage_RendersInsideMainShellAndIncludesDabblerAssetAsync()
     {
-        using var client = _factory.CreateClient();
+        using var factory = _factory.WithWebHostBuilder(builder =>
+            builder.UseEnvironment("Development"));
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        using var signInRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            "/test-auth/seeded-session?roles=BackofficeUser&displayName=Guardrail%20Home%20User");
+        signInRequest.Headers.Add("X-Test-Auth-Secret", "acme-local-seeded-session");
+
+        using var signInResponse = await client.SendAsync(signInRequest);
+        Assert.Equal(HttpStatusCode.OK, signInResponse.StatusCode);
 
         var response = await client.GetAsync("/");
         var content = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("data-testid=\"main-shell\"", content);
-        Assert.Contains("AcmeCoffeeOnline foundation", content);
-        Assert.Contains("data-dabbler-asset=\"css/dabbler-foundation.css\"", content);
+        Assert.Contains("AcmeCoffeeOnline", content);
+        Assert.Contains("data-dabbler-asset=\"dabbler-shell.css\"", content);
     }
 
     [Fact]
@@ -57,12 +72,12 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         var unauthorizedResponse = await client.GetAsync("/auth-check");
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedResponse.StatusCode);
 
-        var forbiddenResponse = await client.GetAsync("/test-auth/seeded-session?roles=OperationsViewer");
+        var forbiddenResponse = await client.GetAsync("/test-auth/seeded-session?roles=BackofficeUser");
         Assert.Equal(HttpStatusCode.Forbidden, forbiddenResponse.StatusCode);
 
         using var signInRequest = new HttpRequestMessage(
             HttpMethod.Get,
-            "/test-auth/seeded-session?roles=OperationsViewer&displayName=Guardrail%20Test%20User");
+            "/test-auth/seeded-session?roles=BackofficeUser&displayName=Guardrail%20Test%20User");
         signInRequest.Headers.Add("X-Test-Auth-Secret", "acme-local-seeded-session");
 
         using var signInResponse = await client.SendAsync(signInRequest);
@@ -72,7 +87,7 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         var authorizedContent = await authorizedResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, authorizedResponse.StatusCode);
-        Assert.Contains("\"policy\":\"OperationsViewer\"", authorizedContent);
+        Assert.Contains("\"BackofficeUser\"", authorizedContent);
         Assert.Contains("Guardrail Test User", authorizedContent);
     }
 }

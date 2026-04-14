@@ -1,0 +1,39 @@
+@page "/reports/orders-by-customer"
+@attribute [DabblerPageAuthorize("/reports/orders-by-customer")]
+@using Dabbler.Reports.Blazor
+@using Dabbler.Reports.Core.Data
+@using AcmeCoffeeOnline.Web.Data
+
+<PageTitle>Orders by Customer — AcmeCoffeeOnline</PageTitle>
+
+<DabblerReportPage RdfPath="Reports/orders-by-customer.rdf.json"
+                   RdfLoader="LoadRdfAsync"
+                   DataProvider="_dataProvider"
+                   Title="Orders by Customer"
+                   AutoRunOnLoad="false"
+                   CollapseParametersAfterRun="true"
+                   ShowPdfExport="true"
+                   ShowPrint="true"
+                   ShowZoom="true"
+                   DefaultScale="1.0"
+                   PdfFileName="orders-by-customer.pdf"
+                   OnError="OnErrorAsync" />
+
+@code {
+    [Inject]
+    private OrderReportDataProvider _dataProvider { get; set; } = default!;
+
+    [Inject]
+    private IWebHostEnvironment _env { get; set; } = default!;
+
+    private async Task<string> LoadRdfAsync(string path)
+    {
+        var fullPath = Path.Combine(_env.ContentRootPath, path);
+        return await File.ReadAllTextAsync(fullPath);
+    }
+
+    private Task OnErrorAsync(Exception ex)
+    {
+        return Task.CompletedTask;
+    }
+}

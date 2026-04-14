@@ -1,0 +1,225 @@
+@page "/account/mfa"
+@layout AcmeCoffeeOnline.Web.Components.Layout.AuthLayout
+@attribute [Authorize]
+@using System.Security.Claims
+@using Dabbler.Security.Abstractions
+@inject IMfaService MfaService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<PageTitle>MFA Enrollment — AcmeCoffeeOnline</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Elevation="2" Class="pa-8">
+        <MudText Typo="Typo.h4" GutterBottom="true">Two-Factor Authentication</MudText>
+
+        @if (!_authenticated)
+        {
+            <MudAlert Severity="Severity.Warning">
+                You must be signed in to manage MFA settings.
+                <MudLink Href="/login?returnUrl=%2Faccount%2Fmfa">Sign in</MudLink>
+            </MudAlert>
+        }
+        else if (_mfaEnabled)
+        {
+            <MudAlert Severity="Severity.Success" Class="mb-4">
+                Two-factor authentication is enabled on your account.
+            </MudAlert>
+            <MudText Typo="Typo.body2" Class="mb-4">
+                Your account is protected with TOTP-based two-factor authentication.
+                Each time you sign in with a magic link, you'll be asked for a code
+                from your authenticator app.
+            </MudText>
+        }
+        else if (_step == EnrollStep.Start)
+        {
+            <MudText Typo="Typo.body2" Class="mb-4">
+                Add an extra layer of security to your account. After enrollment,
+                you'll need your authenticator app each time you sign in.
+            </MudText>
+
+            <MudButton OnClick="StartEnrollmentAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="_submitting"
+                       tabindex="1">
+                @if (_submitting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    @:Setting up...
+                }
+                else
+                {
+                    @:Enable Two-Factor Authentication
+                }
+            </MudButton>
+        }
+        else if (_step == EnrollStep.ScanQr)
+        {
+            <MudText Typo="Typo.body2" Class="mb-4">
+                Scan this QR code with your authenticator app (Google Authenticator,
+                Microsoft Authenticator, Authy, etc.):
+            </MudText>
+
+            @if (!string.IsNullOrEmpty(_qrCodeUri))
+            {
+                <MudPaper Elevation="0" Class="d-flex justify-center pa-4 mb-4" Style="background: #fff;">
+                    <MudImage Src="@GenerateQrImageUrl(_qrCodeUri)"
+                              Alt="QR code for authenticator app"
+                              Width="200" Height="200" />
+                </MudPaper>
+
+                <MudText Typo="Typo.caption" Class="mb-4">
+                    Can't scan? Enter this key manually: <span style="font-family: monospace; background: #f5f5f5; padding: 2px 6px;">@_secret</span>
+                </MudText>
+            }
+
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+            }
+
+            <MudTextField @bind-Value="_verificationCode"
+                          Label="Enter the 6-digit code from your app"
+                          InputType="InputType.Text"
+                          MaxLength="6"
+                          Required="true"
+                          Immediate="true"
+                          Class="mb-4"
+                          Disabled="_submitting"
+                          tabindex="2" />
+
+            <MudButton OnClick="CompleteEnrollmentAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@(_submitting || string.IsNullOrWhiteSpace(_verificationCode))"
+                       tabindex="3">
+                @if (_submitting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    @:Verifying...
+                }
+                else
+                {
+                    @:Verify and Enable
+                }
+            </MudButton>
+        }
+        else if (_step == EnrollStep.ShowRecoveryCodes)
+        {
+            <MudAlert Severity="Severity.Success" Class="mb-4">
+                Two-factor authentication has been enabled!
+            </MudAlert>
+
+            <MudText Typo="Typo.body2" Class="mb-2">
+                Save these recovery codes in a secure place. You can use one if you
+                lose access to your authenticator app. Each code can only be used once.
+            </MudText>
+
+            <MudPaper Elevation="0" Outlined="true" Class="pa-4 mb-4" Style="font-family: monospace;">
+                @foreach (var recoveryCode in _recoveryCodes)
+                {
+                    <MudText>@recoveryCode</MudText>
+                }
+            </MudPaper>
+
+            <MudButton Href="/"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       tabindex="1">
+                I've saved my codes — Continue
+            </MudButton>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private enum EnrollStep { Start, ScanQr, ShowRecoveryCodes }
+    private EnrollStep _step = EnrollStep.Start;
+
+    private bool _authenticated;
+    private bool _mfaEnabled;
+    private int _userId;
+    private string? _secret;
+    private string? _qrCodeUri;
+    private string _verificationCode = string.Empty;
+    private string[] _recoveryCodes = [];
+    private bool _submitting;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+            return;
+
+        _authenticated = true;
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdClaim, out _userId))
+            return;
+
+        var mfaStatus = await MfaService.GetMfaStatusAsync(_userId);
+        _mfaEnabled = mfaStatus?.IsVerified == true;
+    }
+
+    private async Task StartEnrollmentAsync()
+    {
+        _submitting = true;
+        try
+        {
+            var (secret, qrCodeUri) = await MfaService.InitiateEnrollmentAsync(_userId, "AcmeCoffeeOnline");
+            _secret = secret;
+            _qrCodeUri = qrCodeUri;
+            _step = EnrollStep.ScanQr;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to start MFA setup. Please try again.";
+        }
+        finally
+        {
+            _submitting = false;
+        }
+    }
+
+    private async Task CompleteEnrollmentAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_verificationCode))
+            return;
+
+        _submitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var success = await MfaService.CompleteEnrollmentAsync(_userId, _verificationCode.Trim());
+            if (success)
+            {
+                _recoveryCodes = await MfaService.GenerateRecoveryCodesAsync(_userId);
+                _step = EnrollStep.ShowRecoveryCodes;
+            }
+            else
+            {
+                _errorMessage = "Invalid code. Make sure you entered the current code from your authenticator app.";
+            }
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Verification failed. Please try again.";
+        }
+        finally
+        {
+            _submitting = false;
+        }
+    }
+
+    private static string GenerateQrImageUrl(string otpauthUri)
+    {
+        // Use a QR code rendering service or a Blazor component.
+        // For simplicity, we use the Google Charts API (deprecated but still functional).
+        // In production, use a client-side JS library or server-side QR generation.
+        return $"https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl={Uri.EscapeDataString(otpauthUri)}";
+    }
+}

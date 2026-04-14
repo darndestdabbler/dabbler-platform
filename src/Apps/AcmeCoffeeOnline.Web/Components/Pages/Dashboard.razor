@@ -1,0 +1,207 @@
+@page "/dashboard"
+@attribute [DabblerPageAuthorize("/dashboard")]
+@using System.Text.Json
+@using AcmeCoffeeOnline.Web.Data
+
+<PageTitle>Dashboard — AcmeCoffeeOnline</PageTitle>
+
+<DabblerDashboardPage Configuration="_dashboardConfig"
+                       UsageTrackingProvider="_usageProvider"
+                       UserId="@_userId"
+                       OnArtifactSelected="OnArtifactSelectedAsync"
+                       OnRecordSelected="OnRecordSelectedAsync"
+                       OnSearchRequested="OnSearchRequestedAsync" />
+
+@code {
+    [Inject]
+    private IUsageTrackingProvider _usageProvider { get; set; } = default!;
+
+    [Inject]
+    private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private string _userId = "";
+    private DashboardConfiguration _dashboardConfig = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+
+        _dashboardConfig = BuildDashboardConfiguration();
+    }
+
+    private static DashboardConfiguration BuildDashboardConfiguration()
+    {
+        return new DashboardConfiguration
+        {
+            DashboardId = "acme-home",
+            Name = "AcmeCoffeeOnline Dashboard",
+            Description = "Main landing dashboard with navigation, reports, and recent activity",
+            ColumnCount = 3,
+            IsSystemDashboard = true,
+            Widgets = new List<WidgetPlacement>
+            {
+                // ── Row 1: Entity navigation cards ────────────────────────
+                CreateNavigationCard("nav-orders", 1, 1, 1, 1,
+                    "Orders", "ShoppingCart", "Manage coffee orders", "#1976D2",
+                    "entity", "Order"),
+
+                CreateNavigationCard("nav-customers", 1, 2, 1, 1,
+                    "Customers", "People", "View customer records", "#388E3C",
+                    "entity", "Customer"),
+
+                CreateNavigationCard("nav-products", 1, 3, 1, 1,
+                    "Products", "Inventory", "Browse product catalog", "#F57C00",
+                    "entity", "Product"),
+
+                // ── Row 2: Reports quick links + Recent items ─────────────
+                CreateQuickLinksGroup("links-reports", 2, 1, 1, 1,
+                    "Reports",
+                    ("Orders by Customer", "report", "orders-by-customer"),
+                    ("Sales by Product", "report", "sales-by-product")),
+
+                CreateRecentItems("recent", 2, 2, 2, 1),
+
+                // ── Row 3: Favorites + Embedded search ────────────────────
+                CreateFavorites("favorites", 3, 1, 1, 1),
+
+                CreateEmbeddedSearch("search-orders", 3, 2, 1, 1,
+                    "Order", "Search orders by number or customer..."),
+
+                CreateEmbeddedSearch("search-products", 3, 3, 1, 1,
+                    "Product", "Search products by name...")
+            }
+        };
+    }
+
+    private static WidgetPlacement CreateNavigationCard(
+        string id, int row, int col, int colSpan, int rowSpan,
+        string label, string icon, string subtitle, string color,
+        string navigateType, string entityId)
+    {
+        var config = new
+        {
+            Label = label,
+            Icon = icon,
+            Subtitle = subtitle,
+            Color = color,
+            NavigateTo = new { Type = navigateType, EntityId = entityId }
+        };
+
+        return new WidgetPlacement
+        {
+            PlacementId = id,
+            DashboardId = "acme-home",
+            GridRow = row,
+            GridColumn = col,
+            ColSpan = colSpan,
+            RowSpan = rowSpan,
+            WidgetType = WidgetType.NavigationCard,
+            ConfigJson = JsonSerializer.Serialize(config),
+            SortOrder = row * 10 + col
+        };
+    }
+
+    private static WidgetPlacement CreateQuickLinksGroup(
+        string id, int row, int col, int colSpan, int rowSpan,
+        string title, params (string Label, string Type, string ArtifactId)[] links)
+    {
+        var config = new
+        {
+            Title = title,
+            Links = links.Select(l => new { l.Label, l.Type, l.ArtifactId }).ToArray()
+        };
+
+        return new WidgetPlacement
+        {
+            PlacementId = id,
+            DashboardId = "acme-home",
+            GridRow = row,
+            GridColumn = col,
+            ColSpan = colSpan,
+            RowSpan = rowSpan,
+            WidgetType = WidgetType.QuickLinksGroup,
+            ConfigJson = JsonSerializer.Serialize(config),
+            SortOrder = row * 10 + col
+        };
+    }
+
+    private static WidgetPlacement CreateRecentItems(
+        string id, int row, int col, int colSpan, int rowSpan)
+    {
+        return new WidgetPlacement
+        {
+            PlacementId = id,
+            DashboardId = "acme-home",
+            GridRow = row,
+            GridColumn = col,
+            ColSpan = colSpan,
+            RowSpan = rowSpan,
+            WidgetType = WidgetType.RecentItems,
+            ConfigJson = "{}",
+            SortOrder = row * 10 + col
+        };
+    }
+
+    private static WidgetPlacement CreateFavorites(
+        string id, int row, int col, int colSpan, int rowSpan)
+    {
+        return new WidgetPlacement
+        {
+            PlacementId = id,
+            DashboardId = "acme-home",
+            GridRow = row,
+            GridColumn = col,
+            ColSpan = colSpan,
+            RowSpan = rowSpan,
+            WidgetType = WidgetType.Favorites,
+            ConfigJson = "{}",
+            SortOrder = row * 10 + col
+        };
+    }
+
+    private static WidgetPlacement CreateEmbeddedSearch(
+        string id, int row, int col, int colSpan, int rowSpan,
+        string entityName, string placeholder)
+    {
+        var config = new { EntityName = entityName, Placeholder = placeholder };
+
+        return new WidgetPlacement
+        {
+            PlacementId = id,
+            DashboardId = "acme-home",
+            GridRow = row,
+            GridColumn = col,
+            ColSpan = colSpan,
+            RowSpan = rowSpan,
+            WidgetType = WidgetType.EmbeddedSearch,
+            ConfigJson = JsonSerializer.Serialize(config),
+            SortOrder = row * 10 + col
+        };
+    }
+
+    private Task OnArtifactSelectedAsync((ArtifactType ArtifactType, string ArtifactId, string Name) args)
+    {
+        var url = args.ArtifactType switch
+        {
+            ArtifactType.Report => $"/reports/{args.ArtifactId}",
+            ArtifactType.Dashboard => "/dashboard",
+            _ => "/"
+        };
+        NavigationManager.NavigateTo(url);
+        return Task.CompletedTask;
+    }
+
+    private Task OnRecordSelectedAsync((string EntityName, object PrimaryKey) args)
+    {
+        return Task.CompletedTask;
+    }
+
+    private Task OnSearchRequestedAsync((string EntityName, string? SearchText) args)
+    {
+        return Task.CompletedTask;
+    }
+}

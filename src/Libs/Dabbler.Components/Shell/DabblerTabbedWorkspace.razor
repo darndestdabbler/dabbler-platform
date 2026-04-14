@@ -1,0 +1,149 @@
+@namespace Dabbler.Components
+@inherits DabblerComponentBase
+
+@* ── Dynamic page title (WCAG 2.4.2) ───────────────────────── *@
+<PageTitle>@GetActiveTabTitle()</PageTitle>
+
+<div class="dabbler-tabbed-workspace @Class"
+     style="@Style"
+     @attributes="UserAttributes"
+     @onkeydown="HandleKeyDownAsync"
+     tabindex="0">
+
+    @* ── Tab bar ──────────────────────────────────────────────── *@
+    @if (Tabs.Count > 0)
+    {
+        <div class="dabbler-workspace-tabbar" role="tablist"
+             aria-label="Open tabs"
+             @onkeydown="HandleTabBarKeyDownAsync"
+             @onkeydown:preventDefault="_preventTabBarDefault">
+            <div class="dabbler-workspace-tabbar-scroll">
+                @foreach (var tab in Tabs)
+                {
+                    <button class="@GetTabCssClass(tab)"
+                            id="@($"tab-{tab.Id}")"
+                            role="tab"
+                            aria-selected="@(tab.Id == ActiveTabId)"
+                            aria-controls="@($"tabpanel-{tab.Id}")"
+                            aria-label="@GetTabAriaLabel(tab)"
+                            tabindex="@(tab.Id == ActiveTabId ? 0 : -1)"
+                            draggable="true"
+                            @onclick="() => HandleTabClickAsync(tab)"
+                            @onmouseup="(e) => HandleTabAuxClickAsync(e, tab)"
+                            @ondragstart="() => HandleDragStart(tab)"
+                            @ondrop="() => HandleDropAsync(tab)"
+                            @ondragend="HandleDragEnd"
+                            @ondragenter="() => HandleDragEnter(tab)"
+                            @ondragleave="HandleDragLeave"
+                            @ondragover:preventDefault>
+                        <span class="dabbler-workspace-tab-title">@tab.Title</span>
+                        @if (tab.IsDirty)
+                        {
+                            <span class="dabbler-workspace-tab-dirty-indicator"
+                                  aria-hidden="true">&bull;</span>
+                        }
+                        <button class="dabbler-workspace-tab-close"
+                                aria-label="Close @tab.Title"
+                                tabindex="-1"
+                                @onclick="() => HandleTabCloseClickAsync(tab)"
+                                @onclick:stopPropagation>
+                            <MudIcon Icon="@Icons.Material.Filled.Close" Size="Size.Small" />
+                        </button>
+                    </button>
+                }
+            </div>
+
+            @* ── Overflow menu ──────────────────────────────────── *@
+            <MudMenu @bind-Open="_showOverflowMenu"
+                     Icon="@Icons.Material.Filled.MoreVert"
+                     Size="Size.Small"
+                     Dense="true"
+                     AnchorOrigin="Origin.BottomRight"
+                     TransformOrigin="Origin.TopRight"
+                     Class="dabbler-workspace-overflow-btn"
+                     AriaLabel="More tabs">
+                @foreach (var tab in Tabs)
+                {
+                    <MudMenuItem OnClick="() => HandleOverflowTabClickAsync(tab)">
+                        @if (tab.Id == ActiveTabId)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Check" Size="Size.Small" Class="mr-2" />
+                        }
+                        @tab.Title
+                        @if (tab.IsDirty)
+                        {
+                            <span class="dabbler-workspace-tab-dirty-indicator ml-1">&bull;</span>
+                        }
+                    </MudMenuItem>
+                }
+            </MudMenu>
+        </div>
+    }
+
+    @* ── Tab panels ───────────────────────────────────────────── *@
+    <div class="dabbler-workspace-panels">
+        @if (Tabs.Count == 0)
+        {
+            <div class="dabbler-workspace-empty">
+                @if (EmptyStateTemplate is not null)
+                {
+                    @EmptyStateTemplate
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Color="Color.Tertiary">
+                        No tabs open
+                    </MudText>
+                }
+            </div>
+        }
+        else
+        {
+            @foreach (var tab in Tabs)
+            {
+                <div class="dabbler-workspace-panel"
+                     id="@($"tabpanel-{tab.Id}")"
+                     role="tabpanel"
+                     aria-labelledby="@($"tab-{tab.Id}")"
+                     tabindex="0"
+                     style="display: @(tab.Id == ActiveTabId ? "block" : "none")">
+                    @tab.Content
+                </div>
+            }
+        }
+    </div>
+
+    @* ── Dirty close confirmation dialog ──────────────────────── *@
+    <MudDialog @bind-Visible="_showDirtyCloseDialog" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small })">
+        <TitleContent>
+            <MudText Typo="Typo.h6">Unsaved Changes</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>
+                The tab "@(_pendingCloseTab?.Title)" has unsaved changes. Are you sure you want to close it?
+            </MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="HandleDirtyCloseCancelAsync">Cancel</MudButton>
+            <MudButton Color="Color.Warning" OnClick="HandleDirtyCloseConfirmAsync">
+                Close Without Saving
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+
+    @* ── All-dirty warning dialog ─────────────────────────────── *@
+    <MudDialog @bind-Visible="_showAllDirtyWarning" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small })">
+        <TitleContent>
+            <MudText Typo="Typo.h6">Tab Limit Reached</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>
+                Cannot open a new tab. All @MaxTabs tabs have unsaved changes.
+                Please save or close a tab first.
+            </MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="DismissAllDirtyWarning">OK</MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>

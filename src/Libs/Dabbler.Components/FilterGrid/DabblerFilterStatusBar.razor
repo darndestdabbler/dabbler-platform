@@ -1,0 +1,58 @@
+@namespace Dabbler.Components
+
+@if (Coordinator.HasFilters || !string.IsNullOrEmpty(Coordinator.QuickFilterText))
+{
+    <div class="dabbler-filter-status-bar" role="region" aria-label="Active filters">
+        <div class="dabbler-filter-chips">
+            @if (!string.IsNullOrEmpty(Coordinator.QuickFilterText))
+            {
+                <MudChip T="string"
+                         Value="@Coordinator.QuickFilterText"
+                         Size="Size.Small"
+                         Variant="Variant.Filled"
+                         Color="Color.Secondary"
+                         OnClose="@OnQuickFilterChipClosed">
+                    Search: @Coordinator.QuickFilterText
+                </MudChip>
+            }
+
+            @for (int gi = 0; gi < Coordinator.Groups.Groups.Count; gi++)
+            {
+                var group = Coordinator.Groups.Groups[gi];
+                if (!group.HasFilters)
+                    continue;
+
+                @if (gi > 0 && _hasChipsBefore(gi))
+                {
+                    <span class="dabbler-filter-chip-or">OR</span>
+                }
+
+                @foreach (var entry in group.Entries)
+                {
+                    var propertyName = entry.Key;
+                    var header = GetHeader(propertyName);
+                    var chipText = FilterOperatorInfo.FormatFilter(header, entry.Value.Operator, entry.Value.Value);
+
+                    <MudChip T="string"
+                             Value="@propertyName"
+                             Size="Size.Small"
+                             Variant="Variant.Outlined"
+                             Color="Color.Primary"
+                             OnClose="@(() => OnChipClosed(propertyName))"
+                             aria-label="@($"Remove filter: {chipText}")">
+                        @chipText
+                    </MudChip>
+                }
+            }
+        </div>
+
+        <MudButton Variant="Variant.Text"
+                   Size="Size.Small"
+                   Color="Color.Error"
+                   OnClick="@OnClearAllClicked"
+                   Class="dabbler-filter-clear-all"
+                   aria-label="Clear all active filters">
+            Clear All
+        </MudButton>
+    </div>
+}

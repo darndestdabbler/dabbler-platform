@@ -6,7 +6,14 @@ public sealed class DabblerAssetOptions
 {
     public const string SectionName = "DabblerAssets";
 
-    public string[] RequiredStyleAssets { get; set; } = [];
+    public DabblerStyleAsset[] Styles { get; set; } = [];
+}
+
+public sealed class DabblerStyleAsset
+{
+    public string AssetId { get; set; } = string.Empty;
+
+    public string Href { get; set; } = string.Empty;
 }
 
 public sealed class DabblerAssetOptionsValidator : IValidateOptions<DabblerAssetOptions>
@@ -22,24 +29,21 @@ public sealed class DabblerAssetOptionsValidator : IValidateOptions<DabblerAsset
     {
         var errors = new List<string>();
 
-        if (options.RequiredStyleAssets.Length == 0)
+        if (options.Styles.Length == 0)
         {
             errors.Add("DabblerAssets:RequiredStyleAssets must contain at least one stylesheet.");
         }
 
-        foreach (var asset in options.RequiredStyleAssets)
+        foreach (var asset in options.Styles)
         {
-            if (string.IsNullOrWhiteSpace(asset))
+            if (string.IsNullOrWhiteSpace(asset.AssetId))
             {
-                errors.Add("DabblerAssets:RequiredStyleAssets cannot contain blank values.");
-                continue;
+                errors.Add("DabblerAssets:Styles:AssetId cannot be blank.");
             }
 
-            var normalized = asset.Replace('/', Path.DirectorySeparatorChar);
-            var fullPath = Path.Combine(_environment.WebRootPath, normalized);
-            if (!File.Exists(fullPath))
+            if (string.IsNullOrWhiteSpace(asset.Href))
             {
-                errors.Add($"Required Dabbler asset '{asset}' was not found under wwwroot.");
+                errors.Add("DabblerAssets:Styles:Href cannot be blank.");
             }
         }
 

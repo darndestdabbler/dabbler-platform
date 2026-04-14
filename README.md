@@ -8,17 +8,20 @@ to run session-set development from one place.
 
 The repo currently includes:
 
-- the rebuilt AcmeCoffeeOnline Web and API foundations
+- the rebuilt AcmeCoffeeOnline Web, API, and Shared projects
 - consolidated `Dabbler.Security` and `Dabbler.Security.Blazor` source projects
+- integrated `Dabbler.Components` and Dabbler Reports source projects under `src/Libs/`
+- the migrated Acme shell, auth pages, catalog/customer/order flows, and initial report surfaces
 - central build and package management
 - Docker Compose for web, api, sql server, MailHog, and Playwright
-- xUnit and Playwright test foundations
+- xUnit and Playwright coverage, including self-starting smoke tests for the rebuilt app
 - repo-root AI workflow assets: `ai-router/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
 
 ## Project layout
 
 - `src/Apps/AcmeCoffeeOnline.Web/` - rebuilt Blazor Server host
 - `src/Apps/AcmeCoffeeOnline.Api/` - rebuilt REST API host
+- `src/Apps/AcmeCoffeeOnline.Shared/` - shared DTOs, enums, and models
 - `src/Libs/` - integrated Dabbler libraries used by the rebuild
 - `tests/` - xUnit, bUnit, and Playwright coverage
 - `docker/` - compose and container definitions

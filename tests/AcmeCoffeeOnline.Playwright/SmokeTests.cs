@@ -20,23 +20,29 @@ public sealed class SmokeTests
 
         try
         {
+            await page.SetExtraHTTPHeadersAsync(new Dictionary<string, string>
+            {
+                ["X-Test-Auth-Secret"] = "acme-local-seeded-session"
+            });
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/test-auth/seeded-session?roles=BackofficeUser&displayName=Playwright%20Smoke%20User",
+                new PageGotoOptions
+                {
+                    WaitUntil = WaitUntilState.NetworkIdle
+                });
+            await page.SetExtraHTTPHeadersAsync(new Dictionary<string, string>());
+
             await page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
             });
 
-            await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "AcmeCoffeeOnline foundation" }))
-                .ToBeVisibleAsync();
             await Assertions.Expect(page.GetByTestId("main-shell"))
                 .ToBeVisibleAsync();
-            await Assertions.Expect(page.Locator("link[data-dabbler-asset='css/dabbler-foundation.css']"))
+            await Assertions.Expect(page.Locator("link[data-dabbler-asset='dabbler-shell.css']"))
                 .ToHaveCountAsync(1);
-            await Assertions.Expect(page.Locator("[data-testid='api-status']"))
-                .ToContainTextAsync("API reachable: ready");
-            await Assertions.Expect(page.Locator("[data-testid='api-stage']"))
-                .ToContainTextAsync("session-4-guardrails");
-            await Assertions.Expect(page.Locator("[data-testid='auth-delivery-mode']"))
-                .ToContainTextAsync("MagicLink");
+            await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Welcome to AcmeCoffeeOnline" }))
+                .ToBeVisibleAsync();
         }
         finally
         {
@@ -60,8 +66,8 @@ public sealed class SmokeTests
                 .ToBeVisibleAsync();
             await Assertions.Expect(page.GetByTestId("login-page"))
                 .ToBeVisibleAsync();
-            await Assertions.Expect(page.GetByTestId("login-delivery-mode"))
-                .ToContainTextAsync("MagicLink");
+            await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Sign In" }))
+                .ToBeVisibleAsync();
             await Assertions.Expect(page.GetByTestId("main-shell"))
                 .ToHaveCountAsync(0);
         }

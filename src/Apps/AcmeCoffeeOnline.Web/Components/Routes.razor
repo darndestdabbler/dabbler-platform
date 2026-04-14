@@ -1,6 +1,17 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                <div class="pa-4" role="alert" aria-live="assertive">
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+                        Access Denied
+                    </MudAlert>
+                    <MudText Typo="Typo.body2" Class="mt-3">
+                        You do not have permission to view this page.
+                    </MudText>
+                </div>
+            </NotAuthorized>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>

@@ -1,0 +1,448 @@
+{
+  "sessionSetName": "rebuild-consolidation",
+  "createdDate": "2026-04-14T11:22:21.713529+00:00",
+  "totalSessions": 6,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 0,
+      "stepKey": "session-1/session-start",
+      "dateTime": "2026-04-14T11:22:21.723870+00:00",
+      "description": "Started Session 1 of rebuild-consolidation, verified API keys, read CLAUDE.md workflow, read the session spec, and initialized the session activity log.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/baseline-capture",
+      "dateTime": "2026-04-14T11:25:16.795498+00:00",
+      "description": "Created baseline-capture.md summarizing current architecture, roles/auth model, validated shell/auth/permission behavior, and still-risky areas that should inform but not define the rebuild architecture.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "documentation-route",
+          "taskType": "documentation",
+          "costUsd": 0.0394305
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/lessons-learned",
+      "dateTime": "2026-04-14T11:25:16.795498+00:00",
+      "description": "Created lessons-learned.md mapping escaped issues to root causes and prevention owners, and captured prioritized lessons for future scaffolding, library behavior, testing, and process.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "documentation-route",
+          "taskType": "documentation",
+          "costUsd": 0.02101875
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/parity-checklist",
+      "dateTime": "2026-04-14T11:25:16.796497+00:00",
+      "description": "Created parity-checklist.md defining must-match behavior, allowed improvements, rethink areas, and minimum critical user journeys required before rebuild cutover.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/do-not-carry-forward",
+      "dateTime": "2026-04-14T11:25:16.797060+00:00",
+      "description": "Created do-not-carry-forward.md listing fragile patterns from the current repo, preferred replacements, and explicit anti-patterns for humans and AI agents.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-test",
+      "dateTime": "2026-04-14T11:39:33.057511+00:00",
+      "description": "Ran dotnet build successfully. Full dotnet test timed out after roughly 10 minutes; a focused Playwright login/permission/shell run completed but exposed pre-existing failures in magic-link log capture and shell smart-filter navigation behavior.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/session-verification",
+      "dateTime": "2026-04-14T11:39:33.058686+00:00",
+      "description": "Sent Session 1 docs and build/test context for external session verification; verifier returned VERIFIED and confirmed the docs satisfy the session spec while noting the existing test failures as baseline context rather than Session 1 regressions.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "session-verification-route",
+          "taskType": "session-verification",
+          "costUsd": 0.18537
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 0,
+      "stepKey": "session-2/session-start",
+      "dateTime": "2026-04-14T12:12:43.281141+00:00",
+      "description": "Started Session 2 of rebuild-consolidation, used the user-directed override to continue the in-progress rebuild-consolidation set, verified API keys, confirmed Session 1 prerequisite docs exist, and identified that the new integrated repo did not yet exist.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/repo-skeleton",
+      "dateTime": "2026-04-14T12:12:43.282207+00:00",
+      "description": "Created the new sibling repo `../dabbler-platform`, initialized git, added `Dabbler.Platform.sln`, central `Directory.Build.props` and `Directory.Packages.props`, repo docs and ignores, the initial app/test project structure, and a placeholder `src/Libs` boundary that explicitly defers real Dabbler library moves to Session 3.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 498,
+          "outputTokens": 1671,
+          "costUsd": 0.0173325
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/docker-stack",
+      "dateTime": "2026-04-14T12:12:43.282739+00:00",
+      "description": "Added Dockerfiles and Docker Compose for the web app, API, SQL Server, MailHog, and Playwright runner, including health checks and a host-port adjustment for MailHog so the new stack can coexist with other local Docker services.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/xunit-foundation",
+      "dateTime": "2026-04-14T12:12:43.283792+00:00",
+      "description": "Created xUnit-based API and Web test projects, replaced template test stubs with health-endpoint integration tests, and wired the Web/API foundations to fixed local development ports plus a minimal API connectivity slice.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/playwright-smoke",
+      "dateTime": "2026-04-14T12:12:43.284323+00:00",
+      "description": "Created the initial Playwright project, fixture, and smoke test that asserts the rebuilt home page loads and shows live API connectivity, then proved it passes both locally against host-run apps and in the Docker runner container.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/build-success",
+      "dateTime": "2026-04-14T12:12:43.284850+00:00",
+      "description": "Ran `dotnet build Dabbler.Platform.sln` successfully in the new integrated repo with zero warnings and zero errors.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/tests-pass",
+      "dateTime": "2026-04-14T12:12:43.285364+00:00",
+      "description": "Ran `dotnet test Dabbler.Platform.sln --no-build` successfully while the local Web and API apps were running, and separately ran `docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit playwright` successfully so the smoke Playwright flow is proven in CI-like container conditions.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/session-verification",
+      "dateTime": "2026-04-14T12:12:43.285895+00:00",
+      "description": "Saved the raw round-1 verifier output, recorded its outdated .NET-baseline assumptions in the issue log, re-ran external verification with explicit 2026 environment evidence, and received a final VERIFIED result for Session 2.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 10229,
+          "outputTokens": 2475,
+          "costUsd": 0.03753625
+        },
+        {
+          "provider": "ai-router",
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 599,
+          "outputTokens": 510,
+          "costUsd": 0.047235000000000006
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 0,
+      "stepKey": "session-3/session-start",
+      "dateTime": "2026-04-14T12:41:02.757741+00:00",
+      "description": "Started Session 3 of rebuild-consolidation using the user-directed override, verified API keys earlier in the workflow, confirmed Session 1 and 2 prerequisite artifacts exist, and read the Session 3 spec before beginning the library consolidation work in the integrated repo.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/security-move",
+      "dateTime": "2026-04-14T12:52:56.741440+00:00",
+      "description": "Copied Dabbler.Security and Dabbler.Security.Blazor into ../dabbler-platform/src/Libs, brought over the supporting sample app projects and library-focused xUnit/bUnit test projects, and updated the integrated repo README so the consolidated library home is explicit.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/build-unification",
+      "dateTime": "2026-04-14T12:52:56.742430+00:00",
+      "description": "Moved the imported security/sample/test projects onto ../dabbler-platform central package management, aligned them to the integrated repo build settings, and added the consolidated projects to Dabbler.Platform.sln so one solution now owns the app and security library build graph.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/package-boundaries",
+      "dateTime": "2026-04-14T12:52:56.742430+00:00",
+      "description": "Removed sibling-repo project-reference assumptions by retargeting imported project references to src/Libs inside ../dabbler-platform and documented the current package/namespace boundary decisions plus deferred browser-suite migration notes in docs/session-sets/rebuild-consolidation/session-3-library-migration-notes.md.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/library-build",
+      "dateTime": "2026-04-14T12:52:56.743430+00:00",
+      "description": "Built the integrated solution successfully after consolidating the security libraries and adjusted the imported SMTP integration tests to tolerate the local MailHog/Mailpit API response variants used by the environment so the migrated library test surface remains deterministic in the new repo.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/build-test",
+      "dateTime": "2026-04-14T12:52:56.745667+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln successfully, then ran dotnet test for tests/Dabbler.Security.Tests, tests/Dabbler.Security.Blazor.Tests, tests/AcmeCoffeeOnline.Api.Tests, and tests/AcmeCoffeeOnline.Web.Tests successfully. The imported security suites passed with 207 and 120 tests respectively, and the existing API/Web foundation tests also passed.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/session-verification",
+      "dateTime": "2026-04-14T12:54:37.840790+00:00",
+      "description": "Sent the Session 3 spec excerpt, changed build/config/test files, imported tree manifests, and build/test evidence to the external verifier. The verifier returned VERIFIED and confirmed the security libraries are consolidated under the integrated repo with centralized package management, internal source references, passing builds/tests, and documented migration notes.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 21341,
+          "outputTokens": 624,
+          "costUsd": 0.366915
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 0,
+      "stepKey": "session-4/session-start",
+      "dateTime": "2026-04-14T14:00:25.534513+00:00",
+      "description": "Started Session 4 of rebuild-consolidation using the user-directed override, verified API keys, confirmed Session 1-3 prerequisite docs and integrated-repo library artifacts exist, and read the Session 4 spec before beginning workflow-asset and guardrail work in ../dabbler-platform.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/workflow-assets",
+      "dateTime": "2026-04-14T14:25:58.753996+00:00",
+      "description": "Copied the canonical AI workflow assets into ../dabbler-platform by adding ai-router/, nested prompt-templates/ and utils/, root orchestrator instruction files, the core ai-led workflow doc, and an initial docs/session-sets home so future session-set work can run from the integrated repo.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/path-fixups",
+      "dateTime": "2026-04-14T14:25:58.759617+00:00",
+      "description": "Updated the integrated router config, loader, utility docstrings, README, and AGENTS/CLAUDE/GEMINI files so the new ai-router/prompt-templates and ai-router/utils layout resolves correctly and the integrated repo is described as the canonical development home.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/asset-guardrails",
+      "dateTime": "2026-04-14T14:25:58.760584+00:00",
+      "description": "Added a single supported Dabbler asset entrypoint to the rebuilt web foundation via DabblerAssetLinks plus startup validation for required Dabbler styles, and wired the shell/layout markup so smoke tests can detect missing routed content and missing foundation assets.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/auth-helpers",
+      "dateTime": "2026-04-14T14:25:58.762093+00:00",
+      "description": "Added explicit auth delivery-mode configuration, anonymous auth-only layouts/pages, a protected auth-check endpoint, and loopback-only Development/Test seeded-session helpers guarded by a shared secret so non-auth browser tests can sign in deterministically without production auth shortcuts.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/security-config-validation",
+      "dateTime": "2026-04-14T14:25:58.762093+00:00",
+      "description": "Added security-config.json plus strongly validated security configuration binding that registers policy requirements from the checked-in config and fails fast when anonymous auth-page declarations, policies, or endpoint references drift from the expected foundation contract.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/smoke-tests",
+      "dateTime": "2026-04-14T14:25:58.762093+00:00",
+      "description": "Added xUnit smoke coverage for shell content, Dabbler asset links, anonymous auth pages, seeded-session authorization, and workflow-asset pathing, updated Playwright smoke coverage for the home and login pages, and refreshed the API platform status stage so browser smoke checks assert the Session 4 guardrail baseline.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/build-test",
+      "dateTime": "2026-04-14T14:25:58.762093+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln successfully, then ran dotnet test for AcmeCoffeeOnline.Web.Tests, AcmeCoffeeOnline.Api.Tests, Dabbler.Security.Tests, and Dabbler.Security.Blazor.Tests successfully, and finally ran the Playwright smoke suite successfully against host-run API and Web processes on 127.0.0.1:5011 and 127.0.0.1:5010.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/session-verification",
+      "dateTime": "2026-04-14T14:29:59.713945+00:00",
+      "description": "Sent the Session 4 spec excerpt, integrated-repo workflow-asset and guardrail files, and build/test evidence to the external verifier. The verifier returned VERIFIED and confirmed all Session 4 progress keys are complete; it noted only low-severity informational observations about the Windows-oriented workflow smoke test and the session-specific platform stage breadcrumb.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.5453399999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 0,
+      "stepKey": "session-5/session-start",
+      "dateTime": "2026-04-14T15:26:24.587532+00:00",
+      "description": "Started Session 5 of rebuild-consolidation from the integrated repo, confirmed the copied Session 1-4 artifacts and spec are present under docs/session-sets/rebuild-consolidation, and continued the rebuild work in dabbler-platform as the canonical repo.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/components-move",
+      "dateTime": "2026-04-14T15:26:24.588529+00:00",
+      "description": "Used an ai-router analysis pass to narrow the import scope, then imported Dabbler.Components plus Dabbler.Reports.Core, Dabbler.Reports.Export, and Dabbler.Reports.Blazor into src/Libs and aligned them to the integrated repo package-management/build setup.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 282,
+          "outputTokens": 671,
+          "costUsd": 0.0070625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/build-unification",
+      "dateTime": "2026-04-14T15:26:24.590038+00:00",
+      "description": "Added the shared AcmeCoffeeOnline project, retargeted the Web/API projects to integrated source references, updated central package management, refreshed the solution/project graph, and copied the rebuild-consolidation session-set artifacts into dabbler-platform so code and active session history now live together.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/app-rebuild",
+      "dateTime": "2026-04-14T15:26:24.590038+00:00",
+      "description": "Replaced the placeholder Web/API foundations with the proven AcmeCoffeeOnline app slices from the reference repo, including controllers, services, data access, shell components, product/customer/order/report pages, and report definitions.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/domain-migration",
+      "dateTime": "2026-04-14T15:26:24.591554+00:00",
+      "description": "Migrated the shared DTOs, enums, and models into src/Apps/AcmeCoffeeOnline.Shared and reconnected the rebuilt app/API to the proven domain contracts and business-flow endpoints.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/auth-and-nav",
+      "dateTime": "2026-04-14T15:26:24.592811+00:00",
+      "description": "Merged the richer login flow, Dabbler shell, permission-aware navigation, and report surfaces with integrated-repo guardrails by preserving a single Dabbler asset-linking entrypoint, explicit health diagnostics, and Development/Test-only seeded-session helpers for deterministic automation.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/parity-check",
+      "dateTime": "2026-04-14T15:26:24.594210+00:00",
+      "description": "Added session-5-parity-notes.md and refreshed README.md so the integrated repo now documents the imported libraries, migrated app surface, current parity state, and deferred Session 6 follow-up work.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 7,
+      "stepKey": "session-5/build-test",
+      "dateTime": "2026-04-14T15:26:24.595273+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln successfully, then ran dotnet test Dabbler.Platform.sln --no-build successfully. The integrated solution now passes the Acme API/Web smoke tests, the self-starting Playwright smoke suite, and the existing Dabbler.Security and Dabbler.Security.Blazor suites for a total of 335 passing tests.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/session-verification",
+      "dateTime": "2026-04-14T15:27:39.828534+00:00",
+      "description": "Sent the Session 5 spec excerpt, integrated-repo manifests, key integration files, and successful build/test evidence to the external verifier. The verifier returned its round-1 result and the raw output was saved under docs/session-sets/rebuild-consolidation/session-reviews.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 47232,
+          "outputTokens": 1281,
+          "costUsd": 0.804555
+        }
+      ]
+    }
+  ]
+}

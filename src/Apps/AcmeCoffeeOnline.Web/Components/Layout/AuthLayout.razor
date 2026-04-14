@@ -1,7 +1,12 @@
 @inherits LayoutComponentBase
 
-<div class="auth-shell" data-testid="auth-shell">
-    <main class="auth-shell__content">
+<div data-testid="auth-shell">
+    <MudThemeProvider />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
+    <MudContainer MaxWidth="MaxWidth.False" Class="pa-4 pa-sm-6">
         @Body
-    </main>
+    </MudContainer>
 </div>
