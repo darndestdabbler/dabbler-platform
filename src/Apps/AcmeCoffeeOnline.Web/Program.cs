@@ -185,22 +185,81 @@ app.MapGet("/health", () => Results.Ok(new
 {
     service = "web",
     status = "healthy",
-    stage = "session-5-parity",
+    stage = "session-6-cutover",
     deliveryMode = authOptions.DeliveryMode
 }));
 
 app.MapGet("/auth-check", (ClaimsPrincipal user) => Results.Ok(new
 {
     status = "authorized",
+    userId = user.FindFirstValue(ClaimTypes.NameIdentifier),
     user = user.Identity?.Name ?? user.FindFirstValue(ClaimTypes.NameIdentifier),
+    email = user.FindFirstValue(ClaimTypes.Email),
     roles = user.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
 })).RequireAuthorization();
 
 if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
     && authOptions.SeededSession.Enabled)
 {
+    app.MapGet("/test-auth/session-info", (ClaimsPrincipal user, HttpContext context) =>
+    {
+        if (!IsLoopbackOrInMemoryRequest(context))
+        {
+            return Results.StatusCode(StatusCodes.Status403Forbidden);
+        }
+
+        if (!context.Request.Headers.TryGetValue("X-Test-Auth-Secret", out var providedSecret)
+            || !string.Equals(providedSecret, authOptions.SeededSession.SharedSecret, StringComparison.Ordinal))
+        {
+            return Results.StatusCode(StatusCodes.Status403Forbidden);
+        }
+
+        return Results.Ok(new
+        {
+            isAuthenticated = user.Identity?.IsAuthenticated ?? false,
+            userId = user.FindFirstValue(ClaimTypes.NameIdentifier),
+            name = user.FindFirstValue(ClaimTypes.Name),
+            email = user.FindFirstValue(ClaimTypes.Email),
+            customerId = user.FindFirstValue("CustomerId"),
+            roles = user.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
+        });
+    });
+
+    app.MapGet("/test-auth/magic-links", (
+        HttpContext context,
+        DevEmailInbox inbox,
+        string? email,
+        bool clear = false) =>
+    {
+        if (!IsLoopbackOrInMemoryRequest(context))
+        {
+            return Results.StatusCode(StatusCodes.Status403Forbidden);
+        }
+
+        if (!context.Request.Headers.TryGetValue("X-Test-Auth-Secret", out var providedSecret)
+            || !string.Equals(providedSecret, authOptions.SeededSession.SharedSecret, StringComparison.Ordinal))
+        {
+            return Results.StatusCode(StatusCodes.Status403Forbidden);
+        }
+
+        var messages = inbox.GetAll()
+            .Where(message => message.EmailType == "MagicLink")
+            .Where(message => string.IsNullOrWhiteSpace(email)
+                || string.Equals(message.Email, email, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(message => message.CreatedAtUtc)
+            .ToArray();
+
+        if (clear)
+        {
+            inbox.Clear();
+        }
+
+        return Results.Ok(messages);
+    });
+
     app.MapGet("/test-auth/seeded-session", async (
         HttpContext context,
+        DabblerSecurityDbContext db,
         string? roles,
         string? displayName,
         string? email,
@@ -217,9 +276,11 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
             return Results.StatusCode(StatusCodes.Status403Forbidden);
         }
 
+        var seededUser = await ResolveSeededUserAsync(db, email, userId);
+
         var requestedRoles = ParseRequestedRoles(roles) is { Length: > 0 } parsedRoles
             ? parsedRoles
-            : [ "BackofficeUser" ];
+            : seededUser?.Roles ?? [ "BackofficeUser" ];
 
         var allowedRoles = authOptions.SeededSession.AllowedRoles;
         if (requestedRoles.Any(role => !allowedRoles.Contains(role, StringComparer.Ordinal)))
@@ -227,11 +288,19 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
             return Results.BadRequest(new { error = "One or more requested roles are not allowed for seeded sessions." });
         }
 
+        var resolvedUserId = seededUser?.UserId ?? userId ?? "seeded-user";
+        var resolvedDisplayName = string.IsNullOrWhiteSpace(displayName)
+            ? seededUser?.DisplayName ?? "Seeded Session User"
+            : displayName;
+        var resolvedEmail = string.IsNullOrWhiteSpace(email)
+            ? seededUser?.Email ?? "seeded.user@acme.test"
+            : email;
+
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, userId ?? "seeded-user"),
-            new(ClaimTypes.Name, string.IsNullOrWhiteSpace(displayName) ? "Seeded Session User" : displayName),
-            new(ClaimTypes.Email, string.IsNullOrWhiteSpace(email) ? "seeded.user@acme.test" : email)
+            new(ClaimTypes.NameIdentifier, resolvedUserId),
+            new(ClaimTypes.Name, resolvedDisplayName),
+            new(ClaimTypes.Email, resolvedEmail)
         };
 
         claims.AddRange(requestedRoles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -251,6 +320,9 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
         return Results.Ok(new
         {
             status = "signed-in",
+            userId = resolvedUserId,
+            displayName = resolvedDisplayName,
+            email = resolvedEmail,
             roles = requestedRoles
         });
     });
@@ -534,7 +606,56 @@ static string[] ParseRequestedRoles(string? roles)
     return roles.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 }
 
+static async Task<SeededUserInfo?> ResolveSeededUserAsync(
+    DabblerSecurityDbContext db,
+    string? email,
+    string? userId)
+{
+    var query = db.AppUsers
+        .AsNoTracking()
+        .Include(user => user.Roles)
+        .ThenInclude(userRole => userRole.Role)
+        .AsQueryable();
+
+    if (!string.IsNullOrWhiteSpace(email))
+    {
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var user = await query.FirstOrDefaultAsync(appUser => appUser.Email == normalizedEmail);
+        return user is null ? null : new SeededUserInfo(
+            user.Id.ToString(),
+            user.Email,
+            user.DisplayName,
+            user.Roles
+                .Select(role => role.Role?.Name)
+                .Where(roleName => !string.IsNullOrWhiteSpace(roleName))
+                .Cast<string>()
+                .ToArray());
+    }
+
+    if (int.TryParse(userId, out var parsedUserId))
+    {
+        var user = await query.FirstOrDefaultAsync(appUser => appUser.Id == parsedUserId);
+        return user is null ? null : new SeededUserInfo(
+            user.Id.ToString(),
+            user.Email,
+            user.DisplayName,
+            user.Roles
+                .Select(role => role.Role?.Name)
+                .Where(roleName => !string.IsNullOrWhiteSpace(roleName))
+                .Cast<string>()
+                .ToArray());
+    }
+
+    return null;
+}
+
 public record MagicLinkRequest(string Email);
 public record VerifyMagicLinkRequest(string? Token, string? Email, string? Code);
 public record VerifyMfaRequest(int UserId, string Code);
 public record ExchangeTokenInfo(int UserId, string Email, string DisplayName, string[] Roles);
+
+public sealed record SeededUserInfo(
+    string UserId,
+    string Email,
+    string DisplayName,
+    string[] Roles);

@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using AcmeCoffeeOnline.Api.Data;
 using AcmeCoffeeOnline.Shared.Enums;
 using Dabbler.Security.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace AcmeCoffeeOnline.Api.Services;
 
@@ -13,11 +15,16 @@ public class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
+    private readonly AcmeCoffeeDbContext _dbContext;
 
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+    public CurrentUserService(
+        IHttpContextAccessor httpContextAccessor,
+        IConfiguration configuration,
+        AcmeCoffeeDbContext dbContext)
     {
         _httpContextAccessor = httpContextAccessor;
         _configuration = configuration;
+        _dbContext = dbContext;
     }
 
     public string UserId
@@ -97,6 +104,31 @@ public class CurrentUserService : ICurrentUserService
             var customerIdClaim = context?.User.FindFirst("CustomerId");
             if (customerIdClaim != null && int.TryParse(customerIdClaim.Value, out var id))
                 return id;
+
+            if (context?.Items.TryGetValue("ResolvedCustomerId", out var cachedCustomerId) == true)
+            {
+                return cachedCustomerId as int?;
+            }
+
+            var email = (context?.Items["AppUser"] as AppUser)?.Email
+                ?? context?.User.FindFirst(ClaimTypes.Email)?.Value;
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                var normalizedEmail = email.ToLowerInvariant();
+                var resolvedCustomerId = _dbContext.Customers
+                    .AsNoTracking()
+                    .Where(customer => customer.Email == normalizedEmail)
+                    .Select(customer => (int?)customer.Id)
+                    .FirstOrDefault();
+
+                context?.Items.TryAdd("ResolvedCustomerId", resolvedCustomerId);
+
+                if (resolvedCustomerId.HasValue)
+                {
+                    return resolvedCustomerId.Value;
+                }
+            }
 
             // Development fallback
             var idStr = _configuration["TestUser:CustomerId"];

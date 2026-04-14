@@ -162,7 +162,7 @@ app.MapGet("/health", () => Results.Ok(new
 {
     service = "api",
     status = "healthy",
-    stage = "session-5-parity"
+    stage = "session-6-cutover"
 }));
 
 var internalApiKey = builder.Configuration["DabblerSecurity:InternalApiKey"] ?? "dev-internal-key-acme";

@@ -7,6 +7,8 @@ and the AI-led workflow assets used to develop from one canonical solution.
 
 Read `README.md` for the current repo layout and build entry points.
 Read `docs/ai-led-session-workflow.md` for the complete session-set workflow.
+Read `docs/platform-guardrails.md` and `docs/dev-test-auth-modes.md` before
+changing auth helpers, browser coverage, or workflow assets.
 
 Current intended development mode: use integrated source references under
 `src/Libs/`. Do not add new sibling-repo dependencies unless a session spec

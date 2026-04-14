@@ -1,0 +1,250 @@
+# ============================================================
+# AI Router Configuration
+# ============================================================
+# All model info, pricing, thresholds, and behavior in one file.
+# API keys are NEVER stored here — use environment variables.
+# ============================================================
+
+# --- Provider Configuration ---
+providers:
+  anthropic:
+    api_key_env: ANTHROPIC_API_KEY
+    base_url: https://api.anthropic.com/v1/messages
+    api_version: "2023-06-01"
+    rate_limit:
+      requests_per_minute: 50
+      tokens_per_minute: 80000
+    timeout_seconds: 300
+    retry:
+      max_retries: 2
+      backoff_base_seconds: 2  # exponential: 2s, 4s
+
+  google:
+    api_key_env: GEMINI_API_KEY
+    base_url: https://generativelanguage.googleapis.com/v1beta
+    rate_limit:
+      requests_per_minute: 60
+      tokens_per_minute: 100000
+    timeout_seconds: 300
+    retry:
+      max_retries: 2
+      backoff_base_seconds: 2
+
+# --- Model Registry ---
+# Each model has a tier (1=cheap/fast, 2=balanced, 3=powerful/expensive),
+# pricing, context limits, and a reference to its prompt template.
+models:
+  gemini-flash:
+    provider: google
+    model_id: gemini-2.5-flash
+    tier: 1
+    input_cost_per_1m: 0.15
+    output_cost_per_1m: 0.60
+    max_context_tokens: 1048576
+    max_output_tokens: 65536
+    system_prompt_file: prompt-templates/google-system.md
+    notes: "Best for simple analysis, formatting, boilerplate generation"
+
+  gemini-pro:
+    provider: google
+    model_id: gemini-2.5-pro
+    tier: 2
+    input_cost_per_1m: 1.25
+    output_cost_per_1m: 10.00
+    max_context_tokens: 1048576
+    max_output_tokens: 65536
+    system_prompt_file: prompt-templates/google-system.md
+    notes: "Good for medium-complexity analysis, documentation, code review"
+
+  sonnet:
+    provider: anthropic
+    model_id: claude-sonnet-4-6
+    tier: 2
+    input_cost_per_1m: 3.00
+    output_cost_per_1m: 15.00
+    max_context_tokens: 200000
+    max_output_tokens: 16000
+    system_prompt_file: prompt-templates/anthropic-system.md
+    notes: "Use when Anthropic quality needed but Opus overkill"
+
+  opus:
+    provider: anthropic
+    model_id: claude-opus-4-6
+    tier: 3
+    input_cost_per_1m: 15.00
+    output_cost_per_1m: 75.00
+    max_context_tokens: 200000
+    max_output_tokens: 32000
+    system_prompt_file: prompt-templates/anthropic-system.md
+    notes: "Reserved for complex architectural reasoning"
+
+# --- Routing Thresholds ---
+# Complexity score 1-100 mapped to tiers.
+routing:
+  tier1_max_complexity: 30    # score ≤ 30 → tier 1 (Flash)
+  tier2_max_complexity: 65    # score 31–65 → tier 2 (Pro or Sonnet)
+  default_tier: 2             # fallback when estimation is uncertain
+
+  # Which model to use for each tier
+  tier_assignments:
+    1: gemini-flash
+    2: gemini-pro
+    3: opus
+
+  # Override: force a specific model for specific task types
+  task_type_overrides:
+    # Force Sonnet for code review -- Anthropic models are stronger at
+    # careful line-by-line reasoning and catching subtle issues.
+    code-review: sonnet
+
+# --- Complexity Estimation Weights ---
+# These weights control how the complexity score is calculated.
+# Adjust based on observed results.
+complexity:
+  weights:
+    context_length: 0.30      # longer prompts = more complex
+    keyword_signals: 0.35     # content-based signals
+    task_type: 0.20           # some task types are inherently harder
+    explicit_hint: 0.15       # caller can provide a hint (1-100)
+
+  # Context length breakpoints → sub-scores
+  context_length_scores:
+    - { max_chars: 500, score: 10 }
+    - { max_chars: 2000, score: 25 }
+    - { max_chars: 5000, score: 45 }
+    - { max_chars: 10000, score: 65 }
+    - { max_chars: 999999, score: 85 }
+
+  # Task type base scores
+  task_type_scores:
+    code-review: 40
+    documentation: 25
+    analysis: 55
+    test-generation: 35
+    planning: 70
+    formatting: 10
+    summarization: 20
+    architecture: 80
+    security-review: 75
+    refactoring: 65
+    session-verification: 70
+    general: 50
+
+  # Keywords that push complexity up (+3 each, capped at +15)
+  high_complexity_keywords:
+    - architect
+    - security
+    - performance
+    - concurrency
+    - migration
+    - breaking change
+    - cross-cutting
+    - distributed
+    - race condition
+    - backward compatible
+    - critical
+    - complex
+    - authentication
+    - authorization
+    - permission
+    - injection
+    - XSS
+    - CSRF
+    - token
+    - encryption
+
+  # Keywords that push complexity down (-3 each, capped at -15)
+  low_complexity_keywords:
+    - rename
+    - typo
+    - format
+    - lint
+    - boilerplate
+    - simple
+    - straightforward
+    - placeholder
+    - stub
+    - comment
+    - log
+    - copy
+
+# --- Escalation ---
+escalation:
+  enabled: true
+  max_escalations: 2          # tier 1 → 2 → 3, then give up
+  triggers:
+    empty_response: true
+    max_tokens_hit: true       # response truncated
+    min_output_tokens: 30      # suspiciously short response
+    refusal_detection: true    # model declined the task
+  refusal_phrases:
+    - "i can't help with"
+    - "i'm unable to"
+    - "i cannot assist"
+    - "beyond my capabilities"
+    - "i don't have enough context"
+
+# --- Verification (IV&V) ---
+# Cross-provider verification: a model from a different provider
+# checks the work of the original model to catch provider-specific
+# blind spots and biases.
+verification:
+  enabled: true
+
+  # Cross-provider model pairings.
+  # When a model from provider X generates a response, verification
+  # is routed to a model from provider Y at the same (or nearest) tier.
+  # The router selects automatically — these mappings define the pool.
+  cross_provider_map:
+    # "if the generator was THIS model, verify with THAT model"
+    gemini-flash: sonnet        # Google Tier 1 → Anthropic Tier 2 (no Tier 1 Anthropic)
+    gemini-pro: sonnet           # Google Tier 2 → Anthropic Tier 2
+    sonnet: gemini-pro           # Anthropic Tier 2 → Google Tier 2
+    opus: gemini-pro             # Anthropic Tier 3 → Google Tier 2 (Pro is sufficient to verify)
+
+  # Which task types are auto-verified when using route().
+  # If a task type is listed here, route() automatically calls verify()
+  # after getting the initial response. No extra code needed.
+  auto_verify_task_types:
+    - code-review
+    - security-review
+    - architecture
+    - documentation           # Sonnet verifies Gemini's doc output (uses weekly Sonnet credits)
+    # - test-generation       # uncomment to auto-verify test generation
+    # - analysis              # uncomment to auto-verify general analysis
+
+  # Verification behavior
+  settings:
+    # What the verifier checks for
+    check_categories:
+      - correctness            # factual and logical errors
+      - completeness           # missing items the original should have caught
+      - false_positives        # issues flagged by the original that aren't real
+
+    # If the verifier finds issues, what happens?
+    on_disagreement: merge     # "merge" | "flag" | "re-route"
+                                # merge:    combine original + verifier feedback into final output
+                                # flag:     return both responses, let Claude Code decide
+                                # re-route: send to a Tier 3 model as tiebreaker
+
+    # Tier 3 tiebreaker model (used when on_disagreement = "re-route")
+    tiebreaker_model: opus
+
+    # Maximum cost multiplier for verification.
+    # If verification would cost more than this multiplier × original cost,
+    # skip verification for this call.
+    max_cost_multiplier: 3.0
+
+    # Verification prompt template
+    prompt_template_file: prompt-templates/verification.md
+
+# --- State Database ---
+state:
+  db_path: router-state.db       # relative to ai-router/
+  log_prompts: false           # if true, stores full prompts (large!)
+  log_responses: true          # store full responses for review
+
+# --- Output ---
+output:
+  cost_report_on_exit: true    # print cost summary when session ends
+  verbose: false               # detailed logging of each API call

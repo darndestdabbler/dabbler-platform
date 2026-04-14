@@ -127,13 +127,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRowFilterService, RowFilterService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IExternalLoginService, ExternalLoginService>();
+        services.TryAddSingleton<DevEmailInbox>();
 
         services.AddScoped<IEmailSender>(sp =>
         {
             var o = sp.GetRequiredService<IOptions<DabblerSecurityOptions>>().Value;
             return o.Email.SenderType == EmailSenderType.Smtp
                 ? new SmtpEmailSender(sp.GetRequiredService<IOptions<DabblerSecurityOptions>>(), sp.GetRequiredService<ILogger<SmtpEmailSender>>())
-                : new DevEmailSender(sp.GetRequiredService<ILogger<DevEmailSender>>());
+                : new DevEmailSender(
+                    sp.GetRequiredService<ILogger<DevEmailSender>>(),
+                    sp.GetRequiredService<DevEmailInbox>());
         });
 
         // SecurityConfigurationManager is registered as a singleton.

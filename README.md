@@ -14,8 +14,9 @@ The repo currently includes:
 - the migrated Acme shell, auth pages, catalog/customer/order flows, and initial report surfaces
 - central build and package management
 - Docker Compose for web, api, sql server, MailHog, and Playwright
-- xUnit and Playwright coverage, including self-starting smoke tests for the rebuilt app
+- xUnit and Playwright coverage, including self-starting smoke tests plus meaningful auth, permission, and backend-confirmed browser flows
 - repo-root AI workflow assets: `ai-router/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
+- durable cutover/guardrail docs and a reusable `template-seed/` bootstrap folder
 
 ## Project layout
 
@@ -27,6 +28,7 @@ The repo currently includes:
 - `docker/` - compose and container definitions
 - `ai-router/` - router code, prompt templates, and workflow utilities
 - `docs/` - workflow docs and session-set artifacts
+- `template-seed/` - lightweight local seed for repeating the AI-led workflow in a future repo
 
 ## Local commands
 

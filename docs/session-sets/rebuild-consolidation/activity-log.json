@@ -443,6 +443,141 @@
           "costUsd": 0.804555
         }
       ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 0,
+      "stepKey": "session-6/session-start",
+      "dateTime": "2026-04-14T16:40:21.752055+00:00",
+      "description": "Started Session 6 of rebuild-consolidation in the integrated repo, verified API keys, confirmed Session 1-5 prerequisite artifacts exist, and continued the final migration session focused on meaningful E2E coverage, template seeding, cutover guidance, durable guardrails, and post-rebuild follow-on planning.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 1,
+      "stepKey": "session-6/meaningful-e2e",
+      "dateTime": "2026-04-14T16:40:21.754597+00:00",
+      "description": "Expanded the Playwright infrastructure to fail on console, runtime, page, and relevant network errors; added real magic-link coverage, deterministic seeded-session coverage, backend-confirmed mutating admin coverage, and supporting dev inbox/session helper endpoints so the rebuilt app now has meaningful end-to-end coverage instead of smoke-only coverage.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 2,
+      "stepKey": "session-6/auth-flow-verification",
+      "dateTime": "2026-04-14T16:40:21.756316+00:00",
+      "description": "Verified both auth paths required by the session by covering a real magic-link customer sign-in flow and seeded-session role flows, including session-info and captured-link helpers that prove the rebuilt auth handoff works with real user resolution in Development/Test.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 3,
+      "stepKey": "session-6/backend-verification",
+      "dateTime": "2026-04-14T16:40:21.758325+00:00",
+      "description": "Closed the backend-verification gap by deriving customer identity from app data when needed for API row filtering, then proved a representative mutating business action against backend state by toggling product availability as a system administrator through the browser-assisted test flow.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 4,
+      "stepKey": "session-6/template-seed",
+      "dateTime": "2026-04-14T16:40:21.759329+00:00",
+      "description": "Created the first local template seed under template-seed/, including the AI router, root instruction files, workflow doc, starter session-set skeleton, repo ignores, and a placeholder-replacement PowerShell bootstrap script so future repos can reuse the workflow without copying product-specific scaffolding.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 5,
+      "stepKey": "session-6/cutover",
+      "dateTime": "2026-04-14T16:40:21.760328+00:00",
+      "description": "Produced rebuild cutover guidance and refreshed repo-level documentation so dabbler-platform is explicitly the canonical home while dabbler-demo, dabbler-security, and dabbler-components are treated as historical/reference repos rather than active development homes.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 6,
+      "stepKey": "session-6/lessons-and-guardrails",
+      "dateTime": "2026-04-14T16:40:21.763369+00:00",
+      "description": "Added durable integrated-repo guidance covering platform guardrails, supported Development/Test auth modes, root instruction updates, and repository documentation so future sessions inherit the rebuild lessons around assets, auth helpers, E2E expectations, workflow assets, and template discipline.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 7,
+      "stepKey": "session-6/next-session-sets",
+      "dateTime": "2026-04-14T16:40:21.764564+00:00",
+      "description": "Created the ready-to-run platform-post-cutover-hardening session set and added lower-confidence planning inputs for ops/observability, further library expansion, and the newly requested multi-organization user-administration work, explicitly keeping that organization work as planning input only until a dedicated follow-on session set is ready.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 8,
+      "stepKey": "session-6/build-test",
+      "dateTime": "2026-04-14T16:40:21.765570+00:00",
+      "description": "Ran `dotnet build Dabbler.Platform.sln` successfully and `dotnet test Dabbler.Platform.sln --no-build` successfully. The current evidence shows 338 passing tests across AcmeCoffeeOnline.Web.Tests (5), AcmeCoffeeOnline.Api.Tests (1), Dabbler.Security.Tests (207), Dabbler.Security.Blazor.Tests (120), and AcmeCoffeeOnline.Playwright (5).",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 9,
+      "stepKey": "session-6/change-log",
+      "dateTime": "2026-04-14T16:41:25.962974+00:00",
+      "description": "Generated the final rebuild-consolidation change-log.md via ai-router documentation routing, summarizing the completed six-session rebuild, final validation status, canonical cutover outcome, and the follow-on session-set/planning assets created during Session 6.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 3149,
+          "outputTokens": 995,
+          "costUsd": 0.037079249999999994
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 10,
+      "stepKey": "session-6/session-verification",
+      "dateTime": "2026-04-14T16:44:30.544574+00:00",
+      "description": "Sent the Session 6 spec excerpt, full session diff, final change-log, and successful build/test evidence to the external verifier, saved the raw review under docs/session-sets/rebuild-consolidation/session-reviews, and recorded the verifier verdict for the completed rebuild session.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 14041,
+          "outputTokens": 1821,
+          "costUsd": 0.34719
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 11,
+      "stepKey": "session-6/session-verification-rerun",
+      "dateTime": "2026-04-14T16:46:04.711948+00:00",
+      "description": "Performed a second-round external verification after expanding the evidence bundle with the created docs, follow-on session spec, planning inputs, change-log, and template-seed artifacts so the documentation-heavy Session 6 deliverables were directly reviewable.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 21262,
+          "outputTokens": 892,
+          "costUsd": 0.38583
+        }
+      ]
     }
   ]
 }
