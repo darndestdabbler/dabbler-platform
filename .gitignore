@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+TestResults/
+playwright-report/
+test-results/
+.idea/
+*.user
+*.suo
+*.swp
+*.tmp

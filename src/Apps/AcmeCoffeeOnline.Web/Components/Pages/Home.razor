@@ -1,0 +1,42 @@
+@page "/"
+@inject PlatformStatusClient PlatformStatusClient
+
+<PageTitle>Home</PageTitle>
+
+<h1>AcmeCoffeeOnline foundation</h1>
+
+<p>
+    Session 2 proves that the rebuilt web host can boot on its own foundation
+    and reach the paired API through the same contract the Docker stack uses.
+</p>
+
+@if (_status is null)
+{
+    <p data-testid="api-status">Checking API connectivity...</p>
+}
+else
+{
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Platform smoke status</h2>
+            <p class="mb-2" data-testid="api-status">
+                API reachable: @_status.Status
+            </p>
+            <p class="mb-2" data-testid="api-stage">
+                Stage: @_status.Stage
+            </p>
+            <p class="mb-0 text-muted" data-testid="api-timestamp">
+                Last API timestamp: @_status.UtcTimestamp.ToString("u")
+            </p>
+        </div>
+    </div>
+}
+
+@code {
+    private PlatformStatusResponse? _status;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _status = await PlatformStatusClient.GetStatusAsync();
+    }
+}
