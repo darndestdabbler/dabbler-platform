@@ -38,8 +38,14 @@ Compose a standard query page:
 
 ```razor
 <DabblerQueryPage T="Customer"
-                  DataProvider="@dataProvider"
-                  EntityMetadata="@metadata" />
+                  Title="Customers"
+                  FilterColumns="@filterColumns"
+                  DataProvider="@dataProvider">
+    <GridColumns>
+        <PropertyColumn Property="x => x.Name" Title="Name" />
+        <PropertyColumn Property="x => x.City" Title="City" />
+    </GridColumns>
+</DabblerQueryPage>
 ```
 
 ## Supported Workflow Themes
@@ -53,14 +59,19 @@ Compose a standard query page:
 
 ## Advanced Or Non-Core
 
-These capabilities exist historically in the library but are not the primary
-supported default contract:
+These capabilities remain available for compatibility, but they are not the
+primary supported default contract and are intentionally de-emphasized in the
+current public story:
 
 - grid grouping, aggregates, clipboard helpers, CSV export, column pinning,
   and detail expansion
 - filter quick filter, presets, expression line output, and column toggles
 - combo add-new flows and grouping headers
 - favorites/recent-items dashboard widgets as default platform behavior
+
+Opt into clipboard/CSV helpers on `DabblerQueryPage<T>` only when a workflow
+explicitly needs them. The default query-page toolbar now stays focused on the
+retained search/list path.
 
 `DabblerCatalogPage` is currently a retirement candidate rather than a
 first-choice reusable surface.

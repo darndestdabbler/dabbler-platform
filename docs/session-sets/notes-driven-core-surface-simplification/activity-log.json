@@ -80,6 +80,68 @@
           "costUsd": 0.279855
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/grid-simplification",
+      "dateTime": "2026-04-14T22:54:21.442210+00:00",
+      "description": "De-emphasized non-core DabblerDataGrid advanced members for grouping, detail rows, pinning, popup forms, clipboard helpers, and CSV export via EditorBrowsable(Never) so the retained core grid workflow leads the public surface.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/filter-simplification",
+      "dateTime": "2026-04-14T22:54:21.443513+00:00",
+      "description": "De-emphasized DabblerFilterGrid quick-filter, expression-line, column-toggle, and preset import/export members so the supported QBE contract leads the primary filter surface.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/query-surface",
+      "dateTime": "2026-04-14T22:54:21.443513+00:00",
+      "description": "Changed DabblerQueryPage advanced CSV and copy helpers to opt-in defaults, hid related metadata/programmatic helpers from the primary API story, and updated the Dabbler.Components README to show the retained core query/list composition path.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/grid-filter-tests",
+      "dateTime": "2026-04-14T22:54:21.444520+00:00",
+      "description": "Added direct Dabbler.Components contract tests and bUnit setup helpers covering the DabblerDataGrid accessible wrapper, DabblerFilterGrid AND/OR summary behavior, and DabblerQueryPage manual-search workflow with advanced actions hidden by default.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-14T22:54:21.445630+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln, dotnet test tests/Dabbler.Components.Tests/Dabbler.Components.Tests.csproj, and dotnet test Dabbler.Platform.sln successfully; existing unrelated Dabbler.Security XML-documentation warnings remained.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/session-verification",
+      "dateTime": "2026-04-14T22:55:17.074545+00:00",
+      "description": "Sent the Session 2 spec excerpt, changed-file contents, and successful build/test summary to the external session verifier and saved the raw review output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 30443,
+          "outputTokens": 458,
+          "costUsd": 0.490995
+        }
+      ]
     }
   ]
 }

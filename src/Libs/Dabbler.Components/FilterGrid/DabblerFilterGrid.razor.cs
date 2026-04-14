@@ -1,6 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
+using System.ComponentModel;
 using System.Text.Json;
 using Dabbler.Components.Data;
 using Microsoft.AspNetCore.Components;
@@ -92,6 +93,7 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// Whether to show a quick-filter search input above the structured filter rows.
     /// Defaults to false.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public bool ShowQuickFilter { get; set; } = false;
 
@@ -99,18 +101,21 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// Column property names to include in the quick filter search.
     /// When null, all text-compatible columns are searched.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public IEnumerable<string>? QuickFilterColumns { get; set; }
 
     /// <summary>
     /// Placeholder text for the quick filter input. Defaults to "Search…".
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public string? QuickFilterPlaceholder { get; set; } = "Search\u2026";
 
     /// <summary>
     /// Debounce interval in milliseconds for the quick filter input. Defaults to 300.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public int QuickFilterDebounce { get; set; } = 300;
 
@@ -127,6 +132,7 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// When validation errors exist, the expression line shows error messages instead.
     /// Defaults to false.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public bool ShowExpressionLine { get; set; }
 
@@ -134,6 +140,7 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// When true, renders a column visibility toggle button that lets the user
     /// show or hide individual filter columns. Defaults to false.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public bool ShowColumnToggle { get; set; }
 
@@ -141,6 +148,7 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// The property names of currently visible columns. When null, all columns are visible.
     /// Changes to this parameter are reflected in the column toggle menu.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public IReadOnlyList<string>? VisibleColumns { get; set; }
 
@@ -148,6 +156,7 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// Raised when the set of visible columns changes via the column toggle menu.
     /// The argument is the new list of visible property names.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback<IReadOnlyList<string>> VisibleColumnsChanged { get; set; }
 
@@ -376,6 +385,7 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// Values are serialized via <c>System.Text.Json</c> with the original type name stored
     /// alongside so deserialization can reconstruct the correct CLR type.
     /// </remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public FilterPresetState ExportFilter()
     {
         var state = new FilterPresetState();
@@ -428,6 +438,7 @@ public partial class DabblerFilterGrid<T> : DabblerComponentBase, IDisposable
     /// directly to <see cref="FilterGroupCollection"/> to avoid spurious intermediate
     /// <see cref="FilterChanged"/> events; a single event is raised at the end.
     /// </remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void ImportFilter(FilterPresetState state)
     {
         // ClearAll resets to one empty group and fires FilterChanged once (cleared state).

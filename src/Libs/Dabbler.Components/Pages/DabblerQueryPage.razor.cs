@@ -1,6 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
+using System.ComponentModel;
 using Dabbler.Components.Data;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -54,8 +55,9 @@ public partial class DabblerQueryPage<T> : DabblerComponentBase
 
     /// <summary>
     /// Column metadata for clipboard and CSV export.
-    /// When null, falls back to <c>DabblerDataGrid</c> defaults.
+    /// Supply this only when opting into the advanced clipboard or CSV helpers.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public IReadOnlyList<GridColumnInfo>? GridColumnInfo { get; set; }
 
@@ -84,16 +86,22 @@ public partial class DabblerQueryPage<T> : DabblerComponentBase
     public bool ShowRecordCount { get; set; } = true;
 
     /// <summary>
-    /// Show CSV export button in the toolbar.
+    /// Show the advanced CSV export button in the toolbar.
+    /// Defaults to <c>false</c> so the primary query workflow stays focused on filtering,
+    /// searching, paging, and sorting.
     /// </summary>
     [Parameter]
-    public bool ShowCsvExport { get; set; } = true;
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public bool ShowCsvExport { get; set; }
 
     /// <summary>
-    /// Show copy-all button in the toolbar.
+    /// Show the advanced copy-all button in the toolbar.
+    /// Defaults to <c>false</c> so the primary query workflow stays focused on filtering,
+    /// searching, paging, and sorting.
     /// </summary>
     [Parameter]
-    public bool ShowCopyToClipboard { get; set; } = true;
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public bool ShowCopyToClipboard { get; set; }
 
     /// <summary>
     /// Default filename for CSV downloads.
@@ -192,6 +200,7 @@ public partial class DabblerQueryPage<T> : DabblerComponentBase
     /// <summary>
     /// Programmatic CSV export.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task ExportToCsvAsync()
     {
         if (_dataGrid is not null)
@@ -203,6 +212,7 @@ public partial class DabblerQueryPage<T> : DabblerComponentBase
     /// <summary>
     /// Programmatic copy-all.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task CopyToClipboardAsync()
     {
         if (_dataGrid is not null)

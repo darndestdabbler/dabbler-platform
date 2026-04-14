@@ -1,6 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
+using System.ComponentModel;
 using Dabbler.Components.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -196,6 +197,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Callback invoked after a clipboard operation (copy, cut, paste, export) completes.
     /// The string parameter describes the operation performed.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback<string> OnClipboardOperation { get; set; }
 
@@ -205,30 +207,35 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Active grouping columns. When set together with <see cref="DataRowTemplate"/>, the grid
     /// fetches with grouping and renders collapsible group header rows.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public IReadOnlyList<GroupDescriptor>? GroupDescriptors { get; set; }
 
     /// <summary>
     /// External expand/collapse state. If null, the grid creates and owns an internal instance.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public GroupExpandState? GroupExpandState { get; set; }
 
     /// <summary>
     /// Which aggregates to show in group header rows.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public IReadOnlyList<GridAggregateColumn>? AggregateColumns { get; set; }
 
     /// <summary>
     /// When true, groups start expanded instead of collapsed.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public bool DefaultGroupsExpanded { get; set; }
 
     /// <summary>
     /// Raised when a group is expanded or collapsed.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback<(int Level, object? GroupKey, bool IsExpanded)> OnGroupToggled { get; set; }
 
@@ -238,6 +245,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Template rendered below an expanded row. Receives the parent row's data item.
     /// When set, the grid inserts an expand/collapse indicator column and a detail content row.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public RenderFragment<T>? DetailTemplate { get; set; }
 
@@ -245,24 +253,28 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Extracts a unique key from a row for detail expand-state tracking.
     /// Required when <see cref="DetailTemplate"/> is set.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public Func<T, object>? DetailKeySelector { get; set; }
 
     /// <summary>
     /// Whether single or multiple rows can have their detail expanded simultaneously.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public DetailExpandMode DetailExpandMode { get; set; } = DetailExpandMode.Multiple;
 
     /// <summary>
     /// Whether to render the expand/collapse indicator column. Defaults to <c>true</c>.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public bool ShowDetailColumn { get; set; } = true;
 
     /// <summary>
     /// Raised when a detail row is expanded or collapsed.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback<(T Item, bool IsExpanded)> OnDetailToggled { get; set; }
 
@@ -271,6 +283,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// grouped table instead of delegating to <see cref="ChildContent"/>.
     /// Each invocation receives a data item of type <typeparamref name="T"/>.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public RenderFragment<T>? DataRowTemplate { get; set; }
 
@@ -278,6 +291,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Template for rendering the table header row (the <c>&lt;tr&gt;</c> with <c>&lt;th&gt;</c>
     /// elements). Used only when <see cref="DataRowTemplate"/> is set.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public RenderFragment? ColumnHeaderTemplate { get; set; }
 
@@ -286,6 +300,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Intended for child grids embedded in a master-detail layout: the parent handles this
     /// callback by collapsing the detail row and returning focus to the parent grid.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback OnEscapeOrCollapseRequest { get; set; }
 
@@ -296,12 +311,14 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// <see cref="GridColumnInfo.PinPosition"/> are made sticky after each render.
     /// Clipboard copy and CSV export follow visual order (pinned-left → unpinned → pinned-right).
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public bool AllowColumnPinning { get; set; }
 
     /// <summary>
     /// Raised when a column's pin position changes via <see cref="PinColumn"/>.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback<(string PropertyName, ColumnPinPosition Position)> OnColumnPinChanged { get; set; }
 
@@ -312,12 +329,14 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// The value determines the form layout: <see cref="PopupFormMode.OneColumn"/> for a simple
     /// vertical form, or <see cref="PopupFormMode.TwoColumn"/> for a wider two-column layout.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public PopupFormMode? PopupFormMode { get; set; }
 
     /// <summary>
     /// Title displayed in the popup form dialog header. Defaults to <c>"Edit Row"</c>.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public string? PopupFormTitle { get; set; } = "Edit Row";
 
@@ -325,6 +344,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Field grouping for <see cref="Data.PopupFormMode.TwoColumn"/> mode.
     /// When set, fields are arranged under section headers. When null, all fields appear in one group.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public IReadOnlyList<PopupFormFieldGroup>? PopupFormFieldGroups { get; set; }
 
@@ -332,18 +352,21 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// CSS <c>max-width</c> for the popup form dialog (e.g., <c>"600px"</c> for one-column,
     /// <c>"900px"</c> for two-column). When null, uses a sensible default based on the mode.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public string? PopupFormWidth { get; set; }
 
     /// <summary>
     /// Raised when the user saves the popup form. The consumer handles persistence.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback<T> OnPopupFormSave { get; set; }
 
     /// <summary>
     /// Raised when the user cancels the popup form.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Parameter]
     public EventCallback<T> OnPopupFormCancel { get; set; }
 
@@ -603,6 +626,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// </summary>
     /// <param name="propertyName">The property name of the column to pin/unpin.</param>
     /// <param name="position">The new pin position.</param>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task PinColumn(string propertyName, ColumnPinPosition position)
     {
         if (Columns is null) return;
@@ -620,12 +644,15 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     // ── Grouping public API ────────────────────────────────────────────
 
     /// <summary>Expands all groups at all levels.</summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void ExpandAllGroups() => EffectiveGroupExpandState.ExpandAll();
 
     /// <summary>Collapses all groups at all levels.</summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void CollapseAllGroups() => EffectiveGroupExpandState.CollapseAll();
 
     /// <summary>Programmatically expand or collapse a specific group.</summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void SetGroupExpanded(int level, object? groupKey, bool expanded) =>
         EffectiveGroupExpandState.SetExpanded(level, groupKey, expanded);
 
@@ -633,6 +660,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Provides the grouped response from a <see cref="IGridDataProvider{T}"/> fetch so the grid
     /// can build the visible row list and re-render with group headers.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task SetGroupDataAsync(GridDataResponse<T> response)
     {
         ArgumentNullException.ThrowIfNull(response);
@@ -644,6 +672,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     // ── Detail public API ──────────────────────────────────────────────
 
     /// <summary>Programmatically expands the detail row for the given item.</summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void ExpandDetail(T item)
     {
         if (DetailKeySelector is null) return;
@@ -652,6 +681,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     }
 
     /// <summary>Programmatically collapses the detail row for the given item.</summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void CollapseDetail(T item)
     {
         if (DetailKeySelector is null) return;
@@ -660,6 +690,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     }
 
     /// <summary>Collapses all expanded detail rows.</summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void CollapseAllDetails() => EffectiveDetailState.CollapseAll();
 
     // ── Popup form public API ─────────────────────────────────────────
@@ -668,6 +699,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Opens the popup form for editing an existing row item.
     /// Only works when <see cref="PopupFormMode"/> is set.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task OpenPopupFormAsync(T item)
     {
         if (PopupFormMode is null) return;
@@ -684,6 +716,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Opens the popup form for adding a new item.
     /// Only works when <see cref="PopupFormMode"/> is set.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task OpenPopupFormForNewItemAsync(T item)
     {
         if (PopupFormMode is null) return;
@@ -1386,6 +1419,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// <summary>
     /// Copies all rows (or the current row) to the clipboard as tab-delimited text.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task CopyToClipboardAsync()
     {
         if (Columns is null || _clipboardModule is null) return;
@@ -1407,6 +1441,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// <summary>
     /// Cuts the current cell value to the clipboard.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task CutCurrentCellAsync()
     {
         if (Columns is null || _clipboardModule is null || ReadOnly) return;
@@ -1438,6 +1473,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// <summary>
     /// Pastes clipboard text into the current cell.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task PasteToCurrentCellAsync()
     {
         if (Columns is null || _clipboardModule is null || ReadOnly) return;
@@ -1472,6 +1508,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// <summary>
     /// Exports the current data to CSV format and writes to the given stream.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task ExportToCsvAsync(Stream output)
     {
         ArgumentNullException.ThrowIfNull(output);
@@ -1486,6 +1523,7 @@ public partial class DabblerDataGrid<T> : DabblerComponentBase
     /// Exports the current data to CSV and triggers a browser file download.
     /// </summary>
     /// <param name="fileName">The suggested file name (default: "export.csv").</param>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task ExportToCsvDownloadAsync(string fileName = "export.csv")
     {
         if (Columns is null || _clipboardModule is null) return;
