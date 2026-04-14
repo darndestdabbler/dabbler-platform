@@ -1,0 +1,85 @@
+{
+  "sessionSetName": "notes-driven-core-surface-simplification",
+  "createdDate": "2026-04-14T22:38:16.591071+00:00",
+  "totalSessions": 5,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/supported-surface",
+      "dateTime": "2026-04-14T22:38:16.599110+00:00",
+      "description": "Created docs/planning/notes-driven-supported-library-surface.md to translate the audit decision ledger and coverage gate into explicit supported-surface definitions for grid/filter/query, combo/detail/popup, shell/dashboard/catalog, reports, and security UI.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 675,
+          "outputTokens": 879,
+          "costUsd": 0.01847175
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/coverage-gate-baseline",
+      "dateTime": "2026-04-14T22:38:16.599110+00:00",
+      "description": "Established dedicated contract-test homes under tests/Dabbler.Components.Tests and tests/Dabbler.Reports.Blazor.Tests, added baseline smoke tests and READMEs, and added both projects to Dabbler.Platform.sln.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/docs-narrowing",
+      "dateTime": "2026-04-14T22:38:16.599110+00:00",
+      "description": "Updated src/Libs/README.md plus the Dabbler.Components and Dabbler.Reports.Blazor READMEs so they lead with the retained notes-driven contract and describe non-core or retirement-candidate surfaces accordingly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-14T22:40:23.776402+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln successfully after fixing the initial smoke-test harness issues; the new Dabbler.Components and Dabbler.Reports.Blazor contract-test homes both passed their baseline tests alongside the existing suite.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/session-verification",
+      "dateTime": "2026-04-14T22:41:24.657397+00:00",
+      "description": "Sent the Session 1 spec excerpt, changed-file contents, and successful build/test summary to the external session verifier and saved the raw review output.",
+      "status": "issues-found",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 16193,
+          "outputTokens": 1512,
+          "costUsd": 0.356295
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/session-verification-round-2",
+      "dateTime": "2026-04-14T22:42:28.164205+00:00",
+      "description": "Ran a second external verification round with stricter ASCII verdict formatting so the verification result is machine-readable without altering the raw first-round review.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 16237,
+          "outputTokens": 484,
+          "costUsd": 0.279855
+        }
+      ]
+    }
+  ]
+}

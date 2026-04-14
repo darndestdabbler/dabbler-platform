@@ -1,23 +1,26 @@
 # Dabbler.Reports.Blazor
 
-Blazor components for rendering and interacting with Dabbler Reports. Provides a report viewer for displaying composed pages, a parameter prompt form, and full-lifecycle report pages with filtering, zoom, and PDF export.
+Blazor report UI for the retained notes-driven reporting workflow. The
+supported contract centers on prompting for parameters, executing a report, and
+rendering the composed output.
 
-## Components
+The current supported contract is defined in
+`docs/planning/notes-driven-supported-library-surface.md`.
+
+## Supported Core
 
 | Component | Description |
 |-----------|-------------|
-| `ReportViewer` | Renders composed report pages as styled HTML with RDF style resolution and configurable zoom |
-| `ParameterPromptForm` | Dynamic form for report parameter entry with text, date, combo box, multi-select, checkbox, and numeric controls |
-| `DabblerReportPage` | Full report lifecycle: load RDF, prompt parameters, execute query, compose pages, view, and export to PDF |
-| `DabblerQueryReportPage<T>` | Report page variant with integrated data grid and filtering alongside the report view |
+| `DabblerReportPage` | Full report lifecycle: load RDF, prompt parameters, execute query, compose pages, and display the result |
+| `ParameterPromptForm` | Parameter-entry surface for report runs |
+| `ReportViewer` | Render composed report pages with zoom and layout fidelity |
 
 ## Quick Start
 
 ```razor
 <DabblerReportPage RdfPath="reports/sales-summary.rdf.json"
                    DataProvider="@dataProvider"
-                   AutoRunOnLoad="true"
-                   ShowPdfExport="true" />
+                   AutoRunOnLoad="true" />
 ```
 
 Or embed just the viewer:
@@ -27,6 +30,19 @@ Or embed just the viewer:
               Report="@reportDefinition"
               Scale="1.0" />
 ```
+
+## Supported Workflow Themes
+
+- prompt for parameters before running a report
+- execute report queries against a report data provider
+- view composed report output in the browser
+- keep PDF/export support as supporting behavior, not the main contract story
+
+## Advanced Or Retirement Candidates
+
+`DabblerQueryReportPage<T>` is not part of the primary supported default
+contract and is a retirement candidate unless later work proves a narrower,
+notes-aligned need for it.
 
 ## Dependencies
 

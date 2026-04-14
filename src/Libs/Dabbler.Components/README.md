@@ -1,22 +1,26 @@
 # Dabbler.Components
 
-Blazor UI component library for data-driven applications. Built for migrating Microsoft Access applications to the web, Dabbler.Components provides a rich set of components for filtering, data grids, navigation, and expression evaluation.
+Blazor UI component library for notes-driven data workflows. The supported
+default surface centers on query/list pages, detail editing, shell/navigation,
+dashboard landing pages, and lookup flows that the current app and audit both
+prove.
 
-## Components
+The current supported contract is defined in
+`docs/planning/notes-driven-supported-library-surface.md`.
 
-| Component | Description |
+## Supported Core
+
+| Surface | Notes-driven role |
 |-----------|-------------|
-| `DabblerDataGrid<T>` | Data grid with sorting, QBE-style filtering, row grouping, inline editing, detail expansion, and keyboard navigation |
-| `DabblerFilterGrid<T>` | Standalone query-by-example filter UI with AND/OR groups, operator selection, and saved presets |
-| `DabblerComboBox<T>` | Typed combo box with search, multi-column display, grouping, and add-new support |
-| `DabblerMultiComboBox<T>` | Multi-select variant of the combo box |
-| `DabblerShell` | Master/detail navigation shell with menu bar, tree navigation, tabbed workspace, and detail forms |
-| `DabblerQueryPage<T>` | Pre-built page combining a filter grid and data grid for query-style workflows |
-| `DabblerDashboardPage` | Configurable dashboard with navigation cards, quick links, and embedded search |
-| `DabblerCatalogPage` | Artifact browser for listing and navigating to entities |
-| `DabblerDetailForm<T>` | Detail/form view for editing a single record |
-| `DabblerRecordPopup<T>` | Popup dialog for viewing related records |
-| `ExpressionEngine` | Evaluator for report-style expressions with fields, parameters, aggregates, and conditionals |
+| `DabblerQueryPage<T>` | Standard query/list page that composes the retained filter and grid behaviors |
+| `DabblerDataGrid<T>` | Core search-result grid for sorting, paging, row selection, and CRUD-style workflows |
+| `DabblerFilterGrid<T>` | QBE filter surface with row-based AND/OR logic and English summary output |
+| `DabblerComboBox<T>` | Searchable, multi-column lookup with cascading coordination and retained multiselect capability |
+| `DabblerDetailForm<T>` | Validated single-record form editing |
+| `DabblerRecordPopup<T>` | Modal record display/edit flow |
+| `DabblerShell` | Top menu, left-nav, pinned-item, workspace, and runtime-provider shell composition |
+| `DabblerDashboardPage` | Core landing-page/dashboard surface |
+| `ExpressionEngine` | Support infrastructure for expression-based query/report behavior |
 
 ## Quick Start
 
@@ -30,24 +34,36 @@ Register services in `Program.cs`:
 builder.Services.AddMudServices();
 ```
 
-Render a data grid:
+Compose a standard query page:
 
 ```razor
-<DabblerDataGrid T="Customer"
-                 DataProvider="@dataProvider"
-                 EntityMetadata="@metadata" />
+<DabblerQueryPage T="Customer"
+                  DataProvider="@dataProvider"
+                  EntityMetadata="@metadata" />
 ```
 
-## Key Features
+## Supported Workflow Themes
 
-- **QBE-style filtering** &mdash; AND/OR filter groups with operator selection, date presets, and saved filter configurations
-- **Row grouping** &mdash; Group by one or more columns with aggregate summaries (Sum, Count, Avg, Min, Max)
-- **Keyboard navigation** &mdash; Full keyboard support across grids, combo boxes, and navigation panels
-- **Expression engine** &mdash; Evaluate expressions referencing fields, parameters, and aggregate functions
-- **Navigation shell** &mdash; Tabbed workspace with hierarchical navigation and metadata-driven UI
-- **Many-to-many support** &mdash; Built-in handling for M:M relationship editing
-- **CSV export** &mdash; Export grid data to CSV files
-- **Accessibility** &mdash; WCAG-compliant with ARIA attributes, keyboard navigation, and screen reader support
+- QBE-style filtering with row-based AND/OR behavior
+- query/list composition built from filter + result grid
+- searchable lookup selection with cascading coordination
+- validated detail editing and popup flows
+- reusable shell/navigation and landing-page composition
+- expression support used by higher-level query/report workflows
+
+## Advanced Or Non-Core
+
+These capabilities exist historically in the library but are not the primary
+supported default contract:
+
+- grid grouping, aggregates, clipboard helpers, CSV export, column pinning,
+  and detail expansion
+- filter quick filter, presets, expression line output, and column toggles
+- combo add-new flows and grouping headers
+- favorites/recent-items dashboard widgets as default platform behavior
+
+`DabblerCatalogPage` is currently a retirement candidate rather than a
+first-choice reusable surface.
 
 ## Dependencies
 
