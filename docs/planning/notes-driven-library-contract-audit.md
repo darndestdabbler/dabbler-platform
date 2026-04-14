@@ -5,7 +5,7 @@
 > grounding decisions in current `src/Apps/` usage and the actual public
 > library surface.
 > **Created:** 2026-04-14
-> **Status:** Session 4 coverage baseline completed; one catch-up session remains for coverage-gate closeout
+> **Status:** Session 5 complete; audit closed with a retained-surface coverage gate and downstream rebaseline
 
 ---
 
@@ -88,6 +88,24 @@ Session 4 mapped current automated coverage to the retained core surfaces:
   app-alignment work must close before retiring or isolating functionality
 - rebaselined this session set to add one catch-up planning session for the
   missing coverage gate instead of closing the audit prematurely
+
+---
+
+## Session 5 Outcome
+
+Session 5 closed the audit with an explicit quality bar for later
+simplification:
+
+- converted the Session 4 gap map into a retained-surface coverage gate for
+  non-security reusable components and reports
+- documented where dedicated reusable-library contract tests must exist before
+  simplification retires adjacent grid, filter, combo, report, shell, or
+  dashboard functionality
+- rebaselined the downstream simplification, app-alignment, and template
+  session sets so app smoke coverage no longer stands in for reusable-surface
+  contract coverage
+- confirmed the audit is now ready to hand off both a decision ledger and a
+  coverage gate
 
 ---
 
@@ -477,6 +495,74 @@ Implication for later work:
   implementation that proves the retained surface during code changes
 - the audit set should first finish documenting the minimum coverage gate and
   sequencing expectations so simplification starts with an explicit quality bar
+
+---
+
+## Session 5 Coverage Gate
+
+The retained non-security reusable surface now carries this minimum coverage
+gate before simplification removes, isolates, or de-emphasizes adjacent
+functionality:
+
+- establish dedicated `Dabbler.Components` and `Dabbler.Reports` contract-test
+  homes under `tests/` so retained reusable surfaces are not protected only by
+  app smoke coverage
+- before Session 2 simplification retires grid, filter, or query extras, the
+  dedicated `Dabbler.Components` tests must directly cover
+  `DabblerQueryPage<T>`, `DabblerDataGrid<T>`, and `DabblerFilterGrid<T>` core
+  behavior
+- before Session 3 simplification collapses combo/detail abstractions or
+  retires broader report/query composition, dedicated reusable-surface tests
+  must directly cover `DabblerComboBox<T>` with retained multiselect behavior,
+  `DabblerDetailForm<T>`, `DabblerRecordPopup<T>`, `DabblerReportPage`,
+  `ParameterPromptForm`, and `ReportViewer`
+- before Session 4 simplification retires catalog, favorites, recent-items, or
+  other broader shell/dashboard defaults, the dedicated `Dabbler.Components`
+  tests must directly cover `DabblerShell`, navigation/runtime provider
+  composition, and `DabblerDashboardPage` core behavior
+- app integration and Playwright coverage remain required as workflow proof,
+  but they do not satisfy this reusable-library contract gate on their own
+- security UI/runtime surfaces continue to rely on the already-strong dedicated
+  `Dabbler.Security` and `Dabbler.Security.Blazor` coverage and are not part
+  of the main retained-surface gap
+
+### Why This Gate Exists
+
+- current host-smoke and Playwright coverage is strong enough to confirm the
+  app still boots and the key auth/business flows still work
+- it is not specific enough to safely protect the retained reusable public
+  contracts while simplification deliberately removes neighboring behaviors
+- creating reusable-surface contract tests first gives later simplification
+  sessions room to simplify aggressively without guessing which retained
+  behavior they broke
+
+---
+
+## Session 5 Rebaseline For Later Sets
+
+### `notes-driven-core-surface-simplification`
+
+- treat the Session 5 coverage gate as binding input alongside the decision
+  ledger, not as an optional follow-up
+- establish dedicated `Dabbler.Components` and `Dabbler.Reports` contract-test
+  homes before retiring adjacent non-security functionality
+- use Session 2 through Session 4 exit criteria that require direct retained-
+  surface tests in those dedicated test homes, not just app-level smoke proof
+
+### `notes-driven-app-alignment`
+
+- assume the retained reusable surface already has dedicated library-level
+  contract tests from simplification
+- use app integration and Playwright work to prove real workflows, DOM shape,
+  and backend-confirmed behaviors after simplification, not to substitute for
+  reusable-surface contract tests
+
+### `notes-driven-template-encoding`
+
+- encode only surfaces that survived the audit and simplification coverage gate
+- avoid treating untested or intentionally isolated advanced functionality as
+  template-worthy defaults just because the app still happens to contain a
+  transitional path
 
 ---
 

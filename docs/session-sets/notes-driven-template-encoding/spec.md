@@ -23,6 +23,10 @@ The template should explicitly avoid reintroducing retired public surfaces or
 isolated advanced defaults just because they once existed in the broader
 library story.
 
+Template work should inherit only surfaces that survived the audit and were
+already protected by the simplification coverage gate and accepted app
+baseline.
+
 ## Session Plan
 
 ### Session 1 of 3: Template Contract Audit

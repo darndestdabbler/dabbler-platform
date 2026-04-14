@@ -6,7 +6,8 @@
 > **Created:** 2026-04-14
 > **Session Set:** `docs/session-sets/notes-driven-core-surface-simplification/`
 > **Prerequisite:** `notes-driven-library-contract-audit` is complete and its
-> decision ledger is the current source of truth.
+> decision ledger plus retained-surface coverage gate are the current source of
+> truth.
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification
 
 ---
@@ -22,6 +23,11 @@ misleading public API or a hard-to-test implementation.
 The immediate goal is not to remove every extra code path. The goal is to make
 the supported surface obvious, narrow, and testable.
 
+Before retiring adjacent non-security functionality, this set should establish
+dedicated `Dabbler.Components` and `Dabbler.Reports` contract-test homes so
+the retained reusable surface is protected directly instead of relying only on
+app smoke coverage.
+
 The decision ledger from `notes-driven-library-contract-audit` is expected to
 drive removal/retirement of unproven public surfaces, not just softer
 de-emphasis. In particular, `DabblerQueryReportPage<T>` and
@@ -30,23 +36,26 @@ evidence appears during simplification work.
 
 ## Session Plan
 
-### Session 1 of 5: Supported Surface Definitions
+### Session 1 of 5: Supported Surface Definitions And Coverage Gate Baseline
 
 **Steps:**
-1. Translate the audit decisions into explicit supported-surface definitions for
-   the major library areas: grid/filter/query, combo/detail/popup,
-   shell/dashboard/catalog, reports, and security UI.
-2. Mark which public APIs remain core, which become advanced/non-core, and
-   which should be retired.
-3. Update library-facing docs so they no longer advertise out-of-scope features
-   as first-class defaults.
+1. Translate the audit decisions and retained-surface coverage gate into
+   explicit supported-surface definitions for the major library areas:
+   grid/filter/query, combo/detail/popup, shell/dashboard/catalog, reports,
+   and security UI.
+2. Establish dedicated `Dabbler.Components` and `Dabbler.Reports`
+   contract-test homes for the retained non-security reusable surface before
+   retirements begin.
+3. Update library-facing docs so they no longer advertise out-of-scope
+   features as first-class defaults.
 
-**Creates:** Supported-surface definitions and updated library-facing guidance
-**Touches:** Library docs and planning guidance
-**Ends with:** The repo describes the intended supported contract before code
-changes begin
+**Creates:** Supported-surface definitions, contract-test homes, and updated
+library-facing guidance
+**Touches:** Library docs, planning guidance, and reusable-surface tests
+**Ends with:** The repo describes the intended supported contract and has a
+dedicated test home ready before retirements begin
 **Progress keys:** `session-1/supported-surface`,
-`session-1/public-api-labeling`, `session-1/docs-narrowing`
+`session-1/coverage-gate-baseline`, `session-1/docs-narrowing`
 
 ---
 
@@ -60,8 +69,9 @@ changes begin
    filter, and column-visibility toggles.
 3. If the existing surfaces cannot be cleaned up safely, introduce focused
    replacements with clearer contracts and compatibility notes.
-4. Add tests that prove the retained core grid/filter/query behavior still
-   works.
+4. Add tests in the dedicated `Dabbler.Components` contract-test home that
+   prove the retained core grid/filter/query behavior still works before
+   adjacent extras are retired.
 
 **Creates:** Narrowed grid/filter/query surface and supporting tests
 **Touches:** `src/Libs/Dabbler.Components/` and relevant tests/docs
@@ -86,7 +96,9 @@ changes begin
 4. Confirm report surfaces remain aligned with the notes-driven report/query
    behavior and retire advanced composed report-query surfaces that are not yet
    proven, especially `DabblerQueryReportPage<T>`.
-5. Add or update tests for the retained core behavior.
+5. Add or update tests in the dedicated `Dabbler.Components` and
+   `Dabbler.Reports` contract-test homes for the retained core behavior before
+   broader combo/report surfaces are retired.
 
 **Creates:** Simplified combo/report/detail contract and tests
 **Touches:** `src/Libs/Dabbler.Components/`,
@@ -111,8 +123,9 @@ without advertising speculative extras
 3. Keep the security UI surfaces aligned with the notes-driven runtime
    authorization model, while pruning any admin surfaces the audit explicitly
    marked as non-core.
-4. Add tests that prove the retained shell/dashboard/security behavior still
-   works.
+4. Add tests in the dedicated `Dabbler.Components` contract-test home that
+   prove the retained shell/dashboard core behavior still works, while keeping
+   security validation in the existing security-focused test suites.
 
 **Creates:** Simplified shell/dashboard/security contract and tests
 **Touches:** `src/Libs/Dabbler.Components/`,

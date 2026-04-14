@@ -24,6 +24,10 @@ The audit decision ledger should be treated as binding input for this set. The
 app should align to retained core surfaces and focused replacements, not keep
 retired library surfaces alive by continuing to depend on them.
 
+Assume the simplification set already established dedicated reusable-surface
+contract tests. App integration and Playwright work in this set should
+complement that baseline by proving real workflows, not replace it.
+
 ## Session Plan
 
 ### Session 1 of 4: App Dependency Audit And Migration Map
@@ -75,7 +79,8 @@ instead of the broader historical one
    treat the app's focused catalog experience as the proven path unless a later
    simplification session introduces a replacement core surface.
 3. Add or strengthen integration and Playwright coverage that proves the
-   notes-driven workflows end to end.
+   notes-driven workflows end to end and complements the retained-surface
+   contract tests created during simplification.
 4. Confirm at least one representative mutating workflow remains backend
    verified.
 
