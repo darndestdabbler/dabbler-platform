@@ -212,6 +212,83 @@
           "costUsd": 0.366405
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/shell-simplification",
+      "dateTime": "2026-04-14T23:24:23.718844+00:00",
+      "description": "Made DabblerShell's optional top-menu compatibility path explicit, updated the supported-surface planning doc to keep left-nav/workspace composition as the core shell story, and used a routed analysis pass to choose the narrowest safe isolation strategy before editing the shell/dashboard/catalog surfaces.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "analysis",
+          "costUsd": 0.403125
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/dashboard-simplification",
+      "dateTime": "2026-04-14T23:24:23.718844+00:00",
+      "description": "Narrowed DabblerDashboardPage around the retained landing-page core by rendering compatibility placeholders when favorites or recent-items widgets are configured without usage tracking, and marked the underlying favorites/recent-items components as hidden from the primary IntelliSense surface.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/catalog-decision",
+      "dateTime": "2026-04-14T23:24:23.720361+00:00",
+      "description": "Marked DabblerCatalogPage as a compatibility-only retirement candidate, suppressed internal shell warnings for the transitional catalog path, and updated Dabbler.Components guidance so broad catalog browsing and top-menu usage-tracking flows are documented as non-core defaults.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/security-surface",
+      "dateTime": "2026-04-14T23:24:23.721370+00:00",
+      "description": "Updated Dabbler.Security.Blazor guidance so the supported core now clearly leads with runtime authorization, secured rendering, role-aware navigation, and the security dashboard/admin surfaces, while MFA and external-login breadth are described as product/policy-shaped rather than the primary reusable contract.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/shell-security-tests",
+      "dateTime": "2026-04-14T23:24:23.722375+00:00",
+      "description": "Added direct Dabbler.Components contract tests for shell rendering with and without catalog providers, dashboard core widgets without usage tracking, compatibility placeholders for non-core dashboard widgets, and the catalog-page compatibility marker; security validation remained in the existing dedicated security suites and still passed in the full solution test run.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-14T23:24:23.723399+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln, dotnet test tests/Dabbler.Components.Tests/Dabbler.Components.Tests.csproj, and dotnet test Dabbler.Platform.sln successfully. The only remaining warnings were the pre-existing Dabbler.Security XML-documentation warnings plus the SDK preview notice.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/session-verification",
+      "dateTime": "2026-04-14T23:25:38.009147+00:00",
+      "description": "Sent the Session 4 spec excerpt, changed-file contents, and successful build/test summary to the external session verifier and saved the raw review output. The verifier returned VERIFIED with minor notes only.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 18841,
+          "outputTokens": 763,
+          "costUsd": 0.33984
+        }
+      ]
     }
   ]
 }

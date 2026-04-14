@@ -1,6 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
+using System.ComponentModel;
 using Dabbler.Components.Data.Metadata;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -12,6 +13,8 @@ namespace Dabbler.Components;
 /// and data grid. Displayed when the user clicks "All Forms", "All Reports", etc.
 /// from the top menu bar. Supports searching, pin/unpin toggling, and row-click navigation.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
+[Obsolete("DabblerCatalogPage is compatibility-only. Prefer notes-driven shell navigation and focused query/report pages for the supported reusable contract.")]
 public partial class DabblerCatalogPage : DabblerComponentBase
 {
     private string? _searchText;

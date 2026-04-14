@@ -22,6 +22,8 @@ namespace Dabbler.Components;
 /// </example>
 public partial class DabblerShell : DabblerComponentBase
 {
+    private bool ShowTopMenuBar => UsageTrackingProvider is not null && CatalogProvider is not null;
+
     // ── Tab state ───────────────────────────────────────────────────
     private readonly List<WorkspaceTab> _tabs = new();
     private string? _activeTabId;
@@ -301,6 +303,7 @@ public partial class DabblerShell : DabblerComponentBase
 
     private RenderFragment BuildCatalogContent(ArtifactType artifactType) => builder =>
     {
+#pragma warning disable CS0618
         builder.OpenComponent<DabblerCatalogPage>(0);
         builder.AddAttribute(1, nameof(DabblerCatalogPage.ArtifactType), artifactType);
         builder.AddAttribute(2, nameof(DabblerCatalogPage.CatalogProvider), CatalogProvider!);
@@ -309,6 +312,7 @@ public partial class DabblerShell : DabblerComponentBase
         builder.AddAttribute(5, nameof(DabblerCatalogPage.OnArtifactSelected),
             EventCallback.Factory.Create<(ArtifactType, string, string)>(this, HandleMenuArtifactSelectedAsync));
         builder.CloseComponent();
+#pragma warning restore CS0618
     };
 
     // ── Home page routing ──────────────────────────────────────────────

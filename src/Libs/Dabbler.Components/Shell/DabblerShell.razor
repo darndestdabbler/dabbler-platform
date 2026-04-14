@@ -10,10 +10,10 @@
     </a>
 
     @* ── Top menu bar ────────────────────────────────────────── *@
-    @if (UsageTrackingProvider is not null && CatalogProvider is not null)
+    @if (ShowTopMenuBar)
     {
-        <DabblerTopMenuBar UsageTrackingProvider="UsageTrackingProvider"
-                           CatalogProvider="CatalogProvider"
+        <DabblerTopMenuBar UsageTrackingProvider="UsageTrackingProvider!"
+                           CatalogProvider="CatalogProvider!"
                            UserId="@UserId"
                            AppTitle="@Title"
                            OnArtifactSelected="HandleMenuArtifactSelectedAsync"

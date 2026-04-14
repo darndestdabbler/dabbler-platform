@@ -63,15 +63,18 @@ Default stance:
 
 **Supported core:**
 
-- `DabblerShell` as the reusable shell/frame for top menu, left navigation,
-  pinned-item entry points, workspace composition, and runtime provider
-  integration
+- `DabblerShell` as the reusable shell/frame for left navigation, pinned-item
+  entry points, workspace composition, and runtime provider integration
+- optional top-menu composition only when catalog and usage-tracking providers
+  are explicitly supplied for a workflow that still needs the compatibility path
 - navigation/runtime provider contracts that the app uses to populate the shell
-- `DabblerDashboardPage` core landing-page behavior
+- `DabblerDashboardPage` core landing-page behavior for navigation cards, quick
+  links, and focused search
 
 **Advanced or retirement pressure:**
 
-- dashboard favorites and recent-items widgets are non-core by default
+- dashboard favorites and recent-items widgets are compatibility-only and
+  non-core by default
 - broad artifact/catalog browsing is not part of the supported primary story
 - `DabblerCatalogPage` is a retirement candidate unless later proof appears
 

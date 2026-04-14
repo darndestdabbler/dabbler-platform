@@ -1,6 +1,14 @@
 # Dabbler.Security.Blazor
 
-Dabbler.Security.Blazor provides a comprehensive set of pre-built MudBlazor-based UI components for Blazor Server applications. It includes ready-to-use pages for authentication (magic link login, MFA) and a complete admin interface for managing users, roles, and fine-grained permissions at runtime.
+Dabbler.Security.Blazor provides the notes-driven runtime authorization UI for
+Blazor Server applications. The supported core surface centers on secured
+rendering, role-aware navigation, runtime permission editing, and the security
+dashboard/admin pages that the app and dedicated tests already prove.
+
+Authentication pages for magic link login, MFA, and external-login workflows
+remain available, but that broader identity breadth is product- and
+policy-shaped rather than the main reusable-surface contract this repo is
+currently simplifying.
 
 ## Quick Start
 
@@ -18,8 +26,8 @@ This registers MudBlazor services, cascading authentication state, and a `Delega
 
 | Component | Route | Description |
 |---|---|---|
-| `LoginPage` | `/login` | Magic link login with email entry and support for external OIDC/OAuth providers. |
-| `MfaPage` | `/mfa` | TOTP setup with QR code enrollment and code verification. |
+| `LoginPage` | `/login` | Magic link login with optional external OIDC/OAuth entry points. |
+| `MfaPage` | `/mfa` | TOTP setup and verification when a product policy enables MFA. |
 
 ### Admin Pages
 
@@ -31,7 +39,7 @@ This registers MudBlazor services, cascading authentication state, and a `Delega
 | `RoleAssignmentPage` | `/admin/roles/assign` | Assign and remove roles from users. |
 | `AuditLogPage` | `/admin/audit` | View a chronological audit trail of security events. |
 
-### Shared Components
+### Supported Core Components
 
 | Component | Description |
 |---|---|
@@ -54,6 +62,18 @@ This registers MudBlazor services, cascading authentication state, and a `Delega
 | `DabblerControlPermissionTab` | Tabbed interface for control permission editing within the dashboard. |
 | `DabblerRowFilterEditor` | Configure per-role data scoping filters for row-level security. |
 | `DabblerRowFilterTab` | Tabbed interface for row filter editing within the dashboard. |
+
+## Current Contract Notes
+
+- The retained supported contract is the runtime authorization story:
+  secured rendering, role switching, security navigation, permission editing,
+  and row filters.
+- The admin/dashboard pages remain part of the supported core because the app
+  and dedicated `tests/Dabbler.Security.Blazor.Tests/` suite exercise them
+  directly.
+- Broader external-login and MFA breadth remains available, but should be
+  treated as product/policy configuration rather than the default reusable
+  platform story.
 
 ## Admin Dashboard Setup
 

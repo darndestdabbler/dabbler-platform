@@ -19,8 +19,8 @@ The current supported contract is defined in
 | `DabblerMultiComboBox<T>` | Retained multiselect lookup surface while the notes-driven combo contract stays compatibility-safe |
 | `DabblerDetailForm<T>` | Validated single-record form editing |
 | `DabblerRecordPopup<T>` | Modal record display/edit flow |
-| `DabblerShell` | Top menu, left-nav, pinned-item, workspace, and runtime-provider shell composition |
-| `DabblerDashboardPage` | Core landing-page/dashboard surface |
+| `DabblerShell` | Left-nav, workspace, pinned-item entry points, and optional top-menu composition when catalog/usage providers are supplied |
+| `DabblerDashboardPage` | Core landing-page/dashboard surface for navigation cards, quick links, and targeted search |
 | `ExpressionEngine` | Support infrastructure for expression-based query/report behavior |
 
 ## Quick Start
@@ -70,13 +70,17 @@ current public story:
 - filter quick filter, presets, expression line output, and column toggles
 - combo add-new flows and grouping headers
 - favorites/recent-items dashboard widgets as default platform behavior
+- `DabblerTopMenuBar` and `DabblerCatalogPage` as broad artifact-browsing defaults
 
 Opt into clipboard/CSV helpers on `DabblerQueryPage<T>` only when a workflow
 explicitly needs them. The default query-page toolbar now stays focused on the
 retained search/list path.
 
-`DabblerCatalogPage` is currently a retirement candidate rather than a
-first-choice reusable surface.
+`DabblerTopMenuBar` remains available as an optional compatibility surface when
+both `IArtifactCatalogProvider` and `IUsageTrackingProvider` are supplied.
+
+`DabblerCatalogPage`, `DabblerFavorites`, and `DabblerRecentItems` are
+compatibility-only surfaces and should not lead new notes-driven workflows.
 
 ## Dependencies
 

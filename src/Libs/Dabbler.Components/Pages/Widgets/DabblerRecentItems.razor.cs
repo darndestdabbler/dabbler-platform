@@ -1,6 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
+using System.ComponentModel;
 using Dabbler.Components.Data.Metadata;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -11,6 +12,7 @@ namespace Dabbler.Components;
 /// Auto-populated list of the user's most recently accessed records.
 /// Clicking an item navigates to its detail tab.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public partial class DabblerRecentItems : DabblerComponentBase
 {
     private bool _isLoading;

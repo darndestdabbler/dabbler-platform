@@ -4,6 +4,7 @@
 using System.Text.Json;
 using Dabbler.Components.Data.Metadata;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace Dabbler.Components;
 
@@ -89,6 +90,15 @@ public partial class DabblerDashboardPage : DabblerComponentBase
                 break;
 
             case WidgetType.RecentItems:
+                if (UsageTrackingProvider is null)
+                {
+                    RenderCompatibilityWidgetPlaceholder(
+                        builder,
+                        widgetName: "RecentItems",
+                        message: "Recent items is a compatibility-only dashboard widget that requires usage tracking.");
+                    break;
+                }
+
                 builder.OpenComponent<DabblerRecentItems>(0);
                 builder.AddAttribute(1, nameof(DabblerRecentItems.UsageTrackingProvider), UsageTrackingProvider);
                 builder.AddAttribute(2, nameof(DabblerRecentItems.UserId), UserId);
@@ -98,6 +108,15 @@ public partial class DabblerDashboardPage : DabblerComponentBase
                 break;
 
             case WidgetType.Favorites:
+                if (UsageTrackingProvider is null)
+                {
+                    RenderCompatibilityWidgetPlaceholder(
+                        builder,
+                        widgetName: "Favorites",
+                        message: "Favorites is a compatibility-only dashboard widget that requires usage tracking.");
+                    break;
+                }
+
                 builder.OpenComponent<DabblerFavorites>(0);
                 builder.AddAttribute(1, nameof(DabblerFavorites.UsageTrackingProvider), UsageTrackingProvider);
                 builder.AddAttribute(2, nameof(DabblerFavorites.UserId), UserId);
@@ -170,6 +189,18 @@ public partial class DabblerDashboardPage : DabblerComponentBase
         {
             return null;
         }
+    }
+
+    private static void RenderCompatibilityWidgetPlaceholder(
+        RenderTreeBuilder builder,
+        string widgetName,
+        string message)
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "dabbler-widget-placeholder dabbler-widget-compatibility");
+        builder.AddAttribute(2, "data-compatibility-widget", widgetName);
+        builder.AddContent(3, message);
+        builder.CloseElement();
     }
 
     // ── Widget configuration models ─────────────────────────────────

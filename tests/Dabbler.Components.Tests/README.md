@@ -16,3 +16,6 @@ simplification sessions should add direct coverage for:
 - `DabblerRecordPopup<T>`
 - `DabblerShell`
 - `DabblerDashboardPage` core behavior
+
+Session 4 adds direct shell/dashboard contract coverage so catalog plumbing and
+usage-tracking widgets can be isolated without relying only on app smoke tests.
