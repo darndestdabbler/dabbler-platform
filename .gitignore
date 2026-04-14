@@ -9,3 +9,5 @@ test-results/
 *.suo
 *.swp
 *.tmp
+__pycache__/
+*.pyc
