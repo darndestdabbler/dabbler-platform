@@ -28,7 +28,7 @@
     @* ── Search / input area ──────────────────────────────────────────────── *@
     <MudAutocomplete T="T" @ref="_autocomplete"
                      Value="@_pendingValue" ValueChanged="@HandleItemSelectedAsync"
-                     SearchFunc="@SearchWithGroupingAsync"
+                     SearchFunc="@_searchHelper.SearchAsync"
                      ToStringFunc="@ToStringFunc"
                      CoerceText="false"
                      Immediate="true"
@@ -63,20 +63,7 @@
             }
         </BeforeItemsTemplate>
         <NoItemsTemplate>
-            @if (AllowAddNew && !string.IsNullOrEmpty(_searchHelper.CurrentSearchText) && !_maxSelectionsReached)
-            {
-                <button type="button"
-                        style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; cursor: pointer; user-select: none; background: none; border: none; width: 100%; text-align: left;"
-                        @onclick="HandleAddNewClickAsync"
-                        @onclick:stopPropagation="true">
-                    <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Size="Size.Small" Color="Color.Primary" />
-                    <MudText Typo="Typo.body2" Color="Color.Primary">@GetAddNewPromptText()</MudText>
-                </button>
-            }
-            else
-            {
-                <MudText Typo="Typo.body2" Class="pa-4 mud-text-secondary">No items found</MudText>
-            }
+            <MudText Typo="Typo.body2" Class="pa-4 mud-text-secondary">No items found</MudText>
         </NoItemsTemplate>
         <AfterItemsTemplate>
             @if (_maxSelectionsReached)
@@ -86,27 +73,6 @@
                     Maximum selections reached (@MaxSelections)
                 </div>
             }
-            @if (AllowAddNew && !string.IsNullOrEmpty(_searchHelper.CurrentSearchText) && !_maxSelectionsReached)
-            {
-                <button type="button"
-                        style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; cursor: pointer; border-top: 1px solid rgba(0,0,0,0.12); user-select: none; background: none; border: none; border-top: 1px solid rgba(0,0,0,0.12); width: 100%; text-align: left;"
-                        @onclick="HandleAddNewClickAsync"
-                        @onclick:stopPropagation="true">
-                    <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Size="Size.Small" Color="Color.Primary" />
-                    <MudText Typo="Typo.body2" Color="Color.Primary">@GetAddNewPromptText()</MudText>
-                </button>
-            }
         </AfterItemsTemplate>
     </MudAutocomplete>
-
-    @* ── Add New dialog panel ─────────────────────────────────────────────── *@
-    @if (_showAddNewDialog && _addNewContext is not null && AddNewTemplate is not null)
-    {
-        <div style="margin-top: 4px; border: 1px solid var(--mud-palette-lines-default);
-                    border-radius: 4px; padding: 16px; background: var(--mud-palette-surface);
-                    box-shadow: var(--mud-elevation-2);">
-            @AddNewTemplate(_addNewContext)
-        </div>
-    }
 </div>
-

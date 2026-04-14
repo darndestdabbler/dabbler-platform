@@ -33,12 +33,6 @@ public partial class DabblerMultiComboBox<T> : DabblerComponentBase
     // Sentinel used to reset MudAutocomplete after each selection.
     private T? _pendingValue;
 
-    // Controls whether the AddNewTemplate dialog panel is visible.
-    private bool _showAddNewDialog;
-
-    // Context passed to AddNewTemplate when dialog mode is active.
-    private AddNewItemContext<T>? _addNewContext;
-
     // ─── Parameters ───────────────────────────────────────────────────────────
 
     /// <summary>Currently selected values.</summary>
@@ -67,34 +61,6 @@ public partial class DabblerMultiComboBox<T> : DabblerComponentBase
     /// </summary>
     [Parameter]
     public Func<ValueNotInListEventArgs, Task>? OnValueNotInList { get; set; }
-
-    /// <summary>
-    /// When <c>true</c>, an "Add '{text}'…" option appears at the bottom of the dropdown
-    /// when the typed text does not match the selected value.
-    /// </summary>
-    [Parameter]
-    public bool AllowAddNew { get; set; }
-
-    /// <summary>
-    /// Simple mode callback. Receives the typed text and returns the newly created item,
-    /// or <c>null</c> to cancel. Takes priority over <see cref="AddNewTemplate"/> if both are set.
-    /// </summary>
-    [Parameter]
-    public Func<string, Task<T?>>? OnAddNewItem { get; set; }
-
-    /// <summary>
-    /// Dialog mode template. Receives an <see cref="AddNewItemContext{T}"/> with the typed text
-    /// and callbacks to complete or cancel the add-new flow.
-    /// </summary>
-    [Parameter]
-    public RenderFragment<AddNewItemContext<T>>? AddNewTemplate { get; set; }
-
-    /// <summary>
-    /// Custom prompt text for the add-new dropdown option. Use <c>{0}</c> for typed text.
-    /// Defaults to <c>"Add '{0}'…"</c>.
-    /// </summary>
-    [Parameter]
-    public string? AddNewPromptText { get; set; }
 
     /// <summary>Visual style of the selected chips.</summary>
     [Parameter]
@@ -153,29 +119,11 @@ public partial class DabblerMultiComboBox<T> : DabblerComponentBase
     public RenderFragment<T>? ItemTemplate { get; set; }
 
     /// <summary>
-    /// Extracts a group label from each item. When set, search results are grouped by this label.
-    /// Group headers appear as non-selectable rows above each group.
-    /// </summary>
-    [Parameter]
-    public Func<T, string>? GroupFunc { get; set; }
-
-    /// <summary>
-    /// Custom group sort comparator. Receives two group label strings and returns a negative,
-    /// zero, or positive integer. Defaults to alphabetical when <c>null</c>.
-    /// </summary>
-    [Parameter]
-    public Func<string, string, int>? GroupSortFunc { get; set; }
-
-    /// <summary>
     /// Column definitions for tabular dropdown display. When set (and <see cref="ItemTemplate"/> is null),
     /// each dropdown item is rendered as a row with cells for each column.
     /// </summary>
     [Parameter]
     public IReadOnlyList<ComboBoxColumn<T>>? Columns { get; set; }
-
-    // Maps the first item in each group to its group label, for group header rendering.
-    // Stored as a list of pairs to avoid the Dictionary<T,V> notnull constraint on T.
-    private readonly List<(T Item, string Header)> _itemGroupHeaders = [];
 
     // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -212,9 +160,6 @@ public partial class DabblerMultiComboBox<T> : DabblerComponentBase
     private string GetDisplayText(T? value) =>
         value is null ? "" : (ToStringFunc?.Invoke(value) ?? value?.ToString() ?? "");
 
-    private string GetAddNewPromptText() =>
-        string.Format(AddNewPromptText ?? "Add '{0}'…", _searchHelper.CurrentSearchText);
-
     private bool IsSelected(T item) => _selectedSet.Contains(item);
 
     // ─── Event handlers ───────────────────────────────────────────────────────
@@ -250,88 +195,13 @@ public partial class DabblerMultiComboBox<T> : DabblerComponentBase
         StateHasChanged();
     }
 
-    private async Task HandleAddNewClickAsync()
-    {
-        var enteredText = _searchHelper.CurrentSearchText ?? "";
-
-        if (OnAddNewItem is not null)
-        {
-            var newItem = await OnAddNewItem(enteredText);
-            if (newItem is not null && !IsSelected(newItem) && !_maxSelectionsReached)
-            {
-                await HandleItemSelectedAsync(newItem);
-                if (SearchFunc is not null)
-                    await SearchFunc(GetDisplayText(newItem), CancellationToken.None);
-            }
-        }
-        else if (AddNewTemplate is not null)
-        {
-            _addNewContext = new AddNewItemContext<T>
-            {
-                EnteredText = enteredText,
-                CompleteAsync = async newItem =>
-                {
-                    _showAddNewDialog = false;
-                    _addNewContext = null;
-                    if (!IsSelected(newItem) && !_maxSelectionsReached)
-                    {
-                        _values.Add(newItem);
-                        _selectedSet.Add(newItem);
-                        await ValuesChanged.InvokeAsync(_values.AsReadOnly());
-                        if (SearchFunc is not null)
-                            await SearchFunc(GetDisplayText(newItem), CancellationToken.None);
-                    }
-                    StateHasChanged();
-                },
-                CancelAsync = () =>
-                {
-                    _showAddNewDialog = false;
-                    _addNewContext = null;
-                    StateHasChanged();
-                    return Task.CompletedTask;
-                }
-            };
-            _showAddNewDialog = true;
-        }
-    }
-
-    // ─── Grouping & Column helpers ────────────────────────────────────────────
-
-    /// <summary>
-    /// Wraps the search helper to apply optional grouping after results are fetched.
-    /// Populates <see cref="_itemGroupHeaders"/> so the item template can render headers.
-    /// </summary>
-    private async Task<IEnumerable<T>> SearchWithGroupingAsync(string? text, CancellationToken ct)
-    {
-        var results = (await _searchHelper.SearchAsync(text, ct)).ToList();
-        _itemGroupHeaders.Clear();
-
-        if (GroupFunc is null) return results;
-
-        IComparer<string> comparer = GroupSortFunc is not null
-            ? Comparer<string>.Create((a, b) => GroupSortFunc(a, b))
-            : StringComparer.Ordinal;
-
-        var flattened = new List<T>();
-        foreach (var group in results.GroupBy(GroupFunc).OrderBy(g => g.Key, comparer))
-        {
-            bool isFirst = true;
-            foreach (var item in group.OrderBy(i => GetDisplayText(i)))
-            {
-                if (isFirst) { _itemGroupHeaders.Add((item, group.Key)); isFirst = false; }
-                flattened.Add(item);
-            }
-        }
-        return flattened;
-    }
-
     /// <summary>Returns <c>true</c> when any column has a header text set.</summary>
     private bool HasColumnHeaders =>
         Columns is not null && Columns.Any(c => c.Header is not null);
 
     /// <summary>
-    /// Builds the effective item template, incorporating group headers, column layout,
-    /// and selected-item checkmarks. The consumer's <see cref="ItemTemplate"/> takes priority.
+    /// Builds the effective item template, incorporating column layout and selected-item
+    /// checkmarks. The consumer's <see cref="ItemTemplate"/> takes priority.
     /// </summary>
     internal RenderFragment<T> BuildItemTemplate()
     {
@@ -341,20 +211,6 @@ public partial class DabblerMultiComboBox<T> : DabblerComponentBase
         {
             int seq = 0;
             bool selected = IsSelected(item);
-
-            // Render group header above the first item in each group.
-            var headerEntry = _itemGroupHeaders.FirstOrDefault(e => EqualityComparer<T>.Default.Equals(e.Item, item));
-            if (headerEntry.Header is not null)
-            {
-                builder.OpenElement(seq++, "div");
-                builder.AddAttribute(seq++, "style",
-                    "padding: 2px 0 4px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; " +
-                    "letter-spacing: 0.05em; color: rgba(0,0,0,0.54); pointer-events: none; line-height: 1.2;");
-                builder.AddAttribute(seq++, "role", "presentation");
-                builder.AddAttribute(seq++, "aria-label", headerEntry.Header);
-                builder.AddContent(seq++, headerEntry.Header);
-                builder.CloseElement();
-            }
 
             // Row: item content + optional checkmark for selected items.
             builder.OpenElement(seq++, "div");

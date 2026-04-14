@@ -1,6 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
+using System.ComponentModel;
 using Dabbler.Components.Data;
 using Dabbler.Reports.Core.Data;
 using Dabbler.Reports.Core.Layout;
@@ -21,6 +22,8 @@ namespace Dabbler.Components;
 /// </summary>
 /// <typeparam name="T">The row data type for the grid view.</typeparam>
 [CascadingTypeParameter(nameof(T))]
+[EditorBrowsable(EditorBrowsableState.Never)]
+[Obsolete("DabblerQueryReportPage<T> is compatibility-only. Prefer composing DabblerQueryPage<T> and DabblerReportPage for the supported notes-driven contract.")]
 public partial class DabblerQueryReportPage<T> : DabblerComponentBase
 {
     private DabblerFilterGrid<T>? _filterGrid;

@@ -46,8 +46,9 @@ Default stance:
 
 - `DabblerComboBox<T>` for searchable, multi-column, cascading selection
   workflows
-- retained multiselect capability, even if it eventually stops living behind a
-  distinct `DabblerMultiComboBox<T>` public surface
+- retained multiselect capability via `DabblerMultiComboBox<T>` for now, while
+  future simplification work decides whether that behavior can move behind the
+  main combo contract without a risky compatibility break
 - `DabblerDetailForm<T>` for validated single-record editing
 - `DabblerRecordPopup<T>` for modal record display/edit flows
 
@@ -55,8 +56,8 @@ Default stance:
 
 - combo add-new flows
 - combo grouping headers
-- preserving `DabblerMultiComboBox<T>` as a required long-term public API when
-  the main combo contract can absorb multiselect cleanly
+- treating `DabblerQueryReportPage<T>`-style composed surfaces as the first
+  report/query story instead of using the narrower retained primitives
 
 ### Shell, Dashboard, And Catalog
 
@@ -115,6 +116,7 @@ Owns the retained `Dabbler.Components` contract:
 - `DabblerDataGrid<T>` core behavior
 - `DabblerFilterGrid<T>` core behavior
 - `DabblerComboBox<T>` and retained multiselect behavior
+- `DabblerMultiComboBox<T>` as the current retained multiselect surface
 - `DabblerDetailForm<T>`
 - `DabblerRecordPopup<T>`
 - `DabblerShell`
@@ -143,7 +145,8 @@ Library-facing docs should now:
 - describe advanced widget families and broader historical affordances as
   non-core or retirement candidates
 - avoid presenting `DabblerCatalogPage` and `DabblerQueryReportPage<T>` as
-  default first-choice surfaces
+  default first-choice surfaces, and treat `DabblerQueryReportPage<T>` as a
+  compatibility-only holdover while the narrower supported contract leads
 
 ## Session 1 Baseline
 

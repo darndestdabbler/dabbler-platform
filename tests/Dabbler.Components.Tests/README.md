@@ -10,7 +10,8 @@ simplification sessions should add direct coverage for:
 - `DabblerQueryPage<T>`
 - `DabblerDataGrid<T>` core behavior
 - `DabblerFilterGrid<T>` core behavior
-- `DabblerComboBox<T>` plus retained multiselect behavior
+- `DabblerComboBox<T>` plus retained multiselect behavior through
+  `DabblerMultiComboBox<T>`
 - `DabblerDetailForm<T>`
 - `DabblerRecordPopup<T>`
 - `DabblerShell`

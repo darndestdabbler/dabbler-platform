@@ -15,7 +15,8 @@ The current supported contract is defined in
 | `DabblerQueryPage<T>` | Standard query/list page that composes the retained filter and grid behaviors |
 | `DabblerDataGrid<T>` | Core search-result grid for sorting, paging, row selection, and CRUD-style workflows |
 | `DabblerFilterGrid<T>` | QBE filter surface with row-based AND/OR logic and English summary output |
-| `DabblerComboBox<T>` | Searchable, multi-column lookup with cascading coordination and retained multiselect capability |
+| `DabblerComboBox<T>` | Searchable, multi-column lookup with cascading coordination |
+| `DabblerMultiComboBox<T>` | Retained multiselect lookup surface while the notes-driven combo contract stays compatibility-safe |
 | `DabblerDetailForm<T>` | Validated single-record form editing |
 | `DabblerRecordPopup<T>` | Modal record display/edit flow |
 | `DabblerShell` | Top menu, left-nav, pinned-item, workspace, and runtime-provider shell composition |
@@ -53,6 +54,7 @@ Compose a standard query page:
 - QBE-style filtering with row-based AND/OR behavior
 - query/list composition built from filter + result grid
 - searchable lookup selection with cascading coordination
+- retained multiselect lookup selection via `DabblerMultiComboBox<T>`
 - validated detail editing and popup flows
 - reusable shell/navigation and landing-page composition
 - expression support used by higher-level query/report workflows

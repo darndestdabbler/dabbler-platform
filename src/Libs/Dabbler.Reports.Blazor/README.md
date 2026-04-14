@@ -38,11 +38,12 @@ Or embed just the viewer:
 - view composed report output in the browser
 - keep PDF/export support as supporting behavior, not the main contract story
 
-## Advanced Or Retirement Candidates
+## Compatibility-Only Surface
 
-`DabblerQueryReportPage<T>` is not part of the primary supported default
-contract and is a retirement candidate unless later work proves a narrower,
-notes-aligned need for it.
+`DabblerQueryReportPage<T>` is retained only for compatibility. The supported
+notes-driven contract prefers composing `DabblerQueryPage<T>` and
+`DabblerReportPage` separately instead of treating the combined surface as the
+default reusable path.
 
 ## Dependencies
 
