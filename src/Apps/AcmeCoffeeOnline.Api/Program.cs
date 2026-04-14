@@ -1,6 +1,7 @@
 using AcmeCoffeeOnline.Api.Data;
 using AcmeCoffeeOnline.Api.Middleware;
 using AcmeCoffeeOnline.Api.Services;
+using AcmeCoffeeOnline.Shared.Diagnostics;
 using Dabbler.Security.Extensions;
 using Dabbler.Security.Middleware;
 using Dabbler.Security.Options;
@@ -158,12 +159,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 
-app.MapGet("/health", () => Results.Ok(new
-{
-    service = "api",
-    status = "healthy",
-    stage = "session-6-cutover"
-}));
+app.MapGet("/health", () => Results.Ok(
+    HealthResponseFactory.Create(
+        "api",
+        app.Environment.EnvironmentName,
+        typeof(Program).Assembly)));
 
 var internalApiKey = builder.Configuration["DabblerSecurity:InternalApiKey"] ?? "dev-internal-key-acme";
 app.UseMiddleware<InternalUserMiddleware>(internalApiKey);

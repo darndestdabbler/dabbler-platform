@@ -2,6 +2,7 @@ using AcmeCoffeeOnline.Web.Configuration;
 using System.Net;
 using System.Security.Claims;
 using AcmeCoffeeOnline.Shared.DTOs;
+using AcmeCoffeeOnline.Shared.Diagnostics;
 using AcmeCoffeeOnline.Web.Data;
 using AcmeCoffeeOnline.Web.Services;
 using Dabbler.Components.Data;
@@ -181,13 +182,11 @@ app.UseAntiforgery();
 
 var authOptions = app.Services.GetRequiredService<IOptions<AppAuthenticationOptions>>().Value;
 
-app.MapGet("/health", () => Results.Ok(new
-{
-    service = "web",
-    status = "healthy",
-    stage = "session-6-cutover",
-    deliveryMode = authOptions.DeliveryMode
-}));
+app.MapGet("/health", () => Results.Ok(
+    HealthResponseFactory.CreateWeb(
+        app.Environment.EnvironmentName,
+        typeof(Program).Assembly,
+        authOptions.DeliveryMode)));
 
 app.MapGet("/auth-check", (ClaimsPrincipal user) => Results.Ok(new
 {
