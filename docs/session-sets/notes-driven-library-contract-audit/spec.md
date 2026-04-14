@@ -32,7 +32,7 @@ app-alignment, and template work.
 
 ## Session Plan
 
-### Session 1 of 4: Surface Inventory And Contract Mapping
+### Session 1 of 5: Surface Inventory And Contract Mapping
 
 **Steps:**
 1. Inventory the current public-facing surfaces under `src/Libs/` that affect
@@ -50,7 +50,7 @@ contract actually requires from the reusable libraries
 
 ---
 
-### Session 2 of 4: App And Template Consumption Map
+### Session 2 of 5: App And Template Consumption Map
 
 **Steps:**
 1. Map where `src/Apps/` currently consumes each major library surface.
@@ -68,7 +68,7 @@ usage, template usage, both, or neither
 
 ---
 
-### Session 3 of 4: Decision Ledger And Human Decision Queue
+### Session 3 of 5: Decision Ledger And Human Decision Queue
 
 **Steps:**
 1. Turn the audit into a durable decision ledger with feature-level
@@ -88,7 +88,7 @@ advanced
 
 ---
 
-### Session 4 of 4: Coverage Baseline And Closeout
+### Session 4 of 5: Coverage Baseline And Queue Rebaseline
 
 **Steps:**
 1. Map current unit, bUnit, integration, and Playwright coverage to the
@@ -97,12 +97,31 @@ advanced
    close before removing or isolating functionality.
 3. Revisit the remaining session-set queue and append one catch-up session only
    if the audit exposed a directly related omission that belongs in this set.
-4. Generate `change-log.md` for this session set.
 
-**Creates:** Coverage-gap baseline and `change-log.md`
-**Touches:** Planning docs and this session set's closeout artifacts
-**Ends with:** The repo has a decision-complete audit baseline and the next
-session sets can execute without reopening the same classification debate
+**Creates:** Coverage-gap baseline and queue rebaseline notes
+**Touches:** Planning docs and this session set's active spec
+**Ends with:** The repo has an explicit coverage baseline and a clear answer on
+whether this audit needs one more planning session before closeout
 **Progress keys:** `session-4/coverage-baseline`,
-`session-4/test-gap-map`, `session-4/queue-rebaseline`,
-`session-4/change-log`
+`session-4/test-gap-map`, `session-4/queue-rebaseline`
+
+---
+
+### Session 5 of 5: Coverage Gate And Closeout
+
+**Steps:**
+1. Convert the Session 4 gap map into an explicit coverage gate for retained
+   core reusable surfaces, including where dedicated `Dabbler.Components` and
+   `Dabbler.Reports` tests must exist before simplification retires adjacent
+   functionality.
+2. Rebaseline downstream session-set assumptions so simplification starts with
+   a documented quality bar for retained non-security reusable surfaces.
+3. Generate `change-log.md` for this session set.
+
+**Creates:** Coverage-gate handoff and `change-log.md`
+**Touches:** Planning docs, downstream session-set specs if sequencing or
+assumptions change, and this session set's closeout artifacts
+**Ends with:** The audit closes with both a decision ledger and an explicit
+coverage gate for the retained core surface
+**Progress keys:** `session-5/coverage-gate`,
+`session-5/downstream-rebaseline`, `session-5/change-log`

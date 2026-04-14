@@ -5,7 +5,7 @@
 > grounding decisions in current `src/Apps/` usage and the actual public
 > library surface.
 > **Created:** 2026-04-14
-> **Status:** Session 3 decision ledger completed
+> **Status:** Session 4 coverage baseline completed; one catch-up session remains for coverage-gate closeout
 
 ---
 
@@ -73,6 +73,21 @@ Session 3 turned the audit baseline into a durable decision ledger:
 - recorded the remaining policy-level decisions that still need a human owner
 - rebaselined later session-set specs so downstream work starts from the
   decision ledger instead of reopening the same classification debate
+
+---
+
+## Session 4 Outcome
+
+Session 4 mapped current automated coverage to the retained core surfaces:
+
+- confirmed the strongest automated coverage is concentrated in
+  `Dabbler.Security` and `Dabbler.Security.Blazor`
+- confirmed the retained non-security UI surfaces are mostly only proven
+  indirectly through app-level smoke coverage
+- recorded the highest-value test gaps that later simplification and
+  app-alignment work must close before retiring or isolating functionality
+- rebaselined this session set to add one catch-up planning session for the
+  missing coverage gate instead of closing the audit prematurely
 
 ---
 
@@ -369,6 +384,99 @@ cleanup:
 - **External user authentication breadth:** runtime authorization remains core,
   but the long-term reusable scope for external login and MFA still depends on
   product/security policy choices rather than current app proof alone.
+
+---
+
+## Session 4 Coverage Baseline
+
+### Coverage By Test Layer
+
+| Test layer | Current strength | Evidence | What it proves |
+|---|---|---|---|
+| Unit and bUnit | `strong for security`, `missing for retained non-security UI surfaces` | `tests/Dabbler.Security.Tests/` and `tests/Dabbler.Security.Blazor.Tests/` cover authorization handlers, stores, services, integration points, `DabblerSecurityNav`, `DabblerSecured`, `DabblerRoleSwitcher`, `DabblerSecurityDashboard`, and admin permission editors/pages | The runtime authorization and admin security surface has direct contract-level proof |
+| App integration and host smoke tests | `light-to-moderate` | `tests/AcmeCoffeeOnline.Web.Tests/` covers main-shell rendering, auth-layout separation, seeded-session guardrails, structured auth observability, workflow assets, and the web health endpoint; `tests/AcmeCoffeeOnline.Api.Tests/` currently cover the API health endpoint | The integrated hosts start correctly and preserve core auth/test guardrails, but most app workflows are not deeply asserted here |
+| Playwright end-to-end | `meaningful smoke coverage` | `tests/AcmeCoffeeOnline.Playwright/SmokeTests.cs` covers main-shell rendering, anonymous login rendering, real magic-link sign-in, seeded-session permission enforcement, customer order row scoping, and backend-verified product availability mutation | The narrowed app still proves the highest-priority sign-in, permission, and one mutating business path end to end |
+
+### Retained Core Surface Coverage Map
+
+| Retained core surface | Direct automated coverage today | Indirect proof today | Current gap |
+|---|---|---|---|
+| `DabblerQueryPage<T>` | none found | app list pages render through web smoke and Playwright flows | no contract-level tests for query composition, paging, commands, or retained grid/filter integration |
+| `DabblerDataGrid<T>` core behavior | none found | indirectly exercised through app query pages | no direct regression net for simplification of CRUD/search/paging/sorting behavior |
+| `DabblerFilterGrid<T>` core behavior | none found | indirectly exercised through app query pages | no direct proof for QBE row logic, AND/OR semantics, or filter-summary output |
+| `DabblerComboBox<T>` | none found | used by the app, but not directly asserted in tests | no direct proof for search, multi-column results, cascading coordination, or selection state |
+| Multiselect capability | none found | none beyond notes and current app/library intent | no proof for retained multiselect behavior before collapsing the public surface |
+| `DabblerDetailForm<T>` and `DabblerRecordPopup<T>` | none found | app detail/popup flows exist in source and layout composition | no direct validation or state-transition coverage for save/cancel/edit behavior |
+| `DabblerReportPage`, `ParameterPromptForm`, `ReportViewer` | none found | report pages exist in the app | no direct proof for parameter prompting, report execution, or report viewer behavior |
+| `DabblerDashboardPage` core behavior | none found | dashboard route exists in the app | no direct proof separating retained dashboard core from favorites/recent-items extras |
+| `DabblerShell` and navigation/runtime provider contracts | none found for the reusable surface itself | shell rendering is covered by web smoke and Playwright home-page/login flows | no contract tests for navigation composition, workspace behavior, or pinned-item assumptions |
+| Security UI/runtime authorization surfaces | strong | app smoke and Playwright coverage reinforce it | the main remaining risk is policy scope, not lack of automated test coverage |
+
+### Test Harness Snapshot
+
+- existing dedicated test projects: `AcmeCoffeeOnline.Api.Tests`,
+  `AcmeCoffeeOnline.Web.Tests`, `AcmeCoffeeOnline.Playwright`,
+  `Dabbler.Security.Tests`, and `Dabbler.Security.Blazor.Tests`
+- no dedicated `Dabbler.Components` or `Dabbler.Reports` test projects were
+  found, which leaves the retained non-security reusable surface without a
+  natural contract-test home
+
+---
+
+## Session 4 Test Gap Map
+
+### Highest-Value Gaps To Close Before Simplification Removes Or Isolates Functionality
+
+1. Add a dedicated contract-test home for `Dabbler.Components` and
+   `Dabbler.Reports` so retained reusable UI surfaces are not validated only
+   through app smoke tests.
+2. Add direct tests for `DabblerDataGrid<T>` and `DabblerFilterGrid<T>` before
+   simplifying grouping, clipboard, CSV, presets, quick-filter, or other
+   out-of-scope behavior, because these are the highest-risk surfaces for
+   accidental core-regression.
+3. Add direct tests for `DabblerComboBox<T>`, retained multiselect capability,
+   `DabblerDetailForm<T>`, and `DabblerRecordPopup<T>` before collapsing public
+   combo/detail abstractions.
+4. Add direct tests for `DabblerReportPage`, `ParameterPromptForm`, and
+   `ReportViewer` before retiring broader composed report/query surfaces.
+5. Add direct shell/dashboard contract tests before retiring catalog,
+   favorites, recent-items, or other broader navigation/dashboard defaults, so
+   the retained shell/dashboard core is proven independently of the app shell
+   smoke tests.
+
+### Why These Gaps Matter
+
+- the current Playwright and host-smoke coverage is strong enough to confirm
+  that the app still boots and that the highest-priority auth flows work
+- it is not strong enough to protect the public contracts of the retained
+  reusable non-security surfaces while simplification deliberately removes
+  adjacent behaviors
+- the security surface is already in a meaningfully better position because it
+  has unit, bUnit, and integration coverage at the reusable-library layer
+
+---
+
+## Session 4 Queue Rebaseline
+
+Session 4 found a directly related omission that belongs in this audit set:
+the repo now has a decision ledger for the retained core surface, but it does
+not yet have an explicit coverage gate for the retained non-security reusable
+components and reports.
+
+Queue decision:
+
+- append one catch-up session to this audit set before generating
+  `change-log.md`
+- use that session to turn the gap map into a durable coverage gate and
+  downstream handoff instead of closing the audit as if the retained contract
+  were already adequately protected
+
+Implication for later work:
+
+- `notes-driven-core-surface-simplification` should still own the actual test
+  implementation that proves the retained surface during code changes
+- the audit set should first finish documenting the minimum coverage gate and
+  sequencing expectations so simplification starts with an explicit quality bar
 
 ---
 
