@@ -6,7 +6,8 @@
 > **Created:** 2026-04-14
 > **Session Set:** `docs/session-sets/notes-driven-app-alignment/`
 > **Prerequisite:** `notes-driven-core-surface-simplification` is complete and
-> its compatibility notes are current.
+> its compatibility notes in
+> `docs/planning/notes-driven-library-compatibility-notes.md` are current.
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification
 
 ---
@@ -28,6 +29,17 @@ Assume the simplification set already established dedicated reusable-surface
 contract tests. App integration and Playwright work in this set should
 complement that baseline by proving real workflows, not replace it.
 
+The simplification handoff is now explicit:
+
+- treat `DabblerCatalogPage` and `DabblerQueryReportPage<T>` as migration
+  targets, not reusable defaults to preserve
+- keep `DabblerMultiComboBox<T>` as the accepted multiselect holdover when the
+  app still needs multiselect lookup behavior
+- treat dashboard favorites/recent-items and top-menu/catalog composition as
+  optional compatibility paths rather than baseline platform defaults
+- prefer removing app reliance on hidden or opt-in advanced grid/filter/query
+  helpers over rebuilding new abstractions around them
+
 ## Session Plan
 
 ### Session 1 of 4: App Dependency Audit And Migration Map
@@ -36,7 +48,8 @@ complement that baseline by proving real workflows, not replace it.
 1. Audit where the app still depends on advanced, isolated, or deprecated
    library functionality.
 2. Create a migration map from old surfaces to the retained core surfaces or
-   focused replacements.
+   focused replacements documented in
+   `docs/planning/notes-driven-library-compatibility-notes.md`.
 3. Identify any app pages or layouts that still reflect pre-simplification
    library assumptions.
 
@@ -58,7 +71,7 @@ before edits begin
    were isolated or retired.
 3. Preserve user-facing behavior that still belongs to the notes-driven
    contract, while moving dashboard defaults away from favorites/recent-items
-   if those widgets remain non-core.
+   and broad catalog usage if those paths remain compatibility-only.
 
 **Creates:** Aligned app pages using the simplified library surface
 **Touches:** `src/Apps/AcmeCoffeeOnline.Web/` and related tests

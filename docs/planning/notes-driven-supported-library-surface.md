@@ -11,7 +11,11 @@
 ## Operating Rule
 
 Treat this document as the explicit supported-surface definition for the major
-non-security library areas while the simplification sessions are underway.
+non-security library areas after the simplification session set completed.
+
+Use `docs/planning/notes-driven-library-compatibility-notes.md` when app or
+template work needs migration guidance for compatibility-only or intentionally
+isolated surfaces.
 
 Default stance:
 
@@ -151,9 +155,9 @@ Library-facing docs should now:
   default first-choice surfaces, and treat `DabblerQueryReportPage<T>` as a
   compatibility-only holdover while the narrower supported contract leads
 
-## Session 1 Baseline
+## Simplification Baseline
 
-Session 1 of `notes-driven-core-surface-simplification` establishes this
-document, creates the dedicated contract-test homes, and narrows the primary
-library READMEs so later sessions can simplify against an explicit, test-owned
-contract instead of a broader historical surface.
+`notes-driven-core-surface-simplification` established this document,
+created the dedicated contract-test homes, narrowed the primary library
+READMEs, and confirmed the retained surface in direct `Dabbler.Components` and
+`Dabbler.Reports.Blazor` coverage before closing the session set.

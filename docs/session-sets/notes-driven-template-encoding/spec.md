@@ -27,6 +27,11 @@ Template work should inherit only surfaces that survived the audit and were
 already protected by the simplification coverage gate and accepted app
 baseline.
 
+Treat `docs/planning/notes-driven-library-compatibility-notes.md` as a
+negative-default list for scaffolding: compatibility-only catalog/query-report
+surfaces and intentionally isolated advanced grid/filter/dashboard extras
+should not reappear in `template-seed/` as starter defaults.
+
 ## Session Plan
 
 ### Session 1 of 3: Template Contract Audit
@@ -55,7 +60,9 @@ than speculation
    guidance so they expose only the retained notes-driven defaults.
 2. Ensure advanced or intentionally isolated features are not scaffolded by
    default, including retired catalog/query-report surfaces and non-core
-   grid/filter/combo/dashboard extras.
+   grid/filter/dashboard extras; keep multiselect lookup support only if the
+   accepted app baseline still proves `DabblerMultiComboBox<T>` as part of the
+   real minimal platform story.
 3. Update any workflow/bootstrap guidance that still implies the older broader
    library surface.
 
