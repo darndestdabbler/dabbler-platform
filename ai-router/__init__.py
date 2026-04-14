@@ -61,10 +61,21 @@ from dataclasses import dataclass, field
 from typing import Optional
 import time
 import os
+import json
+import logging
 
 # Module-level singletons, initialized on first call
 _config = None
 _rate_limiters = {}
+_logger = logging.getLogger("ai_router.session_verification")
+
+if not _logger.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(message)s"))
+    _logger.addHandler(_handler)
+
+_logger.setLevel(logging.INFO)
+_logger.propagate = False
 
 
 def _init():
@@ -148,6 +159,14 @@ def route(
     # 2. Pick model
     model_name = pick_model(score, max_tier, task_type, _config)
     model_cfg = _config["models"][model_name]
+
+    if task_type == "session-verification":
+        _log_session_verification_event(
+            "session_verification_started",
+            model=model_name,
+            complexity_score=score,
+            max_tier=max_tier
+        )
 
     # 3. Build prompt with model-specific formatting
     system_prompt, user_message = build_prompt(
@@ -260,6 +279,15 @@ def route(
                     route_result, user_message, task_type,
                     verification, v_config
                 )
+
+    if task_type == "session-verification":
+        _log_session_verification_event(
+            "session_verification_completed",
+            model=route_result.model_name,
+            total_cost_usd=round(route_result.total_cost_usd, 6),
+            elapsed_seconds=round(route_result.elapsed_seconds, 3),
+            escalated=route_result.escalated
+        )
 
     return route_result
 
@@ -555,3 +583,8 @@ def _classify_escalation_reason(result, config):
         if phrase in result.content.lower():
             return "refusal"
     return "unknown"
+
+
+def _log_session_verification_event(event_name: str, **fields):
+    payload = {"event": event_name, **fields}
+    _logger.info("session_verification %s", json.dumps(payload, sort_keys=True))

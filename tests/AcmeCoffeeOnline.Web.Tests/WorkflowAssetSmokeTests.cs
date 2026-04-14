@@ -16,11 +16,19 @@ from pathlib import Path
 
 config_text = Path('ai-router/config.py').read_text(encoding='utf-8')
 router_config = Path('ai-router/router-config.yaml').read_text(encoding='utf-8')
+router_init = Path('ai-router/__init__.py').read_text(encoding='utf-8')
+observability_doc = Path('docs/workflow-auth-observability.md').read_text(encoding='utf-8')
 
 assert "config_dir / \"prompt-templates\"" in config_text
 assert "config_dir.parent / \"prompt-templates\"" in config_text
 assert "system_prompt_file: prompt-templates/google-system.md" in router_config
 assert "prompt_template_file: prompt-templates/verification.md" in router_config
+assert "session_verification_started" in router_init
+assert "session_verification_completed" in router_init
+assert "_log_session_verification_event" in router_init
+assert "session verification" in observability_doc.lower()
+assert "seeded session" in observability_doc.lower()
+assert "magic link" in observability_doc.lower()
 
 required_files = [
     Path('ai-router/prompt-templates/google-system.md'),
@@ -28,6 +36,7 @@ required_files = [
     Path('ai-router/prompt-templates/task-types/documentation.md'),
     Path('ai-router/prompt-templates/verification.md'),
     Path('ai-router/utils/load_env.py'),
+    Path('docs/workflow-auth-observability.md'),
 ]
 
 for required in required_files:

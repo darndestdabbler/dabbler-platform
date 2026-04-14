@@ -81,6 +81,97 @@
           "costUsd": 0.0018225000000000001
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 0,
+      "stepKey": "session-2/session-start",
+      "dateTime": "2026-04-14T17:07:59.637485+00:00",
+      "description": "Started Session 2 of platform-post-cutover-hardening, verified API keys, identified the active session set, confirmed rebuild-consolidation is complete, checked Session 1 prerequisites and existing workflow/auth helper paths, and reviewed the relevant guardrail and auth-mode docs before adding observability changes.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/auth-observability",
+      "dateTime": "2026-04-14T17:12:42.911040+00:00",
+      "description": "Added structured Development/Test auth observability for dev magic-link capture, seeded-session issuance, and magic-link diagnostics access by introducing stable event IDs and structured fields in Dabbler.Security.DevEmailSender and the Web app auth helper endpoints.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/workflow-observability",
+      "dateTime": "2026-04-14T17:12:42.911040+00:00",
+      "description": "Added ai-router session-verification start/completion logging through the ai_router.session_verification logger, created docs/workflow-auth-observability.md for local and CI-like inspection guidance, and refined the doc after the routed documentation draft was auto-verified with completeness issues.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 424,
+          "outputTokens": 456,
+          "costUsd": 0.018209,
+          "verifierModel": "sonnet",
+          "verifierCostUsd": 0.013118999999999999,
+          "verificationVerdict": "ISSUES_FOUND"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/smoke-checks",
+      "dateTime": "2026-04-14T17:12:42.911040+00:00",
+      "description": "Added smoke coverage that captures structured logs from DevEmailSender and the Web auth helper endpoints, plus workflow-asset checks that fail if the session-verification log markers or observability runbook disappear.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/build-test",
+      "dateTime": "2026-04-14T17:13:48.127864+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln successfully; the full solution test run passed, including 5 Playwright tests and the new Web observability smoke checks.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/session-verification",
+      "dateTime": "2026-04-14T17:15:30.419471+00:00",
+      "description": "Sent the Session 2 spec excerpt, changed auth/workflow observability files, and successful build/test results to the external verifier. The round-1 verifier concluded the session was complete and correct, but it used a COMPLETE AND CORRECT heading instead of the workflow's machine-parseable VERIFIED prefix, so the raw output was saved and a clarification round was requested.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 18237,
+          "outputTokens": 1244,
+          "costUsd": 0.366855
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/session-verification-round-2",
+      "dateTime": "2026-04-14T17:15:30.421034+00:00",
+      "description": "Ran a clarification verification round because the first verifier response did not use the workflow's required verdict prefix. The follow-up verification escalated to opus and returned VERIFIED, and the raw clarification output was appended to the saved session review.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 1441,
+          "outputTokens": 32,
+          "costUsd": 0.024014999999999998
+        }
+      ]
     }
   ]
 }

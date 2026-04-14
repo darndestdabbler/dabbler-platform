@@ -4,6 +4,7 @@ using System.Security.Claims;
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Shared.Diagnostics;
 using AcmeCoffeeOnline.Web.Data;
+using AcmeCoffeeOnline.Web.Diagnostics;
 using AcmeCoffeeOnline.Web.Services;
 using Dabbler.Components.Data;
 using Dabbler.Components.Data.Metadata;
@@ -181,6 +182,9 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 var authOptions = app.Services.GetRequiredService<IOptions<AppAuthenticationOptions>>().Value;
+var authObservabilityLogger = app.Services
+    .GetRequiredService<ILoggerFactory>()
+    .CreateLogger("AcmeCoffeeOnline.AuthObservability");
 
 app.MapGet("/health", () => Results.Ok(
     HealthResponseFactory.CreateWeb(
@@ -253,6 +257,12 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
             inbox.Clear();
         }
 
+        AuthObservabilityLog.MagicLinkDiagnosticsRequested(
+            authObservabilityLogger,
+            string.IsNullOrWhiteSpace(email) ? "<all>" : MaskEmail(email),
+            clear,
+            messages.Length);
+
         return Results.Ok(messages);
     });
 
@@ -315,6 +325,13 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
                 IsPersistent = false,
                 AllowRefresh = true
             });
+
+        AuthObservabilityLog.SeededSessionIssued(
+            authObservabilityLogger,
+            MaskEmail(resolvedEmail),
+            resolvedUserId,
+            string.Join(',', requestedRoles),
+            seededUser is not null);
 
         return Results.Ok(new
         {
@@ -603,6 +620,22 @@ static string[] ParseRequestedRoles(string? roles)
     }
 
     return roles.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
+
+static string MaskEmail(string? email)
+{
+    if (string.IsNullOrWhiteSpace(email))
+    {
+        return "<none>";
+    }
+
+    var at = email.IndexOf('@');
+    if (at <= 1)
+    {
+        return "***";
+    }
+
+    return $"{email[0]}***{email[(at - 1)..]}";
 }
 
 static async Task<SeededUserInfo?> ResolveSeededUserAsync(

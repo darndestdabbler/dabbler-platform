@@ -16,7 +16,12 @@ public class DevEmailSender(
     /// <inheritdoc/>
     public Task SendMagicLinkAsync(string email, string code, string linkUrl)
     {
-        logger.LogInformation("DEV EMAIL MagicLink -> {Email} | Code: {Code} | Link: {Link}", Mask(email), code, linkUrl);
+        DevEmailSenderLog.DevEmailCaptured(
+            logger,
+            "MagicLink",
+            Mask(email),
+            !string.IsNullOrWhiteSpace(code),
+            !string.IsNullOrWhiteSpace(linkUrl));
         inbox?.Add(new DevEmailMessage(
             "MagicLink",
             email,
