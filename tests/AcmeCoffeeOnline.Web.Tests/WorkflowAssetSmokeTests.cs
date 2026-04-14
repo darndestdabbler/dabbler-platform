@@ -1,94 +1,72 @@
-using System.Diagnostics;
-
 namespace AcmeCoffeeOnline.Web.Tests;
 
 public sealed class WorkflowAssetSmokeTests
 {
     [Fact]
-    public void AiRouterConfig_LoadsNestedPromptTemplatesAsync()
+    public void AiRouterConfig_LoadsNestedPromptTemplates()
     {
         var repoRoot = GetRepoRoot();
-        var tempScriptPath = Path.GetTempFileName() + ".py";
-        File.WriteAllText(
-            tempScriptPath,
-            """
-from pathlib import Path
+        var configText = ReadRepoFile(repoRoot, "ai-router", "config.py");
+        var routerConfig = ReadRepoFile(repoRoot, "ai-router", "router-config.yaml");
+        var routerInit = ReadRepoFile(repoRoot, "ai-router", "__init__.py");
+        var observabilityDoc = ReadRepoFile(repoRoot, "docs", "workflow-auth-observability.md");
 
-config_text = Path('ai-router/config.py').read_text(encoding='utf-8')
-router_config = Path('ai-router/router-config.yaml').read_text(encoding='utf-8')
-router_init = Path('ai-router/__init__.py').read_text(encoding='utf-8')
-observability_doc = Path('docs/workflow-auth-observability.md').read_text(encoding='utf-8')
+        Assert.Contains("config_dir / \"prompt-templates\"", configText);
+        Assert.Contains("config_dir.parent / \"prompt-templates\"", configText);
+        Assert.Contains("system_prompt_file: prompt-templates/google-system.md", routerConfig);
+        Assert.Contains("prompt_template_file: prompt-templates/verification.md", routerConfig);
+        Assert.Contains("session_verification_started", routerInit);
+        Assert.Contains("session_verification_completed", routerInit);
+        Assert.Contains("_log_session_verification_event", routerInit);
+        Assert.Contains("session verification", observabilityDoc, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("seeded session", observabilityDoc, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("magic link", observabilityDoc, StringComparison.OrdinalIgnoreCase);
 
-assert "config_dir / \"prompt-templates\"" in config_text
-assert "config_dir.parent / \"prompt-templates\"" in config_text
-assert "system_prompt_file: prompt-templates/google-system.md" in router_config
-assert "prompt_template_file: prompt-templates/verification.md" in router_config
-assert "session_verification_started" in router_init
-assert "session_verification_completed" in router_init
-assert "_log_session_verification_event" in router_init
-assert "session verification" in observability_doc.lower()
-assert "seeded session" in observability_doc.lower()
-assert "magic link" in observability_doc.lower()
+        string[] requiredFiles =
+        [
+            "ai-router/prompt-templates/google-system.md",
+            "ai-router/prompt-templates/anthropic-system.md",
+            "ai-router/prompt-templates/task-types/documentation.md",
+            "ai-router/prompt-templates/verification.md",
+            "ai-router/utils/load_env.py",
+            "docs/workflow-auth-observability.md"
+        ];
 
-required_files = [
-    Path('ai-router/prompt-templates/google-system.md'),
-    Path('ai-router/prompt-templates/anthropic-system.md'),
-    Path('ai-router/prompt-templates/task-types/documentation.md'),
-    Path('ai-router/prompt-templates/verification.md'),
-    Path('ai-router/utils/load_env.py'),
-    Path('docs/workflow-auth-observability.md'),
-]
-
-for required in required_files:
-    assert required.exists(), f"missing workflow asset: {required}"
-
-print('workflow-assets-ok')
-""");
-
-        var command = @"
-$ErrorActionPreference = 'Stop'
-$env:GEMINI_API_KEY = 'test-gemini'
-$env:ANTHROPIC_API_KEY = 'test-anthropic'
-if (Get-Command py -ErrorAction SilentlyContinue) {
-  & py -3 '" + tempScriptPath + @"'
-} elseif (Get-Command python -ErrorAction SilentlyContinue) {
-  & python '" + tempScriptPath + @"'
-} else {
-  throw 'Python interpreter not found in PATH.'
-}
-";
-
-        try
+        foreach (var requiredFile in requiredFiles)
         {
-            using var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "powershell",
-                    Arguments = $"-NoProfile -Command \"{command.Replace("\"", "\\\"")}\"",
-                    WorkingDirectory = repoRoot,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false
-                }
-            };
-
-            process.Start();
-            var stdout = process.StandardOutput.ReadToEnd();
-            var stderr = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-
-            Assert.True(process.ExitCode == 0, $"workflow asset smoke check failed.{Environment.NewLine}STDOUT:{Environment.NewLine}{stdout}{Environment.NewLine}STDERR:{Environment.NewLine}{stderr}");
-            Assert.Contains("workflow-assets-ok", stdout);
+            Assert.True(
+                File.Exists(Path.Combine(repoRoot, requiredFile)),
+                $"Missing workflow asset: {requiredFile}");
         }
-        finally
-        {
-            File.Delete(tempScriptPath);
-        }
+    }
+
+    [Fact]
+    public void RepoRoot_ResolvesToSolutionDirectory()
+    {
+        var repoRoot = GetRepoRoot();
+        Assert.True(
+            File.Exists(Path.Combine(repoRoot, "Dabbler.Platform.sln")),
+            "The workflow asset smoke tests must resolve the repository root to the solution directory.");
     }
 
     private static string GetRepoRoot()
     {
-        return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (directory.EnumerateFiles("Dabbler.Platform.sln").Any())
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate the repository root from the current test output path.");
+    }
+
+    private static string ReadRepoFile(string repoRoot, params string[] relativePath)
+    {
+        return File.ReadAllText(Path.Combine([repoRoot, .. relativePath]));
     }
 }

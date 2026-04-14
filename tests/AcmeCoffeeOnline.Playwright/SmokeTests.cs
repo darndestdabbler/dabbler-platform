@@ -76,7 +76,7 @@ public sealed class SmokeTests
 
         try
         {
-            await _fixture.ClearMagicLinksAsync(page, email);
+            await _fixture.ClearMagicLinksAsync(email);
 
             await page.GotoAsync($"{_fixture.BaseUrl}/login", new PageGotoOptions
             {
@@ -88,11 +88,13 @@ public sealed class SmokeTests
 
             await Assertions.Expect(page.GetByText("We sent a sign-in code")).ToBeVisibleAsync();
 
-            var magicLink = await _fixture.WaitForMagicLinkAsync(page, email);
+            var magicLink = await _fixture.WaitForMagicLinkAsync(email);
             if (string.IsNullOrWhiteSpace(magicLink.LinkUrl))
             {
                 throw new XunitException("Magic link payload did not include a link URL.");
             }
+
+            Assert.Equal("MagicLink", magicLink.EmailType);
 
             await page.GotoAsync(magicLink.LinkUrl, new PageGotoOptions
             {
@@ -169,18 +171,22 @@ public sealed class SmokeTests
     {
         var page = await _fixture.CreatePageAsync();
         const string productName = "Blonde Roast - Decaf - Espresso";
+        int? productId = null;
+        bool? wasAvailable = null;
+        string? userId = null;
 
         try
         {
             await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
 
             var session = await _fixture.GetSessionInfoAsync(page);
-            Assert.False(string.IsNullOrWhiteSpace(session.UserId));
+            userId = session.UserId;
+            Assert.False(string.IsNullOrWhiteSpace(userId));
             Assert.Contains("SystemAdmin", session.Roles ?? []);
 
             using var beforePayload = await _fixture.GetApiJsonAsync(
                 $"api/products?page=1&pageSize=10&searchTerm={Uri.EscapeDataString(productName)}",
-                session.UserId!);
+                userId!);
 
             var beforeProduct = beforePayload.RootElement
                 .GetProperty("items")
@@ -189,14 +195,14 @@ public sealed class SmokeTests
 
             Assert.Equal(productName, beforeProduct.GetProperty("name").GetString());
 
-            var productId = beforeProduct.GetProperty("id").GetInt32();
-            var wasAvailable = beforeProduct.GetProperty("isAvailable").GetBoolean();
+            productId = beforeProduct.GetProperty("id").GetInt32();
+            wasAvailable = beforeProduct.GetProperty("isAvailable").GetBoolean();
 
-            await _fixture.PatchApiAsync($"api/products/{productId}/availability", session.UserId!);
+            await _fixture.PatchApiAsync($"api/products/{productId}/availability", userId!);
 
             using var afterPayload = await _fixture.GetApiJsonAsync(
                 $"api/products?page=1&pageSize=10&searchTerm={Uri.EscapeDataString(productName)}",
-                session.UserId!);
+                userId!);
 
             var afterProduct = afterPayload.RootElement
                 .GetProperty("items")
@@ -208,6 +214,24 @@ public sealed class SmokeTests
         }
         finally
         {
+            if (productId.HasValue && wasAvailable.HasValue && !string.IsNullOrWhiteSpace(userId))
+            {
+                using var finalPayload = await _fixture.GetApiJsonAsync(
+                    $"api/products?page=1&pageSize=10&searchTerm={Uri.EscapeDataString(productName)}",
+                    userId);
+
+                var currentProduct = finalPayload.RootElement
+                    .GetProperty("items")
+                    .EnumerateArray()
+                    .FirstOrDefault(item => item.GetProperty("id").GetInt32() == productId.Value);
+
+                if (currentProduct.ValueKind != System.Text.Json.JsonValueKind.Undefined
+                    && currentProduct.GetProperty("isAvailable").GetBoolean() != wasAvailable.Value)
+                {
+                    await _fixture.PatchApiAsync($"api/products/{productId.Value}/availability", userId);
+                }
+            }
+
             await _fixture.ClosePageAsync(page);
         }
     }

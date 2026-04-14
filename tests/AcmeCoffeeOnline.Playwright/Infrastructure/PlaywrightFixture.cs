@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -19,8 +20,10 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     private IBrowser? _browser;
     private Process? _apiProcess;
     private Process? _webProcess;
-    private readonly Dictionary<IPage, List<string>> _pageIssues = new();
-    private readonly Dictionary<IPage, IBrowserContext> _pageContexts = new();
+    private readonly ConcurrentQueue<string> _apiProcessLog = new();
+    private readonly ConcurrentQueue<string> _webProcessLog = new();
+    private readonly ConcurrentDictionary<IPage, ConcurrentQueue<string>> _pageIssues = new();
+    private readonly ConcurrentDictionary<IPage, IBrowserContext> _pageContexts = new();
 
     public string BaseUrl { get; } = Environment.GetEnvironmentVariable("PLAYWRIGHT_BASE_URL")
         ?? "http://localhost:5010";
@@ -30,18 +33,18 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        if (!await IsReachableAsync(ApiBaseUrl))
+        if (!await IsReachableAsync($"{ApiBaseUrl}/health"))
         {
-            _apiProcess = StartProject("src/Apps/AcmeCoffeeOnline.Api");
+            _apiProcess = StartProject("src/Apps/AcmeCoffeeOnline.Api", _apiProcessLog);
         }
 
-        if (!await IsReachableAsync(BaseUrl))
+        if (!await IsReachableAsync($"{BaseUrl}/health"))
         {
-            _webProcess = StartProject("src/Apps/AcmeCoffeeOnline.Web");
+            _webProcess = StartProject("src/Apps/AcmeCoffeeOnline.Web", _webProcessLog);
         }
 
-        await WaitForServerAsync($"{ApiBaseUrl}/health", "API");
-        await WaitForServerAsync($"{BaseUrl}/health", "Web");
+        await WaitForServerAsync($"{ApiBaseUrl}/health", "API", _apiProcess, _apiProcessLog);
+        await WaitForServerAsync($"{BaseUrl}/health", "Web", _webProcess, _webProcessLog);
 
         _playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
@@ -59,7 +62,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
         var context = await _browser.NewContextAsync();
         var page = await context.NewPageAsync();
-        var issues = new List<string>();
+        var issues = new ConcurrentQueue<string>();
         _pageIssues[page] = issues;
         _pageContexts[page] = context;
 
@@ -67,13 +70,13 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         {
             if (message.Type == "error")
             {
-                issues.Add($"Console error: {message.Text}");
+                issues.Enqueue($"Console error: {message.Text}");
             }
         };
 
         page.PageError += (_, exception) =>
         {
-            issues.Add($"Page error: {exception}");
+            issues.Enqueue($"Page error: {exception}");
         };
 
         page.RequestFailed += (_, request) =>
@@ -83,7 +86,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
                 return;
             }
 
-            issues.Add($"Request failed: {request.Method} {request.Url} ({request.Failure})");
+            issues.Enqueue($"Request failed: {request.Method} {request.Url} ({request.Failure})");
         };
 
         page.Response += (_, response) =>
@@ -93,13 +96,13 @@ public sealed class PlaywrightFixture : IAsyncLifetime
                 return;
             }
 
-            issues.Add($"HTTP {response.Status}: {response.Request.Method} {response.Url}");
+            issues.Enqueue($"HTTP {response.Status}: {response.Request.Method} {response.Url}");
         };
 
         page.Close += (_, _) =>
         {
-            _pageIssues.Remove(page);
-            _pageContexts.Remove(page);
+            _pageIssues.TryRemove(page, out _);
+            _pageContexts.TryRemove(page, out _);
         };
 
         return page;
@@ -155,7 +158,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await page.SetExtraHTTPHeadersAsync(new Dictionary<string, string>());
     }
 
-    public async Task ClearMagicLinksAsync(IPage page, string? email = null)
+    public async Task ClearMagicLinksAsync(string? email = null)
     {
         var url = $"{BaseUrl}/test-auth/magic-links?clear=true";
         if (!string.IsNullOrWhiteSpace(email))
@@ -163,7 +166,8 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             url += $"&email={Uri.EscapeDataString(email)}";
         }
 
-        var payload = await ReadJsonFromHelperPageAsync(page.Context, url);
+        using var client = CreateWebHelperClient();
+        var payload = await client.GetStringAsync(url);
         if (string.IsNullOrWhiteSpace(payload))
         {
             throw new InvalidOperationException("Failed to clear magic links.");
@@ -171,25 +175,35 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     }
 
     public async Task<MagicLinkMessage> WaitForMagicLinkAsync(
-        IPage page,
         string email,
         int timeoutMs = 15000)
     {
+        using var client = CreateWebHelperClient();
         var deadline = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+        var url = $"{BaseUrl}/test-auth/magic-links?email={Uri.EscapeDataString(email)}";
 
         while (DateTime.UtcNow < deadline)
         {
-            var payload = await ReadJsonFromHelperPageAsync(
-                page.Context,
-                $"{BaseUrl}/test-auth/magic-links?email={Uri.EscapeDataString(email)}");
-
-            var messages = JsonSerializer.Deserialize<List<MagicLinkMessage>>(payload, JsonOptions)
-                ?? [];
-
-            var message = messages.FirstOrDefault(link => !string.IsNullOrWhiteSpace(link.LinkUrl));
-            if (message is not null)
+            try
             {
-                return message;
+                var payload = await client.GetStringAsync(url);
+                var messages = JsonSerializer.Deserialize<List<MagicLinkMessage>>(payload, JsonOptions)
+                    ?? [];
+
+                var message = messages.FirstOrDefault(link => !string.IsNullOrWhiteSpace(link.LinkUrl));
+                if (message is not null)
+                {
+                    return message;
+                }
+            }
+            catch (HttpRequestException)
+            {
+            }
+            catch (TaskCanceledException)
+            {
+            }
+            catch (JsonException)
+            {
             }
 
             await Task.Delay(250);
@@ -233,7 +247,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
     public Task AssertNoClientErrorsAsync(IPage page)
     {
-        if (_pageIssues.TryGetValue(page, out var issues) && issues.Count > 0)
+        if (_pageIssues.TryGetValue(page, out var issues) && !issues.IsEmpty)
         {
             var details = string.Join(Environment.NewLine, issues);
             throw new Xunit.Sdk.XunitException($"Browser-side failures were detected:{Environment.NewLine}{details}");
@@ -282,10 +296,19 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         StopProcess(_apiProcess);
     }
 
-    private static Process StartProject(string relativeProjectPath)
+    private static Process StartProject(string relativeProjectPath, ConcurrentQueue<string> output)
     {
         var repoRoot = GetRepoRoot();
         var projectDir = Path.Combine(repoRoot, relativeProjectPath);
+        var projectName = Path.GetFileName(projectDir);
+        var binDir = Path.Combine(projectDir, "bin");
+        if (!Directory.Exists(binDir)
+            || !Directory.EnumerateFiles(binDir, $"{projectName}.dll", SearchOption.AllDirectories).Any())
+        {
+            throw new InvalidOperationException(
+                $"No build output was found for {relativeProjectPath}. Run 'dotnet build Dabbler.Platform.sln' before starting Playwright infrastructure.");
+        }
+
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -302,11 +325,18 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         process.StartInfo.Environment["ASPNETCORE_ENVIRONMENT"] = "Development";
         process.StartInfo.Environment["DOTNET_ENVIRONMENT"] = "Development";
 
-        process.OutputDataReceived += (_, _) => { };
-        process.ErrorDataReceived += (_, _) => { };
+        process.OutputDataReceived += (_, args) => CaptureProcessOutput(output, args.Data);
+        process.ErrorDataReceived += (_, args) => CaptureProcessOutput(output, args.Data);
         process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
+
+        if (process.WaitForExit(2000))
+        {
+            var details = BuildProcessDiagnostics(output);
+            throw new InvalidOperationException(
+                $"The {relativeProjectPath} process exited immediately with code {process.ExitCode}.{details}");
+        }
 
         return process;
     }
@@ -329,7 +359,11 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         }
     }
 
-    private static async Task WaitForServerAsync(string url, string name)
+    private static async Task WaitForServerAsync(
+        string url,
+        string name,
+        Process? process,
+        ConcurrentQueue<string> output)
     {
         using var client = new HttpClient
         {
@@ -339,6 +373,13 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         var deadline = DateTime.UtcNow.AddSeconds(60);
         while (DateTime.UtcNow < deadline)
         {
+            if (process is not null && process.HasExited)
+            {
+                var details = BuildProcessDiagnostics(output);
+                throw new TimeoutException(
+                    $"{name} exited before becoming healthy at {url} (exit code {process.ExitCode}).{details}");
+            }
+
             try
             {
                 using var response = await client.GetAsync(url);
@@ -354,7 +395,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             await Task.Delay(500);
         }
 
-        throw new TimeoutException($"{name} did not become healthy at {url}.");
+        throw new TimeoutException($"{name} did not become healthy at {url}.{BuildProcessDiagnostics(output)}");
     }
 
     private static void StopProcess(Process? process)
@@ -371,7 +412,18 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
     private static string GetRepoRoot()
     {
-        return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (directory.EnumerateFiles("Dabbler.Platform.sln").Any())
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate the repository root from the current test output path.");
     }
 
     private static Dictionary<string, string> BuildTestHeaders() => new()
@@ -387,7 +439,8 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             await helperPage.SetExtraHTTPHeadersAsync(BuildTestHeaders());
             await helperPage.GotoAsync(url, new PageGotoOptions
             {
-                WaitUntil = WaitUntilState.NetworkIdle
+                WaitUntil = WaitUntilState.DOMContentLoaded,
+                Timeout = 5000
             });
 
             return await helperPage.TextContentAsync("body") ?? string.Empty;
@@ -423,6 +476,40 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     private static bool ShouldIgnoreRequestFailure(IRequest request)
     {
         return request.Url.Contains("/_blazor/disconnect", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static HttpClient CreateWebHelperClient()
+    {
+        var client = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(5)
+        };
+        client.DefaultRequestHeaders.Add("X-Test-Auth-Secret", TestAuthSecret);
+        return client;
+    }
+
+    private static void CaptureProcessOutput(ConcurrentQueue<string> output, string? line)
+    {
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            return;
+        }
+
+        output.Enqueue(line);
+        while (output.Count > 40 && output.TryDequeue(out _))
+        {
+        }
+    }
+
+    private static string BuildProcessDiagnostics(ConcurrentQueue<string> output)
+    {
+        if (output.IsEmpty)
+        {
+            return string.Empty;
+        }
+
+        var lines = output.ToArray();
+        return $"{Environment.NewLine}Recent process output:{Environment.NewLine}{string.Join(Environment.NewLine, lines)}";
     }
 }
 

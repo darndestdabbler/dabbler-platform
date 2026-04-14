@@ -172,6 +172,109 @@
           "costUsd": 0.024014999999999998
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 0,
+      "stepKey": "session-3/session-start",
+      "dateTime": "2026-04-14T17:18:12.195525+00:00",
+      "description": "Started Session 3 of platform-post-cutover-hardening, verified API keys, identified the active session set, confirmed prior-session prerequisites exist, reviewed the session spec and guardrails, and gathered the Playwright and startup-smoke infrastructure before running the routed flake analysis.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/flake-review",
+      "dateTime": "2026-04-14T17:21:29.784940+00:00",
+      "description": "Routed the Session 3 flake review through ai-router using the current Playwright fixture, smoke tests, workflow asset smoke test, observability smoke checks, and launch profiles. The external analysis identified the highest-risk flake points as startup/process lifecycle assumptions, helper-page polling for magic-link capture, and the Windows-only workflow asset smoke test.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "analysis",
+          "inputTokens": 9402,
+          "outputTokens": 3370,
+          "costUsd": 0.39378
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/startup-hardening",
+      "dateTime": "2026-04-14T17:26:03.944691+00:00",
+      "description": "Hardened the Playwright fixture and smoke coverage by probing /health before self-starting, validating build outputs, surfacing recent process output on startup failures, resolving the repo root dynamically, using concurrent browser-issue tracking, switching magic-link helper polling to direct HTTP, tightening helper-page navigation timeouts, making the workflow asset smoke test pure C#, and restoring toggled product availability so repeated runs remain deterministic.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/stable-guidance",
+      "dateTime": "2026-04-14T17:26:03.945735+00:00",
+      "description": "Created docs/flake-resistance-guidance.md to capture the durable startup, helper-polling, and smoke-test determinism rules for future session sets, using an ai-router documentation draft that was cross-provider verified before the checked-in version was finalized.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 7885,
+          "outputTokens": 912,
+          "costUsd": 0.01897625,
+          "verifierModel": "sonnet",
+          "verifierCostUsd": 0.032592,
+          "verificationVerdict": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/build-test",
+      "dateTime": "2026-04-14T17:29:30.339067+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln successfully. The full solution build passed cleanly, and the solution test run passed with 342 tests including the hardened 5-test Playwright suite and 9 Web smoke/integration tests.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/session-verification",
+      "dateTime": "2026-04-14T17:29:30.340116+00:00",
+      "description": "Sent the Session 3 spec, touched-file diff, and successful build/test evidence to the external verifier. The round-1 verifier returned VERIFIED with no issues, confirming the flake-resistance hardening and guidance changes satisfied the session requirements.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 9394,
+          "outputTokens": 1085,
+          "costUsd": 0.22228499999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-04-14T17:29:30.341153+00:00",
+      "description": "Generated docs/session-sets/platform-post-cutover-hardening/change-log.md for the completed session set using an ai-router documentation draft that was cross-provider verified before the checked-in summary was finalized.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "provider": "ai-router",
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 5535,
+          "outputTokens": 563,
+          "costUsd": 0.012548750000000001,
+          "verifierModel": "sonnet",
+          "verifierCostUsd": 0.021606,
+          "verificationVerdict": "VERIFIED"
+        }
+      ]
     }
   ]
 }
