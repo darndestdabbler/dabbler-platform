@@ -5,7 +5,7 @@
 > grounding decisions in current `src/Apps/` usage and the actual public
 > library surface.
 > **Created:** 2026-04-14
-> **Status:** Session 1 baseline completed
+> **Status:** Session 2 consumption baseline completed
 
 ---
 
@@ -42,6 +42,24 @@ work:
 This session does not trim code. It defines what later sessions should treat as
 core, what should likely be simplified, and what should be challenged as
 advanced or speculative.
+
+---
+
+## Session 2 Outcome
+
+Session 2 mapped the Session 1 surface inventory to real repo consumption:
+
+- confirmed which reusable surfaces are used directly by
+  `src/Apps/AcmeCoffeeOnline.Web`
+- distinguished direct app usage from indirect usage that only appears through
+  composed surfaces
+- confirmed that `template-seed/` still proves workflow assets only, not the
+  Dabbler UI/report/security surface
+- recorded which library features are already earning their keep versus which
+  still look speculative
+
+This session still does not trim code. It sharpens the evidence for the
+decision ledger that Session 3 will produce.
 
 ---
 
@@ -195,6 +213,96 @@ human approval before they remain part of the supported contract:
 
 ---
 
+## App Consumption Map
+
+| Surface | App usage verdict | Evidence strength | Pay-for-itself signal | Evidence notes |
+|---|---|---|---|---|
+| `DabblerShell` | `app` | `direct` | `yes` | `MainLayout.razor` uses it as the primary application frame and passes metadata, navigation, report, catalog, usage-tracking, and dashboard configuration into the shell |
+| `DabblerSecurityNav` | `app` | `direct` | `yes` | `MainLayout.razor` renders it directly as part of the authenticated shell |
+| `DabblerRoleSwitcher` | `app` | `direct` | `yes` | `MainLayout.razor` renders it directly in the app bar |
+| `DabblerRecordPopup<T>` | `app` | `direct` | `yes` | `MainLayout.razor` uses `DabblerRecordPopup<ProductDto>` for leaf-record viewing from shell flows |
+| `DabblerQueryPage<T>` | `app` | `direct` | `yes` | `CustomerList.razor`, `ProductList.razor`, and `OrderList.razor` all use it as the standard search/list surface |
+| `DabblerFilterGrid<T>` | `app` | `indirect-through-composition` | `yes` | The app relies on its QBE/filter-status behavior through every `DabblerQueryPage<T>` list page, but does not reference it directly |
+| `DabblerDataGrid<T>` | `app` | `indirect-through-composition` | `yes` | The app relies on result-grid behavior through `DabblerQueryPage<T>`, while direct grid code in `src/Apps/` uses MudBlazor grids for page-specific child collections |
+| `DabblerDetailForm<T>` | `app` | `direct` | `yes` | `CustomerDetail.razor`, `ProductDetail.razor`, and `OrderDetail.razor` all use it as the standard edit/detail surface |
+| `DabblerComboBox<T>` | `app` | `direct` | `yes` | `ProductComboBox.razor` uses it for searchable multi-column product selection in order-entry flows |
+| `DabblerMultiComboBox<T>` | `neither` | `none` | `speculative` | No direct app usage was found in the current rebuild even though multiselect remains part of the notes contract |
+| `DabblerDashboardPage` | `app` | `direct` | `partial` | `Dashboard.razor` uses it directly, but the configured widget set still leans on favorites, recent-items, and embedded-search behaviors that the notes do not strongly require |
+| `DabblerCatalogPage` | `neither` | `none` | `speculative` | No direct app usage was found; the app's `/products/catalog` experience is a custom MudBlazor page rather than `DabblerCatalogPage` |
+| `DabblerReportPage` | `app` | `direct` | `yes` | `OrdersByCustomer.razor` and `SalesByProduct.razor` both use it as the report run/view surface |
+| `ParameterPromptForm` / `ReportViewer` | `app` | `indirect-through-composition` | `yes` | These report primitives are not referenced directly by the app, but their value is proven through the app's `DabblerReportPage` usage |
+| `DabblerQueryReportPage<T>` | `neither` | `none` | `speculative` | No direct app usage was found for the combined query/report surface |
+| Security UI/runtime surfaces | `app` | `direct` | `yes` | `DabblerSecurityDashboard`, `DabblerSecured`, `DabblerPageAuthorize`, `AddDabblerSecurity`, and `AddDabblerSecurityBlazor` are all integrated into real app auth and permission flows |
+| Metadata/navigation/catalog/usage provider contracts | `app` | `direct` | `yes` | `Program.cs`, `AcmeCoffeeMetadataProvider`, `AcmeCoffeeNavigationDataProvider`, and dashboard providers show the app actively paying for the shell/runtime integration points |
+
+---
+
+## Template And Workflow Asset Consumption
+
+`template-seed/` currently proves workflow reuse, not reusable UI-library
+reuse:
+
+- `template-seed/README.md` positions the seed as a minimal starter for the
+  AI-led workflow, centered on `ai-router/`, instruction files, workflow docs,
+  and a starter session-set skeleton
+- `template-seed/AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` assume the session
+  orchestration workflow, not `Dabbler.Components`, `Dabbler.Security`, or
+  `Dabbler.Reports`
+- no project references or direct Dabbler library usage were found under
+  `template-seed/`
+
+Current template verdict:
+
+- workflow assets: `proven`
+- Dabbler UI/report/security surfaces: `not yet assumed by the template`
+
+That means Session 2 evidence comes almost entirely from `src/Apps/`, and
+template alignment work should remain downstream from library simplification and
+app-alignment decisions.
+
+---
+
+## Proven Vs Speculative Summary
+
+### Proven By Current App Usage
+
+- `DabblerShell` and the shell-adjacent navigation/runtime contracts
+- `DabblerQueryPage<T>` and the composed filter/grid search pattern
+- `DabblerDetailForm<T>`
+- `DabblerComboBox<T>`
+- `DabblerRecordPopup<T>`
+- `DabblerReportPage`
+- security UI/runtime surfaces
+
+### Proven Indirectly Through Composition
+
+- `DabblerFilterGrid<T>` and `DabblerDataGrid<T>` are clearly paying for
+  themselves through `DabblerQueryPage<T>`, but the app does not yet prove that
+  their broader public options need to remain first-class supported features
+- `ParameterPromptForm` and `ReportViewer` are justified as report
+  infrastructure through `DabblerReportPage`, even though the app does not bind
+  them directly
+
+### Partially Proven And Still Challenged
+
+- `DabblerDashboardPage` is used directly, so the dashboard concept is proven,
+  but favorites, recent-items, and embedded-search widgets still exceed the
+  strongest notes-backed requirement set
+
+### Mostly Speculative Or Unproven
+
+- `DabblerCatalogPage`
+- `DabblerQueryReportPage<T>`
+- `DabblerMultiComboBox<T>` as a distinct public surface in the current app
+- broad artifact-catalog defaults rather than the narrower shell/navigation
+  model the app actually uses
+
+The clearest negative evidence is that the app built a custom
+`/products/catalog` page instead of adopting `DabblerCatalogPage`, and the
+template seed does not currently depend on any of these broader surfaces.
+
+---
+
 ## Session 1 Recommendations For Later Sets
 
 - Session 2 should map actual app and template consumption to this matrix
@@ -205,3 +313,16 @@ human approval before they remain part of the supported contract:
   place before considering any rebuild
 - rebuilds should be reserved for surfaces where trimming would leave a
   confusing or unstable public API
+
+## Session 2 Recommendations For Later Sets
+
+- Session 3 should treat direct app usage as the main signal for what remains
+  core, then force explicit justification for everything only proven
+  indirectly or not proven at all
+- Session 3 should split dashboard core from optional widget families instead
+  of carrying the whole dashboard surface as one decision
+- later simplification sessions should challenge CSV export, favorites,
+  recent-items, embedded search, catalog browsing, and query/report composition
+  before trimming the proven list/detail/report/security core
+- template work should wait until the library contract is smaller and backed by
+  proven app usage rather than today's broader surface area

@@ -63,6 +63,67 @@
           "costUsd": 0.099525
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/app-usage-map",
+      "dateTime": "2026-04-14T21:47:04.036026+00:00",
+      "description": "Mapped the major Dabbler library surfaces to concrete src/Apps usage paths across the AcmeCoffeeOnline web app and supporting registrations.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/template-usage-map",
+      "dateTime": "2026-04-14T21:47:04.037025+00:00",
+      "description": "Confirmed that template-seed currently assumes the AI workflow assets only and does not directly consume Dabbler UI, report, or security library surfaces.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/evidence-summary",
+      "dateTime": "2026-04-14T21:47:04.037025+00:00",
+      "description": "Updated docs/planning/notes-driven-library-contract-audit.md with the Session 2 consumption map and router-backed evidence summary for proven versus speculative surfaces.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 949,
+          "outputTokens": 391,
+          "costUsd": 0.00509625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-14T21:48:09.536738+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln successfully; only the existing preview SDK message and pre-existing XML-documentation warnings remained.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-14T21:49:05.442954+00:00",
+      "description": "Completed independent external session verification with an Opus review, saved the raw verifier output, and received a VERIFIED verdict with only minor non-blocking notes.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 11527,
+          "outputTokens": 636,
+          "costUsd": 0.220605
+        }
+      ]
     }
   ]
 }
