@@ -208,7 +208,7 @@
             {
                 DashboardId = "acme-home",
                 Name = "AcmeCoffeeOnline Dashboard",
-                Description = "Main landing dashboard with navigation, reports, and recent activity",
+                Description = "Main landing dashboard with navigation, reports, and focused search",
                 ColumnCount = 3,
                 IsSystemDashboard = true,
                 Widgets = new List<WidgetPlacement>
@@ -218,15 +218,13 @@
                     BuildNavCard("nav-customers", 1, 2, "Customers", "People",
                         "View customer records", "#388E3C", "entity", "Customer"),
                     BuildNavCard("nav-products", 1, 3, "Products", "Inventory",
-                        "Browse product catalog", "#F57C00", "entity", "Product"),
+                        "Search and manage product records", "#F57C00", "entity", "Product"),
                     BuildQuickLinks("links-reports", 2, 1,
                         "Reports",
                         ("Orders by Customer", "report", "orders-by-customer"),
                         ("Sales by Product", "report", "sales-by-product")),
-                    BuildWidget("recent", 2, 2, 2, 1, WidgetType.RecentItems),
-                    BuildWidget("favorites", 3, 1, 1, 1, WidgetType.Favorites),
-                    BuildSearchWidget("search-orders", 3, 2, "Order", "Search orders..."),
-                    BuildSearchWidget("search-products", 3, 3, "Product", "Search products...")
+                    BuildSearchWidget("search-orders", 2, 2, "Order", "Search orders..."),
+                    BuildSearchWidget("search-products", 2, 3, "Product", "Search products...")
                 }
             };
             return config;
@@ -268,18 +266,6 @@
             PlacementId = id, DashboardId = "acme-home",
             GridRow = row, GridColumn = col, ColSpan = 1, RowSpan = 1,
             WidgetType = WidgetType.QuickLinksGroup, ConfigJson = json,
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private static WidgetPlacement BuildWidget(
-        string id, int row, int col, int colSpan, int rowSpan, WidgetType type)
-    {
-        return new WidgetPlacement
-        {
-            PlacementId = id, DashboardId = "acme-home",
-            GridRow = row, GridColumn = col, ColSpan = colSpan, RowSpan = rowSpan,
-            WidgetType = type, ConfigJson = "{}",
             SortOrder = row * 10 + col
         };
     }

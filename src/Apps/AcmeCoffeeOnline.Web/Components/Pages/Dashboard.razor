@@ -1,35 +1,22 @@
 @page "/dashboard"
 @attribute [DabblerPageAuthorize("/dashboard")]
 @using System.Text.Json
-@using AcmeCoffeeOnline.Web.Data
 
 <PageTitle>Dashboard — AcmeCoffeeOnline</PageTitle>
 
 <DabblerDashboardPage Configuration="_dashboardConfig"
-                       UsageTrackingProvider="_usageProvider"
-                       UserId="@_userId"
                        OnArtifactSelected="OnArtifactSelectedAsync"
                        OnRecordSelected="OnRecordSelectedAsync"
                        OnSearchRequested="OnSearchRequestedAsync" />
 
 @code {
     [Inject]
-    private IUsageTrackingProvider _usageProvider { get; set; } = default!;
-
-    [Inject]
-    private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
-
-    [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
 
-    private string _userId = "";
     private DashboardConfiguration _dashboardConfig = default!;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
-
         _dashboardConfig = BuildDashboardConfiguration();
     }
 
@@ -39,7 +26,7 @@
         {
             DashboardId = "acme-home",
             Name = "AcmeCoffeeOnline Dashboard",
-            Description = "Main landing dashboard with navigation, reports, and recent activity",
+            Description = "Main landing dashboard with navigation, reports, and focused search",
             ColumnCount = 3,
             IsSystemDashboard = true,
             Widgets = new List<WidgetPlacement>
@@ -54,24 +41,19 @@
                     "entity", "Customer"),
 
                 CreateNavigationCard("nav-products", 1, 3, 1, 1,
-                    "Products", "Inventory", "Browse product catalog", "#F57C00",
+                    "Products", "Inventory", "Search and manage product records", "#F57C00",
                     "entity", "Product"),
 
-                // ── Row 2: Reports quick links + Recent items ─────────────
+                // ── Row 2: Reports quick links + focused search ───────────
                 CreateQuickLinksGroup("links-reports", 2, 1, 1, 1,
                     "Reports",
                     ("Orders by Customer", "report", "orders-by-customer"),
                     ("Sales by Product", "report", "sales-by-product")),
 
-                CreateRecentItems("recent", 2, 2, 2, 1),
-
-                // ── Row 3: Favorites + Embedded search ────────────────────
-                CreateFavorites("favorites", 3, 1, 1, 1),
-
-                CreateEmbeddedSearch("search-orders", 3, 2, 1, 1,
+                CreateEmbeddedSearch("search-orders", 2, 2, 1, 1,
                     "Order", "Search orders by number or customer..."),
 
-                CreateEmbeddedSearch("search-products", 3, 3, 1, 1,
+                CreateEmbeddedSearch("search-products", 2, 3, 1, 1,
                     "Product", "Search products by name...")
             }
         };
@@ -125,40 +107,6 @@
             RowSpan = rowSpan,
             WidgetType = WidgetType.QuickLinksGroup,
             ConfigJson = JsonSerializer.Serialize(config),
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private static WidgetPlacement CreateRecentItems(
-        string id, int row, int col, int colSpan, int rowSpan)
-    {
-        return new WidgetPlacement
-        {
-            PlacementId = id,
-            DashboardId = "acme-home",
-            GridRow = row,
-            GridColumn = col,
-            ColSpan = colSpan,
-            RowSpan = rowSpan,
-            WidgetType = WidgetType.RecentItems,
-            ConfigJson = "{}",
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private static WidgetPlacement CreateFavorites(
-        string id, int row, int col, int colSpan, int rowSpan)
-    {
-        return new WidgetPlacement
-        {
-            PlacementId = id,
-            DashboardId = "acme-home",
-            GridRow = row,
-            GridColumn = col,
-            ColSpan = colSpan,
-            RowSpan = rowSpan,
-            WidgetType = WidgetType.Favorites,
-            ConfigJson = "{}",
             SortOrder = row * 10 + col
         };
     }
