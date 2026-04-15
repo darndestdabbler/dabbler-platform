@@ -20,19 +20,19 @@ public sealed class NotesDrivenAlignmentGuardrailTests
     }
 
     [Fact]
-    public void QueryPages_DoNotOptIntoCompatibilityCsvExports()
+    public void QueryPages_KeepCsvExportAvailableForSupportedWorkflows()
     {
         var repoRoot = GetRepoRoot();
         var productList = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Products", "ProductList.razor");
         var customerList = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Customers", "CustomerList.razor");
         var orderList = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Orders", "OrderList.razor");
 
-        Assert.DoesNotContain("ShowCsvExport", productList);
-        Assert.DoesNotContain("CsvFileName", productList);
-        Assert.DoesNotContain("ShowCsvExport", customerList);
-        Assert.DoesNotContain("CsvFileName", customerList);
-        Assert.DoesNotContain("ShowCsvExport", orderList);
-        Assert.DoesNotContain("CsvFileName", orderList);
+        Assert.Contains("ShowCsvExport=\"true\"", productList);
+        Assert.Contains("CsvFileName=\"products.csv\"", productList);
+        Assert.Contains("ShowCsvExport=\"true\"", customerList);
+        Assert.Contains("CsvFileName=\"customers.csv\"", customerList);
+        Assert.Contains("ShowCsvExport=\"true\"", orderList);
+        Assert.Contains("CsvFileName=\"orders.csv\"", orderList);
     }
 
     [Fact]
@@ -49,16 +49,16 @@ public sealed class NotesDrivenAlignmentGuardrailTests
     }
 
     [Fact]
-    public void ReportPages_RelyOnRetainedDefaultViewerSurface()
+    public void ReportPages_KeepPdfExportWhileAvoidingOtherCompatibilityControls()
     {
         var repoRoot = GetRepoRoot();
         var ordersByCustomer = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Reports", "OrdersByCustomer.razor");
         var salesByProduct = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Reports", "SalesByProduct.razor");
 
-        Assert.DoesNotContain("ShowPdfExport", ordersByCustomer);
+        Assert.Contains("ShowPdfExport=\"true\"", ordersByCustomer);
         Assert.DoesNotContain("ShowPrint", ordersByCustomer);
         Assert.DoesNotContain("ShowZoom", ordersByCustomer);
-        Assert.DoesNotContain("ShowPdfExport", salesByProduct);
+        Assert.Contains("ShowPdfExport=\"true\"", salesByProduct);
         Assert.DoesNotContain("ShowPrint", salesByProduct);
         Assert.DoesNotContain("ShowZoom", salesByProduct);
     }
