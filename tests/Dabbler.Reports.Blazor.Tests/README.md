@@ -4,9 +4,11 @@ This project is the dedicated contract-test home for the retained report UI
 surface defined in
 `docs/planning/notes-driven-supported-library-surface.md`.
 
-Session 1 establishes the project and a minimal smoke baseline. Later
-simplification sessions should add direct coverage for:
+Session 4 extends the project from smoke coverage into direct proof for:
 
 - `DabblerReportPage`
 - `ParameterPromptForm`
 - `ReportViewer`
+
+Accessibility and stub-backed proof expectations are recorded in
+`docs/planning/accessibility-and-stubbing-evidence.md`.

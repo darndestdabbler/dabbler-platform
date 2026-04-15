@@ -34,6 +34,43 @@ public class DabblerDetailFormTests
         });
     }
 
+    [Fact]
+    public void RequiredFieldValidation_RendersAlertSemanticsAndKeepsSaveDisabled()
+    {
+        using var ctx = new TestContext().SetupForDabblerComponents();
+
+        var record = new SampleRecord { Id = 7, Name = string.Empty };
+        var cut = ctx.RenderComponent<DabblerDetailForm<SampleRecord>>(parameters => parameters
+            .Add(x => x.EntityMetadata, BuildEntityMetadata())
+            .Add(x => x.Record, record));
+
+        cut.Instance.IsValid.Should().BeFalse();
+        cut.Find("button[aria-label='Save']").HasAttribute("disabled").Should().BeTrue();
+
+        cut.WaitForAssertion(() =>
+        {
+            cut.Find("#field-error-Name").GetAttribute("role").Should().Be("alert");
+            cut.Find("#field-error-Name").TextContent.Should().Contain("Name is required");
+        });
+    }
+
+    [Fact]
+    public void ReadOnlyMode_DisablesToolbarActionsAndMarksEditableFieldsReadOnly()
+    {
+        using var ctx = new TestContext().SetupForDabblerComponents();
+
+        var record = new SampleRecord { Id = 7, Name = "Ada" };
+        var cut = ctx.RenderComponent<DabblerDetailForm<SampleRecord>>(parameters => parameters
+            .Add(x => x.EntityMetadata, BuildEntityMetadata())
+            .Add(x => x.Record, record)
+            .Add(x => x.IsReadOnly, true));
+
+        cut.Find("button[aria-label='Save']").HasAttribute("disabled").Should().BeTrue();
+        cut.Find("button[aria-label='Undo all changes']").HasAttribute("disabled").Should().BeTrue();
+        cut.Find("button[aria-label='Delete record']").HasAttribute("disabled").Should().BeTrue();
+        cut.FindAll("input").Last().GetAttribute("aria-readonly").Should().Be("true");
+    }
+
     private static EntityMetadata BuildEntityMetadata() =>
         new()
         {

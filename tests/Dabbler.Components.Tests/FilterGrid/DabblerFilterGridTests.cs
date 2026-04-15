@@ -30,6 +30,8 @@ public class DabblerFilterGridTests
             cut.Instance.GetFilterSummary().Should().Contain("First Name Contains 'Ada'");
             cut.Instance.GetFilterSummary().Should().Contain("Active Equals 'Yes'");
             cut.Instance.GetFilterSummary().Should().Contain("OR");
+            cut.Find(".dabbler-filter-status-bar").GetAttribute("aria-label").Should().Be("Active filters");
+            cut.Find("[aria-label='Clear all active filters']").TextContent.Should().Contain("Clear All");
         });
     }
 

@@ -46,6 +46,13 @@ public class DabblerReportPageTests
             cut.Instance.Pages.Should().NotBeNull();
             cut.Instance.Pages!.Should().NotBeEmpty();
             cut.Markup.Should().Contain("Test Sales Summary");
+            cut.Markup.Should().Contain("Start Date: 1/1/2026");
+            cut.Markup.Should().Contain("End Date: 1/31/2026");
+            cut.Find(".report-viewer").GetAttribute("aria-label")
+                .Should().Be("Test Sales Summary, 1 page");
+            cut.Find("[aria-label='Zoom level: 100%']").TextContent.Should().Be("100%");
+            cut.Find("[aria-label='Export to PDF']").HasAttribute("disabled").Should().BeFalse();
+            cut.Find("[aria-label='Print']").HasAttribute("disabled").Should().BeFalse();
         });
     }
 

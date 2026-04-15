@@ -236,6 +236,68 @@
           "costUsd": 4.6187249999999995
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/components-proof",
+      "dateTime": "2026-04-15T11:52:14.614495+00:00",
+      "description": "Expanded the reusable component proof with direct shell skip-link/workspace landmark assertions, role-aware home-page resolution tests, detail-form validation/read-only accessibility checks, and filter-grid status-region coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/reports-proof",
+      "dateTime": "2026-04-15T11:52:14.620798+00:00",
+      "description": "Added dedicated ParameterPromptFormTests and ReportViewerTests, then strengthened DabblerReportPageTests to prove prompt-to-viewer handoff, collapsed parameter summaries, zoom status text, and enabled report toolbar affordances after a successful run.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/accessibility-evidence",
+      "dateTime": "2026-04-15T11:52:14.621668+00:00",
+      "description": "Captured the Session 4 WCAG evidence artifact in docs/planning/accessibility-and-stubbing-evidence.md and updated the report contract-home README so the retained automated evidence and focused manual checklist are durable repo assets.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/stub-backed-consumption",
+      "dateTime": "2026-04-15T11:52:14.621668+00:00",
+      "description": "Added a web-host guardrail proving the /platform/stub route remains reachable through the real Development shell asset pipeline when stub mode is enabled, giving the reusable stub story an app-consumption proof path in addition to the dedicated bUnit homes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/build-test",
+      "dateTime": "2026-04-15T11:53:40.503576+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build sequentially. Build passed cleanly at zero warnings/errors, and all 381 tests passed across the seven test projects, including the existing Playwright suite plus the new report, component, and stub-route coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-15T11:54:42.127950+00:00",
+      "description": "Sent the Session 4 spec context, the new direct-proof tests, the stub-route guardrail, the accessibility evidence artifact, and the clean build/test results to external session verification and saved the raw review output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 12878,
+          "outputTokens": 864,
+          "costUsd": 0.25797000000000003
+        }
+      ]
     }
   ]
 }

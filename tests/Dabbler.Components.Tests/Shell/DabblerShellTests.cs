@@ -18,6 +18,8 @@ public class DabblerShellTests
         var cut = RenderShell(ctx, includeCatalogProviders: false);
 
         cut.FindAll(".dabbler-top-menu-bar").Should().BeEmpty();
+        cut.Find("a.dabbler-skip-link").GetAttribute("href").Should().Be("#dabbler-main-content");
+        cut.Find("a.dabbler-skip-link").TextContent.Should().Contain("Skip to main content");
         cut.Find("main.dabbler-shell-workspace").GetAttribute("aria-label")
             .Should().Be("Contract Shell workspace");
     }

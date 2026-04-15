@@ -131,6 +131,26 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         Assert.Equal(HttpStatusCode.OK, securityResponse.StatusCode);
     }
 
+    [Fact]
+    public async Task PlatformStubRoute_RendersReusableStubHostProofAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder =>
+            builder.UseEnvironment("Development"));
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var response = await client.GetAsync("/platform/stub");
+        var content = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("_framework/blazor.web.js", content);
+        Assert.Contains("data-dabbler-asset=\"dabbler-shell.css\"", content);
+    }
+
     private async Task<HttpClient> CreateAuthenticatedClientAsync(string email)
     {
         var factory = _factory.WithWebHostBuilder(builder =>
