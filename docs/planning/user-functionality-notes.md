@@ -33,6 +33,15 @@
 
 ---
 
+## Accessibility
+
+- All reusable UI components and application pages should conform to Web
+  Content Accessibility Guidelines (WCAG) Version 2.1, Level AA
+- Accessibility verification should happen before documentation-focused session
+  work begins
+
+---
+
 ## Security
 
 ### Authentication
@@ -76,6 +85,9 @@
 - All functionality that can be strictly unit tested should be strictly unit tested
 - When methods contain one or more sections that could be unit tested and one or more other sections that can only be integration tested, those methods should be split into unit-testable and non-unit-testable methods.
 - Any method that is not strictly unit testable but is integration testable should be integrate tested
+- Accessibility conformance should be checked with automated tooling plus
+  focused manual validation of keyboard navigation, visible focus behavior,
+  labeling, and other WCAG 2.1 Level AA expectations
 - All UI functionality should be end-to-end (E2E) tested, where E2E is fully E2E:
     - User actions in the UI that should impact the database are evaluated by examining relevant data in the database  
     - E2E should also test validation checks and navigation between controls (tab order) and navigation to pages (with potential parameters)
