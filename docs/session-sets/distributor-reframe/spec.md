@@ -36,6 +36,12 @@ Inside this set, seed-data and naming-copy updates can usually proceed in
 parallel with test and documentation clean-up once the canonical domain glossary
 is frozen.
 
+Session 1 revalidated the queue against the accepted `stubbed-uat` handoff and
+the remaining Phase 2 specs. No new cross-set overlap is safe before this set
+finishes. After the glossary is frozen, the existing narrow intra-set overlap
+remains acceptable only when app or seed reframe work and test or doc cleanup
+stay on disjoint files and use the glossary as the shared merge baseline.
+
 ## Session Plan
 
 ### Session 1 of 3: Review, Domain Glossary, And Queue Scan
