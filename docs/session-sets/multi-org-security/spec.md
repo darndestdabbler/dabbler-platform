@@ -39,12 +39,19 @@ No downstream Phase 2 session set is marked safe to overlap at authoring time.
 Session 1 must check whether any later work becomes conservatively safe once
 the organization-aware contract is frozen.
 
-Inside this set, the most likely safe parallel slices are:
+Session 1 confirmed that no cross-set overlap is safe before
+`multi-org-security` completes.
 
-- persistence and API work versus UI-switching work once the organization and
-  role-assignment model is frozen
-- admin-screen work versus dedicated permission and row-filter proof once the
-  active-organization semantics are stable
+Inside this set, a narrow overlap is acceptable only after Session 2 freezes
+the membership and seeded-persona contract:
+
+- Session 3 persistence, API, and runtime permission work may proceed in
+  parallel with the Session 4 organization-switching UI work when the edits
+  stay on disjoint files and both slices use the Session 1 decision ledger and
+  Session 2 membership contract as the shared merge baseline
+- the rest of Session 4 remains blocked on Session 3 because admin-limit proof
+  and organization-aware row-filter proof depend on the implemented active-
+  organization runtime semantics
 
 ## Session Plan
 
