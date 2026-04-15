@@ -145,7 +145,7 @@
 ## DabblerSearchForms (possibly called DabblerQueryForm, but I would rename this to avoid confusion)
 
 - Used for many different things:
-    - Search for transaction records (e.g., customers or orders)
+    - Search for transaction records (e.g., retail businesses or orders)
     - Search for reference entity types (e.g., products, roles)
     - Search for reference entity records (e.g., specific products or roles)
     - Search for named reports
@@ -246,4 +246,4 @@
 
 # Demo project
 
-The demo project should be a full-featured application that demonstrates all the capabilities of the platform.  It should be tested thoroughly and be presentation worthy
+The demo project should be a full-featured distributor-facing application that demonstrates all the capabilities of the platform.  It should be tested thoroughly and be presentation worthy

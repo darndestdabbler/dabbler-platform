@@ -23,6 +23,10 @@ and packaging work begins.
 This work should build directly on the representative Playwright inventory and
 stay disciplined about what remains intentionally human-only.
 
+Treat `docs/planning/distributor-acceptance-baseline.md` as the user-facing
+domain baseline for checklist wording and scenario framing unless a later
+accepted Phase 2 baseline supersedes it explicitly.
+
 ## Parallelization Notes
 
 No downstream Phase 2 session set is marked safe to overlap at authoring time.

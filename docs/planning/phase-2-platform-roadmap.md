@@ -321,6 +321,9 @@ Phase 2 should explicitly produce or standardize:
 
 - [phase-2-platform-roadmap.md](/C:/Users/denmi/source/repos/dabbler-platform/docs/planning/phase-2-platform-roadmap.md)
   as the durable roadmap artifact
+- [distributor-acceptance-baseline.md](/C:/Users/denmi/source/repos/dabbler-platform/docs/planning/distributor-acceptance-baseline.md)
+  as the accepted distributor-domain handoff for later security, app-proof,
+  E2E, UAT, and documentation work
 - one stub-backed UAT checklist JSON artifact for early design and navigation
   review
 - one full-app UAT checklist JSON artifact for later human confirmation

@@ -29,6 +29,10 @@ Treat `docs/planning/reusable-platform-stub-guide.md` and
 `docs/planning/accessibility-and-stubbing-evidence.md` as source-of-truth
 inputs for the accepted stub baseline and accessibility posture.
 
+Treat `docs/planning/distributor-acceptance-baseline.md` as the accepted
+source-of-truth for distributor-story wording and transitional technical-name
+guidance.
+
 The guidance must stay platform-first. The future Access metadata tooling is a
 downstream consumer, not the center of the documentation story.
 

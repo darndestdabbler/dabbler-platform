@@ -23,13 +23,13 @@ public sealed class ObservabilitySmokeTests : IClassFixture<WebApplicationFactor
         var logger = loggerFactory.CreateLogger<DevEmailSender>();
         var sender = new DevEmailSender(logger);
 
-        await sender.SendMagicLinkAsync("customer@acme.test", "123456", "http://localhost/login?token=abc");
+        await sender.SendMagicLinkAsync("buyer@acme.test", "123456", "http://localhost/login?token=abc");
 
         var entry = Assert.Single(collector.Entries);
         Assert.Equal(7100, entry.EventId.Id);
         Assert.Equal(LogLevel.Information, entry.Level);
         Assert.Equal("MagicLink", entry.State["EmailType"]);
-        Assert.Equal("c***r@acme.test", entry.State["MaskedEmail"]);
+        Assert.Equal("b***r@acme.test", entry.State["MaskedEmail"]);
         Assert.Equal(true, entry.State["HasCode"]);
         Assert.Equal(true, entry.State["HasLink"]);
     }
@@ -87,7 +87,7 @@ public sealed class ObservabilitySmokeTests : IClassFixture<WebApplicationFactor
         using var client = factory.CreateClient();
         using var request = new HttpRequestMessage(
             HttpMethod.Get,
-            "/test-auth/magic-links?email=customer%40acme.test&clear=true");
+            "/test-auth/magic-links?email=buyer%40acme.test&clear=true");
         request.Headers.Add("X-Test-Auth-Secret", "acme-local-seeded-session");
 
         using var response = await client.SendAsync(request);
@@ -95,7 +95,7 @@ public sealed class ObservabilitySmokeTests : IClassFixture<WebApplicationFactor
         Assert.True(response.IsSuccessStatusCode);
 
         var entry = Assert.Single(collector.Entries, log => log.EventId.Id == 4100);
-        Assert.Equal("c***r@acme.test", entry.State["EmailFilter"]);
+        Assert.Equal("b***r@acme.test", entry.State["EmailFilter"]);
         Assert.Equal(true, entry.State["ClearInbox"]);
         Assert.Equal(0, entry.State["CapturedCount"]);
     }

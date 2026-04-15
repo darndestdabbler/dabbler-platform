@@ -29,6 +29,10 @@ Treat `docs/planning/multi-organization-user-administration-input.md` and
 `docs/planning/user-functionality-notes.md` as binding planning inputs for
 defaults, seeded personas, and proof expectations.
 
+Treat `docs/planning/distributor-acceptance-baseline.md` as the current domain
+handoff for user-facing terminology, transitional technical identifiers, and
+the accepted seeded-story baseline.
+
 ## Parallelization Notes
 
 No downstream Phase 2 session set is marked safe to overlap at authoring time.

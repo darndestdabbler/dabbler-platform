@@ -24,6 +24,10 @@ This set should:
 - fill meaningful gaps in business logic, API behavior, organization-aware
   services, and security evaluation coverage
 
+Treat `docs/planning/distributor-acceptance-baseline.md` and
+`docs/planning/user-functionality-notes.md` as the binding business-story and
+workflow inputs for this set's coverage matrix.
+
 The output should be broad enough to prove the platform while still resisting
 the temptation to hard-code highly product-specific workflows into the sample
 app architecture.

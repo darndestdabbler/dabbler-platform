@@ -13,6 +13,10 @@ surface. It demonstrates that the retained shell, query, detail, report, and
 dashboard surfaces are sufficient for the intended workflows without restoring
 deprecated pages or default compatibility-era plumbing.
 
+For the current distributor-era domain handoff layered on top of this technical
+baseline, use `docs/planning/distributor-acceptance-baseline.md` as the
+source-of-truth artifact.
+
 ## Accepted App Baseline
 
 ### Core Workflows

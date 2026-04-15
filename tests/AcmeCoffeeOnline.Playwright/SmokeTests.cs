@@ -70,7 +70,7 @@ public sealed class SmokeTests
     }
 
     [Fact]
-    public async Task MagicLinkFlow_SignsInCustomerAndLoadsOrdersAsync()
+    public async Task MagicLinkFlow_SignsInRetailBusinessUserAndLoadsOrdersAsync()
     {
         const string email = "james.smith@example.com";
         var page = await _fixture.CreatePageAsync();
@@ -124,7 +124,7 @@ public sealed class SmokeTests
     }
 
     [Fact]
-    public async Task SeededSession_EnforcesPermissionsAndCustomerOrderScopingAsync()
+    public async Task SeededSession_EnforcesPermissionsAndRetailBusinessOrderScopingAsync()
     {
         var page = await _fixture.CreatePageAsync();
 
@@ -139,13 +139,13 @@ public sealed class SmokeTests
 
             await Assertions.Expect(page.GetByTestId("access-denied-page")).ToBeVisibleAsync();
 
-            var customerSession = await _fixture.GetSessionInfoAsync(page);
-            Assert.Equal("james.smith@example.com", customerSession.Email);
-            Assert.False(string.IsNullOrWhiteSpace(customerSession.UserId));
+            var retailBusinessSession = await _fixture.GetSessionInfoAsync(page);
+            Assert.Equal("james.smith@example.com", retailBusinessSession.Email);
+            Assert.False(string.IsNullOrWhiteSpace(retailBusinessSession.UserId));
 
             using (var ordersPayload = await _fixture.GetApiJsonAsync(
                 "api/orders?page=1&pageSize=5",
-                customerSession.UserId!))
+                retailBusinessSession.UserId!))
             {
                 var items = ordersPayload.RootElement.GetProperty("items").EnumerateArray().ToArray();
                 Assert.NotEmpty(items);

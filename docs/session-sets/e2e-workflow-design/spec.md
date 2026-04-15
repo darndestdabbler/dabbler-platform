@@ -24,6 +24,10 @@ Use `docs/planning/example-of-end-to-end-mini-workflow-test.md` as a seed, but
 expand it into a traceable design set that clearly maps what belongs in bUnit,
 integration tests, Playwright, and later human UAT.
 
+Treat `docs/planning/distributor-acceptance-baseline.md` as the current
+business-language baseline for workflow naming, persona framing, and
+representative route expectations.
+
 ## Parallelization Notes
 
 No downstream Phase 2 session set is marked safe to overlap at authoring time.
