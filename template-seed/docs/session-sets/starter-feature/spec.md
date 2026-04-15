@@ -12,6 +12,21 @@
 
 Describe the first body of work for the new repo here.
 
+## Bootstrap Standards
+
+- keep starter work centered on the retained core workflow surfaces the repo
+  actually intends to prove
+- do not reintroduce compatibility-only defaults such as
+  `DabblerCatalogPage`, `DabblerQueryReportPage<T>`, `PageViewMode`,
+  `DabblerSecurityNav`, catalog/usage-tracking shell wiring, or dashboard
+  favorites/recent-items widgets unless a session explicitly justifies them
+- treat query CSV export as an app-level opt-in instead of a universal starter
+  default
+- keep report defaults centered on PDF export without implying print or zoom
+  controls by default
+- add `DabblerMultiComboBox<T>` only when a concrete starter workflow truly
+  needs multiselect lookup behavior
+
 ## Session Plan
 
 ### Session 1 of 2: Baseline And Guardrails

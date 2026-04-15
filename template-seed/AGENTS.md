@@ -10,6 +10,14 @@ the session-set workflow.
 - log every session step with `SessionLog`
 - use `route()` for reasoning tasks and external session verification
 - complete exactly one session per conversation
+- keep the narrowed starter contract explicit instead of silently restoring
+  broader historical platform defaults
+- do not treat `DabblerCatalogPage`, `DabblerQueryReportPage<T>`,
+  `PageViewMode`, `DabblerSecurityNav`, catalog/usage-tracking provider
+  wiring, or favorites/recent-items widgets as starter defaults
+- treat query CSV export and multiselect lookup support as explicit workflow
+  choices, and keep report defaults centered on PDF export without default
+  print/zoom controls
 
 ## Build And Test
 

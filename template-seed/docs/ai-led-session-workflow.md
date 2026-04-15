@@ -10,6 +10,11 @@ The orchestrator can change from session to session at the human's discretion.
 All three orchestrators follow the same workflow -- only the instruction file
 they read differs.
 
+This workflow document is intentionally orchestration-only. It does not define
+application shell, dashboard, query/report, or security defaults for the repo
+being bootstrapped; those choices belong in the repo's own README, guardrails,
+and session specs.
+
 ## Overview
 
 ```
@@ -160,6 +165,9 @@ Key rules for the spec:
 - Steps should be specific and actionable
 - "Creates" and "Touches" sections let subsequent sessions verify prerequisites
 - Progress keys are used in `log.log_step()` for tracking
+- If the repo inherits a narrowed bootstrap contract, keep compatibility-only
+  or advanced application surfaces out of the default session plan unless a
+  concrete session deliberately opts into them
 
 ### 3. Configure the AI Router
 
