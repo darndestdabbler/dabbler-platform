@@ -36,6 +36,12 @@ public class DabblerSecurityOptionsValidator : IValidateOptions<DabblerSecurityO
         if (string.IsNullOrWhiteSpace(options.InternalApiKey))
             failures.Add("DabblerSecurity:InternalApiKey is required.");
 
+        if (string.IsNullOrWhiteSpace(options.DefaultOrganizationKey))
+            failures.Add("DabblerSecurity:DefaultOrganizationKey is required.");
+
+        if (string.IsNullOrWhiteSpace(options.DefaultOrganizationName))
+            failures.Add("DabblerSecurity:DefaultOrganizationName is required.");
+
         if ((options.RequireMfa || options.Mfa.RequireMfaForRoles.Count > 0)
             && string.IsNullOrWhiteSpace(options.Mfa.EncryptionKey))
         {

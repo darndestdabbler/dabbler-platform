@@ -7,6 +7,12 @@ namespace Dabbler.Security.Entities;
 public class AppUserRole
 {
     /// <summary>
+    /// Gets or sets the surrogate primary key for the role assignment.
+    /// This allows the same user-role pair to exist across multiple organization memberships.
+    /// </summary>
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    /// <summary>
     /// Gets or sets the foreign key to the associated <see cref="AppUser"/>.
     /// </summary>
     public int UserId { get; set; }
@@ -15,6 +21,13 @@ public class AppUserRole
     /// Gets or sets the foreign key to the associated <see cref="AppRole"/>.
     /// </summary>
     public int RoleId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional foreign key to the associated
+    /// <see cref="AppUserOrganizationMembership"/> when the role is organization-scoped.
+    /// A <c>null</c> value indicates a global role assignment such as <c>SystemAdmin</c>.
+    /// </summary>
+    public int? OrganizationMembershipId { get; set; }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the role was assigned to the user.
@@ -48,4 +61,9 @@ public class AppUserRole
     /// Gets or sets the navigation property for the associated <see cref="AppRole"/>.
     /// </summary>
     public AppRole? Role { get; set; }
+
+    /// <summary>
+    /// Gets or sets the navigation property for the associated organization membership when this role is scoped.
+    /// </summary>
+    public AppUserOrganizationMembership? OrganizationMembership { get; set; }
 }

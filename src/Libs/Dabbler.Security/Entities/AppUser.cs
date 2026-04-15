@@ -62,6 +62,11 @@ public class AppUser
     public ICollection<AppUserRole> Roles { get; set; } = new List<AppUserRole>();
 
     /// <summary>
+    /// Gets or sets the collection of organization memberships for this user.
+    /// </summary>
+    public ICollection<AppUserOrganizationMembership> OrganizationMemberships { get; set; } = new List<AppUserOrganizationMembership>();
+
+    /// <summary>
     /// Gets or sets the collection of external login providers (e.g., Google, Facebook) linked to this user account.
     /// </summary>
     public ICollection<AppExternalLogin> ExternalLogins { get; set; } = new List<AppExternalLogin>();

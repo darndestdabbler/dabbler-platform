@@ -21,6 +21,8 @@ builder.Services.AddDabblerSecurity(options =>
 {
     options.ConnectionString = connectionString;
     options.InternalApiKey = builder.Configuration["DabblerSecurity:InternalApiKey"] ?? "dev-internal-key-acme";
+    options.DefaultOrganizationKey = builder.Configuration["DabblerSecurity:DefaultOrganizationKey"] ?? "internal";
+    options.DefaultOrganizationName = builder.Configuration["DabblerSecurity:DefaultOrganizationName"] ?? "Internal Operations";
     options.MagicLinkExpiry = TimeSpan.FromMinutes(15);
     options.RequireMfa = false;
     options.UnregisteredResourcePolicy = UnregisteredResourcePolicy.FailOpen;

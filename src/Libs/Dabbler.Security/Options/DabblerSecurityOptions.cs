@@ -35,6 +35,17 @@ public sealed class DabblerSecurityOptions
     public string InternalApiKey { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the stable organization key that should be treated as the default
+    /// internal organization for internal staff and admin-safe starting contexts.
+    /// </summary>
+    public string DefaultOrganizationKey { get; set; } = "internal";
+
+    /// <summary>
+    /// Gets or sets the display name for the default internal organization.
+    /// </summary>
+    public string DefaultOrganizationName { get; set; } = "Internal Operations";
+
+    /// <summary>
     /// Configuration options for sending emails, primarily for security-related notifications like magic links,
     /// MFA codes, or password resets.
     /// </summary>

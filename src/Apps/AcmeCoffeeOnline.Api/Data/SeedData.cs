@@ -6,6 +6,9 @@ namespace AcmeCoffeeOnline.Api.Data;
 
 public static class SeedData
 {
+    public const string RegionalSalesRepEmail = "sloane.reyes@acmecoffee.com";
+    public const string DualMembershipUserEmail = "casey.hart@acmecoffee.com";
+
     private static Random CreateRandom() => new(42);
 
     private static readonly string[] FirstNames =
@@ -247,17 +250,19 @@ public static class SeedData
     public static List<AppUser> GetSecurityUsers(List<Customer> customers)
     {
         var now = DateTime.UtcNow;
-        var users = new List<AppUser>(56);
+        var users = new List<AppUser>(58);
 
         // System administrator
         users.Add(new AppUser { Email = "admin@acmecoffee.com", DisplayName = "Internal Platform Admin", CreatedAt = now });
 
-        // Internal staff users (3 staff + 2 admins)
+        // Internal staff users (3 staff + 2 admins + multi-org personas)
         users.Add(new AppUser { Email = "jdoe@acmecoffee.com", DisplayName = "Jordan Ellis", CreatedAt = now });
         users.Add(new AppUser { Email = "asmith@acmecoffee.com", DisplayName = "Avery Smith", CreatedAt = now });
         users.Add(new AppUser { Email = "mwilson@acmecoffee.com", DisplayName = "Morgan Wilson", CreatedAt = now });
         users.Add(new AppUser { Email = "kbrown@acmecoffee.com", DisplayName = "Kai Brown", CreatedAt = now });
         users.Add(new AppUser { Email = "tjones@acmecoffee.com", DisplayName = "Taylor Jones", CreatedAt = now });
+        users.Add(new AppUser { Email = RegionalSalesRepEmail, DisplayName = "Sloane Reyes", CreatedAt = now });
+        users.Add(new AppUser { Email = DualMembershipUserEmail, DisplayName = "Casey Hart", CreatedAt = now });
 
         // Retail-business contacts (one per current customer record, matching by email)
         foreach (var customer in customers)
@@ -274,10 +279,109 @@ public static class SeedData
         return users;
     }
 
-    public static List<AppUserRole> GetUserRoleAssignments(List<AppUser> users, List<AppRole> roles)
+    public static List<AppOrganization> GetOrganizations(
+        List<Customer> customers,
+        string defaultOrganizationKey,
+        string defaultOrganizationName)
     {
         var now = DateTime.UtcNow;
-        var assignments = new List<AppUserRole>(56);
+        var organizations = new List<AppOrganization>(customers.Count + 1)
+        {
+            new()
+            {
+                Key = defaultOrganizationKey,
+                Name = defaultOrganizationName,
+                IsInternal = true,
+                CreatedAt = now
+            }
+        };
+
+        foreach (var customer in customers.OrderBy(c => c.Id))
+        {
+            organizations.Add(new AppOrganization
+            {
+                Key = GetCustomerOrganizationKey(customer),
+                Name = $"Retail Business {customer.Id:000}",
+                IsInternal = false,
+                CreatedAt = now
+            });
+        }
+
+        return organizations;
+    }
+
+    public static List<AppUserOrganizationMembership> GetOrganizationMemberships(
+        List<AppUser> users,
+        List<AppOrganization> organizations,
+        List<Customer> customers)
+    {
+        var now = DateTime.UtcNow;
+        var memberships = new List<AppUserOrganizationMembership>(users.Count + customers.Count + 8);
+
+        var systemAdmin = users.First(u => u.Email == "admin@acmecoffee.com");
+        var internalOrganization = organizations.First(o => o.IsInternal);
+        var customerOrganizations = organizations
+            .Where(o => !o.IsInternal)
+            .ToDictionary(o => o.Key, StringComparer.OrdinalIgnoreCase);
+
+        void AddMembership(AppUser user, AppOrganization organization, bool isDefault)
+        {
+            memberships.Add(new AppUserOrganizationMembership
+            {
+                UserId = user.Id,
+                OrganizationId = organization.Id,
+                IsDefault = isDefault,
+                JoinedAt = now,
+                JoinedBy = systemAdmin.Id
+            });
+        }
+
+        foreach (var email in new[]
+        {
+            "admin@acmecoffee.com",
+            "jdoe@acmecoffee.com",
+            "asmith@acmecoffee.com",
+            "mwilson@acmecoffee.com",
+            "kbrown@acmecoffee.com",
+            "tjones@acmecoffee.com",
+            RegionalSalesRepEmail,
+            DualMembershipUserEmail
+        })
+        {
+            AddMembership(users.First(u => u.Email == email), internalOrganization, isDefault: true);
+        }
+
+        foreach (var customer in customers)
+        {
+            var customerUser = users.First(u => u.Email == customer.Email);
+            AddMembership(customerUser, customerOrganizations[GetCustomerOrganizationKey(customer)], isDefault: true);
+        }
+
+        var sharedRetailOrganizations = customers
+            .OrderBy(c => c.Id)
+            .Take(3)
+            .Select(c => customerOrganizations[GetCustomerOrganizationKey(c)])
+            .ToList();
+
+        var regionalSalesRep = users.First(u => u.Email == RegionalSalesRepEmail);
+        foreach (var organization in sharedRetailOrganizations)
+        {
+            AddMembership(regionalSalesRep, organization, isDefault: false);
+        }
+
+        var dualMembershipUser = users.First(u => u.Email == DualMembershipUserEmail);
+        AddMembership(dualMembershipUser, sharedRetailOrganizations[0], isDefault: false);
+
+        return memberships;
+    }
+
+    public static List<AppUserRole> GetUserRoleAssignments(
+        List<AppUser> users,
+        List<AppRole> roles,
+        List<AppUserOrganizationMembership> memberships)
+    {
+        var now = DateTime.UtcNow;
+        var assignments = new List<AppUserRole>(users.Count + 8);
 
         var customerRole = roles.First(r => r.Name == "Customer");
         var staffRole = roles.First(r => r.Name == "BackofficeUser");
@@ -285,29 +389,80 @@ public static class SeedData
         var sysAdminRole = roles.First(r => r.Name == "SystemAdmin");
 
         var systemAdmin = users.First(u => u.Email == "admin@acmecoffee.com");
+        var membershipByEmail = memberships
+            .Join(users,
+                membership => membership.UserId,
+                user => user.Id,
+                (membership, user) => new { user.Email, Membership = membership })
+            .GroupBy(x => x.Email, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(x => x.Membership).ToList(),
+                StringComparer.OrdinalIgnoreCase);
 
-        // System admin
-        assignments.Add(new AppUserRole { UserId = systemAdmin.Id, RoleId = sysAdminRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });
+        void AddScopedRole(AppUser user, string roleName, Func<List<AppUserOrganizationMembership>, AppUserOrganizationMembership> membershipSelector)
+        {
+            var role = roles.First(r => r.Name == roleName);
+            var membership = membershipSelector(membershipByEmail[user.Email]);
 
-        // Internal operations admins
+            assignments.Add(new AppUserRole
+            {
+                UserId = user.Id,
+                RoleId = role.Id,
+                OrganizationMembershipId = membership.Id,
+                AssignedAt = now,
+                AssignedBy = systemAdmin.Id
+            });
+        }
+
+        // System admin stays global and cross-organization.
+        assignments.Add(new AppUserRole
+        {
+            UserId = systemAdmin.Id,
+            RoleId = sysAdminRole.Id,
+            AssignedAt = now,
+            AssignedBy = systemAdmin.Id
+        });
+
+        // Internal operations admins stay scoped to the internal organization.
         foreach (var email in new[] { "kbrown@acmecoffee.com", "tjones@acmecoffee.com" })
         {
             var user = users.First(u => u.Email == email);
-            assignments.Add(new AppUserRole { UserId = user.Id, RoleId = adminRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });
+            AddScopedRole(user, adminRole.Name, memberships => memberships.Single(m => m.IsDefault));
         }
 
         // Internal staff
         foreach (var email in new[] { "jdoe@acmecoffee.com", "asmith@acmecoffee.com", "mwilson@acmecoffee.com" })
         {
             var user = users.First(u => u.Email == email);
-            assignments.Add(new AppUserRole { UserId = user.Id, RoleId = staffRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });
+            AddScopedRole(user, staffRole.Name, memberships => memberships.Single(m => m.IsDefault));
         }
 
         // Retail-business contacts
         foreach (var user in users.Where(u => u.Email.EndsWith("@example.com")))
         {
-            assignments.Add(new AppUserRole { UserId = user.Id, RoleId = customerRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });
+            AddScopedRole(user, customerRole.Name, memberships => memberships.Single(m => m.IsDefault));
         }
+
+        // Regional sales rep: internal staff baseline plus UserAdmin-style access across multiple retail businesses.
+        var regionalSalesRep = users.First(u => u.Email == RegionalSalesRepEmail);
+        AddScopedRole(regionalSalesRep, staffRole.Name, userMemberships => userMemberships.Single(m => m.IsDefault));
+        foreach (var retailMembership in membershipByEmail[regionalSalesRep.Email].Where(m => !m.IsDefault))
+        {
+            assignments.Add(new AppUserRole
+            {
+                UserId = regionalSalesRep.Id,
+                RoleId = adminRole.Id,
+                OrganizationMembershipId = retailMembership.Id,
+                AssignedAt = now,
+                AssignedBy = systemAdmin.Id
+            });
+        }
+
+        // Dual-membership bridge user: internal staff internally, customer externally.
+        var dualMembershipUser = users.First(u => u.Email == DualMembershipUserEmail);
+        AddScopedRole(dualMembershipUser, staffRole.Name, userMemberships => userMemberships.Single(m => m.IsDefault));
+        AddScopedRole(dualMembershipUser, customerRole.Name, userMemberships => userMemberships.Single(m => !m.IsDefault));
 
         return assignments;
     }
@@ -373,4 +528,6 @@ public static class SeedData
              : rv < 0.70 ? OrderStatus.Confirmed
              : OrderStatus.Shipped;
     }
+
+    private static string GetCustomerOrganizationKey(Customer customer) => $"customer-{customer.Id}";
 }

@@ -17,7 +17,7 @@ namespace Dabbler.Security.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -183,6 +183,62 @@ namespace Dabbler.Security.Migrations
                     b.ToTable(tb => tb.IsTemporal(ttb =>
                             {
                                 ttb.UseHistoryTable("AppFieldPermissionsHistory");
+                                ttb
+                                    .HasPeriodStart("ValidFrom")
+                                    .HasColumnName("ValidFrom");
+                                ttb
+                                    .HasPeriodEnd("ValidTo")
+                                    .HasColumnName("ValidTo");
+                            }));
+                });
+
+            modelBuilder.Entity("Dabbler.Security.Entities.AppOrganization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ValidFrom");
+
+                    b.Property<DateTime>("ValidTo")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ValidTo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("AppOrganizations", (string)null);
+
+                    b.ToTable(tb => tb.IsTemporal(ttb =>
+                            {
+                                ttb.UseHistoryTable("AppOrganizationsHistory");
                                 ttb
                                     .HasPeriodStart("ValidFrom")
                                     .HasColumnName("ValidFrom");
@@ -512,13 +568,78 @@ namespace Dabbler.Security.Migrations
                             }));
                 });
 
-            modelBuilder.Entity("Dabbler.Security.Entities.AppUserRole", b =>
+            modelBuilder.Entity("Dabbler.Security.Entities.AppUserOrganizationMembership", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("JoinedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("ValidFrom")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ValidFrom");
+
+                    b.Property<DateTime>("ValidTo")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ValidTo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("UserId", "IsDefault")
+                        .HasFilter("[IsDefault] = 1");
+
+                    b.HasIndex("UserId", "OrganizationId")
+                        .IsUnique();
+
+                    b.ToTable("AppUserOrganizationMemberships", (string)null);
+
+                    b.ToTable(tb => tb.IsTemporal(ttb =>
+                            {
+                                ttb.UseHistoryTable("AppUserOrganizationMembershipsHistory");
+                                ttb
+                                    .HasPeriodStart("ValidFrom")
+                                    .HasColumnName("ValidFrom");
+                                ttb
+                                    .HasPeriodEnd("ValidTo")
+                                    .HasColumnName("ValidTo");
+                            }));
+                });
+
+            modelBuilder.Entity("Dabbler.Security.Entities.AppUserRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("AssignedAt")
                         .HasColumnType("datetime2");
@@ -532,6 +653,15 @@ namespace Dabbler.Security.Migrations
                     b.Property<int?>("DeletedBy")
                         .HasColumnType("int");
 
+                    b.Property<int?>("OrganizationMembershipId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("ValidFrom")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
@@ -542,9 +672,19 @@ namespace Dabbler.Security.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("ValidTo");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationMembershipId");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId", "RoleId")
+                        .IsUnique()
+                        .HasFilter("[OrganizationMembershipId] IS NULL");
+
+                    b.HasIndex("UserId", "RoleId", "OrganizationMembershipId")
+                        .IsUnique()
+                        .HasFilter("[OrganizationMembershipId] IS NOT NULL");
 
                     b.ToTable("AppUserRoles", (string)null);
 
@@ -724,8 +864,32 @@ namespace Dabbler.Security.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Dabbler.Security.Entities.AppUserOrganizationMembership", b =>
+                {
+                    b.HasOne("Dabbler.Security.Entities.AppOrganization", "Organization")
+                        .WithMany("Memberships")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Dabbler.Security.Entities.AppUser", "User")
+                        .WithMany("OrganizationMemberships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Dabbler.Security.Entities.AppUserRole", b =>
                 {
+                    b.HasOne("Dabbler.Security.Entities.AppUserOrganizationMembership", "OrganizationMembership")
+                        .WithMany("Roles")
+                        .HasForeignKey("OrganizationMembershipId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Dabbler.Security.Entities.AppRole", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
@@ -738,9 +902,16 @@ namespace Dabbler.Security.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("OrganizationMembership");
+
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Dabbler.Security.Entities.AppOrganization", b =>
+                {
+                    b.Navigation("Memberships");
                 });
 
             modelBuilder.Entity("Dabbler.Security.Entities.AppRole", b =>
@@ -752,6 +923,13 @@ namespace Dabbler.Security.Migrations
                 {
                     b.Navigation("ExternalLogins");
 
+                    b.Navigation("OrganizationMemberships");
+
+                    b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("Dabbler.Security.Entities.AppUserOrganizationMembership", b =>
+                {
                     b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618

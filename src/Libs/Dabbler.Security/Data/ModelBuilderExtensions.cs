@@ -15,7 +15,9 @@ public static class ModelBuilderExtensions
     public static void ApplyDabblerSecurity(this ModelBuilder modelBuilder)
     {
         ConfigureAppUser(modelBuilder);
+        ConfigureAppOrganization(modelBuilder);
         ConfigureAppRole(modelBuilder);
+        ConfigureAppUserOrganizationMembership(modelBuilder);
         ConfigureAppUserRole(modelBuilder);
         ConfigureRolePermissions(modelBuilder);
         ConfigureRuntimePermissions(modelBuilder);
@@ -62,6 +64,50 @@ public static class ModelBuilderExtensions
         });
     }
 
+    private static void ConfigureAppOrganization(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AppOrganization>(e =>
+        {
+            e.ToTable("AppOrganizations", b => b.IsTemporal(t =>
+            {
+                t.HasPeriodStart("ValidFrom");
+                t.HasPeriodEnd("ValidTo");
+                t.UseHistoryTable("AppOrganizationsHistory");
+            }));
+
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Key).HasMaxLength(100).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            e.HasIndex(x => x.Key).IsUnique();
+        });
+    }
+
+    private static void ConfigureAppUserOrganizationMembership(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AppUserOrganizationMembership>(e =>
+        {
+            e.ToTable("AppUserOrganizationMemberships", b => b.IsTemporal(t =>
+            {
+                t.HasPeriodStart("ValidFrom");
+                t.HasPeriodEnd("ValidTo");
+                t.UseHistoryTable("AppUserOrganizationMembershipsHistory");
+            }));
+
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => new { x.UserId, x.OrganizationId }).IsUnique();
+            e.HasIndex(x => new { x.UserId, x.IsDefault })
+                .HasFilter("[IsDefault] = 1");
+            e.HasOne(x => x.User)
+                .WithMany(x => x.OrganizationMemberships)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Organization)
+                .WithMany(x => x.Memberships)
+                .HasForeignKey(x => x.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
     private static void ConfigureAppUserRole(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AppUserRole>(e =>
@@ -73,9 +119,20 @@ public static class ModelBuilderExtensions
                 t.UseHistoryTable("AppUserRolesHistory");
             }));
 
-            e.HasKey(x => new { x.UserId, x.RoleId });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+            e.HasIndex(x => new { x.UserId, x.RoleId })
+                .IsUnique()
+                .HasFilter("[OrganizationMembershipId] IS NULL");
+            e.HasIndex(x => new { x.UserId, x.RoleId, x.OrganizationMembershipId })
+                .IsUnique()
+                .HasFilter("[OrganizationMembershipId] IS NOT NULL");
             e.HasOne(x => x.User).WithMany(x => x.Roles).HasForeignKey(x => x.UserId);
             e.HasOne(x => x.Role).WithMany(x => x.Users).HasForeignKey(x => x.RoleId);
+            e.HasOne(x => x.OrganizationMembership)
+                .WithMany(x => x.Roles)
+                .HasForeignKey(x => x.OrganizationMembershipId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 

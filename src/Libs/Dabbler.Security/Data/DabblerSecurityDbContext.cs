@@ -11,10 +11,14 @@ public class DabblerSecurityDbContext(DbContextOptions<DabblerSecurityDbContext>
 {
     /// <summary>Gets or sets the <see cref="DbSet{AppUser}"/> of application users.</summary>
     public DbSet<AppUser> AppUsers => Set<AppUser>();
+    /// <summary>Gets or sets the <see cref="DbSet{AppOrganization}"/> of application organizations.</summary>
+    public DbSet<AppOrganization> AppOrganizations => Set<AppOrganization>();
     /// <summary>Gets or sets the <see cref="DbSet{AppRole}"/> of application roles.</summary>
     public DbSet<AppRole> AppRoles => Set<AppRole>();
     /// <summary>Gets or sets the <see cref="DbSet{AppUserRole}"/> linking users to roles.</summary>
     public DbSet<AppUserRole> AppUserRoles => Set<AppUserRole>();
+    /// <summary>Gets or sets the <see cref="DbSet{AppUserOrganizationMembership}"/> linking users to organizations.</summary>
+    public DbSet<AppUserOrganizationMembership> AppUserOrganizationMemberships => Set<AppUserOrganizationMembership>();
     /// <summary>Gets or sets the <see cref="DbSet{AppRolePermission}"/> for general role-based permissions.</summary>
     public DbSet<AppRolePermission> AppRolePermissions => Set<AppRolePermission>();
     /// <summary>Gets or sets the <see cref="DbSet{AppFieldPermission}"/> for field-level permissions.</summary>
