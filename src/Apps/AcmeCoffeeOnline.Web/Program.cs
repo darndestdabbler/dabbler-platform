@@ -160,6 +160,15 @@ builder.Services.AddHttpClient<AdminUserApiClient>(client =>
     client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
 }).AddHttpMessageHandler<UserIdentityHandler>();
 
+builder.Services.AddHttpClient<OrganizationOptionsApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+}).AddHttpMessageHandler<UserIdentityHandler>();
+
+builder.Services.AddScoped<ShellSessionStateLoader>();
+builder.Services.AddTransient<OrderDetailState>();
+
 // Grid data providers
 builder.Services.AddTransient<IGridDataProvider<ProductDto>, ProductDataProvider>();
 builder.Services.AddTransient<IGridDataProvider<CustomerDto>, CustomerDataProvider>();

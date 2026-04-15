@@ -25,7 +25,7 @@ public sealed class AdminUserApiClient
             $"api/admin/users/memberships/{organizationMembershipId}/grant-user-admin",
             content: null,
             cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
         return await response.Content.ReadFromJsonAsync<AdminUserScopeDto>(cancellationToken);
     }
 
@@ -34,7 +34,37 @@ public sealed class AdminUserApiClient
         using var response = await _httpClient.DeleteAsync(
             $"api/admin/users/memberships/{organizationMembershipId}/grant-user-admin",
             cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
         return await response.Content.ReadFromJsonAsync<AdminUserScopeDto>(cancellationToken);
+    }
+
+    private static async Task EnsureSuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        try
+        {
+            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>(cancellationToken);
+            if (!string.IsNullOrWhiteSpace(error?.Error))
+            {
+                throw new InvalidOperationException(error.Error);
+            }
+        }
+        catch (NotSupportedException)
+        {
+        }
+        catch (System.Text.Json.JsonException)
+        {
+        }
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    private sealed class ErrorResponse
+    {
+        public string? Error { get; set; }
     }
 }

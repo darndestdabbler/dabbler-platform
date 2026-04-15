@@ -137,6 +137,7 @@ builder.Services.UseJsonFileStore(
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAdminUserScopeService, AdminUserScopeService>();
+builder.Services.AddScoped<IOrganizationOptionsService, OrganizationOptionsService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();

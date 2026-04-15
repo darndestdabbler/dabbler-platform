@@ -11,12 +11,8 @@
 @using Dabbler.Components
 @using Dabbler.Components.Data
 @using Dabbler.Components.Data.Metadata
-@using Dabbler.Security.Data
-@using Dabbler.Security.Services
-@using Microsoft.EntityFrameworkCore
 @inject IEntityMetadataProvider MetadataProvider
 @inject INavigationDataProvider NavigationDataProvider
-@inject AuthenticationStateProvider AuthStateProvider
 @inject CustomerApiClient CustomerClient
 @inject OrderApiClient OrderClient
 @inject IGridDataProvider<ProductDto> ProductDataProvider
@@ -26,8 +22,7 @@
 @inject AcmeCoffeeOnline.Web.Data.SalesReportDataProvider SalesReportDataProvider
 @inject IWebHostEnvironment HostEnvironment
 @inject NavigationManager NavigationManager
-@inject IUserSessionContextService UserSessionContextService
-@inject DabblerSecurityDbContext SecurityDb
+@inject ShellSessionStateLoader ShellSessionStateLoader
 
 <div data-testid="main-shell">
 <MudThemeProvider />
@@ -159,13 +154,13 @@
 @code {
     private string _userId = "";
     private string _userName = "";
-    private IEnumerable<string> _userRoles = Array.Empty<string>();
+    private IReadOnlyList<string> _userRoles = Array.Empty<string>();
     private bool _isAdmin;
     private bool _isSystemAdmin;
     private IEntityMetadataProvider? _filteredMetadataProvider;
     private string? _activeOrganizationKey;
     private string? _activeOrganizationName;
-    private List<OrganizationOption> _organizationOptions = new();
+    private IReadOnlyList<OrganizationOptionDto> _organizationOptions = [];
 
     private readonly HomePageConfiguration _homePageConfig = new()
     {
@@ -174,75 +169,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-        _userName = authState.User.FindFirst(ClaimTypes.Name)?.Value
-                    ?? authState.User.FindFirst(ClaimTypes.Email)?.Value
-                    ?? "User";
-        _userRoles = authState.User.FindAll(ClaimTypes.Role).Select(c => c.Value);
+        var shellState = await ShellSessionStateLoader.LoadAsync();
 
-        var rolesSet = new HashSet<string>(_userRoles, StringComparer.OrdinalIgnoreCase);
-        _isAdmin = rolesSet.Contains("BackofficeUserAdmin") || rolesSet.Contains("SystemAdmin");
-        _isSystemAdmin = rolesSet.Contains("SystemAdmin");
-        _activeOrganizationKey = authState.User.FindFirstValue(UserSessionContextConstants.ActiveOrganizationKeyClaimType);
-        _activeOrganizationName = authState.User.FindFirstValue(UserSessionContextConstants.ActiveOrganizationNameClaimType);
+        _userId = shellState.UserId;
+        _userName = shellState.UserName;
+        _userRoles = shellState.UserRoles;
+        _isAdmin = shellState.IsAdmin;
+        _isSystemAdmin = shellState.IsSystemAdmin;
+        _activeOrganizationKey = shellState.ActiveOrganizationKey;
+        _activeOrganizationName = shellState.ActiveOrganizationName;
+        _organizationOptions = shellState.OrganizationOptions;
 
         _filteredMetadataProvider = new RoleFilteredMetadataProvider(MetadataProvider, _userRoles);
-
-        if (int.TryParse(_userId, out var parsedUserId))
-        {
-            var activeOrganizationId = ParseActiveOrganizationId(authState.User);
-            var sessionContext = await UserSessionContextService.BuildAsync(parsedUserId, activeOrganizationId);
-
-            if (sessionContext is not null)
-            {
-                if (string.IsNullOrWhiteSpace(_activeOrganizationKey))
-                {
-                    _activeOrganizationKey = sessionContext.ActiveOrganizationKey;
-                }
-
-                if (string.IsNullOrWhiteSpace(_activeOrganizationName))
-                {
-                    _activeOrganizationName = sessionContext.ActiveOrganizationName;
-                }
-
-                if (_isSystemAdmin)
-                {
-                    var availableOrganizationRoles = sessionContext.OrganizationMemberships
-                        .ToDictionary(
-                            organization => organization.OrganizationId,
-                            organization => organization.RoleNames);
-
-                    var organizations = await SecurityDb.AppOrganizations
-                        .AsNoTracking()
-                        .Where(organization => organization.IsActive)
-                        .OrderBy(organization => organization.Name)
-                        .ToListAsync();
-
-                    _organizationOptions = organizations
-                        .Select(organization => new OrganizationOption(
-                            organization.Id,
-                            organization.Key,
-                            organization.Name,
-                            availableOrganizationRoles.TryGetValue(organization.Id, out var roleNames)
-                                ? roleNames.ToArray()
-                                : Array.Empty<string>(),
-                            sessionContext.ActiveOrganizationId == organization.Id))
-                        .ToList();
-                }
-                else
-                {
-                    _organizationOptions = sessionContext.OrganizationMemberships
-                        .Select(organization => new OrganizationOption(
-                            organization.OrganizationId,
-                            organization.OrganizationKey,
-                            organization.OrganizationName,
-                            organization.RoleNames.ToArray(),
-                            sessionContext.ActiveOrganizationId == organization.OrganizationId))
-                        .ToList();
-                }
-            }
-        }
     }
 
     private Task SwitchOrganizationAsync(int organizationId)
@@ -609,18 +547,4 @@
         }).ToList();
     }
 
-    private static int? ParseActiveOrganizationId(ClaimsPrincipal user)
-    {
-        var activeOrganizationClaim = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType);
-        return int.TryParse(activeOrganizationClaim, out var activeOrganizationId)
-            ? activeOrganizationId
-            : null;
-    }
-
-    private sealed record OrganizationOption(
-        int OrganizationId,
-        string OrganizationKey,
-        string OrganizationName,
-        string[] RoleNames,
-        bool IsActive);
 }

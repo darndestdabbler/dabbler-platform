@@ -96,6 +96,68 @@
           "costUsd": 0.19120499999999999
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/seam-refactors",
+      "dateTime": "2026-04-15T20:08:45.489178+00:00",
+      "description": "Refactored the admin user-management page and order-detail page to use app-facing service seams instead of web-tier database orchestration and page-local workflow coordination.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/service-boundaries",
+      "dateTime": "2026-04-15T20:08:45.490179+00:00",
+      "description": "Added API-backed organization-option loading plus a shell session-state loader so MainLayout now resolves organization-switcher state through explicit service boundaries.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/api-conformance",
+      "dateTime": "2026-04-15T20:08:45.490179+00:00",
+      "description": "Added the organization-options API seam and strengthened focused API/web guardrail tests so the app enforces API-first admin and shell boundaries.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/architecture-notes",
+      "dateTime": "2026-04-15T20:08:45.491177+00:00",
+      "description": "Documented the Session 2 architecture cleanup, including the new admin, shell, and order-detail seams that Session 3 should target directly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/build-test",
+      "dateTime": "2026-04-15T20:08:45.491177+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln. Both hit existing file-lock contention from running sample, API, web, and Playwright outputs, but targeted no-build verification still passed for tests/AcmeCoffeeOnline.Api.Tests (8 tests) and tests/AcmeCoffeeOnline.Web.Tests (23 tests).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/session-verification",
+      "dateTime": "2026-04-15T20:10:29.180945+00:00",
+      "description": "Ran external session verification against the Session 2 spec, changed code, architecture note, and build/test summary, and saved the raw verifier output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 37210,
+          "outputTokens": 2235,
+          "costUsd": 0.7257750000000001
+        }
+      ]
     }
   ]
 }

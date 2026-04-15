@@ -1,14 +1,8 @@
 @page "/admin/users"
 @attribute [DabblerPageAuthorize("/admin/users")]
-@using System.Security.Claims
 @using AcmeCoffeeOnline.Shared.DTOs
-@using Dabbler.Security.Data
-@using Dabbler.Security.Entities
-@using Dabbler.Security.Services
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.EntityFrameworkCore
-@inject DabblerSecurityDbContext SecurityDb
-@inject AuthenticationStateProvider AuthStateProvider
+@using AcmeCoffeeOnline.Web.Services
+@inject AdminUserApiClient AdminUserApiClient
 @inject ISnackbar Snackbar
 
 <PageTitle>User Administration — AcmeCoffeeDistributors</PageTitle>
@@ -121,13 +115,8 @@ else
 }
 
 @code {
-    private const string ScopedAdminRoleName = "BackofficeUserAdmin";
-
     private bool _loading = true;
     private AdminUserScopeDto? _scope;
-    private int _currentUserId;
-    private int? _activeOrganizationId;
-    private bool _isSystemAdmin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -138,56 +127,7 @@ else
     {
         try
         {
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            if (!int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out _currentUserId))
-            {
-                _scope = null;
-                return;
-            }
-
-            _activeOrganizationId = ParseActiveOrganizationId(user);
-            _isSystemAdmin = user.IsInRole("SystemAdmin");
-
-            if (!_activeOrganizationId.HasValue)
-            {
-                _scope = new AdminUserScopeDto
-                {
-                    IsSystemAdmin = _isSystemAdmin,
-                    CanManageUsers = false
-                };
-                return;
-            }
-
-            var organization = await SecurityDb.AppOrganizations
-                .AsNoTracking()
-                .FirstAsync(candidate => candidate.Id == _activeOrganizationId.Value && candidate.IsActive);
-
-            var memberships = await SecurityDb.AppUserOrganizationMemberships
-                .Where(membership => membership.OrganizationId == organization.Id
-                    && membership.DeletedAt == null
-                    && membership.IsActive
-                    && membership.User != null
-                    && membership.User.DeletedAt == null)
-                .Include(membership => membership.User)
-                    .ThenInclude(appUser => appUser!.Roles)
-                        .ThenInclude(userRole => userRole.Role)
-                .Include(membership => membership.User)
-                    .ThenInclude(appUser => appUser!.OrganizationMemberships)
-                        .ThenInclude(otherMembership => otherMembership.Organization)
-                .OrderBy(membership => membership.User!.DisplayName)
-                .ToListAsync();
-
-            _scope = new AdminUserScopeDto
-            {
-                IsSystemAdmin = _isSystemAdmin,
-                CanManageUsers = true,
-                ActiveOrganizationId = organization.Id,
-                ActiveOrganizationKey = organization.Key,
-                ActiveOrganizationName = organization.Name,
-                Users = memberships.Select(BuildScopeUser).ToArray()
-            };
+            _scope = await AdminUserApiClient.GetScopeAsync();
         }
         catch (Exception ex)
         {
@@ -203,33 +143,12 @@ else
     {
         try
         {
-            var scopedAdminRoleId = await SecurityDb.AppRoles
-                .Where(role => role.Name == ScopedAdminRoleName && role.DeletedAt == null)
-                .Select(role => role.Id)
-                .SingleAsync();
-
-            var activeAssignment = await SecurityDb.AppUserRoles
-                .FirstOrDefaultAsync(
-                    assignment => assignment.OrganizationMembershipId == user.OrganizationMembershipId
-                        && assignment.RoleId == scopedAdminRoleId
-                        && assignment.DeletedAt == null);
-
-            if (activeAssignment is null)
-            {
-                SecurityDb.AppUserRoles.Add(new AppUserRole
-                {
-                    UserId = user.UserId,
-                    RoleId = scopedAdminRoleId,
-                    OrganizationMembershipId = user.OrganizationMembershipId,
-                    AssignedAt = DateTime.UtcNow,
-                    AssignedBy = _currentUserId
-                });
-
-                await SecurityDb.SaveChangesAsync();
-            }
-
-            await LoadScopeAsync();
+            _scope = await AdminUserApiClient.GrantScopedUserAdminAsync(user.OrganizationMembershipId) ?? _scope;
             Snackbar.Add($"Granted UserAdmin for {user.DisplayName} in the active organization.", Severity.Success);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Warning);
         }
         catch (Exception ex)
         {
@@ -241,89 +160,16 @@ else
     {
         try
         {
-            var scopedAdminRoleId = await SecurityDb.AppRoles
-                .Where(role => role.Name == ScopedAdminRoleName && role.DeletedAt == null)
-                .Select(role => role.Id)
-                .SingleAsync();
-
-            var activeAdminCount = await SecurityDb.AppUserRoles
-                .CountAsync(
-                    assignment => assignment.OrganizationMembershipId != null
-                        && assignment.OrganizationMembership!.OrganizationId == _activeOrganizationId
-                        && assignment.RoleId == scopedAdminRoleId
-                        && assignment.DeletedAt == null);
-
-            if (activeAdminCount <= 1)
-            {
-                Snackbar.Add("Cannot remove the last organization-scoped user admin.", Severity.Warning);
-                return;
-            }
-
-            var activeAssignment = await SecurityDb.AppUserRoles
-                .FirstOrDefaultAsync(
-                    assignment => assignment.OrganizationMembershipId == user.OrganizationMembershipId
-                        && assignment.RoleId == scopedAdminRoleId
-                        && assignment.DeletedAt == null);
-
-            if (activeAssignment is not null)
-            {
-                activeAssignment.DeletedAt = DateTime.UtcNow;
-                activeAssignment.DeletedBy = _currentUserId;
-                await SecurityDb.SaveChangesAsync();
-            }
-
-            await LoadScopeAsync();
+            _scope = await AdminUserApiClient.RevokeScopedUserAdminAsync(user.OrganizationMembershipId) ?? _scope;
             Snackbar.Add($"Removed UserAdmin for {user.DisplayName} in the active organization.", Severity.Success);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Warning);
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Failed to remove UserAdmin: {ex.Message}", Severity.Error);
         }
-    }
-
-    private AdminUserScopeUserDto BuildScopeUser(AppUserOrganizationMembership membership)
-    {
-        var scopedRoles = membership.User!.Roles
-            .Where(userRole => userRole.OrganizationMembershipId == membership.Id
-                && userRole.DeletedAt == null
-                && userRole.Role is not null
-                && userRole.Role.DeletedAt == null)
-            .Select(userRole => userRole.Role!.Name)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(roleName => roleName)
-            .ToArray();
-
-        var otherOrganizations = membership.User.OrganizationMemberships
-            .Where(otherMembership => otherMembership.Id != membership.Id
-                && otherMembership.DeletedAt == null
-                && otherMembership.IsActive
-                && otherMembership.Organization is { IsActive: true })
-            .Select(otherMembership => $"{otherMembership.Organization!.Name} ({otherMembership.Organization.Key})")
-            .OrderBy(name => name)
-            .ToArray();
-
-        var hasScopedUserAdmin = scopedRoles.Contains(ScopedAdminRoleName, StringComparer.OrdinalIgnoreCase);
-
-        return new AdminUserScopeUserDto
-        {
-            UserId = membership.UserId,
-            OrganizationMembershipId = membership.Id,
-            DisplayName = membership.User.DisplayName,
-            Email = membership.User.Email,
-            IsActive = membership.User.IsActive,
-            ScopedRoles = scopedRoles,
-            OtherOrganizations = otherOrganizations,
-            HasScopedUserAdmin = hasScopedUserAdmin,
-            CanGrantUserAdmin = !hasScopedUserAdmin,
-            CanRevokeUserAdmin = hasScopedUserAdmin && membership.UserId != _currentUserId
-        };
-    }
-
-    private static int? ParseActiveOrganizationId(ClaimsPrincipal user)
-    {
-        var activeOrganizationClaim = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType);
-        return int.TryParse(activeOrganizationClaim, out var activeOrganizationId)
-            ? activeOrganizationId
-            : null;
     }
 }

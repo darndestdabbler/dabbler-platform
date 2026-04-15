@@ -89,6 +89,19 @@ public sealed class NotesDrivenAlignmentGuardrailTests
         Assert.False(File.Exists(dashboardProviderPath));
     }
 
+    [Fact]
+    public void AdminAndShellSources_UseApiFirstSecurityBoundaries()
+    {
+        var repoRoot = GetRepoRoot();
+        var userManagement = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Admin", "UserManagement.razor");
+        var mainLayout = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Layout", "MainLayout.razor");
+
+        Assert.DoesNotContain("@inject DabblerSecurityDbContext", userManagement);
+        Assert.DoesNotContain("@inject DabblerSecurityDbContext", mainLayout);
+        Assert.Contains("@inject AdminUserApiClient", userManagement);
+        Assert.Contains("@inject ShellSessionStateLoader", mainLayout);
+    }
+
     private static string GetRepoRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

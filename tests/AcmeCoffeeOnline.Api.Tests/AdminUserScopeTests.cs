@@ -122,6 +122,50 @@ public sealed class AdminUserScopeTests : IClassFixture<WebApplicationFactory<Pr
         Assert.Equal(ids.DualMembershipRetailCustomerId, customerScopeCustomers.Items[0].Id);
     }
 
+    [Fact]
+    public async Task RegionalUserAdmin_OrganizationOptionsStayInsideActiveMembershipsAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        var ids = await ResolveFixtureIdsAsync(factory.Services);
+
+        await using var testScope = factory.Services.CreateAsyncScope();
+        SetHttpContext(
+            testScope.ServiceProvider,
+            ids.RegionalSalesRepUserId,
+            ids.AllowedRetailOrganizationId,
+            ids.AllowedRetailOrganizationKey,
+            "BackofficeUserAdmin");
+        var organizationOptionsService = testScope.ServiceProvider.GetRequiredService<IOrganizationOptionsService>();
+
+        var options = await organizationOptionsService.GetOptionsAsync();
+
+        var scopedOption = Assert.Single(options);
+        Assert.Equal(ids.AllowedRetailOrganizationId, scopedOption.OrganizationId);
+        Assert.True(scopedOption.IsActive);
+    }
+
+    [Fact]
+    public async Task SystemAdmin_OrganizationOptionsIncludeAllActiveOrganizationsAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        var ids = await ResolveFixtureIdsAsync(factory.Services);
+
+        await using var testScope = factory.Services.CreateAsyncScope();
+        SetHttpContext(
+            testScope.ServiceProvider,
+            ids.SystemAdminUserId,
+            ids.DisallowedRetailOrganizationId,
+            ids.DisallowedRetailOrganizationKey,
+            "SystemAdmin");
+        var organizationOptionsService = testScope.ServiceProvider.GetRequiredService<IOrganizationOptionsService>();
+
+        var options = await organizationOptionsService.GetOptionsAsync();
+
+        Assert.Contains(options, option => option.OrganizationId == ids.InternalOrganizationId);
+        Assert.Contains(options, option => option.OrganizationId == ids.AllowedRetailOrganizationId);
+        Assert.Contains(options, option => option.OrganizationId == ids.DisallowedRetailOrganizationId && option.IsActive);
+    }
+
     private static async Task<FixtureIds> ResolveFixtureIdsAsync(IServiceProvider services)
     {
         await using var scope = services.CreateAsyncScope();
