@@ -72,6 +72,76 @@
           "costUsd": 0.2064
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/workflow-catalog",
+      "dateTime": "2026-04-15T22:02:21.887591+00:00",
+      "description": "Created docs/planning/e2e-representative-workflow-catalog.md to expand the seed mini-workflow into a repo-specific candidate catalog, freeze the approved five-workflow Playwright subset, and ground the chosen scenarios in the current admin, shell, orders, and product browser surfaces rather than generic future routes.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 950,
+          "outputTokens": 2944,
+          "costUsd": 0.0306275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/edge-case-selection",
+      "dateTime": "2026-04-15T22:02:21.887591+00:00",
+      "description": "Captured the representative invalid and edge branches inside docs/planning/e2e-representative-workflow-catalog.md, including scope-loss on admin/users, direct-route denial after an organization switch, out-of-scope order denial, and one narrow add-product validation path while explicitly deferring report workflows and deeper order-detail mutations.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/layered-coverage-map",
+      "dateTime": "2026-04-15T22:02:21.887591+00:00",
+      "description": "Created docs/planning/e2e-layered-coverage-matrix.md to map active-organization scope, auth, admin actions, product mutations, orders journeys, validation, and keyboard behavior across unit or integration, bUnit, Playwright, and later UAT ownership.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/playwright-scope-freeze",
+      "dateTime": "2026-04-15T22:02:21.887591+00:00",
+      "description": "Created docs/planning/e2e-playwright-implementation-handoff.md to freeze implementation order, seed-data prerequisites, verification helpers, and scope guards for the downstream e2e-workflow-implementation session set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-15T22:03:13.024164+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln. The solution build still hit existing file-lock contention against running test and app binaries including Dabbler.Components.Tests, Dabbler.Reports.Blazor.Tests, AcmeCoffeeOnline.Playwright, and SampleApp.Api. The test run partially completed but reproduced the existing AcmeCoffeeOnline.Web.Tests HTTP 500 guardrail failures on HomePage_RendersInsideMainShellAndIncludesDabblerAssetAsync, BackofficeAdmin_RouteAccess_MatchesFocusedAdminNavigationAsync, SystemAdmin_RouteAccess_IncludesSystemAdminDestinationsAsync, and AuthenticatedOrganizationSwitch_UpdatesShellAndAdminScopeAsync rather than exposing a Session 2 planning-doc regression.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/session-verification",
+      "dateTime": "2026-04-15T22:04:14.455572+00:00",
+      "description": "Ran mandatory external session verification for Session 2 using the Session 2 spec excerpt, the new workflow-catalog, coverage-matrix, and implementation-handoff artifacts, the updated activity log, and the current build/test evidence.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 9473,
+          "outputTokens": 1493,
+          "costUsd": 0.25407
+        }
+      ]
     }
   ]
 }
