@@ -33,9 +33,13 @@ representative route expectations.
 No downstream Phase 2 session set is marked safe to overlap at authoring time.
 Session 1 must still reassess that assumption.
 
-Inside this set, once the representative workflow catalog is frozen, individual
-workflow designs and traceability records can be drafted in parallel across
-disjoint scenarios.
+Session 1 confirmed that the broad downstream queue should remain sequential.
+No downstream Phase 2 session set is safe to overlap with this design set.
+
+Inside this set, once the Session 1 scope ledger and traceability rules are
+frozen, individual workflow designs and traceability records can be drafted in
+parallel across disjoint scenario groups so long as each slice uses the same
+representative-only inclusion rules.
 
 ## Session Plan
 
