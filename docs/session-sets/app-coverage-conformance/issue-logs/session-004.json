@@ -1,0 +1,10 @@
+[
+  {
+    "id": "session-4-review-1-final-validation-clarity",
+    "severity": "Minor",
+    "file": "docs/session-sets/app-coverage-conformance/change-log.md",
+    "issue": "Final Validation wording was too vague about the failed build/test outcome.",
+    "fix": "Updated the Final Validation section to state that the run confirmed existing file-lock contention and Playwright runtime failures rather than new Session 4 regressions.",
+    "status": "fixed"
+  }
+]
