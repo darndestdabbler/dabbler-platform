@@ -33,9 +33,18 @@ must be strong enough to prove:
 No downstream Phase 2 session set is marked safe to overlap at authoring time.
 Session 1 must still reassess that assumption using the final workflow design.
 
+Session 1 confirmed that no downstream Phase 2 session set is safe to overlap
+with this implementation set.
+
 Inside this set, once shared fixtures, reset helpers, and persona setup are
 stable, disjoint workflow specs can be implemented in parallel across separate
 test files.
+
+Session 1 also confirmed that the existing intra-set note remains appropriate:
+only after the shared harness, reset helpers, persona fixtures, and backend-
+truth verification pattern are frozen may disjoint workflow files proceed in
+parallel, while stabilization and closeout work stay blocked on the resulting
+representative suite being trustworthy enough for UAT handoff.
 
 ## Session Plan
 
