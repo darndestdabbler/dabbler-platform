@@ -11,6 +11,9 @@
 @using Dabbler.Components
 @using Dabbler.Components.Data
 @using Dabbler.Components.Data.Metadata
+@using Dabbler.Security.Data
+@using Dabbler.Security.Services
+@using Microsoft.EntityFrameworkCore
 @inject IEntityMetadataProvider MetadataProvider
 @inject INavigationDataProvider NavigationDataProvider
 @inject AuthenticationStateProvider AuthStateProvider
@@ -23,6 +26,8 @@
 @inject AcmeCoffeeOnline.Web.Data.SalesReportDataProvider SalesReportDataProvider
 @inject IWebHostEnvironment HostEnvironment
 @inject NavigationManager NavigationManager
+@inject IUserSessionContextService UserSessionContextService
+@inject DabblerSecurityDbContext SecurityDb
 
 <div data-testid="main-shell">
 <MudThemeProvider />
@@ -74,6 +79,33 @@
         </MudStack>
 
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            @if (_organizationOptions.Count > 0)
+            {
+                <div data-testid="active-organization-summary" style="display:flex; flex-direction:column; align-items:flex-end;">
+                    <span class="mud-typography mud-typography-caption mud-secondary-text">Active org</span>
+                    <span class="mud-typography mud-typography-body2" data-testid="active-organization-label">
+                        @(_activeOrganizationName ?? "No active organization")
+                    </span>
+                </div>
+
+                @if (_organizationOptions.Count > 1 || _isSystemAdmin)
+                {
+                    <MudMenu Label="Switch org" StartIcon="@Icons.Material.Filled.Business"
+                             Variant="Variant.Text" Color="Color.Inherit" Dense="true"
+                             AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                        @foreach (var organization in _organizationOptions)
+                        {
+                            <MudMenuItem Disabled="@organization.IsActive"
+                                         OnClick="@(() => SwitchOrganizationAsync(organization.OrganizationId))">
+                                @organization.OrganizationName
+                            </MudMenuItem>
+                        }
+                    </MudMenu>
+                }
+
+                <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
+            }
+
             <DabblerRoleSwitcher />
             <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
             <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Dense="true"
@@ -81,6 +113,12 @@
                 <MudMenuItem Disabled="true">
                     <MudText Typo="Typo.body2" Style="font-weight: 600;">@_userName</MudText>
                 </MudMenuItem>
+                @if (!string.IsNullOrWhiteSpace(_activeOrganizationName))
+                {
+                    <MudMenuItem Disabled="true">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_activeOrganizationName (@_activeOrganizationKey)</MudText>
+                    </MudMenuItem>
+                }
                 <MudMenuItem Disabled="true">
                     <MudText Typo="Typo.caption" Color="Color.Secondary">@(string.Join(", ", _userRoles))</MudText>
                 </MudMenuItem>
@@ -125,6 +163,9 @@
     private bool _isAdmin;
     private bool _isSystemAdmin;
     private IEntityMetadataProvider? _filteredMetadataProvider;
+    private string? _activeOrganizationKey;
+    private string? _activeOrganizationName;
+    private List<OrganizationOption> _organizationOptions = new();
 
     private readonly HomePageConfiguration _homePageConfig = new()
     {
@@ -143,8 +184,79 @@
         var rolesSet = new HashSet<string>(_userRoles, StringComparer.OrdinalIgnoreCase);
         _isAdmin = rolesSet.Contains("BackofficeUserAdmin") || rolesSet.Contains("SystemAdmin");
         _isSystemAdmin = rolesSet.Contains("SystemAdmin");
+        _activeOrganizationKey = authState.User.FindFirstValue(UserSessionContextConstants.ActiveOrganizationKeyClaimType);
+        _activeOrganizationName = authState.User.FindFirstValue(UserSessionContextConstants.ActiveOrganizationNameClaimType);
 
         _filteredMetadataProvider = new RoleFilteredMetadataProvider(MetadataProvider, _userRoles);
+
+        if (int.TryParse(_userId, out var parsedUserId))
+        {
+            var activeOrganizationId = ParseActiveOrganizationId(authState.User);
+            var sessionContext = await UserSessionContextService.BuildAsync(parsedUserId, activeOrganizationId);
+
+            if (sessionContext is not null)
+            {
+                if (string.IsNullOrWhiteSpace(_activeOrganizationKey))
+                {
+                    _activeOrganizationKey = sessionContext.ActiveOrganizationKey;
+                }
+
+                if (string.IsNullOrWhiteSpace(_activeOrganizationName))
+                {
+                    _activeOrganizationName = sessionContext.ActiveOrganizationName;
+                }
+
+                if (_isSystemAdmin)
+                {
+                    var availableOrganizationRoles = sessionContext.OrganizationMemberships
+                        .ToDictionary(
+                            organization => organization.OrganizationId,
+                            organization => organization.RoleNames);
+
+                    var organizations = await SecurityDb.AppOrganizations
+                        .AsNoTracking()
+                        .Where(organization => organization.IsActive)
+                        .OrderBy(organization => organization.Name)
+                        .ToListAsync();
+
+                    _organizationOptions = organizations
+                        .Select(organization => new OrganizationOption(
+                            organization.Id,
+                            organization.Key,
+                            organization.Name,
+                            availableOrganizationRoles.TryGetValue(organization.Id, out var roleNames)
+                                ? roleNames.ToArray()
+                                : Array.Empty<string>(),
+                            sessionContext.ActiveOrganizationId == organization.Id))
+                        .ToList();
+                }
+                else
+                {
+                    _organizationOptions = sessionContext.OrganizationMemberships
+                        .Select(organization => new OrganizationOption(
+                            organization.OrganizationId,
+                            organization.OrganizationKey,
+                            organization.OrganizationName,
+                            organization.RoleNames.ToArray(),
+                            sessionContext.ActiveOrganizationId == organization.OrganizationId))
+                        .ToList();
+                }
+            }
+        }
+    }
+
+    private Task SwitchOrganizationAsync(int organizationId)
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        var returnUrl = string.IsNullOrWhiteSpace(relativePath)
+            ? "/"
+            : "/" + relativePath;
+
+        NavigationManager.NavigateTo(
+            $"/auth/switch-organization?organizationId={organizationId}&returnUrl={Uri.EscapeDataString(returnUrl)}",
+            forceLoad: true);
+
+        return Task.CompletedTask;
     }
 
     // ── Report Navigation ─────────────────────────────────────────────
@@ -496,4 +608,19 @@
             ["NoteText"] = n.NoteText
         }).ToList();
     }
+
+    private static int? ParseActiveOrganizationId(ClaimsPrincipal user)
+    {
+        var activeOrganizationClaim = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType);
+        return int.TryParse(activeOrganizationClaim, out var activeOrganizationId)
+            ? activeOrganizationId
+            : null;
+    }
+
+    private sealed record OrganizationOption(
+        int OrganizationId,
+        string OrganizationKey,
+        string OrganizationName,
+        string[] RoleNames,
+        bool IsActive);
 }

@@ -196,6 +196,68 @@
           "costUsd": 0.29667
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/admin-flows",
+      "dateTime": "2026-04-15T18:43:13.549049+00:00",
+      "description": "Added organization-aware admin management by introducing an admin user-scope service and controller in the API, then rewrote the /admin/users page so UserAdmin actions operate only within the active organization scope while SystemAdmin can still manage any switched organization.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/org-switching-ui",
+      "dateTime": "2026-04-15T18:43:13.549049+00:00",
+      "description": "Added an authenticated /auth/switch-organization endpoint and surfaced active-organization state plus a shell-level organization switcher in the main layout so multi-organization users can change scope from the UI.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/admin-limits-proof",
+      "dateTime": "2026-04-15T18:43:13.549049+00:00",
+      "description": "Added focused admin-scope proofs that seed stable multi-organization guardrail fixtures and verify organization-scoped admins cannot elevate users outside their active organization while SystemAdmin can grant scoped UserAdmin access in another organization.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/cross-org-tests",
+      "dateTime": "2026-04-15T18:43:13.549049+00:00",
+      "description": "Extended API and web guardrail coverage to prove authenticated organization switching updates the active session scope and that representative customer row filtering follows the active organization for a dual-membership user.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-15T18:43:13.549049+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln. Build succeeded with the existing preview-SDK notice plus the long-standing 11 DevEmailInbox XML-comment warnings, and all 394 tests passed including API, web, security, and Playwright coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/session-verification",
+      "dateTime": "2026-04-15T18:44:15.769876+00:00",
+      "description": "Ran mandatory external session verification for Session 4 using the Session 4 spec excerpt, the changed admin, shell, shared DTO, and test files, and successful build/test evidence.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 38347,
+          "outputTokens": 1231,
+          "costUsd": 0.66753
+        }
+      ]
     }
   ]
 }

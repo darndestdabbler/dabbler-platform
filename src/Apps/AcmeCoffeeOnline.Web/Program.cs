@@ -154,6 +154,12 @@ builder.Services.AddHttpClient<OrderApiClient>(client =>
     client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
 }).AddHttpMessageHandler<UserIdentityHandler>();
 
+builder.Services.AddHttpClient<AdminUserApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+}).AddHttpMessageHandler<UserIdentityHandler>();
+
 // Grid data providers
 builder.Services.AddTransient<IGridDataProvider<ProductDto>, ProductDataProvider>();
 builder.Services.AddTransient<IGridDataProvider<CustomerDto>, CustomerDataProvider>();
@@ -688,6 +694,41 @@ app.MapGet("/auth/logout", async (HttpContext http) =>
     await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Redirect("/login");
 });
+
+app.MapGet("/auth/switch-organization", async (
+    int organizationId,
+    string? returnUrl,
+    HttpContext context,
+    ClaimsPrincipal user,
+    IUserSessionContextService sessionContextService) =>
+{
+    if (!int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var signedInUserId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var principal = await sessionContextService.CreatePrincipalAsync(
+        signedInUserId,
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        organizationId);
+
+    if (principal is null)
+    {
+        return Results.BadRequest(new { error = "Unable to switch organizations for the current session." });
+    }
+
+    await context.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        principal,
+        new AuthenticationProperties
+        {
+            IsPersistent = true,
+            AllowRefresh = true
+        });
+
+    var safeReturnUrl = IsLocalUrl(returnUrl) ? returnUrl! : "/";
+    return Results.Redirect(safeReturnUrl);
+}).RequireAuthorization();
 
 app.MapRazorComponents<AcmeCoffeeOnline.Web.Components.App>()
     .AddInteractiveServerRenderMode();

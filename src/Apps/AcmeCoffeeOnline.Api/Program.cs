@@ -136,6 +136,7 @@ builder.Services.UseJsonFileStore(
     Path.Combine(builder.Environment.ContentRootPath, "security-config.json"));
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IAdminUserScopeService, AdminUserScopeService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();

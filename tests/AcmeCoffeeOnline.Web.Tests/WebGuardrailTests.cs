@@ -134,6 +134,48 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
     }
 
     [Fact]
+    public async Task AuthenticatedOrganizationSwitch_UpdatesShellAndAdminScopeAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder =>
+            builder.UseEnvironment("Development"));
+        await EnsureScopedAdminGuardrailUsersAsync(factory.Services);
+
+        using var client = await CreateAuthenticatedClientAsync("guardrail.org.scope.admin@acme.test", factory);
+
+        var initialUsersResponse = await client.GetAsync("/admin/users");
+        Assert.Equal(HttpStatusCode.Redirect, initialUsersResponse.StatusCode);
+        Assert.Contains("/access-denied", initialUsersResponse.Headers.Location?.OriginalString);
+
+        var initialSession = await client.GetFromJsonAsync<SessionInfoResponse>(
+            "/test-auth/session-info",
+            CreateJsonOptions());
+
+        Assert.NotNull(initialSession);
+        var retailOrganization = initialSession!.AvailableOrganizations!
+            .Single(organization => !string.Equals(organization.OrganizationKey, "internal", StringComparison.OrdinalIgnoreCase));
+
+        var switchResponse = await client.GetAsync(
+            $"/auth/switch-organization?organizationId={retailOrganization.OrganizationId}&returnUrl=%2Fadmin%2Fusers");
+
+        Assert.Equal(HttpStatusCode.Redirect, switchResponse.StatusCode);
+        Assert.Equal("/admin/users", switchResponse.Headers.Location?.OriginalString);
+
+        var switchedUsersResponse = await client.GetAsync("/admin/users");
+        var switchedUsersContent = await switchedUsersResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, switchedUsersResponse.StatusCode);
+        Assert.Contains(retailOrganization.OrganizationName, switchedUsersContent);
+
+        var switchedSession = await client.GetFromJsonAsync<SessionInfoResponse>(
+            "/test-auth/session-info",
+            CreateJsonOptions());
+
+        Assert.NotNull(switchedSession);
+        Assert.Equal(retailOrganization.OrganizationId.ToString(), switchedSession!.ActiveOrganizationId);
+        Assert.Equal(retailOrganization.OrganizationKey, switchedSession.ActiveOrganizationKey);
+    }
+
+    [Fact]
     public async Task BackofficeAdmin_RouteAccess_MatchesFocusedAdminNavigationAsync()
     {
         using var client = await CreateAuthenticatedClientAsync("kbrown@acmecoffee.com");
@@ -339,6 +381,111 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         await db.SaveChangesAsync();
     }
 
+    private static async Task EnsureScopedAdminGuardrailUsersAsync(IServiceProvider services)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<DabblerSecurityDbContext>();
+
+        if (await db.AppUsers.AnyAsync(user => user.Email == "guardrail.org.scope.admin@acme.test"))
+        {
+            return;
+        }
+
+        var internalOrganization = await db.AppOrganizations
+            .OrderBy(organization => organization.Id)
+            .FirstAsync(organization => organization.IsInternal);
+
+        var allowedOrganization = new AppOrganization
+        {
+            Key = "guardrail-retail-allowed",
+            Name = "Guardrail Retail Allowed",
+            IsInternal = false,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        db.AppOrganizations.Add(allowedOrganization);
+
+        var adminUser = new AppUser
+        {
+            Email = "guardrail.org.scope.admin@acme.test",
+            DisplayName = "Guardrail Scope Admin",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var memberUser = new AppUser
+        {
+            Email = "guardrail.org.scope.member@acme.test",
+            DisplayName = "Guardrail Scope Member",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        db.AppUsers.AddRange(adminUser, memberUser);
+        await db.SaveChangesAsync();
+
+        var internalMembership = new AppUserOrganizationMembership
+        {
+            UserId = adminUser.Id,
+            OrganizationId = internalOrganization.Id,
+            IsDefault = true,
+            IsActive = true,
+            JoinedAt = DateTime.UtcNow
+        };
+        var adminRetailMembership = new AppUserOrganizationMembership
+        {
+            UserId = adminUser.Id,
+            OrganizationId = allowedOrganization.Id,
+            IsDefault = false,
+            IsActive = true,
+            JoinedAt = DateTime.UtcNow
+        };
+        var memberRetailMembership = new AppUserOrganizationMembership
+        {
+            UserId = memberUser.Id,
+            OrganizationId = allowedOrganization.Id,
+            IsDefault = true,
+            IsActive = true,
+            JoinedAt = DateTime.UtcNow
+        };
+
+        db.AppUserOrganizationMemberships.AddRange(internalMembership, adminRetailMembership, memberRetailMembership);
+        await db.SaveChangesAsync();
+
+        var backofficeRole = await db.AppRoles.FirstAsync(role => role.Name == "BackofficeUser");
+        var adminRole = await db.AppRoles.FirstAsync(role => role.Name == "BackofficeUserAdmin");
+        var customerRole = await db.AppRoles.FirstAsync(role => role.Name == "Customer");
+
+        db.AppUserRoles.AddRange(
+            new AppUserRole
+            {
+                UserId = adminUser.Id,
+                RoleId = backofficeRole.Id,
+                OrganizationMembershipId = internalMembership.Id,
+                AssignedAt = DateTime.UtcNow,
+                AssignedBy = adminUser.Id
+            },
+            new AppUserRole
+            {
+                UserId = adminUser.Id,
+                RoleId = adminRole.Id,
+                OrganizationMembershipId = adminRetailMembership.Id,
+                AssignedAt = DateTime.UtcNow,
+                AssignedBy = adminUser.Id
+            },
+            new AppUserRole
+            {
+                UserId = memberUser.Id,
+                RoleId = customerRole.Id,
+                OrganizationMembershipId = memberRetailMembership.Id,
+                AssignedAt = DateTime.UtcNow,
+                AssignedBy = adminUser.Id
+            });
+
+        await db.SaveChangesAsync();
+    }
+
     private static JsonSerializerOptions CreateJsonOptions() => new()
     {
         PropertyNameCaseInsensitive = true
@@ -354,5 +501,6 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
 
     private sealed record SessionOrganizationResponse(
         int OrganizationId,
-        string OrganizationKey);
+        string OrganizationKey,
+        string? OrganizationName);
 }

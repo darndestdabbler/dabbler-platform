@@ -1,153 +1,329 @@
 @page "/admin/users"
 @attribute [DabblerPageAuthorize("/admin/users")]
+@using System.Security.Claims
+@using AcmeCoffeeOnline.Shared.DTOs
 @using Dabbler.Security.Data
+@using Dabbler.Security.Entities
 @using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.EntityFrameworkCore
 @inject DabblerSecurityDbContext SecurityDb
-@inject IUserRoleStore UserRoleStore
+@inject AuthenticationStateProvider AuthStateProvider
 @inject ISnackbar Snackbar
 
 <PageTitle>User Administration — AcmeCoffeeDistributors</PageTitle>
 
 <MudText Typo="Typo.h4" GutterBottom="true">User Administration</MudText>
 <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
-    The current seeded baseline includes internal staff and retail-business contacts. The later multi-organization session adds explicit organization memberships and organization-scoped roles.
+    User-admin actions follow the active organization. Switch organizations from the shell to review a different scope, while system administrators remain able to move across organizations without restriction.
 </MudText>
 
-<MudTabs Elevation="1" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4" @bind-ActivePanelIndex="_activeTab">
-    <MudTabPanel Text="Users" Icon="@Icons.Material.Filled.People">
-        @if (_loadingUsers)
-        {
-            <MudProgressCircular Indeterminate="true" Size="Size.Large" Class="d-flex mx-auto my-8" />
-        }
-        else
-        {
-            <MudDataGrid T="UserRow" Items="_users" Filterable="true" SortMode="SortMode.Single"
-                         Dense="true" Hover="true" Striped="true">
-                <Columns>
-                    <PropertyColumn Property="x => x.DisplayName" Title="Name" />
-                    <PropertyColumn Property="x => x.Email" Title="Email" />
-                    <PropertyColumn Property="x => x.Roles" Title="Roles" />
-                    <PropertyColumn Property="x => x.IsActive" Title="Active">
-                        <CellTemplate>
-                            <MudIcon Icon="@(context.Item.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
-                                     Color="@(context.Item.IsActive ? Color.Success : Color.Error)"
-                                     Size="Size.Small" />
-                        </CellTemplate>
-                    </PropertyColumn>
-                    <PropertyColumn Property="x => x.CreatedAt" Title="Created" Format="yyyy-MM-dd" />
-                </Columns>
-            </MudDataGrid>
-        }
-    </MudTabPanel>
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" Class="d-flex mx-auto my-8" />
+}
+else if (_scope is null || !_scope.CanManageUsers || string.IsNullOrWhiteSpace(_scope.ActiveOrganizationName))
+{
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+        Switch into an organization where you hold user-admin access to manage organization memberships and user-admin elevation.
+    </MudAlert>
+}
+else
+{
+    <MudPaper Elevation="1" Class="pa-4 mb-4" data-testid="admin-scope-banner">
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <div>
+                <MudText Typo="Typo.h6">@_scope.ActiveOrganizationName</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Scope key: @_scope.ActiveOrganizationKey
+                </MudText>
+            </div>
+            <MudChip T="string" Color="@(_scope.IsSystemAdmin ? Color.Secondary : Color.Primary)" Variant="Variant.Outlined">
+                @(_scope.IsSystemAdmin ? "SystemAdmin scope" : "UserAdmin scope")
+            </MudChip>
+        </MudStack>
+    </MudPaper>
 
-    <MudTabPanel Text="Roles" Icon="@Icons.Material.Filled.AdminPanelSettings">
-        @if (_loadingRoles)
-        {
-            <MudProgressCircular Indeterminate="true" Size="Size.Large" Class="d-flex mx-auto my-8" />
-        }
-        else
-        {
-            <MudDataGrid T="RoleRow" Items="_roles" Dense="true" Hover="true" Striped="true">
-                <Columns>
-                    <PropertyColumn Property="x => x.Name" Title="Role Name" />
-                    <PropertyColumn Property="x => x.Description" Title="Description" />
-                    <PropertyColumn Property="x => x.InheritsFrom" Title="Inherits From" />
-                    <PropertyColumn Property="x => x.IsSystemRole" Title="System Role">
-                        <CellTemplate>
-                            <MudIcon Icon="@(context.Item.IsSystemRole ? Icons.Material.Filled.Lock : Icons.Material.Filled.LockOpen)"
-                                     Size="Size.Small" />
-                        </CellTemplate>
-                    </PropertyColumn>
-                    <PropertyColumn Property="x => x.UserCount" Title="Users" />
-                </Columns>
-            </MudDataGrid>
-        }
-    </MudTabPanel>
-
-    <MudTabPanel Text="Audit Log" Icon="@Icons.Material.Filled.History">
-        <MudText Typo="Typo.body1" Class="mb-4">
-            The audit log tracks security-related events including login attempts,
-            role changes, and permission modifications.
-        </MudText>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/admin/audit"
-                   StartIcon="@Icons.Material.Filled.History" Class="mr-3">
-            Open Audit Log
-        </MudButton>
-        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/admin/security"
-                   StartIcon="@Icons.Material.Filled.Shield">
-            Full Security Dashboard
-        </MudButton>
-    </MudTabPanel>
-</MudTabs>
+    <MudPaper Elevation="1" Class="pa-4">
+        <MudDataGrid T="AdminUserScopeUserDto" Items="_scope.Users" Filterable="true" SortMode="SortMode.Single"
+                     Dense="true" Hover="true" Striped="true">
+            <Columns>
+                <PropertyColumn Property="x => x.DisplayName" Title="Name" />
+                <PropertyColumn Property="x => x.Email" Title="Email" />
+                <PropertyColumn Property="x => x.IsActive" Title="Active">
+                    <CellTemplate>
+                        <MudIcon Icon="@(context.Item.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                                 Color="@(context.Item.IsActive ? Color.Success : Color.Error)"
+                                 Size="Size.Small" />
+                    </CellTemplate>
+                </PropertyColumn>
+                <TemplateColumn Title="Roles In Scope" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.ScopedRoles.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">No scoped roles</MudText>
+                        }
+                        else
+                        {
+                            @foreach (var roleName in context.Item.ScopedRoles)
+                            {
+                                <MudChip T="string" Size="Size.Small" Class="mr-1 mb-1">@roleName</MudChip>
+                            }
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Other Organizations" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.OtherOrganizations.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Only this organization</MudText>
+                        }
+                        else
+                        {
+                            @foreach (var otherOrganization in context.Item.OtherOrganizations)
+                            {
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Class="mr-1 mb-1">
+                                    @otherOrganization
+                                </MudChip>
+                            }
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Actions" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.CanGrantUserAdmin)
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                       OnClick="@(() => GrantUserAdminAsync(context.Item))">
+                                Grant UserAdmin
+                            </MudButton>
+                        }
+                        else if (context.Item.CanRevokeUserAdmin)
+                        {
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                       OnClick="@(() => RevokeUserAdminAsync(context.Item))">
+                                Remove UserAdmin
+                            </MudButton>
+                        }
+                        else if (context.Item.HasScopedUserAdmin)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Scoped admin retained</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">No elevation action</MudText>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </MudPaper>
+}
 
 @code {
-    private int _activeTab;
-    private bool _loadingUsers = true;
-    private bool _loadingRoles = true;
-    private List<UserRow> _users = new();
-    private List<RoleRow> _roles = new();
+    private const string ScopedAdminRoleName = "BackofficeUserAdmin";
+
+    private bool _loading = true;
+    private AdminUserScopeDto? _scope;
+    private int _currentUserId;
+    private int? _activeOrganizationId;
+    private bool _isSystemAdmin;
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.WhenAll(LoadUsersAsync(), LoadRolesAsync());
+        await LoadScopeAsync();
     }
 
-    private async Task LoadUsersAsync()
+    private async Task LoadScopeAsync()
     {
         try
         {
-            var roleAssignments = await UserRoleStore.GetAllAsync();
-            var users = await SecurityDb.AppUsers
-                .OrderBy(u => u.DisplayName)
-                .Select(u => new { u.Id, u.Email, u.DisplayName, u.IsActive, u.CreatedAt })
-                .ToListAsync();
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
 
-            _users = users.Select(u =>
+            if (!int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out _currentUserId))
             {
-                var userIdStr = u.Id.ToString();
-                var roles = roleAssignments.TryGetValue(userIdStr, out var r) ? r : [];
-                return new UserRow(u.DisplayName, u.Email, string.Join(", ", roles), u.IsActive, u.CreatedAt);
-            }).ToList();
+                _scope = null;
+                return;
+            }
+
+            _activeOrganizationId = ParseActiveOrganizationId(user);
+            _isSystemAdmin = user.IsInRole("SystemAdmin");
+
+            if (!_activeOrganizationId.HasValue)
+            {
+                _scope = new AdminUserScopeDto
+                {
+                    IsSystemAdmin = _isSystemAdmin,
+                    CanManageUsers = false
+                };
+                return;
+            }
+
+            var organization = await SecurityDb.AppOrganizations
+                .AsNoTracking()
+                .FirstAsync(candidate => candidate.Id == _activeOrganizationId.Value && candidate.IsActive);
+
+            var memberships = await SecurityDb.AppUserOrganizationMemberships
+                .Where(membership => membership.OrganizationId == organization.Id
+                    && membership.DeletedAt == null
+                    && membership.IsActive
+                    && membership.User != null
+                    && membership.User.DeletedAt == null)
+                .Include(membership => membership.User)
+                    .ThenInclude(appUser => appUser!.Roles)
+                        .ThenInclude(userRole => userRole.Role)
+                .Include(membership => membership.User)
+                    .ThenInclude(appUser => appUser!.OrganizationMemberships)
+                        .ThenInclude(otherMembership => otherMembership.Organization)
+                .OrderBy(membership => membership.User!.DisplayName)
+                .ToListAsync();
+
+            _scope = new AdminUserScopeDto
+            {
+                IsSystemAdmin = _isSystemAdmin,
+                CanManageUsers = true,
+                ActiveOrganizationId = organization.Id,
+                ActiveOrganizationKey = organization.Key,
+                ActiveOrganizationName = organization.Name,
+                Users = memberships.Select(BuildScopeUser).ToArray()
+            };
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Failed to load users: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Failed to load the organization user-admin scope: {ex.Message}", Severity.Error);
         }
         finally
         {
-            _loadingUsers = false;
+            _loading = false;
         }
     }
 
-    private async Task LoadRolesAsync()
+    private async Task GrantUserAdminAsync(AdminUserScopeUserDto user)
     {
         try
         {
-            var roleAssignments = await UserRoleStore.GetAllAsync();
-            var roles = await SecurityDb.AppRoles
-                .OrderBy(r => r.Name)
-                .Select(r => new { r.Name, r.Description, r.InheritsFromRoleName, r.IsSystemRole })
-                .ToListAsync();
+            var scopedAdminRoleId = await SecurityDb.AppRoles
+                .Where(role => role.Name == ScopedAdminRoleName && role.DeletedAt == null)
+                .Select(role => role.Id)
+                .SingleAsync();
 
-            _roles = roles.Select(r => new RoleRow(
-                r.Name,
-                r.Description ?? "",
-                r.InheritsFromRoleName ?? "—",
-                r.IsSystemRole,
-                roleAssignments.Count(kvp => kvp.Value.Contains(r.Name))
-            )).ToList();
+            var activeAssignment = await SecurityDb.AppUserRoles
+                .FirstOrDefaultAsync(
+                    assignment => assignment.OrganizationMembershipId == user.OrganizationMembershipId
+                        && assignment.RoleId == scopedAdminRoleId
+                        && assignment.DeletedAt == null);
+
+            if (activeAssignment is null)
+            {
+                SecurityDb.AppUserRoles.Add(new AppUserRole
+                {
+                    UserId = user.UserId,
+                    RoleId = scopedAdminRoleId,
+                    OrganizationMembershipId = user.OrganizationMembershipId,
+                    AssignedAt = DateTime.UtcNow,
+                    AssignedBy = _currentUserId
+                });
+
+                await SecurityDb.SaveChangesAsync();
+            }
+
+            await LoadScopeAsync();
+            Snackbar.Add($"Granted UserAdmin for {user.DisplayName} in the active organization.", Severity.Success);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Failed to load roles: {ex.Message}", Severity.Error);
-        }
-        finally
-        {
-            _loadingRoles = false;
+            Snackbar.Add($"Failed to grant UserAdmin: {ex.Message}", Severity.Error);
         }
     }
 
-    private sealed record UserRow(string DisplayName, string Email, string Roles, bool IsActive, DateTime CreatedAt);
-    private sealed record RoleRow(string Name, string Description, string InheritsFrom, bool IsSystemRole, int UserCount);
+    private async Task RevokeUserAdminAsync(AdminUserScopeUserDto user)
+    {
+        try
+        {
+            var scopedAdminRoleId = await SecurityDb.AppRoles
+                .Where(role => role.Name == ScopedAdminRoleName && role.DeletedAt == null)
+                .Select(role => role.Id)
+                .SingleAsync();
+
+            var activeAdminCount = await SecurityDb.AppUserRoles
+                .CountAsync(
+                    assignment => assignment.OrganizationMembershipId != null
+                        && assignment.OrganizationMembership!.OrganizationId == _activeOrganizationId
+                        && assignment.RoleId == scopedAdminRoleId
+                        && assignment.DeletedAt == null);
+
+            if (activeAdminCount <= 1)
+            {
+                Snackbar.Add("Cannot remove the last organization-scoped user admin.", Severity.Warning);
+                return;
+            }
+
+            var activeAssignment = await SecurityDb.AppUserRoles
+                .FirstOrDefaultAsync(
+                    assignment => assignment.OrganizationMembershipId == user.OrganizationMembershipId
+                        && assignment.RoleId == scopedAdminRoleId
+                        && assignment.DeletedAt == null);
+
+            if (activeAssignment is not null)
+            {
+                activeAssignment.DeletedAt = DateTime.UtcNow;
+                activeAssignment.DeletedBy = _currentUserId;
+                await SecurityDb.SaveChangesAsync();
+            }
+
+            await LoadScopeAsync();
+            Snackbar.Add($"Removed UserAdmin for {user.DisplayName} in the active organization.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to remove UserAdmin: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private AdminUserScopeUserDto BuildScopeUser(AppUserOrganizationMembership membership)
+    {
+        var scopedRoles = membership.User!.Roles
+            .Where(userRole => userRole.OrganizationMembershipId == membership.Id
+                && userRole.DeletedAt == null
+                && userRole.Role is not null
+                && userRole.Role.DeletedAt == null)
+            .Select(userRole => userRole.Role!.Name)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(roleName => roleName)
+            .ToArray();
+
+        var otherOrganizations = membership.User.OrganizationMemberships
+            .Where(otherMembership => otherMembership.Id != membership.Id
+                && otherMembership.DeletedAt == null
+                && otherMembership.IsActive
+                && otherMembership.Organization is { IsActive: true })
+            .Select(otherMembership => $"{otherMembership.Organization!.Name} ({otherMembership.Organization.Key})")
+            .OrderBy(name => name)
+            .ToArray();
+
+        var hasScopedUserAdmin = scopedRoles.Contains(ScopedAdminRoleName, StringComparer.OrdinalIgnoreCase);
+
+        return new AdminUserScopeUserDto
+        {
+            UserId = membership.UserId,
+            OrganizationMembershipId = membership.Id,
+            DisplayName = membership.User.DisplayName,
+            Email = membership.User.Email,
+            IsActive = membership.User.IsActive,
+            ScopedRoles = scopedRoles,
+            OtherOrganizations = otherOrganizations,
+            HasScopedUserAdmin = hasScopedUserAdmin,
+            CanGrantUserAdmin = !hasScopedUserAdmin,
+            CanRevokeUserAdmin = hasScopedUserAdmin && membership.UserId != _currentUserId
+        };
+    }
+
+    private static int? ParseActiveOrganizationId(ClaimsPrincipal user)
+    {
+        var activeOrganizationClaim = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType);
+        return int.TryParse(activeOrganizationClaim, out var activeOrganizationId)
+            ? activeOrganizationId
+            : null;
+    }
 }
