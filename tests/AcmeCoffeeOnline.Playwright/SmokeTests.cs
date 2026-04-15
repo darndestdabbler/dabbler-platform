@@ -1,5 +1,6 @@
 using AcmeCoffeeOnline.Playwright.Infrastructure;
 using Microsoft.Playwright;
+using System.Text.RegularExpressions;
 using Xunit.Sdk;
 
 namespace AcmeCoffeeOnline.Playwright;
@@ -158,6 +159,79 @@ public sealed class SmokeTests
             });
 
             await Assertions.Expect(page.GetByText("Customers")).ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    [Fact]
+    public async Task AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "kbrown@acmecoffee.com");
+
+            await page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+
+            await Assertions.Expect(page.GetByText("Catalog", new() { Exact = true }))
+                .ToHaveCountAsync(0);
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/products", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/products$"));
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/products/catalog", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/products/catalog$"));
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/admin/users", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/admin/users$"));
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/admin/products", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToBeVisibleAsync();
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/admin/security", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToBeVisibleAsync();
+
+            await _fixture.SignOutAsync(page);
+            await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/admin/products", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/admin/products$"));
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/admin/security", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/admin/security$"));
             await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
         }
         finally

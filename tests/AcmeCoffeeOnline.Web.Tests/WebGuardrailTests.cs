@@ -90,4 +90,66 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         Assert.Contains("\"BackofficeUser\"", authorizedContent);
         Assert.Contains("Guardrail Test User", authorizedContent);
     }
+
+    [Fact]
+    public async Task BackofficeAdmin_RouteAccess_MatchesFocusedAdminNavigationAsync()
+    {
+        using var client = await CreateAuthenticatedClientAsync("kbrown@acmecoffee.com");
+
+        var homeResponse = await client.GetAsync("/");
+        var homeContent = await homeResponse.Content.ReadAsStringAsync();
+        var usersResponse = await client.GetAsync("/admin/users");
+        var productsResponse = await client.GetAsync("/admin/products");
+        var securityResponse = await client.GetAsync("/admin/security");
+
+        Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
+        Assert.Contains("Products", homeContent);
+        Assert.DoesNotContain("Catalog", homeContent);
+        Assert.Equal(HttpStatusCode.OK, usersResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Redirect, productsResponse.StatusCode);
+        Assert.Contains("/access-denied", productsResponse.Headers.Location?.OriginalString);
+        Assert.Equal(HttpStatusCode.Redirect, securityResponse.StatusCode);
+        Assert.Contains("/access-denied", securityResponse.Headers.Location?.OriginalString);
+    }
+
+    [Fact]
+    public async Task SystemAdmin_RouteAccess_IncludesSystemAdminDestinationsAsync()
+    {
+        using var client = await CreateAuthenticatedClientAsync("admin@acmecoffee.com");
+
+        var homeResponse = await client.GetAsync("/");
+        var homeContent = await homeResponse.Content.ReadAsStringAsync();
+        var usersResponse = await client.GetAsync("/admin/users");
+        var productsResponse = await client.GetAsync("/admin/products");
+        var securityResponse = await client.GetAsync("/admin/security");
+
+        Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
+        Assert.Contains("Products", homeContent);
+        Assert.DoesNotContain("Catalog", homeContent);
+        Assert.Equal(HttpStatusCode.OK, usersResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, productsResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, securityResponse.StatusCode);
+    }
+
+    private async Task<HttpClient> CreateAuthenticatedClientAsync(string email)
+    {
+        var factory = _factory.WithWebHostBuilder(builder =>
+            builder.UseEnvironment("Development"));
+
+        var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        using var signInRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/test-auth/seeded-session?email={Uri.EscapeDataString(email)}");
+        signInRequest.Headers.Add("X-Test-Auth-Secret", "acme-local-seeded-session");
+
+        using var signInResponse = await client.SendAsync(signInRequest);
+        Assert.Equal(HttpStatusCode.OK, signInResponse.StatusCode);
+
+        return client;
+    }
 }

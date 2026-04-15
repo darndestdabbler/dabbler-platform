@@ -158,10 +158,6 @@ builder.Services.AddTransient<OrderNoteDataProvider>();
 builder.Services.AddTransient<OrderReportDataProvider>();
 builder.Services.AddTransient<SalesReportDataProvider>();
 
-// Dashboard: artifact catalog + usage tracking providers
-builder.Services.AddSingleton<IArtifactCatalogProvider, AcmeCoffeeCatalogProvider>();
-builder.Services.AddSingleton<IUsageTrackingProvider, InMemoryUsageTrackingProvider>();
-
 // Dabbler Components: metadata and navigation providers
 builder.Services.AddSingleton<IEntityMetadataProvider, AcmeCoffeeMetadataProvider>();
 builder.Services.AddScoped<INavigationDataProvider, AcmeCoffeeNavigationDataProvider>();

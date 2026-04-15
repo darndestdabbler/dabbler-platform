@@ -14,7 +14,6 @@
 @inject IEntityMetadataProvider MetadataProvider
 @inject INavigationDataProvider NavigationDataProvider
 @inject AuthenticationStateProvider AuthStateProvider
-@inject ProductApiClient ProductClient
 @inject CustomerApiClient CustomerClient
 @inject OrderApiClient OrderClient
 @inject IGridDataProvider<ProductDto> ProductDataProvider
@@ -22,8 +21,6 @@
 @inject IGridDataProvider<OrderDto> OrderDataProvider
 @inject AcmeCoffeeOnline.Web.Data.OrderReportDataProvider OrderReportDataProvider
 @inject AcmeCoffeeOnline.Web.Data.SalesReportDataProvider SalesReportDataProvider
-@inject IArtifactCatalogProvider CatalogProvider
-@inject IUsageTrackingProvider UsageTrackingProvider
 @inject IWebHostEnvironment HostEnvironment
 @inject NavigationManager NavigationManager
 
@@ -45,9 +42,9 @@
                        OnClick="@(() => NavigationManager.NavigateTo("/dashboard"))">
                 Dashboard
             </MudButton>
-            <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Storefront"
-                       OnClick="@(() => NavigationManager.NavigateTo("/products/catalog"))">
-                Catalog
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Inventory"
+                       OnClick="@(() => NavigationManager.NavigateTo("/products"))">
+                Products
             </MudButton>
 
             @if (_isAdmin)
@@ -66,12 +63,12 @@
                                      OnClick="@(() => NavigationManager.NavigateTo("/admin/products"))">
                             Product Management
                         </MudMenuItem>
+                        <MudDivider />
+                        <MudMenuItem Icon="@Icons.Material.Filled.Shield"
+                                     OnClick="@(() => NavigationManager.NavigateTo("/admin/security"))">
+                            Security Dashboard
+                        </MudMenuItem>
                     }
-                    <MudDivider />
-                    <MudMenuItem Icon="@Icons.Material.Filled.Shield"
-                                 OnClick="@(() => NavigationManager.NavigateTo("/admin/security"))">
-                        Security Dashboard
-                    </MudMenuItem>
                 </MudMenu>
             }
         </MudStack>
@@ -97,12 +94,6 @@
     </MudStack>
 </MudAppBar>
 
-@* ── DabblerSecurityNav (integrated for admin role users) ──────── *@
-@* DabblerSecurityNav checks for SystemAdministrator/UserAdministrator roles internally.
-   The app uses SystemAdmin/BackofficeUserAdmin role names, so it may not auto-show.
-   The Admin menu above provides the same navigation using the app's role names. *@
-<DabblerSecurityNav />
-
 @* ── Shell with role-filtered entity navigation ────────────────── *@
 <DabblerShell MetadataProvider="_filteredMetadataProvider ?? MetadataProvider"
               NavigationDataProvider="NavigationDataProvider"
@@ -113,8 +104,6 @@
               ReportPageFactory="CreateReportPage"
               HomePageConfiguration="_homePageConfig"
               DashboardConfigurationResolver="ResolveDashboardConfig"
-              CatalogProvider="CatalogProvider"
-              UsageTrackingProvider="UsageTrackingProvider"
               Title="AcmeCoffeeOnline"
               UserId="@_userId"
               UserRoles="@_userRoles"
@@ -129,15 +118,6 @@
 </DabblerShell>
 </div>
 
-<DabblerRecordPopup T="ProductDto"
-                    @ref="_productPopup"
-                    EntityMetadata="@(MetadataProvider.GetEntityMetadata("Product")!)"
-                    Record="_popupProduct"
-                    RecordChanged="OnPopupProductChanged"
-                    IsReadOnly="true"
-                    MetadataProvider="MetadataProvider"
-                    OnClose="OnPopupClosed" />
-
 @code {
     private string _userId = "";
     private string _userName = "";
@@ -145,8 +125,6 @@
     private bool _isAdmin;
     private bool _isSystemAdmin;
     private IEntityMetadataProvider? _filteredMetadataProvider;
-    private DabblerRecordPopup<ProductDto>? _productPopup;
-    private ProductDto _popupProduct = new();
 
     private readonly HomePageConfiguration _homePageConfig = new()
     {
@@ -457,22 +435,6 @@
         };
     }
 
-    private RenderFragment CreateNewTypedDetailForm<T>(string entityName) where T : class, new()
-    {
-        var meta = MetadataProvider.GetEntityMetadata(entityName)!;
-        var record = new T();
-
-        return builder =>
-        {
-            builder.OpenComponent<DabblerDetailForm<T>>(0);
-            builder.AddAttribute(1, "EntityMetadata", meta);
-            builder.AddAttribute(2, "Record", record);
-            builder.AddAttribute(3, "IsNew", true);
-            builder.AddAttribute(4, "MetadataProvider", MetadataProvider);
-            builder.CloseComponent();
-        };
-    }
-
     // ── Child Data Loading ─────────────────────────────────────────────
 
     private async Task<IReadOnlyList<Dictionary<string, object?>>> GetChildDataAsync(
@@ -533,44 +495,5 @@
             ["Author"] = n.Author,
             ["NoteText"] = n.NoteText
         }).ToList();
-    }
-
-    // ── Product Popup (leaf entity on Order Items M:M) ────────────────
-
-    private async Task ShowProductPopupAsync(object primaryKey)
-    {
-        var id = Convert.ToInt32(primaryKey);
-        var product = await ProductClient.GetByIdAsync(id);
-        if (product is not null)
-        {
-            _popupProduct = product;
-            _productPopup?.Show();
-        }
-    }
-
-    private void OnPopupProductChanged(ProductDto product)
-    {
-        _popupProduct = product;
-    }
-
-    private async Task OnPopupClosed()
-    {
-        await Task.CompletedTask;
-    }
-
-    // ── Product ComboBox Search (for order item entry) ────────────────
-
-    private async Task<IEnumerable<ProductDto>> SearchProductsAsync(
-        string? searchText, CancellationToken cancellationToken)
-    {
-        var request = new PagedRequest
-        {
-            Page = 1,
-            PageSize = 10,
-            SearchTerm = searchText,
-            SortBy = "Name"
-        };
-        var response = await ProductClient.GetAllAsync(request, cancellationToken);
-        return response.Items;
     }
 }

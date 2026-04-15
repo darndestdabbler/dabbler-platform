@@ -63,6 +63,32 @@ public sealed class NotesDrivenAlignmentGuardrailTests
         Assert.DoesNotContain("ShowZoom", salesByProduct);
     }
 
+    [Fact]
+    public void ShellSources_RemoveCatalogCompatibilityProvidersAndMismatchedSecurityNav()
+    {
+        var repoRoot = GetRepoRoot();
+        var mainLayout = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Layout", "MainLayout.razor");
+        var program = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Program.cs");
+        var dashboardProviderPath = Path.Combine(
+            repoRoot,
+            "src",
+            "Apps",
+            "AcmeCoffeeOnline.Web",
+            "Data",
+            "DashboardDataProvider.cs");
+
+        Assert.DoesNotContain("@inject IArtifactCatalogProvider", mainLayout);
+        Assert.DoesNotContain("@inject IUsageTrackingProvider", mainLayout);
+        Assert.DoesNotContain("CatalogProvider=\"", mainLayout);
+        Assert.DoesNotContain("UsageTrackingProvider=\"", mainLayout);
+        Assert.DoesNotContain("NavigateTo(\"/products/catalog\")", mainLayout);
+        Assert.DoesNotContain("<DabblerSecurityNav", mainLayout);
+        Assert.Contains("NavigateTo(\"/products\")", mainLayout);
+        Assert.DoesNotContain("AddSingleton<IArtifactCatalogProvider", program);
+        Assert.DoesNotContain("AddSingleton<IUsageTrackingProvider", program);
+        Assert.False(File.Exists(dashboardProviderPath));
+    }
+
     private static string GetRepoRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
