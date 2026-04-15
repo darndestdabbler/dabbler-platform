@@ -85,6 +85,9 @@
 - All functionality that can be strictly unit tested should be strictly unit tested
 - When methods contain one or more sections that could be unit tested and one or more other sections that can only be integration tested, those methods should be split into unit-testable and non-unit-testable methods.
 - Any method that is not strictly unit testable but is integration testable should be integrate tested
+- For UI-facing work, include screenshot evidence when practical so the human can
+  see styling and interaction changes evolve across sessions and build
+  confidence in the direction of the product
 - Accessibility conformance should be checked with automated tooling plus
   focused manual validation of keyboard navigation, visible focus behavior,
   labeling, and other WCAG 2.1 Level AA expectations

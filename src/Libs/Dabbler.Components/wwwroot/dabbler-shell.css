@@ -254,6 +254,15 @@
     font-size: 0.8125rem;
 }
 
+.dabbler-nav-section-label {
+    padding: 6px 12px 2px;
+    color: var(--mud-palette-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
 .dabbler-nav-entity-items {
     display: flex;
     flex-direction: column;

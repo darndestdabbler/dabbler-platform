@@ -12,6 +12,56 @@ html, body {
     font-family: 'Roboto', sans-serif;
 }
 
+/* ── Standalone stub shell ───────────────────────────────────────────────── */
+
+.standalone-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(circle at top left, rgba(46, 125, 50, 0.08), transparent 32%),
+        linear-gradient(180deg, #f6f8fb 0%, #eef2f6 100%);
+}
+
+.standalone-shell-appbar {
+    backdrop-filter: blur(12px);
+}
+
+.standalone-shell-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1.25rem;
+}
+
+.standalone-shell-content {
+    height: 100%;
+    min-height: calc(100vh - 4.5rem);
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.standalone-shell-status {
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .standalone-shell-status {
+        display: none;
+    }
+
+    .standalone-shell-body {
+        padding: 0.75rem;
+    }
+
+    .standalone-shell-content {
+        min-height: calc(100vh - 3.75rem);
+        border-radius: 14px;
+    }
+}
+
 /* ── Blazor error UI ───────────────────────────────────────────────────────── */
 
 #blazor-error-ui {

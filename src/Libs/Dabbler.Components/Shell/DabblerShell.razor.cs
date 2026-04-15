@@ -22,7 +22,22 @@ namespace Dabbler.Components;
 /// </example>
 public partial class DabblerShell : DabblerComponentBase
 {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
     private bool ShowTopMenuBar => UsageTrackingProvider is not null && CatalogProvider is not null;
+    private string SkipLinkHref
+    {
+        get
+        {
+            var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+            var pathWithoutFragment = relativePath.Split('#')[0];
+
+            return string.IsNullOrWhiteSpace(pathWithoutFragment)
+                ? "#dabbler-main-content"
+                : $"/{pathWithoutFragment}#dabbler-main-content";
+        }
+    }
 
     // ── Tab state ───────────────────────────────────────────────────
     private readonly List<WorkspaceTab> _tabs = new();

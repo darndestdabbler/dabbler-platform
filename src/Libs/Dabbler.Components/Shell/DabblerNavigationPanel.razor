@@ -40,6 +40,16 @@
                                    aria-label="@($"Open {entity.DisplayName}")" />
                 </MudTooltip>
             }
+
+            @foreach (var reportItem in ReportItems)
+            {
+                <MudTooltip Text="@reportItem.DisplayName" Placement="Placement.Right">
+                    <MudIconButton Icon="@(reportItem.IconName ?? Icons.Material.Filled.Assessment)"
+                                   Size="Size.Small"
+                                   OnClick="() => HandleReportClickAsync(reportItem.Name)"
+                                   aria-label="@($"Open {reportItem.DisplayName}")" />
+                </MudTooltip>
+            }
         </div>
     }
     else
@@ -79,6 +89,27 @@
                         </li>
                     }
                 </ul>
+
+                @if (ReportItems.Count > 0)
+                {
+                    <div class="dabbler-nav-section-label">Reports</div>
+                    <ul class="dabbler-nav-entity-items" role="list">
+                        @foreach (var reportItem in ReportItems)
+                        {
+                            <li class="dabbler-nav-entity-list-item">
+                                <button class="dabbler-nav-entity-item"
+                                        @onclick="() => HandleReportClickAsync(reportItem.Name)"
+                                        aria-label="@($"Open {reportItem.DisplayName}")">
+                                    @if (!string.IsNullOrEmpty(reportItem.IconName))
+                                    {
+                                        <MudIcon Icon="@reportItem.IconName" Size="Size.Small" Class="dabbler-nav-entity-icon" />
+                                    }
+                                    <span class="dabbler-nav-entity-name">@reportItem.DisplayName</span>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
             </div>
 
             @* ── Draggable divider ───────────────────────────── *@

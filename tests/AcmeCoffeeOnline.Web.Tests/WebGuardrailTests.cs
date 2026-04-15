@@ -147,8 +147,13 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         var content = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("data-testid=\"standalone-shell\"", content);
         Assert.Contains("_framework/blazor.web.js", content);
         Assert.Contains("data-dabbler-asset=\"dabbler-shell.css\"", content);
+        Assert.Contains("reusable platform stubs", content);
+        Assert.Contains("Stub Platform", content);
+        Assert.Contains("Stub Review", content);
+        Assert.DoesNotContain("data-testid=\"main-shell\"", content);
     }
 
     private async Task<HttpClient> CreateAuthenticatedClientAsync(string email)

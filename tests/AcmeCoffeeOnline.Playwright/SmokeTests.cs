@@ -109,7 +109,10 @@ public sealed class SmokeTests
                 WaitUntil = WaitUntilState.NetworkIdle
             });
 
-            await Assertions.Expect(page.GetByText("Orders")).ToBeVisibleAsync();
+            await Assertions.Expect(page)
+                .ToHaveURLAsync(new Regex(".*/orders$"));
+            await Assertions.Expect(page.GetByTestId("access-denied-page"))
+                .ToHaveCountAsync(0);
 
             var session = await _fixture.GetSessionInfoAsync(page);
             Assert.Contains("Customer", session.Roles ?? []);
@@ -158,7 +161,8 @@ public sealed class SmokeTests
                 WaitUntil = WaitUntilState.NetworkIdle
             });
 
-            await Assertions.Expect(page.GetByText("Customers")).ToBeVisibleAsync();
+            await Assertions.Expect(page)
+                .ToHaveURLAsync(new Regex(".*/customers$"));
             await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
         }
         finally

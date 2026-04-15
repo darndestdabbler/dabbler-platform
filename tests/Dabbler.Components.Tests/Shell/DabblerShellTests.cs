@@ -4,6 +4,7 @@ using Dabbler.Components.Tests.TestHelpers;
 using Dabbler.Platform.Stubs;
 using FluentAssertions;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Dabbler.Components.Tests.Shell;
@@ -35,7 +36,34 @@ public class DabblerShellTests
         cut.Markup.Should().Contain("Contract Shell");
     }
 
-    private static IRenderedComponent<DabblerShell> RenderShell(TestContext ctx, bool includeCatalogProviders)
+    [Fact]
+    public void SkipLink_UsesCurrentRouteWhenRenderedUnderNestedPath()
+    {
+        using var ctx = new TestContext().SetupForDabblerComponents();
+        var navigationManager = ctx.Services.GetRequiredService<NavigationManager>();
+        navigationManager.NavigateTo("http://localhost/platform/stub");
+
+        var cut = RenderShell(ctx, includeCatalogProviders: false);
+
+        cut.Find("a.dabbler-skip-link").GetAttribute("href")
+            .Should().Be("/platform/stub#dabbler-main-content");
+    }
+
+    [Fact]
+    public void ReportItems_RenderInNavigationPanelWhenProvided()
+    {
+        using var ctx = new TestContext().SetupForDabblerComponents();
+
+        var cut = RenderShell(ctx, includeCatalogProviders: false, includeReportItems: true);
+
+        cut.Markup.Should().Contain("Reports");
+        cut.Markup.Should().Contain("Stub Customer Summary");
+    }
+
+    private static IRenderedComponent<DabblerShell> RenderShell(
+        TestContext ctx,
+        bool includeCatalogProviders,
+        bool includeReportItems = false)
     {
         var definition = new StubPlatformDefinition
         {
@@ -67,6 +95,10 @@ public class DabblerShellTests
                     AccessCount = 1,
                     LastAccessedAt = DateTime.UtcNow
                 }
+            ],
+            ReportItems =
+            [
+                new NavigationReportItem("customer-summary", "Stub Customer Summary")
             ]
         };
 
@@ -79,6 +111,11 @@ public class DabblerShellTests
                 .Add(x => x.SearchPageFactory, CreateSearchFragment)
                 .Add(x => x.NewRecordFactory, CreateNewFragment)
                 .Add(x => x.Title, "Contract Shell");
+
+            if (includeReportItems)
+            {
+                parameters.Add(x => x.ReportItems, definition.ReportItems);
+            }
 
             if (includeCatalogProviders)
             {

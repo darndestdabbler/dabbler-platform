@@ -5,7 +5,7 @@
 <div class="dabbler-shell @Class" style="@Style" @attributes="UserAttributes">
 
     @* ── Skip-to-content link (WCAG 2.4.1) ────────────────────── *@
-    <a href="#dabbler-main-content" class="dabbler-skip-link">
+    <a href="@SkipLinkHref" class="dabbler-skip-link">
         Skip to main content
     </a>
 
@@ -27,11 +27,13 @@
         @* ── Navigation panel ────────────────────────────────── *@
         <DabblerNavigationPanel MetadataProvider="MetadataProvider"
                                 NavigationDataProvider="NavigationDataProvider"
+                                ReportItems="ReportItems"
                                 Title="@Title"
                                 OnRecordSelected="HandleRecordSelectedAsync"
                                 OnSearchRequested="HandleSearchRequestedAsync"
                                 OnNewRequested="HandleNewRequestedAsync"
                                 OnEntitySelected="HandleEntitySelectedAsync"
+                                OnReportSelected="HandleReportSelectedAsync"
                                 IsCollapsed="_isNavCollapsed"
                                 IsCollapsedChanged="(collapsed) => { _isNavCollapsed = collapsed; }"
                                 FocusedEntityName="@_focusedEntityName"

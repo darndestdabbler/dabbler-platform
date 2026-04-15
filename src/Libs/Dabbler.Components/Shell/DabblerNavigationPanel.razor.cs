@@ -62,6 +62,12 @@ public partial class DabblerNavigationPanel : DabblerComponentBase
     public INavigationDataProvider NavigationDataProvider { get; set; } = null!;
 
     /// <summary>
+    /// Flat report items shown in the navigation panel.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyList<NavigationReportItem> ReportItems { get; set; } = [];
+
+    /// <summary>
     /// Application title displayed at the top of the panel.
     /// </summary>
     [Parameter]
@@ -97,6 +103,12 @@ public partial class DabblerNavigationPanel : DabblerComponentBase
     /// </summary>
     [Parameter]
     public EventCallback<string> OnEntitySelected { get; set; }
+
+    /// <summary>
+    /// Fired when a report item is clicked in the navigation panel.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnReportSelected { get; set; }
 
     /// <summary>
     /// Whether the panel is collapsed to a narrow icon strip.
@@ -316,6 +328,11 @@ public partial class DabblerNavigationPanel : DabblerComponentBase
     private async Task HandleSearchClickAsync(string entityName, SmartFilterDefinition? preFilter = null)
     {
         await OnSearchRequested.InvokeAsync((entityName, preFilter));
+    }
+
+    private async Task HandleReportClickAsync(string reportName)
+    {
+        await OnReportSelected.InvokeAsync(reportName);
     }
 
     private async Task ToggleCollapseAsync()

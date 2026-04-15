@@ -142,6 +142,110 @@
           "costUsd": 0.246645
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/uat-execution",
+      "dateTime": "2026-04-15T14:53:24.546794+00:00",
+      "description": "Executed a facilitated stub-backed design and navigation spot-testing pass against /platform/stub, confirmed the route, shell, workspace, query flow, detail opening, skip-link behavior, and report path in a live browser, and then tightened the standalone stub host chrome so it more faithfully reflects the main app shell for styling review.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/findings-ledger",
+      "dateTime": "2026-04-15T14:53:24.546794+00:00",
+      "description": "Captured the confirmed early-UAT issues in docs/session-sets/stubbed-uat/early-uat-findings.json, separating confirmed issues from broader deferred work so the Session 3 closeout stays tightly scoped to the retained stub-backed review lane.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/remediation-inputs",
+      "dateTime": "2026-04-15T14:53:24.552946+00:00",
+      "description": "Updated docs/session-sets/stubbed-uat/remediation-inputs.md with the accepted remediation summary, the final downstream-impact position, the styling-fidelity follow-up for the standalone stub host, and the developer preference to include screenshot evidence in future UI-facing sessions. Routed analysis confirmed that no downstream Phase 2 spec edits are justified.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 3645,
+          "outputTokens": 339,
+          "costUsd": 0.00794625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-04-15T14:53:24.553951+00:00",
+      "description": "Generated docs/session-sets/stubbed-uat/change-log.md through ai-router documentation work, closing the three-session set with a durable summary of the frozen scope, the Session 3 fixes, the accepted baseline, the no-downstream-spec-update decision, and the final validation totals.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 6227,
+          "outputTokens": 798,
+          "costUsd": 0.01576375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/build-test",
+      "dateTime": "2026-04-15T14:53:24.554283+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build sequentially after the Session 3 fixes. Build succeeded with the SDK's preview NETSDK1057 informational messages, and all 382 tests passed across the seven test projects, including the Playwright smoke suite and the updated shell/web guardrails.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-15T14:54:38.234438+00:00",
+      "description": "Sent the Session 3 spec context, findings ledger, remediation inputs, generated change log, relevant git diff, and the successful full-solution build/test evidence to external session verification and saved the raw review output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 15102,
+          "outputTokens": 1182,
+          "costUsd": 0.31518
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/post-verification-polish",
+      "dateTime": "2026-04-15T14:56:41.075246+00:00",
+      "description": "Applied the verifier's non-blocking cosmetic note by scoping the new background treatment to the standalone stub shell instead of the global body, then re-ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build. The final state still built cleanly and all 382 tests passed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification-round-2",
+      "dateTime": "2026-04-15T14:57:03.283534+00:00",
+      "description": "Ran a second external verification round after scoping the standalone background treatment to the stub shell and re-running the full-solution build/test pass. Saved the raw round-2 verifier output for the final state.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 18280,
+          "outputTokens": 744,
+          "costUsd": 0.33
+        }
+      ]
     }
   ]
 }
