@@ -88,6 +88,92 @@
           "costUsd": 0.161205
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/contract-audit",
+      "dateTime": "2026-04-15T11:14:30.269175+00:00",
+      "description": "Used routed analysis plus the current Dabbler.Components, Dabbler.Reports.Blazor, and security-adjacent test-home inventory to audit the retained reusable surface against the supported-surface contract and Session 1 frozen coverage targets.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 31411,
+          "outputTokens": 1608,
+          "costUsd": 0.05534375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/report-gap-ledger",
+      "dateTime": "2026-04-15T11:14:30.269175+00:00",
+      "description": "Used a second routed analysis over the retained component, report, and security-adjacent code to identify the highest-risk direct-proof gaps, with special attention to ParameterPromptForm, ReportViewer, DabblerReportPage state handoff, role-aware UI affordances, and keyboard/focus coverage.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 63055,
+          "outputTokens": 1791,
+          "costUsd": 0.09672875
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/accessibility-baseline",
+      "dateTime": "2026-04-15T11:14:30.275494+00:00",
+      "description": "Used routed analysis to define the reusable WCAG 2.1 AA accessibility baseline, automated evidence expectations, focused manual validation checks, and a retained-surface coverage matrix for components, reports, and security-adjacent UI seams.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 46095,
+          "outputTokens": 2188,
+          "costUsd": 0.07949874999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/wcag-evidence-plan",
+      "dateTime": "2026-04-15T11:14:30.275903+00:00",
+      "description": "Created docs/planning/accessibility-and-stubbing-gap-ledger.md to capture the Session 2 verdict, contract-gap ledger, reusable accessibility baseline, WCAG evidence plan, and the Session 3/Session 4 handoff expectations.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/build-test",
+      "dateTime": "2026-04-15T11:16:51.505462+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build. An initial parallel build/test attempt reproduced the repo's known file-lock race, then the required sequential rerun succeeded with build passing at zero warnings/errors and all 370 tests passing across the seven test projects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-15T11:18:02.166015+00:00",
+      "description": "Sent the Session 2 spec context, Session 1 review ledger, the new accessibility-and-stubbing gap ledger, current activity-log entries, git diff, and sequential build/test evidence to external session verification and saved the raw review output. The verifier returned VERIFIED with no blocking issues.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 9673,
+          "outputTokens": 841,
+          "costUsd": 0.20817
+        }
+      ]
     }
   ]
 }
