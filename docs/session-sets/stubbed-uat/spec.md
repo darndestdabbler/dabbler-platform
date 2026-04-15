@@ -25,12 +25,12 @@ representative Playwright and full-application UAT sets.
 
 ## Parallelization Notes
 
-Session 1 should re-check the queue, but the current baseline is now simpler:
-`accessibility-and-stubbing` has completed and the stub-backed review surfaces
-are ready. No new overlap beyond the existing sequential queue is assumed.
+Session 1 rechecked the queue against the accepted stub baseline and confirmed
+that no new cross-set overlap is safe beyond the existing sequential queue.
 
 Inside this set, checklist authoring and lightweight reviewer-harness setup can
-proceed in parallel once the review scope is frozen.
+proceed in parallel once the review scope is frozen in
+`docs/planning/stubbed-uat-scope-ledger.md`.
 
 ## Session Plan
 
@@ -51,7 +51,7 @@ shell, workspace, prompt, and report surfaces from
 `docs/planning/accessibility-and-stubbing-evidence.md` as the primary starting
 scope.
 
-**Creates:** Early-UAT scope ledger and reviewer issue format
+**Creates:** `docs/planning/stubbed-uat-scope-ledger.md`
 **Touches:** This spec, downstream Phase 2 specs if needed, and planning notes
 **Ends with:** The set has a realistic stub-backed scope and any safe
 parallelization is explicitly recorded
