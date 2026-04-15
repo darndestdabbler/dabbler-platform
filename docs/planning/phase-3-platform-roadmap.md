@@ -29,7 +29,7 @@
 6. Human does Stubbed UAT (for design/navigation feedback from human)
     a. AI reads feedback and makes changes as necessary
     b. AI/human repeat steps 5 & 6 with refinements to the checklist, as needed
-7. AI builds out full functionality with automated unit and integration tests
+7. AI builds out full functionality with automated unit, integration, and bUnit tests
 8. AI designs E2E workflow 
 9. AI executes E2E tests and makes refinements as needed
 10. AI generates Full App UAT Checklist 
