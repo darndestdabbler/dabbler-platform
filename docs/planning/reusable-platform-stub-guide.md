@@ -53,8 +53,8 @@ var definition = new StubPlatformDefinition
 {
     Entities = [customerMetadata],
     Navigation = new StubNavigationDataset()
-        .AddRecords("Customer", "Recent", [new NavigationRecord(101, "Ada Lovelace")]),
-    ReportItems = [new NavigationReportItem("CustomerSummary", "Customer Summary")]
+        .AddRecords("Customer", "Recent Retail Businesses", [new NavigationRecord(101, "Harbor Roast Cafe Group")]),
+    ReportItems = [new NavigationReportItem("CustomerSummary", "Retail Business Summary")]
 };
 
 services.AddDabblerPlatformStubs(definition);
@@ -67,7 +67,7 @@ services.AddStubAuthentication(new StubUserContext
 {
     UserId = "stub-user",
     Roles = ["BackofficeUser"],
-    OrganizationId = "org-demo"
+    OrganizationId = "internal"
 });
 ```
 

@@ -7,7 +7,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 
-<PageTitle>MFA Enrollment — AcmeCoffeeOnline</PageTitle>
+<PageTitle>MFA Enrollment — AcmeCoffeeDistributors</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
     <MudPaper Elevation="2" Class="pa-8">
@@ -169,7 +169,7 @@
         _submitting = true;
         try
         {
-            var (secret, qrCodeUri) = await MfaService.InitiateEnrollmentAsync(_userId, "AcmeCoffeeOnline");
+            var (secret, qrCodeUri) = await MfaService.InitiateEnrollmentAsync(_userId, "AcmeCoffeeDistributors");
             _secret = secret;
             _qrCodeUri = qrCodeUri;
             _step = EnrollStep.ScanQr;

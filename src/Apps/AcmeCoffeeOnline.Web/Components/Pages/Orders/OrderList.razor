@@ -19,7 +19,7 @@
                   GridColumnInfo="_gridColumnInfo">
     <GridColumns>
         <PropertyColumn Property="e => e.Id" Title="Order #" />
-        <PropertyColumn Property="e => e.CustomerName" Title="Customer" />
+        <PropertyColumn Property="e => e.CustomerName" Title="Retail Business Contact" />
         <PropertyColumn Property="e => e.OrderDate" Title="Order Date" Format="d" />
         <TemplateColumn Title="Status" Sortable="true">
             <CellTemplate>
@@ -89,12 +89,12 @@
         },
         new()
         {
-            Header = "Customer",
+            Header = "Retail Business Contact",
             PropertyName = "CustomerName",
             EditorType = FilterEditorType.Text,
             DefaultOperator = "contains",
             ShowOperator = false,
-            Placeholder = "Customer name...",
+            Placeholder = "Retail business contact...",
             Width = "180px"
         },
         new()
@@ -122,7 +122,7 @@
     private readonly IReadOnlyList<GridColumnInfo> _gridColumnInfo = new List<GridColumnInfo>
     {
         new() { PropertyName = "Id", Header = "Order #" },
-        new() { PropertyName = "CustomerName", Header = "Customer" },
+        new() { PropertyName = "CustomerName", Header = "Retail Business Contact" },
         new() { PropertyName = "OrderDate", Header = "Order Date", Format = "d" },
         new() { PropertyName = "Status", Header = "Status" },
         new() { PropertyName = "Total", Header = "Total", Format = "C2" }

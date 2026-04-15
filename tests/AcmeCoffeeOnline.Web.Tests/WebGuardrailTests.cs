@@ -39,7 +39,7 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("data-testid=\"main-shell\"", content);
-        Assert.Contains("AcmeCoffeeOnline", content);
+        Assert.Contains("AcmeCoffeeDistributors", content);
         Assert.Contains("data-dabbler-asset=\"dabbler-shell.css\"", content);
     }
 
@@ -151,8 +151,7 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         Assert.Contains("_framework/blazor.web.js", content);
         Assert.Contains("data-dabbler-asset=\"dabbler-shell.css\"", content);
         Assert.Contains("reusable platform stubs", content);
-        Assert.Contains("Stub Platform", content);
-        Assert.Contains("Stub Review", content);
+        Assert.Contains("Distributor Demo", content);
         Assert.DoesNotContain("data-testid=\"main-shell\"", content);
     }
 

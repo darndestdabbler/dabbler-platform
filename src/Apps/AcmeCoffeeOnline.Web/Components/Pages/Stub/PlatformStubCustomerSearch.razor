@@ -5,7 +5,7 @@
 @inject StubGridDataProvider<StubCustomerRow> DataProvider
 
 <DabblerQueryPage T="StubCustomerRow"
-                  Title="Stub Customers"
+                  Title="Stub Retail Businesses"
                   FilterColumns="@FilterColumns"
                   GridColumns="@BuildGridColumns()"
                   DataProvider="DataProvider"
@@ -36,7 +36,7 @@
     {
         builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(0);
         builder.AddAttribute(1, "Property", NameProperty);
-        builder.AddAttribute(2, "Title", "Customer");
+        builder.AddAttribute(2, "Title", "Retail Business");
         builder.CloseComponent();
 
         builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(3);

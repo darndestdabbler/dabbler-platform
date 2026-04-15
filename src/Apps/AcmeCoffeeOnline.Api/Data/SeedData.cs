@@ -46,21 +46,21 @@ public static class SeedData
 
     private static readonly string[] NoteTexts =
     [
-        "Customer requested gift wrapping.",
-        "Please include extra napkins.",
-        "Deliver to side entrance.",
-        "Customer mentioned a coffee allergy to certain blends — verified this blend is safe.",
-        "Rush order — customer needs by Friday.",
-        "Second order this week — loyal customer.",
-        "Customer asked about subscription options.",
-        "Address confirmed via phone call.",
-        "Partial shipment approved by customer.",
-        "Customer prefers morning delivery.",
-        "Add promotional flyer to package.",
-        "Customer called to confirm order details.",
-        "Shipping insurance requested.",
-        "Customer wants tracking number emailed.",
-        "Order placed on behalf of corporate account."
+        "Retail business requested shelf talkers for the weekend promotion.",
+        "Include tasting cards for the cafe launch team.",
+        "Deliver to the receiving dock behind the retail storefront.",
+        "Buyer confirmed this blend matches the retail account's decaf program.",
+        "Rush order — the retail business needs replenishment before Friday open.",
+        "Second wholesale order this week from the same retail account.",
+        "Retail business asked about standing distributor restock options.",
+        "Delivery address confirmed with the store manager by phone.",
+        "Partial shipment approved by the retail business contact.",
+        "Retail account prefers early-morning delivery before doors open.",
+        "Add launch promo cards to the case pack.",
+        "Retail buyer called to confirm order details.",
+        "Shipping insurance requested for multi-store drop.",
+        "Retail business wants tracking details emailed to the buyer.",
+        "Order placed on behalf of a multi-location retail group."
     ];
 
     private static readonly string[] NoteAuthors =
@@ -237,9 +237,9 @@ public static class SeedData
         var now = DateTime.UtcNow;
         return
         [
-            new() { Name = "Customer", Description = "Customer with self-service access to own orders and profile.", IsSystemRole = true, CreatedAt = now },
-            new() { Name = "BackofficeUser", Description = "Internal staff with read access to all customers and orders.", IsSystemRole = true, InheritsFromRoleName = "Customer", CreatedAt = now },
-            new() { Name = "BackofficeUserAdmin", Description = "Backoffice admin who can manage staff accounts and roles.", IsSystemRole = true, InheritsFromRoleName = "BackofficeUser", CreatedAt = now },
+            new() { Name = "Customer", Description = "Retail-business account with self-service access to its own orders and profile.", IsSystemRole = true, CreatedAt = now },
+            new() { Name = "BackofficeUser", Description = "Internal staff with read access to all retail-business accounts and orders.", IsSystemRole = true, InheritsFromRoleName = "Customer", CreatedAt = now },
+            new() { Name = "BackofficeUserAdmin", Description = "Internal operations admin who can manage staff accounts and roles.", IsSystemRole = true, InheritsFromRoleName = "BackofficeUser", CreatedAt = now },
             new() { Name = "SystemAdmin", Description = "Full system administrator with unrestricted access.", IsSystemRole = true, InheritsFromRoleName = "BackofficeUserAdmin", CreatedAt = now },
         ];
     }
@@ -250,16 +250,16 @@ public static class SeedData
         var users = new List<AppUser>(56);
 
         // System administrator
-        users.Add(new AppUser { Email = "admin@acmecoffee.com", DisplayName = "System Admin", CreatedAt = now });
+        users.Add(new AppUser { Email = "admin@acmecoffee.com", DisplayName = "Internal Platform Admin", CreatedAt = now });
 
-        // Backoffice users (3 staff + 2 admins)
-        users.Add(new AppUser { Email = "jdoe@acmecoffee.com", DisplayName = "Jane Doe", CreatedAt = now });
-        users.Add(new AppUser { Email = "asmith@acmecoffee.com", DisplayName = "Alex Smith", CreatedAt = now });
-        users.Add(new AppUser { Email = "mwilson@acmecoffee.com", DisplayName = "Maria Wilson", CreatedAt = now });
-        users.Add(new AppUser { Email = "kbrown@acmecoffee.com", DisplayName = "Kevin Brown", CreatedAt = now });
-        users.Add(new AppUser { Email = "tjones@acmecoffee.com", DisplayName = "Teresa Jones", CreatedAt = now });
+        // Internal staff users (3 staff + 2 admins)
+        users.Add(new AppUser { Email = "jdoe@acmecoffee.com", DisplayName = "Jordan Ellis", CreatedAt = now });
+        users.Add(new AppUser { Email = "asmith@acmecoffee.com", DisplayName = "Avery Smith", CreatedAt = now });
+        users.Add(new AppUser { Email = "mwilson@acmecoffee.com", DisplayName = "Morgan Wilson", CreatedAt = now });
+        users.Add(new AppUser { Email = "kbrown@acmecoffee.com", DisplayName = "Kai Brown", CreatedAt = now });
+        users.Add(new AppUser { Email = "tjones@acmecoffee.com", DisplayName = "Taylor Jones", CreatedAt = now });
 
-        // Customer users (one per customer, matching by email)
+        // Retail-business contacts (one per current customer record, matching by email)
         foreach (var customer in customers)
         {
             users.Add(new AppUser
@@ -289,21 +289,21 @@ public static class SeedData
         // System admin
         assignments.Add(new AppUserRole { UserId = systemAdmin.Id, RoleId = sysAdminRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });
 
-        // Backoffice admins
+        // Internal operations admins
         foreach (var email in new[] { "kbrown@acmecoffee.com", "tjones@acmecoffee.com" })
         {
             var user = users.First(u => u.Email == email);
             assignments.Add(new AppUserRole { UserId = user.Id, RoleId = adminRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });
         }
 
-        // Backoffice staff
+        // Internal staff
         foreach (var email in new[] { "jdoe@acmecoffee.com", "asmith@acmecoffee.com", "mwilson@acmecoffee.com" })
         {
             var user = users.First(u => u.Email == email);
             assignments.Add(new AppUserRole { UserId = user.Id, RoleId = staffRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });
         }
 
-        // Customer users
+        // Retail-business contacts
         foreach (var user in users.Where(u => u.Email.EndsWith("@example.com")))
         {
             assignments.Add(new AppUserRole { UserId = user.Id, RoleId = customerRole.Id, AssignedAt = now, AssignedBy = systemAdmin.Id });

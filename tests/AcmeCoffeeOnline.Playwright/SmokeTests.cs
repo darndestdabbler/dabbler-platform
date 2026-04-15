@@ -33,7 +33,7 @@ public sealed class SmokeTests
                 .ToBeVisibleAsync();
             await Assertions.Expect(page.Locator("link[data-dabbler-asset='dabbler-shell.css']"))
                 .ToHaveCountAsync(1);
-            await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Welcome to AcmeCoffeeOnline" }))
+            await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Welcome to AcmeCoffeeDistributors" }))
                 .ToBeVisibleAsync();
         }
         finally

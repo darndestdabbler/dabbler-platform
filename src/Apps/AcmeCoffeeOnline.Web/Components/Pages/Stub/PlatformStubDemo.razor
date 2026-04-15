@@ -7,7 +7,7 @@
 @inject IServiceProvider Services
 @inject IWebHostEnvironment Environment
 
-<PageTitle>Platform Stub Demo</PageTitle>
+<PageTitle>Distributor Stub Demo</PageTitle>
 
 @if (!_isEnabled)
 {
@@ -25,7 +25,7 @@ else
 {
     <MudStack Spacing="2">
         <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
-            This page uses the reusable platform stubs instead of the app's real metadata, navigation, query, and report providers.
+            This demo uses the reusable platform stubs to present an AcmeCoffeeDistributors workspace without the app's real metadata, navigation, query, or report providers.
         </MudAlert>
 
         <DabblerShell MetadataProvider="_metadataProvider"
@@ -34,7 +34,7 @@ else
                       SearchPageFactory="CreateSearchPage"
                       NewRecordFactory="CreateNewRecordPage"
                       ReportPageFactory="CreateReportPage"
-                      Title="Stub Platform"
+                      Title="Distributor Demo"
                       UserRoles="_userRoles"
                       HomePageConfiguration="_definition.HomePageConfiguration"
                       DashboardConfigurationResolver="ResolveDashboard"

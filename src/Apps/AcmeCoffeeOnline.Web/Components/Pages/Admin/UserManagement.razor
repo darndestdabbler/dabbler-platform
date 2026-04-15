@@ -7,9 +7,12 @@
 @inject IUserRoleStore UserRoleStore
 @inject ISnackbar Snackbar
 
-<PageTitle>User Administration — AcmeCoffeeOnline</PageTitle>
+<PageTitle>User Administration — AcmeCoffeeDistributors</PageTitle>
 
 <MudText Typo="Typo.h4" GutterBottom="true">User Administration</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+    The current seeded baseline includes internal staff and retail-business contacts. The later multi-organization session adds explicit organization memberships and organization-scoped roles.
+</MudText>
 
 <MudTabs Elevation="1" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4" @bind-ActivePanelIndex="_activeTab">
     <MudTabPanel Text="Users" Icon="@Icons.Material.Filled.People">

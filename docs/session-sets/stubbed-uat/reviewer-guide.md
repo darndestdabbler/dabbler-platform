@@ -94,8 +94,8 @@ Status guidance:
 
 - shell load and layout stability at `/platform/stub`
 - skip-link behavior, tab order, and visible focus through shell chrome
-- menu-driven navigation to the customer query page
-- menu-driven navigation to recent-customer detail tabs
+- menu-driven navigation to the retail-business query page
+- menu-driven navigation to recent retail-business detail tabs
 - report navigation, report toolbar access, and report-viewer readability
 - workspace tab switching between the open stub surfaces
 
@@ -103,6 +103,6 @@ Status guidance:
 
 - backend truth, business-rule correctness, or real data validation
 - multi-organization security and role-scoped behavior
-- distributor-specific wording or domain framing
+- deep organization-model behavior beyond the accepted distributor framing
 - representative mutation workflows or end-to-end business validation
 - packaging, install validation, or broader full-application acceptance

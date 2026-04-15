@@ -13,7 +13,7 @@ public static class PlatformStubModeRegistration
     public const string CustomerSummaryRdf = """
 {
   "metadata": {
-    "name": "Stub Customer Summary",
+    "name": "Stub Retail Business Summary",
     "pageWidth": 8.5,
     "pageHeight": 11.0,
     "marginTop": 0.5,
@@ -48,7 +48,7 @@ public static class PlatformStubModeRegistration
           "y": 0,
           "width": 4.0,
           "height": 0.3,
-          "value": "Stub Customer Summary",
+          "value": "Stub Retail Business Summary",
           "styleName": "reportTitle"
         }
       ]
@@ -123,9 +123,9 @@ public static class PlatformStubModeRegistration
 
     private static IReadOnlyList<StubCustomerRow> BuildCustomers() =>
     [
-        new(101, "Ada Lovelace", "Boston", "Priority", "northwind"),
-        new(102, "Grace Hopper", "Chicago", "Standard", "northwind"),
-        new(103, "Katherine Johnson", "Atlanta", "Priority", "orbit")
+        new(101, "Harbor Roast Cafe Group", "Boston", "Priority", "harbor-roast"),
+        new(102, "Lakefront Market Stores", "Chicago", "Standard", "lakefront-market"),
+        new(103, "North Ridge Coffee House", "Atlanta", "Priority", "north-ridge")
     ];
 
     private static StubPlatformDefinition BuildDefinition()
@@ -133,8 +133,8 @@ public static class PlatformStubModeRegistration
         var customerMetadata = new EntityMetadata
         {
             EntityName = "Customer",
-            DisplayName = "Customers",
-            DisplayNameSingular = "Customer",
+            DisplayName = "Retail Businesses",
+            DisplayNameSingular = "Retail Business",
             ShowInNavigation = true,
             NavigationOrder = 0,
             SmartFilterTopN = 5,
@@ -142,7 +142,7 @@ public static class PlatformStubModeRegistration
             [
                 new SmartFilterDefinition
                 {
-                    Name = "Recent Customers",
+                    Name = "Recent Retail Businesses",
                     Category = SmartFilterCategory.Custom,
                     DisplayOrder = 0,
                     IsEnabled = true,
@@ -154,10 +154,10 @@ public static class PlatformStubModeRegistration
         var navigation = new StubNavigationDataset()
             .AddRecords(
                 "Customer",
-                "Recent Customers",
+                "Recent Retail Businesses",
                 [
-                    new NavigationRecord(101, "Ada Lovelace"),
-                    new NavigationRecord(102, "Grace Hopper")
+                    new NavigationRecord(101, "Harbor Roast Cafe Group"),
+                    new NavigationRecord(102, "Lakefront Market Stores")
                 ]);
 
         return new StubPlatformDefinition
@@ -168,7 +168,7 @@ public static class PlatformStubModeRegistration
             [
                 new NavigationReportItem(
                     "CustomerSummary",
-                    "Stub Customer Summary",
+                    "Stub Retail Business Summary",
                     Icons.Material.Filled.Assessment)
             ],
             HomePageConfiguration = new HomePageConfiguration

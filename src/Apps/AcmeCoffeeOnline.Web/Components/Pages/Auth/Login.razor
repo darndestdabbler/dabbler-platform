@@ -5,7 +5,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigation
 
-<PageTitle>Sign In — AcmeCoffeeOnline</PageTitle>
+<PageTitle>Sign In — AcmeCoffeeDistributors</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="mt-8" data-testid="login-page">
     <MudPaper Elevation="2" Class="pa-8">
@@ -17,7 +17,7 @@
         }
 
         @* ── Entra ID / Organization sign-in ── *@
-        <MudText Typo="Typo.body2" Class="mb-3">For backoffice staff:</MudText>
+        <MudText Typo="Typo.body2" Class="mb-3">For internal staff in the internal organization:</MudText>
         <MudButton Href="@EntraIdChallengeUrl"
                    Variant="Variant.Outlined"
                    Color="Color.Primary"
@@ -35,7 +35,7 @@
         </div>
 
         @* ── Magic link sign-in ── *@
-        <MudText Typo="Typo.body2" Class="mb-3 mt-4">For customers — sign in with email:</MudText>
+        <MudText Typo="Typo.body2" Class="mb-3 mt-4">For retail-business buyers and employees — sign in with email:</MudText>
 
         @if (_step == LoginStep.EnterEmail)
         {

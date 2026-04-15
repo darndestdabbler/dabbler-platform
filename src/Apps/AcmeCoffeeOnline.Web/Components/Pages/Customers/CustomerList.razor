@@ -17,9 +17,9 @@
                   AutoLoadOnFilterChange="true"
                   GridColumnInfo="_gridColumnInfo">
     <GridColumns>
-        <PropertyColumn Property="e => e.FirstName" Title="First Name" />
-        <PropertyColumn Property="e => e.LastName" Title="Last Name" />
-        <PropertyColumn Property="e => e.Email" Title="Email" />
+        <PropertyColumn Property="e => e.FirstName" Title="Primary Contact First Name" />
+        <PropertyColumn Property="e => e.LastName" Title="Primary Contact Last Name" />
+        <PropertyColumn Property="e => e.Email" Title="Account Email" />
         <PropertyColumn Property="e => e.City" Title="City" />
         <PropertyColumn Property="e => e.State" Title="State" />
         <TemplateColumn Title="Active" Sortable="true">
@@ -46,22 +46,22 @@
     {
         new()
         {
-            Header = "First Name",
+            Header = "Primary Contact First Name",
             PropertyName = "FirstName",
             EditorType = FilterEditorType.Text,
             DefaultOperator = "contains",
             ShowOperator = false,
-            Placeholder = "First name...",
+            Placeholder = "Primary contact first name...",
             Width = "150px"
         },
         new()
         {
-            Header = "Last Name",
+            Header = "Primary Contact Last Name",
             PropertyName = "LastName",
             EditorType = FilterEditorType.Text,
             DefaultOperator = "contains",
             ShowOperator = false,
-            Placeholder = "Last name...",
+            Placeholder = "Primary contact last name...",
             Width = "150px"
         },
         new()
@@ -117,9 +117,9 @@
 
     private readonly IReadOnlyList<GridColumnInfo> _gridColumnInfo = new List<GridColumnInfo>
     {
-        new() { PropertyName = "FirstName", Header = "First Name" },
-        new() { PropertyName = "LastName", Header = "Last Name" },
-        new() { PropertyName = "Email", Header = "Email" },
+        new() { PropertyName = "FirstName", Header = "Primary Contact First Name" },
+        new() { PropertyName = "LastName", Header = "Primary Contact Last Name" },
+        new() { PropertyName = "Email", Header = "Account Email" },
         new() { PropertyName = "City", Header = "City" },
         new() { PropertyName = "State", Header = "State" },
         new() { PropertyName = "IsActive", Header = "Active" }

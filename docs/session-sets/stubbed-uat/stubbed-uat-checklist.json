@@ -1,7 +1,7 @@
 {
   "sessionSet": "stubbed-uat",
   "sessionNumber": 2,
-  "purpose": "Guide a focused human review of the stub-backed shell, workspace, query, detail, and report navigation surfaces exposed at /platform/stub.",
+  "purpose": "Guide a focused human review of the stub-backed shell, workspace, retail-business query, detail, and report navigation surfaces exposed at /platform/stub.",
   "entryRoute": "/platform/stub",
   "launchProfile": "Stub UAT",
   "cliCommand": "dotnet run --project src/Apps/AcmeCoffeeOnline.Web --launch-profile \"Stub UAT\"",
@@ -45,8 +45,8 @@
       "owner": "multi-org-security"
     },
     {
-      "observationType": "Distributor-specific wording, naming, or domain framing",
-      "owner": "distributor-reframe"
+      "observationType": "Deep organization-model behavior beyond the accepted distributor framing",
+      "owner": "multi-org-security"
     },
     {
       "observationType": "Mutation workflows or representative end-to-end behavior",
@@ -67,7 +67,7 @@
       ],
       "expectedSignals": [
         "The informational stub-mode alert renders above the shell rather than replacing it.",
-        "The shell title shows Stub Platform.",
+        "The shell title shows Distributor Demo.",
         "The page does not fall back to the disabled-mode or missing-registration warning alerts."
       ],
       "automatedCoverageRefs": [
@@ -117,13 +117,13 @@
       "surface": "PlatformStubCustomerSearch",
       "area": "query-page",
       "reviewMode": "manual-only",
-      "title": "Customer search page layout is understandable before searching",
+      "title": "Retail-business search page layout is understandable before searching",
       "steps": [
-        "Open the Customers page from the shell navigation.",
+        "Open the Retail Businesses page from the shell navigation.",
         "Review the page header, filter inputs, Search button, and empty-or-initial grid area before running a search."
       ],
       "expectedSignals": [
-        "The page title reads Stub Customers.",
+        "The page title reads Stub Retail Businesses.",
         "Name and City filters are clearly labeled.",
         "The Search action is easy to find and the page layout does not crowd the filter and grid regions."
       ],
@@ -135,14 +135,14 @@
       "surface": "PlatformStubCustomerSearch",
       "area": "query-page",
       "reviewMode": "shared-with-automation",
-      "title": "Customer search results render through the hosted stub path",
+      "title": "Retail-business search results render through the hosted stub path",
       "steps": [
-        "On the Stub Customers page, click Search without adding filters.",
+        "On the Stub Retail Businesses page, click Search without adding filters.",
         "Review the resulting grid and toolbar status text."
       ],
       "expectedSignals": [
-        "The grid renders customer rows from the stub dataset without error banners.",
-        "The Customer, City, and Tier columns remain readable.",
+        "The grid renders retail-business rows from the stub dataset without error banners.",
+        "The Retail Business, City, and Tier columns remain readable.",
         "The hosted page still feels stable when results load."
       ],
       "automatedCoverageRefs": [
@@ -155,10 +155,10 @@
       "surface": "PlatformStubDetail",
       "area": "navigation",
       "reviewMode": "manual-only",
-      "title": "Recent-customer navigation opens a detail tab in the workspace",
+      "title": "Recent retail-business navigation opens a detail tab in the workspace",
       "steps": [
-        "Open the Customers navigation group.",
-        "Choose a Recent Customers entry such as Ada Lovelace.",
+        "Open the Retail Businesses navigation group.",
+        "Choose a Recent Retail Businesses entry such as Harbor Roast Cafe Group.",
         "Observe the new workspace tab and its content."
       ],
       "expectedSignals": [
@@ -174,15 +174,15 @@
       "surface": "PlatformStubSalesReport and DabblerReportPage",
       "area": "navigation",
       "reviewMode": "shared-with-automation",
-      "title": "Report navigation opens the stub customer summary report",
+      "title": "Report navigation opens the stub retail-business summary report",
       "steps": [
         "Open the report menu from the shell.",
-        "Choose Stub Customer Summary.",
+        "Choose Stub Retail Business Summary.",
         "Wait for the report page to finish loading."
       ],
       "expectedSignals": [
         "A report tab opens in the workspace.",
-        "The hosted report renders the Stub Customer Summary content without overlapping chrome or error output.",
+        "The hosted report renders the Stub Retail Business Summary content without overlapping chrome or error output.",
         "The toolbar and report body are both reachable after load."
       ],
       "automatedCoverageRefs": [
@@ -216,7 +216,7 @@
       "reviewMode": "shared-with-automation",
       "title": "Report toolbar remains keyboard reachable after the report loads",
       "steps": [
-        "Open Stub Customer Summary.",
+        "Open Stub Retail Business Summary.",
         "Tab through the report toolbar controls after the report is visible."
       ],
       "expectedSignals": [
@@ -237,7 +237,7 @@
       "reviewMode": "manual-only",
       "title": "Rendered report content stays readable and visually ordered",
       "steps": [
-        "With Stub Customer Summary open, review the rendered report body from top to bottom.",
+        "With Stub Retail Business Summary open, review the rendered report body from top to bottom.",
         "If zoom controls are available, change zoom once and review the page again."
       ],
       "expectedSignals": [

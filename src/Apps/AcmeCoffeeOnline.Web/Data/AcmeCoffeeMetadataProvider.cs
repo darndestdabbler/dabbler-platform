@@ -3,7 +3,7 @@ using Dabbler.Components.Data.Metadata;
 namespace AcmeCoffeeOnline.Web.Data;
 
 /// <summary>
-/// Provides entity metadata for all AcmeCoffeeOnline entities.
+/// Provides entity metadata for the sample distributor application's entities.
 /// Drives navigation panel, query pages, detail forms, and child relationship tabs.
 /// </summary>
 public class AcmeCoffeeMetadataProvider : IEntityMetadataProvider
@@ -86,8 +86,8 @@ public class AcmeCoffeeMetadataProvider : IEntityMetadataProvider
     private static EntityMetadata BuildCustomerMetadata() => new()
     {
         EntityName = "Customer",
-        DisplayName = "Customers",
-        DisplayNameSingular = "Customer",
+        DisplayName = "Retail Businesses",
+        DisplayNameSingular = "Retail Business",
         RecordLabelExpression = "[FirstName] + \" \" + [LastName]",
         IconName = "People",
         ShowInNavigation = true,
@@ -98,9 +98,9 @@ public class AcmeCoffeeMetadataProvider : IEntityMetadataProvider
         Fields = new()
         {
             new() { FieldName = "Id", DisplayLabel = "ID", DataType = "int", IsPrimaryKey = true, IsReadOnly = true, DisplayOrder = 0 },
-            new() { FieldName = "FirstName", DisplayLabel = "First Name", DataType = "string", IsRequired = true, DisplayOrder = 1, DetailFormColumn = 0 },
-            new() { FieldName = "LastName", DisplayLabel = "Last Name", DataType = "string", IsRequired = true, DisplayOrder = 2, DetailFormColumn = 0 },
-            new() { FieldName = "Email", DisplayLabel = "Email", DataType = "string", IsRequired = true, DisplayOrder = 3, DetailFormColumn = 0 },
+            new() { FieldName = "FirstName", DisplayLabel = "Primary Contact First Name", DataType = "string", IsRequired = true, DisplayOrder = 1, DetailFormColumn = 0 },
+            new() { FieldName = "LastName", DisplayLabel = "Primary Contact Last Name", DataType = "string", IsRequired = true, DisplayOrder = 2, DetailFormColumn = 0 },
+            new() { FieldName = "Email", DisplayLabel = "Account Email", DataType = "string", IsRequired = true, DisplayOrder = 3, DetailFormColumn = 0 },
             new() { FieldName = "Phone", DisplayLabel = "Phone", DataType = "string", DisplayOrder = 4, DetailFormColumn = 1 },
             new() { FieldName = "Address", DisplayLabel = "Address", DataType = "string", DisplayOrder = 5, DetailFormColumn = 1 },
             new() { FieldName = "City", DisplayLabel = "City", DataType = "string", DisplayOrder = 6, DetailFormColumn = 1 },
@@ -130,14 +130,14 @@ public class AcmeCoffeeMetadataProvider : IEntityMetadataProvider
         {
             new()
             {
-                Name = "active",
+                Name = "active accounts",
                 Category = SmartFilterCategory.Custom,
                 FilterExpression = "IsActive == true",
                 DisplayOrder = 1
             },
             new()
             {
-                Name = "since yesterday",
+                Name = "added since yesterday",
                 Category = SmartFilterCategory.Temporal,
                 DateFieldName = "CreatedDate",
                 RelativeDateRange = "1d",
@@ -145,7 +145,7 @@ public class AcmeCoffeeMetadataProvider : IEntityMetadataProvider
             },
             new()
             {
-                Name = "my last edits",
+                Name = "my last account updates",
                 Category = SmartFilterCategory.Audit,
                 AuditFieldName = "ModifiedDate",
                 AuditUserFieldName = "ModifiedBy",
@@ -169,8 +169,8 @@ public class AcmeCoffeeMetadataProvider : IEntityMetadataProvider
         Fields = new()
         {
             new() { FieldName = "Id", DisplayLabel = "Order #", DataType = "int", IsPrimaryKey = true, IsReadOnly = true, DisplayOrder = 0 },
-            new() { FieldName = "CustomerId", DisplayLabel = "Customer", DataType = "int", IsForeignKey = true, ForeignKeyEntity = "Customer", IsRequired = true, DisplayOrder = 1, DetailFormColumn = 0 },
-            new() { FieldName = "CustomerName", DisplayLabel = "Customer Name", DataType = "string", IsReadOnly = true, DisplayOrder = 2, DetailFormColumn = 0 },
+            new() { FieldName = "CustomerId", DisplayLabel = "Retail Business", DataType = "int", IsForeignKey = true, ForeignKeyEntity = "Customer", IsRequired = true, DisplayOrder = 1, DetailFormColumn = 0 },
+            new() { FieldName = "CustomerName", DisplayLabel = "Retail Business Contact", DataType = "string", IsReadOnly = true, DisplayOrder = 2, DetailFormColumn = 0 },
             new() { FieldName = "OrderDate", DisplayLabel = "Order Date", DataType = "DateTime", IsRequired = true, DisplayOrder = 3, DetailFormColumn = 0 },
             new() { FieldName = "ShipDate", DisplayLabel = "Ship Date", DataType = "DateTime", DisplayOrder = 4, DetailFormColumn = 1 },
             new() { FieldName = "Status", DisplayLabel = "Status", DataType = "string", IsRequired = true, DisplayOrder = 5, DetailFormColumn = 1 },
@@ -213,7 +213,7 @@ public class AcmeCoffeeMetadataProvider : IEntityMetadataProvider
         {
             new()
             {
-                Name = "for current customer",
+                Name = "for selected retail business",
                 Category = SmartFilterCategory.Relational,
                 RelatedEntityName = "Customer",
                 ForeignKeyFieldName = "CustomerId",

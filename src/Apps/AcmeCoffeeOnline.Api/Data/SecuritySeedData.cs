@@ -5,13 +5,13 @@ namespace AcmeCoffeeOnline.Api.Data;
 
 /// <summary>
 /// Provides the default runtime security configuration (roles, permissions, row filters)
-/// for the AcmeCoffee application. Called during database initialization to seed
+/// for the sample distributor application. Called during database initialization to seed
 /// the JSON file store if it has not been configured yet.
 /// </summary>
 public static class SecuritySeedData
 {
     /// <summary>
-    /// Returns the default SecurityConfiguration with the AcmeCoffee role hierarchy
+    /// Returns the default SecurityConfiguration with the sample app role hierarchy
     /// and permission matrix.
     /// </summary>
     public static SecurityConfiguration GetDefaultConfiguration()
@@ -52,19 +52,19 @@ public static class SecuritySeedData
         new()
         {
             RoleName = "Customer",
-            Description = "Customer with self-service access to own orders and profile.",
+            Description = "Retail-business account with self-service access to its own orders and profile.",
             InheritsFrom = null
         },
         new()
         {
             RoleName = "BackofficeUser",
-            Description = "Internal staff with read/update access to all customers and orders.",
+            Description = "Internal staff with read/update access to all retail-business accounts and orders.",
             InheritsFrom = "Customer"
         },
         new()
         {
             RoleName = "BackofficeUserAdmin",
-            Description = "Backoffice admin who can manage staff accounts and roles.",
+            Description = "Internal operations admin who can manage staff accounts and roles.",
             InheritsFrom = "BackofficeUser"
         },
         new()

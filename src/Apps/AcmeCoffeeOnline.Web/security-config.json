@@ -6,17 +6,17 @@
     },
     {
       "RoleName": "BackofficeUserAdmin",
-      "Description": "Backoffice admin who can manage staff accounts and roles.",
+      "Description": "Internal operations admin who can manage staff accounts and roles.",
       "InheritsFrom": "BackofficeUser"
     },
     {
       "RoleName": "BackofficeUser",
-      "Description": "Internal staff with read/update access to all customers and orders.",
+      "Description": "Internal staff with read/update access to all retail-business accounts and orders.",
       "InheritsFrom": "Customer"
     },
     {
       "RoleName": "Customer",
-      "Description": "Customer with self-service access to own orders and profile."
+      "Description": "Retail-business account with self-service access to its own orders and profile."
     }
   ],
   "PagePermissions": [

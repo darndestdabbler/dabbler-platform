@@ -15,8 +15,8 @@ public sealed class NotesDrivenAlignmentGuardrailTests
         Assert.DoesNotContain("WidgetType.Favorites", mainLayout);
         Assert.Contains("focused search", dashboardPage, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("focused search", mainLayout, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("Search and manage product records", dashboardPage);
-        Assert.Contains("Search and manage product records", mainLayout);
+        Assert.Contains("Search and manage distributor catalog records", dashboardPage);
+        Assert.Contains("Search and manage distributor catalog records", mainLayout);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public sealed class NotesDrivenAlignmentGuardrailTests
         Assert.Contains("@page \"/products/catalog\"", productCatalog);
         Assert.Contains("DabblerPageAuthorize(\"/products\")", productCatalog);
         Assert.Contains("<ProductList", productCatalog);
-        Assert.Contains("focused product workflow", productCatalog, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("focused distributor product workflow", productCatalog, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("ProductApiClient", productCatalog);
     }
 

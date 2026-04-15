@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "name": "Orders by Customer",
-    "description": "Order listing grouped by customer with subtotals and grand total. Filterable by date range and order status.",
-    "author": "AcmeCoffeeOnline",
+    "name": "Orders by Retail Business",
+    "description": "Order listing grouped by retail business contact with subtotals and grand total. Filterable by date range and order status.",
+    "author": "AcmeCoffeeDistributors",
     "version": "1.0",
     "pageWidth": 11.0,
     "pageHeight": 8.5,
@@ -92,7 +92,7 @@
           "y": 0.1,
           "width": 5.0,
           "height": 0.4,
-          "value": "Orders by Customer",
+          "value": "Orders by Retail Business",
           "styleName": "reportTitle"
         },
         {

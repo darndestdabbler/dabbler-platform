@@ -72,6 +72,68 @@
           "costUsd": 0.15453
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/app-reframe",
+      "dateTime": "2026-04-15T15:28:34.381878+00:00",
+      "description": "Reframed the main app shell, dashboard, auth pages, customer-facing surfaces, report titles, and visible admin copy from AcmeCoffeeOnline to the AcmeCoffeeDistributors distributor story while preserving the current technical routes, namespaces, and entity keys.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/seed-reframe",
+      "dateTime": "2026-04-15T15:28:34.382867+00:00",
+      "description": "Updated stub and seed-story content to reflect distributor-to-retail-business workflows, including retail-business-focused stub records, report labels, internal-staff persona display names, role descriptions, and sample order-note narration without forcing the later multi-organization schema changes into this session.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/navigation-copy",
+      "dateTime": "2026-04-15T15:28:34.383862+00:00",
+      "description": "Aligned dashboard navigation labels, retail-business wording, stub reviewer assets, and reusable stub guidance so retained demo and reviewer flows now describe the distributor baseline consistently.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/platform-first-baseline",
+      "dateTime": "2026-04-15T15:28:34.383862+00:00",
+      "description": "Kept the platform-first baseline intact by preserving existing technical identifiers and route surfaces, then updated the guardrail and Playwright expectations to prove the new distributor-facing copy without expanding into the later multi-organization implementation set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-15T15:28:34.383862+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build. After clearing transient file-lock interference from leftover local processes, the rebuilt solution succeeded cleanly and all 383 tests passed, including AcmeCoffeeOnline.Web, Playwright, and reusable-library coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/session-verification",
+      "dateTime": "2026-04-15T15:29:41.519229+00:00",
+      "description": "Ran mandatory external session verification for Session 2 using the Session 2 spec excerpt, changed app/seed/doc/test files, and successful build/test evidence.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 75351,
+          "outputTokens": 741,
+          "costUsd": 1.18584
+        }
+      ]
     }
   ]
 }

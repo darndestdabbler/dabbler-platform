@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Sales by Product",
     "description": "Sales summary grouped by product showing quantities sold and revenue. Filterable by date range and roast level.",
-    "author": "AcmeCoffeeOnline",
+    "author": "AcmeCoffeeDistributors",
     "version": "1.0",
     "pageWidth": 11.0,
     "pageHeight": 8.5,
@@ -155,7 +155,7 @@
           "y": 0.05,
           "width": 2.0,
           "height": 0.25,
-          "value": "Customer",
+          "value": "Retail business contact",
           "styleName": "columnHeader"
         },
         {
