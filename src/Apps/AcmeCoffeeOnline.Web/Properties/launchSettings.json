@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
-    "profiles": {
+  "profiles": {
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
@@ -10,7 +10,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-      "https": {
+    "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -18,6 +18,17 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    }
+    },
+    "Stub UAT": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "platform/stub",
+      "applicationUrl": "http://localhost:5010",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "PlatformStubMode__Enabled": "true"
+      }
     }
   }
+}

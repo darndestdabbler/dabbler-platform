@@ -89,6 +89,11 @@ The route is also the starting point for early stub-backed UAT and focused
 design or navigation review because it exercises the stub seams through the
 real shell asset pipeline.
 
+The current early-UAT reviewer assets live in:
+
+- `docs/session-sets/stubbed-uat/stubbed-uat-checklist.json`
+- `docs/session-sets/stubbed-uat/reviewer-guide.md`
+
 ## Evidence And Handoff
 
 Later work can rely on these proved expectations:

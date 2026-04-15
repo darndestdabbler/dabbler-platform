@@ -72,6 +72,76 @@
           "costUsd": 0.1584
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/checklist-json",
+      "dateTime": "2026-04-15T13:50:49.088230+00:00",
+      "description": "Verified the Session 1 prerequisites still exist, routed the Session 2 checklist/harness design through ai-router as a documentation task, and created docs/session-sets/stubbed-uat/stubbed-uat-checklist.json with a machine-readable reviewMode boundary, issue-capture metadata, defer rules, and ten concrete review items tied directly to the frozen /platform/stub scope.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 7252,
+          "outputTokens": 3369,
+          "costUsd": 0.042755
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/reviewer-guidance",
+      "dateTime": "2026-04-15T13:50:49.088230+00:00",
+      "description": "Created docs/session-sets/stubbed-uat/reviewer-guide.md with quick-start launch instructions, checklist-reading guidance, issue-capture rules, and explicit in-scope versus out-of-scope guardrails for the early stub-backed review pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/harness-prep",
+      "dateTime": "2026-04-15T13:50:49.089230+00:00",
+      "description": "Added a dedicated Stub UAT launch profile to src/Apps/AcmeCoffeeOnline.Web/Properties/launchSettings.json that opens /platform/stub directly and explicitly enables PlatformStubMode in Development, giving reviewers a lightweight repeatable harness without introducing a heavier script workflow.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/human-vs-automation-boundary",
+      "dateTime": "2026-04-15T13:50:49.089230+00:00",
+      "description": "Updated docs/planning/reusable-platform-stub-guide.md to point to the Session 2 reviewer assets and structured the checklist plus reviewer guide so manual-only observations, shared automation-backed checks, and deferred out-of-scope observations are clearly separated for Session 3 follow-through.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/build-test",
+      "dateTime": "2026-04-15T13:52:04.203001+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build sequentially. Build succeeded with the repo's existing 11 CS1591 XML-doc warnings in src/Libs/Dabbler.Security/Services/DevEmailInbox.cs plus the SDK's preview NETSDK1057 informational messages, and all 381 tests passed across the seven test projects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-15T13:53:14.268019+00:00",
+      "description": "Sent the Session 2 spec context, new checklist and reviewer assets, launch-profile update, stub-guide update, current activity-log entries, git diff, and the successful build/test evidence to external session verification and saved the raw review output. The verifier returned VERIFIED with only non-blocking minor observations.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 9938,
+          "outputTokens": 1301,
+          "costUsd": 0.246645
+        }
+      ]
     }
   ]
 }
