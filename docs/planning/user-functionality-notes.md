@@ -138,12 +138,30 @@
     - Search for named queries
     - Run a query with parameters/criteria (Run Query)
     - Search for users    
+- Users should be able to save named queries and named reports for later reuse
 - Consists of Filter Grid and Data Grid
     - The Data Grid in a Search Grid mode does not have a delete button on any row
 - In some cases, a search form may take a user to another search form
     - Search for named reports -> clicking on the Id link takes the user to the Run Report form
     - Search for named queries -> clicking on the Id link takes the user to the Run Query form
     - search for reference entity types -> click on the Id link takes the user to a search form for reference entity records for the selected reference entity.  This allows admins to update lookup lists.
+- Query/search result workflows should support CSV export when users need to take the filtered result set into another tool or process
+
+---
+
+# Reports
+
+## Report Output
+
+- Reports should support banded output rather than only flat tabular rendering
+- Reports should support grouping and sorting control in the report definition
+- Reports should support group headers for grouped data presentation
+- Reports should support PDF export for user-facing distribution and printing workflows
+- Reports should be able to show subtotals and totals when the report definition calls for them
+- Reports should support running totals where that is part of the report design
+- Reports should support hiding duplicate values within a grouped output when that improves readability
+- Reports should support conditional visibility and conditional formatting for common output-driven scenarios
+- Reports should support saving named report definitions so users can find and rerun them later
 
 ---
 

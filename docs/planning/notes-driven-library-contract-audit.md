@@ -161,14 +161,14 @@ downstream from this audit and the later simplification/app-alignment work.
 
 | Surface Area | Primary Types | Notes-Aligned Core Behaviors | Observed Broader Surface |
 |---|---|---|---|
-| Grid | `DabblerDataGrid<T>` | add flow, Id link, delete flow, optional inline editing, popup editing where appropriate | grouping, aggregate headers, clipboard cut/copy/paste, CSV export, column pinning, detail expansion |
+| Grid | `DabblerDataGrid<T>` | add flow, Id link, delete flow, optional inline editing, popup editing where appropriate | grouping, aggregate headers, clipboard cut/copy/paste, column pinning, detail expansion |
 | Filter | `DabblerFilterGrid<T>` | QBE rows, AND within row, OR across rows, English filter summary | quick filter, preset import/export, expression line, column visibility toggles |
-| Query page | `DabblerQueryPage<T>` | compose filter + data grid into search/query page | toolbar CSV and clipboard options, broader page-level knobs |
+| Query page | `DabblerQueryPage<T>` | compose filter + data grid into search/query page, including CSV export of query results when needed and support for saved named queries | clipboard options and broader page-level knobs |
 | Combo | `DabblerComboBox<T>`, `DabblerMultiComboBox<T>` | search, multiple columns, multiselect, cascading coordination | add-new flows, grouping headers, value-not-in-list workflows |
 | Detail and popup | `DabblerDetailForm<T>`, `DabblerRecordPopup<T>` | validation, save/cancel, two-column detail layout, modal popup flow | mostly aligned; later review should confirm child-grid/tab breadth and popup surface stay focused |
 | Dashboard | `DabblerDashboardPage` | configurable landing page | favorites, recent items, embedded search, generic widget model |
 | Shell and navigation | `DabblerShell`, nav components, `DabblerCatalogPage` | top menu, left nav, pinned items, workspace navigation | generic artifact catalog browsing and broader metadata-driven artifact plumbing |
-| Reports | `DabblerReportPage`, `ParameterPromptForm`, `ReportViewer` | report prompting, running, viewing, and parameterized execution | PDF export is present but still plausibly supportive rather than contract drift |
+| Reports | `DabblerReportPage`, `ParameterPromptForm`, `ReportViewer` | report prompting, running, viewing, parameterized execution, support for saved named reports, banded output, grouping/sorting, group headers, PDF export, subtotal/total-capable layouts, running totals, hide-duplicates behavior, and conditional output rules | broader report composition features beyond the notes-driven reporting contract |
 | Query/report composition | `DabblerQueryReportPage<T>` | none explicitly required as a first-class reusable surface | combined grid/report page with filter/grid/report/export features |
 | Security UI/runtime | `DabblerSecurityNav`, `DabblerSecured`, `DabblerRoleSwitcher`, `DabblerSecurityDashboard`, runtime authorization types | runtime role assignment, page/control/endpoint authorization, row filters, role switching | MFA and external login are broader security features that may matter architecturally, but they are not the main reusable component-scope question for this audit |
 | Internal support | `ExpressionEngine`, report core/export infrastructure | supports reports and expressions needed by higher-level surfaces | not a primary user-facing reusable contract |
@@ -183,7 +183,8 @@ The following surfaces line up directly with the user-functionality notes:
 
 - `DabblerFilterGrid<T>` for QBE-style AND/OR filtering with an English summary
 - `DabblerQueryPage<T>` for search/query workflows built from filter + result
-  grid composition
+  grid composition, including CSV export of query results when required and
+  support for saved named queries
 - `DabblerComboBox<T>` and multiselect support for multi-column, cascading
   selection scenarios
 - `DabblerDetailForm<T>` for validated, form-driven record editing
@@ -192,7 +193,10 @@ The following surfaces line up directly with the user-functionality notes:
 - `DabblerShell` and related nav surfaces for top menu, left nav, pinned-item,
   and workspace navigation
 - `DabblerReportPage`, `ParameterPromptForm`, and `ReportViewer` for report
-  prompting and viewing
+  prompting and viewing, including support for saved named reports, banded
+  report output, grouping/sorting, group headers, PDF export,
+  subtotal/total-capable layouts, running totals, hide-duplicates behavior,
+  and conditional output rules
 - security UI/runtime surfaces for runtime authorization and role switching
 
 ### Partial Contract Matches
@@ -221,9 +225,9 @@ surfaces by the notes and are not proven by current app usage:
 
 | Surface | Notes Fit | Classification | Current Repo Evidence | Recommendation |
 |---|---|---|---|---|
-| `DabblerDataGrid<T>` | `partial` | `simplify in place` | Core CRUD grid behavior exists, but the public surface also includes grouping, aggregates, clipboard, CSV export, pinning, detail expansion, and popup-form editing | Keep the core grid behavior, but challenge the advanced features as non-core by default |
+| `DabblerDataGrid<T>` | `partial` | `simplify in place` | Core CRUD grid behavior exists, but the public surface also includes grouping, aggregates, clipboard, pinning, detail expansion, and popup-form editing | Keep the core grid behavior, but challenge the advanced features as non-core by default |
 | `DabblerFilterGrid<T>` | `strong` | `simplify in place` | It directly matches the QBE contract, but the public API also includes quick filter, preset import/export, expression line, and column toggles | Keep the QBE/filter-summary core and narrow the supported contract around it |
-| `DabblerQueryPage<T>` | `strong` | `keep as core` | Directly used by list pages and clearly matches the query-form contract | Keep as a core composition primitive, but later trim any toolbar options that only expose non-core grid extras |
+| `DabblerQueryPage<T>` | `strong` | `keep as core` | Directly used by list pages and clearly matches the query-form contract, including CSV export of filtered query results and support for saved named queries | Keep as a core composition primitive, while still trimming toolbar options that only expose non-core extras |
 | `DabblerComboBox<T>` | `strong` | `keep as core` | App usage and notes both support search, multiple columns, and cascading scenarios | Keep the notes-aligned combo surface as core |
 | `DabblerMultiComboBox<T>` | `strong` | `simplify in place` | Multi-select is required by the notes, but a separate public component may or may not be necessary long term | Keep multiselect capability, then decide later whether it remains a separate public surface |
 | `DabblerDetailForm<T>` | `strong` | `keep as core` | Used directly by app detail pages and aligns closely with the notes | Keep as core |
@@ -231,7 +235,7 @@ surfaces by the notes and are not proven by current app usage:
 | `DabblerDashboardPage` | `strong` | `keep as core` | App usage proves the landing-page concept, but some widget types go beyond the notes | Keep the dashboard core, while challenging favorites/recent-items as defaults |
 | `DabblerShell` | `strong` | `simplify in place` | Core shell/navigation behavior is used directly by the app, but catalog/artifact abstractions broaden the contract | Keep shell and nav as core, but narrow the supported story around the notes-driven workflow/navigation model |
 | `DabblerCatalogPage` | `weak` | `isolate as advanced/non-core` | Present in the shell machinery, but not directly used by the app and not clearly required by the notes | Do not treat artifact catalog browsing as a default supported surface without further justification |
-| `DabblerReportPage`, `ParameterPromptForm`, `ReportViewer` | `strong` | `keep as core` | Direct app usage and direct notes support for report run/view flows | Keep as core |
+| `DabblerReportPage`, `ParameterPromptForm`, `ReportViewer` | `strong` | `keep as core` | Direct app usage and direct notes support for report run/view flows, saved named reports, banded layouts, grouping/sorting, group headers, PDF export, subtotal/total output, running totals, hide-duplicates behavior, and conditional output rules | Keep as core |
 | `DabblerQueryReportPage<T>` | `weak` | `isolate as advanced/non-core` | Broad composed surface with no current app proof and no direct notes requirement | Do not carry this as part of the primary supported contract unless a later workflow proves it |
 | Security UI and runtime authorization surfaces | `strong` | `keep as core` | `DabblerSecurityDashboard`, `DabblerSecured`, `DabblerRoleSwitcher`, page/control/endpoint authorization, and row filters align strongly with the notes and app usage | Keep as core |
 | `ExpressionEngine` and report core/export support | `strong` | `keep as internal support` | Needed by higher-level report/query behavior, but not itself the reusable UI contract under audit | Retain as support infrastructure, not as a primary public-surface decision driver |
@@ -245,7 +249,6 @@ human approval before they remain part of the supported contract:
 
 - grid grouping and aggregate headers
 - clipboard cut/copy/paste behavior
-- CSV export buttons and helpers
 - column pinning
 - filter quick-search above the structured QBE surface
 - filter preset import/export
@@ -355,7 +358,7 @@ template seed does not currently depend on any of these broader surfaces.
 |---|---|---|---|---|---|
 | `DabblerQueryPage<T>` core query composition | `direct` | `strong` | `medium` | `keep as core` | Keep the query-page composition pattern as a first-class supported surface because the app proves it directly and the notes depend on it |
 | `DabblerDataGrid<T>` core CRUD/search behavior | `indirect-through-composition` | `partial` | `medium` | `keep as core` | Keep the grid behaviors needed by list/query workflows, but do not treat the broader grid extras as part of the supported default contract |
-| Grid extras: grouping, aggregates, clipboard, CSV export, column pinning, detail expansion | `none` | `none` | `high` | `remove/retire when simplification starts` | No direct app proof or notes support justifies carrying these higher-cost behaviors as first-class reusable defaults |
+| Grid extras: grouping, aggregates, clipboard, column pinning, detail expansion | `none` | `none` | `high` | `remove/retire when simplification starts` | No direct app proof or notes support justifies carrying these higher-cost behaviors as first-class reusable defaults |
 | `DabblerFilterGrid<T>` QBE/filter-summary behavior | `indirect-through-composition` | `strong` | `medium` | `keep as core` | Keep the structured QBE filter grid and English summary as core because they directly match the notes-driven contract |
 | Filter extras: quick filter, presets, expression line, column toggles | `none` | `none` | `medium` | `remove/retire when simplification starts` | These broaden the filter surface beyond the notes-backed QBE workflow without current app proof |
 | `DabblerComboBox<T>` search/multi-column/cascading behavior | `direct` | `strong` | `medium` | `keep as core` | The app and notes both justify searchable multi-column selection as a primary reusable surface |
@@ -615,9 +618,11 @@ functionality:
   indirectly or not proven at all
 - Session 3 should split dashboard core from optional widget families instead
   of carrying the whole dashboard surface as one decision
-- later simplification sessions should challenge CSV export, favorites,
-  recent-items, embedded search, catalog browsing, and query/report composition
-  before trimming the proven list/detail/report/security core
+- later simplification sessions should challenge favorites, recent-items,
+  embedded search, catalog browsing, and query/report composition before
+  trimming the proven list/detail/report/security core, while preserving the
+  clarified CSV query-export and PDF/banded-report capabilities now called out
+  in the user-functionality notes
 - template work should wait until the library contract is smaller and backed by
   proven app usage rather than today's broader surface area
 
