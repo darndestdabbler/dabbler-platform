@@ -25,6 +25,10 @@ references, and test-strategy guidance so they reflect:
 - organization-aware security and seeded personas
 - the intended test pyramid, including representative Playwright and split UAT
 
+Treat `docs/planning/reusable-platform-stub-guide.md` and
+`docs/planning/accessibility-and-stubbing-evidence.md` as source-of-truth
+inputs for the accepted stub baseline and accessibility posture.
+
 The guidance must stay platform-first. The future Access metadata tooling is a
 downstream consumer, not the center of the documentation story.
 
@@ -52,6 +56,10 @@ user-facing docs can proceed in parallel across disjoint files.
 4. Record any conservative adjustments needed in the final packaging and
    template set, including newly safe parallelization opportunities if any now
    exist.
+
+The Session 1 audit should explicitly include the accepted stub guide and the
+accessibility evidence artifact so later docs work starts from the proved
+baseline rather than earlier roadmap-only intent.
 
 **Creates:** Documentation gap audit and source-of-truth outline
 **Touches:** This spec, the final Phase 2 spec if needed, and planning notes

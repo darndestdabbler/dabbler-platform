@@ -50,6 +50,10 @@ is frozen.
 4. Capture the migration map from legacy `AcmeCoffeeOnline` terms and
    assumptions to the new distributor model.
 
+This review should include the accepted `/platform/stub` demo route and its
+supporting guidance so the reusable stub story moves to the distributor domain
+alongside the main app narrative instead of staying on legacy naming.
+
 **Creates:** Domain glossary and legacy-to-distributor migration map
 **Touches:** This spec, downstream Phase 2 specs if needed, and planning notes
 **Ends with:** The reframe has a stable vocabulary and downstream work can
@@ -71,6 +75,9 @@ depend on it
    guidance, and sample data where the new story should now lead.
 4. Preserve the existing platform-first architecture while improving the
    sample-app coherence and presentation quality.
+
+This includes any retained stub/demo route copy, reviewer guidance, and sample
+stub content that still presents the older app story.
 
 **Creates:** Distributor-aligned app and seed baseline
 **Touches:** `src/Apps/`, seed or sample-data assets, and relevant docs

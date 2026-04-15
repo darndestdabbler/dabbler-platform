@@ -4,11 +4,9 @@
 > and navigation spot testing before the full application is fully wired.
 > **Created:** 2026-04-15
 > **Session Set:** `docs/session-sets/stubbed-uat/`
-> **Prerequisite:** `accessibility-and-stubbing` has completed Session 3
-> (`Reusable Stub Contracts And Provider Infrastructure`) and frozen the
-> reusable stub abstractions. This set's Session 3 remains blocked until
-> `accessibility-and-stubbing` Session 4 has produced enough stub-backed proof
-> and reviewable surfaces to avoid false negatives.
+> **Prerequisite:** `accessibility-and-stubbing` is complete and accepted, with
+> reusable stub abstractions frozen and the direct-proof or accessibility
+> surfaces ready for review without false negatives.
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification
 
 ---
@@ -27,12 +25,9 @@ representative Playwright and full-application UAT sets.
 
 ## Parallelization Notes
 
-Session 1 should re-check the queue, but the current baseline already allows a
-conservative overlap with `accessibility-and-stubbing`: this set's Session 1
-review and Session 2 checklist or harness work may begin after
-`accessibility-and-stubbing` Session 3 freezes the shared stub abstractions.
-This set's Session 3 remains dependent on the direct-proof and reviewable
-surface output from `accessibility-and-stubbing` Session 4.
+Session 1 should re-check the queue, but the current baseline is now simpler:
+`accessibility-and-stubbing` has completed and the stub-backed review surfaces
+are ready. No new overlap beyond the existing sequential queue is assumed.
 
 Inside this set, checklist authoring and lightweight reviewer-harness setup can
 proceed in parallel once the review scope is frozen.
@@ -50,6 +45,11 @@ proceed in parallel once the review scope is frozen.
    including any newly safe parallelization opportunities.
 4. Freeze the review scope, issue-capture format, and exit criteria for this
    set.
+
+Session 1 should treat `/platform/stub` plus the evidence-backed retained
+shell, workspace, prompt, and report surfaces from
+`docs/planning/accessibility-and-stubbing-evidence.md` as the primary starting
+scope.
 
 **Creates:** Early-UAT scope ledger and reviewer issue format
 **Touches:** This spec, downstream Phase 2 specs if needed, and planning notes

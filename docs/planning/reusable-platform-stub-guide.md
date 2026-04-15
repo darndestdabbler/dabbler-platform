@@ -1,13 +1,29 @@
 # Reusable Platform Stub Guide
 
-> **Purpose:** Document the supported DI-driven stub capability frozen by
-> `accessibility-and-stubbing` Session 3.
+> **Purpose:** Document the proven DI-driven stub capability accepted by
+> `accessibility-and-stubbing` as a reusable platform baseline.
 
 The supported stub story is now the `Dabbler.Platform.Stubs` library under
 `src/Libs/`.
 
 Use it when a host needs reusable platform behavior before real providers are
-available, not as a one-off test hack.
+available, not as a one-off test hack. This is now an evidence-backed platform
+capability that later Phase 2 work can rely on directly.
+
+## Accepted Baseline
+
+`accessibility-and-stubbing` Sessions 3 and 4 moved the stub architecture from
+"supported in principle" to "proved in practice."
+
+The accepted baseline is:
+
+- reusable DI seams exist for query/grid data, lookups, report execution,
+  metadata/navigation, and role-aware or organization-aware auth context
+- the same seams support direct bUnit proof and an app-hosted stub/demo route
+- `/platform/stub` is the reference app-consumption path for focused shell,
+  workspace, query-page, and report-page proof
+- the retained reusable surface now has direct contract and WCAG-oriented
+  evidence that depends on these stub seams instead of private one-off fakes
 
 ## Supported Consumers
 
@@ -69,6 +85,24 @@ replace the real app-wide metadata or navigation providers.
 - purpose: demonstrate shell, workspace, query-page, and report-page
   consumption of the reusable stubs without changing the real app path
 
+The route is also the starting point for early stub-backed UAT and focused
+design or navigation review because it exercises the stub seams through the
+real shell asset pipeline.
+
+## Evidence And Handoff
+
+Later work can rely on these proved expectations:
+
+- report prompting and viewing proof now flows through stub-backed providers in
+  the dedicated report test homes
+- reusable shell, detail-form, and filter-grid proof now depends on the same
+  supported provider seams and auth-context shape
+- the app-hosted `/platform/stub` route remains the durable cross-check that
+  the stub architecture works outside isolated bUnit harnesses
+- the focused accessibility checklist in
+  `docs/planning/accessibility-and-stubbing-evidence.md` is the manual follow-up
+  path whenever these retained surfaces change
+
 ## Design Boundaries
 
 - Keep the stub contracts platform-generic. The future Access metadata CLI is a
@@ -77,3 +111,5 @@ replace the real app-wide metadata or navigation providers.
   parameters where the platform already has a stable contract.
 - Keep role and organization context in claims or auth-state shape that later
   tests and generated apps can reuse directly.
+- Treat app demo or UAT usage as consumers of the same contracts, not as a
+  reason to add app-specific stub-only APIs.
