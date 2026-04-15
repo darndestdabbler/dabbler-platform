@@ -6,7 +6,9 @@
 > **Created:** 2026-04-15
 > **Session Set:** `docs/session-sets/full-app-uat/`
 > **Prerequisite:** `e2e-workflow-implementation` is complete and its UAT
-> handoff notes are current.
+> handoff notes are current, and the representative workflow inventory still
+> matches the frozen route and persona framing from
+> `docs/planning/e2e-persona-route-matrix.md`.
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification
 
 ---
@@ -45,7 +47,9 @@ is frozen.
 1. Review the stabilized representative Playwright suite and all remaining
    Phase 2 session-set specs before defining the full-app UAT lane.
 2. Freeze the subset of automated workflows that should receive human
-   confirmation, plus the intentionally human-only checks that still add value.
+   confirmation, plus the intentionally human-only checks that still add value,
+   starting from the frozen representative workflow IDs and route or persona
+   matrix rather than redefining workflow entry points.
 3. Record any conservative adjustments needed in downstream specs, including
    any newly safe parallelization opportunities.
 4. Define the issue-capture, remediation, and sign-off rules for this set.

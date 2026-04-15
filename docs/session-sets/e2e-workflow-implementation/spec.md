@@ -5,7 +5,10 @@
 > **Created:** 2026-04-15
 > **Session Set:** `docs/session-sets/e2e-workflow-implementation/`
 > **Prerequisite:** `e2e-workflow-design` is complete and its implementation
-> handoff artifacts are current.
+> handoff artifacts are current, especially
+> `docs/planning/e2e-executable-workflow-specs.md`,
+> `docs/planning/e2e-seed-reset-and-verification-plan.md`, and
+> `docs/planning/e2e-persona-route-matrix.md`.
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification
 
 ---
@@ -42,7 +45,9 @@ test files.
 1. Review the approved E2E design artifacts and all remaining Phase 2
    session-set specs before implementation begins.
 2. Freeze the shared Playwright fixture strategy, database reset approach,
-   persona setup, and backend-truth verification pattern.
+   persona setup, and backend-truth verification pattern using the executable
+   workflow specs, seed-reset plan, and persona-route matrix from the design
+   set.
 3. Record any conservative adjustments needed in downstream specs, including
    any newly safe parallelization opportunities.
 4. Confirm the initial representative workflow slice that should land first.
@@ -64,7 +69,9 @@ are implemented
 1. Implement or refine the shared Playwright harness, Docker-backed execution
    expectations, reset tooling, and persona helpers.
 2. Implement the first representative workflows from the approved design set,
-   including the necessary backend or database truth assertions.
+   landing `E2E-WF-04` and `E2E-WF-05` first unless stabilization evidence
+   forces a narrow reorder, and include the necessary backend or database truth
+   assertions.
 3. Prove the expected navigation, validation, and mutation outcomes for those
    initial scenarios.
 4. Keep the harness reusable enough that later workflows can add coverage
@@ -86,7 +93,8 @@ approach end to end
 **Steps:**
 1. Implement the remaining approved representative workflows, especially the
    scenarios that materially exercise multi-organization behavior, regional
-   sales-rep administration, and role-aware navigation.
+   sales-rep administration, and role-aware navigation, using the frozen route
+   and persona matrix from the design set.
 2. Add the small number of browser-only accessibility, focus, or navigation
    checks that genuinely require a real browser.
 3. Strengthen backend-truth verification for important mutations and filtered
