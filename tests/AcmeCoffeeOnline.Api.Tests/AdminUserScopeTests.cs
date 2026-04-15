@@ -166,6 +166,107 @@ public sealed class AdminUserScopeTests : IClassFixture<WebApplicationFactory<Pr
         Assert.Contains(options, option => option.OrganizationId == ids.DisallowedRetailOrganizationId && option.IsActive);
     }
 
+    [Fact]
+    public async Task DualMembershipCustomer_OrganizationOptionsStayLimitedToMembershipsAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        var ids = await ResolveFixtureIdsAsync(factory.Services);
+
+        await using var testScope = factory.Services.CreateAsyncScope();
+        SetHttpContext(
+            testScope.ServiceProvider,
+            ids.DualMembershipUserId,
+            ids.DualMembershipRetailOrganizationId,
+            ids.DualMembershipRetailOrganizationKey,
+            "Customer");
+        var organizationOptionsService = testScope.ServiceProvider.GetRequiredService<IOrganizationOptionsService>();
+
+        var options = await organizationOptionsService.GetOptionsAsync();
+
+        Assert.Equal(2, options.Count);
+        Assert.Contains(options, option => option.OrganizationId == ids.InternalOrganizationId);
+        Assert.Contains(options, option => option.OrganizationId == ids.DualMembershipRetailOrganizationId && option.IsActive);
+        Assert.DoesNotContain(options, option => option.OrganizationId == ids.DisallowedRetailOrganizationId);
+    }
+
+    [Fact]
+    public async Task OrganizationOptions_WithInvalidUserId_ThrowsUnauthorizedAccessAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        var ids = await ResolveFixtureIdsAsync(factory.Services);
+
+        await using var testScope = factory.Services.CreateAsyncScope();
+        SetHttpContext(
+            testScope.ServiceProvider,
+            "not-an-integer",
+            ids.AllowedRetailOrganizationId,
+            ids.AllowedRetailOrganizationKey,
+            "BackofficeUserAdmin");
+        var organizationOptionsService = testScope.ServiceProvider.GetRequiredService<IOrganizationOptionsService>();
+
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => organizationOptionsService.GetOptionsAsync());
+    }
+
+    [Fact]
+    public async Task RegionalUserAdmin_CanRevokeScopedUserAdminInsideActiveOrganizationAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        var ids = await ResolveFixtureIdsAsync(factory.Services);
+        await ResetScopedAdminAssignmentAsync(factory.Services, ids.AllowedRetailTargetMembershipId);
+
+        await using var grantScope = factory.Services.CreateAsyncScope();
+        SetHttpContext(
+            grantScope.ServiceProvider,
+            ids.RegionalSalesRepUserId,
+            ids.AllowedRetailOrganizationId,
+            ids.AllowedRetailOrganizationKey,
+            "BackofficeUserAdmin");
+        var adminUserScopeService = grantScope.ServiceProvider.GetRequiredService<IAdminUserScopeService>();
+
+        var grantedScope = await adminUserScopeService.GrantScopedUserAdminAsync(ids.AllowedRetailTargetMembershipId);
+
+        Assert.Contains(
+            grantedScope.Users,
+            user => user.OrganizationMembershipId == ids.AllowedRetailTargetMembershipId && user.HasScopedUserAdmin);
+
+        var revokedScope = await adminUserScopeService.RevokeScopedUserAdminAsync(ids.AllowedRetailTargetMembershipId);
+
+        Assert.Contains(
+            revokedScope.Users,
+            user => user.OrganizationMembershipId == ids.AllowedRetailTargetMembershipId && !user.HasScopedUserAdmin);
+
+        await using var verifyScope = factory.Services.CreateAsyncScope();
+        var securityDb = verifyScope.ServiceProvider.GetRequiredService<DabblerSecurityDbContext>();
+        var adminRoleId = await securityDb.AppRoles
+            .Where(role => role.Name == "BackofficeUserAdmin")
+            .Select(role => role.Id)
+            .SingleAsync();
+
+        Assert.False(await securityDb.AppUserRoles.AnyAsync(
+            assignment => assignment.OrganizationMembershipId == ids.AllowedRetailTargetMembershipId
+                && assignment.RoleId == adminRoleId
+                && assignment.DeletedAt == null));
+    }
+
+    [Fact]
+    public async Task RegionalUserAdmin_CannotRevokeScopedUserAdminOutsideActiveOrganizationAsync()
+    {
+        using var factory = _factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        var ids = await ResolveFixtureIdsAsync(factory.Services);
+
+        await using var testScope = factory.Services.CreateAsyncScope();
+        SetHttpContext(
+            testScope.ServiceProvider,
+            ids.RegionalSalesRepUserId,
+            ids.AllowedRetailOrganizationId,
+            ids.AllowedRetailOrganizationKey,
+            "BackofficeUserAdmin");
+        var adminUserScopeService = testScope.ServiceProvider.GetRequiredService<IAdminUserScopeService>();
+
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            adminUserScopeService.RevokeScopedUserAdminAsync(ids.DisallowedRetailTargetMembershipId));
+    }
+
     private static async Task<FixtureIds> ResolveFixtureIdsAsync(IServiceProvider services)
     {
         await using var scope = services.CreateAsyncScope();
@@ -274,11 +375,19 @@ public sealed class AdminUserScopeTests : IClassFixture<WebApplicationFactory<Pr
         int organizationId,
         string organizationKey,
         params string[] roleNames)
+        => SetHttpContext(services, userId.ToString(), organizationId, organizationKey, roleNames);
+
+    private static void SetHttpContext(
+        IServiceProvider services,
+        string userId,
+        int organizationId,
+        string organizationKey,
+        params string[] roleNames)
     {
         var accessor = services.GetRequiredService<IHttpContextAccessor>();
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, userId.ToString()),
+            new(ClaimTypes.NameIdentifier, userId),
             new(Dabbler.Security.Services.UserSessionContextConstants.ActiveOrganizationIdClaimType, organizationId.ToString()),
             new(Dabbler.Security.Services.UserSessionContextConstants.ActiveOrganizationKeyClaimType, organizationKey)
         };

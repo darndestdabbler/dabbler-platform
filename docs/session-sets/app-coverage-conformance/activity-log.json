@@ -158,6 +158,76 @@
           "costUsd": 0.7257750000000001
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/unit-coverage",
+      "dateTime": "2026-04-15T20:43:36.481849+00:00",
+      "description": "Added direct unit coverage for OrderDetailState, ShellSessionStateLoader, and AcmeCoffeeNavigationDataProvider using lightweight HTTP/auth test doubles so the app-specific workflow, claim-mapping, and navigation-filter seams are proven without browser dependence.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/integration-coverage",
+      "dateTime": "2026-04-15T20:43:36.482849+00:00",
+      "description": "Expanded AdminUserScopeTests to cover dual-membership organization-options behavior, invalid authenticated user IDs, scoped user-admin revocation inside the active organization, and unauthorized revocation attempts outside the active scope.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/app-ui-coverage",
+      "dateTime": "2026-04-15T20:43:36.482849+00:00",
+      "description": "Added bUnit-based UserManagement page proof with MudBlazor providers so the API-driven admin scope banner, scoped user rendering, grant action refresh, and warning-state UI are covered directly at the component layer.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/test-pyramid-alignment",
+      "dateTime": "2026-04-15T20:43:36.483849+00:00",
+      "description": "Used routed analysis to keep Session 3 focused on unit, integration, and targeted component proof instead of piling more browser-host coverage onto seams that are already failing in the broader runtime baseline.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "analysis",
+          "inputTokens": 21558,
+          "outputTokens": 2714,
+          "costUsd": 0.5269199999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/build-test",
+      "dateTime": "2026-04-15T20:43:36.483849+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln successfully. Targeted Session 3 verification passed for 25 new/updated web tests and 8 admin-scope API tests, while dotnet test Dabbler.Platform.sln still reports pre-existing AcmeCoffeeOnline.Web and Playwright runtime 500 failures on home, customer, and admin routes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/session-verification",
+      "dateTime": "2026-04-15T20:44:31.619970+00:00",
+      "description": "Ran external session verification against the Session 3 spec, changed tests, and build/test summary, saved the raw verifier output, and received a VERIFIED verdict.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 21042,
+          "outputTokens": 626,
+          "costUsd": 0.36258
+        }
+      ]
     }
   ]
 }
