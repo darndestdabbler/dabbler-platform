@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
@@ -63,6 +64,7 @@ public class UserIdentityHandler : DelegatingHandler
         {
             var email = user.FindFirst(ClaimTypes.Email)?.Value;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var activeOrganizationId = user.FindFirst(UserSessionContextConstants.ActiveOrganizationIdClaimType)?.Value;
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -72,6 +74,11 @@ public class UserIdentityHandler : DelegatingHandler
             if (!string.IsNullOrEmpty(userId))
             {
                 request.Headers.Add("X-App-User-Id", userId);
+            }
+
+            if (!string.IsNullOrEmpty(activeOrganizationId))
+            {
+                request.Headers.Add(UserSessionContextConstants.ActiveOrganizationIdHeaderName, activeOrganizationId);
             }
         }
         

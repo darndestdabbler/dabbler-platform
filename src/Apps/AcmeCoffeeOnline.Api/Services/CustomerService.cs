@@ -8,16 +8,18 @@ namespace AcmeCoffeeOnline.Api.Services;
 public class CustomerService : ICustomerService
 {
     private readonly AcmeCoffeeDbContext _db;
+    private readonly ICurrentUserService _currentUser;
 
-    public CustomerService(AcmeCoffeeDbContext db)
+    public CustomerService(AcmeCoffeeDbContext db, ICurrentUserService currentUser)
     {
         _db = db;
+        _currentUser = currentUser;
     }
 
     public async Task<PagedResponse<CustomerDto>> GetAllAsync(PagedRequest request, CancellationToken cancellationToken = default)
     {
         ClampPaging(request);
-        var query = _db.Customers.AsNoTracking().AsQueryable();
+        var query = ApplyOrganizationScope(_db.Customers.AsNoTracking().AsQueryable());
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
@@ -50,8 +52,7 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var customer = await _db.Customers
-            .AsNoTracking()
+        var customer = await ApplyOrganizationScope(_db.Customers.AsNoTracking())
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
         return customer is null ? null : MapToDto(customer);
@@ -83,7 +84,8 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerDto?> UpdateAsync(int id, CustomerDto dto, CancellationToken cancellationToken = default)
     {
-        var customer = await _db.Customers.FindAsync(new object[] { id }, cancellationToken);
+        var customer = await ApplyOrganizationScope(_db.Customers)
+            .FirstOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
         if (customer is null)
             return null;
 
@@ -154,4 +156,26 @@ public class CustomerService : ICustomerService
         ModifiedDate = c.ModifiedDate,
         ModifiedBy = c.ModifiedBy
     };
+
+    private IQueryable<Customer> ApplyOrganizationScope(IQueryable<Customer> query)
+    {
+        if (_currentUser.Role == AcmeCoffeeOnline.Shared.Enums.UserRole.SystemAdmin)
+        {
+            return query;
+        }
+
+        if (_currentUser.ActiveOrganizationId.HasValue)
+        {
+            return _currentUser.CustomerId.HasValue
+                ? query.Where(customer => customer.Id == _currentUser.CustomerId.Value)
+                : query.Where(_ => false);
+        }
+
+        if (_currentUser.Role == AcmeCoffeeOnline.Shared.Enums.UserRole.Customer && _currentUser.CustomerId.HasValue)
+        {
+            return query.Where(customer => customer.Id == _currentUser.CustomerId.Value);
+        }
+
+        return query;
+    }
 }

@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using AcmeCoffeeOnline.Api.Data;
 using AcmeCoffeeOnline.Shared.Enums;
-using Dabbler.Security.Entities;
+using Dabbler.Security.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcmeCoffeeOnline.Api.Services;
@@ -53,9 +53,6 @@ public class CurrentUserService : ICurrentUserService
         {
             var context = _httpContextAccessor.HttpContext;
 
-            if (context?.Items["AppUser"] is AppUser appUser)
-                return appUser.DisplayName;
-
             var claim = context?.User.FindFirst(ClaimTypes.Name);
             if (claim != null)
                 return claim.Value;
@@ -91,6 +88,24 @@ public class CurrentUserService : ICurrentUserService
         }
     }
 
+    public int? ActiveOrganizationId
+    {
+        get
+        {
+            var context = _httpContextAccessor.HttpContext;
+
+            if (context?.Items["ActiveOrganizationId"] is int activeOrganizationId)
+            {
+                return activeOrganizationId;
+            }
+
+            var activeOrganizationClaim = context?.User.FindFirst(UserSessionContextConstants.ActiveOrganizationIdClaimType)?.Value;
+            return int.TryParse(activeOrganizationClaim, out var parsedOrganizationId)
+                ? parsedOrganizationId
+                : null;
+        }
+    }
+
     public int? CustomerId
     {
         get
@@ -105,13 +120,18 @@ public class CurrentUserService : ICurrentUserService
             if (customerIdClaim != null && int.TryParse(customerIdClaim.Value, out var id))
                 return id;
 
+            var activeOrganizationKey = context?.User.FindFirst(UserSessionContextConstants.ActiveOrganizationKeyClaimType)?.Value;
+            if (TryResolveCustomerIdFromOrganizationKey(activeOrganizationKey, out var bridgedCustomerId))
+            {
+                return bridgedCustomerId;
+            }
+
             if (context?.Items.TryGetValue("ResolvedCustomerId", out var cachedCustomerId) == true)
             {
                 return cachedCustomerId as int?;
             }
 
-            var email = (context?.Items["AppUser"] as AppUser)?.Email
-                ?? context?.User.FindFirst(ClaimTypes.Email)?.Value;
+            var email = context?.User.FindFirst(ClaimTypes.Email)?.Value;
 
             if (!string.IsNullOrWhiteSpace(email))
             {
@@ -151,5 +171,20 @@ public class CurrentUserService : ICurrentUserService
         }
 
         return highest;
+    }
+
+    private static bool TryResolveCustomerIdFromOrganizationKey(string? organizationKey, out int customerId)
+    {
+        const string customerPrefix = "customer-";
+
+        if (!string.IsNullOrWhiteSpace(organizationKey)
+            && organizationKey.StartsWith(customerPrefix, StringComparison.OrdinalIgnoreCase)
+            && int.TryParse(organizationKey[customerPrefix.Length..], out customerId))
+        {
+            return true;
+        }
+
+        customerId = 0;
+        return false;
     }
 }

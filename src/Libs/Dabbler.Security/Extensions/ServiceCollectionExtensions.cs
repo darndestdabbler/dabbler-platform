@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace Dabbler.Security.Extensions;
 
@@ -103,6 +104,7 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddAuthorization();
+        services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IAuthorizationPolicyProvider, Dabbler.Security.Authorization.DabblerAuthorizationPolicyProvider>();
 
         // The 5 resource-specific handlers are scoped so they can receive the scoped IRoleSwitcher.
@@ -114,6 +116,7 @@ public static class ServiceCollectionExtensions
 
         // IRoleSwitcher is scoped: per-request in Web API, per-circuit in Blazor Server.
         services.AddScoped<IRoleSwitcher, SessionRoleSwitcher>();
+        services.AddScoped<IUserSessionContextService, UserSessionContextService>();
 
         services.AddScoped<IHashingService, HashingService>();
         services.AddScoped<IEncryptionService>(sp =>

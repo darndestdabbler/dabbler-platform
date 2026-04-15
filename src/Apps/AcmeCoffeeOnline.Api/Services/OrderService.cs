@@ -312,9 +312,21 @@ public class OrderService : IOrderService
 
     private IQueryable<Order> ApplyRowFilter(IQueryable<Order> query)
     {
+        if (_currentUser.Role == Shared.Enums.UserRole.SystemAdmin)
+        {
+            return query;
+        }
+
+        if (_currentUser.ActiveOrganizationId.HasValue)
+        {
+            return _currentUser.CustomerId.HasValue
+                ? query.Where(o => o.CustomerId == _currentUser.CustomerId.Value)
+                : query.Where(_ => false);
+        }
+
         if (_currentUser.Role == Shared.Enums.UserRole.Customer && _currentUser.CustomerId.HasValue)
         {
-            query = query.Where(o => o.CustomerId == _currentUser.CustomerId.Value);
+            return query.Where(o => o.CustomerId == _currentUser.CustomerId.Value);
         }
 
         return query;

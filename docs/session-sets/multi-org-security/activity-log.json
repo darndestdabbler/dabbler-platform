@@ -134,6 +134,68 @@
           "costUsd": 0.513675
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/active-org-context",
+      "dateTime": "2026-04-15T17:49:44.120863+00:00",
+      "description": "Added a shared UserSessionContextService in Dabbler.Security and rewired web sign-in, internal API forwarding, and session helpers so authenticated sessions now carry active-organization claims, bridged customer context, and organization-aware effective roles.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/permission-evaluation",
+      "dateTime": "2026-04-15T17:49:44.121856+00:00",
+      "description": "Updated permission resolution to honor the active organization for scoped role assignments while preserving global fallback behavior, and threaded the active-organization identifier through the API current-user contract so authorization checks read a single runtime context.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/row-filter-behavior",
+      "dateTime": "2026-04-15T17:49:44.121856+00:00",
+      "description": "Changed customer and order scoping to filter by the active organization bridge instead of only email-derived customer identity, with explicit deny-all behavior for non-SystemAdmin sessions that have an active organization but no organization-owned customer scope.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/switching-tooling",
+      "dateTime": "2026-04-15T17:49:44.122856+00:00",
+      "description": "Expanded the seeded-session diagnostics to report active-organization details and available organizations, added a guarded test-helper organization switch endpoint, and added focused tests that prove organization switching and active-organization-aware session behavior.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-15T17:49:44.122856+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build. Build succeeded with the existing preview-SDK notice only, and all 391 tests passed including security, web, API, and Playwright coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/session-verification",
+      "dateTime": "2026-04-15T17:50:31.168754+00:00",
+      "description": "Ran mandatory external session verification for Session 3 using the Session 3 spec excerpt, the changed runtime security, API, and test files, and successful build/test evidence.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 15883,
+          "outputTokens": 779,
+          "costUsd": 0.29667
+        }
+      ]
     }
   ]
 }

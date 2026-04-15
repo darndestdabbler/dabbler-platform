@@ -1,5 +1,6 @@
 using Dabbler.Security.Configuration;
 using Dabbler.Security.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dabbler.Security.Services;
@@ -57,16 +58,37 @@ public interface IPermissionService
 /// <summary>
 /// Implements <see cref="IPermissionService"/> to check user permissions using a database context.
 /// </summary>
-/// <param name="db">The database context for security-related data.</param>
-public class PermissionService(DabblerSecurityDbContext db) : IPermissionService
+public class PermissionService : IPermissionService
 {
+    private readonly DabblerSecurityDbContext _db;
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PermissionService"/> class without HTTP context access.
+    /// </summary>
+    /// <param name="db">The database context for security-related data.</param>
+    public PermissionService(DabblerSecurityDbContext db)
+        : this(db, null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PermissionService"/> class.
+    /// </summary>
+    /// <param name="db">The database context for security-related data.</param>
+    /// <param name="httpContextAccessor">The accessor used to resolve the active organization from request state.</param>
+    public PermissionService(DabblerSecurityDbContext db, IHttpContextAccessor? httpContextAccessor)
+    {
+        _db = db;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
     /// <inheritdoc/>
     public async Task<bool> HasPermissionAsync(int userId, string entityName, string permissionType)
     {
-        return await db.AppUserRoles
-            .Where(ur => ur.UserId == userId)
+        return await GetEffectiveUserRolesQuery(userId)
             .Join(
-                db.AppRolePermissions.Where(rp => rp.EntityName == entityName && rp.PermissionType == permissionType),
+                _db.AppRolePermissions.Where(rp => rp.EntityName == entityName && rp.PermissionType == permissionType),
                 ur => ur.RoleId,
                 rp => rp.RoleId,
                 (_, _) => 1)
@@ -76,10 +98,9 @@ public class PermissionService(DabblerSecurityDbContext db) : IPermissionService
     /// <inheritdoc/>
     public async Task<FieldAccessLevel> GetFieldAccessAsync(int userId, string entityName, string fieldName)
     {
-        var level = await db.AppUserRoles
-            .Where(ur => ur.UserId == userId)
+        var level = await GetEffectiveUserRolesQuery(userId)
             .Join(
-                db.AppFieldPermissions.Where(fp => fp.EntityName == entityName && fp.FieldName == fieldName),
+                _db.AppFieldPermissions.Where(fp => fp.EntityName == entityName && fp.FieldName == fieldName),
                 ur => ur.RoleId,
                 fp => fp.RoleId,
                 (_, fp) => fp.AccessLevel)
@@ -93,10 +114,9 @@ public class PermissionService(DabblerSecurityDbContext db) : IPermissionService
     /// <inheritdoc/>
     public async Task<bool> CanAccessPageAsync(int userId, string pageRoute)
     {
-        return await db.AppUserRoles
-            .Where(ur => ur.UserId == userId)
+        return await GetEffectiveUserRolesQuery(userId)
             .Join(
-                db.AppPagePermissions.Where(pp => pp.PageRoute == pageRoute && pp.Allowed),
+                _db.AppPagePermissions.Where(pp => pp.PageRoute == pageRoute && pp.Allowed),
                 ur => ur.RoleId,
                 pp => pp.RoleId,
                 (_, _) => 1)
@@ -106,12 +126,11 @@ public class PermissionService(DabblerSecurityDbContext db) : IPermissionService
     /// <inheritdoc/>
     public async Task<T> ApplyFieldPermissionsAsync<T>(T dto, int userId, string entityName) where T : class
     {
-        var roleIds = await db.AppUserRoles
-            .Where(ur => ur.UserId == userId)
+        var roleIds = await GetEffectiveUserRolesQuery(userId)
             .Select(ur => ur.RoleId)
             .ToListAsync();
 
-        var fieldPermissions = await db.AppFieldPermissions
+        var fieldPermissions = await _db.AppFieldPermissions
             .Where(fp => fp.EntityName == entityName && roleIds.Contains(fp.RoleId))
             .ToListAsync();
 
@@ -139,15 +158,43 @@ public class PermissionService(DabblerSecurityDbContext db) : IPermissionService
     /// <inheritdoc/>
     public async Task<IReadOnlyList<string>> GetAccessibleEntitiesAsync(int userId, string permissionType)
     {
-        return await db.AppUserRoles
-            .Where(ur => ur.UserId == userId)
+        return await GetEffectiveUserRolesQuery(userId)
             .Join(
-                db.AppRolePermissions.Where(rp => rp.PermissionType == permissionType),
+                _db.AppRolePermissions.Where(rp => rp.PermissionType == permissionType),
                 ur => ur.RoleId,
                 rp => rp.RoleId,
                 (_, rp) => rp.EntityName)
             .Distinct()
             .OrderBy(x => x)
             .ToListAsync();
+    }
+
+    private IQueryable<Entities.AppUserRole> GetEffectiveUserRolesQuery(int userId)
+    {
+        var activeOrganizationId = ResolveActiveOrganizationId();
+
+        return _db.AppUserRoles.Where(userRole =>
+            userRole.UserId == userId
+            && userRole.DeletedAt == null
+            && (userRole.OrganizationMembershipId == null
+                || (activeOrganizationId.HasValue
+                    && userRole.OrganizationMembership != null
+                    && userRole.OrganizationMembership.OrganizationId == activeOrganizationId.Value)));
+    }
+
+    private int? ResolveActiveOrganizationId()
+    {
+        var context = _httpContextAccessor?.HttpContext;
+
+        if (context?.Items.TryGetValue("ActiveOrganizationId", out var activeOrganizationId) == true
+            && activeOrganizationId is int typedOrganizationId)
+        {
+            return typedOrganizationId;
+        }
+
+        var activeOrganizationClaim = context?.User.FindFirst(UserSessionContextConstants.ActiveOrganizationIdClaimType)?.Value;
+        return int.TryParse(activeOrganizationClaim, out var parsedOrganizationId)
+            ? parsedOrganizationId
+            : null;
     }
 }

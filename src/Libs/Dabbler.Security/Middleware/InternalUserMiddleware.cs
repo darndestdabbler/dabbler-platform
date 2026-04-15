@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Dabbler.Security.Abstractions;
+using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -42,38 +42,80 @@ public class InternalUserMiddleware
     /// Processes a request to identify and load an internal user.
     /// </summary>
     /// <param name="context">The <see cref="HttpContext"/> for the current request.</param>
-    /// <param name="userService">The service to retrieve user information.</param>
+    /// <param name="sessionContextService">The service used to resolve active-organization session state.</param>
     /// <returns>A <see cref="Task"/> that represents the execution of this middleware.</returns>
     /// <remarks>
     /// If the <c>X-Internal-Api-Key</c> header matches the expected key and a valid user ID is
     /// provided in the <c>X-App-User-Id</c> header, the corresponding user and their roles are
     /// loaded and stored in the <see cref="HttpContext.Items"/> collection.
     /// </remarks>
-    public async Task InvokeAsync(HttpContext context, IUserService userService)
+    public async Task InvokeAsync(HttpContext context, IUserSessionContextService sessionContextService)
     {
         if (context.Request.Headers.TryGetValue("X-Internal-Api-Key", out var key)
             && ConstantTimeEquals(key.ToString(), _expectedKey)
             && context.Request.Headers.TryGetValue("X-App-User-Id", out var userIdHeader)
             && int.TryParse(userIdHeader, out var userId))
         {
-            var user = await userService.GetByIdCachedAsync(userId);
-            if (user != null)
+            var requestedOrganizationId = TryParseActiveOrganizationIdHeader(context);
+            var sessionContext = await sessionContextService.BuildAsync(userId, requestedOrganizationId);
+            if (sessionContext != null)
             {
-                context.Items["AppUser"] = user;
                 context.Items["AppUserId"] = userId;
-                context.Items["AppUserRoles"] = user.Roles.Select(r => r.Role?.Name).Where(n => n != null).ToList();
+                context.Items["AppUserRoles"] = sessionContext.EffectiveRoles.ToList();
+
+                if (sessionContext.ActiveOrganizationId.HasValue)
+                {
+                    context.Items["ActiveOrganizationId"] = sessionContext.ActiveOrganizationId.Value;
+                }
+
+                if (sessionContext.ActiveCustomerId.HasValue)
+                {
+                    context.Items["AppUserCustomerId"] = sessionContext.ActiveCustomerId.Value;
+                }
 
                 var claims = new List<Claim>
                 {
-                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new(ClaimTypes.Email, user.Email),
-                    new(ClaimTypes.Name, user.DisplayName)
+                    new(ClaimTypes.NameIdentifier, sessionContext.UserId.ToString()),
+                    new(ClaimTypes.Email, sessionContext.Email),
+                    new(ClaimTypes.Name, sessionContext.DisplayName)
                 };
 
-                foreach (var role in user.Roles)
+                foreach (var roleName in sessionContext.EffectiveRoles)
                 {
-                    if (role.Role != null)
-                        claims.Add(new Claim(ClaimTypes.Role, role.Role.Name));
+                    claims.Add(new Claim(ClaimTypes.Role, roleName));
+                }
+
+                if (sessionContext.ActiveOrganizationId.HasValue)
+                {
+                    claims.Add(new Claim(
+                        UserSessionContextConstants.ActiveOrganizationIdClaimType,
+                        sessionContext.ActiveOrganizationId.Value.ToString()));
+                }
+
+                if (sessionContext.ActiveOrganizationMembershipId.HasValue)
+                {
+                    claims.Add(new Claim(
+                        UserSessionContextConstants.ActiveOrganizationMembershipIdClaimType,
+                        sessionContext.ActiveOrganizationMembershipId.Value.ToString()));
+                }
+
+                if (!string.IsNullOrWhiteSpace(sessionContext.ActiveOrganizationKey))
+                {
+                    claims.Add(new Claim(
+                        UserSessionContextConstants.ActiveOrganizationKeyClaimType,
+                        sessionContext.ActiveOrganizationKey));
+                }
+
+                if (!string.IsNullOrWhiteSpace(sessionContext.ActiveOrganizationName))
+                {
+                    claims.Add(new Claim(
+                        UserSessionContextConstants.ActiveOrganizationNameClaimType,
+                        sessionContext.ActiveOrganizationName));
+                }
+
+                if (sessionContext.ActiveCustomerId.HasValue)
+                {
+                    claims.Add(new Claim("CustomerId", sessionContext.ActiveCustomerId.Value.ToString()));
                 }
 
                 var identity = new ClaimsIdentity(claims, "InternalApi");
@@ -99,5 +141,19 @@ public class InternalUserMiddleware
         }
 
         return CryptographicOperations.FixedTimeEquals(aBytes, bBytes);
+    }
+
+    private static int? TryParseActiveOrganizationIdHeader(HttpContext context)
+    {
+        if (!context.Request.Headers.TryGetValue(
+                UserSessionContextConstants.ActiveOrganizationIdHeaderName,
+                out var activeOrganizationHeader))
+        {
+            return null;
+        }
+
+        return int.TryParse(activeOrganizationHeader, out var activeOrganizationId)
+            ? activeOrganizationId
+            : null;
     }
 }

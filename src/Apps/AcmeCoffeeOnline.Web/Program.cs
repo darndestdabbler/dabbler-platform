@@ -201,13 +201,20 @@ app.MapGet("/auth-check", (ClaimsPrincipal user) => Results.Ok(new
     userId = user.FindFirstValue(ClaimTypes.NameIdentifier),
     user = user.Identity?.Name ?? user.FindFirstValue(ClaimTypes.NameIdentifier),
     email = user.FindFirstValue(ClaimTypes.Email),
+    customerId = user.FindFirstValue("CustomerId"),
+    activeOrganizationId = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType),
+    activeOrganizationKey = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationKeyClaimType),
+    activeOrganizationName = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationNameClaimType),
     roles = user.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
 })).RequireAuthorization();
 
 if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
     && authOptions.SeededSession.Enabled)
 {
-    app.MapGet("/test-auth/session-info", (ClaimsPrincipal user, HttpContext context) =>
+    app.MapGet("/test-auth/session-info", async (
+        ClaimsPrincipal user,
+        HttpContext context,
+        IUserSessionContextService sessionContextService) =>
     {
         if (!IsLoopbackOrInMemoryRequest(context))
         {
@@ -220,6 +227,13 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
             return Results.StatusCode(StatusCodes.Status403Forbidden);
         }
 
+        UserSessionContext? sessionContext = null;
+        if (int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var signedInUserId))
+        {
+            var activeOrganizationId = ParseActiveOrganizationId(user);
+            sessionContext = await sessionContextService.BuildAsync(signedInUserId, activeOrganizationId);
+        }
+
         return Results.Ok(new
         {
             isAuthenticated = user.Identity?.IsAuthenticated ?? false,
@@ -227,6 +241,19 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
             name = user.FindFirstValue(ClaimTypes.Name),
             email = user.FindFirstValue(ClaimTypes.Email),
             customerId = user.FindFirstValue("CustomerId"),
+            activeOrganizationId = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType),
+            activeOrganizationKey = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationKeyClaimType),
+            activeOrganizationName = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationNameClaimType),
+            availableOrganizations = sessionContext?.OrganizationMemberships.Select(organization => new
+            {
+                organizationId = organization.OrganizationId,
+                organizationKey = organization.OrganizationKey,
+                organizationName = organization.OrganizationName,
+                organizationMembershipId = organization.OrganizationMembershipId,
+                isDefault = organization.IsDefault,
+                isInternal = organization.IsInternal,
+                roles = organization.RoleNames
+            }).ToArray() ?? [],
             roles = user.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
         });
     });
@@ -272,10 +299,12 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
     app.MapGet("/test-auth/seeded-session", async (
         HttpContext context,
         DabblerSecurityDbContext db,
+        IUserSessionContextService sessionContextService,
         string? roles,
         string? displayName,
         string? email,
-        string? userId) =>
+        string? userId,
+        int? organizationId) =>
     {
         if (!IsLoopbackOrInMemoryRequest(context))
         {
@@ -290,9 +319,22 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
 
         var seededUser = await ResolveSeededUserAsync(db, email, userId);
 
-        var requestedRoles = ParseRequestedRoles(roles) is { Length: > 0 } parsedRoles
-            ? parsedRoles
-            : seededUser?.Roles ?? [ "BackofficeUser" ];
+        string[] requestedRoles;
+        var parsedRoles = ParseRequestedRoles(roles);
+        if (parsedRoles is { Length: > 0 })
+        {
+            requestedRoles = parsedRoles;
+        }
+        else if (seededUser is not null
+                 && int.TryParse(seededUser.UserId, out var seededUserId)
+                 && await sessionContextService.BuildAsync(seededUserId, organizationId) is { } seededSessionContext)
+        {
+            requestedRoles = seededSessionContext.EffectiveRoles.ToArray();
+        }
+        else
+        {
+            requestedRoles = seededUser?.Roles ?? ["BackofficeUser"];
+        }
 
         var allowedRoles = authOptions.SeededSession.AllowedRoles;
         if (requestedRoles.Any(role => !allowedRoles.Contains(role, StringComparer.Ordinal)))
@@ -307,18 +349,14 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
         var resolvedEmail = string.IsNullOrWhiteSpace(email)
             ? seededUser?.Email ?? "seeded.user@acme.test"
             : email;
-
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, resolvedUserId),
-            new(ClaimTypes.Name, resolvedDisplayName),
-            new(ClaimTypes.Email, resolvedEmail)
-        };
-
-        claims.AddRange(requestedRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var principal = new ClaimsPrincipal(
-            new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+        var principal = await BuildSeededSessionPrincipalAsync(
+            sessionContextService,
+            resolvedUserId,
+            resolvedEmail,
+            resolvedDisplayName,
+            requestedRoles,
+            organizationId,
+            default);
 
         await context.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
@@ -342,7 +380,61 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
             userId = resolvedUserId,
             displayName = resolvedDisplayName,
             email = resolvedEmail,
-            roles = requestedRoles
+            roles = requestedRoles,
+            activeOrganizationId = principal.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType),
+            activeOrganizationKey = principal.FindFirstValue(UserSessionContextConstants.ActiveOrganizationKeyClaimType),
+            activeOrganizationName = principal.FindFirstValue(UserSessionContextConstants.ActiveOrganizationNameClaimType)
+        });
+    });
+
+    app.MapGet("/test-auth/switch-organization", async (
+        HttpContext context,
+        ClaimsPrincipal user,
+        IUserSessionContextService sessionContextService,
+        int organizationId) =>
+    {
+        if (!IsLoopbackOrInMemoryRequest(context))
+        {
+            return Results.StatusCode(StatusCodes.Status403Forbidden);
+        }
+
+        if (!context.Request.Headers.TryGetValue("X-Test-Auth-Secret", out var providedSecret)
+            || !string.Equals(providedSecret, authOptions.SeededSession.SharedSecret, StringComparison.Ordinal))
+        {
+            return Results.StatusCode(StatusCodes.Status403Forbidden);
+        }
+
+        if (!int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var signedInUserId))
+        {
+            return Results.Unauthorized();
+        }
+
+        var switchedPrincipal = await sessionContextService.CreatePrincipalAsync(
+            signedInUserId,
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            organizationId);
+
+        if (switchedPrincipal is null)
+        {
+            return Results.BadRequest(new { error = "Unable to switch organizations for the current session." });
+        }
+
+        await context.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            switchedPrincipal,
+            new AuthenticationProperties
+            {
+                IsPersistent = false,
+                AllowRefresh = true
+            });
+
+        return Results.Ok(new
+        {
+            status = "switched",
+            activeOrganizationId = switchedPrincipal.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType),
+            activeOrganizationKey = switchedPrincipal.FindFirstValue(UserSessionContextConstants.ActiveOrganizationKeyClaimType),
+            activeOrganizationName = switchedPrincipal.FindFirstValue(UserSessionContextConstants.ActiveOrganizationNameClaimType),
+            roles = switchedPrincipal.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
         });
     });
 
@@ -388,7 +480,7 @@ app.MapGet("/auth/challenge/{scheme}", async (
 app.MapGet("/auth/external-callback", async (
     string? returnUrl,
     IExternalLoginService externalLoginService,
-    DabblerSecurityDbContext db,
+    IUserSessionContextService sessionContextService,
     ILoggerFactory loggerFactory,
     HttpContext context) =>
 {
@@ -430,18 +522,18 @@ app.MapGet("/auth/external-callback", async (
         }
     }
 
-    var claims = new List<Claim>
+    var principal = await sessionContextService.CreatePrincipalAsync(
+        user.Id,
+        CookieAuthenticationDefaults.AuthenticationScheme);
+    if (principal is null)
     {
-        new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new(ClaimTypes.Email, user.Email),
-        new(ClaimTypes.Name, user.DisplayName)
-    };
-    claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r.Role!.Name)));
+        logger.LogWarning("Failed to resolve session context for external login user {UserId}", user.Id);
+        return Results.Redirect("/login?error=external-auth-failed");
+    }
 
-    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
     await context.SignInAsync(
         CookieAuthenticationDefaults.AuthenticationScheme,
-        new ClaimsPrincipal(identity));
+        principal);
 
     await context.SignOutAsync("DabblerExternalAuth");
 
@@ -535,25 +627,24 @@ app.MapGet("/auth/complete", async (
     string token,
     string? returnUrl,
     HttpContext http,
-    IMemoryCache cache) =>
+    IMemoryCache cache,
+    IUserSessionContextService sessionContextService) =>
 {
     if (!cache.TryGetValue<ExchangeTokenInfo>(token, out var userInfo) || userInfo is null)
         return Results.Redirect("/login?error=expired");
 
     cache.Remove(token);
-
-    var claims = new List<Claim>
+    var principal = await sessionContextService.CreatePrincipalAsync(
+        userInfo.UserId,
+        CookieAuthenticationDefaults.AuthenticationScheme);
+    if (principal is null)
     {
-        new(ClaimTypes.NameIdentifier, userInfo.UserId.ToString()),
-        new(ClaimTypes.Email, userInfo.Email),
-        new(ClaimTypes.Name, userInfo.DisplayName)
-    };
-    claims.AddRange(userInfo.Roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        return Results.Redirect("/login?error=expired");
+    }
 
-    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
     await http.SignInAsync(
         CookieAuthenticationDefaults.AuthenticationScheme,
-        new ClaimsPrincipal(identity));
+        principal);
 
     var destination = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
     return Results.Redirect(destination);
@@ -639,6 +730,54 @@ static string MaskEmail(string? email)
     }
 
     return $"{email[0]}***{email[(at - 1)..]}";
+}
+
+static int? ParseActiveOrganizationId(ClaimsPrincipal user)
+{
+    var activeOrganizationClaim = user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationIdClaimType);
+    return int.TryParse(activeOrganizationClaim, out var activeOrganizationId)
+        ? activeOrganizationId
+        : null;
+}
+
+static async Task<ClaimsPrincipal> BuildSeededSessionPrincipalAsync(
+    IUserSessionContextService sessionContextService,
+    string resolvedUserId,
+    string resolvedEmail,
+    string resolvedDisplayName,
+    IReadOnlyList<string> requestedRoles,
+    int? requestedOrganizationId,
+    CancellationToken cancellationToken)
+{
+    if (int.TryParse(resolvedUserId, out var numericUserId))
+    {
+        var principal = await sessionContextService.CreatePrincipalAsync(
+            numericUserId,
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            requestedOrganizationId,
+            requestedRoles,
+            cancellationToken);
+
+        if (principal is not null)
+        {
+            return principal;
+        }
+    }
+
+    var fallbackClaims = new List<Claim>
+    {
+        new(ClaimTypes.NameIdentifier, resolvedUserId),
+        new(ClaimTypes.Name, resolvedDisplayName),
+        new(ClaimTypes.Email, resolvedEmail)
+    };
+
+    fallbackClaims.AddRange(
+        requestedRoles
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(role => new Claim(ClaimTypes.Role, role)));
+
+    return new ClaimsPrincipal(
+        new ClaimsIdentity(fallbackClaims, CookieAuthenticationDefaults.AuthenticationScheme));
 }
 
 static async Task<SeededUserInfo?> ResolveSeededUserAsync(

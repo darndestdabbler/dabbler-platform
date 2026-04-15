@@ -89,7 +89,11 @@ public static class EndpointRouteBuilderExtensions
                 var user = await userService.GetByIdCachedAsync(result.UserId.Value);
                 if (user != null)
                 {
-                    await SignInUserAsync(context, user);
+                    await SignInUserAsync(
+                        context,
+                        context.RequestServices.GetService<IUserSessionContextService>(),
+                        user,
+                        ct);
                     return Results.Ok(new { RequiresMfa = false, Success = true });
                 }
             }
@@ -112,7 +116,10 @@ public static class EndpointRouteBuilderExtensions
             var user = await userService.GetByIdCachedAsync(request.UserId);
             if (user != null)
             {
-                await SignInUserAsync(context, user);
+                await SignInUserAsync(
+                    context,
+                    context.RequestServices.GetService<IUserSessionContextService>(),
+                    user);
                 return Results.Ok(new { Success = true });
             }
 
@@ -236,7 +243,10 @@ public static class EndpointRouteBuilderExtensions
             }
 
             // Issue the application cookie (same mechanism as magic link flow)
-            await SignInUserAsync(context, user);
+            await SignInUserAsync(
+                context,
+                context.RequestServices.GetService<IUserSessionContextService>(),
+                user);
 
             // Clean up the temporary external cookie
             await context.SignOutAsync(ExternalProviderConfig.ExternalAuthScheme);
@@ -251,25 +261,40 @@ public static class EndpointRouteBuilderExtensions
         return endpoints;
     }
 
-    private static async Task SignInUserAsync(HttpContext context, Entities.AppUser user)
+    private static async Task SignInUserAsync(
+        HttpContext context,
+        IUserSessionContextService? sessionContextService,
+        Entities.AppUser user,
+        CancellationToken ct = default)
     {
-        var claims = new List<Claim>
+        ClaimsPrincipal? principal = null;
+        if (sessionContextService is not null)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.DisplayName)
-        };
-
-        foreach (var role in user.Roles)
-        {
-            if (role.Role != null)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.Role.Name));
-            }
+            principal = await sessionContextService.CreatePrincipalAsync(
+                user.Id,
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                requestedOrganizationId: null,
+                overrideRoles: null,
+                ct);
         }
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
+        if (principal is null)
+        {
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Email, user.Email),
+                new(ClaimTypes.Name, user.DisplayName)
+            };
+
+            claims.AddRange(
+                user.Roles
+                    .Where(role => role.Role is not null)
+                    .Select(role => new Claim(ClaimTypes.Role, role.Role!.Name)));
+
+            principal = new ClaimsPrincipal(
+                new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+        }
 
         await context.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
