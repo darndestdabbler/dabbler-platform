@@ -1,0 +1,51 @@
+@using AcmeCoffeeOnline.Web.StubMode
+@using Dabbler.Components.Data
+@using Dabbler.Platform.Stubs
+@inject StubGridDataProvider<StubCustomerRow> DataProvider
+
+<DabblerQueryPage T="StubCustomerRow"
+                  Title="Stub Customers"
+                  FilterColumns="@FilterColumns"
+                  GridColumns="@BuildGridColumns()"
+                  DataProvider="DataProvider"
+                  AutoLoadOnFilterChange="false" />
+
+@code {
+    private static IReadOnlyList<FilterColumnDefinition> FilterColumns =>
+    [
+        new()
+        {
+            Header = "Name",
+            PropertyName = nameof(StubCustomerRow.Name),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+            ShowOperator = false
+        },
+        new()
+        {
+            Header = "City",
+            PropertyName = nameof(StubCustomerRow.City),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+            ShowOperator = false
+        }
+    ];
+
+    private static RenderFragment BuildGridColumns() => builder =>
+    {
+        builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(0);
+        builder.AddAttribute(1, "Property", (Func<StubCustomerRow, string>)(row => row.Name));
+        builder.AddAttribute(2, "Title", "Customer");
+        builder.CloseComponent();
+
+        builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(3);
+        builder.AddAttribute(4, "Property", (Func<StubCustomerRow, string>)(row => row.City));
+        builder.AddAttribute(5, "Title", "City");
+        builder.CloseComponent();
+
+        builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(6);
+        builder.AddAttribute(7, "Property", (Func<StubCustomerRow, string>)(row => row.Tier));
+        builder.AddAttribute(8, "Title", "Tier");
+        builder.CloseComponent();
+    };
+}

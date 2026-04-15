@@ -6,6 +6,7 @@ using AcmeCoffeeOnline.Shared.Diagnostics;
 using AcmeCoffeeOnline.Web.Data;
 using AcmeCoffeeOnline.Web.Diagnostics;
 using AcmeCoffeeOnline.Web.Services;
+using AcmeCoffeeOnline.Web.StubMode;
 using Dabbler.Components.Data;
 using Dabbler.Components.Data.Metadata;
 using Dabbler.Security.Abstractions;
@@ -122,6 +123,12 @@ builder.Services.PostConfigure<CookieAuthenticationOptions>(
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDabblerSecurityBlazor();
+
+if ((builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Test"))
+    && builder.Configuration.GetValue<bool>("PlatformStubMode:Enabled"))
+{
+    builder.Services.AddPlatformStubMode();
+}
 
 // Typed HTTP clients backed by IHttpClientFactory with user identity forwarding
 var apiBaseUrl = builder.Configuration["Services:ApiBaseUrl"]

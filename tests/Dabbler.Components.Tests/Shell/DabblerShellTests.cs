@@ -1,6 +1,7 @@
 using Bunit;
 using Dabbler.Components.Data.Metadata;
 using Dabbler.Components.Tests.TestHelpers;
+using Dabbler.Platform.Stubs;
 using FluentAssertions;
 using Microsoft.AspNetCore.Components;
 using Xunit;
@@ -34,11 +35,44 @@ public class DabblerShellTests
 
     private static IRenderedComponent<DabblerShell> RenderShell(TestContext ctx, bool includeCatalogProviders)
     {
+        var definition = new StubPlatformDefinition
+        {
+            Entities =
+            [
+                new EntityMetadata
+                {
+                    EntityName = "Customer",
+                    DisplayName = "Customers",
+                    DisplayNameSingular = "Customer"
+                }
+            ],
+            CatalogEntries =
+            [
+                new ArtifactCatalogEntry
+                {
+                    ArtifactId = "Customer",
+                    ArtifactType = ArtifactType.Form,
+                    Name = "Customers"
+                }
+            ],
+            UsageRecords =
+            [
+                new ArtifactUsageRecord
+                {
+                    UserId = "contract-user",
+                    ArtifactType = ArtifactType.Form,
+                    ArtifactId = "Customer",
+                    AccessCount = 1,
+                    LastAccessedAt = DateTime.UtcNow
+                }
+            ]
+        };
+
         return ctx.RenderComponent<DabblerShell>(parameters =>
         {
             parameters
-                .Add(x => x.MetadataProvider, new StubMetadataProvider())
-                .Add(x => x.NavigationDataProvider, new StubNavigationDataProvider())
+                .Add(x => x.MetadataProvider, new StubEntityMetadataProvider(definition.Entities))
+                .Add(x => x.NavigationDataProvider, new StubNavigationDataProvider(definition.Navigation))
                 .Add(x => x.DetailFormFactory, CreateDetailFragment)
                 .Add(x => x.SearchPageFactory, CreateSearchFragment)
                 .Add(x => x.NewRecordFactory, CreateNewFragment)
@@ -47,8 +81,8 @@ public class DabblerShellTests
             if (includeCatalogProviders)
             {
                 parameters
-                    .Add(x => x.CatalogProvider, new StubCatalogProvider())
-                    .Add(x => x.UsageTrackingProvider, new StubUsageTrackingProvider())
+                    .Add(x => x.CatalogProvider, new StubArtifactCatalogProvider(definition.CatalogEntries))
+                    .Add(x => x.UsageTrackingProvider, new StubUsageTrackingProvider(definition.UsageRecords))
                     .Add(x => x.UserId, "contract-user");
             }
         });
@@ -74,56 +108,4 @@ public class DabblerShellTests
         builder.AddContent(1, $"new {entityName}");
         builder.CloseElement();
     };
-
-    private sealed class StubMetadataProvider : IEntityMetadataProvider
-    {
-        public EntityMetadata? GetEntityMetadata(string entityName) => null;
-
-        public IReadOnlyList<EntityMetadata> GetAllEntities() => [];
-
-        public IReadOnlyList<EntityMetadata> GetNavigableEntities() => [];
-    }
-
-    private sealed class StubNavigationDataProvider : INavigationDataProvider
-    {
-        public Task<int> GetSmartFilterCountAsync(string entityName, SmartFilterDefinition filter, object? context = null) =>
-            Task.FromResult(0);
-
-        public Task<IReadOnlyList<NavigationRecord>> GetSmartFilterRecordsAsync(
-            string entityName,
-            SmartFilterDefinition filter,
-            int topN,
-            object? context = null) =>
-            Task.FromResult<IReadOnlyList<NavigationRecord>>([]);
-    }
-
-    private sealed class StubCatalogProvider : IArtifactCatalogProvider
-    {
-        public Task<IReadOnlyList<ArtifactCatalogEntry>> GetArtifactsAsync(ArtifactType artifactType, string userId) =>
-            Task.FromResult<IReadOnlyList<ArtifactCatalogEntry>>([]);
-
-        public Task<IReadOnlyList<ArtifactCatalogEntry>> SearchArtifactsAsync(
-            ArtifactType artifactType,
-            string userId,
-            string searchText) =>
-            Task.FromResult<IReadOnlyList<ArtifactCatalogEntry>>([]);
-    }
-
-    private sealed class StubUsageTrackingProvider : IUsageTrackingProvider
-    {
-        public Task<IReadOnlyList<ArtifactUsageRecord>> GetFrequentAsync(string userId, ArtifactType artifactType, int maxItems = 7) =>
-            Task.FromResult<IReadOnlyList<ArtifactUsageRecord>>([]);
-
-        public Task<IReadOnlyList<ArtifactUsageRecord>> GetPinnedAsync(string userId, ArtifactType artifactType) =>
-            Task.FromResult<IReadOnlyList<ArtifactUsageRecord>>([]);
-
-        public Task<IReadOnlyList<ArtifactUsageRecord>> GetRecentAsync(string userId, ArtifactType artifactType, int maxItems = 7) =>
-            Task.FromResult<IReadOnlyList<ArtifactUsageRecord>>([]);
-
-        public Task SetPinnedAsync(string userId, ArtifactType artifactType, string artifactId, bool isPinned) =>
-            Task.CompletedTask;
-
-        public Task TrackAccessAsync(string userId, ArtifactType artifactType, string artifactId) =>
-            Task.CompletedTask;
-    }
 }

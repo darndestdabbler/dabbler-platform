@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dabbler.Reports.Core", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dabbler.Components", "src\Libs\Dabbler.Components\Dabbler.Components.csproj", "{C801EDDD-B52D-4D36-9875-1F0A0CF998BD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dabbler.Platform.Stubs", "src\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj", "{C7920BC9-902B-4FB8-92CE-47D69CB607ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -259,6 +261,18 @@ Global
 		{C801EDDD-B52D-4D36-9875-1F0A0CF998BD}.Release|x64.Build.0 = Release|Any CPU
 		{C801EDDD-B52D-4D36-9875-1F0A0CF998BD}.Release|x86.ActiveCfg = Release|Any CPU
 		{C801EDDD-B52D-4D36-9875-1F0A0CF998BD}.Release|x86.Build.0 = Release|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Debug|x64.Build.0 = Debug|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Debug|x86.Build.0 = Debug|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Release|x64.ActiveCfg = Release|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Release|x64.Build.0 = Release|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Release|x86.ActiveCfg = Release|Any CPU
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -273,5 +287,6 @@ Global
 		{1D002220-C309-4BA0-AA6C-A6050BD01179} = {EA1FB3AD-0312-15AB-D6B7-0005DF520DC0}
 		{8B6AAB49-9FE3-4B69-82C8-BA12CE3756E6} = {E431C0EF-0A07-9D2C-3EA9-2C750D5184D2}
 		{C801EDDD-B52D-4D36-9875-1F0A0CF998BD} = {E431C0EF-0A07-9D2C-3EA9-2C750D5184D2}
+		{C7920BC9-902B-4FB8-92CE-47D69CB607ED} = {E431C0EF-0A07-9D2C-3EA9-2C750D5184D2}
 	EndGlobalSection
 EndGlobal

@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AcmeCoffeeOnline.Shared\AcmeCoffeeOnline.Shared.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Components\Dabbler.Components.csproj" />
+    <ProjectReference Include="..\..\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Reports.Blazor\Dabbler.Reports.Blazor.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Security.Blazor\Dabbler.Security.Blazor.csproj" />
   </ItemGroup>

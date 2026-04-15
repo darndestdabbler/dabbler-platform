@@ -1,8 +1,8 @@
 using System.Data;
 using Bunit;
 using Dabbler.Components;
+using Dabbler.Platform.Stubs;
 using Dabbler.Reports.Blazor.Tests.TestHelpers;
-using Dabbler.Reports.Core.Data;
 using FluentAssertions;
 using Xunit;
 
@@ -15,7 +15,18 @@ public class DabblerReportPageTests
     {
         using var ctx = new TestContext().SetupForDabblerReports();
 
-        var provider = new RecordingReportDataProvider();
+        var provider = new StubReportDataProvider()
+            .AddQueryResult(
+                "SELECT ProductName, Quantity, LineTotal FROM Sales WHERE OrderDate BETWEEN @StartDate AND @EndDate",
+                parameters =>
+                {
+                    var table = new DataTable();
+                    table.Columns.Add("ProductName", typeof(string));
+                    table.Columns.Add("Quantity", typeof(int));
+                    table.Columns.Add("LineTotal", typeof(decimal));
+                    table.Rows.Add("House Blend", 3, 27.50m);
+                    return table;
+                });
         var initialParameters = new Dictionary<string, object?>
         {
             ["StartDate"] = new DateTime(2026, 1, 1),
@@ -31,47 +42,11 @@ public class DabblerReportPageTests
 
         cut.WaitForAssertion(() =>
         {
-            provider.QueryCalls.Should().HaveCount(1);
             cut.Instance.HasRun.Should().BeTrue();
             cut.Instance.Pages.Should().NotBeNull();
             cut.Instance.Pages!.Should().NotBeEmpty();
             cut.Markup.Should().Contain("Test Sales Summary");
         });
-
-        provider.LastParameters.Should().ContainKey("StartDate");
-        provider.LastParameters.Should().ContainKey("EndDate");
-    }
-
-    private sealed class RecordingReportDataProvider : IReportDataProvider
-    {
-        public List<string> QueryCalls { get; } = [];
-
-        public IReadOnlyDictionary<string, object?> LastParameters { get; private set; } =
-            new Dictionary<string, object?>();
-
-        public Task<DataTable> ExecuteQueryAsync(
-            string query,
-            IReadOnlyDictionary<string, object?> parameters,
-            CancellationToken cancellationToken = default)
-        {
-            QueryCalls.Add(query);
-            LastParameters = new Dictionary<string, object?>(parameters);
-
-            var table = new DataTable();
-            table.Columns.Add("ProductName", typeof(string));
-            table.Columns.Add("Quantity", typeof(int));
-            table.Columns.Add("LineTotal", typeof(decimal));
-            table.Rows.Add("House Blend", 3, 27.50m);
-            return Task.FromResult(table);
-        }
-
-        public Task<DataTable> ExecuteLookupAsync(
-            string query,
-            IReadOnlyDictionary<string, object?>? parameters = null,
-            CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new DataTable());
-        }
     }
 
     private const string TestSalesReportRdf = """

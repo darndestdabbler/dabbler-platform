@@ -1,0 +1,19 @@
+@using AcmeCoffeeOnline.Web.StubMode
+
+<MudPaper Class="pa-4">
+    <MudText Typo="Typo.h6">@EntityName detail</MudText>
+    <MudText Typo="Typo.body1" Class="mt-2">
+        Stub record key: <strong>@PrimaryKey</strong>
+    </MudText>
+    <MudText Typo="Typo.body2" Class="mt-2">
+        This tab exists to prove shell-to-workspace routing against the reusable stub seams.
+    </MudText>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public string EntityName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public object PrimaryKey { get; set; } = default!;
+}

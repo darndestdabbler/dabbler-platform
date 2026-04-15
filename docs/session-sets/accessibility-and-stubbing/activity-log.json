@@ -174,6 +174,68 @@
           "costUsd": 0.20817
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/stub-abstractions",
+      "dateTime": "2026-04-15T11:36:47.099984+00:00",
+      "description": "Created the new src/Libs/Dabbler.Platform.Stubs library to freeze the reusable stub contract surface: platform definition and navigation datasets, supported grid and lookup wrappers, report stubs, metadata and catalog/usage providers, and a stub authentication state model for role-aware and organization-aware hosts.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/provider-seams",
+      "dateTime": "2026-04-15T11:36:47.099984+00:00",
+      "description": "Implemented supported provider seams and host wiring helpers through DabblerStubServiceCollectionExtensions plus AcmeCoffeeOnline.Web stub-mode registration, keeping the reusable stubs platform-generic while allowing focused concrete registration for a demo path without replacing the app's real providers.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/di-wiring",
+      "dateTime": "2026-04-15T11:36:47.105214+00:00",
+      "description": "Wired the new stub package into the solution, the web app, and the reusable-surface test projects, and added the opt-in /platform/stub page plus supporting stub host components so shell, query-page, report-page, and workspace flows can consume the new seams directly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/stub-consumer-guidance",
+      "dateTime": "2026-04-15T11:36:47.105647+00:00",
+      "description": "Documented the accepted reusable stub architecture in docs/planning/reusable-platform-stub-guide.md and the new library README, and updated existing tests to consume the supported stub providers instead of private ad hoc fakes where that usage path is now part of the public platform story.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/build-test",
+      "dateTime": "2026-04-15T11:36:47.106532+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln --no-build. Build passed cleanly at zero warnings/errors, and all 372 tests passed across the seven test projects, including the existing Playwright suite and the new stub-provider coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-15T11:38:26.954081+00:00",
+      "description": "Sent the Session 3 spec context, the new reusable stub library, the stub demo route and host wiring, the guidance doc, test updates, current diff, and clean build/test evidence to external session verification and saved the raw review output. The verifier returned VERIFIED with no blocking issues.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 302025,
+          "outputTokens": 1178,
+          "costUsd": 4.6187249999999995
+        }
+      ]
     }
   ]
 }
