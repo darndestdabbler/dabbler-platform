@@ -210,6 +210,90 @@
           "costUsd": 0.39363
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/acceptance-baseline",
+      "dateTime": "2026-04-15T00:39:02.166794+00:00",
+      "description": "Created docs/planning/notes-driven-app-acceptance-baseline.md to capture the accepted app baseline after alignment, including the focused shell and dashboard defaults, the focused /products/catalog alias, retained query CSV export, retained report PDF export, and explicit compatibility boundaries.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 16694,
+          "outputTokens": 609,
+          "costUsd": 0.026957500000000002
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 15469,
+          "outputTokens": 736,
+          "costUsd": 0.026696249999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/queue-rebaseline",
+      "dateTime": "2026-04-15T00:39:02.166794+00:00",
+      "description": "Rebaselined docs/session-sets/notes-driven-template-encoding/spec.md around the accepted app baseline and confirmed that no catch-up session was required because the completed app state exposed no direct omission that belongs inside notes-driven-app-alignment.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 17574,
+          "outputTokens": 348,
+          "costUsd": 0.0254475
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/change-log",
+      "dateTime": "2026-04-15T00:39:02.172688+00:00",
+      "description": "Generated docs/session-sets/notes-driven-app-alignment/change-log.md to close the four-session set and capture the accepted app baseline handoff to downstream template work.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 9469,
+          "outputTokens": 356,
+          "costUsd": 0.01539625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/build-test",
+      "dateTime": "2026-04-15T00:40:47.549115+00:00",
+      "description": "Ran dotnet build Dabbler.Platform.sln and dotnet test Dabbler.Platform.sln with node reuse disabled. Build succeeded with the existing Dabbler.Security XML-comment warnings plus preview-SDK notices, and all 366 tests passed including AcmeCoffeeOnline.Web and Playwright coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/session-verification",
+      "dateTime": "2026-04-15T00:42:15.069966+00:00",
+      "description": "Ran mandatory external session verification and saved the raw review to session-reviews/session-004.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 23634,
+          "outputTokens": 1725,
+          "costUsd": 0.483885
+        }
+      ]
     }
   ]
 }
