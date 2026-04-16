@@ -451,6 +451,35 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await Assertions.Expect(page.GetByTestId("save-button")).ToBeEnabledAsync();
     }
 
+    // ── Dialog interaction helpers ──
+
+    public static async Task<ILocator> WaitForDialogAsync(IPage page, int timeoutMs = 5000)
+    {
+        var dialog = page.Locator("[role='dialog']");
+        await Assertions.Expect(dialog).ToBeVisibleAsync(new() { Timeout = timeoutMs });
+        return dialog;
+    }
+
+    public static async Task FillDialogFieldAsync(ILocator dialog, string label, string value)
+    {
+        var field = dialog.GetByLabel(label).First;
+        await field.FillAsync(value);
+    }
+
+    public static async Task SubmitDialogAsync(ILocator dialog, string buttonText = "Add")
+    {
+        var button = dialog.GetByRole(AriaRole.Button, new() { Name = buttonText });
+        await Assertions.Expect(button).ToBeEnabledAsync();
+        await button.ClickAsync();
+    }
+
+    public static async Task CancelDialogAsync(ILocator dialog)
+    {
+        var button = dialog.GetByRole(AriaRole.Button, new() { Name = "Cancel" });
+        await button.ClickAsync();
+        await Assertions.Expect(dialog).ToBeHiddenAsync(new() { Timeout = 3000 });
+    }
+
     // ── Grid interaction helpers ──
 
     public static async Task<int> GetGridRowCountAsync(IPage page)
@@ -1274,6 +1303,31 @@ public sealed class OrderSnapshot
     public int CustomerId { get; set; }
 
     public string CustomerName { get; set; } = string.Empty;
+
+    public int Status { get; set; }
+
+    public decimal Total { get; set; }
+
+    public DateTime OrderDate { get; set; }
+
+    public DateTime? ShipDate { get; set; }
+
+    public string? Notes { get; set; }
+
+    public List<OrderItemSnapshot> OrderItems { get; set; } = [];
+
+    public List<OrderNoteSnapshot> OrderNotes { get; set; } = [];
+
+    /// <summary>Maps the integer status to the display name used in the UI.</summary>
+    public string StatusDisplayName => Status switch
+    {
+        0 => "Pending",
+        1 => "Confirmed",
+        2 => "Shipped",
+        3 => "Delivered",
+        4 => "Cancelled",
+        _ => "Unknown"
+    };
 }
 
 public sealed class OrganizationOptionSnapshot

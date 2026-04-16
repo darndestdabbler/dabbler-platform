@@ -144,6 +144,95 @@
           "costUsd": 0.00604875
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/dialog-helpers",
+      "dateTime": "2026-04-16T20:55:16.325869+00:00",
+      "description": "Extended PlaywrightFixture with dialog interaction helpers: WaitForDialogAsync, FillDialogFieldAsync, SubmitDialogAsync, CancelDialogAsync. Extended OrderSnapshot with Status, Total, OrderDate, ShipDate, Notes, OrderItems, OrderNotes, and StatusDisplayName.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/orders-list-tests",
+      "dateTime": "2026-04-16T20:55:16.327964+00:00",
+      "description": "Created OrdersWorkflowTests.cs with 4 orders list tests: list loads with columns visible, row click navigates to detail, status chips visible on rows, grid paging navigates correctly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/order-detail-tests",
+      "dateTime": "2026-04-16T20:55:16.327964+00:00",
+      "description": "Added 4 order detail tests: header form loads with all fields visible and API-verified, status chip displays current status, back button returns to orders list, fields match API data cross-verified (customer name, status chip, items tab count, timestamps).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/order-items-tests",
+      "dateTime": "2026-04-16T20:55:16.327964+00:00",
+      "description": "Added 2 items tab tests: displays correct item count and grid columns with row count matching API data, line total calculation correct (Qty * UnitPrice * (1 - Discount/100)).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/order-notes-tests",
+      "dateTime": "2026-04-16T20:55:16.327964+00:00",
+      "description": "Added 1 notes tab test: switch tab shows notes grid with Date, Author, Note columns and row count matching API data.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/read-only-verification",
+      "dateTime": "2026-04-16T20:55:16.329984+00:00",
+      "description": "Added 2 read-only verification tests proving that the /orders/{id} page correctly hides mutation controls: status transition buttons not shown, item Add Product button not shown, note Add Note button not shown. This documents that the spec interactions 36-47 (status transitions, item CRUD, note CRUD) are not testable through the UI because OrderDetailPage.razor passes IsReadOnly=true.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/order-validation-tests",
+      "dateTime": "2026-04-16T20:55:16.329984+00:00",
+      "description": "Skipped note dialog validation tests (Note text required, Author required) because the order detail page renders with IsReadOnly=true, making the note dialog unreachable through the UI. Dialog helpers were still created for future use.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-16T20:55:16.330793+00:00",
+      "description": "Build succeeded (0 errors). All 467 non-Playwright tests pass. All 13 new Playwright tests pass. Full Playwright suite: 49 passed, 7 failed (all pre-existing failures from SmokeTests, ProductAdministrationWorkflowTests, and MultiOrganizationWorkflowTests \u2014 same 7 as Session 2).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-16T20:56:06.704181+00:00",
+      "description": "Cross-provider verification via AI Router",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 7509,
+          "outputTokens": 482,
+          "costUsd": 0.01420625
+        }
+      ]
     }
   ]
 }
