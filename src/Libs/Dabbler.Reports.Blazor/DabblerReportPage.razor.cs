@@ -276,7 +276,7 @@ public partial class DabblerReportPage : DabblerComponentBase
         if (firstRender)
         {
             _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/Dabbler.Components/dabbler-clipboard.js");
+                "import", "./_content/Dabbler.Components/dabbler-download.js");
         }
 
         base.OnAfterRender(firstRender);

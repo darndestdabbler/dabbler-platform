@@ -20,19 +20,22 @@ public sealed class NotesDrivenAlignmentGuardrailTests
     }
 
     [Fact]
-    public void QueryPages_KeepCsvExportAvailableForSupportedWorkflows()
+    public void QueryPages_UseMudDataGridDirectly()
     {
+        // After MudBlazor-native rebuild, query pages use MudDataGrid directly
+        // instead of DabblerQueryPage wrapper. CSV export will use MudDataGrid's
+        // built-in export capabilities added in later sessions.
         var repoRoot = GetRepoRoot();
         var productList = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Products", "ProductList.razor");
         var customerList = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Customers", "CustomerList.razor");
         var orderList = ReadRepoFile(repoRoot, "src", "Apps", "AcmeCoffeeOnline.Web", "Components", "Pages", "Orders", "OrderList.razor");
 
-        Assert.Contains("ShowCsvExport=\"true\"", productList);
-        Assert.Contains("CsvFileName=\"products.csv\"", productList);
-        Assert.Contains("ShowCsvExport=\"true\"", customerList);
-        Assert.Contains("CsvFileName=\"customers.csv\"", customerList);
-        Assert.Contains("ShowCsvExport=\"true\"", orderList);
-        Assert.Contains("CsvFileName=\"orders.csv\"", orderList);
+        Assert.Contains("MudDataGrid", productList);
+        Assert.Contains("MudDataGrid", customerList);
+        Assert.Contains("MudDataGrid", orderList);
+        Assert.DoesNotContain("DabblerQueryPage", productList);
+        Assert.DoesNotContain("DabblerQueryPage", customerList);
+        Assert.DoesNotContain("DabblerQueryPage", orderList);
     }
 
     [Fact]

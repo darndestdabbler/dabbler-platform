@@ -4,12 +4,12 @@
 namespace Dabbler.Components.Data;
 
 /// <summary>
-/// Manages filter state for a <see cref="Dabbler.Components.DabblerFilterGrid{T}"/>,
+/// Manages filter state for a <see cref="Dabbler.Components.FilterPanel{T}"/>,
 /// coordinating between the filter UI and the data layer.
 /// </summary>
 /// <remarks>
 /// Owns a <see cref="FilterGroupCollection"/> and raises <see cref="FilterChanged"/>
-/// when any mutation occurs. Consumers (like <c>DabblerFilterGrid</c>) subscribe to
+/// when any mutation occurs. Consumers (like <c>FilterPanel</c>) subscribe to
 /// this event to push the updated <see cref="CompositeFilterDescriptor"/> to the data provider.
 /// </remarks>
 public class FilteringCoordinator
@@ -31,7 +31,7 @@ public class FilteringCoordinator
 
     /// <summary>
     /// The column definitions, used for cascading dependency resolution.
-    /// Set by the owning <c>DabblerFilterGrid</c>.
+    /// Set by the owning <c>FilterPanel</c>.
     /// </summary>
     public IReadOnlyList<FilterColumnDefinition>? Columns { get; set; }
 
@@ -239,7 +239,7 @@ public class FilteringCoordinator
 
     /// <summary>
     /// Raises <see cref="FilterChanged"/> without mutating state.
-    /// Used by <c>DabblerFilterGrid.ImportFilter</c> after bulk state restoration.
+    /// Used after bulk state restoration.
     /// </summary>
     internal void RaiseFilterChanged() => OnFilterChanged();
 

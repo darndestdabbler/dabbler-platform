@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 namespace Dabbler.Components.Data;
 
 /// <summary>
-/// Defines the configuration for a single column in a <see cref="Dabbler.Components.DabblerFilterGrid{T}"/>.
+/// Defines the configuration for a single column in a <see cref="Dabbler.Components.FilterPanel{T}"/>.
 /// </summary>
 /// <remarks>
 /// Separates filter metadata from the grid column definition. Each instance describes

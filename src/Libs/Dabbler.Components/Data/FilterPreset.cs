@@ -4,12 +4,11 @@
 namespace Dabbler.Components.Data;
 
 /// <summary>
-/// A saved, named snapshot of a <see cref="Dabbler.Components.DabblerFilterGrid{T}"/> filter state.
+/// A saved, named snapshot of a filter state.
 /// </summary>
 /// <remarks>
-/// Presets are consumer-managed: the component raises <see cref="Dabbler.Components.DabblerFilterPresetSelector{T}.OnSavePreset"/>
-/// and <see cref="Dabbler.Components.DabblerFilterPresetSelector{T}.OnDeletePreset"/> so the host
-/// application handles persistence (database, local storage, etc.).
+/// Presets are consumer-managed: the host application handles persistence
+/// (database, local storage, etc.).
 /// </remarks>
 public class FilterPreset
 {

@@ -1,22 +1,17 @@
 @using AcmeCoffeeOnline.Shared.DTOs
-@using Dabbler.Components
 @using Dabbler.Components.Data
-@using Dabbler.Components.Data.Metadata
 @using MudBlazor
 
-<DabblerQueryPage T="CustomerDto"
-                  FilterColumns="_filterColumns"
-                  DataProvider="DataProvider"
-                  Title="@Title"
-                  PageSize="25"
-                  Dense="true"
-                  ShowFilterStatusBar="true"
-                  ShowRecordCount="true"
-                  ShowCsvExport="true"
-                  CsvFileName="customers.csv"
-                  AutoLoadOnFilterChange="true"
-                  GridColumnInfo="_gridColumnInfo">
-    <GridColumns>
+@* Temporary: uses MudDataGrid directly pending Session 4 rebuild *@
+<MudText Typo="Typo.h6" Class="mb-2">@Title</MudText>
+
+<MudDataGrid T="CustomerDto"
+             ServerData="@(DataProvider.ToServerDataFunc())"
+             Dense="true"
+             Hover="true"
+             RowsPerPage="25"
+             ReadOnly="true">
+    <Columns>
         <PropertyColumn Property="e => e.FirstName" Title="Primary Contact First Name" />
         <PropertyColumn Property="e => e.LastName" Title="Primary Contact Last Name" />
         <PropertyColumn Property="e => e.Email" Title="Account Email" />
@@ -29,8 +24,11 @@
                          Size="Size.Small" />
             </CellTemplate>
         </TemplateColumn>
-    </GridColumns>
-</DabblerQueryPage>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="CustomerDto" />
+    </PagerContent>
+</MudDataGrid>
 
 @code {
     [Parameter]
@@ -38,90 +36,4 @@
 
     [Parameter]
     public string? Title { get; set; }
-
-    [Parameter]
-    public SmartFilterDefinition? PreFilter { get; set; }
-
-    private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
-    {
-        new()
-        {
-            Header = "Primary Contact First Name",
-            PropertyName = "FirstName",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "Primary contact first name...",
-            Width = "150px"
-        },
-        new()
-        {
-            Header = "Primary Contact Last Name",
-            PropertyName = "LastName",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "Primary contact last name...",
-            Width = "150px"
-        },
-        new()
-        {
-            Header = "City",
-            PropertyName = "City",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "City...",
-            Width = "150px"
-        },
-        new()
-        {
-            Header = "State",
-            PropertyName = "State",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "eq",
-            ShowOperator = false,
-            Placeholder = "State...",
-            Width = "100px"
-        },
-        new()
-        {
-            Header = "Active",
-            PropertyName = "IsActive",
-            EditorType = FilterEditorType.CheckBox,
-            DefaultOperator = "eq",
-            ShowOperator = false,
-            Width = "100px"
-        },
-        new()
-        {
-            Header = "Created From",
-            PropertyName = "CreatedDate",
-            EditorType = FilterEditorType.Date,
-            DefaultOperator = "gte",
-            ShowOperator = false,
-            Placeholder = "From...",
-            Width = "150px"
-        },
-        new()
-        {
-            Header = "Created To",
-            PropertyName = "CreatedDate",
-            EditorType = FilterEditorType.Date,
-            DefaultOperator = "lte",
-            ShowOperator = false,
-            Placeholder = "To...",
-            Width = "150px"
-        }
-    };
-
-    private readonly IReadOnlyList<GridColumnInfo> _gridColumnInfo = new List<GridColumnInfo>
-    {
-        new() { PropertyName = "FirstName", Header = "Primary Contact First Name" },
-        new() { PropertyName = "LastName", Header = "Primary Contact Last Name" },
-        new() { PropertyName = "Email", Header = "Account Email" },
-        new() { PropertyName = "City", Header = "City" },
-        new() { PropertyName = "State", Header = "State" },
-        new() { PropertyName = "IsActive", Header = "Active" }
-    };
 }

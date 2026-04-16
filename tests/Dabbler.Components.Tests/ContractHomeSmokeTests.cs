@@ -8,19 +8,19 @@ public class ContractHomeSmokeTests
     [Fact]
     public void RetainedCoreTypes_AreAvailableToTheContractHome()
     {
+        // After the MudBlazor-native rebuild, the wrapper components (DabblerQueryPage,
+        // DabblerDataGrid, DabblerFilterGrid, DabblerShell, DabblerDashboardPage) have
+        // been removed. Remaining types are validated here as they are rebuilt in later
+        // sessions or confirmed to still exist.
         var retainedTypes = new[]
         {
-            typeof(DabblerQueryPage<>),
-            typeof(DabblerDataGrid<>),
-            typeof(DabblerFilterGrid<>),
+            typeof(FilterPanel<>),
             typeof(DabblerComboBox<>),
             typeof(DabblerDetailForm<>),
             typeof(DabblerRecordPopup<>),
-            typeof(DabblerShell),
-            typeof(DabblerDashboardPage)
         };
 
         retainedTypes.Should().NotContainNulls();
-        retainedTypes.Should().HaveCount(8);
+        retainedTypes.Should().HaveCount(4);
     }
 }

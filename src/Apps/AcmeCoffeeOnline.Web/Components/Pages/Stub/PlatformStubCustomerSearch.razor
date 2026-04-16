@@ -1,56 +1,24 @@
 @using AcmeCoffeeOnline.Web.StubMode
 @using Dabbler.Components.Data
 @using Dabbler.Platform.Stubs
-@using System.Linq.Expressions
+@using MudBlazor
 @inject StubGridDataProvider<StubCustomerRow> DataProvider
 
-<DabblerQueryPage T="StubCustomerRow"
-                  Title="Stub Retail Businesses"
-                  FilterColumns="@FilterColumns"
-                  GridColumns="@BuildGridColumns()"
-                  DataProvider="DataProvider"
-                  AutoLoadOnFilterChange="false" />
+@* Temporary: uses MudDataGrid directly pending Session 4 rebuild *@
+<MudText Typo="Typo.h6" Class="mb-2">Stub Retail Businesses</MudText>
 
-@code {
-    private static IReadOnlyList<FilterColumnDefinition> FilterColumns =>
-    [
-        new()
-        {
-            Header = "Name",
-            PropertyName = nameof(StubCustomerRow.Name),
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = FilterOperators.Contains,
-            ShowOperator = false
-        },
-        new()
-        {
-            Header = "City",
-            PropertyName = nameof(StubCustomerRow.City),
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = FilterOperators.Contains,
-            ShowOperator = false
-        }
-    ];
-
-    private static RenderFragment BuildGridColumns() => builder =>
-    {
-        builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(0);
-        builder.AddAttribute(1, "Property", NameProperty);
-        builder.AddAttribute(2, "Title", "Retail Business");
-        builder.CloseComponent();
-
-        builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(3);
-        builder.AddAttribute(4, "Property", CityProperty);
-        builder.AddAttribute(5, "Title", "City");
-        builder.CloseComponent();
-
-        builder.OpenComponent<PropertyColumn<StubCustomerRow, string>>(6);
-        builder.AddAttribute(7, "Property", TierProperty);
-        builder.AddAttribute(8, "Title", "Tier");
-        builder.CloseComponent();
-    };
-
-    private static readonly Expression<Func<StubCustomerRow, string>> NameProperty = row => row.Name;
-    private static readonly Expression<Func<StubCustomerRow, string>> CityProperty = row => row.City;
-    private static readonly Expression<Func<StubCustomerRow, string>> TierProperty = row => row.Tier;
-}
+<MudDataGrid T="StubCustomerRow"
+             ServerData="@(DataProvider.ToServerDataFunc())"
+             Dense="true"
+             Hover="true"
+             RowsPerPage="25"
+             ReadOnly="true">
+    <Columns>
+        <PropertyColumn Property="@(row => row.Name)" Title="Retail Business" />
+        <PropertyColumn Property="@(row => row.City)" Title="City" />
+        <PropertyColumn Property="@(row => row.Tier)" Title="Tier" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="StubCustomerRow" />
+    </PagerContent>
+</MudDataGrid>

@@ -5,11 +5,10 @@ namespace Dabbler.Components.Data;
 
 /// <summary>
 /// A serializable snapshot of all filter groups in a
-/// <see cref="Dabbler.Components.DabblerFilterGrid{T}"/>.
+/// <see cref="Dabbler.Components.FilterPanel{T}"/>.
 /// </summary>
 /// <remarks>
-/// Produced by <c>DabblerFilterGrid.ExportFilter()</c> and consumed by
-/// <c>DabblerFilterGrid.ImportFilter()</c>. The format is JSON-friendly
+/// The format is JSON-friendly
 /// (all values are stored as JSON strings with type metadata).
 /// </remarks>
 public class FilterPresetState
