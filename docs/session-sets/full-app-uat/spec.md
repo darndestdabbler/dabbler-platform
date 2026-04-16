@@ -5,9 +5,10 @@
 > plus a few intentionally human-only checks.
 > **Created:** 2026-04-15
 > **Session Set:** `docs/session-sets/full-app-uat/`
-> **Prerequisite:** `e2e-workflow-implementation` is complete and its UAT
-> handoff notes are current, and the representative workflow inventory still
-> matches the frozen route and persona framing from
+> **Prerequisite:** `e2e-workflow-implementation` is complete, its UAT
+> handoff notes are current in
+> `docs/planning/full-app-uat-handoff-notes.md`, and the representative
+> workflow inventory still matches the frozen route and persona framing from
 > `docs/planning/e2e-persona-route-matrix.md`.
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification
 
