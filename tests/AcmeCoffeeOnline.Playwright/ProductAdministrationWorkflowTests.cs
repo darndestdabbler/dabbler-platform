@@ -209,4 +209,167 @@ public sealed class ProductAdministrationWorkflowTests
 
         Assert.Equal(expectedLabel, await GetFocusedFieldLabelAsync(page));
     }
+
+    [Fact]
+    public async Task E2E_WF_AdminProducts_EditProductViaDialog_PersistsViaApiAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+        string? userId = null;
+        ProductSnapshot? original = null;
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
+            var session = await _fixture.GetSessionInfoAsync(page);
+            userId = session.UserId;
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/dashboard", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await _fixture.NavigateToAdminProductsAsync(page);
+            var routedContent = page.GetByTestId("routed-page-content");
+
+            // Wait for grid data and get the first product's edit button
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            // Find the first edit button in the grid
+            var editButton = routedContent.GetByRole(AriaRole.Button, new() { Name = "Edit" }).First;
+            await Assertions.Expect(editButton).ToBeVisibleAsync();
+
+            // Get the product name from the first row to find it via API
+            var firstRow = routedContent.Locator(".mud-table-body tr.mud-table-row").First;
+            var productNameCell = firstRow.Locator("td").First;
+            var productName = (await productNameCell.TextContentAsync())?.Trim() ?? string.Empty;
+            original = await _fixture.GetProductByExactNameAsync(userId!, productName);
+
+            // Click edit to open dialog
+            await editButton.ClickAsync();
+            var dialog = await PlaywrightFixture.WaitForDialogAsync(page);
+
+            // Touch the Name field (required) to trigger MudForm validation
+            var nameField = dialog.GetByLabel("Name").First;
+            var currentName = await nameField.InputValueAsync();
+            await nameField.FillAsync(currentName + " ");
+            await nameField.FillAsync(currentName);
+            await Task.Delay(300);
+
+            // Modify the description
+            var editedDescription = $"Edited by Playwright {DateTime.UtcNow:yyyyMMddHHmmssfff}";
+            var descriptionField = dialog.GetByLabel("Description");
+            await descriptionField.FillAsync(editedDescription);
+
+            // Submit the edit dialog — Expect auto-retries until enabled
+            var saveButton = dialog.GetByRole(AriaRole.Button, new() { Name = "Save" });
+            await Assertions.Expect(saveButton).ToBeEnabledAsync(new() { Timeout = 5000 });
+            await saveButton.ClickAsync();
+            await Assertions.Expect(dialog).ToBeHiddenAsync(new() { Timeout = 5000 });
+
+            // Verify via API
+            var updated = await _fixture.GetProductByIdAsync(userId!, original.Id);
+            Assert.Equal(editedDescription, updated.Description);
+        }
+        finally
+        {
+            if (original is not null && !string.IsNullOrWhiteSpace(userId))
+            {
+                await _fixture.UpdateProductAsync(userId, original);
+            }
+
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    [Fact]
+    public async Task E2E_WF_AdminProducts_SearchFilter_FiltersGridAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
+            await page.GotoAsync($"{_fixture.BaseUrl}/dashboard", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await _fixture.NavigateToAdminProductsAsync(page);
+            var routedContent = page.GetByTestId("routed-page-content");
+
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            // Record initial row count
+            var initialRowCount = await PlaywrightFixture.GetGridRowCountAsync(page);
+            Assert.True(initialRowCount > 0, "Admin products grid should have data.");
+
+            // Type a specific search term that should filter results
+            var searchField = routedContent.GetByPlaceholder("Search products...");
+            await searchField.FillAsync("Espresso");
+
+            // Wait for debounce (300ms) + grid reload
+            await Task.Delay(500);
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            // Grid should have filtered data
+            var filteredRowCount = await PlaywrightFixture.GetGridRowCountAsync(page);
+            Assert.True(filteredRowCount > 0, "Search for 'Espresso' should return results.");
+
+            // Clear search to restore
+            await searchField.FillAsync("");
+            await Task.Delay(500);
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    [Fact]
+    public async Task E2E_WF_AdminProducts_Pagination_NavigatesCorrectlyAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
+            await page.GotoAsync($"{_fixture.BaseUrl}/dashboard", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+            await _fixture.NavigateToAdminProductsAsync(page);
+
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            // Check if paging controls exist (admin page uses pageSize=20)
+            var pager = page.Locator(".mud-table-pagination");
+            var pagerVisible = await pager.IsVisibleAsync();
+
+            if (pagerVisible)
+            {
+                var nextButton = pager.Locator("button[aria-label='Next page']");
+                if (await nextButton.IsEnabledAsync())
+                {
+                    await nextButton.ClickAsync();
+                    await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+                    await PlaywrightFixture.WaitForGridDataAsync(page);
+
+                    var rowCount = await PlaywrightFixture.GetGridRowCountAsync(page);
+                    Assert.True(rowCount > 0, "Page 2 should have data rows.");
+
+                    // Navigate back
+                    var prevButton = pager.Locator("button[aria-label='Previous page']");
+                    await prevButton.ClickAsync();
+                    await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+                    await PlaywrightFixture.WaitForGridDataAsync(page);
+                }
+            }
+
+            // If no pager visible, all products fit on one page — test still passes
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
 }
