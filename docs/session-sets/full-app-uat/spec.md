@@ -55,6 +55,10 @@ is frozen.
    any newly safe parallelization opportunities.
 4. Define the issue-capture, remediation, and sign-off rules for this set.
 
+Session 1 should create a durable scope ledger that freezes the inherited
+workflow IDs, human-only checks, findings classifications, and sign-off rules
+so Sessions 2 and 3 do not need to reopen scope.
+
 **Creates:** Full-app UAT scope ledger and sign-off rules
 **Touches:** This spec, downstream Phase 2 specs if needed, and planning notes
 **Ends with:** The UAT pass is deliberately scoped and tied to the automated
