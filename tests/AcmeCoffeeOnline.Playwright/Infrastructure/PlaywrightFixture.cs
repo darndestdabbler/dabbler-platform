@@ -378,6 +378,104 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         Assert.True(linkCount >= 4, $"Nav drawer should have at least 4 links, found {linkCount}.");
     }
 
+    // ── Form interaction helpers ──
+
+    /// <summary>
+    /// Resolves the actual input or textarea element for a form field.
+    /// MudBlazor 8.x renders data-testid on the input element itself,
+    /// so the testid element may be the input directly or a container div.
+    /// </summary>
+    public static async Task<ILocator> GetFormInputAsync(IPage page, string testId)
+    {
+        var element = page.GetByTestId(testId);
+        var tag = await element.EvaluateAsync<string>("el => el.tagName");
+        return tag is "INPUT" or "TEXTAREA"
+            ? element
+            : element.Locator("input, textarea").First;
+    }
+
+    public static async Task FillFormFieldAsync(IPage page, string testId, string value)
+    {
+        var input = await GetFormInputAsync(page, testId);
+        await input.FillAsync(value);
+    }
+
+    public static async Task ClearFormFieldAsync(IPage page, string testId)
+    {
+        var input = await GetFormInputAsync(page, testId);
+        await input.FillAsync("");
+    }
+
+    public static async Task SelectFormDropdownAsync(IPage page, string testId, string optionText)
+    {
+        await page.GetByTestId(testId).ClickAsync();
+        var option = page.Locator(".mud-popover-open")
+            .GetByText(optionText, new() { Exact = true }).First;
+        await Assertions.Expect(option).ToBeVisibleAsync();
+        await option.ClickAsync();
+        await Task.Delay(200);
+    }
+
+    public static async Task SelectDropdownByLabelAsync(IPage page, string label, string optionText)
+    {
+        await page.GetByLabel(label).First.ClickAsync();
+        var option = page.Locator(".mud-popover-open")
+            .GetByText(optionText, new() { Exact = true }).First;
+        await Assertions.Expect(option).ToBeVisibleAsync();
+        await option.ClickAsync();
+        await Task.Delay(200);
+    }
+
+    public static async Task ClickSaveAsync(IPage page)
+    {
+        var saveButton = page.GetByTestId("save-button");
+        await Assertions.Expect(saveButton).ToBeEnabledAsync();
+        await saveButton.ClickAsync();
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+    }
+
+    public static async Task ClickUndoAsync(IPage page)
+    {
+        var undoButton = page.GetByTestId("undo-button");
+        await Assertions.Expect(undoButton).ToBeEnabledAsync();
+        await undoButton.ClickAsync();
+    }
+
+    public static async Task AssertSaveDisabledAsync(IPage page)
+    {
+        await Assertions.Expect(page.GetByTestId("save-button")).ToBeDisabledAsync();
+    }
+
+    public static async Task AssertSaveEnabledAsync(IPage page)
+    {
+        await Assertions.Expect(page.GetByTestId("save-button")).ToBeEnabledAsync();
+    }
+
+    // ── Grid interaction helpers ──
+
+    public static async Task<int> GetGridRowCountAsync(IPage page)
+    {
+        var rows = page.Locator(".mud-table-body tr.mud-table-row");
+        return await rows.CountAsync();
+    }
+
+    public static async Task ClickGridRowAsync(IPage page, int rowIndex)
+    {
+        var currentUrl = page.Url;
+        var row = page.Locator(".mud-table-body tr.mud-table-row").Nth(rowIndex);
+        await Assertions.Expect(row).ToBeVisibleAsync();
+        await row.ClickAsync();
+        // Wait for Blazor Server to process the click and navigate via SignalR
+        await page.WaitForURLAsync(url => url != currentUrl, new() { Timeout = 10000 });
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+    }
+
+    public static async Task WaitForGridDataAsync(IPage page, int timeoutMs = 10000)
+    {
+        await Assertions.Expect(page.Locator(".mud-table-body tr.mud-table-row").First)
+            .ToBeVisibleAsync(new() { Timeout = timeoutMs });
+    }
+
     public async Task<ProductSnapshot> GetProductByExactNameAsync(string userId, string productName)
     {
         using var payload = await GetApiJsonAsync(
