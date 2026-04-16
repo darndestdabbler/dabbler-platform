@@ -33,7 +33,8 @@ public sealed class SmokeTests
                 .ToBeVisibleAsync();
             await Assertions.Expect(page.Locator("link[data-dabbler-asset='dabbler-shell.css']"))
                 .ToHaveCountAsync(1);
-            await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Welcome to AcmeCoffeeDistributors" }))
+            await Assertions.Expect(page.GetByTestId("routed-page-content")
+                    .GetByRole(AriaRole.Heading, new() { Name = "Welcome to AcmeCoffeeDistributors" }))
                 .ToBeVisibleAsync();
         }
         finally
@@ -244,73 +245,4 @@ public sealed class SmokeTests
         }
     }
 
-    [Fact]
-    public async Task ProductAdministration_TogglesAvailabilityAndPersistsToBackendAsync()
-    {
-        var page = await _fixture.CreatePageAsync();
-        const string productName = "Blonde Roast - Decaf - Espresso";
-        int? productId = null;
-        bool? wasAvailable = null;
-        string? userId = null;
-
-        try
-        {
-            await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
-
-            var session = await _fixture.GetSessionInfoAsync(page);
-            userId = session.UserId;
-            Assert.False(string.IsNullOrWhiteSpace(userId));
-            Assert.Contains("SystemAdmin", session.Roles ?? []);
-
-            using var beforePayload = await _fixture.GetApiJsonAsync(
-                $"api/products?page=1&pageSize=10&searchTerm={Uri.EscapeDataString(productName)}",
-                userId!);
-
-            var beforeProduct = beforePayload.RootElement
-                .GetProperty("items")
-                .EnumerateArray()
-                .FirstOrDefault(item => item.GetProperty("name").GetString() == productName);
-
-            Assert.Equal(productName, beforeProduct.GetProperty("name").GetString());
-
-            productId = beforeProduct.GetProperty("id").GetInt32();
-            wasAvailable = beforeProduct.GetProperty("isAvailable").GetBoolean();
-
-            await _fixture.PatchApiAsync($"api/products/{productId}/availability", userId!);
-
-            using var afterPayload = await _fixture.GetApiJsonAsync(
-                $"api/products?page=1&pageSize=10&searchTerm={Uri.EscapeDataString(productName)}",
-                userId!);
-
-            var afterProduct = afterPayload.RootElement
-                .GetProperty("items")
-                .EnumerateArray()
-                .First(item => item.GetProperty("id").GetInt32() == productId);
-
-            Assert.Equal(productName, afterProduct.GetProperty("name").GetString());
-            Assert.NotEqual(wasAvailable, afterProduct.GetProperty("isAvailable").GetBoolean());
-        }
-        finally
-        {
-            if (productId.HasValue && wasAvailable.HasValue && !string.IsNullOrWhiteSpace(userId))
-            {
-                using var finalPayload = await _fixture.GetApiJsonAsync(
-                    $"api/products?page=1&pageSize=10&searchTerm={Uri.EscapeDataString(productName)}",
-                    userId);
-
-                var currentProduct = finalPayload.RootElement
-                    .GetProperty("items")
-                    .EnumerateArray()
-                    .FirstOrDefault(item => item.GetProperty("id").GetInt32() == productId.Value);
-
-                if (currentProduct.ValueKind != System.Text.Json.JsonValueKind.Undefined
-                    && currentProduct.GetProperty("isAvailable").GetBoolean() != wasAvailable.Value)
-                {
-                    await _fixture.PatchApiAsync($"api/products/{productId.Value}/availability", userId);
-                }
-            }
-
-            await _fixture.ClosePageAsync(page);
-        }
-    }
 }

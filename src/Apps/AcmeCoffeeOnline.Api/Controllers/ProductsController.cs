@@ -65,7 +65,7 @@ public class ProductsController : ControllerBase
 
         var created = await _productService.CreateAsync(dto, cancellationToken);
         await _permissionService.ApplyFieldPermissionsAsync(created, userId, "Product");
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created);
+        return Created($"/api/products/{created.Id}", created);
     }
 
     [HttpPut("{id:int}")]

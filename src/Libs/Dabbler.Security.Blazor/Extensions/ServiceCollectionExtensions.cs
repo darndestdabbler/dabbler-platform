@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 
@@ -38,14 +39,19 @@ public static class ServiceCollectionExtensions
 public class UserIdentityHandler : DelegatingHandler
 {
     private readonly AuthenticationStateProvider _authStateProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserIdentityHandler"/> class.
     /// </summary>
     /// <param name="authStateProvider">The authentication state provider used to retrieve user information.</param>
-    public UserIdentityHandler(AuthenticationStateProvider authStateProvider)
+    /// <param name="httpContextAccessor">Provides access to the current HTTP context when prerendered requests fall back outside a Razor component scope.</param>
+    public UserIdentityHandler(
+        AuthenticationStateProvider authStateProvider,
+        IHttpContextAccessor httpContextAccessor)
     {
         _authStateProvider = authStateProvider;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>
@@ -57,8 +63,18 @@ public class UserIdentityHandler : DelegatingHandler
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request, CancellationToken ct)
     {
-        var authState = await _authStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        ClaimsPrincipal user;
+
+        try
+        {
+            var authState = await _authStateProvider.GetAuthenticationStateAsync();
+            user = authState.User;
+        }
+        catch (InvalidOperationException)
+        {
+            user = _httpContextAccessor.HttpContext?.User
+                ?? new ClaimsPrincipal(new ClaimsIdentity());
+        }
         
         if (user.Identity?.IsAuthenticated == true)
         {

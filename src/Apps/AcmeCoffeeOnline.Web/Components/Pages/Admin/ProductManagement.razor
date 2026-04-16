@@ -3,9 +3,12 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Shared.Enums
 @using AcmeCoffeeOnline.Web.Services
+@using Microsoft.JSInterop
+@using MudBlazor
 @inject ProductApiClient ProductClient
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject IJSRuntime JS
 
 <PageTitle>Product Administration — AcmeCoffeeDistributors</PageTitle>
 
@@ -43,6 +46,7 @@
                 <TemplateColumn Title="Available" Sortable="false">
                     <CellTemplate>
                         <MudSwitch T="bool" Value="context.Item.IsAvailable" Color="Color.Success"
+                                   data-testid="@($"product-availability-{context.Item.Id}")"
                                    ValueChanged="@(v => ToggleAvailabilityAsync(context.Item))" />
                     </CellTemplate>
                 </TemplateColumn>
@@ -77,7 +81,8 @@
     </TitleContent>
     <DialogContent>
         <MudForm @ref="_form" @bind-IsValid="_formValid">
-            <MudTextField @bind-Value="_editProduct.Name" Label="Name" Required="true"
+            <MudTextField @bind-Value="_editProduct.Name" @ref="_nameField" Label="Name" Required="true"
+                          data-testid="product-name-input"
                           RequiredError="Name is required" Variant="Variant.Outlined" Class="mb-3" />
             <MudStack Row="true" Spacing="3">
                 <MudSelect @bind-Value="_editProduct.RoastLevel" Label="Roast Level"
@@ -136,8 +141,11 @@
     private bool _isNewProduct;
     private bool _formValid;
     private MudForm? _form;
+    private MudTextField<string>? _nameField;
     private ProductDto _editProduct = new();
     private readonly DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+    private bool _focusNameField;
+    private int _focusNameRetriesRemaining;
 
     protected override async Task OnInitializedAsync()
     {
@@ -215,6 +223,8 @@
         _isNewProduct = true;
         _editProduct = new ProductDto { IsAvailable = true };
         _dialogVisible = true;
+        _focusNameField = true;
+        _focusNameRetriesRemaining = 2;
         return Task.CompletedTask;
     }
 
@@ -276,5 +286,38 @@
     private void CloseDialog()
     {
         _dialogVisible = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusNameField && _dialogVisible)
+        {
+            if (_nameField is not null)
+            {
+                try
+                {
+                    await _nameField.FocusAsync();
+                    await JS.InvokeVoidAsync(
+                        "eval",
+                        "document.querySelector('[data-testid=\"product-name-input\"]')?.focus()");
+                    _focusNameField = false;
+                    _focusNameRetriesRemaining = 0;
+                }
+                catch when (_focusNameRetriesRemaining > 0)
+                {
+                    _focusNameRetriesRemaining--;
+                    await InvokeAsync(StateHasChanged);
+                    return;
+                }
+            }
+            else if (_focusNameRetriesRemaining > 0)
+            {
+                _focusNameRetriesRemaining--;
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 }

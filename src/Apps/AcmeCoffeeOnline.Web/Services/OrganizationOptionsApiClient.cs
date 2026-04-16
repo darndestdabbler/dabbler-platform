@@ -14,10 +14,21 @@ public sealed class OrganizationOptionsApiClient
 
     public async Task<IReadOnlyList<OrganizationOptionDto>> GetOptionsAsync(CancellationToken cancellationToken = default)
     {
-        var options = await _httpClient.GetFromJsonAsync<IReadOnlyList<OrganizationOptionDto>>(
-            "api/session/organization-options",
-            cancellationToken);
+        try
+        {
+            var options = await _httpClient.GetFromJsonAsync<IReadOnlyList<OrganizationOptionDto>>(
+                "api/session/organization-options",
+                cancellationToken);
 
-        return options ?? [];
+            return options ?? [];
+        }
+        catch (HttpRequestException)
+        {
+            return [];
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return [];
+        }
     }
 }

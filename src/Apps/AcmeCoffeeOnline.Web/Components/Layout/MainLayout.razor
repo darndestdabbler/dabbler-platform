@@ -127,6 +127,10 @@
     </MudStack>
 </MudAppBar>
 
+<section class="pa-4" data-testid="routed-page-content">
+    @Body
+</section>
+
 @* ── Shell with role-filtered entity navigation ────────────────── *@
 <DabblerShell MetadataProvider="_filteredMetadataProvider ?? MetadataProvider"
               NavigationDataProvider="NavigationDataProvider"

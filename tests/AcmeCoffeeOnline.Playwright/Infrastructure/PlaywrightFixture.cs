@@ -2,8 +2,10 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
 using System.Text.Json;
 using Microsoft.Playwright;
+using Xunit;
 
 namespace AcmeCoffeeOnline.Playwright.Infrastructure;
 
@@ -219,6 +221,122 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             ?? throw new InvalidOperationException("Session info payload was empty.");
     }
 
+    public async Task NavigateToAdminProductsAsync(IPage page)
+    {
+        await page.GotoAsync($"{BaseUrl}/admin/products", new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle
+        });
+
+        var routedContent = page.GetByTestId("routed-page-content");
+
+        await Assertions.Expect(page)
+            .ToHaveURLAsync(new Regex(".*/admin/products$"));
+        await Assertions.Expect(page.GetByTestId("access-denied-page"))
+            .ToHaveCountAsync(0);
+        await Assertions.Expect(routedContent.GetByRole(AriaRole.Heading, new() { Name = "Product Administration" }))
+            .ToBeVisibleAsync();
+    }
+
+    public async Task<ProductSnapshot> GetProductByExactNameAsync(string userId, string productName)
+    {
+        using var payload = await GetApiJsonAsync(
+            $"api/products?page=1&pageSize=100&searchTerm={Uri.EscapeDataString(productName)}",
+            userId);
+
+        var product = payload.RootElement
+            .GetProperty("items")
+            .EnumerateArray()
+            .FirstOrDefault(item => string.Equals(
+                item.GetProperty("name").GetString(),
+                productName,
+                StringComparison.Ordinal));
+
+        if (product.ValueKind == JsonValueKind.Undefined)
+        {
+            throw new Xunit.Sdk.XunitException($"Could not find product '{productName}' through the API.");
+        }
+
+        return MapProduct(product);
+    }
+
+    public async Task<ProductSnapshot?> TryGetProductByExactNameAsync(string userId, string productName)
+    {
+        using var payload = await GetApiJsonAsync(
+            $"api/products?page=1&pageSize=100&searchTerm={Uri.EscapeDataString(productName)}",
+            userId);
+
+        var product = payload.RootElement
+            .GetProperty("items")
+            .EnumerateArray()
+            .FirstOrDefault(item => string.Equals(
+                item.GetProperty("name").GetString(),
+                productName,
+                StringComparison.Ordinal));
+
+        return product.ValueKind == JsonValueKind.Undefined ? null : MapProduct(product);
+    }
+
+    public async Task<ProductSnapshot> GetProductByIdAsync(string userId, int productId)
+    {
+        using var payload = await GetApiJsonAsync($"api/products/{productId}", userId);
+        return MapProduct(payload.RootElement);
+    }
+
+    public async Task<ProductSnapshot> UpdateProductAsync(string userId, ProductSnapshot product)
+    {
+        using var payload = await PutApiJsonAsync(
+            $"api/products/{product.Id}",
+            userId,
+            new
+            {
+                id = product.Id,
+                name = product.Name,
+                roastLevel = product.RoastLevel,
+                caffeineContent = product.CaffeineContent,
+                grindType = product.GrindType,
+                unitPrice = product.UnitPrice,
+                isAvailable = product.IsAvailable,
+                description = product.Description,
+                imageUrl = product.ImageUrl
+            });
+
+        return MapProduct(payload.RootElement);
+    }
+
+    public async Task RestoreProductAvailabilityAsync(string userId, int productId, bool expectedAvailability)
+    {
+        var current = await GetProductByIdAsync(userId, productId);
+        if (current.IsAvailable != expectedAvailability)
+        {
+            await PatchApiAsync($"api/products/{productId}/availability", userId);
+        }
+    }
+
+    public async Task<ProductSnapshot?> ArchiveProductByIdAsync(
+        string userId,
+        int productId,
+        string archivedNamePrefix)
+    {
+        ProductSnapshot current;
+        try
+        {
+            current = await GetProductByIdAsync(userId, productId);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+
+        var archived = current with
+        {
+            Name = $"{archivedNamePrefix}-{current.Id}",
+            IsAvailable = false
+        };
+
+        return await UpdateProductAsync(userId, archived);
+    }
+
     public async Task<JsonDocument> GetApiJsonAsync(string relativeUrl, string userId)
     {
         return await SendApiJsonAsync(HttpMethod.Get, relativeUrl, userId);
@@ -227,6 +345,11 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     public async Task<JsonDocument> PostApiJsonAsync(string relativeUrl, string userId, object payload)
     {
         return await SendApiJsonAsync(HttpMethod.Post, relativeUrl, userId, payload);
+    }
+
+    public async Task<JsonDocument> PutApiJsonAsync(string relativeUrl, string userId, object payload)
+    {
+        return await SendApiJsonAsync(HttpMethod.Put, relativeUrl, userId, payload);
     }
 
     public async Task PatchApiAsync(string relativeUrl, string userId)
@@ -511,6 +634,21 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         var lines = output.ToArray();
         return $"{Environment.NewLine}Recent process output:{Environment.NewLine}{string.Join(Environment.NewLine, lines)}";
     }
+
+    private static ProductSnapshot MapProduct(JsonElement element) => new(
+        element.GetProperty("id").GetInt32(),
+        element.GetProperty("name").GetString() ?? string.Empty,
+        element.GetProperty("roastLevel").GetInt32(),
+        element.GetProperty("caffeineContent").GetInt32(),
+        element.GetProperty("grindType").GetInt32(),
+        element.GetProperty("unitPrice").GetDecimal(),
+        element.GetProperty("isAvailable").GetBoolean(),
+        element.TryGetProperty("description", out var description) && description.ValueKind != JsonValueKind.Null
+            ? description.GetString()
+            : null,
+        element.TryGetProperty("imageUrl", out var imageUrl) && imageUrl.ValueKind != JsonValueKind.Null
+            ? imageUrl.GetString()
+            : null);
 }
 
 public sealed record MagicLinkMessage(
@@ -528,3 +666,14 @@ public sealed record SessionInfo(
     string? Email,
     string? CustomerId,
     string[]? Roles);
+
+public sealed record ProductSnapshot(
+    int Id,
+    string Name,
+    int RoastLevel,
+    int CaffeineContent,
+    int GrindType,
+    decimal UnitPrice,
+    bool IsAvailable,
+    string? Description,
+    string? ImageUrl);
