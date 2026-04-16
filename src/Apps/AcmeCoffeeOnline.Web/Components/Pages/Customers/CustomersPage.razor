@@ -1,30 +1,16 @@
 @page "/customers"
 @attribute [DabblerPageAuthorize("/customers")]
 @using AcmeCoffeeOnline.Shared.DTOs
-@using AcmeCoffeeOnline.Web.Services
 @using Dabbler.Components.Data
 
 <PageTitle>Retail Businesses — AcmeCoffeeDistributors</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
-    <MudStack Row="true" AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween" Class="mb-4">
-        <MudStack Spacing="1">
-            <MudText Typo="Typo.h4">Retail Businesses</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                Each record currently represents the primary account contact for a retail business while the later multi-organization session adds full organization memberships.
-            </MudText>
-        </MudStack>
-        <MudStack Row="true" Spacing="2">
-            <DabblerSecured PageKey="/customers" ControlKey="DeleteCustomerButton">
-                <MudButton Variant="Variant.Outlined" Color="Color.Error"
-                           StartIcon="@Icons.Material.Filled.Delete">
-                    Deactivate Retail Business
-                </MudButton>
-            </DabblerSecured>
-        </MudStack>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">Retail Businesses</MudText>
     </MudStack>
 
-    <CustomerList DataProvider="CustomerDataProvider" Title="Retail Businesses" />
+    <CustomerList DataProvider="CustomerDataProvider" />
 </MudContainer>
 
 @code {

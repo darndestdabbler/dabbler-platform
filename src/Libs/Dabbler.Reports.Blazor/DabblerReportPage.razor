@@ -73,53 +73,70 @@
             </MudButton>
         }
 
-        <DabblerPageErrorBanner Error="@_error" OnDismiss="@DismissErrorAsync" />
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error"
+                      Variant="Variant.Filled"
+                      ShowCloseIcon="true"
+                      CloseIconClicked="@DismissErrorAsync"
+                      Class="mb-2"
+                      role="alert">
+                @_error.Message
+            </MudAlert>
+        }
 
-        <DabblerPageToolbar StatusText="@_statusText" IsLoading="@_isLoading">
-            <ChildContent>
-                @if (ToolbarTemplate is not null)
-                {
-                    @ToolbarTemplate
-                }
-            </ChildContent>
-            <ActionButtons>
-                @if (ShowZoom)
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.ZoomOut"
-                                   Size="Size.Small"
-                                   OnClick="@ZoomOutAsync"
-                                   Disabled="@(_scale <= 0.25)"
-                                   aria-label="Zoom out" />
-                    <MudText Typo="Typo.body2" Class="mx-1"
-                             style="min-width:40px;text-align:center;user-select:none;"
-                             aria-live="polite"
-                             aria-label="@($"Zoom level: {ZoomPercentText}")">
-                        @ZoomPercentText
-                    </MudText>
-                    <MudIconButton Icon="@Icons.Material.Filled.ZoomIn"
-                                   Size="Size.Small"
-                                   OnClick="@ZoomInAsync"
-                                   Disabled="@(_scale >= 3.0)"
-                                   aria-label="Zoom in" />
-                }
-                @if (ShowPdfExport)
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.PictureAsPdf"
-                                   Size="Size.Small"
-                                   OnClick="@ExportToPdfAsync"
-                                   Disabled="@(!_hasRun || _isLoading)"
-                                   aria-label="Export to PDF" />
-                }
-                @if (ShowPrint)
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.Print"
-                                   Size="Size.Small"
-                                   OnClick="@PrintAsync"
-                                   Disabled="@(!_hasRun || _isLoading)"
-                                   aria-label="Print" />
-                }
-            </ActionButtons>
-        </DabblerPageToolbar>
+        <div class="d-flex align-center gap-2 my-2">
+            @if (_isLoading)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            @if (!string.IsNullOrEmpty(_statusText))
+            {
+                <MudText Typo="Typo.body2" aria-live="polite" aria-busy="@_isLoading">
+                    @_statusText
+                </MudText>
+            }
+            @if (ToolbarTemplate is not null)
+            {
+                @ToolbarTemplate
+            }
+            <MudSpacer />
+            @if (ShowZoom)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.ZoomOut"
+                               Size="Size.Small"
+                               OnClick="@ZoomOutAsync"
+                               Disabled="@(_scale <= 0.25)"
+                               aria-label="Zoom out" />
+                <MudText Typo="Typo.body2" Class="mx-1"
+                         style="min-width:40px;text-align:center;user-select:none;"
+                         aria-live="polite"
+                         aria-label="@($"Zoom level: {ZoomPercentText}")">
+                    @ZoomPercentText
+                </MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.ZoomIn"
+                               Size="Size.Small"
+                               OnClick="@ZoomInAsync"
+                               Disabled="@(_scale >= 3.0)"
+                               aria-label="Zoom in" />
+            }
+            @if (ShowPdfExport)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.PictureAsPdf"
+                               Size="Size.Small"
+                               OnClick="@ExportToPdfAsync"
+                               Disabled="@(!_hasRun || _isLoading)"
+                               aria-label="Export to PDF" />
+            }
+            @if (ShowPrint)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Print"
+                               Size="Size.Small"
+                               OnClick="@PrintAsync"
+                               Disabled="@(!_hasRun || _isLoading)"
+                               aria-label="Print" />
+            }
+        </div>
 
         <div class="dabbler-page-content" aria-live="polite" aria-busy="@_isLoading">
             @if (_isLoading && !_hasRun)

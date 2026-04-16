@@ -1,7 +1,6 @@
 @page "/orders"
 @attribute [DabblerPageAuthorize("/orders")]
 @using AcmeCoffeeOnline.Shared.DTOs
-@using AcmeCoffeeOnline.Web.Services
 @using Dabbler.Components.Data
 
 <PageTitle>Orders — AcmeCoffeeDistributors</PageTitle>
@@ -9,23 +8,9 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
         <MudText Typo="Typo.h4">Orders</MudText>
-        <MudStack Row="true" Spacing="2">
-            <DabblerSecured PageKey="/orders" ControlKey="DeleteOrderButton">
-                <MudButton Variant="Variant.Outlined" Color="Color.Error"
-                           StartIcon="@Icons.Material.Filled.Delete">
-                    Delete Order
-                </MudButton>
-            </DabblerSecured>
-            <DabblerSecured PageKey="/orders" ControlKey="UpdateStatusButton">
-                <MudButton Variant="Variant.Outlined" Color="Color.Warning"
-                           StartIcon="@Icons.Material.Filled.Update">
-                    Update Status
-                </MudButton>
-            </DabblerSecured>
-        </MudStack>
     </MudStack>
 
-    <OrderList DataProvider="OrderDataProvider" Title="All Orders" />
+    <OrderList DataProvider="OrderDataProvider" />
 </MudContainer>
 
 @code {

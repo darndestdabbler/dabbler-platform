@@ -1,155 +1,151 @@
 @page "/dashboard"
 @attribute [DabblerPageAuthorize("/dashboard")]
-@using System.Text.Json
+@inject NavigationManager NavigationManager
 
 <PageTitle>Dashboard — AcmeCoffeeDistributors</PageTitle>
 
-<DabblerDashboardPage Configuration="_dashboardConfig"
-                       OnArtifactSelected="OnArtifactSelectedAsync"
-                       OnRecordSelected="OnRecordSelectedAsync"
-                       OnSearchRequested="OnSearchRequestedAsync" />
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudText Typo="Typo.h4" GutterBottom="true">AcmeCoffeeDistributors Dashboard</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+        Distributor operations dashboard with navigation, reports, and focused search
+    </MudText>
+
+    @* ── Row 1: Entity navigation cards ──────────────────────────────── *@
+    <MudGrid Class="mb-4">
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="cursor-pointer" Style="border-left: 4px solid #1976D2;"
+                     @onclick="@(() => NavigationManager.NavigateTo("/orders"))"
+                     data-testid="nav-card-orders">
+                <MudCardContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Primary" Size="Size.Large" />
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.h6">Orders</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Manage distributor orders from retail businesses
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="cursor-pointer" Style="border-left: 4px solid #388E3C;"
+                     @onclick="@(() => NavigationManager.NavigateTo("/customers"))"
+                     data-testid="nav-card-customers">
+                <MudCardContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="@Icons.Material.Filled.People" Color="Color.Secondary" Size="Size.Large" />
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.h6">Retail Businesses</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Review retail-business account contacts and activity
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="cursor-pointer" Style="border-left: 4px solid #F57C00;"
+                     @onclick="@(() => NavigationManager.NavigateTo("/products"))"
+                     data-testid="nav-card-products">
+                <MudCardContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="@Icons.Material.Filled.Inventory" Color="Color.Warning" Size="Size.Large" />
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.h6">Products</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Search and manage distributor catalog records
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    @* ── Row 2: Reports quick links + focused search ─────────────────── *@
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="1" Class="pa-4" Style="height: 100%;">
+                <MudText Typo="Typo.h6" GutterBottom="true">Reports</MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem Icon="@Icons.Material.Filled.Assessment"
+                                 Href="/reports/orders-by-customer"
+                                 data-testid="report-link-orders-by-customer">
+                        Orders by Retail Business
+                    </MudListItem>
+                    <MudListItem Icon="@Icons.Material.Filled.BarChart"
+                                 Href="/reports/sales-by-product"
+                                 data-testid="report-link-sales-by-product">
+                        Sales by Product
+                    </MudListItem>
+                </MudList>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="1" Class="pa-4" Style="height: 100%;">
+                <MudTextField T="string"
+                              @bind-Value="_orderSearchText"
+                              Label="Search Orders"
+                              Placeholder="Search orders by number or retail business..."
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              OnAdornmentClick="@SearchOrdersAsync"
+                              OnKeyUp="@OnOrderSearchKeyUpAsync"
+                              Variant="Variant.Outlined"
+                              data-testid="search-orders" />
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="1" Class="pa-4" Style="height: 100%;">
+                <MudTextField T="string"
+                              @bind-Value="_productSearchText"
+                              Label="Search Products"
+                              Placeholder="Search products by name..."
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              OnAdornmentClick="@SearchProductsAsync"
+                              OnKeyUp="@OnProductSearchKeyUpAsync"
+                              Variant="Variant.Outlined"
+                              data-testid="search-products" />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
-    [Inject]
-    private NavigationManager NavigationManager { get; set; } = default!;
+    private string? _orderSearchText;
+    private string? _productSearchText;
 
-    private DashboardConfiguration _dashboardConfig = default!;
-
-    protected override void OnInitialized()
+    private Task SearchOrdersAsync()
     {
-        _dashboardConfig = BuildDashboardConfiguration();
-    }
-
-    private static DashboardConfiguration BuildDashboardConfiguration()
-    {
-        return new DashboardConfiguration
-        {
-            DashboardId = "acme-home",
-            Name = "AcmeCoffeeDistributors Dashboard",
-            Description = "Distributor operations dashboard with navigation, reports, and focused search",
-            ColumnCount = 3,
-            IsSystemDashboard = true,
-            Widgets = new List<WidgetPlacement>
-            {
-                // ── Row 1: Entity navigation cards ────────────────────────
-                CreateNavigationCard("nav-orders", 1, 1, 1, 1,
-                    "Orders", "ShoppingCart", "Manage distributor orders from retail businesses", "#1976D2",
-                    "entity", "Order"),
-
-                CreateNavigationCard("nav-customers", 1, 2, 1, 1,
-                    "Retail Businesses", "People", "Review retail-business account contacts and activity", "#388E3C",
-                    "entity", "Customer"),
-
-                CreateNavigationCard("nav-products", 1, 3, 1, 1,
-                    "Products", "Inventory", "Search and manage distributor catalog records", "#F57C00",
-                    "entity", "Product"),
-
-                // ── Row 2: Reports quick links + focused search ───────────
-                CreateQuickLinksGroup("links-reports", 2, 1, 1, 1,
-                    "Reports",
-                    ("Orders by Retail Business", "report", "orders-by-customer"),
-                    ("Sales by Product", "report", "sales-by-product")),
-
-                CreateEmbeddedSearch("search-orders", 2, 2, 1, 1,
-                    "Order", "Search orders by number or retail business..."),
-
-                CreateEmbeddedSearch("search-products", 2, 3, 1, 1,
-                    "Product", "Search products by name...")
-            }
-        };
-    }
-
-    private static WidgetPlacement CreateNavigationCard(
-        string id, int row, int col, int colSpan, int rowSpan,
-        string label, string icon, string subtitle, string color,
-        string navigateType, string entityId)
-    {
-        var config = new
-        {
-            Label = label,
-            Icon = icon,
-            Subtitle = subtitle,
-            Color = color,
-            NavigateTo = new { Type = navigateType, EntityId = entityId }
-        };
-
-        return new WidgetPlacement
-        {
-            PlacementId = id,
-            DashboardId = "acme-home",
-            GridRow = row,
-            GridColumn = col,
-            ColSpan = colSpan,
-            RowSpan = rowSpan,
-            WidgetType = WidgetType.NavigationCard,
-            ConfigJson = JsonSerializer.Serialize(config),
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private static WidgetPlacement CreateQuickLinksGroup(
-        string id, int row, int col, int colSpan, int rowSpan,
-        string title, params (string Label, string Type, string ArtifactId)[] links)
-    {
-        var config = new
-        {
-            Title = title,
-            Links = links.Select(l => new { l.Label, l.Type, l.ArtifactId }).ToArray()
-        };
-
-        return new WidgetPlacement
-        {
-            PlacementId = id,
-            DashboardId = "acme-home",
-            GridRow = row,
-            GridColumn = col,
-            ColSpan = colSpan,
-            RowSpan = rowSpan,
-            WidgetType = WidgetType.QuickLinksGroup,
-            ConfigJson = JsonSerializer.Serialize(config),
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private static WidgetPlacement CreateEmbeddedSearch(
-        string id, int row, int col, int colSpan, int rowSpan,
-        string entityName, string placeholder)
-    {
-        var config = new { EntityName = entityName, Placeholder = placeholder };
-
-        return new WidgetPlacement
-        {
-            PlacementId = id,
-            DashboardId = "acme-home",
-            GridRow = row,
-            GridColumn = col,
-            ColSpan = colSpan,
-            RowSpan = rowSpan,
-            WidgetType = WidgetType.EmbeddedSearch,
-            ConfigJson = JsonSerializer.Serialize(config),
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private Task OnArtifactSelectedAsync((ArtifactType ArtifactType, string ArtifactId, string Name) args)
-    {
-        var url = args.ArtifactType switch
-        {
-            ArtifactType.Report => $"/reports/{args.ArtifactId}",
-            ArtifactType.Dashboard => "/dashboard",
-            _ => "/"
-        };
-        NavigationManager.NavigateTo(url);
+        NavigationManager.NavigateTo("/orders");
         return Task.CompletedTask;
     }
 
-    private Task OnRecordSelectedAsync((string EntityName, object PrimaryKey) args)
+    private Task SearchProductsAsync()
     {
+        NavigationManager.NavigateTo("/products");
         return Task.CompletedTask;
     }
 
-    private Task OnSearchRequestedAsync((string EntityName, string? SearchText) args)
+    private Task OnOrderSearchKeyUpAsync(KeyboardEventArgs args)
     {
+        if (args.Key == "Enter")
+            return SearchOrdersAsync();
+        return Task.CompletedTask;
+    }
+
+    private Task OnProductSearchKeyUpAsync(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+            return SearchProductsAsync();
         return Task.CompletedTask;
     }
 }

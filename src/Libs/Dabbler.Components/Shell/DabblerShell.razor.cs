@@ -94,7 +94,7 @@ public partial class DabblerShell : DabblerComponentBase
     /// <summary>
     /// Creates a dashboard page <see cref="RenderFragment"/> for a given
     /// <see cref="DashboardConfiguration"/>. When null, dashboard tabs render
-    /// using the built-in <see cref="DabblerDashboardPage"/> component.
+    /// a placeholder message.
     /// </summary>
     [Parameter]
     public Func<DashboardConfiguration, RenderFragment>? DashboardPageFactory { get; set; }
@@ -392,18 +392,12 @@ public partial class DabblerShell : DabblerComponentBase
         }
         else
         {
-            builder.OpenComponent<DabblerDashboardPage>(0);
-            builder.AddAttribute(1, nameof(DabblerDashboardPage.Configuration), config);
-            builder.AddAttribute(2, nameof(DabblerDashboardPage.UsageTrackingProvider), UsageTrackingProvider);
-            builder.AddAttribute(3, nameof(DabblerDashboardPage.UserId), UserId);
-            builder.AddAttribute(4, nameof(DabblerDashboardPage.OnArtifactSelected),
-                EventCallback.Factory.Create<(ArtifactType, string, string)>(this, HandleMenuArtifactSelectedAsync));
-            builder.AddAttribute(5, nameof(DabblerDashboardPage.OnRecordSelected),
-                EventCallback.Factory.Create<(string, object)>(this, HandleRecordSelectedAsync));
-            builder.AddAttribute(6, nameof(DabblerDashboardPage.OnSearchRequested),
-                EventCallback.Factory.Create<(string, string?)>(this,
-                    args => HandleSearchRequestedAsync((args.Item1, null))));
-            builder.CloseComponent();
+            // DabblerDashboardPage was removed during the MudBlazor-native rebuild.
+            // App-level dashboards now use explicit MudBlazor composition via route-based pages.
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "dabbler-dashboard-placeholder");
+            builder.AddContent(2, "Dashboard rendering requires a DashboardPageFactory parameter.");
+            builder.CloseElement();
         }
     };
 
