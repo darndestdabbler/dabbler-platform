@@ -55,7 +55,14 @@
              Loading="@_isLoading"
              RowClick="@OnRowClick">
     <Columns>
-        <PropertyColumn Property="e => e.Id" Title="Order #" />
+        <TemplateColumn Title="Order #" SortBy="e => e.Id">
+            <CellTemplate>
+                <MudLink Href="@($"/orders/{context.Item.Id}")"
+                         data-testid="@($"order-detail-link-{context.Item.Id}")">
+                    @context.Item.Id
+                </MudLink>
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="e => e.CustomerName" Title="Retail Business Contact" />
         <PropertyColumn Property="e => e.OrderDate" Title="Order Date" Format="d" />
         <TemplateColumn Title="Status" Sortable="true">

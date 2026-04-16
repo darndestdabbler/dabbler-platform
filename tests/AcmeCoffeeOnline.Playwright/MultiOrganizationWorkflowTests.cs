@@ -38,16 +38,10 @@ public sealed class MultiOrganizationWorkflowTests
                     && (organization.Roles ?? []).Contains("Customer", StringComparer.Ordinal))
                 ?? throw new Xunit.Sdk.XunitException("The dual-membership user did not expose a retail organization.");
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/customers", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
+            // As an internal user, navigate to customers via the drawer
+            await _fixture.NavigateViaDrawerAsync(page, "Retail Businesses", ".*/customers$");
 
-            await Assertions.Expect(page)
-                .ToHaveURLAsync(new Regex(".*/customers$"));
-            await Assertions.Expect(page.GetByTestId("access-denied-page"))
-                .ToHaveCountAsync(0);
-
+            // Switch to retail organization
             await _fixture.SwitchOrganizationFromShellAsync(page, retailOrganization.OrganizationName);
 
             await Assertions.Expect(page.GetByTestId("active-organization-label"))
@@ -58,16 +52,10 @@ public sealed class MultiOrganizationWorkflowTests
             Assert.Contains("Customer", switchedSession.Roles ?? []);
             Assert.DoesNotContain("BackofficeUser", switchedSession.Roles ?? []);
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/orders", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
+            // As retail customer, orders should be accessible via drawer
+            await _fixture.NavigateViaDrawerAsync(page, "Orders", ".*/orders$");
 
-            await Assertions.Expect(page)
-                .ToHaveURLAsync(new Regex(".*/orders$"));
-            await Assertions.Expect(page.GetByTestId("access-denied-page"))
-                .ToHaveCountAsync(0);
-
+            // Admin users page should be blocked
             await page.GotoAsync($"{_fixture.BaseUrl}/admin/users", new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
@@ -117,16 +105,13 @@ public sealed class MultiOrganizationWorkflowTests
             var secondManagedOrganization = managedOrganizations[1];
             firstManagedOrganizationId = firstManagedOrganization.OrganizationId;
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/admin/users", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
+            // Navigate to admin users via drawer group
+            await _fixture.NavigateViaDrawerGroupAsync(page, "Admin", "User Management", ".*/admin/users$");
 
-            await Assertions.Expect(page)
-                .ToHaveURLAsync(new Regex(".*/admin/users$"));
             await Assertions.Expect(page.GetByTestId("user-admin-scope-warning"))
                 .ToBeVisibleAsync();
 
+            // Switch to first managed organization
             await _fixture.SwitchOrganizationFromShellAsync(page, firstManagedOrganization.OrganizationName);
 
             await page.GotoAsync($"{_fixture.BaseUrl}/admin/users", new PageGotoOptions
@@ -163,6 +148,7 @@ public sealed class MultiOrganizationWorkflowTests
             var updatedTarget = afterScope.Users.Single(user => user.OrganizationMembershipId == targetMembershipId.Value);
             Assert.Equal(!originalHasScopedUserAdmin.Value, updatedTarget.HasScopedUserAdmin);
 
+            // Switch to second organization and verify scoping
             await _fixture.SwitchOrganizationFromShellAsync(page, secondManagedOrganization.OrganizationName);
 
             await page.GotoAsync($"{_fixture.BaseUrl}/admin/users", new PageGotoOptions
@@ -177,6 +163,9 @@ public sealed class MultiOrganizationWorkflowTests
 
             var secondScope = await _fixture.GetAdminUserScopeAsync(actorUserId!, secondManagedOrganization.OrganizationId);
             Assert.DoesNotContain(secondScope.Users, user => user.OrganizationMembershipId == targetMembershipId.Value);
+
+            // Verify layout on admin users page
+            await PlaywrightFixture.AssertLayoutSpacingAsync(page);
         }
         finally
         {

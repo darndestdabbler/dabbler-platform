@@ -36,6 +36,7 @@ public sealed class ProductAdministrationWorkflowTests
             productId = beforeProduct.Id;
             originalAvailability = beforeProduct.IsAvailable;
 
+            // Navigate to admin products via the drawer nav group
             await _fixture.NavigateToAdminProductsAsync(page);
             var routedContent = page.GetByTestId("routed-page-content");
 
@@ -64,6 +65,9 @@ public sealed class ProductAdministrationWorkflowTests
 
             var afterProduct = await _fixture.GetProductByIdAsync(userId!, productId.Value);
             Assert.Equal(expectedAvailability, afterProduct.IsAvailable);
+
+            // Verify layout and accessibility on admin page
+            await PlaywrightFixture.AssertLayoutSpacingAsync(page);
         }
         finally
         {
@@ -95,6 +99,7 @@ public sealed class ProductAdministrationWorkflowTests
             Assert.False(string.IsNullOrWhiteSpace(userId));
             Assert.Contains("SystemAdmin", session.Roles ?? []);
 
+            // Navigate to admin products via the drawer nav group
             await _fixture.NavigateToAdminProductsAsync(page);
             var routedContent = page.GetByTestId("routed-page-content");
 

@@ -16,7 +16,7 @@ public sealed class SmokeTests
     }
 
     [Fact]
-    public async Task HomePage_ShowsApiConnectivityAsync()
+    public async Task HomePage_RedirectsToDashboardWithMudBlazorLayoutAsync()
     {
         var page = await _fixture.CreatePageAsync();
 
@@ -29,13 +29,22 @@ public sealed class SmokeTests
                 WaitUntil = WaitUntilState.NetworkIdle
             });
 
+            // Home page redirects to /dashboard
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/dashboard$"));
+
+            // MudBlazor layout shell is present
             await Assertions.Expect(page.GetByTestId("main-shell"))
                 .ToBeVisibleAsync();
             await Assertions.Expect(page.Locator("link[data-dabbler-asset='dabbler-shell.css']"))
                 .ToHaveCountAsync(1);
             await Assertions.Expect(page.GetByTestId("routed-page-content")
-                    .GetByRole(AriaRole.Heading, new() { Name = "Welcome to AcmeCoffeeDistributors" }))
+                    .GetByRole(AriaRole.Heading, new() { Name = "AcmeCoffeeDistributors Dashboard" }))
                 .ToBeVisibleAsync();
+
+            // Nav drawer and app bar are present
+            await PlaywrightFixture.AssertNavDrawerVisibleAsync(page);
+            await PlaywrightFixture.AssertLayoutSpacingAsync(page);
+            await PlaywrightFixture.AssertAccessibilityBasicsAsync(page);
         }
         finally
         {
@@ -61,6 +70,7 @@ public sealed class SmokeTests
                 .ToBeVisibleAsync();
             await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Sign In" }))
                 .ToBeVisibleAsync();
+            // Main layout shell should not appear on auth pages
             await Assertions.Expect(page.GetByTestId("main-shell"))
                 .ToHaveCountAsync(0);
         }
@@ -105,13 +115,9 @@ public sealed class SmokeTests
 
             await Assertions.Expect(page.GetByTestId("main-shell")).ToBeVisibleAsync();
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/orders", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
+            // Navigate to orders via the drawer nav menu
+            await _fixture.NavigateViaDrawerAsync(page, "Orders", ".*/orders$");
 
-            await Assertions.Expect(page)
-                .ToHaveURLAsync(new Regex(".*/orders$"));
             await Assertions.Expect(page.GetByTestId("access-denied-page"))
                 .ToHaveCountAsync(0);
 
@@ -133,6 +139,7 @@ public sealed class SmokeTests
         {
             await _fixture.SeededSignInAsync(page, "james.smith@example.com");
 
+            // Customer user cannot access the Customers page
             await page.GotoAsync($"{_fixture.BaseUrl}/customers", new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
@@ -144,6 +151,7 @@ public sealed class SmokeTests
             Assert.Equal("james.smith@example.com", retailBusinessSession.Email);
             Assert.False(string.IsNullOrWhiteSpace(retailBusinessSession.UserId));
 
+            // Verify API-level order scoping
             using (var ordersPayload = await _fixture.GetApiJsonAsync(
                 "api/orders?page=1&pageSize=5",
                 retailBusinessSession.UserId!))
@@ -154,17 +162,49 @@ public sealed class SmokeTests
                     Assert.Equal("James Smith", item.GetProperty("customerName").GetString()));
             }
 
+            // Switch to an internal user and verify customers page is accessible
             await _fixture.SignOutAsync(page);
             await _fixture.SeededSignInAsync(page, "jdoe@acmecoffee.com");
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/customers", new PageGotoOptions
+            // Navigate to customers via the drawer
+            await _fixture.NavigateViaDrawerAsync(page, "Retail Businesses", ".*/customers$");
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    [Fact]
+    public async Task DrawerNavigation_RoutesToAllMainSectionsAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "jdoe@acmecoffee.com");
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/dashboard", new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
             });
 
-            await Assertions.Expect(page)
-                .ToHaveURLAsync(new Regex(".*/customers$"));
-            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+            await Assertions.Expect(page.GetByTestId("main-shell")).ToBeVisibleAsync();
+
+            // Navigate to each main section via the drawer
+            await _fixture.NavigateViaDrawerAsync(page, "Orders", ".*/orders$");
+            await _fixture.NavigateViaDrawerAsync(page, "Retail Businesses", ".*/customers$");
+            await _fixture.NavigateViaDrawerAsync(page, "Products", ".*/products$");
+            await _fixture.NavigateViaDrawerAsync(page, "Dashboard", ".*/dashboard$");
+
+            // Navigate to a report via the drawer group
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Reports", "Orders by Retail Business", ".*/reports/orders-by-customer$");
+
+            // Verify browser back navigation works with route-based nav
+            await page.GoBackAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/dashboard$"));
         }
         finally
         {
@@ -179,6 +219,7 @@ public sealed class SmokeTests
 
         try
         {
+            // kbrown is an admin (BackofficeUserAdmin) but not SystemAdmin
             await _fixture.SeededSignInAsync(page, "kbrown@acmecoffee.com");
 
             await page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions
@@ -186,16 +227,14 @@ public sealed class SmokeTests
                 WaitUntil = WaitUntilState.NetworkIdle
             });
 
+            // Non-system-admin should not see "Catalog" in the nav
             await Assertions.Expect(page.GetByText("Catalog", new() { Exact = true }))
                 .ToHaveCountAsync(0);
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/products", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
-            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/products$"));
-            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+            // Products page is accessible
+            await _fixture.NavigateViaDrawerAsync(page, "Products", ".*/products$");
 
+            // Products catalog is accessible
             await page.GotoAsync($"{_fixture.BaseUrl}/products/catalog", new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
@@ -203,13 +242,10 @@ public sealed class SmokeTests
             await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/products/catalog$"));
             await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/admin/users", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
-            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/admin/users$"));
-            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+            // User Management accessible via admin drawer group
+            await _fixture.NavigateViaDrawerGroupAsync(page, "Admin", "User Management", ".*/admin/users$");
 
+            // Product Management and Security Dashboard blocked for non-SystemAdmin
             await page.GotoAsync($"{_fixture.BaseUrl}/admin/products", new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
@@ -222,22 +258,14 @@ public sealed class SmokeTests
             });
             await Assertions.Expect(page.GetByTestId("access-denied-page")).ToBeVisibleAsync();
 
+            // Switch to SystemAdmin and verify admin sections accessible
             await _fixture.SignOutAsync(page);
             await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
 
-            await page.GotoAsync($"{_fixture.BaseUrl}/admin/products", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
-            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/admin/products$"));
-            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
-
-            await page.GotoAsync($"{_fixture.BaseUrl}/admin/security", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
-            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/admin/security$"));
-            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Product Management", ".*/admin/products$");
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
         }
         finally
         {
@@ -245,4 +273,45 @@ public sealed class SmokeTests
         }
     }
 
+    [Fact]
+    public async Task DashboardCards_NavigateToEntityPagesAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "jdoe@acmecoffee.com");
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/dashboard", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+
+            // Click the Orders navigation card
+            await page.GetByTestId("nav-card-orders").ClickAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/orders$"));
+
+            // Go back and click Retail Businesses card
+            await page.GoBackAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await page.GetByTestId("nav-card-customers").ClickAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/customers$"));
+
+            // Go back and click Products card
+            await page.GoBackAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await page.GetByTestId("nav-card-products").ClickAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/products$"));
+
+            // Verify accessibility on last visited page
+            await PlaywrightFixture.AssertAccessibilityBasicsAsync(page);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
 }

@@ -285,21 +285,88 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         return organizationName;
     }
 
+    public async Task NavigateViaDrawerAsync(IPage page, string linkText, string expectedUrlPattern)
+    {
+        var drawer = page.GetByTestId("nav-drawer");
+        var navLink = drawer.GetByText(linkText, new() { Exact = true }).First;
+
+        await Assertions.Expect(navLink).ToBeVisibleAsync();
+        await navLink.ClickAsync();
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+        await Assertions.Expect(page).ToHaveURLAsync(new Regex(expectedUrlPattern));
+        await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+    }
+
+    public async Task NavigateViaDrawerGroupAsync(
+        IPage page,
+        string groupTitle,
+        string linkText,
+        string expectedUrlPattern)
+    {
+        var drawer = page.GetByTestId("nav-drawer");
+
+        var group = drawer.GetByText(groupTitle, new() { Exact = true }).First;
+        await group.ClickAsync();
+        await Task.Delay(200);
+
+        var navLink = drawer.GetByText(linkText, new() { Exact = true }).First;
+        await Assertions.Expect(navLink).ToBeVisibleAsync();
+        await navLink.ClickAsync();
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+        await Assertions.Expect(page).ToHaveURLAsync(new Regex(expectedUrlPattern));
+        await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
+    }
+
     public async Task NavigateToAdminProductsAsync(IPage page)
     {
-        await page.GotoAsync($"{BaseUrl}/admin/products", new PageGotoOptions
-        {
-            WaitUntil = WaitUntilState.NetworkIdle
-        });
+        await NavigateViaDrawerGroupAsync(page, "Admin", "Product Management", ".*/admin/products$");
 
         var routedContent = page.GetByTestId("routed-page-content");
-
-        await Assertions.Expect(page)
-            .ToHaveURLAsync(new Regex(".*/admin/products$"));
-        await Assertions.Expect(page.GetByTestId("access-denied-page"))
-            .ToHaveCountAsync(0);
         await Assertions.Expect(routedContent.GetByRole(AriaRole.Heading, new() { Name = "Product Administration" }))
             .ToBeVisibleAsync();
+    }
+
+    public static async Task AssertAccessibilityBasicsAsync(IPage page)
+    {
+        await Assertions.Expect(page.Locator("html[lang]")).ToHaveCountAsync(1);
+
+        var mainContent = page.GetByTestId("routed-page-content");
+        await Assertions.Expect(mainContent).ToBeVisibleAsync();
+
+        var headings = page.Locator("h1, h2, h3, h4, h5, h6, .mud-typography-h4, .mud-typography-h5, .mud-typography-h6");
+        var headingCount = await headings.CountAsync();
+        Assert.True(headingCount > 0, "Page should have at least one heading for accessibility.");
+
+        var menuToggle = page.Locator("button[aria-label='Toggle navigation menu']");
+        await Assertions.Expect(menuToggle).ToBeVisibleAsync();
+    }
+
+    public static async Task AssertLayoutSpacingAsync(IPage page)
+    {
+        var mainContent = page.GetByTestId("routed-page-content");
+        var boundingBox = await mainContent.BoundingBoxAsync();
+
+        Assert.NotNull(boundingBox);
+        Assert.True(boundingBox.Width > 200, "Main content area should have meaningful width.");
+        Assert.True(boundingBox.Height > 50, "Main content area should have meaningful height.");
+
+        var appBar = page.Locator("header.mud-appbar");
+        await Assertions.Expect(appBar).ToBeVisibleAsync();
+        var appBarBox = await appBar.BoundingBoxAsync();
+        Assert.NotNull(appBarBox);
+        Assert.True(appBarBox.Y < boundingBox.Y, "App bar should be above main content.");
+    }
+
+    public static async Task AssertNavDrawerVisibleAsync(IPage page)
+    {
+        var drawer = page.GetByTestId("nav-drawer");
+        await Assertions.Expect(drawer).ToBeVisibleAsync();
+
+        var navLinks = drawer.Locator(".mud-nav-link");
+        var linkCount = await navLinks.CountAsync();
+        Assert.True(linkCount >= 4, $"Nav drawer should have at least 4 links, found {linkCount}.");
     }
 
     public async Task<ProductSnapshot> GetProductByExactNameAsync(string userId, string productName)
