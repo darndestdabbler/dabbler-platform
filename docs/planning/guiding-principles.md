@@ -80,6 +80,22 @@ not silently violate these principles without explicit human approval.
 - Theme and styling changes should go through reusable, testable guardrails when
   practical so foreground/background combinations, selected states, and dynamic
   color changes remain readable and accessible.
+- Use explicit page composition rather than metadata-driven UI generation. Each
+  page should declare its own MudDataGrid columns, MudForm fields, and layout.
+  This makes pages easier to read, debug, test, and customize.
+- Use `MudDataGrid<T>` directly with `ServerData` callbacks, column definitions,
+  sorting, and paging. Do not wrap it in a custom component unless a specific,
+  justified need arises.
+- Use `MudForm` directly for detail pages with MudBlazor input components and
+  built-in validation. Child entity grids belong in `MudTabs`. Popup editing
+  uses `MudDialog` with `MudForm` content.
+- Use `MudLayout`, `MudAppBar`, `MudDrawer`, `MudNavMenu`, and `MudMainContent`
+  for the application shell. Navigation is route-based with clean URLs, browser
+  history support, and standard Blazor routing.
+- The QBE filter model (AND/OR groups, operators, presets, expression engine,
+  filter summary) is genuine platform value and should be preserved. The filter
+  UI should be built from MudBlazor input components via `FilterPanel<T>`, not
+  from custom wrapper components.
 
 ## Testing Hierarchy
 

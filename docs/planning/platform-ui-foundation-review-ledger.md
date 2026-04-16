@@ -92,3 +92,31 @@ deserve separate treatment.
 - Record the platform rule for when to prefer MudBlazor-native surfaces versus
   custom Dabbler abstractions, using the Session 1 keep/simplify/rethink ledger
   as the starting point rather than reopening the inventory from scratch.
+
+## Resolution: Superseded By MudBlazor-Native Rebuild
+
+> **Date:** 2026-04-16
+> **Session set:** `docs/session-sets/mudblazor-native-rebuild/`
+
+The `platform-ui-foundation-review` Session 1 findings directly informed the
+human decision to rebuild the UI platform from scratch rather than pursue the
+incremental simplify/rethink path originally planned for Sessions 2 and 3.
+
+The `mudblazor-native-rebuild` session set (8 sessions) executed the full
+rebuild:
+
+| Original Recommendation | Rebuild Outcome |
+| --- | --- |
+| **Keep** DabblerQueryPage | Replaced with explicit MudDataGrid + FilterPanel composition per page |
+| **Simplify** DabblerFilterGrid | Filter model preserved; UI rebuilt as FilterPanel<T> using MudBlazor inputs |
+| **Simplify** DabblerNavigationPanel | Replaced with MudDrawer + MudNavMenu with route-based navigation |
+| **Rethink** DabblerDataGrid | Removed; MudDataGrid used directly with ServerData callbacks |
+| **Rethink** DabblerShell | Replaced with MudLayout for the main app; shell retained for stub demo only |
+| **Rethink** DabblerTabbedWorkspace | Removed from main app; standard Blazor routing replaces in-memory tabs |
+
+Sessions 2 and 3 of `platform-ui-foundation-review` are no longer needed.
+All remaining review questions have been answered by the rebuild.
+
+The durable principles from the rebuild have been incorporated into
+`docs/planning/guiding-principles.md` and the Phase 2 roadmap has been
+updated to reflect that Session Set 1 is superseded.

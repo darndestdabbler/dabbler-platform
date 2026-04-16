@@ -561,6 +561,112 @@
           "costUsd": 0.47000999999999993
         }
       ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 1,
+      "stepKey": "session-8/pre-session-reads",
+      "dateTime": "2026-04-16T18:04:05.732940+00:00",
+      "description": "Read guiding-principles.md, lessons-learned.md, and spec.md. Verified prerequisites: Sessions 1-7 all complete (467 tests passing), activity log has 56 entries covering all 7 sessions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 2,
+      "stepKey": "session-8/dead-code-cleanup",
+      "dateTime": "2026-04-16T18:06:01.009302+00:00",
+      "description": "Removed dead PageViewMode.cs enum (compatibility-only for deleted DabblerQueryReportPage), empty ComboBox/ directory, empty Dabbler.Security/artifacts/ directory. Cleaned 11 orphaned CSS rules from dabbler-pages.css (rules for deleted .dabbler-query-page, .dabbler-report-page, .dabbler-query-report-page, .dabbler-page-footer, .dabbler-page-error, .dabbler-page-loading, .dabbler-view-toggle, .dabbler-page-filters-changed, .dabbler-report-params-collapsed, .dabbler-report-params-summary, .dabbler-page-toolbar-center). Updated Dabbler.Components/README.md to reflect the rebuilt architecture. Shell components (DabblerShell, DabblerNavigationPanel, DabblerTabbedWorkspace, DabblerTopMenuBar, DabblerCatalogPage) retained because PlatformStubDemo.razor actively uses them.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 3,
+      "stepKey": "session-8/readme-update",
+      "dateTime": "2026-04-16T18:06:34.590834+00:00",
+      "description": "Updated README.md to reflect the MudBlazor-native architecture: added MudBlazor-native UI layer description, route-based navigation with MudLayout/MudAppBar/MudDrawer/MudNavMenu, explicit page composition pattern, updated Dabbler.Components description to emphasize QBE filter model and data provider abstractions rather than custom wrappers, and updated test coverage description to include conformance tests, filter panel tests, and accessibility assertions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 4,
+      "stepKey": "session-8/guiding-principles-update",
+      "dateTime": "2026-04-16T18:07:04.153818+00:00",
+      "description": "Added 5 new durable principles to guiding-principles.md under UI And Reusable Platform Principles: (1) explicit page composition over metadata-driven generation, (2) use MudDataGrid directly with ServerData callbacks, (3) use MudForm directly for detail pages with MudDialog popups, (4) use MudLayout/MudAppBar/MudDrawer/MudNavMenu for route-based shell, (5) QBE filter model preservation with FilterPanel<T> as the UI layer.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 5,
+      "stepKey": "session-8/lessons-learned-update",
+      "dateTime": "2026-04-16T18:07:38.488416+00:00",
+      "description": "Added 3 new lessons to lessons-learned.md: (1) A Full UI Rebuild Is Achievable In A Structured Session Set \u2014 systemic framework friction favors structured rebuild over piecemeal fixes; (2) Explicit Page Composition Reduces Debugging And Testing Cost \u2014 small duplication between similar pages is worth the clarity; (3) Preserve Domain Logic When Rebuilding UI \u2014 clean separation between filter model and filter UI enabled independent UI rebuild.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 6,
+      "stepKey": "session-8/roadmap-update",
+      "dateTime": "2026-04-16T18:08:40.518125+00:00",
+      "description": "Updated phase-2-platform-roadmap.md: (1) Updated Summary to note Session Set 1 is superseded by the MudBlazor-native rebuild and downstream work builds on the new foundation; (2) Marked Session Set 1 as SUPERSEDED with completion date and summary of what the rebuild accomplished; (3) Updated Session Set 2 prerequisites to reference MudBlazor-native rebuild instead of Session Set 1; (4) Updated Session Set 2 scope to reference route-based navigation instead of shell/workspace behavior.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 7,
+      "stepKey": "session-8/review-ledger-resolution",
+      "dateTime": "2026-04-16T18:09:17.731645+00:00",
+      "description": "Added Resolution section to platform-ui-foundation-review-ledger.md. Documented that the MudBlazor-native rebuild supersedes the planned Sessions 2 and 3 of the review. Added a table mapping each original keep/simplify/rethink recommendation to its rebuild outcome. Noted that all remaining review questions are answered by the rebuild and that durable principles have been incorporated into guiding-principles.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 8,
+      "stepKey": "session-8/final-build-and-test",
+      "dateTime": "2026-04-16T18:11:01.837058+00:00",
+      "description": "Final build and test. Build succeeded with 0 errors (19 pre-existing warnings in FilterPanel, DevEmailInbox, WebGuardrailTests). All 467 non-Playwright tests passed across 6 test projects: Dabbler.Components.Tests 33, Dabbler.Reports.Blazor.Tests 8, Dabbler.Security.Blazor.Tests 120, AcmeCoffeeOnline.Api.Tests 12, Dabbler.Security.Tests 211, AcmeCoffeeOnline.Web.Tests 83. No test regressions from cleanup changes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 9,
+      "stepKey": "session-8/session-verification",
+      "dateTime": "2026-04-16T18:12:52.795481+00:00",
+      "description": "Cross-provider session verification via opus. Cost: $0.0310",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 590,
+          "outputTokens": 295,
+          "costUsd": 0.030975000000000003
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 10,
+      "stepKey": "session-8/change-log",
+      "dateTime": "2026-04-16T18:13:57.927620+00:00",
+      "description": "Generated change-log.md for the session set via gemini-pro. Cost: $0.0137",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2639,
+          "outputTokens": 1040,
+          "costUsd": 0.013698749999999999
+        }
+      ]
     }
   ]
 }

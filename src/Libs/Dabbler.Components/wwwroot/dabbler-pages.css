@@ -1,13 +1,11 @@
 /* Copyright (c) Dabbler 2025 */
 /* Licensed under the MIT license. */
 
-/* Shared page-level component styles */
+/* Page-level component styles retained for compatibility surfaces. */
+/* Active app pages now use MudBlazor layout conventions directly. */
 
 /* ── Page containers ─────────────────────────────────────────────── */
 
-.dabbler-query-page,
-.dabbler-report-page,
-.dabbler-query-report-page,
 .dabbler-catalog-page {
     display: flex;
     flex-direction: column;
@@ -43,14 +41,6 @@
     flex: 0 0 auto;
 }
 
-.dabbler-page-toolbar-center {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex: 1 1 auto;
-    justify-content: center;
-}
-
 .dabbler-page-toolbar-right {
     display: flex;
     align-items: center;
@@ -71,27 +61,6 @@
     min-height: 0;
 }
 
-/* ── Footer ──────────────────────────────────────────────────────── */
-
-.dabbler-page-footer {
-    padding: 4px 0;
-}
-
-/* ── Error banner ────────────────────────────────────────────────── */
-
-.dabbler-page-error {
-    margin-bottom: 8px;
-}
-
-/* ── Loading overlay ─────────────────────────────────────────────── */
-
-.dabbler-page-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px;
-}
-
 /* ── Empty state ─────────────────────────────────────────────────── */
 
 .dabbler-page-empty-state {
@@ -103,37 +72,7 @@
     text-align: center;
 }
 
-/* ── View toggle ────────────────────────────────────────────────── */
-
-.dabbler-view-toggle {
-    display: flex;
-    gap: 4px;
-}
-
-/* ── Filters changed banner ─────────────────────────────────────── */
-
-.dabbler-page-filters-changed {
-    margin-bottom: 4px;
-}
-
-/* ── Report page specifics ──────────────────────────────────────── */
-
-.dabbler-report-params-collapsed {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.dabbler-report-params-summary {
-    flex: 1 1 auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--mud-palette-text-secondary);
-}
-
-/* ── Catalog page specifics ────────────────────────────────────── */
+/* ── Catalog page specifics ──────────────────────────────────────── */
 
 .dabbler-catalog-search {
     padding: 0 0 4px;

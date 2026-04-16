@@ -1,33 +1,39 @@
 # Dabbler.Components
 
-Blazor UI component library for notes-driven data workflows. The supported
-default surface centers on query/list pages, detail editing, shell/navigation,
-dashboard landing pages, and lookup flows that the current app and audit both
-prove.
+Blazor UI component library providing reusable filtering, expression engine,
+and data provider abstractions for MudBlazor-native application pages.
 
-The current supported contract is defined in
-`docs/planning/notes-driven-supported-library-surface.md`.
+After the MudBlazor-native rebuild, application pages use MudBlazor components
+directly (MudDataGrid, MudForm, MudLayout, MudDialog, etc.) with explicit page
+composition rather than heavyweight wrapper abstractions.
 
-## Supported Core
+## Active Core
 
-| Surface | Notes-driven role |
-|-----------|-------------|
-| `DabblerQueryPage<T>` | Standard query/list page that composes the retained filter and grid behaviors |
-| `DabblerDataGrid<T>` | Core search-result grid for sorting, paging, row selection, and CRUD-style workflows |
-| `DabblerFilterGrid<T>` | QBE filter surface with row-based AND/OR logic and English summary output |
-| `DabblerComboBox<T>` | Searchable, multi-column lookup with cascading coordination |
-| `DabblerMultiComboBox<T>` | Retained multiselect lookup surface while the notes-driven combo contract stays compatibility-safe |
-| `DabblerDetailForm<T>` | Validated single-record form editing |
-| `DabblerRecordPopup<T>` | Modal record display/edit flow |
-| `DabblerShell` | Left-nav, workspace, pinned-item entry points, and optional top-menu composition when catalog/usage providers are supplied |
-| `DabblerDashboardPage` | Core landing-page/dashboard surface for navigation cards, quick links, and targeted search |
-| `ExpressionEngine` | Support infrastructure for expression-based query/report behavior |
+| Surface | Role |
+|---------|------|
+| `FilterPanel<T>` | MudBlazor-native QBE filter panel with AND/OR group logic, operator selection, presets, and active filter chips |
+| `FilteringCoordinator` | Manages filter state, group lifecycle, and change notification |
+| `FilterColumnDefinition` | Defines filterable columns with types, operators, and editor metadata |
+| `FilterGroupCollection` / `FilterGroup` | AND/OR group model for composable filter expressions |
+| `CompositeFilterDescriptor` / `FilterDescriptor` | Filter expression descriptors consumed by the expression engine |
+| `FilterSummaryBuilder` | Generates human-readable filter summary text |
+| `ExpressionEngine` | Expression-based query and report support infrastructure |
+| `IGridDataProvider<T>` | Data provider abstraction with `ToServerDataFunc` for MudDataGrid ServerData callbacks |
+
+## Compatibility Surfaces
+
+These components support the `PlatformStubDemo` scenario and are not used by
+the main application, which has moved to MudBlazor-native layout and routing:
+
+| Surface | Role |
+|---------|------|
+| `DabblerShell` | Left-nav + tabbed-workspace shell for stub and demo app modes |
+| `DabblerNavigationPanel` | Entity/report navigation panel composed into DabblerShell |
+| `DabblerTabbedWorkspace` | In-shell tab manager for search, detail, report, and dashboard content |
+| `DabblerTopMenuBar` | Optional artifact-browsing menu bar when catalog/usage providers are supplied |
+| `DabblerCatalogPage` | Compatibility-only artifact catalog page used by DabblerShell |
 
 ## Quick Start
-
-```bash
-dotnet add package Dabbler.Components
-```
 
 Register services in `Program.cs`:
 
@@ -35,52 +41,21 @@ Register services in `Program.cs`:
 builder.Services.AddMudServices();
 ```
 
-Compose a standard query page:
+Use `FilterPanel<T>` with `MudDataGrid<T>` for query pages:
 
 ```razor
-<DabblerQueryPage T="Customer"
-                  Title="Customers"
-                  FilterColumns="@filterColumns"
-                  DataProvider="@dataProvider">
-    <GridColumns>
+<FilterPanel T="Customer"
+             FilterColumns="@filterColumns"
+             Coordinator="@coordinator" />
+
+<MudDataGrid T="Customer"
+             ServerData="@dataProvider.ToServerDataFunc(coordinator.GetCompositeFilter)">
+    <Columns>
         <PropertyColumn Property="x => x.Name" Title="Name" />
         <PropertyColumn Property="x => x.City" Title="City" />
-    </GridColumns>
-</DabblerQueryPage>
+    </Columns>
+</MudDataGrid>
 ```
-
-## Supported Workflow Themes
-
-- QBE-style filtering with row-based AND/OR behavior
-- query/list composition built from filter + result grid
-- searchable lookup selection with cascading coordination
-- retained multiselect lookup selection via `DabblerMultiComboBox<T>`
-- validated detail editing and popup flows
-- reusable shell/navigation and landing-page composition
-- expression support used by higher-level query/report workflows
-
-## Advanced Or Non-Core
-
-These capabilities remain available for compatibility, but they are not the
-primary supported default contract and are intentionally de-emphasized in the
-current public story:
-
-- grid grouping, aggregates, clipboard helpers, CSV export, column pinning,
-  and detail expansion
-- filter quick filter, presets, expression line output, and column toggles
-- combo add-new flows and grouping headers
-- favorites/recent-items dashboard widgets as default platform behavior
-- `DabblerTopMenuBar` and `DabblerCatalogPage` as broad artifact-browsing defaults
-
-Opt into clipboard/CSV helpers on `DabblerQueryPage<T>` only when a workflow
-explicitly needs them. The default query-page toolbar now stays focused on the
-retained search/list path.
-
-`DabblerTopMenuBar` remains available as an optional compatibility surface when
-both `IArtifactCatalogProvider` and `IUsageTrackingProvider` are supplied.
-
-`DabblerCatalogPage`, `DabblerFavorites`, and `DabblerRecentItems` are
-compatibility-only surfaces and should not lead new notes-driven workflows.
 
 ## Dependencies
 

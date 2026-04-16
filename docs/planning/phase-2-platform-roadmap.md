@@ -10,13 +10,19 @@ cross-project architecture, testing-hierarchy, and human-UAT workflow rules.
 ## Summary
 
 Phase 2 should begin by strengthening the reusable platform itself before
-expanding the sample app. The first session set should close any remaining
-direct contract-test gaps, add WCAG 2.1 AA verification, and establish a
-reusable DI-driven stub capability for Blazor components and pages.
+expanding the sample app. The original Session Set 1 (Platform Contract,
+Accessibility, and Stubbed UI Harness) has been **superseded by the
+MudBlazor-native rebuild** (`mudblazor-native-rebuild`), which replaced the
+custom wrapper layer with MudBlazor-native patterns across 8 sessions. The
+rebuild established route-based navigation, explicit page composition,
+MudBlazor-native grids/forms/dialogs, preserved the QBE filter model, and
+added 57 new tests (bUnit conformance, filter panel interactions,
+accessibility assertions). Downstream session sets should build on this
+MudBlazor-native foundation.
 
-That stub capability should be a first-class platform feature, not just a test
-trick, so it can support bUnit, demo and stubbed apps, future generated apps,
-early design and navigation review, and downstream consumers.
+The DI-driven stub capability remains a first-class platform feature, not
+just a test trick, so it can support bUnit, demo and stubbed apps, future
+generated apps, early design and navigation review, and downstream consumers.
 
 After that, the sample app should shift early and fully to
 `AcmeCoffeeDistributors`, where retail-business organizations are customers,
@@ -35,32 +41,17 @@ workflows.
 
 ### 1. Platform Contract, Accessibility, and Stubbed UI Harness
 
-**Purpose:** Finish proving the retained platform surface directly and create
-the reusable DI-stub architecture.
+> **Status: SUPERSEDED** by the `mudblazor-native-rebuild` session set
+> (8 sessions, completed 2026-04-16). The rebuild replaced custom wrapper
+> abstractions with MudBlazor-native patterns, established route-based
+> navigation, added 57 new bUnit and conformance tests, and preserved the
+> QBE filter model and DI-driven stub architecture. Downstream session sets
+> should build on the MudBlazor-native foundation.
 
-**Why now:** Later app, UAT, and template or package work should build on a
-verified reusable foundation.
+**Original purpose:** Finish proving the retained platform surface directly
+and create the reusable DI-stub architecture.
 
-**Prerequisites:** Completed notes-driven simplification, app-alignment, and
-template work.
-
-**Rough session count:** 4-6 sessions.
-
-**Likely scope:**
-
-- Audit `Dabbler.Components`, `Dabbler.Reports.Blazor`, and security-adjacent
-  UI test homes against the supported-surface docs.
-- Close direct coverage gaps, especially report UI seams such as
-  `ParameterPromptForm` and `ReportViewer`.
-- Add WCAG 2.1 AA verification to reusable components and pages.
-- Define and implement reusable DI-driven stub interfaces and providers for:
-  query and grid data, report data, metadata, navigation and workspace state,
-  and security or organization context where needed.
-- Make those stubs usable from bUnit tests, stub or demo app modes, and future
-  generated apps and solution templates.
-- Add bUnit coverage for rendering contracts, validation, accessibility
-  semantics, role and organization-aware UI state, and keyboard or focus
-  behavior where practical.
+**Rough session count:** 4-6 sessions (superseded by 8-session rebuild).
 
 ### 2. Early UAT: Stubbed Design and Navigation Spot Testing
 
@@ -70,7 +61,7 @@ app is fully wired.
 **Why now:** This uses the new stub capability to get fast human confirmation
 of design and navigation behavior before later E2E investment.
 
-**Prerequisites:** Session Set 1 complete.
+**Prerequisites:** MudBlazor-native rebuild complete (supersedes Session Set 1).
 
 **Rough session count:** 2-3 sessions.
 
@@ -79,7 +70,7 @@ of design and navigation behavior before later E2E investment.
 - Define a lightweight checklist-editor UAT checklist JSON for stub-backed
   review.
 - Focus on page layout, tab order, visible focus, labeling, menu behavior,
-  shell and workspace behavior, and page-to-page navigation.
+  route-based navigation, and page-to-page navigation.
 - Use stubbed data and providers so reviewers can exercise the UI without
   depending on full backend completeness.
 - Capture issues as design and navigation remediation inputs for later session

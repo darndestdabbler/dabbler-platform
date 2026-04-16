@@ -145,3 +145,50 @@ Use this structure for new entries:
 - **Action for future sessions:** Prefer shared spacing scales, shared theme
   tokens, and reusable contrast or accessibility guardrails instead of
   scattered visual fixes.
+
+## A Full UI Rebuild Is Achievable In A Structured Session Set
+
+- **Context:** The MudBlazor-native rebuild replaced 20+ custom wrapper
+  components across 8 sessions while preserving genuine platform value (filter
+  model, expression engine, data providers).
+- **Failure or friction:** The prior custom wrappers had accumulated enough
+  maintenance burden, operability gaps, and framework misalignment that
+  incremental simplification would not have closed the gap.
+- **Lesson:** When the abstraction layer fights the framework broadly enough,
+  a disciplined full rebuild with session-by-session verification is more
+  effective than incremental repair. The key factors were: clear design
+  decisions up front, proof-by-example patterns in early sessions that later
+  sessions replicated, and mandatory cross-provider verification at each step.
+- **Action for future sessions:** When evaluating whether to simplify versus
+  rebuild, consider whether the friction is systemic (affecting most surfaces)
+  or localized. Systemic friction favors a structured rebuild over piecemeal
+  fixes.
+
+## Explicit Page Composition Reduces Debugging And Testing Cost
+
+- **Context:** Rebuilding app pages from metadata-driven generation to
+  explicit MudBlazor component composition.
+- **Failure or friction:** Metadata-driven pages were hard to debug because
+  the rendering path was indirect, and hard to test because the generated
+  markup was a moving target.
+- **Lesson:** Explicit page composition where each page declares its own
+  columns, fields, and layout is easier to read, debug, test, and customize.
+  The small amount of duplication between similar pages is a reasonable price
+  for clarity.
+- **Action for future sessions:** Default to explicit composition for app
+  pages. Reserve metadata-driven generation for scenarios with a clear
+  runtime-configuration need (e.g., admin screens with user-defined fields).
+
+## Preserve Domain Logic When Rebuilding UI
+
+- **Context:** The QBE filter model (AND/OR groups, operators, presets,
+  expression engine) survived the full UI rebuild without modification.
+- **Failure or friction:** None — this went well. The filter model classes
+  were cleanly separated from the filter UI components, so the UI could be
+  rebuilt independently.
+- **Lesson:** When domain logic and UI are cleanly separated, a UI rebuild
+  does not need to touch the domain layer. If they are entangled, separate
+  them first.
+- **Action for future sessions:** Before starting a UI rebuild, verify that
+  domain logic is factored into separate classes and not embedded in component
+  code-behind files.
