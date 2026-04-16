@@ -2,9 +2,6 @@
 @using AcmeCoffeeOnline.Shared.Enums
 @using AcmeCoffeeOnline.Web.Components.Pages.Products
 @using AcmeCoffeeOnline.Web.Services
-@using Dabbler.Components
-@using Dabbler.Components.Data
-@using Dabbler.Components.Data.Metadata
 @using MudBlazor
 @inject OrderDetailState State
 
@@ -45,152 +42,230 @@ else if (State.Record is not null)
         </MudPaper>
     }
 
-    @* ── Detail Form ─────────────────────────────────────────────── *@
-    <DabblerDetailForm T="OrderDto"
-                       @ref="_detailForm"
-                       EntityMetadata="EntityMetadata"
-                       Record="State.Record"
-                       RecordChanged="OnRecordChanged"
-                       IsNew="IsNew"
-                       IsReadOnly="IsReadOnly"
-                       MetadataProvider="MetadataProvider"
-                       OnSave="HandleSaveAsync"
-                       OnDelete="HandleDeleteAsync"
-                       OnDirtyChanged="OnDirtyChanged"
-                       ChildDataFactory="ChildDataFactory"
-                       FormColumns="3" />
+    @* ── Toolbar ──────────────────────────────────────────────────── *@
+    @if (!IsReadOnly && IsNew)
+    {
+        <MudStack Row="true" Spacing="2" Class="mb-4">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       OnClick="HandleSaveAsync"
+                       Disabled="_saving"
+                       data-testid="save-button">
+                Save
+            </MudButton>
+        </MudStack>
+    }
 
-    @* ── Order Items (M:M with Products) ─────────────────────────── *@
+    @* ── Order Header Form ────────────────────────────────────────── *@
+    <MudForm @ref="_form" Model="State.Record">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudTextField T="string"
+                              Value="State.Record.CustomerName"
+                              Label="Customer"
+                              ReadOnly="true"
+                              Variant="Variant.Outlined"
+                              data-testid="field-customer-name" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudDatePicker @bind-Date="_orderDate"
+                               Label="Order Date"
+                               ReadOnly="@(IsReadOnly || !IsNew)"
+                               Variant="Variant.Outlined"
+                               data-testid="field-order-date" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudDatePicker @bind-Date="_shipDate"
+                               Label="Ship Date"
+                               ReadOnly="IsReadOnly"
+                               Variant="Variant.Outlined"
+                               data-testid="field-ship-date" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudNumericField T="decimal"
+                                 Value="State.Record.Total"
+                                 Label="Total"
+                                 ReadOnly="true"
+                                 Format="N2"
+                                 Adornment="Adornment.Start"
+                                 AdornmentText="$"
+                                 Variant="Variant.Outlined"
+                                 data-testid="field-total" />
+            </MudItem>
+
+            <MudItem xs="12" md="8">
+                <MudTextField T="string"
+                              @bind-Value="State.Record.Notes"
+                              Label="Notes"
+                              ReadOnly="IsReadOnly"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              data-testid="field-notes" />
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+
+    @* ── Child Grids in Tabs ──────────────────────────────────────── *@
     @if (!IsNew)
     {
-        <MudPaper Class="pa-3 mb-4" Elevation="0" Outlined="true">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
-                <MudText Typo="Typo.subtitle1">Order Items</MudText>
-                <MudSpacer />
-                @if (!IsReadOnly)
-                {
-                    <MudButton Variant="Variant.Outlined"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               StartIcon="@Icons.Material.Filled.Add"
-                               OnClick="@(() => _showProductPicker = true)">
-                        Add Product
-                    </MudButton>
-                }
-            </MudStack>
-
-            @if (_showProductPicker)
-            {
-                <MudPaper Class="pa-3 mb-3" Elevation="1">
-                    <MudStack Row="true" AlignItems="AlignItems.End" Spacing="2">
-                        <ProductComboBox @bind-Value="_selectedProduct"
-                                         Label="Select Product"
-                                         Required="true" />
-                        <MudNumericField T="int"
-                                         @bind-Value="_newItemQuantity"
-                                         Label="Qty"
-                                         Min="1"
-                                         Style="width: 80px;" />
-                        <MudNumericField T="decimal"
-                                         @bind-Value="_newItemDiscount"
-                                         Label="Discount %"
-                                         Min="0"
-                                         Max="100"
-                                         Style="width: 100px;" />
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Size="Size.Small"
-                                   OnClick="AddItemAsync"
-                                   Disabled="@(_selectedProduct is null || State.IsAddingItem)">
-                            Add
-                        </MudButton>
-                        <MudIconButton Icon="@Icons.Material.Filled.Close"
+        <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" Class="mt-4">
+            @* ── Order Items Tab ──────────────────────────────────── *@
+            <MudTabPanel Text="@($"Items ({State.Record.OrderItems.Count})")"
+                         Icon="@Icons.Material.Filled.ShoppingCart">
+                <MudPaper Class="pa-3" Elevation="0">
+                    @if (!IsReadOnly)
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+                            <MudSpacer />
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Primary"
                                        Size="Size.Small"
-                                       OnClick="@(() => _showProductPicker = false)" />
-                    </MudStack>
+                                       StartIcon="@Icons.Material.Filled.Add"
+                                       OnClick="@(() => _showProductPicker = true)">
+                                Add Product
+                            </MudButton>
+                        </MudStack>
+                    }
+
+                    @if (_showProductPicker)
+                    {
+                        <MudPaper Class="pa-3 mb-3" Elevation="1">
+                            <MudStack Row="true" AlignItems="AlignItems.End" Spacing="2">
+                                <ProductComboBox @bind-Value="_selectedProduct"
+                                                 Label="Select Product"
+                                                 Required="true" />
+                                <MudNumericField T="int"
+                                                 @bind-Value="_newItemQuantity"
+                                                 Label="Qty"
+                                                 Min="1"
+                                                 Style="width: 80px;" />
+                                <MudNumericField T="decimal"
+                                                 @bind-Value="_newItemDiscount"
+                                                 Label="Discount %"
+                                                 Min="0"
+                                                 Max="100"
+                                                 Style="width: 100px;" />
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="AddItemAsync"
+                                           Disabled="@(_selectedProduct is null || State.IsAddingItem)">
+                                    Add
+                                </MudButton>
+                                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                               Size="Size.Small"
+                                               OnClick="@(() => _showProductPicker = false)" />
+                            </MudStack>
+                        </MudPaper>
+                    }
+
+                    <MudDataGrid T="OrderItemDto"
+                                 Items="State.Record.OrderItems"
+                                 Dense="true"
+                                 Hover="true"
+                                 ReadOnly="true">
+                        <Columns>
+                            <PropertyColumn Property="i => i.ProductName" Title="Product" />
+                            <PropertyColumn Property="i => i.Quantity" Title="Qty" />
+                            <PropertyColumn Property="i => i.UnitPrice" Title="Unit Price" Format="C2" />
+                            <PropertyColumn Property="i => i.Discount" Title="Discount %" Format="N0" />
+                            <TemplateColumn Title="Line Total" Sortable="false">
+                                <CellTemplate>
+                                    @{ var lineTotal = OrderDetailState.CalculateLineTotal(context.Item); }
+                                    @lineTotal.ToString("C2")
+                                </CellTemplate>
+                            </TemplateColumn>
+                            @if (!IsReadOnly)
+                            {
+                                <TemplateColumn Sortable="false" CellStyle="width: 50px;">
+                                    <CellTemplate>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                       Size="Size.Small"
+                                                       Color="Color.Error"
+                                                       OnClick="@(() => RemoveItemAsync(context.Item))" />
+                                    </CellTemplate>
+                                </TemplateColumn>
+                            }
+                        </Columns>
+                    </MudDataGrid>
                 </MudPaper>
-            }
+            </MudTabPanel>
 
-            <MudDataGrid T="OrderItemDto"
-                         Items="State.Record.OrderItems"
-                         Dense="true"
-                         Hover="true"
-                         ReadOnly="true">
-                <Columns>
-                    <PropertyColumn Property="i => i.ProductName" Title="Product" />
-                    <PropertyColumn Property="i => i.Quantity" Title="Qty" />
-                    <PropertyColumn Property="i => i.UnitPrice" Title="Unit Price" Format="C2" />
-                    <PropertyColumn Property="i => i.Discount" Title="Discount %" Format="N0" />
-                    <TemplateColumn Title="Line Total" Sortable="false">
-                        <CellTemplate>
-                            @{ var lineTotal = OrderDetailState.CalculateLineTotal(context.Item); }
-                            @lineTotal.ToString("C2")
-                        </CellTemplate>
-                    </TemplateColumn>
+            @* ── Order Notes Tab ──────────────────────────────────── *@
+            <MudTabPanel Text="@($"Notes ({State.Notes.Count})")"
+                         Icon="@Icons.Material.Filled.Notes">
+                <MudPaper Class="pa-3" Elevation="0">
                     @if (!IsReadOnly)
                     {
-                        <TemplateColumn Sortable="false" CellStyle="width: 50px;">
-                            <CellTemplate>
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                               Size="Size.Small"
-                                               Color="Color.Error"
-                                               OnClick="@(() => RemoveItemAsync(context.Item))" />
-                            </CellTemplate>
-                        </TemplateColumn>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+                            <MudSpacer />
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       StartIcon="@Icons.Material.Filled.NoteAdd"
+                                       OnClick="ShowAddNotePopup">
+                                Add Note
+                            </MudButton>
+                        </MudStack>
                     }
-                </Columns>
-            </MudDataGrid>
-        </MudPaper>
 
-        @* ── Order Notes ────────────────────────────────────────────── *@
-        <MudPaper Class="pa-3 mb-4" Elevation="0" Outlined="true">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
-                <MudText Typo="Typo.subtitle1">Notes</MudText>
-                <MudSpacer />
-                @if (!IsReadOnly)
-                {
-                    <MudButton Variant="Variant.Outlined"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               StartIcon="@Icons.Material.Filled.NoteAdd"
-                               OnClick="ShowAddNotePopup">
-                        Add Note
-                    </MudButton>
-                }
-            </MudStack>
-
-            <MudDataGrid T="OrderNoteDto"
-                         Items="State.Notes"
-                         Dense="true"
-                         Hover="true"
-                         ReadOnly="true">
-                <Columns>
-                    <PropertyColumn Property="n => n.NoteDate" Title="Date" Format="g" />
-                    <PropertyColumn Property="n => n.Author" Title="Author" />
-                    <PropertyColumn Property="n => n.NoteText" Title="Note" />
-                    @if (!IsReadOnly)
-                    {
-                        <TemplateColumn Sortable="false" CellStyle="width: 80px;">
-                            <CellTemplate>
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                               Size="Size.Small"
-                                               Color="Color.Primary"
-                                               OnClick="@(() => ShowEditNotePopup(context.Item))" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                               Size="Size.Small"
-                                               Color="Color.Error"
-                                               OnClick="@(() => DeleteNoteAsync(context.Item))" />
-                            </CellTemplate>
-                        </TemplateColumn>
-                    }
-                </Columns>
-            </MudDataGrid>
-        </MudPaper>
+                    <MudDataGrid T="OrderNoteDto"
+                                 Items="State.Notes"
+                                 Dense="true"
+                                 Hover="true"
+                                 ReadOnly="true">
+                        <Columns>
+                            <PropertyColumn Property="n => n.NoteDate" Title="Date" Format="g" />
+                            <PropertyColumn Property="n => n.Author" Title="Author" />
+                            <PropertyColumn Property="n => n.NoteText" Title="Note" />
+                            @if (!IsReadOnly)
+                            {
+                                <TemplateColumn Sortable="false" CellStyle="width: 80px;">
+                                    <CellTemplate>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                       Size="Size.Small"
+                                                       Color="Color.Primary"
+                                                       OnClick="@(() => ShowEditNotePopup(context.Item))" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                       Size="Size.Small"
+                                                       Color="Color.Error"
+                                                       OnClick="@(() => DeleteNoteAsync(context.Item))" />
+                                    </CellTemplate>
+                                </TemplateColumn>
+                            }
+                        </Columns>
+                    </MudDataGrid>
+                </MudPaper>
+            </MudTabPanel>
+        </MudTabs>
 
         @* ── Note Popup ─────────────────────────────────────────────── *@
         <OrderNotePopup @ref="_notePopup"
                         OrderId="State.Record.Id"
                         OnSaved="OnNoteSavedAsync" />
+    }
+
+    @* ── Timestamps ───────────────────────────────────────────────── *@
+    @if (!IsNew)
+    {
+        <MudStack Row="true" Spacing="4" Class="mt-4">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Created: @State.Record.CreatedDate.ToString("g")
+            </MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Modified: @State.Record.ModifiedDate.ToString("g")
+            </MudText>
+            @if (!string.IsNullOrEmpty(State.Record.ModifiedBy))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    By: @State.Record.ModifiedBy
+                </MudText>
+            }
+        </MudStack>
     }
 }
 else
@@ -200,10 +275,7 @@ else
 
 @code {
     [Parameter]
-    public EntityMetadata EntityMetadata { get; set; } = default!;
-
-    [Parameter]
-    public object? PrimaryKey { get; set; }
+    public int? OrderId { get; set; }
 
     [Parameter]
     public bool IsNew { get; set; }
@@ -212,21 +284,18 @@ else
     public bool IsReadOnly { get; set; }
 
     [Parameter]
-    public IEntityMetadataProvider? MetadataProvider { get; set; }
-
-    [Parameter]
-    public EventCallback<bool> OnDirtyChanged { get; set; }
-
-    [Parameter]
     public EventCallback OnSaved { get; set; }
 
     [Parameter]
     public EventCallback OnDeleted { get; set; }
 
-    [Parameter]
-    public Func<ChildRelationshipMetadata, object?, Task<IReadOnlyList<Dictionary<string, object?>>>>? ChildDataFactory { get; set; }
+    private MudForm? _form;
+    private bool _saving;
 
-    private DabblerDetailForm<OrderDto>? _detailForm;
+    // Date pickers need nullable DateTime?
+    private DateTime? _orderDate;
+    private DateTime? _shipDate;
+
     // M:M product picker state
     private bool _showProductPicker;
     private ProductDto? _selectedProduct;
@@ -236,44 +305,46 @@ else
     // Note popup
     private OrderNotePopup? _notePopup;
 
-    private object? _loadedPrimaryKey;
+    private int? _loadedOrderId;
     private bool? _loadedIsNew;
 
     protected override async Task OnParametersSetAsync()
     {
-        if (_loadedIsNew == IsNew && Equals(_loadedPrimaryKey, PrimaryKey))
-        {
+        if (_loadedIsNew == IsNew && _loadedOrderId == OrderId)
             return;
-        }
 
         _loadedIsNew = IsNew;
-        _loadedPrimaryKey = PrimaryKey;
-        await State.InitializeAsync(IsNew, PrimaryKey);
-    }
+        _loadedOrderId = OrderId;
+        await State.InitializeAsync(IsNew, OrderId);
 
-    private void OnRecordChanged(OrderDto record)
-    {
-        State.SetRecord(record);
-    }
-
-    // ── Save / Delete ───────────────────────────────────────────────
-
-    private async Task HandleSaveAsync(OrderDto record)
-    {
-        State.SetRecord(record);
-        if (await State.SaveAsync(IsNew))
+        if (State.Record is not null)
         {
-            IsNew = false;
+            _orderDate = State.Record.OrderDate;
+            _shipDate = State.Record.ShipDate;
         }
-
-        await OnSaved.InvokeAsync();
     }
 
-    private async Task HandleDeleteAsync(OrderDto record)
+    // ── Save ────────────────────────────────────────────────────────
+
+    private async Task HandleSaveAsync()
     {
-        State.SetRecord(record);
-        await State.DeleteAsync();
-        await OnDeleted.InvokeAsync();
+        if (State.Record is null) return;
+
+        State.Record.OrderDate = _orderDate ?? DateTime.UtcNow;
+        State.Record.ShipDate = _shipDate;
+
+        _saving = true;
+        try
+        {
+            if (await State.SaveAsync(IsNew))
+                IsNew = false;
+
+            await OnSaved.InvokeAsync();
+        }
+        finally
+        {
+            _saving = false;
+        }
     }
 
     // ── Status Workflow ─────────────────────────────────────────────

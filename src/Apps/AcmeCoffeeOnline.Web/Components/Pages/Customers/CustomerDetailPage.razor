@@ -1,9 +1,5 @@
 @page "/customers/{CustomerId:int}"
 @attribute [DabblerPageAuthorize("/customers")]
-@using Dabbler.Components.Data.Metadata
-@using AcmeCoffeeOnline.Web.Services
-@inject IEntityMetadataProvider MetadataProvider
-@inject OrderApiClient OrderClient
 
 <PageTitle>Retail Business Details — AcmeCoffeeDistributors</PageTitle>
 
@@ -22,11 +18,8 @@
         </MudText>
     </MudStack>
 
-    <CustomerDetail EntityMetadata="_entityMetadata"
-                    PrimaryKey="CustomerId"
-                    IsReadOnly="false"
-                    MetadataProvider="MetadataProvider"
-                    ChildDataFactory="GetChildDataAsync" />
+    <CustomerDetail CustomerId="CustomerId"
+                    IsReadOnly="false" />
 </MudContainer>
 
 @code {
@@ -35,40 +28,4 @@
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
-
-    private EntityMetadata _entityMetadata = default!;
-
-    protected override void OnInitialized()
-    {
-        _entityMetadata = MetadataProvider.GetEntityMetadata("Customer")
-            ?? throw new InvalidOperationException("Customer metadata is required.");
-    }
-
-    private async Task<IReadOnlyList<Dictionary<string, object?>>> GetChildDataAsync(
-        ChildRelationshipMetadata relationship, object? parentKey)
-    {
-        if (parentKey is null)
-            return Array.Empty<Dictionary<string, object?>>();
-
-        var parentId = Convert.ToInt32(parentKey);
-
-        if (relationship.ChildEntityName == "Order")
-        {
-            var request = new AcmeCoffeeOnline.Shared.DTOs.PagedRequest
-            {
-                Page = 1, PageSize = 50, SortBy = "OrderDate", SortDescending = true
-            };
-            var response = await OrderClient.GetByCustomerIdAsync(parentId, request);
-
-            return response.Items.Select(o => new Dictionary<string, object?>
-            {
-                ["Id"] = o.Id,
-                ["OrderDate"] = o.OrderDate,
-                ["Status"] = o.Status.ToString(),
-                ["Total"] = o.Total
-            }).ToList();
-        }
-
-        return Array.Empty<Dictionary<string, object?>>();
-    }
 }

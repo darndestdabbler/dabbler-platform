@@ -144,6 +144,95 @@
           "costUsd": 0.00128
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/form-wrapper-removal",
+      "dateTime": "2026-04-16T15:42:59.545500+00:00",
+      "description": "Removed DabblerDetailForm<T> and DabblerRecordPopup<T> wrapper components from Dabbler.Components/Shell. Removed DabblerComboBox<T>, DabblerMultiComboBox<T>, ComboBoxColumn<T>, ComboBoxSearchHelper<T>, and ValueNotInListEventArgs from Dabbler.Components/ComboBox. Removed associated wwwroot assets (dabbler-combobox-a11y.js, dabbler-combobox.css). Removed all related tests (DabblerDetailFormTests, DabblerRecordPopupTests, DabblerComboBoxContractTests). Updated ContractHomeSmokeTests to reflect only FilterPanel<T> as the retained core type.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/detail-page-pattern",
+      "dateTime": "2026-04-16T15:42:59.546745+00:00",
+      "description": "Established the MudForm-based detail page convention: two-column layout via MudGrid, MudBlazor input components (MudTextField, MudNumericField, MudSelect, MudCheckBox, MudDatePicker) with validation, Save/Undo toolbar, snapshot-based dirty tracking, and explicit field composition per entity. Convention avoids metadata-driven rendering in favor of explicit page composition.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/child-grid-pattern",
+      "dateTime": "2026-04-16T15:42:59.547199+00:00",
+      "description": "Established the child-entity-grid convention: MudTabs containing MudDataGrid instances for one-to-many (OrderNotes) and many-to-many (OrderItems via Products) relationships. Each tab shows an item count in the tab label, includes toolbar actions (Add/Delete), and uses MudPaper containers for consistent styling.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/popup-pattern",
+      "dateTime": "2026-04-16T15:42:59.547199+00:00",
+      "description": "Confirmed the popup-edit convention using MudDialog with MudForm content. OrderNotePopup.razor already follows this pattern (established before the rebuild) and serves as the reference: MudDialog with TitleContent, DialogContent containing MudForm with validation, and DialogActions with Cancel/Save buttons. No DabblerRecordPopup wrapper needed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/combobox-evaluation",
+      "dateTime": "2026-04-16T15:42:59.548374+00:00",
+      "description": "Evaluated MudAutocomplete<T> and MudSelect<T> against the platform's combo-box needs. Decision: MudAutocomplete<T> with ItemTemplate replaces DabblerComboBox for single-select lookup scenarios (e.g., ProductComboBox with multi-column dropdown). MudSelect<T> covers enum selection. DabblerMultiComboBox is removed; if multi-select with search is needed in future sessions, MudAutocomplete with manual chip management or MudSelect Multi=true can fulfill the need. No thin helpers were required.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/products-detail-proof",
+      "dateTime": "2026-04-16T15:42:59.548374+00:00",
+      "description": "Rebuilt ProductDetail.razor using the MudForm detail page convention: explicit two-column MudGrid layout, MudTextField for Name/Description/ImageUrl, MudNumericField for UnitPrice, MudSelect for RoastLevel/CaffeineContent/GrindType, MudCheckBox for IsAvailable. Includes snapshot-based dirty tracking, Undo, MudForm validation, and a Deactivate/Activate toggle. ProductDetailPage.razor simplified to pass ProductId directly without metadata provider. ProductComboBox.razor rebuilt to use MudAutocomplete<ProductDto> with ItemTemplate for multi-column display.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/orders-detail-proof",
+      "dateTime": "2026-04-16T15:42:59.549668+00:00",
+      "description": "Rebuilt OrderDetail.razor as the complex detail page proof: MudForm header fields (CustomerName, OrderDate, ShipDate, Total, Notes) in a three-column MudGrid layout. Status workflow preserved with MudChip + transition buttons. Child grids moved into MudTabs: Items tab with MudDataGrid<OrderItemDto>, product picker using ProductComboBox (MudAutocomplete), and Add/Remove actions; Notes tab with MudDataGrid<OrderNoteDto> and Add/Edit/Delete actions via OrderNotePopup (MudDialog+MudForm). OrderDetailPage.razor simplified to pass OrderId directly. CustomerDetail.razor also rebuilt with MudForm for build compatibility.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-16T15:42:59.549668+00:00",
+      "description": "Build succeeded with 0 errors (pre-existing warnings only in Dabbler.Reports.Blazor and WebGuardrailTests). All 411 non-Playwright tests passed across 6 test projects: Dabbler.Components.Tests 12, Dabbler.Reports.Blazor.Tests 7, Dabbler.Security.Blazor.Tests 120, AcmeCoffeeOnline.Api.Tests 12, Dabbler.Security.Tests 211, AcmeCoffeeOnline.Web.Tests 49. Test count dropped from 417 to 411 due to removal of DabblerDetailFormTests (3), DabblerRecordPopupTests (1), and DabblerComboBoxContractTests (2).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/session-verification",
+      "dateTime": "2026-04-16T15:44:02.663757+00:00",
+      "description": "Completed mandatory external session verification via AI Router. Verifier (opus) returned verdict.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 1616,
+          "outputTokens": 690,
+          "costUsd": 0.07599
+        }
+      ]
     }
   ]
 }

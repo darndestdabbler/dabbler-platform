@@ -1,14 +1,13 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
-@using Dabbler.Components
 @using MudBlazor
 @inject ProductApiClient ProductClient
 
-<DabblerComboBox T="ProductDto"
+<MudAutocomplete T="ProductDto"
                  Value="Value"
                  ValueChanged="OnValueChanged"
                  SearchFunc="SearchProductsAsync"
-                 ToStringFunc="@(p => p?.Name)"
+                 ToStringFunc="@(p => p?.Name ?? string.Empty)"
                  Label="@Label"
                  Placeholder="Search products…"
                  Variant="Variant.Outlined"
@@ -18,7 +17,15 @@
                  Dense="true"
                  Required="Required"
                  RequiredError="Product is required"
-                 Columns="_columns" />
+                 ResetValueOnEmptyText="true">
+    <ItemTemplate Context="product">
+        <MudStack Row="true" Spacing="2" Class="align-center">
+            <MudText Style="width: 200px;">@product.Name</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Style="width: 100px;">@product.RoastLevel</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Style="width: 80px;">@product.UnitPrice.ToString("C2")</MudText>
+        </MudStack>
+    </ItemTemplate>
+</MudAutocomplete>
 
 @code {
     [Parameter]
@@ -32,13 +39,6 @@
 
     [Parameter]
     public bool Required { get; set; }
-
-    private readonly IReadOnlyList<ComboBoxColumn<ProductDto>> _columns = new List<ComboBoxColumn<ProductDto>>
-    {
-        new() { Header = "Name", ValueFunc = p => p.Name, Width = "200px" },
-        new() { Header = "Roast", ValueFunc = p => p.RoastLevel.ToString(), Width = "100px" },
-        new() { Header = "Price", ValueFunc = p => p.UnitPrice.ToString("C2"), Width = "80px" }
-    };
 
     private async Task<IEnumerable<ProductDto>> SearchProductsAsync(
         string? searchText, CancellationToken cancellationToken)

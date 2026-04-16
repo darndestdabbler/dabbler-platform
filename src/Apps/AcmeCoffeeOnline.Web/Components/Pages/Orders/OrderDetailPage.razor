@@ -1,7 +1,5 @@
 @page "/orders/{OrderId:int}"
 @attribute [DabblerPageAuthorize("/orders")]
-@using Dabbler.Components.Data.Metadata
-@inject IEntityMetadataProvider MetadataProvider
 
 <PageTitle>Order Details — AcmeCoffeeDistributors</PageTitle>
 
@@ -18,10 +16,8 @@
         </MudText>
     </MudStack>
 
-    <OrderDetail EntityMetadata="_entityMetadata"
-                 PrimaryKey="OrderId"
-                 IsReadOnly="true"
-                 MetadataProvider="MetadataProvider" />
+    <OrderDetail OrderId="OrderId"
+                 IsReadOnly="true" />
 </MudContainer>
 
 @code {
@@ -30,12 +26,4 @@
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
-
-    private EntityMetadata _entityMetadata = default!;
-
-    protected override void OnInitialized()
-    {
-        _entityMetadata = MetadataProvider.GetEntityMetadata("Order")
-            ?? throw new InvalidOperationException("Order metadata is required.");
-    }
 }
