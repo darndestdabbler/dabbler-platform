@@ -18,6 +18,7 @@ public interface IAdminUserScopeService
 public sealed class AdminUserScopeService : IAdminUserScopeService
 {
     private const string ScopedAdminRoleName = "BackofficeUserAdmin";
+    private const string SystemAdminRoleName = "SystemAdmin";
 
     private readonly DabblerSecurityDbContext _securityDb;
     private readonly ICurrentUserService _currentUser;
@@ -127,6 +128,10 @@ public sealed class AdminUserScopeService : IAdminUserScopeService
     private async Task<AdminUserScopeDto> BuildScopeAsync(CancellationToken cancellationToken)
     {
         var actorContext = await ResolveActorContextAsync(cancellationToken);
+        if (!actorContext.CanAccessUserAdministrationPage)
+        {
+            throw new UnauthorizedAccessException("The current user cannot access organization user administration.");
+        }
 
         if (!actorContext.ActiveOrganizationId.HasValue)
         {
@@ -240,28 +245,37 @@ public sealed class AdminUserScopeService : IAdminUserScopeService
         return actorContext;
     }
 
-    private Task<ActorContext> ResolveActorContextAsync(CancellationToken cancellationToken)
+    private async Task<ActorContext> ResolveActorContextAsync(CancellationToken cancellationToken)
     {
         if (!int.TryParse(_currentUser.UserId, out var actorUserId))
         {
             throw new UnauthorizedAccessException("Authenticated user identifier is missing.");
         }
 
-        _ = cancellationToken;
-
         var isSystemAdmin = _currentUser.Role == UserRole.SystemAdmin;
         var canManageUsers = isSystemAdmin || _currentUser.Role == UserRole.BackofficeUserAdmin;
+        var canAccessUserAdministrationPage = isSystemAdmin
+            || canManageUsers
+            || await _securityDb.AppUserRoles.AnyAsync(
+                assignment => assignment.UserId == actorUserId
+                    && assignment.DeletedAt == null
+                    && assignment.Role != null
+                    && assignment.Role.DeletedAt == null
+                    && (assignment.Role.Name == ScopedAdminRoleName || assignment.Role.Name == SystemAdminRoleName),
+                cancellationToken);
 
-        return Task.FromResult(new ActorContext(
+        return new ActorContext(
             actorUserId,
             _currentUser.ActiveOrganizationId,
             isSystemAdmin,
-            canManageUsers));
+            canAccessUserAdministrationPage,
+            canManageUsers);
     }
 
     private sealed record ActorContext(
         int ActorUserId,
         int? ActiveOrganizationId,
         bool IsSystemAdmin,
+        bool CanAccessUserAdministrationPage,
         bool CanManageUsers);
 }

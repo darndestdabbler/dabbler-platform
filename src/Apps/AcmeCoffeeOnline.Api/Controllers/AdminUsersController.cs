@@ -7,7 +7,7 @@ namespace AcmeCoffeeOnline.Api.Controllers;
 
 [ApiController]
 [Route("api/admin/users")]
-[Authorize(Roles = "BackofficeUserAdmin,SystemAdmin")]
+[Authorize]
 public sealed class AdminUsersController : ControllerBase
 {
     private readonly IAdminUserScopeService _adminUserScopeService;
@@ -20,8 +20,15 @@ public sealed class AdminUsersController : ControllerBase
     [HttpGet("scope")]
     public async Task<ActionResult<AdminUserScopeDto>> GetScopeAsync(CancellationToken cancellationToken)
     {
-        var scope = await _adminUserScopeService.GetScopeAsync(cancellationToken);
-        return Ok(scope);
+        try
+        {
+            var scope = await _adminUserScopeService.GetScopeAsync(cancellationToken);
+            return Ok(scope);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 
     [HttpPost("memberships/{organizationMembershipId:int}/grant-user-admin")]

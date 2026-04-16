@@ -1,3 +1,4 @@
+using System.Net;
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Shared.Enums;
 
@@ -49,7 +50,18 @@ public sealed class OrderDetailState
         }
 
         var id = Convert.ToInt32(primaryKey);
-        Record = await _orderClient.GetByIdAsync(id, cancellationToken);
+        try
+        {
+            Record = await _orderClient.GetByIdAsync(id, cancellationToken);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden)
+        {
+            Record = null;
+            Notes = [];
+            IsLoading = false;
+            return;
+        }
+
         Notes = Record is not null
             ? await _orderClient.GetNotesByOrderIdAsync(Record.Id, cancellationToken)
             : [];

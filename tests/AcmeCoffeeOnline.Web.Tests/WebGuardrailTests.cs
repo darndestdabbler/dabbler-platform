@@ -143,8 +143,9 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         using var client = await CreateAuthenticatedClientAsync("guardrail.org.scope.admin@acme.test", factory);
 
         var initialUsersResponse = await client.GetAsync("/admin/users");
-        Assert.Equal(HttpStatusCode.Redirect, initialUsersResponse.StatusCode);
-        Assert.Contains("/access-denied", initialUsersResponse.Headers.Location?.OriginalString);
+        var initialUsersContent = await initialUsersResponse.Content.ReadAsStringAsync();
+        Assert.Equal(HttpStatusCode.OK, initialUsersResponse.StatusCode);
+        Assert.Contains("Switch into an organization where you hold user-admin access", initialUsersContent);
 
         var initialSession = await client.GetFromJsonAsync<SessionInfoResponse>(
             "/test-auth/session-info",

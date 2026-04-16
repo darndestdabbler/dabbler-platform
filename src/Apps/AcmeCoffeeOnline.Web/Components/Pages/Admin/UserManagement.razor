@@ -18,7 +18,7 @@
 }
 else if (_scope is null || !_scope.CanManageUsers || string.IsNullOrWhiteSpace(_scope.ActiveOrganizationName))
 {
-    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" data-testid="user-admin-scope-warning">
         Switch into an organization where you hold user-admin access to manage organization memberships and user-admin elevation.
     </MudAlert>
 }
@@ -88,6 +88,7 @@ else
                         @if (context.Item.CanGrantUserAdmin)
                         {
                             <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                       data-testid="@($"grant-useradmin-{context.Item.OrganizationMembershipId}")"
                                        OnClick="@(() => GrantUserAdminAsync(context.Item))">
                                 Grant UserAdmin
                             </MudButton>
@@ -95,6 +96,7 @@ else
                         else if (context.Item.CanRevokeUserAdmin)
                         {
                             <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                       data-testid="@($"revoke-useradmin-{context.Item.OrganizationMembershipId}")"
                                        OnClick="@(() => RevokeUserAdminAsync(context.Item))">
                                 Remove UserAdmin
                             </MudButton>

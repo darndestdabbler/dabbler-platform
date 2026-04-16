@@ -20,9 +20,13 @@ namespace Dabbler.Security.Authorization.Handlers;
 /// </remarks>
 public class PageAuthorizationHandler : AuthorizationHandler<PagePermissionRequirement>
 {
+    private const string ScopedAdminRoute = "/admin/users";
+    private const string ScopedAdminRoleName = "BackofficeUserAdmin";
+
     private readonly SecurityConfigurationManager _manager;
     private readonly UnregisteredResourcePolicy _unregisteredPolicy;
     private readonly IRoleSwitcher _roleSwitcher;
+    private readonly IUserSessionContextService? _userSessionContextService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PageAuthorizationHandler"/> class.
@@ -30,14 +34,17 @@ public class PageAuthorizationHandler : AuthorizationHandler<PagePermissionRequi
     /// <param name="manager">The security configuration manager.</param>
     /// <param name="options">The Dabbler security options.</param>
     /// <param name="roleSwitcher">The service for determining a user's effective roles.</param>
+    /// <param name="userSessionContextService">Optional session-context service used for scoped multi-organization page access checks.</param>
     public PageAuthorizationHandler(
         SecurityConfigurationManager manager,
         IOptions<DabblerSecurityOptions> options,
-        IRoleSwitcher roleSwitcher)
+        IRoleSwitcher roleSwitcher,
+        IUserSessionContextService? userSessionContextService = null)
     {
         _manager = manager;
         _unregisteredPolicy = options.Value.UnregisteredResourcePolicy;
         _roleSwitcher = roleSwitcher;
+        _userSessionContextService = userSessionContextService;
     }
 
     /// <summary>
@@ -73,7 +80,33 @@ public class PageAuthorizationHandler : AuthorizationHandler<PagePermissionRequi
             return;
 
         if (permission.AllowedRoles.Any(r => userRoles.Contains(r)))
+        {
             context.Succeed(requirement);
+            return;
+        }
+
+        if (!string.Equals(requirement.PageKey, ScopedAdminRoute, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var userIdClaim = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdClaim, out var userId))
+        {
+            return;
+        }
+
+        if (_userSessionContextService is null)
+        {
+            return;
+        }
+
+        var sessionContext = await _userSessionContextService.BuildAsync(userId);
+        if (sessionContext?.OrganizationMemberships.Any(organization =>
+                organization.RoleNames.Contains(ScopedAdminRoleName, StringComparer.OrdinalIgnoreCase)) == true)
+        {
+            context.Succeed(requirement);
+        }
     }
 
     private IReadOnlySet<string> GetEffectiveRoles(ClaimsPrincipal user, SecurityConfiguration config)

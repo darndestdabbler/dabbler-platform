@@ -26,6 +26,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     private readonly ConcurrentQueue<string> _webProcessLog = new();
     private readonly ConcurrentDictionary<IPage, ConcurrentQueue<string>> _pageIssues = new();
     private readonly ConcurrentDictionary<IPage, IBrowserContext> _pageContexts = new();
+    private readonly ConcurrentDictionary<string, string> _seededUserIdCache = new(StringComparer.OrdinalIgnoreCase);
 
     public string BaseUrl { get; } = Environment.GetEnvironmentVariable("PLAYWRIGHT_BASE_URL")
         ?? "http://localhost:5010";
@@ -221,6 +222,69 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             ?? throw new InvalidOperationException("Session info payload was empty.");
     }
 
+    public async Task<string> GetSeededUserIdAsync(string email)
+    {
+        if (_seededUserIdCache.TryGetValue(email, out var cachedUserId))
+        {
+            return cachedUserId;
+        }
+
+        var page = await CreatePageAsync();
+        try
+        {
+            await SeededSignInAsync(page, email);
+            var session = await GetSessionInfoAsync(page);
+            var userId = session.UserId;
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new InvalidOperationException($"Seeded session for {email} did not return a user id.");
+            }
+
+            _seededUserIdCache[email] = userId;
+            return userId;
+        }
+        finally
+        {
+            await ClosePageAsync(page);
+        }
+    }
+
+    public async Task<string> SwitchOrganizationFromShellAsync(IPage page, string organizationName)
+    {
+        var activeOrganizationLabel = page.GetByTestId("active-organization-label");
+        var currentLabel = (await activeOrganizationLabel.TextContentAsync())?.Trim() ?? string.Empty;
+        if (string.Equals(currentLabel, organizationName, StringComparison.Ordinal))
+        {
+            return currentLabel;
+        }
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Switch org" }).ClickAsync();
+
+        var targetOrganization = page
+            .Locator(".mud-popover-open")
+            .GetByText(organizationName, new() { Exact = true })
+            .First;
+        await Assertions.Expect(targetOrganization).ToBeVisibleAsync();
+        await targetOrganization.ClickAsync();
+
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        var switchedSession = await GetSessionInfoAsync(page);
+        Assert.Equal(organizationName, switchedSession.ActiveOrganizationName);
+
+        if (page.Url.Contains("/access-denied", StringComparison.OrdinalIgnoreCase))
+        {
+            await page.GotoAsync($"{BaseUrl}/", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+        }
+
+        await Assertions.Expect(activeOrganizationLabel).ToHaveTextAsync(organizationName);
+
+        return organizationName;
+    }
+
     public async Task NavigateToAdminProductsAsync(IPage page)
     {
         await page.GotoAsync($"{BaseUrl}/admin/products", new PageGotoOptions
@@ -337,22 +401,134 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         return await UpdateProductAsync(userId, archived);
     }
 
-    public async Task<JsonDocument> GetApiJsonAsync(string relativeUrl, string userId)
+    public async Task<AdminUserScopeSnapshot> GetAdminUserScopeAsync(string userId, int activeOrganizationId)
     {
-        return await SendApiJsonAsync(HttpMethod.Get, relativeUrl, userId);
+        using var payload = await GetApiJsonAsync("api/admin/users/scope", userId, activeOrganizationId);
+        return DeserializeJson<AdminUserScopeSnapshot>(payload.RootElement);
     }
 
-    public async Task<JsonDocument> PostApiJsonAsync(string relativeUrl, string userId, object payload)
+    public async Task<IReadOnlyList<OrganizationOptionSnapshot>> GetOrganizationOptionsAsync(
+        string userId,
+        int? activeOrganizationId = null)
     {
-        return await SendApiJsonAsync(HttpMethod.Post, relativeUrl, userId, payload);
+        using var payload = await GetApiJsonAsync("api/session/organization-options", userId, activeOrganizationId);
+        return DeserializeJson<OrganizationOptionSnapshot[]>(payload.RootElement);
     }
 
-    public async Task<JsonDocument> PutApiJsonAsync(string relativeUrl, string userId, object payload)
+    public async Task<AdminUserScopeSnapshot> GrantScopedUserAdminAsync(
+        string userId,
+        int activeOrganizationId,
+        int organizationMembershipId)
     {
-        return await SendApiJsonAsync(HttpMethod.Put, relativeUrl, userId, payload);
+        using var payload = await PostApiJsonAsync(
+            $"api/admin/users/memberships/{organizationMembershipId}/grant-user-admin",
+            userId,
+            payload: null,
+            activeOrganizationId);
+
+        return DeserializeJson<AdminUserScopeSnapshot>(payload.RootElement);
     }
 
-    public async Task PatchApiAsync(string relativeUrl, string userId)
+    public async Task<AdminUserScopeSnapshot> RevokeScopedUserAdminAsync(
+        string userId,
+        int activeOrganizationId,
+        int organizationMembershipId)
+    {
+        using var payload = await SendApiJsonAsync(
+            HttpMethod.Delete,
+            $"api/admin/users/memberships/{organizationMembershipId}/grant-user-admin",
+            userId,
+            payload: null,
+            activeOrganizationId);
+
+        return DeserializeJson<AdminUserScopeSnapshot>(payload.RootElement);
+    }
+
+    public async Task<IReadOnlyList<OrderSnapshot>> GetOrdersAsync(
+        string userId,
+        int? activeOrganizationId = null,
+        int page = 1,
+        int pageSize = 25)
+    {
+        using var payload = await GetApiJsonAsync(
+            $"api/orders?page={page}&pageSize={pageSize}",
+            userId,
+            activeOrganizationId);
+
+        return DeserializePagedItems<OrderSnapshot>(payload.RootElement);
+    }
+
+    public async Task<IReadOnlyList<OrderSnapshot>> GetOrdersByCustomerIdAsync(
+        string userId,
+        int customerId,
+        int? activeOrganizationId = null,
+        int page = 1,
+        int pageSize = 25)
+    {
+        using var payload = await GetApiJsonAsync(
+            $"api/orders/by-customer/{customerId}?page={page}&pageSize={pageSize}",
+            userId,
+            activeOrganizationId);
+
+        return DeserializePagedItems<OrderSnapshot>(payload.RootElement);
+    }
+
+    public async Task<OrderSnapshot> GetOrderByIdAsync(string userId, int orderId, int? activeOrganizationId = null)
+    {
+        using var payload = await GetApiJsonAsync($"api/orders/{orderId}", userId, activeOrganizationId);
+        return DeserializeJson<OrderSnapshot>(payload.RootElement);
+    }
+
+    public async Task<OrderSnapshot?> TryGetOrderByIdAsync(string userId, int orderId, int? activeOrganizationId = null)
+    {
+        try
+        {
+            return await GetOrderByIdAsync(userId, orderId, activeOrganizationId);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<CustomerOrderVerificationContext> GetCustomerOrderVerificationContextAsync(
+        string customerUserId,
+        int customerId,
+        int? activeOrganizationId = null)
+    {
+        var visibleOrders = await GetOrdersByCustomerIdAsync(
+            customerUserId,
+            customerId,
+            activeOrganizationId,
+            pageSize: 10);
+
+        var visibleOrder = visibleOrders.FirstOrDefault()
+            ?? throw new Xunit.Sdk.XunitException($"No visible orders were returned for customer id {customerId}.");
+
+        var systemAdminUserId = await GetSeededUserIdAsync("admin@acmecoffee.com");
+        var allOrders = await GetOrdersAsync(systemAdminUserId, pageSize: 100);
+        var foreignOrder = allOrders.FirstOrDefault(order => order.CustomerId != customerId)
+            ?? throw new Xunit.Sdk.XunitException($"Could not find a foreign order id for customer id {customerId}.");
+
+        return new CustomerOrderVerificationContext(visibleOrder, foreignOrder);
+    }
+
+    public async Task<JsonDocument> GetApiJsonAsync(string relativeUrl, string userId, int? activeOrganizationId = null)
+    {
+        return await SendApiJsonAsync(HttpMethod.Get, relativeUrl, userId, payload: null, activeOrganizationId);
+    }
+
+    public async Task<JsonDocument> PostApiJsonAsync(string relativeUrl, string userId, object? payload, int? activeOrganizationId = null)
+    {
+        return await SendApiJsonAsync(HttpMethod.Post, relativeUrl, userId, payload, activeOrganizationId);
+    }
+
+    public async Task<JsonDocument> PutApiJsonAsync(string relativeUrl, string userId, object payload, int? activeOrganizationId = null)
+    {
+        return await SendApiJsonAsync(HttpMethod.Put, relativeUrl, userId, payload, activeOrganizationId);
+    }
+
+    public async Task PatchApiAsync(string relativeUrl, string userId, int? activeOrganizationId = null)
     {
         using var client = new HttpClient
         {
@@ -362,6 +538,10 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
         client.DefaultRequestHeaders.Add("X-Internal-Api-Key", InternalApiKey);
         client.DefaultRequestHeaders.Add("X-App-User-Id", userId);
+        if (activeOrganizationId.HasValue)
+        {
+            client.DefaultRequestHeaders.Add("X-Active-Organization-Id", activeOrganizationId.Value.ToString());
+        }
 
         using var request = new HttpRequestMessage(HttpMethod.Patch, relativeUrl);
         using var response = await client.SendAsync(request);
@@ -383,7 +563,8 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         HttpMethod method,
         string relativeUrl,
         string userId,
-        object? payload = null)
+        object? payload = null,
+        int? activeOrganizationId = null)
     {
         using var client = new HttpClient
         {
@@ -393,6 +574,10 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
         client.DefaultRequestHeaders.Add("X-Internal-Api-Key", InternalApiKey);
         client.DefaultRequestHeaders.Add("X-App-User-Id", userId);
+        if (activeOrganizationId.HasValue)
+        {
+            client.DefaultRequestHeaders.Add("X-Active-Organization-Id", activeOrganizationId.Value.ToString());
+        }
 
         using var request = new HttpRequestMessage(method, relativeUrl);
         if (payload is not null)
@@ -649,6 +834,24 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         element.TryGetProperty("imageUrl", out var imageUrl) && imageUrl.ValueKind != JsonValueKind.Null
             ? imageUrl.GetString()
             : null);
+
+    private static T DeserializeJson<T>(JsonElement element)
+    {
+        return JsonSerializer.Deserialize<T>(element.GetRawText(), JsonOptions)
+            ?? throw new InvalidOperationException($"Could not deserialize {typeof(T).Name}.");
+    }
+
+    private static IReadOnlyList<T> DeserializePagedItems<T>(JsonElement element)
+    {
+        if (!element.TryGetProperty("items", out var itemsElement) || itemsElement.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return itemsElement.EnumerateArray()
+            .Select(item => DeserializeJson<T>(item))
+            .ToArray();
+    }
 }
 
 public sealed record MagicLinkMessage(
@@ -665,6 +868,19 @@ public sealed record SessionInfo(
     string? Name,
     string? Email,
     string? CustomerId,
+    string? ActiveOrganizationId,
+    string? ActiveOrganizationKey,
+    string? ActiveOrganizationName,
+    SessionOrganization[]? AvailableOrganizations,
+    string[]? Roles);
+
+public sealed record SessionOrganization(
+    int OrganizationId,
+    string OrganizationKey,
+    string OrganizationName,
+    int? OrganizationMembershipId,
+    bool IsDefault,
+    bool IsInternal,
     string[]? Roles);
 
 public sealed record ProductSnapshot(
@@ -677,3 +893,65 @@ public sealed record ProductSnapshot(
     bool IsAvailable,
     string? Description,
     string? ImageUrl);
+
+public sealed record CustomerOrderVerificationContext(OrderSnapshot VisibleOrder, OrderSnapshot ForeignOrder);
+
+public sealed class AdminUserScopeSnapshot
+{
+    public bool IsSystemAdmin { get; set; }
+
+    public bool CanManageUsers { get; set; }
+
+    public int? ActiveOrganizationId { get; set; }
+
+    public string? ActiveOrganizationKey { get; set; }
+
+    public string? ActiveOrganizationName { get; set; }
+
+    public IReadOnlyList<AdminUserScopeUserSnapshot> Users { get; set; } = [];
+}
+
+public sealed class AdminUserScopeUserSnapshot
+{
+    public int UserId { get; set; }
+
+    public int OrganizationMembershipId { get; set; }
+
+    public string DisplayName { get; set; } = string.Empty;
+
+    public string Email { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; }
+
+    public IReadOnlyList<string> ScopedRoles { get; set; } = [];
+
+    public IReadOnlyList<string> OtherOrganizations { get; set; } = [];
+
+    public bool HasScopedUserAdmin { get; set; }
+
+    public bool CanGrantUserAdmin { get; set; }
+
+    public bool CanRevokeUserAdmin { get; set; }
+}
+
+public sealed class OrderSnapshot
+{
+    public int Id { get; set; }
+
+    public int CustomerId { get; set; }
+
+    public string CustomerName { get; set; } = string.Empty;
+}
+
+public sealed class OrganizationOptionSnapshot
+{
+    public int OrganizationId { get; set; }
+
+    public string OrganizationKey { get; set; } = string.Empty;
+
+    public string OrganizationName { get; set; } = string.Empty;
+
+    public IReadOnlyList<string> RoleNames { get; set; } = [];
+
+    public bool IsActive { get; set; }
+}

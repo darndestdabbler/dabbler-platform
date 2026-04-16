@@ -1,0 +1,33 @@
+@page "/orders/{OrderId:int}"
+@attribute [DabblerPageAuthorize("/orders")]
+@using Dabbler.Components.Data.Metadata
+@inject IEntityMetadataProvider MetadataProvider
+
+<PageTitle>Order Details — AcmeCoffeeDistributors</PageTitle>
+
+<MudPaper Class="pa-4" Elevation="0" data-testid="order-detail-page">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudText Typo="Typo.h4" data-testid="order-detail-title">Order #@OrderId</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            Review the selected order in a focused detail view.
+        </MudText>
+    </MudStack>
+
+    <OrderDetail EntityMetadata="_entityMetadata"
+                 PrimaryKey="OrderId"
+                 IsReadOnly="true"
+                 MetadataProvider="MetadataProvider" />
+</MudPaper>
+
+@code {
+    [Parameter]
+    public int OrderId { get; set; }
+
+    private EntityMetadata _entityMetadata = default!;
+
+    protected override void OnInitialized()
+    {
+        _entityMetadata = MetadataProvider.GetEntityMetadata("Order")
+            ?? throw new InvalidOperationException("Order metadata is required for the routed order detail page.");
+    }
+}

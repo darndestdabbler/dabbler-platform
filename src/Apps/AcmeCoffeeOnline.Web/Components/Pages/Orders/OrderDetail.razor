@@ -195,7 +195,7 @@ else if (State.Record is not null)
 }
 else
 {
-    <MudAlert Severity="Severity.Warning" Class="ma-4">Order not found.</MudAlert>
+    <MudAlert Severity="Severity.Warning" Class="ma-4" data-testid="order-not-found">Order not found.</MudAlert>
 }
 
 @code {
@@ -236,8 +236,18 @@ else
     // Note popup
     private OrderNotePopup? _notePopup;
 
-    protected override async Task OnInitializedAsync()
+    private object? _loadedPrimaryKey;
+    private bool? _loadedIsNew;
+
+    protected override async Task OnParametersSetAsync()
     {
+        if (_loadedIsNew == IsNew && Equals(_loadedPrimaryKey, PrimaryKey))
+        {
+            return;
+        }
+
+        _loadedIsNew = IsNew;
+        _loadedPrimaryKey = PrimaryKey;
         await State.InitializeAsync(IsNew, PrimaryKey);
     }
 
