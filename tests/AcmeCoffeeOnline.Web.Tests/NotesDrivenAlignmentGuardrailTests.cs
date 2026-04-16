@@ -14,9 +14,9 @@ public sealed class NotesDrivenAlignmentGuardrailTests
         Assert.DoesNotContain("WidgetType.RecentItems", mainLayout);
         Assert.DoesNotContain("WidgetType.Favorites", mainLayout);
         Assert.Contains("focused search", dashboardPage, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("focused search", mainLayout, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Search and manage distributor catalog records", dashboardPage);
-        Assert.Contains("Search and manage distributor catalog records", mainLayout);
+        // Dashboard configuration now lives only in Dashboard.razor, not in MainLayout
+        // (MainLayout no longer duplicates dashboard widget definitions after shell removal)
     }
 
     [Fact]
@@ -83,7 +83,8 @@ public sealed class NotesDrivenAlignmentGuardrailTests
         Assert.DoesNotContain("UsageTrackingProvider=\"", mainLayout);
         Assert.DoesNotContain("NavigateTo(\"/products/catalog\")", mainLayout);
         Assert.DoesNotContain("<DabblerSecurityNav", mainLayout);
-        Assert.Contains("NavigateTo(\"/products\")", mainLayout);
+        // Products navigation now uses MudNavLink Href instead of NavigateTo
+        Assert.Contains("/products", mainLayout);
         Assert.DoesNotContain("AddSingleton<IArtifactCatalogProvider", program);
         Assert.DoesNotContain("AddSingleton<IUsageTrackingProvider", program);
         Assert.False(File.Exists(dashboardProviderPath));

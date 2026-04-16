@@ -63,8 +63,8 @@ parallelization is explicitly recorded
 ### Session 2 of 3: Checklist And Reviewer Harness
 
 **Steps:**
-1. Generate a lightweight JSON UAT checklist for stub-backed design and
-   navigation review.
+1. Generate a lightweight checklist-editor JSON UAT checklist for stub-backed
+   design and navigation review.
 2. Focus the checklist on layout, tab order, visible focus, labeling, menu
    behavior, shell and workspace behavior, and page-to-page navigation.
 3. Create any lightweight reviewer instructions, launch profiles, or helper
@@ -72,7 +72,8 @@ parallelization is explicitly recorded
 4. Ensure the checklist and harness clearly distinguish human-only observations
    from issues that should already be covered by automated tests.
 
-**Creates:** Stub-backed UAT checklist JSON and reviewer harness guidance
+**Creates:** Checklist-editor-compatible stub-backed UAT checklist JSON and
+reviewer harness guidance
 **Touches:** `docs/`, stub-mode guidance, and any small helper assets required
 **Ends with:** Reviewers can exercise the stub-backed UI deliberately instead
 of ad hoc
@@ -87,13 +88,15 @@ of ad hoc
 **Steps:**
 1. Execute or facilitate the stub-backed design and navigation spot-testing
    pass using the new checklist.
-2. Capture findings in a durable format that clearly separates confirmed issues,
-   deferred issues, and observations that belong to later full-app work.
+2. Capture findings inline in the saved checklist JSON and extract any later
+   durable summary from that revised checklist only when it materially helps
+   downstream triage.
 3. Feed the resulting remediation inputs back into the remaining Phase 2 queue,
    updating later specs only where the findings justify it.
 4. Generate `change-log.md` for this session set.
 
-**Creates:** Early-UAT findings ledger, remediation inputs, and `change-log.md`
+**Creates:** Updated stub-backed checklist results, remediation inputs, and
+`change-log.md`
 **Touches:** Planning docs, downstream Phase 2 specs if needed, and closeout
 artifacts
 **Ends with:** Design and navigation issues are surfaced early enough to inform

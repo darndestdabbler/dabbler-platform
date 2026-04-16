@@ -5,9 +5,14 @@
 
 <PageTitle>Order Details — AcmeCoffeeDistributors</PageTitle>
 
-<MudPaper Class="pa-4" Elevation="0" data-testid="order-detail-page">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
     <MudStack Spacing="1" Class="mb-4">
-        <MudText Typo="Typo.h4" data-testid="order-detail-title">Order #@OrderId</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/orders"))"
+                           aria-label="Back to orders" />
+            <MudText Typo="Typo.h4" data-testid="order-detail-title">Order #@OrderId</MudText>
+        </MudStack>
         <MudText Typo="Typo.body2" Color="Color.Secondary">
             Review the selected order in a focused detail view.
         </MudText>
@@ -17,17 +22,20 @@
                  PrimaryKey="OrderId"
                  IsReadOnly="true"
                  MetadataProvider="MetadataProvider" />
-</MudPaper>
+</MudContainer>
 
 @code {
     [Parameter]
     public int OrderId { get; set; }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
 
     private EntityMetadata _entityMetadata = default!;
 
     protected override void OnInitialized()
     {
         _entityMetadata = MetadataProvider.GetEntityMetadata("Order")
-            ?? throw new InvalidOperationException("Order metadata is required for the routed order detail page.");
+            ?? throw new InvalidOperationException("Order metadata is required.");
     }
 }

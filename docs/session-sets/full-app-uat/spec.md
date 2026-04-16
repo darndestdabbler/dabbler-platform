@@ -72,16 +72,17 @@ baseline
 ### Session 2 of 3: Checklist, Human Execution, And Findings Capture
 
 **Steps:**
-1. Generate the full-application UAT checklist JSON based on the selected
-   Playwright subset and human-only checks.
+1. Generate the full-application checklist-editor JSON UAT checklist based on
+   the selected Playwright subset and human-only checks.
 2. Add selective verification helpers only where UI confirmation is
    insufficient and backend-truth confirmation materially improves confidence.
 3. Execute or facilitate the targeted full-app UAT pass.
-4. Capture findings in a durable format that distinguishes confirmed defects,
-   acceptable differences, and deferred follow-up.
+4. Capture findings inline in the saved checklist JSON and extract a later
+   summary only when Session 3 triage or downstream planning materially needs
+   it.
 
-**Creates:** Full-app UAT checklist JSON, selective verification helpers, and
-findings ledger
+**Creates:** Checklist-editor-compatible full-app UAT checklist JSON and
+selective verification helpers
 **Touches:** `docs/`, minimal helper scripts if needed, and downstream notes
 **Ends with:** The full application has targeted human confirmation against the
 most meaningful remaining risks

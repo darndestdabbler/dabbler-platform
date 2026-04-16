@@ -20,7 +20,7 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
     }
 
     [Fact]
-    public async Task HomePage_RendersInsideMainShellAndIncludesDabblerAssetAsync()
+    public async Task HomePage_RedirectsToDashboardAndRendersLayoutAsync()
     {
         using var factory = _factory.WithWebHostBuilder(builder =>
             builder.UseEnvironment("Development"));
@@ -39,13 +39,18 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         using var signInResponse = await client.SendAsync(signInRequest);
         Assert.Equal(HttpStatusCode.OK, signInResponse.StatusCode);
 
-        var response = await client.GetAsync("/");
-        var content = await response.Content.ReadAsStringAsync();
+        // Root redirects to /dashboard
+        var rootResponse = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.Redirect, rootResponse.StatusCode);
+        Assert.Contains("/dashboard", rootResponse.Headers.Location?.OriginalString);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("data-testid=\"main-shell\"", content);
+        // Follow the redirect to verify dashboard renders with MudBlazor layout
+        var dashboardResponse = await client.GetAsync("/dashboard");
+        var content = await dashboardResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, dashboardResponse.StatusCode);
         Assert.Contains("AcmeCoffeeDistributors", content);
-        Assert.Contains("data-dabbler-asset=\"dabbler-shell.css\"", content);
+        Assert.Contains("data-testid=\"routed-page-content\"", content);
     }
 
     [Fact]
@@ -181,15 +186,14 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
     {
         using var client = await CreateAuthenticatedClientAsync("kbrown@acmecoffee.com");
 
-        var homeResponse = await client.GetAsync("/");
-        var homeContent = await homeResponse.Content.ReadAsStringAsync();
+        var dashboardResponse = await client.GetAsync("/dashboard");
+        var dashboardContent = await dashboardResponse.Content.ReadAsStringAsync();
         var usersResponse = await client.GetAsync("/admin/users");
         var productsResponse = await client.GetAsync("/admin/products");
         var securityResponse = await client.GetAsync("/admin/security");
 
-        Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
-        Assert.Contains("Products", homeContent);
-        Assert.DoesNotContain("Catalog", homeContent);
+        Assert.Equal(HttpStatusCode.OK, dashboardResponse.StatusCode);
+        Assert.Contains("Products", dashboardContent);
         Assert.Equal(HttpStatusCode.OK, usersResponse.StatusCode);
         Assert.Equal(HttpStatusCode.Redirect, productsResponse.StatusCode);
         Assert.Contains("/access-denied", productsResponse.Headers.Location?.OriginalString);
@@ -202,15 +206,14 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
     {
         using var client = await CreateAuthenticatedClientAsync("admin@acmecoffee.com");
 
-        var homeResponse = await client.GetAsync("/");
-        var homeContent = await homeResponse.Content.ReadAsStringAsync();
+        var dashboardResponse = await client.GetAsync("/dashboard");
+        var dashboardContent = await dashboardResponse.Content.ReadAsStringAsync();
         var usersResponse = await client.GetAsync("/admin/users");
         var productsResponse = await client.GetAsync("/admin/products");
         var securityResponse = await client.GetAsync("/admin/security");
 
-        Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
-        Assert.Contains("Products", homeContent);
-        Assert.DoesNotContain("Catalog", homeContent);
+        Assert.Equal(HttpStatusCode.OK, dashboardResponse.StatusCode);
+        Assert.Contains("Products", dashboardContent);
         Assert.Equal(HttpStatusCode.OK, usersResponse.StatusCode);
         Assert.Equal(HttpStatusCode.OK, productsResponse.StatusCode);
         Assert.Equal(HttpStatusCode.OK, securityResponse.StatusCode);

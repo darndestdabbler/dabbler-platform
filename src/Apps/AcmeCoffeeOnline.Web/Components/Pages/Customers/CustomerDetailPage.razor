@@ -1,0 +1,74 @@
+@page "/customers/{CustomerId:int}"
+@attribute [DabblerPageAuthorize("/customers")]
+@using Dabbler.Components.Data.Metadata
+@using AcmeCoffeeOnline.Web.Services
+@inject IEntityMetadataProvider MetadataProvider
+@inject OrderApiClient OrderClient
+
+<PageTitle>Retail Business Details — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/customers"))"
+                           aria-label="Back to retail businesses" />
+            <MudText Typo="Typo.h4" data-testid="customer-detail-title">
+                Retail Business #@CustomerId
+            </MudText>
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            View and edit retail business contact details and related orders.
+        </MudText>
+    </MudStack>
+
+    <CustomerDetail EntityMetadata="_entityMetadata"
+                    PrimaryKey="CustomerId"
+                    IsReadOnly="false"
+                    MetadataProvider="MetadataProvider"
+                    ChildDataFactory="GetChildDataAsync" />
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private EntityMetadata _entityMetadata = default!;
+
+    protected override void OnInitialized()
+    {
+        _entityMetadata = MetadataProvider.GetEntityMetadata("Customer")
+            ?? throw new InvalidOperationException("Customer metadata is required.");
+    }
+
+    private async Task<IReadOnlyList<Dictionary<string, object?>>> GetChildDataAsync(
+        ChildRelationshipMetadata relationship, object? parentKey)
+    {
+        if (parentKey is null)
+            return Array.Empty<Dictionary<string, object?>>();
+
+        var parentId = Convert.ToInt32(parentKey);
+
+        if (relationship.ChildEntityName == "Order")
+        {
+            var request = new AcmeCoffeeOnline.Shared.DTOs.PagedRequest
+            {
+                Page = 1, PageSize = 50, SortBy = "OrderDate", SortDescending = true
+            };
+            var response = await OrderClient.GetByCustomerIdAsync(parentId, request);
+
+            return response.Items.Select(o => new Dictionary<string, object?>
+            {
+                ["Id"] = o.Id,
+                ["OrderDate"] = o.OrderDate,
+                ["Status"] = o.Status.ToString(),
+                ["Total"] = o.Total
+            }).ToList();
+        }
+
+        return Array.Empty<Dictionary<string, object?>>();
+    }
+}

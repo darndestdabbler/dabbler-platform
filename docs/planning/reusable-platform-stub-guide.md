@@ -94,6 +94,9 @@ The current early-UAT reviewer assets live in:
 - `docs/session-sets/stubbed-uat/stubbed-uat-checklist.json`
 - `docs/session-sets/stubbed-uat/reviewer-guide.md`
 
+Open the checklist JSON through the checklist editor at
+`https://darndestdabbler.github.io/uat-checklist-editor/`.
+
 ## Evidence And Handoff
 
 Later work can rely on these proved expectations:

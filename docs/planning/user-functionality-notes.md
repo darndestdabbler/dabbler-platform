@@ -1,3 +1,12 @@
+# User Functionality Notes
+
+This document remains the detailed source notes for platform and app behavior.
+
+The consolidated durable guidance derived from it now lives in
+`docs/planning/guiding-principles.md`.
+
+---
+
 # Architecture Considerations
 
 ## Database

@@ -10,6 +10,10 @@ The orchestrator can change from session to session at the human's discretion.
 All three orchestrators follow the same workflow -- only the instruction file
 they read differs.
 
+Read `docs/planning/guiding-principles.md` and
+`docs/planning/lessons-learned.md` before every session and before changing
+architecture, testing strategy, workflow assets, or human-UAT conventions.
+
 ## Overview
 
 ```
@@ -60,6 +64,9 @@ session set lives in `docs/session-sets/<name>/` and contains:
 | `session-reviews/issues-NNN.json` | Issue log if verification found problems |
 | `change-log.md` | Generated after the final session; marks the set as complete |
 
+Human-UAT sets may also include checklist JSON files intended for the
+checklist editor.
+
 ### Session
 
 One unit of work within a session set. Sessions are numbered (Session 1 of 5,
@@ -69,6 +76,10 @@ Session 2 of 5, etc.). Each session:
 - Is executed by exactly one orchestrator in one conversation
 - Ends with a mandatory cross-provider verification
 - Produces a commit on completion
+
+If a session creates or refreshes a checklist for later human UAT execution,
+that pending human review becomes a blocker for downstream sessions unless the
+human explicitly overrides it.
 
 ### AI Router
 
@@ -250,10 +261,30 @@ The router uses `.venv/Scripts/python.exe` on Windows.
 When the human says **"Start the next session"**, the orchestrator follows
 this exact procedure:
 
+### UAT Checklist Rule
+
+When a session set includes human-executed UAT checklists:
+
+- the checklist JSON must match the schema from
+  `https://github.com/darndestdabbler/uat-checklist-editor/blob/main/checklist-schema.json`
+- the human runs it through
+  `https://darndestdabbler.github.io/uat-checklist-editor/`
+- review results are saved inline in the checklist JSON
+- do not create a separate empty findings scaffold just to hold future human
+  review results
+- after a checklist is prepared and waiting on the human, do not start a new
+  session that depends on or bypasses that review unless the human explicitly
+  says to do so
+
 ### Step 0: Verify API Keys
 
-Load keys from the environment and confirm both are present. If missing, stop
-and tell the human.
+Before doing anything else:
+
+1. Read `docs/planning/guiding-principles.md`
+2. Read `docs/planning/lessons-learned.md`
+3. Then load keys from the environment and confirm both are present
+
+If keys are missing, stop and tell the human.
 
 ### Step 1: Identify the Active Session Set
 
@@ -314,6 +345,14 @@ log.log_step(N, step_num, "session-N/step-name", "description", "complete", [{
     "costUsd": result.cost_usd
 }])
 ```
+
+During execution:
+
+- if the human gives a decision or instruction that looks durable enough to
+  guide future sessions or future projects, ask whether it should be added to
+  `docs/planning/guiding-principles.md`
+- if a failure or avoidable friction suggests a reusable tactic, recommend an
+  update to `docs/planning/lessons-learned.md`
 
 ### Step 5: Build and Test
 
@@ -398,6 +437,14 @@ otherwise successful session.
 Report: session number, verification verdict, deferred issues (if any),
 cost summary, and sessions remaining.
 
+If the session produced or refreshed a human-UAT checklist that still needs the
+human to run it, the stop message must also:
+
+- clearly identify the checklist path
+- point the human to the checklist editor URL
+- state that work is waiting on the human review
+- keep any optional parallel suggestions low-risk and clearly optional
+
 **Do not start the next session. Wait for the human.**
 
 ### Step 10: Last Session Only
@@ -427,13 +474,19 @@ session-set workflow, and where to find the spec.
 Each agent-specific file should contain:
 
 1. **Project overview** -- what the repo is, package structure
-2. **Session-set workflow reference** -- pointer to this document
-3. **AI router import snippet** -- how to load the `ai-router` module
-4. **API key export commands** -- platform-specific commands to load keys
-5. **Build and test commands** -- `dotnet build`, `dotnet test`
-6. **Notification helper usage** -- reusable end-of-session alert via `ai-router`
-7. **Code style rules** -- naming conventions, patterns to follow
-8. **Mandatory rules** -- never skip verification, one session only, log every step, delegate reasoning
+2. **Guiding-principles reference** -- pointer to the durable cross-project
+   guidance
+3. **Lessons-learned reference** -- pointer to the practical repo-specific
+   failure and strategy notes
+4. **Session-set workflow reference** -- pointer to this document
+5. **AI router import snippet** -- how to load the `ai-router` module
+6. **API key export commands** -- platform-specific commands to load keys
+7. **Build and test commands** -- `dotnet build`, `dotnet test`
+8. **Notification helper usage** -- reusable end-of-session alert via `ai-router`
+9. **Code style rules** -- naming conventions, patterns to follow
+10. **Mandatory rules** -- never skip verification, one session only, log every
+    step, delegate reasoning, honor pending human-UAT blockers, and surface
+    durable new guidance to the human
 
 ### Switching Orchestrators Between Sessions
 

@@ -7,6 +7,10 @@ and the AI-led workflow assets used to keep app, library, and test work in one
 canonical place.
 
 Read `README.md` for the current repo layout and build entry points.
+Read `docs/planning/guiding-principles.md` for the durable cross-project
+architecture, testing, and human-UAT rules.
+Read `docs/planning/lessons-learned.md` for repo-specific failure patterns and
+reusable tactics learned from prior sessions.
 Read `docs/ai-led-session-workflow.md` for the complete session-set workflow.
 Read `docs/platform-guardrails.md` and `docs/dev-test-auth-modes.md` before
 changing auth helpers, browser coverage, or workflow assets.
@@ -154,6 +158,23 @@ Do NOT start the next session. Wait for the human.
 - **Log every step** via `log.log_step()`.
 - **Delegate reasoning** to `route()` -- do not perform reviews or analysis
   yourself when the task should go through the router.
+- **Use the checklist-editor schema** for human-UAT checklist JSON files and
+  keep human results inline in that same file.
+- **Treat pending human UAT as blocking.** If you prepare a checklist for human
+  execution, hand it off clearly, point to the checklist editor, state that you
+  are waiting, and do not start downstream sessions unless the human explicitly
+  overrides that pause.
+- **Share screenshots during UI and E2E work when practical.** If you are
+  already exercising the browser and the overhead is reasonable, include
+  screenshots in the chat so the human can see visual progress.
+- **Before every session, read both guidance files.**
+  `docs/planning/guiding-principles.md` and
+  `docs/planning/lessons-learned.md` are mandatory pre-session context.
+- **Escalate durable new guidance.** If the human gives an instruction that
+  looks like a future guiding principle, ask whether it should be added to
+  `docs/planning/guiding-principles.md`.
+- **Recommend lessons learned after failures.** When a failure suggests a
+  reusable tactic, propose an update to `docs/planning/lessons-learned.md`.
 
 ## Code Style
 

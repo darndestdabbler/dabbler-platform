@@ -4,6 +4,9 @@ This roadmap is the durable planning reference for upcoming session-set
 creation in this repo and for related future projects that build on the same
 platform direction.
 
+Use it alongside `docs/planning/guiding-principles.md`, which now holds the
+cross-project architecture, testing-hierarchy, and human-UAT workflow rules.
+
 ## Summary
 
 Phase 2 should begin by strengthening the reusable platform itself before
@@ -73,7 +76,8 @@ of design and navigation behavior before later E2E investment.
 
 **Likely scope:**
 
-- Define a lightweight UAT checklist JSON for stub-backed review.
+- Define a lightweight checklist-editor UAT checklist JSON for stub-backed
+  review.
 - Focus on page layout, tab order, visible focus, labeling, menu behavior,
   shell and workspace behavior, and page-to-page navigation.
 - Use stubbed data and providers so reviewers can exercise the UI without
@@ -208,7 +212,8 @@ miss.
 
 **Likely scope:**
 
-- Generate a second UAT checklist JSON focused on the full application.
+- Generate a second checklist-editor UAT checklist JSON focused on the full
+  application.
 - Base it on a subset of representative Playwright workflows plus a few
   intentionally human-only checks.
 - Include selective database-verification scripts only where UI confirmation is
@@ -311,6 +316,9 @@ The Phase 2 test pyramid should be:
 - UAT:
   - early stub-backed design and navigation spot testing
   - later full-app spot testing based on selected Playwright flows
+
+Both UAT layers should use the checklist editor schema and save human findings
+inline in the checklist JSON instead of a separate pending-results scaffold.
 
 Representative E2E is acceptable only because the lower layers are
 intentionally strengthened.

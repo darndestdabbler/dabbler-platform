@@ -1,286 +1,156 @@
 {
-  "sessionSet": "full-app-uat",
-  "sessionNumber": 2,
-  "purpose": "Guide a narrow human-confirmation pass across the frozen representative full-application workflows without reopening route scope or re-proving backend truth already owned by automation.",
-  "baseUrl": "http://localhost:5010",
-  "launchProfile": "http",
-  "cliCommand": "dotnet run --project src/Apps/AcmeCoffeeOnline.Web --launch-profile http",
-  "automationGuardrailCommand": "dotnet test tests/AcmeCoffeeOnline.Playwright/AcmeCoffeeOnline.Playwright.csproj --filter \"(FullyQualifiedName~E2E_WF_04)|(FullyQualifiedName~E2E_WF_05)|(FullyQualifiedName~E2E_WF_02)|(FullyQualifiedName~E2E_WF_01)|(FullyQualifiedName~E2E_WF_03)\"",
-  "reviewModeDefinitions": {
-    "human-judgment-with-automation-guardrails": "Human observation is the primary review signal, while the representative Playwright workflow remains the guardrail for backend truth and route correctness.",
-    "helper-supported": "Use the listed read-only helper only when the UI alone does not make the current session or dev-inbox state sufficiently clear."
-  },
-  "issueCaptureFormat": {
-    "fields": [
-      "id",
-      "workflowId",
-      "title",
-      "location",
-      "stepsToReproduce",
-      "expectedResult",
-      "actualResult",
-      "classification",
-      "severity",
-      "status",
-      "screenshotPath",
-      "deferredOwner",
-      "notes"
-    ],
-    "classificationBuckets": {
-      "Defect": "The observed behavior conflicts with an accepted requirement, established baseline, or clear workflow expectation.",
-      "Acceptable Difference": "The observed behavior differs from reviewer preference or expectation but does not justify remediation inside the current baseline.",
-      "Deferred Follow-up": "The observation is real or potentially valuable, but the proper owner is outside this set or the work is too broad for the current UAT lane."
+  "ProjectName": "Dabbler Platform / AcmeCoffeeOnline",
+  "ReleaseLabel": "full-app-uat",
+  "DocumentDate": "4/16/2026, 7:09:46 AM",
+  "Review": [
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-04 Product Availability",
+      "ItemLabel": "Availability toggle meaning is obvious",
+      "HumanAction": "Using the reviewer guide, sign in through the seeded-session helper as admin@acmecoffee.com, open /admin/products, search for Blonde Roast - Decaf - Espresso, and inspect the target row before and immediately after toggling availability once.",
+      "Expectation": "The Product Administration route stays reachable, the toggle clearly communicates current state before and after the click, and the changed state does not feel ambiguous.",
+      "Passes": true,
+      "Feedback": ""
     },
-    "severityScale": {
-      "Critical": "Blocks sign-in, navigation, or a core success path inside the frozen workflow subset.",
-      "Major": "Materially harms clarity, trust, or successful completion of a selected workflow and should be remediated before closeout unless the project lead accepts a written deferral.",
-      "Minor": "Noticeable issue with a reasonable workaround that does not break the workflow.",
-      "Trivial": "Cosmetic or extremely low-impact issue recorded for completeness."
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-04 Product Availability",
+      "ItemLabel": "Post-toggle feedback feels trustworthy",
+      "HumanAction": "After toggling the same product once, review the snackbar or message, the switch state, and the resulting row readability. Restore the original availability before moving on.",
+      "Expectation": "The route remains stable, the feedback appears promptly, and the resulting row or page state feels trustworthy rather than delayed, noisy, or confusing.",
+      "Passes": true,
+      "Feedback": ""
     },
-    "statusBuckets": [
-      "New",
-      "Triaged",
-      "Remediate",
-      "Defer",
-      "Closed"
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-05 Add Product Dialog",
+      "ItemLabel": "Validation copy is understandable",
+      "HumanAction": "While still signed in as admin@acmecoffee.com, open /admin/products, launch the Add Product dialog, and try one invalid submit path so validation messaging becomes visible.",
+      "Expectation": "The dialog opens cleanly, blocks the invalid submit path, and the validation copy explains what needs to change without forcing guesswork.",
+      "Passes": false,
+      "Feedback": "This may be a problem with MudBlazor, but the validation error feedback should be removed while the user is typing.  Otherwise, the user is confused that they might have to enter more characters or perhaps not include spaces or perhaps they misspelled something."
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-05 Add Product Dialog",
+      "ItemLabel": "Keyboard path feels intentional",
+      "HumanAction": "Navigate the Add Product dialog with the keyboard as much as practical, complete a valid entry, and create one product successfully. Clean up the record locally if you create a real new product.",
+      "Expectation": "Focus movement feels coherent from field to field and into Create, the dialog layout stays readable while navigating, and the valid submission path completes without odd focus jumps.",
+      "Passes": false,
+      "Feedback": "After adding a product, it should appear in the grid ... note that this doesn't just apply to this grid -- but to all grids that allow adding.  Also, if an item is deleted, it should be removed from the list."
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-02 Organization Switch And Denial",
+      "ItemLabel": "Active organization becomes obvious after switch",
+      "HumanAction": "Using the reviewer guide, sign in through the seeded-session helper as casey.hart@acmecoffee.com, open /customers while still in the internal organization, then switch into the retail-business customer scope. If the visible shell context is unclear, optionally run scripts/full-app-uat/Get-SessionInfo.ps1.",
+      "Expectation": "The switch completes without route confusion, the active-organization label becomes clearly understandable, and the new customer scope feels visible rather than implicit.",
+      "Passes": false,
+      "Feedback": "Clicking on SWITH ORG does nothing."
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-02 Organization Switch And Denial",
+      "ItemLabel": "Customer-scope orders and later denial feel coherent",
+      "HumanAction": "After the organization switch, confirm /orders remains reachable in the customer scope, then open /admin/users and review the denial state.",
+      "Expectation": "Orders stays reachable before the later denial check, and the eventual /admin/users denial reads as an expected permission boundary instead of a broken page.",
+      "Passes": false,
+      "Feedback": "This cannot be performed.  See above."
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-01 Scoped Admin Warning And Banner",
+      "ItemLabel": "Pre-switch warning explains what to do next",
+      "HumanAction": "Using the reviewer guide, sign in through the seeded-session helper as sloane.reyes@acmecoffee.com and open /admin/users before selecting a manageable organization.",
+      "Expectation": "The initial warning state clearly explains why actions are blocked and what the user needs to do before user-administration actions become available.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-01 Scoped Admin Warning And Banner",
+      "ItemLabel": "Post-switch banner stays tied to active organization",
+      "HumanAction": "Switch into one managed retail organization, reopen /admin/users, and review the scoped admin banner plus one visible grant or revoke action. If the scope feels inconsistent, optionally run scripts/full-app-uat/Get-SessionInfo.ps1.",
+      "Expectation": "The admin-scope banner clearly names the active organization and the visible action reads as organization-scoped rather than global.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-03 Real Magic Link",
+      "ItemLabel": "Sign-in request flow is understandable before completion",
+      "HumanAction": "Before starting, optionally clear prior dev-inbox entries with scripts/full-app-uat/Get-MagicLinks.ps1 -Email james.smith@example.com -Clear. Open /login, request a sign-in link for james.smith@example.com, and review the on-page confirmation state before opening the captured magic link.",
+      "Expectation": "The login form is easy to use, the sign-in confirmation copy makes the next step obvious, and the pre-completion flow does not feel technical or confusing.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-03 Real Magic Link",
+      "ItemLabel": "Signed-in orders journey feels customer-scoped",
+      "HumanAction": "Open the captured dev magic link, land in the signed-in shell, open /orders, and navigate to one visible order-detail page. Use scripts/full-app-uat/Get-MagicLinks.ps1 -Email james.smith@example.com if you need to fetch the newly captured link.",
+      "Expectation": "The real magic-link journey feels coherent end to end, /orders opens in the signed-in customer scope, and the order-detail path still feels clearly customer-facing rather than admin-oriented.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-04 Product Availability",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "1. The Title at the top of the home page (\"Welcome to Acme...\" is cutoff by the menu bar.  \n2. The font size for the left-pane navigation is a little small. \n3. \"Active org\" above \"Internal Operations\" and to the left of SWITCH ORG seems like a bolted-on band-aid -- it's red font is hard to read against the purple background and I suspect that by having it above the \"Internal Operations\" text, that it threw off the alignment of the vertical bars that separate menu components.  Let's consider a change: how about something like the following ... where each component is a hyperlink that either brings up the login, brings up a popup that allows selecting a new Role and/or Organization.  Hyperlinks are disabled where the user doesn't have permissions. \n\"Casey Hart as System Admin for Internal Operations\"\n\n"
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-05 Add Product Dialog",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-02 Organization Switch And Denial",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "Clicking on Retail Businesses in the left navigation pane takes you to the search screen, but ...\n1. The URL isn't updated to \".../customers\"  Note that this is a systemic issue for all navigation items\n2. This may need to be an entry in the guiding principles or other centralized documentation... Duplicate tabs should be disallowed for the search screens for the same entity.  They can be allowed for displaying details for separate specific records\n3. The left navigation pane styling needs work here.  When selected, the left pane navigation item's text should be visible.  Right now, the background color becomes purple and the text stays black/gray.  The next should become white or choose a better background color.  This should have been caught with the accessibility review ... we may need to make a note of this more generally.\n4. The search form styling/layout needs work here.  (a) There is no left margin, (b) the filter grid columns should align with the width of the data grid columns \n5. I think that the \"+ Add Or Filter row\" could be placed to the right of the filter grid \n6. Updates to the filter grid aren't reflected in the pills below it.\n7. Clicking on a pill to delete it does nothing.\n8. Clicking on Clear All does nothing.\n9. Clicking on the Calendar icons in the filter grid does nothing.\n10. Clicking on the Active toggle does nothing.\n\n\n*** It seems like nothing has been tested."
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-01 Scoped Admin Warning And Banner",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "I am not doing any more testing.  This app needs more automated testing first."
+    },
+    {
+      "FunctionalArea": "Representative Full-App UAT",
+      "Subarea": "E2E-WF-03 Real Magic Link",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "I am not doing any more testing.  This app needs more automated testing first."
+    }
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "28%",
+      "8%",
+      "44%"
     ]
-  },
-  "deferRules": [
-    {
-      "observationType": "Backend truth, persistence, or mutating correctness already covered by representative Playwright workflows",
-      "owner": "Existing representative E2E automation baseline"
-    },
-    {
-      "observationType": "Broad exploratory regression testing outside the five frozen workflow IDs",
-      "owner": "Out of scope for full-app-uat"
-    },
-    {
-      "observationType": "Broader accessibility recertification work without a concrete workflow-blocking observation",
-      "owner": "Completed accessibility-and-stubbing baseline or later accessibility follow-up"
-    },
-    {
-      "observationType": "Documentation or packaging changes not directly justified by a confirmed UAT finding",
-      "owner": "Phase 2 downstream session sets"
-    }
-  ],
-  "verificationHelpers": [
-    {
-      "id": "session-info",
-      "scriptPath": "scripts/full-app-uat/Get-SessionInfo.ps1",
-      "useWhen": [
-        "After switching organizations in E2E-WF-02 or E2E-WF-01 if the active scope is unclear from the shell alone.",
-        "When the denial or warning state appears inconsistent with the visible active-organization label."
-      ],
-      "reads": [
-        "isAuthenticated",
-        "userId",
-        "email",
-        "activeOrganizationId",
-        "activeOrganizationKey",
-        "activeOrganizationName",
-        "roles",
-        "availableOrganizations"
-      ],
-      "guardrails": [
-        "Loopback-only and Development/Test-only because it relies on the existing guarded /test-auth/session-info endpoint.",
-        "Read-only; it does not mutate session state."
-      ]
-    },
-    {
-      "id": "magic-link-inbox",
-      "scriptPath": "scripts/full-app-uat/Get-MagicLinks.ps1",
-      "useWhen": [
-        "Clear prior dev-inbox magic links before starting E2E-WF-03.",
-        "Fetch the latest dev-captured magic link for the signed-in customer during the real-auth workflow."
-      ],
-      "reads": [
-        "emailType",
-        "email",
-        "createdAtUtc",
-        "code",
-        "linkUrl"
-      ],
-      "guardrails": [
-        "Loopback-only and Development/Test-only because it relies on the existing guarded /test-auth/magic-links endpoint.",
-        "Read-only except for the optional inbox-clear call against the existing diagnostics surface."
-      ]
-    }
-  ],
-  "items": [
-    {
-      "id": "FULL-UAT-01",
-      "workflowId": "E2E-WF-04",
-      "persona": "SystemAdmin",
-      "authMode": "Seeded Session",
-      "routeSequence": [
-        "/",
-        "/admin/products"
-      ],
-      "reviewMode": "human-judgment-with-automation-guardrails",
-      "title": "Product availability toggle remains understandable and trustworthy",
-      "automationCoverageRefs": [
-        "tests/AcmeCoffeeOnline.Playwright/ProductAdministrationWorkflowTests.cs"
-      ],
-      "steps": [
-        "Sign in through the seeded-session helper as admin@acmecoffee.com.",
-        "Open /admin/products and search for Blonde Roast - Decaf - Espresso.",
-        "Toggle the product availability once, observe the immediate page state, then restore the original state before moving on."
-      ],
-      "guardrailSignals": [
-        "The Product Administration heading and the target row remain reachable without access-denied fallback.",
-        "A state-change message appears after the toggle and the switch reflects the changed state.",
-        "Representative automation already proves the mutation path and backend restore behavior."
-      ],
-      "humanObservationFocus": [
-        "The toggle control makes its current state obvious before and after the click.",
-        "The feedback around the state change feels trustworthy rather than delayed, ambiguous, or noisy.",
-        "The resulting row and page state stay easy to read after the mutation."
-      ],
-      "helperRefs": []
-    },
-    {
-      "id": "FULL-UAT-02",
-      "workflowId": "E2E-WF-05",
-      "persona": "SystemAdmin",
-      "authMode": "Seeded Session",
-      "routeSequence": [
-        "/",
-        "/admin/products",
-        "add-product dialog"
-      ],
-      "reviewMode": "human-judgment-with-automation-guardrails",
-      "title": "Add-product dialog layout, validation copy, and keyboard path feel coherent",
-      "automationCoverageRefs": [
-        "tests/AcmeCoffeeOnline.Playwright/ProductAdministrationWorkflowTests.cs"
-      ],
-      "steps": [
-        "Stay signed in as admin@acmecoffee.com and open /admin/products.",
-        "Open the Add Product dialog.",
-        "Attempt one invalid submit path so the validation messaging becomes visible.",
-        "Complete the form using the keyboard as much as practical, create one product successfully, then archive the created product if you use a real new record."
-      ],
-      "guardrailSignals": [
-        "The dialog opens from the admin products route and blocks the invalid submit path.",
-        "The Create action becomes enabled only after the required fields are valid.",
-        "Representative automation already proves one successful product creation and cleanup path."
-      ],
-      "humanObservationFocus": [
-        "The dialog layout feels organized and readable instead of cramped or visually confusing.",
-        "Validation copy explains what needs to change without forcing guesswork.",
-        "The focus path and keyboard flow feel intentional from field to field and into the Create action."
-      ],
-      "helperRefs": []
-    },
-    {
-      "id": "FULL-UAT-03",
-      "workflowId": "E2E-WF-02",
-      "persona": "Dual-membership internal plus customer user",
-      "authMode": "Seeded Session",
-      "routeSequence": [
-        "/",
-        "/customers",
-        "Switch org",
-        "/orders",
-        "/admin/users"
-      ],
-      "reviewMode": "human-judgment-with-automation-guardrails",
-      "title": "Organization switch makes the active customer scope obvious and later denial trustworthy",
-      "automationCoverageRefs": [
-        "tests/AcmeCoffeeOnline.Playwright/MultiOrganizationWorkflowTests.cs"
-      ],
-      "steps": [
-        "Sign in through the seeded-session helper as casey.hart@acmecoffee.com.",
-        "Open /customers while still in the internal organization.",
-        "Use the shell Switch org control to move into the retail-business customer scope.",
-        "Confirm /orders remains reachable in the switched customer scope.",
-        "Open /admin/users and observe the denial state."
-      ],
-      "guardrailSignals": [
-        "The active-organization label changes after the switch.",
-        "Orders stays reachable in the customer scope before the later denial check.",
-        "Representative automation already proves that the switched session loses the internal route and cannot access /admin/users."
-      ],
-      "humanObservationFocus": [
-        "The shell makes the active organization obvious after the scope switch.",
-        "The transition from internal to customer scope feels trustworthy instead of disorienting.",
-        "The later denial state reads as an expected permission boundary, not a broken page."
-      ],
-      "helperRefs": [
-        "session-info"
-      ]
-    },
-    {
-      "id": "FULL-UAT-04",
-      "workflowId": "E2E-WF-01",
-      "persona": "Regional sales rep with scoped BackofficeUserAdmin authority",
-      "authMode": "Seeded Session",
-      "routeSequence": [
-        "/",
-        "/admin/users",
-        "Switch org",
-        "/admin/users"
-      ],
-      "reviewMode": "human-judgment-with-automation-guardrails",
-      "title": "Scoped admin warning and post-switch banner stay clearly tied to the active organization",
-      "automationCoverageRefs": [
-        "tests/AcmeCoffeeOnline.Playwright/MultiOrganizationWorkflowTests.cs"
-      ],
-      "steps": [
-        "Sign in through the seeded-session helper as sloane.reyes@acmecoffee.com.",
-        "Open /admin/users before choosing a manageable organization.",
-        "Read the warning state, then switch into one managed retail organization.",
-        "Open /admin/users again and observe the scoped admin banner plus one available grant or revoke action."
-      ],
-      "guardrailSignals": [
-        "The initial /admin/users route shows the user-admin scope warning.",
-        "After the switch, the admin scope banner includes the managed organization name.",
-        "Representative automation already proves one scoped admin action and verifies the permission does not leak across organizations."
-      ],
-      "humanObservationFocus": [
-        "The initial warning clearly explains why actions are blocked before a manageable organization is selected.",
-        "The scoped admin banner stays visibly tied to the active organization after the switch.",
-        "The follow-on action remains understandable as organization-scoped rather than global."
-      ],
-      "helperRefs": [
-        "session-info"
-      ]
-    },
-    {
-      "id": "FULL-UAT-05",
-      "workflowId": "E2E-WF-03",
-      "persona": "Retail-business Customer",
-      "authMode": "Real Magic Link",
-      "routeSequence": [
-        "/login",
-        "magic-link completion",
-        "/orders",
-        "order detail surface"
-      ],
-      "reviewMode": "human-judgment-with-automation-guardrails",
-      "title": "Real magic-link sign-in remains clear end to end for the customer orders journey",
-      "automationCoverageRefs": [
-        "tests/AcmeCoffeeOnline.Playwright/CustomerWorkflowTests.cs"
-      ],
-      "steps": [
-        "Clear prior dev-inbox links for james.smith@example.com before starting the workflow.",
-        "Open /login and request a sign-in link for james.smith@example.com.",
-        "Review the on-page confirmation state before opening the captured magic link.",
-        "Complete the magic-link sign-in and land on /orders.",
-        "Open one visible order detail page and confirm the signed-in customer flow remains coherent."
-      ],
-      "guardrailSignals": [
-        "The sign-in request produces a dev-captured magic link and the completion path lands in the signed-in shell.",
-        "Orders is reachable in the customer scope and one visible order detail page opens successfully.",
-        "Representative automation already proves the signed-in order-detail path and the blocked foreign-order branch."
-      ],
-      "humanObservationFocus": [
-        "The login form, confirmation copy, and overall sign-in messaging make the next step obvious before the magic link is opened.",
-        "The full magic-link journey feels coherent rather than technical or confusing.",
-        "The signed-in orders flow still feels clearly customer-scoped after sign-in completes."
-      ],
-      "helperRefs": [
-        "magic-link-inbox"
-      ]
-    }
-  ]
+  }
 }

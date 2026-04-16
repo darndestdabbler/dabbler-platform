@@ -1,7 +1,9 @@
 @page "/"
-@attribute [DabblerPageAuthorize("/")]
+@inject NavigationManager NavigationManager
 
-<PageTitle>AcmeCoffeeDistributors</PageTitle>
-
-<MudText Typo="Typo.h3" GutterBottom="true">Welcome to AcmeCoffeeDistributors</MudText>
-<MudText Typo="Typo.body1">Distributor integration demo for Dabbler Components, Dabbler Security, and MudBlazor.</MudText>
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.NavigateTo("/dashboard", replace: true);
+    }
+}

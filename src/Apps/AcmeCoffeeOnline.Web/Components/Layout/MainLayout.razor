@@ -1,174 +1,189 @@
 @inherits LayoutComponentBase
 @using System.Security.Claims
 @using AcmeCoffeeOnline.Shared.DTOs
-@using AcmeCoffeeOnline.Web.Data
 @using AcmeCoffeeOnline.Web.Services
-@using AcmeCoffeeOnline.Web.Components.Pages.Products
-@using AcmeCoffeeOnline.Web.Components.Pages.Customers
-@using AcmeCoffeeOnline.Web.Components.Pages.Orders
-@using System.Text.Json
-@using AcmeCoffeeOnline.Web.Components.Pages.Reports
-@using Dabbler.Components
-@using Dabbler.Components.Data
-@using Dabbler.Components.Data.Metadata
-@inject IEntityMetadataProvider MetadataProvider
-@inject INavigationDataProvider NavigationDataProvider
-@inject CustomerApiClient CustomerClient
-@inject OrderApiClient OrderClient
-@inject IGridDataProvider<ProductDto> ProductDataProvider
-@inject IGridDataProvider<CustomerDto> CustomerDataProvider
-@inject IGridDataProvider<OrderDto> OrderDataProvider
-@inject AcmeCoffeeOnline.Web.Data.OrderReportDataProvider OrderReportDataProvider
-@inject AcmeCoffeeOnline.Web.Data.SalesReportDataProvider SalesReportDataProvider
-@inject IWebHostEnvironment HostEnvironment
+@using Dabbler.Security.Blazor.Components
 @inject NavigationManager NavigationManager
 @inject ShellSessionStateLoader ShellSessionStateLoader
 
-<div data-testid="main-shell">
-<MudThemeProvider />
+<MudThemeProvider Theme="_theme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-@* ── Admin app bar ─────────────────────────────────────────────── *@
-<MudAppBar Elevation="1" Dense="true" Color="Color.Surface">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Style="width: 100%;">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-            <MudIcon Icon="@Icons.Material.Filled.LocalCafe" Color="Color.Primary" />
-            <MudText Typo="Typo.subtitle1" Color="Color.Primary" Style="font-weight: 600;">AcmeCoffeeDistributors</MudText>
+<MudLayout>
+    @* ── App bar ────────────────────────────────────────────────────── *@
+    <MudAppBar Elevation="1" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit"
+                       Edge="Edge.Start" OnClick="ToggleDrawer"
+                       aria-label="Toggle navigation menu" />
+        <MudIcon Icon="@Icons.Material.Filled.LocalCafe" Class="ml-2" />
+        <MudText Typo="Typo.subtitle1" Class="ml-2" Style="font-weight: 600;">
+            AcmeCoffeeDistributors
+        </MudText>
 
-            <MudDivider Vertical="true" FlexItem="true" Class="mx-2" Style="height: 24px;" />
-            <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Dashboard"
-                       OnClick="@(() => NavigationManager.NavigateTo("/dashboard"))">
+        <MudSpacer />
+
+        @if (!string.IsNullOrWhiteSpace(_activeOrganizationName))
+        {
+            <div data-testid="active-organization-summary"
+                 style="display:flex; flex-direction:column; align-items:flex-end;">
+                <span class="mud-typography mud-typography-caption mud-secondary-text">Active org</span>
+                <span class="mud-typography mud-typography-body2" data-testid="active-organization-label">
+                    @_activeOrganizationName
+                </span>
+            </div>
+        }
+
+        @if (_organizationOptions.Count > 1 || _isSystemAdmin)
+        {
+            <MudMenu Label="Switch org" StartIcon="@Icons.Material.Filled.Business"
+                     Variant="Variant.Text" Color="Color.Inherit" Dense="true"
+                     AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                @foreach (var organization in _organizationOptions)
+                {
+                    <MudMenuItem Disabled="@organization.IsActive"
+                                 OnClick="@(() => SwitchOrganizationAsync(organization.OrganizationId))">
+                        @organization.OrganizationName
+                    </MudMenuItem>
+                }
+            </MudMenu>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_activeOrganizationName) || _organizationOptions.Count > 0)
+        {
+            <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
+        }
+
+        <DabblerRoleSwitcher />
+        <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
+
+        <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Dense="true"
+                 AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <MudMenuItem Disabled="true">
+                <MudText Typo="Typo.body2" Style="font-weight: 600;">@_userName</MudText>
+            </MudMenuItem>
+            @if (!string.IsNullOrWhiteSpace(_activeOrganizationName))
+            {
+                <MudMenuItem Disabled="true">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        @_activeOrganizationName (@_activeOrganizationKey)
+                    </MudText>
+                </MudMenuItem>
+            }
+            <MudMenuItem Disabled="true">
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    @(string.Join(", ", _userRoles))
+                </MudText>
+            </MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.Logout"
+                         OnClick="@(() => NavigationManager.NavigateTo("/auth/logout", forceLoad: true))">
+                Sign Out
+            </MudMenuItem>
+        </MudMenu>
+    </MudAppBar>
+
+    @* ── Left navigation drawer ─────────────────────────────────────── *@
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1" Variant="@DrawerVariant.Responsive"
+               data-testid="nav-drawer">
+        <MudNavMenu>
+            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard"
+                        Match="NavLinkMatch.All">
                 Dashboard
-            </MudButton>
-            <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Inventory"
-                       OnClick="@(() => NavigationManager.NavigateTo("/products"))">
+            </MudNavLink>
+            <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart"
+                        Match="NavLinkMatch.Prefix">
+                Orders
+            </MudNavLink>
+            <MudNavLink Href="/customers" Icon="@Icons.Material.Filled.People"
+                        Match="NavLinkMatch.Prefix">
+                Retail Businesses
+            </MudNavLink>
+            <MudNavLink Href="/products" Icon="@Icons.Material.Filled.Inventory"
+                        Match="NavLinkMatch.Prefix">
                 Products
-            </MudButton>
+            </MudNavLink>
+
+            <MudDivider Class="my-2" />
+            <MudNavGroup Title="Reports" Icon="@Icons.Material.Filled.Assessment"
+                         Expanded="false">
+                <MudNavLink Href="/reports/orders-by-customer"
+                            Icon="@Icons.Material.Filled.Assessment">
+                    Orders by Retail Business
+                </MudNavLink>
+                <MudNavLink Href="/reports/sales-by-product"
+                            Icon="@Icons.Material.Filled.BarChart">
+                    Sales by Product
+                </MudNavLink>
+            </MudNavGroup>
 
             @if (_isAdmin)
             {
-                <MudDivider Vertical="true" FlexItem="true" Class="mx-2" Style="height: 24px;" />
-                <MudMenu Label="Admin" StartIcon="@Icons.Material.Filled.AdminPanelSettings"
-                         Variant="Variant.Text" Color="Color.Inherit" Dense="true"
-                         AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
-                    <MudMenuItem Icon="@Icons.Material.Filled.People"
-                                 OnClick="@(() => NavigationManager.NavigateTo("/admin/users"))">
+                <MudDivider Class="my-2" />
+                <MudNavGroup Title="Admin" Icon="@Icons.Material.Filled.AdminPanelSettings"
+                             Expanded="false">
+                    <MudNavLink Href="/admin/users"
+                                Icon="@Icons.Material.Filled.People">
                         User Management
-                    </MudMenuItem>
+                    </MudNavLink>
                     @if (_isSystemAdmin)
                     {
-                        <MudMenuItem Icon="@Icons.Material.Filled.Inventory"
-                                     OnClick="@(() => NavigationManager.NavigateTo("/admin/products"))">
+                        <MudNavLink Href="/admin/products"
+                                    Icon="@Icons.Material.Filled.Inventory">
                             Product Management
-                        </MudMenuItem>
-                        <MudDivider />
-                        <MudMenuItem Icon="@Icons.Material.Filled.Shield"
-                                     OnClick="@(() => NavigationManager.NavigateTo("/admin/security"))">
+                        </MudNavLink>
+                        <MudNavLink Href="/admin/security"
+                                    Icon="@Icons.Material.Filled.Shield">
                             Security Dashboard
-                        </MudMenuItem>
+                        </MudNavLink>
                     }
-                </MudMenu>
+                </MudNavGroup>
             }
-        </MudStack>
+        </MudNavMenu>
+    </MudDrawer>
 
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-            @if (_organizationOptions.Count > 0)
-            {
-                <div data-testid="active-organization-summary" style="display:flex; flex-direction:column; align-items:flex-end;">
-                    <span class="mud-typography mud-typography-caption mud-secondary-text">Active org</span>
-                    <span class="mud-typography mud-typography-body2" data-testid="active-organization-label">
-                        @(_activeOrganizationName ?? "No active organization")
-                    </span>
-                </div>
-
-                @if (_organizationOptions.Count > 1 || _isSystemAdmin)
-                {
-                    <MudMenu Label="Switch org" StartIcon="@Icons.Material.Filled.Business"
-                             Variant="Variant.Text" Color="Color.Inherit" Dense="true"
-                             AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-                        @foreach (var organization in _organizationOptions)
-                        {
-                            <MudMenuItem Disabled="@organization.IsActive"
-                                         OnClick="@(() => SwitchOrganizationAsync(organization.OrganizationId))">
-                                @organization.OrganizationName
-                            </MudMenuItem>
-                        }
-                    </MudMenu>
-                }
-
-                <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
-            }
-
-            <DabblerRoleSwitcher />
-            <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
-            <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Dense="true"
-                     AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-                <MudMenuItem Disabled="true">
-                    <MudText Typo="Typo.body2" Style="font-weight: 600;">@_userName</MudText>
-                </MudMenuItem>
-                @if (!string.IsNullOrWhiteSpace(_activeOrganizationName))
-                {
-                    <MudMenuItem Disabled="true">
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_activeOrganizationName (@_activeOrganizationKey)</MudText>
-                    </MudMenuItem>
-                }
-                <MudMenuItem Disabled="true">
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">@(string.Join(", ", _userRoles))</MudText>
-                </MudMenuItem>
-                <MudDivider />
-                <MudMenuItem Icon="@Icons.Material.Filled.Logout"
-                             OnClick="@(() => NavigationManager.NavigateTo("/auth/logout", forceLoad: true))">
-                    Sign Out
-                </MudMenuItem>
-            </MudMenu>
-        </MudStack>
-    </MudStack>
-</MudAppBar>
-
-<section class="pa-4" data-testid="routed-page-content">
-    @Body
-</section>
-
-@* ── Shell with role-filtered entity navigation ────────────────── *@
-<DabblerShell MetadataProvider="_filteredMetadataProvider ?? MetadataProvider"
-              NavigationDataProvider="NavigationDataProvider"
-              DetailFormFactory="CreateDetailForm"
-              SearchPageFactory="CreateSearchPage"
-              NewRecordFactory="CreateNewRecordForm"
-              ReportItems="_reportItems"
-              ReportPageFactory="CreateReportPage"
-              HomePageConfiguration="_homePageConfig"
-              DashboardConfigurationResolver="ResolveDashboardConfig"
-              Title="AcmeCoffeeDistributors"
-              UserId="@_userId"
-              UserRoles="@_userRoles"
-              MaxTabs="15">
-    <EmptyStateTemplate>
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 48px;" aria-live="polite">
-            <MudIcon Icon="@Icons.Material.Filled.LocalCafe" Size="Size.Large" Color="Color.Primary" Style="font-size: 64px; opacity: 0.4;" />
-            <MudText Typo="Typo.h5" Color="Color.Primary" Class="mt-4">Welcome to AcmeCoffeeDistributors</MudText>
-            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">Select a record, retail business, or report from the navigation panel to get started.</MudText>
-        </div>
-    </EmptyStateTemplate>
-</DabblerShell>
-</div>
+    @* ── Main content area (routed pages) ───────────────────────────── *@
+    <MudMainContent Class="pa-4" data-testid="routed-page-content">
+        @Body
+    </MudMainContent>
+</MudLayout>
 
 @code {
+    private bool _drawerOpen = true;
     private string _userId = "";
     private string _userName = "";
     private IReadOnlyList<string> _userRoles = Array.Empty<string>();
     private bool _isAdmin;
     private bool _isSystemAdmin;
-    private IEntityMetadataProvider? _filteredMetadataProvider;
     private string? _activeOrganizationKey;
     private string? _activeOrganizationName;
     private IReadOnlyList<OrganizationOptionDto> _organizationOptions = [];
 
-    private readonly HomePageConfiguration _homePageConfig = new()
+    private readonly MudTheme _theme = new()
     {
-        DefaultHomePage = "Dashboard:acme-home"
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#1976D2",
+            Secondary = "#388E3C",
+            AppbarBackground = "#FFFFFF",
+            AppbarText = "#424242",
+            DrawerBackground = "#FAFAFA",
+            DrawerText = "#424242",
+            Surface = "#FFFFFF",
+            Background = "#F5F5F5"
+        },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = ["Roboto", "Helvetica", "Arial", "sans-serif"]
+            }
+        },
+        LayoutProperties = new LayoutProperties
+        {
+            DefaultBorderRadius = "4px"
+        }
     };
 
     protected override async Task OnInitializedAsync()
@@ -183,8 +198,11 @@
         _activeOrganizationKey = shellState.ActiveOrganizationKey;
         _activeOrganizationName = shellState.ActiveOrganizationName;
         _organizationOptions = shellState.OrganizationOptions;
+    }
 
-        _filteredMetadataProvider = new RoleFilteredMetadataProvider(MetadataProvider, _userRoles);
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
     }
 
     private Task SwitchOrganizationAsync(int organizationId)
@@ -200,355 +218,4 @@
 
         return Task.CompletedTask;
     }
-
-    // ── Report Navigation ─────────────────────────────────────────────
-
-    private readonly IReadOnlyList<NavigationReportItem> _reportItems = new List<NavigationReportItem>
-    {
-        new("orders-by-customer", "Orders by Retail Business", "Assessment"),
-        new("sales-by-product", "Sales by Product", "BarChart")
-    };
-
-    private RenderFragment CreateReportPage(string reportName)
-    {
-        return reportName switch
-        {
-            "orders-by-customer" => builder =>
-            {
-                builder.OpenComponent<OrdersByCustomer>(0);
-                builder.CloseComponent();
-            },
-            "sales-by-product" => builder =>
-            {
-                builder.OpenComponent<SalesByProduct>(0);
-                builder.CloseComponent();
-            },
-            _ => builder =>
-            {
-                builder.AddContent(0, $"Unknown report: {reportName}");
-            }
-        };
-    }
-
-    // ── Dashboard Configuration ──────────────────────────────────────────
-
-    private DashboardConfiguration? ResolveDashboardConfig(string dashboardId)
-    {
-        if (dashboardId == "acme-home")
-        {
-            var config = new DashboardConfiguration
-            {
-                DashboardId = "acme-home",
-                Name = "AcmeCoffeeDistributors Dashboard",
-                Description = "Distributor operations dashboard with navigation, reports, and focused search",
-                ColumnCount = 3,
-                IsSystemDashboard = true,
-                Widgets = new List<WidgetPlacement>
-                {
-                    BuildNavCard("nav-orders", 1, 1, "Orders", "ShoppingCart",
-                        "Manage distributor orders from retail businesses", "#1976D2", "entity", "Order"),
-                    BuildNavCard("nav-customers", 1, 2, "Retail Businesses", "People",
-                        "Review retail-business account contacts and activity", "#388E3C", "entity", "Customer"),
-                    BuildNavCard("nav-products", 1, 3, "Products", "Inventory",
-                        "Search and manage distributor catalog records", "#F57C00", "entity", "Product"),
-                    BuildQuickLinks("links-reports", 2, 1,
-                        "Reports",
-                        ("Orders by Retail Business", "report", "orders-by-customer"),
-                        ("Sales by Product", "report", "sales-by-product")),
-                    BuildSearchWidget("search-orders", 2, 2, "Order", "Search orders by number or retail business..."),
-                    BuildSearchWidget("search-products", 2, 3, "Product", "Search products...")
-                }
-            };
-            return config;
-        }
-
-        return null;
-    }
-
-    private static WidgetPlacement BuildNavCard(
-        string id, int row, int col,
-        string label, string icon, string subtitle, string color,
-        string navType, string entityId)
-    {
-        var json = JsonSerializer.Serialize(new
-        {
-            Label = label, Icon = icon, Subtitle = subtitle, Color = color,
-            NavigateTo = new { Type = navType, EntityId = entityId }
-        });
-        return new WidgetPlacement
-        {
-            PlacementId = id, DashboardId = "acme-home",
-            GridRow = row, GridColumn = col, ColSpan = 1, RowSpan = 1,
-            WidgetType = WidgetType.NavigationCard, ConfigJson = json,
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private static WidgetPlacement BuildQuickLinks(
-        string id, int row, int col, string title,
-        params (string Label, string Type, string ArtifactId)[] links)
-    {
-        var json = JsonSerializer.Serialize(new
-        {
-            Title = title,
-            Links = links.Select(l => new { l.Label, l.Type, l.ArtifactId }).ToArray()
-        });
-        return new WidgetPlacement
-        {
-            PlacementId = id, DashboardId = "acme-home",
-            GridRow = row, GridColumn = col, ColSpan = 1, RowSpan = 1,
-            WidgetType = WidgetType.QuickLinksGroup, ConfigJson = json,
-            SortOrder = row * 10 + col
-        };
-    }
-
-    private static WidgetPlacement BuildSearchWidget(
-        string id, int row, int col, string entityName, string placeholder)
-    {
-        var json = JsonSerializer.Serialize(new { EntityName = entityName, Placeholder = placeholder });
-        return new WidgetPlacement
-        {
-            PlacementId = id, DashboardId = "acme-home",
-            GridRow = row, GridColumn = col, ColSpan = 1, RowSpan = 1,
-            WidgetType = WidgetType.EmbeddedSearch, ConfigJson = json,
-            SortOrder = row * 10 + col
-        };
-    }
-
-    // ── Detail Form Factory ────────────────────────────────────────────
-
-    private RenderFragment CreateDetailForm(string entityName, object primaryKey)
-    {
-        return entityName switch
-        {
-            "Product" => CreateProductDetailForm(primaryKey, isNew: false),
-            "Customer" => CreateCustomerDetailForm(primaryKey, isNew: false),
-            "Order" => CreateOrderDetailForm(primaryKey, isNew: false),
-            "OrderItem" => CreateTypedDetailForm<OrderItemDto>(entityName, primaryKey),
-            "OrderNote" => CreateTypedDetailForm<OrderNoteDto>(entityName, primaryKey),
-            _ => builder => { builder.AddContent(0, $"Unknown entity: {entityName}"); }
-        };
-    }
-
-    private RenderFragment CreateProductDetailForm(object? primaryKey, bool isNew)
-    {
-        var meta = MetadataProvider.GetEntityMetadata("Product")!;
-        return builder =>
-        {
-            builder.OpenComponent<ProductDetail>(0);
-            builder.AddAttribute(1, "EntityMetadata", meta);
-            builder.AddAttribute(2, "PrimaryKey", primaryKey);
-            builder.AddAttribute(3, "IsNew", isNew);
-            builder.AddAttribute(4, "MetadataProvider", MetadataProvider);
-            builder.CloseComponent();
-        };
-    }
-
-    private RenderFragment CreateCustomerDetailForm(object? primaryKey, bool isNew)
-    {
-        var meta = MetadataProvider.GetEntityMetadata("Customer")!;
-        return builder =>
-        {
-            builder.OpenComponent<CustomerDetail>(0);
-            builder.AddAttribute(1, "EntityMetadata", meta);
-            builder.AddAttribute(2, "PrimaryKey", primaryKey);
-            builder.AddAttribute(3, "IsNew", isNew);
-            builder.AddAttribute(4, "MetadataProvider", MetadataProvider);
-            builder.AddAttribute(5, "ChildDataFactory",
-                new Func<ChildRelationshipMetadata, object?, Task<IReadOnlyList<Dictionary<string, object?>>>>(
-                    GetChildDataAsync));
-            builder.CloseComponent();
-        };
-    }
-
-    private RenderFragment CreateOrderDetailForm(object? primaryKey, bool isNew)
-    {
-        var meta = MetadataProvider.GetEntityMetadata("Order")!;
-        return builder =>
-        {
-            builder.OpenComponent<OrderDetail>(0);
-            builder.AddAttribute(1, "EntityMetadata", meta);
-            builder.AddAttribute(2, "PrimaryKey", primaryKey);
-            builder.AddAttribute(3, "IsNew", isNew);
-            builder.AddAttribute(4, "MetadataProvider", MetadataProvider);
-            builder.AddAttribute(5, "ChildDataFactory",
-                new Func<ChildRelationshipMetadata, object?, Task<IReadOnlyList<Dictionary<string, object?>>>>(
-                    GetChildDataAsync));
-            builder.CloseComponent();
-        };
-    }
-
-    private RenderFragment CreateTypedDetailForm<T>(string entityName, object primaryKey) where T : class, new()
-    {
-        var meta = MetadataProvider.GetEntityMetadata(entityName)!;
-        var record = new T();
-
-        return builder =>
-        {
-            builder.OpenComponent<DabblerDetailForm<T>>(0);
-            builder.AddAttribute(1, "EntityMetadata", meta);
-            builder.AddAttribute(2, "Record", record);
-            builder.AddAttribute(3, "IsNew", false);
-            builder.AddAttribute(4, "MetadataProvider", MetadataProvider);
-            builder.AddAttribute(5, "ChildDataFactory",
-                new Func<ChildRelationshipMetadata, object?, Task<IReadOnlyList<Dictionary<string, object?>>>>(
-                    GetChildDataAsync));
-            builder.CloseComponent();
-        };
-    }
-
-    // ── Search Page Factory ────────────────────────────────────────────
-
-    private RenderFragment CreateSearchPage(string entityName, SmartFilterDefinition? preFilter)
-    {
-        return entityName switch
-        {
-            "Product" => CreateProductSearchPage(preFilter),
-            "Customer" => CreateCustomerSearchPage(preFilter),
-            "Order" => CreateOrderSearchPage(preFilter),
-            _ => CreatePlaceholderSearchPage(entityName, preFilter)
-        };
-    }
-
-    private RenderFragment CreateProductSearchPage(SmartFilterDefinition? preFilter)
-    {
-        return builder =>
-        {
-            builder.OpenComponent<ProductList>(0);
-            builder.AddAttribute(1, "DataProvider", ProductDataProvider);
-            builder.AddAttribute(2, "Title", "Products");
-            builder.AddAttribute(3, "PreFilter", preFilter);
-            builder.CloseComponent();
-        };
-    }
-
-    private RenderFragment CreateCustomerSearchPage(SmartFilterDefinition? preFilter)
-    {
-        return builder =>
-        {
-            builder.OpenComponent<CustomerList>(0);
-            builder.AddAttribute(1, "DataProvider", CustomerDataProvider);
-            builder.AddAttribute(2, "Title", "Retail Businesses");
-            builder.AddAttribute(3, "PreFilter", preFilter);
-            builder.CloseComponent();
-        };
-    }
-
-    private RenderFragment CreateOrderSearchPage(SmartFilterDefinition? preFilter)
-    {
-        return builder =>
-        {
-            builder.OpenComponent<OrderList>(0);
-            builder.AddAttribute(1, "DataProvider", OrderDataProvider);
-            builder.AddAttribute(2, "Title", "Orders");
-            builder.AddAttribute(3, "PreFilter", preFilter);
-            builder.CloseComponent();
-        };
-    }
-
-    private RenderFragment CreatePlaceholderSearchPage(string entityName, SmartFilterDefinition? preFilter)
-    {
-        var meta = MetadataProvider.GetEntityMetadata(entityName);
-        var filterInfo = preFilter is not null ? $" (filter: {preFilter.Name})" : "";
-
-        return builder =>
-        {
-            builder.OpenElement(0, "div");
-            builder.AddAttribute(1, "class", "pa-4");
-            builder.AddAttribute(2, "role", "region");
-            builder.AddAttribute(3, "aria-label", $"{meta?.DisplayName ?? entityName} search results");
-
-            builder.OpenComponent<MudText>(4);
-            builder.AddAttribute(5, "Typo", Typo.h5);
-            builder.AddAttribute(6, "ChildContent", (RenderFragment)(t =>
-                t.AddContent(0, $"{meta?.DisplayName ?? entityName} Search{filterInfo}")));
-            builder.CloseComponent();
-
-            builder.OpenComponent<MudText>(7);
-            builder.AddAttribute(8, "Typo", Typo.body2);
-            builder.AddAttribute(9, "Color", Color.Secondary);
-            builder.AddAttribute(10, "Class", "mt-2");
-            builder.AddAttribute(11, "ChildContent", (RenderFragment)(t =>
-                t.AddContent(0, "Search page implementation pending.")));
-            builder.CloseComponent();
-
-            builder.CloseElement();
-        };
-    }
-
-    // ── New Record Factory ─────────────────────────────────────────────
-
-    private RenderFragment CreateNewRecordForm(string entityName)
-    {
-        return entityName switch
-        {
-            "Product" => CreateProductDetailForm(primaryKey: null, isNew: true),
-            "Customer" => CreateCustomerDetailForm(primaryKey: null, isNew: true),
-            "Order" => CreateOrderDetailForm(primaryKey: null, isNew: true),
-            _ => builder => { builder.AddContent(0, $"Cannot create new: {entityName}"); }
-        };
-    }
-
-    // ── Child Data Loading ─────────────────────────────────────────────
-
-    private async Task<IReadOnlyList<Dictionary<string, object?>>> GetChildDataAsync(
-        ChildRelationshipMetadata relationship, object? parentKey)
-    {
-        if (parentKey is null)
-            return Array.Empty<Dictionary<string, object?>>();
-
-        var parentId = Convert.ToInt32(parentKey);
-
-        return relationship.ChildEntityName switch
-        {
-            "Order" => await GetOrderChildDataAsync(parentId),
-            "OrderItem" => await GetOrderItemChildDataAsync(parentId),
-            "OrderNote" => await GetOrderNoteChildDataAsync(parentId),
-            _ => Array.Empty<Dictionary<string, object?>>()
-        };
-    }
-
-    private async Task<IReadOnlyList<Dictionary<string, object?>>> GetOrderChildDataAsync(int customerId)
-    {
-        var request = new PagedRequest { Page = 1, PageSize = 50, SortBy = "OrderDate", SortDescending = true };
-        var response = await OrderClient.GetByCustomerIdAsync(customerId, request);
-
-        return response.Items.Select(o => new Dictionary<string, object?>
-        {
-            ["Id"] = o.Id,
-            ["OrderDate"] = o.OrderDate,
-            ["Status"] = o.Status.ToString(),
-            ["Total"] = o.Total
-        }).ToList();
-    }
-
-    private async Task<IReadOnlyList<Dictionary<string, object?>>> GetOrderItemChildDataAsync(int orderId)
-    {
-        var order = await OrderClient.GetByIdAsync(orderId);
-        if (order is null) return Array.Empty<Dictionary<string, object?>>();
-
-        return order.OrderItems.Select(i => new Dictionary<string, object?>
-        {
-            ["Id"] = i.Id,
-            ["ProductId"] = i.ProductId,
-            ["ProductName"] = i.ProductName,
-            ["Quantity"] = i.Quantity,
-            ["UnitPrice"] = i.UnitPrice,
-            ["Discount"] = i.Discount
-        }).ToList();
-    }
-
-    private async Task<IReadOnlyList<Dictionary<string, object?>>> GetOrderNoteChildDataAsync(int orderId)
-    {
-        var notes = await OrderClient.GetNotesByOrderIdAsync(orderId);
-
-        return notes.Select(n => new Dictionary<string, object?>
-        {
-            ["Id"] = n.Id,
-            ["NoteDate"] = n.NoteDate,
-            ["Author"] = n.Author,
-            ["NoteText"] = n.NoteText
-        }).ToList();
-    }
-
 }

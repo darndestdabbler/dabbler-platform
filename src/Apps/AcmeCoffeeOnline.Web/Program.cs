@@ -182,7 +182,8 @@ builder.Services.AddTransient<SalesReportDataProvider>();
 
 // Dabbler Components: metadata and navigation providers
 builder.Services.AddSingleton<IEntityMetadataProvider, AcmeCoffeeMetadataProvider>();
-builder.Services.AddScoped<INavigationDataProvider, AcmeCoffeeNavigationDataProvider>();
+// INavigationDataProvider registration removed — was consumed only by DabblerShell,
+// which has been replaced by MudBlazor-native layout with route-based navigation.
 
 var app = builder.Build();
 

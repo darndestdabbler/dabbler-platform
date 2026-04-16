@@ -2,9 +2,9 @@
 
 This guide supports Session 2 of `docs/session-sets/full-app-uat/`.
 
-Use it with `docs/session-sets/full-app-uat/full-app-uat-checklist.json` to
-run the narrow human-confirmation pass against the five frozen representative
-workflows.
+Use it with
+`docs/session-sets/full-app-uat/full-app-uat-checklist.json` in the checklist
+editor at `https://darndestdabbler.github.io/uat-checklist-editor/`.
 
 ## Purpose
 
@@ -18,11 +18,34 @@ already green.
 
 ## Quick Start
 
-Run the web app with the standard Development HTTP profile:
+For local full-app UAT, the web `http` launch profile does not start the API.
+You need both processes available unless you are using Docker.
+
+Recommended local startup:
 
 ```powershell
+dotnet run --project src/Apps/AcmeCoffeeOnline.Api --launch-profile http
 dotnet run --project src/Apps/AcmeCoffeeOnline.Web --launch-profile http
 ```
+
+The expected local URLs are:
+
+- web: `http://localhost:5010`
+- api: `http://localhost:5011`
+
+The web app's Development configuration points at the API on
+`http://localhost:5011`, so the UI will not behave correctly if only the web
+process is running.
+
+Optional Docker-based startup for a more CI-like stack:
+
+```powershell
+docker compose -f docker/docker-compose.yml up --build sqlserver mailhog api web
+```
+
+Current practice for local E2E and UAT is still direct app startup rather than
+Docker or .NET Aspire orchestration. Docker remains available as an optional
+stack, but it is not the default reviewer path documented here.
 
 Optional automation guardrail refresh before the live pass:
 
@@ -30,41 +53,133 @@ Optional automation guardrail refresh before the live pass:
 dotnet test tests/AcmeCoffeeOnline.Playwright/AcmeCoffeeOnline.Playwright.csproj --filter "(FullyQualifiedName~E2E_WF_04)|(FullyQualifiedName~E2E_WF_05)|(FullyQualifiedName~E2E_WF_02)|(FullyQualifiedName~E2E_WF_01)|(FullyQualifiedName~E2E_WF_03)"
 ```
 
+Open the editor in Chrome or Edge:
+
+`https://darndestdabbler.github.io/uat-checklist-editor/`
+
+Then open:
+
+`docs/session-sets/full-app-uat/full-app-uat-checklist.json`
+
 Seeded-session and dev-inbox helpers remain guarded by the existing
 Development or Test loopback endpoints described in
 `docs/workflow-auth-observability.md`.
 
+## Seeded-Session Sign-In
+
+The seeded-session endpoint requires the `X-Test-Auth-Secret` header, so
+opening `/test-auth/seeded-session?...` directly in the browser will not work.
+
+Use this browser-based helper instead:
+
+1. Open `http://localhost:5010/login` in the same browser profile you will use
+   for the review.
+2. Open the browser DevTools console on that page.
+3. Paste and run one of the snippets below.
+4. Wait for the page to reload into the signed-in shell.
+
+Reusable helper:
+
+```javascript
+window.seededSessionSignIn = async (email) => {
+  const response = await fetch(`/test-auth/seeded-session?email=${encodeURIComponent(email)}`, {
+    method: 'GET',
+    headers: { 'X-Test-Auth-Secret': 'acme-local-seeded-session' },
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    throw new Error(`Seeded sign-in failed with status ${response.status}`);
+  }
+
+  location.href = '/';
+};
+```
+
+Checklist personas:
+
+```javascript
+await window.seededSessionSignIn('admin@acmecoffee.com');
+```
+
+```javascript
+await window.seededSessionSignIn('casey.hart@acmecoffee.com');
+```
+
+```javascript
+await window.seededSessionSignIn('sloane.reyes@acmecoffee.com');
+```
+
+Expected starting context after sign-in:
+
+- `admin@acmecoffee.com`: system administrator with broad backoffice access
+- `casey.hart@acmecoffee.com`: starts in the internal organization, then can
+  switch into one retail-business customer organization
+- `sloane.reyes@acmecoffee.com`: starts in the internal organization, then can
+  switch into managed retail organizations with scoped user-admin actions
+
+If you want to clear the seeded-session cookie between checklist sections, sign
+out from the UI or run this in the DevTools console:
+
+```javascript
+await fetch('/test-auth/sign-out', {
+  method: 'GET',
+  headers: { 'X-Test-Auth-Secret': 'acme-local-seeded-session' },
+  credentials: 'include'
+});
+location.href = '/login';
+```
+
+## Test Data And Reset Expectations
+
+There is no suite-wide database reset step documented for this review pass.
+
+The current automated E2E strategy uses a seeded development baseline plus
+targeted cleanup for workflows that mutate persisted state. In practice, that
+means the mutating Playwright workflows restore the original state or archive
+their test-created records in teardown instead of resetting the whole database
+between tests.
+
+For this UAT pass, begin from the normal seeded Development environment. If a
+workflow leaves behind state that would confuse later checklist items, either
+restore the changed value before moving on or stop and record the issue in the
+checklist so we can decide whether a stricter reset workflow should be added.
+
 ## Review Flow
 
-1. Start from `docs/session-sets/full-app-uat/full-app-uat-checklist.json`.
-2. Work through the five items in their frozen order:
+1. Open the checklist JSON in the checklist editor.
+2. Work through the workflow subareas in this frozen order:
    `E2E-WF-04`, `E2E-WF-05`, `E2E-WF-02`, `E2E-WF-01`, `E2E-WF-03`.
-3. Keep each workflow narrow. Confirm only the listed route sequence,
-   guardrail signals, and human-observation focus items.
-4. Use the helper scripts only when the visible UI is not enough:
+3. Mark `Passes` only when the item genuinely passed.
+4. Put any observations, bugs, or clarifications directly into that item's
+   `Feedback` field and save the checklist JSON in place.
+5. Use the helper scripts only when the visible UI is not enough:
    `scripts/full-app-uat/Get-SessionInfo.ps1` for current session scope and
    `scripts/full-app-uat/Get-MagicLinks.ps1` for the dev-captured magic link.
-5. Record findings in
-   `docs/session-sets/full-app-uat/full-app-uat-findings.json`.
 
-## How To Read The Checklist
+## Feedback Conventions
 
-Each checklist item includes:
+Keep feedback structured enough for later extraction.
 
-- `guardrailSignals`: automation-backed route or state expectations that
-  should still be visible during the live pass
-- `humanObservationFocus`: the judgment-heavy part a reviewer should actually
-  concentrate on
-- `helperRefs`: optional read-only diagnostics that can clarify scope or dev
-  inbox state without widening the app surface
+When an item does not pass or needs explanation, begin the feedback with short
+labels like these:
 
-Use those fields to stay disciplined:
+- `Classification: Defect`
+- `Classification: Acceptable Difference`
+- `Classification: Deferred Follow-up`
+- `Severity: Critical|Major|Minor|Trivial`
+- `Notes: ...`
 
-- treat the automation guardrails as confirmation, not a reason to branch into
-  exploratory testing
-- spend human attention on wording, layout, focus, trust, and visible context
-- use helper output only to confirm current session or magic-link state, not
-  to replace the UI review itself
+Example:
+
+```text
+Classification: Defect
+Severity: Major
+Notes: The active-organization label changed, but the new customer scope was easy to miss because the label stayed low-contrast in the shell header.
+```
+
+Use the editor's automatic "Other" row inside a subarea for observations that
+do not fit one of the listed items cleanly.
 
 ## Helper Usage
 
@@ -85,40 +200,6 @@ Read the newly captured magic link after requesting sign-in:
 ```powershell
 .\scripts\full-app-uat\Get-MagicLinks.ps1 -Email james.smith@example.com
 ```
-
-## Issue Capture Rules
-
-Every captured finding should include the Session 1 fields:
-
-- `id`
-- `workflowId`
-- `title`
-- `location`
-- `stepsToReproduce`
-- `expectedResult`
-- `actualResult`
-- `classification`
-- `severity`
-- `status`
-- `screenshotPath`
-- `deferredOwner`
-- `notes`
-
-Classification guidance:
-
-- `Defect`: behavior conflicts with the accepted baseline or blocks a frozen
-  workflow expectation
-- `Acceptable Difference`: behavior differs from reviewer preference but does
-  not justify remediation inside this set
-- `Deferred Follow-up`: the observation is real, but the proper owner is
-  outside this set or the scope is too broad for the current UAT lane
-
-Severity guidance:
-
-- `Critical`: blocks sign-in, navigation, or completion of a frozen workflow
-- `Major`: materially harms clarity, trust, or successful completion
-- `Minor`: noticeable issue with a reasonable workaround
-- `Trivial`: cosmetic or very low-impact issue
 
 ## In Scope
 
