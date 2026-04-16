@@ -2,5 +2,77 @@
   "sessionSetName": "e2e-workflow-coverage",
   "createdDate": "2026-04-16T16:55:24.224742+00:00",
   "totalSessions": 5,
-  "entries": []
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/fixture-extensions",
+      "dateTime": "2026-04-16T19:05:34.340542+00:00",
+      "description": "Extended PlaywrightFixture with ClickDashboardNavCardAsync helper method",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/api-helpers",
+      "dateTime": "2026-04-16T19:05:34.340542+00:00",
+      "description": "Added customer API helpers (GetCustomerByIdAsync, GetCustomersAsync, CreateCustomerAsync, UpdateCustomerAsync, CustomerSnapshot) and order mutation API helpers (UpdateOrderStatusAsync, AddOrderItemAsync, RemoveOrderItemAsync, GetOrderNotesAsync, AddOrderNoteAsync, UpdateOrderNoteAsync, DeleteOrderNoteAsync, OrderItemSnapshot, OrderNoteSnapshot)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/navigation-tests",
+      "dateTime": "2026-04-16T19:05:34.340542+00:00",
+      "description": "Created NavigationTests.cs with 9 tests: 4 direct drawer navigation (Dashboard, Orders, Retail Businesses, Products), 4 drawer group navigation (Reports x2, Admin User Mgmt, Admin Product Mgmt), and 1 hamburger toggle test",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/dashboard-tests",
+      "dateTime": "2026-04-16T19:05:34.342048+00:00",
+      "description": "Created DashboardWorkflowTests.cs with 3 tests: nav card to Orders, nav card to Products, report link to Orders by Retail Business",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/bug-fixes",
+      "dateTime": "2026-04-16T19:05:34.342563+00:00",
+      "description": "Fixed 2 pre-existing bugs discovered during testing: (1) removed stale dabbler-combobox.css reference from appsettings.json causing 404 errors, (2) fixed FilterSummaryBuilder.ToDictionary crash when filter columns share PropertyName (range filters like OrderDate from/to)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-16T19:05:34.342563+00:00",
+      "description": "Build succeeded (0 errors). All 12 new Playwright tests pass. All 83 non-Playwright tests pass. 8 existing Playwright tests have pre-existing failures (layout assertions, admin page timeouts under concurrent load)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-16T19:08:25.344847+00:00",
+      "description": "Cross-provider verification via AI Router (Gemini)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 23403,
+          "outputTokens": 2873,
+          "costUsd": 0.56652
+        }
+      ]
+    }
+  ]
 }

@@ -22,10 +22,11 @@ public static class FilterSummaryBuilder
         IReadOnlyList<FilterColumnDefinition> columns,
         string? quickFilterText = null)
     {
-        var headerLookup = columns.ToDictionary(
-            c => c.PropertyName,
-            c => c.Header ?? c.PropertyName,
-            StringComparer.OrdinalIgnoreCase);
+        var headerLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var c in columns)
+        {
+            headerLookup.TryAdd(c.PropertyName, c.Header ?? c.PropertyName);
+        }
 
         var items = new List<FilterSummaryItem>();
 

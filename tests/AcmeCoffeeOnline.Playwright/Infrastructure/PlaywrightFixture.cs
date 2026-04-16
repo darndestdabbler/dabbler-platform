@@ -319,6 +319,15 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
     }
 
+    public async Task ClickDashboardNavCardAsync(IPage page, string testId, string expectedUrlPattern)
+    {
+        var card = page.GetByTestId(testId);
+        await Assertions.Expect(card).ToBeVisibleAsync();
+        await card.ClickAsync();
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        await Assertions.Expect(page).ToHaveURLAsync(new Regex(expectedUrlPattern));
+    }
+
     public async Task NavigateToAdminProductsAsync(IPage page)
     {
         await NavigateViaDrawerGroupAsync(page, "Admin", "Product Management", ".*/admin/products$");
@@ -578,6 +587,165 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             ?? throw new Xunit.Sdk.XunitException($"Could not find a foreign order id for customer id {customerId}.");
 
         return new CustomerOrderVerificationContext(visibleOrder, foreignOrder);
+    }
+
+    // ── Customer API helpers ──
+
+    public async Task<CustomerSnapshot> GetCustomerByIdAsync(string userId, int customerId)
+    {
+        using var payload = await GetApiJsonAsync($"api/customers/{customerId}", userId);
+        return DeserializeJson<CustomerSnapshot>(payload.RootElement);
+    }
+
+    public async Task<IReadOnlyList<CustomerSnapshot>> GetCustomersAsync(
+        string userId,
+        int page = 1,
+        int pageSize = 25)
+    {
+        using var payload = await GetApiJsonAsync($"api/customers?page={page}&pageSize={pageSize}", userId);
+        return DeserializePagedItems<CustomerSnapshot>(payload.RootElement);
+    }
+
+    public async Task<CustomerSnapshot> CreateCustomerAsync(string userId, CustomerSnapshot customer)
+    {
+        using var payload = await PostApiJsonAsync(
+            "api/customers",
+            userId,
+            new
+            {
+                email = customer.Email,
+                firstName = customer.FirstName,
+                lastName = customer.LastName,
+                phone = customer.Phone,
+                address = customer.Address,
+                city = customer.City,
+                state = customer.State,
+                zipCode = customer.ZipCode,
+                isActive = customer.IsActive
+            });
+
+        return DeserializeJson<CustomerSnapshot>(payload.RootElement);
+    }
+
+    public async Task<CustomerSnapshot> UpdateCustomerAsync(string userId, CustomerSnapshot customer)
+    {
+        using var payload = await PutApiJsonAsync(
+            $"api/customers/{customer.Id}",
+            userId,
+            new
+            {
+                id = customer.Id,
+                email = customer.Email,
+                firstName = customer.FirstName,
+                lastName = customer.LastName,
+                phone = customer.Phone,
+                address = customer.Address,
+                city = customer.City,
+                state = customer.State,
+                zipCode = customer.ZipCode,
+                isActive = customer.IsActive
+            });
+
+        return DeserializeJson<CustomerSnapshot>(payload.RootElement);
+    }
+
+    // ── Order mutation API helpers ──
+
+    public async Task UpdateOrderStatusAsync(string userId, int orderId, int newStatus)
+    {
+        using var _ = await SendApiJsonAsync(
+            HttpMethod.Patch,
+            $"api/orders/{orderId}/status",
+            userId,
+            new { newStatus });
+    }
+
+    public async Task<OrderItemSnapshot> AddOrderItemAsync(
+        string userId,
+        int orderId,
+        int productId,
+        int quantity,
+        decimal unitPrice,
+        decimal discount = 0m)
+    {
+        using var payload = await PostApiJsonAsync(
+            $"api/orders/{orderId}/items",
+            userId,
+            new
+            {
+                orderId,
+                productId,
+                quantity,
+                unitPrice,
+                discount
+            });
+
+        return DeserializeJson<OrderItemSnapshot>(payload.RootElement);
+    }
+
+    public async Task RemoveOrderItemAsync(string userId, int orderId, int itemId)
+    {
+        using var client = new HttpClient
+        {
+            BaseAddress = new Uri(ApiBaseUrl),
+            Timeout = TimeSpan.FromSeconds(10)
+        };
+
+        client.DefaultRequestHeaders.Add("X-Internal-Api-Key", InternalApiKey);
+        client.DefaultRequestHeaders.Add("X-App-User-Id", userId);
+
+        using var response = await client.DeleteAsync($"api/orders/{orderId}/items/{itemId}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<IReadOnlyList<OrderNoteSnapshot>> GetOrderNotesAsync(string userId, int orderId)
+    {
+        using var payload = await GetApiJsonAsync($"api/orders/{orderId}/notes", userId);
+        return DeserializeJson<OrderNoteSnapshot[]>(payload.RootElement);
+    }
+
+    public async Task<OrderNoteSnapshot> AddOrderNoteAsync(
+        string userId,
+        int orderId,
+        string noteText,
+        string author)
+    {
+        using var payload = await PostApiJsonAsync(
+            $"api/orders/{orderId}/notes",
+            userId,
+            new { orderId, noteText, author });
+
+        return DeserializeJson<OrderNoteSnapshot>(payload.RootElement);
+    }
+
+    public async Task<OrderNoteSnapshot> UpdateOrderNoteAsync(
+        string userId,
+        int orderId,
+        int noteId,
+        string noteText,
+        string author)
+    {
+        using var payload = await PutApiJsonAsync(
+            $"api/orders/{orderId}/notes/{noteId}",
+            userId,
+            new { id = noteId, orderId, noteText, author });
+
+        return DeserializeJson<OrderNoteSnapshot>(payload.RootElement);
+    }
+
+    public async Task DeleteOrderNoteAsync(string userId, int orderId, int noteId)
+    {
+        using var client = new HttpClient
+        {
+            BaseAddress = new Uri(ApiBaseUrl),
+            Timeout = TimeSpan.FromSeconds(10)
+        };
+
+        client.DefaultRequestHeaders.Add("X-Internal-Api-Key", InternalApiKey);
+        client.DefaultRequestHeaders.Add("X-App-User-Id", userId);
+
+        using var response = await client.DeleteAsync($"api/orders/{orderId}/notes/{noteId}");
+        response.EnsureSuccessStatusCode();
     }
 
     public async Task<JsonDocument> GetApiJsonAsync(string relativeUrl, string userId, int? activeOrganizationId = null)
@@ -1021,4 +1189,55 @@ public sealed class OrganizationOptionSnapshot
     public IReadOnlyList<string> RoleNames { get; set; } = [];
 
     public bool IsActive { get; set; }
+}
+
+public sealed class CustomerSnapshot
+{
+    public int Id { get; set; }
+
+    public string Email { get; set; } = string.Empty;
+
+    public string FirstName { get; set; } = string.Empty;
+
+    public string LastName { get; set; } = string.Empty;
+
+    public string? Phone { get; set; }
+
+    public string? Address { get; set; }
+
+    public string? City { get; set; }
+
+    public string? State { get; set; }
+
+    public string? ZipCode { get; set; }
+
+    public bool IsActive { get; set; }
+}
+
+public sealed class OrderItemSnapshot
+{
+    public int Id { get; set; }
+
+    public int OrderId { get; set; }
+
+    public int ProductId { get; set; }
+
+    public string ProductName { get; set; } = string.Empty;
+
+    public int Quantity { get; set; }
+
+    public decimal UnitPrice { get; set; }
+
+    public decimal Discount { get; set; }
+}
+
+public sealed class OrderNoteSnapshot
+{
+    public int Id { get; set; }
+
+    public int OrderId { get; set; }
+
+    public string NoteText { get; set; } = string.Empty;
+
+    public string Author { get; set; } = string.Empty;
 }
