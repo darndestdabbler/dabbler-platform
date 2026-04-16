@@ -1,28 +1,21 @@
 @namespace Dabbler.Components
-@inherits DabblerComponentBase
 @using Dabbler.Reports.Core.Rdf
 @using Dabbler.Reports.Blazor
 @using MudBlazor
 
-<div class="dabbler-report-page @Class" style="@Style" @attributes="UserAttributes"
-     role="region" aria-label="@(Title ?? _reportDefinition?.Metadata?.Name ?? "Report")">
+<div role="region" aria-label="@(Title ?? _reportDefinition?.Metadata?.Name ?? "Report")">
     @if (HeaderTemplate is not null)
     {
-        <div class="dabbler-page-header">
-            @HeaderTemplate
-        </div>
+        @HeaderTemplate
     }
     else if (!string.IsNullOrEmpty(Title ?? _reportDefinition?.Metadata?.Name))
     {
-        <div class="dabbler-page-header">
-            <MudText Typo="Typo.h6">@(Title ?? _reportDefinition?.Metadata?.Name)</MudText>
-        </div>
+        <MudText Typo="Typo.h6" Class="mb-2">@(Title ?? _reportDefinition?.Metadata?.Name)</MudText>
     }
 
-    @* RDF parse errors *@
     @if (_rdfErrors is not null)
     {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="dabbler-page-error">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-2">
             <MudText Typo="Typo.subtitle2" Class="mb-2">Report definition errors:</MudText>
             @foreach (var err in _rdfErrors)
             {
@@ -32,14 +25,13 @@
     }
     else if (_reportDefinition is not null)
     {
-        @* Parameter form section *@
         @if (_reportDefinition.Parameters.Count > 0)
         {
             @if (_parametersCollapsed)
             {
-                <MudPaper Class="pa-3" Elevation="1">
-                    <div class="dabbler-report-params-collapsed">
-                        <MudText Typo="Typo.body2" Class="dabbler-report-params-summary">
+                <MudPaper Class="pa-3 mb-2" Elevation="1">
+                    <div class="d-flex align-center gap-2">
+                        <MudText Typo="Typo.body2">
                             @_parameterSummary
                         </MudText>
                         <MudLink OnClick="@ExpandParametersAsync" Typo="Typo.body2">
@@ -60,7 +52,6 @@
         }
         else if (!_hasRun && !AutoRunOnLoad)
         {
-            @* No parameters — show a Run button directly *@
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        Disabled="@_isLoading"
@@ -138,10 +129,10 @@
             }
         </div>
 
-        <div class="dabbler-page-content" aria-live="polite" aria-busy="@_isLoading">
+        <div aria-live="polite" aria-busy="@_isLoading">
             @if (_isLoading && !_hasRun)
             {
-                <div class="dabbler-page-loading">
+                <div class="d-flex justify-center pa-8">
                     <MudProgressCircular Indeterminate="true" />
                 </div>
             }
@@ -153,11 +144,9 @@
                 }
                 else
                 {
-                    <div class="dabbler-page-empty-state">
-                        <MudText Typo="Typo.body1">
-                            Set parameters and click "Run Report" to generate the report.
-                        </MudText>
-                    </div>
+                    <MudText Typo="Typo.body1" Class="pa-4" Align="Align.Center">
+                        Set parameters and click "Run Report" to generate the report.
+                    </MudText>
                 }
             }
             else if (_pages is not null)
@@ -172,8 +161,6 @@
 
     @if (FooterTemplate is not null)
     {
-        <div class="dabbler-page-footer">
-            @FooterTemplate
-        </div>
+        @FooterTemplate
     }
 </div>

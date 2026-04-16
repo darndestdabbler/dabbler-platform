@@ -54,19 +54,19 @@
                                 </MudTooltip>
                             }
                         </div>
-                        <div style="font-size:0.75rem; color:#495057;">@entity.Key</div>
+                        <MudText Typo="Typo.caption">@entity.Key</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent Class="pt-0">
-                    <table style="width:100%;border-collapse:collapse;"
-                           aria-label="@($"Entity permissions for {entity.DisplayName}")">
+                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                                    aria-label="@($"Entity permissions for {entity.DisplayName}")">
                         <thead>
                             <tr>
-                                <th scope="col" style="padding:4px 8px;text-align:left;min-width:160px;">Role</th>
+                                <th style="min-width:160px;">Role</th>
                                 @foreach (var op in _crudOps)
                                 {
-                                    <th scope="col" style="padding:4px 8px;text-align:center;min-width:70px;">
-                                        <span style="@($"font-size:0.75rem; color:{OpTextColor(op)};")">@op</span>
+                                    <th style="text-align:center;min-width:70px;">
+                                        <MudText Typo="Typo.caption" Color="@OpMudColor(op)">@op</MudText>
                                     </th>
                                 }
                             </tr>
@@ -74,17 +74,16 @@
                         <tbody>
                             @foreach (var role in _roles)
                             {
-                                <tr style="border-top:1px solid #e0e0e0;">
-                                    <th scope="row" style="padding:4px 8px;text-align:left;">
+                                <tr>
+                                    <td>
                                         <MudText Typo="Typo.body2">@role</MudText>
-                                    </th>
+                                    </td>
                                     @foreach (var op in _crudOps)
                                     {
-                                        <td style="padding:2px 8px;text-align:center;">
+                                        <td style="text-align:center;">
                                             <MudCheckBox T="bool"
                                                          Value="@HasOp(role, entity.Key, op)"
                                                          ValueChanged="@(v => SetOp(role, entity.Key, op, v))"
-                                                         title="@($"{op} permission for {role} on {entity.DisplayName}")"
                                                          aria-label="@($"{op} permission for {role} on {entity.DisplayName}")"
                                                          Color="@OpColor(op)"
                                                          Size="Size.Small" />
@@ -93,7 +92,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </MudSimpleTable>
 
                     @if (_drillDownEntity == entity.Key)
                     {
@@ -225,12 +224,5 @@
         _ => Color.Default
     };
 
-    private static string OpTextColor(string op) => op switch
-    {
-        "Create" => "#0f5132",
-        "Read" => "#055160",
-        "Update" => "#664d03",
-        "Delete" => "#842029",
-        _ => "#212529"
-    };
+    private static Color OpMudColor(string op) => OpColor(op);
 }

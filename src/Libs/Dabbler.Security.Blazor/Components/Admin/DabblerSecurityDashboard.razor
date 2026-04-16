@@ -1,164 +1,32 @@
 @using Dabbler.Security.Blazor.Components.Admin
-@using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @page "/admin/security"
 @attribute [Dabbler.Security.Authorization.DabblerPageAuthorize("/admin/security")]
 
 <PageTitle>Security Administration</PageTitle>
 
-<div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">@_tabAnnouncement</div>
+<MudText Typo="Typo.h1" Class="mb-4">Security Administration</MudText>
 
-<MudText Typo="Typo.h1" Class="mb-4" id="security-dashboard-title" tabindex="-1">Security Administration</MudText>
-
-<div class="mud-tabs mud-tabs-rounded mud-elevation-2">
-    <div class="mud-tabs-tabbar">
-        <div class="mud-tabs-tabbar-inner">
-            <div class="mud-tabs-tabbar-content" role="tablist" aria-label="Security administration sections">
-                @for (var index = 0; index < _tabTitles.Length; index++)
-                {
-                    var currentIndex = index;
-                    <button id="@GetTabId(currentIndex)"
-                            @ref="_tabRefs[currentIndex]"
-                            type="button"
-                            role="tab"
-                            class="@GetTabClass(currentIndex)"
-                            aria-selected="@(currentIndex == _activeTabIndex ? "true" : "false")"
-                            aria-controls="@GetPanelId(currentIndex)"
-                            tabindex="@(currentIndex == _activeTabIndex ? "0" : "-1")"
-                            @onclick="() => ActivateTabAsync(currentIndex)"
-                            @onkeydown:preventDefault
-                            @onkeydown="@(args => HandleTabKeyDownAsync(args, currentIndex))">
-                        @_tabTitles[currentIndex]
-                    </button>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="mud-tabs-panels pa-4">
-        <div id="@GetPanelId(_activeTabIndex)"
-             role="tabpanel"
-             aria-labelledby="@GetTabId(_activeTabIndex)"
-             tabindex="-1"
-             @ref="_activePanelRef">
-            @switch (_activeTabIndex)
-            {
-                case 0:
-                    <DabblerRoleManager />
-                    break;
-                case 1:
-                    <DabblerPagePermissionMatrix />
-                    break;
-                case 2:
-                    <DabblerEntityPermissionMatrix />
-                    break;
-                case 3:
-                    <DabblerEndpointPermissionMatrix />
-                    break;
-                case 4:
-                    <DabblerControlPermissionTab />
-                    break;
-                case 5:
-                    <DabblerRowFilterTab />
-                    break;
-                case 6:
-                    <DabblerUserRoleManager />
-                    break;
-            }
-        </div>
-    </div>
-</div>
-
-@code {
-    /// <summary>
-    /// The main security administration dashboard.
-    /// Provides a tabbed interface to access different security management components,
-    /// such as role management, page permissions, and user role assignments.
-    /// </summary>
-    private static readonly string[] _tabTitles =
-    [
-        "Roles",
-        "Page Access",
-        "Entity Access",
-        "Endpoint Access",
-        "Control Permissions",
-        "Row Filters",
-        "User Assignments"
-    ];
-
-    private int _activeTabIndex;
-    private string _tabAnnouncement = "Showing Roles tab.";
-    private int? _pendingTabFocusIndex;
-    private bool _focusActivePanel;
-    private ElementReference _activePanelRef;
-    private readonly ElementReference[] _tabRefs = new ElementReference[_tabTitles.Length];
-
-    private async Task ActivateTabAsync(int panelIndex)
-    {
-        _activeTabIndex = panelIndex;
-        _focusActivePanel = true;
-
-        if (panelIndex >= 0 && panelIndex < _tabTitles.Length)
-        {
-            _tabAnnouncement = $"Showing {_tabTitles[panelIndex]} tab.";
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task ActivateTabFromKeyboardAsync(int panelIndex)
-    {
-        _activeTabIndex = panelIndex;
-        _focusActivePanel = true;
-        _pendingTabFocusIndex = null;
-
-        if (panelIndex >= 0 && panelIndex < _tabTitles.Length)
-        {
-            _tabAnnouncement = $"Showing {_tabTitles[panelIndex]} tab.";
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task HandleTabKeyDownAsync(KeyboardEventArgs args, int currentIndex)
-    {
-        switch (args.Key)
-        {
-            case "ArrowRight":
-                await ActivateTabFromKeyboardAsync((currentIndex + 1) % _tabTitles.Length);
-                break;
-            case "ArrowLeft":
-                await ActivateTabFromKeyboardAsync((currentIndex - 1 + _tabTitles.Length) % _tabTitles.Length);
-                break;
-            case "Home":
-                await ActivateTabFromKeyboardAsync(0);
-                break;
-            case "End":
-                await ActivateTabFromKeyboardAsync(_tabTitles.Length - 1);
-                break;
-        }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_pendingTabFocusIndex is int tabIndex)
-        {
-            _pendingTabFocusIndex = null;
-            await _tabRefs[tabIndex].FocusAsync();
-        }
-        else if (_focusActivePanel)
-        {
-            _focusActivePanel = false;
-            await _activePanelRef.FocusAsync();
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private static string GetTabId(int index) => $"security-dashboard-tab-{index}";
-
-    private static string GetPanelId(int index) => $"security-dashboard-panel-{index}";
-
-    private string GetTabClass(int index) =>
-        index == _activeTabIndex ? "mud-tab mud-tab-active mud-ripple" : "mud-tab mud-ripple";
-}
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+    <MudTabPanel Text="Roles">
+        <DabblerRoleManager />
+    </MudTabPanel>
+    <MudTabPanel Text="Page Access">
+        <DabblerPagePermissionMatrix />
+    </MudTabPanel>
+    <MudTabPanel Text="Entity Access">
+        <DabblerEntityPermissionMatrix />
+    </MudTabPanel>
+    <MudTabPanel Text="Endpoint Access">
+        <DabblerEndpointPermissionMatrix />
+    </MudTabPanel>
+    <MudTabPanel Text="Control Permissions">
+        <DabblerControlPermissionTab />
+    </MudTabPanel>
+    <MudTabPanel Text="Row Filters">
+        <DabblerRowFilterTab />
+    </MudTabPanel>
+    <MudTabPanel Text="User Assignments">
+        <DabblerUserRoleManager />
+    </MudTabPanel>
+</MudTabs>

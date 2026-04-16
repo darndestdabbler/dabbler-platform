@@ -1,10 +1,10 @@
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Services
-@using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @inject SecurityConfigurationManager ConfigManager
 @inject AuthorizationStateNotifier Notifier
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @implements IDisposable
 
 <MudPaper Elevation="3" Class="pa-4">
@@ -12,8 +12,7 @@
         <MudText Typo="Typo.h6">Role Management</MudText>
         <MudButton Variant="Variant.Filled" Color="Color.Primary"
                    StartIcon="@Icons.Material.Filled.Add"
-                   OnClick="OpenAddDialogAsync"
-                   @ref="_addRoleButton">Add Role</MudButton>
+                   OnClick="OpenAddDialogAsync">Add Role</MudButton>
     </div>
 
     <MudTable Items="@_roles" Dense="true" Hover="true" Striped="true">
@@ -52,62 +51,8 @@
     </MudTable>
 </MudPaper>
 
-@if (_dialogVisible)
-{
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1300;"></div>
-    <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1400;padding:1rem;">
-        <div class="mud-paper mud-elevation-24 pa-6"
-             style="width:min(100%, 520px);background:var(--mud-palette-surface);"
-             role="dialog"
-             aria-modal="true"
-             aria-labelledby="role-manager-dialog-title"
-             tabindex="-1"
-             @onkeydown="HandleDialogKeyDownAsync">
-            <MudText Typo="Typo.h6" id="role-manager-dialog-title">@(_editingRole == null ? "Add Role" : "Edit Role")</MudText>
-
-            <MudTextField T="string"
-                          @ref="_roleNameField"
-                          @bind-Value="_form.RoleName"
-                          Label="Role Name"
-                          Required="true"
-                          RequiredError="Role name is required."
-                          Error="@(!string.IsNullOrEmpty(_roleNameError))"
-                          ErrorText="@_roleNameError"
-                          Disabled="@(_editingRole != null)"
-                          HelperText="@(_editingRole != null ? "Role name cannot be changed after creation." : "")"
-                          Class="mt-4" />
-            <MudTextField T="string" @bind-Value="_form.Description" Label="Description" Class="mt-3" />
-            <MudSelect T="string" @bind-Value="_form.InheritsFrom" Label="Inherits From (optional)"
-                       Clearable="true" Class="mt-3">
-                @foreach (var role in _roles.Where(r => r.RoleName != _form.RoleName))
-                {
-                    <MudSelectItem Value="@role.RoleName">@role.RoleName</MudSelectItem>
-                }
-            </MudSelect>
-
-            <div class="d-flex justify-end gap-2 mt-6">
-                <MudButton OnClick="CloseDialog">Cancel</MudButton>
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveRole">Save</MudButton>
-            </div>
-        </div>
-    </div>
-}
-
 @code {
-    /// <summary>
-    /// A component for managing security role definitions.
-    /// It provides a UI to create, edit, and delete roles, including setting descriptions and inheritance.
-    /// </summary>
     private List<RoleDefinition> _roles = [];
-    private bool _dialogVisible;
-    private RoleDefinition? _editingRole;
-    private RoleFormModel _form = new();
-    private string _roleNameError = string.Empty;
-    private MudButton? _addRoleButton;
-    private MudTextField<string>? _roleNameField;
-    private bool _focusDialogInput;
-    private int _focusDialogRetriesRemaining;
-    private bool _returnFocusToAddRole;
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,45 +71,49 @@
 
     private async Task OpenAddDialogAsync()
     {
-        _editingRole = null;
-        _form = new RoleFormModel();
-        _roleNameError = string.Empty;
-        _dialogVisible = true;
-        _focusDialogInput = true;
-        _focusDialogRetriesRemaining = 2;
-        await InvokeAsync(StateHasChanged);
+        var availableRoles = _roles.Select(r => r.RoleName).ToList();
+        var parameters = new DialogParameters<RoleFormDialog>
+        {
+            { x => x.AvailableRoles, availableRoles }
+        };
+
+        var dialog = await DialogService.ShowAsync<RoleFormDialog>("Add Role", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: RoleFormDialog.RoleFormResult form })
+        {
+            await SaveNewRole(form);
+        }
     }
 
     private async Task OpenEditDialogAsync(RoleDefinition role)
     {
-        _editingRole = role;
-        _form = new RoleFormModel
+        var availableRoles = _roles.Where(r => r.RoleName != role.RoleName).Select(r => r.RoleName).ToList();
+        var parameters = new DialogParameters<RoleFormDialog>
         {
-            RoleName = role.RoleName,
-            Description = role.Description,
-            InheritsFrom = role.InheritsFrom
+            { x => x.RoleName, role.RoleName },
+            { x => x.Description, role.Description },
+            { x => x.InheritsFrom, role.InheritsFrom },
+            { x => x.IsEdit, true },
+            { x => x.AvailableRoles, availableRoles }
         };
-        _roleNameError = string.Empty;
-        _dialogVisible = true;
-        _focusDialogInput = true;
-        _focusDialogRetriesRemaining = 2;
-        await InvokeAsync(StateHasChanged);
-    }
 
-    private void CloseDialog()
-    {
-        _roleNameError = string.Empty;
-        _dialogVisible = false;
-        _returnFocusToAddRole = true;
-    }
+        var dialog = await DialogService.ShowAsync<RoleFormDialog>("Edit Role", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
 
-    private async Task SaveRole()
-    {
-        _roleNameError = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(_form.RoleName))
+        if (result is { Canceled: false, Data: RoleFormDialog.RoleFormResult form })
         {
-            _roleNameError = "Role name is required.";
+            await SaveEditedRole(role, form);
+        }
+    }
+
+    private async Task SaveNewRole(RoleFormDialog.RoleFormResult form)
+    {
+        if (string.IsNullOrWhiteSpace(form.RoleName))
+        {
+            Snackbar.Add("Role name is required.", Severity.Warning);
             return;
         }
 
@@ -176,31 +125,41 @@
             InheritsFrom = r.InheritsFrom
         }).ToList();
 
-        if (_editingRole is null)
+        if (updatedRoles.Any(r => r.RoleName == form.RoleName))
         {
-            if (updatedRoles.Any(r => r.RoleName == _form.RoleName))
-            {
-                _roleNameError = "A role with that name already exists. Please choose a different name.";
-                return;
-            }
-            updatedRoles.Add(new RoleDefinition
-            {
-                RoleName = _form.RoleName,
-                Description = _form.Description ?? string.Empty,
-                InheritsFrom = NullIfBlank(_form.InheritsFrom)
-            });
+            Snackbar.Add("A role with that name already exists.", Severity.Warning);
+            return;
         }
-        else
+
+        updatedRoles.Add(new RoleDefinition
         {
-            var existing = updatedRoles.First(r => r.RoleName == _editingRole.RoleName);
-            existing.Description = _form.Description ?? string.Empty;
-            existing.InheritsFrom = NullIfBlank(_form.InheritsFrom);
-        }
+            RoleName = form.RoleName,
+            Description = form.Description ?? string.Empty,
+            InheritsFrom = form.InheritsFrom
+        });
 
         var updated = CloneWith(config, roles: updatedRoles);
         await ConfigManager.SaveAsync(updated);
         Snackbar.Add("Role saved.", Severity.Success);
-        CloseDialog();
+    }
+
+    private async Task SaveEditedRole(RoleDefinition original, RoleFormDialog.RoleFormResult form)
+    {
+        var config = ConfigManager.Current;
+        var updatedRoles = config.Roles.Select(r => new RoleDefinition
+        {
+            RoleName = r.RoleName,
+            Description = r.Description,
+            InheritsFrom = r.InheritsFrom
+        }).ToList();
+
+        var existing = updatedRoles.First(r => r.RoleName == original.RoleName);
+        existing.Description = form.Description ?? string.Empty;
+        existing.InheritsFrom = form.InheritsFrom;
+
+        var updated = CloneWith(config, roles: updatedRoles);
+        await ConfigManager.SaveAsync(updated);
+        Snackbar.Add("Role saved.", Severity.Success);
     }
 
     private async Task DeleteRole(RoleDefinition role)
@@ -235,57 +194,7 @@
         Snackbar.Add($"Role '{role.RoleName}' deleted.", Severity.Success);
     }
 
-    /// <inheritdoc />
     public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_focusDialogInput && _roleNameField is not null)
-        {
-            try
-            {
-                _focusDialogInput = false;
-                _focusDialogRetriesRemaining = 0;
-                await _roleNameField.FocusAsync();
-            }
-            catch when (_focusDialogRetriesRemaining > 0)
-            {
-                _focusDialogRetriesRemaining--;
-                await InvokeAsync(StateHasChanged);
-                return;
-            }
-        }
-
-        if (_returnFocusToAddRole && _addRoleButton is not null)
-        {
-            try
-            {
-                _returnFocusToAddRole = false;
-                await _addRoleButton.FocusAsync();
-            }
-            catch
-            {
-                _returnFocusToAddRole = true;
-                await InvokeAsync(StateHasChanged);
-                return;
-            }
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private Task HandleDialogKeyDownAsync(KeyboardEventArgs args)
-    {
-        if (args.Key == "Escape")
-        {
-            CloseDialog();
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private static string? NullIfBlank(string? s) =>
-        string.IsNullOrWhiteSpace(s) ? null : s;
 
     private static SecurityConfiguration CloneWith(
         SecurityConfiguration src,
@@ -300,11 +209,4 @@
             RowFilters = src.RowFilters,
             RoleSwitching = src.RoleSwitching
         };
-
-    private sealed class RoleFormModel
-    {
-        public string RoleName { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string? InheritsFrom { get; set; }
-    }
 }

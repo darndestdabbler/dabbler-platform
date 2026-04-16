@@ -50,30 +50,29 @@
                                 </MudChip>
                             }
                         </div>
-                        <div style="font-size:0.75rem; color:#495057;">@ep.Key</div>
+                        <MudText Typo="Typo.caption">@ep.Key</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent Class="pt-0">
-                    <table style="width:100%;border-collapse:collapse;"
-                           aria-label="@($"Endpoint permissions for {ep.DisplayName}")">
+                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                                    aria-label="@($"Endpoint permissions for {ep.DisplayName}")">
                         <thead>
                             <tr>
-                                <th scope="col" style="padding:4px 8px;text-align:left;min-width:160px;">Role</th>
-                                <th scope="col" style="padding:4px 8px;text-align:center;min-width:80px;">Allow</th>
+                                <th style="min-width:160px;">Role</th>
+                                <th style="text-align:center;min-width:80px;">Allow</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var role in _roles)
                             {
-                                <tr style="border-top:1px solid #e0e0e0;">
-                                    <th scope="row" style="padding:4px 8px;text-align:left;">
+                                <tr>
+                                    <td>
                                         <MudText Typo="Typo.body2">@role</MudText>
-                                    </th>
-                                    <td style="padding:2px 8px;text-align:center;">
+                                    </td>
+                                    <td style="text-align:center;">
                                         <MudCheckBox T="bool"
                                                      Value="@IsAllowed(role, ep.Key)"
                                                      ValueChanged="@(v => SetAllowed(role, ep.Key, v))"
-                                                     title="@($"Allow {role} access to {ep.DisplayName}")"
                                                      aria-label="@($"Allow {role} access to {ep.DisplayName}")"
                                                      Color="Color.Success"
                                                      Size="Size.Small" />
@@ -81,7 +80,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </MudSimpleTable>
                 </MudCardContent>
             </MudCard>
         }

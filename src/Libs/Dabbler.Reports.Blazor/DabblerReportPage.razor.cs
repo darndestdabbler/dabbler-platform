@@ -17,8 +17,10 @@ namespace Dabbler.Components;
 /// RDF loading, parameter prompting, report execution, page composition,
 /// viewing, and PDF export.
 /// </summary>
-public partial class DabblerReportPage : DabblerComponentBase
+public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
 {
+    private bool _hasRendered;
+    private bool _disposed;
     private ParameterPromptForm? _parameterForm;
     private ReportViewer? _viewer;
     private ReportDefinition? _reportDefinition;
@@ -275,11 +277,10 @@ public partial class DabblerReportPage : DabblerComponentBase
     {
         if (firstRender)
         {
+            _hasRendered = true;
             _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
                 "import", "./_content/Dabbler.Components/dabbler-download.js");
         }
-
-        base.OnAfterRender(firstRender);
     }
 
     // ── Private methods ────────────────────────────────────────────────
@@ -498,7 +499,7 @@ public partial class DabblerReportPage : DabblerComponentBase
 
     private async Task PrintAsync()
     {
-        if (IsJSRuntimeAvailable)
+        if (_hasRendered)
         {
             await JSRuntime.InvokeVoidAsync("window.print");
         }
@@ -507,13 +508,14 @@ public partial class DabblerReportPage : DabblerComponentBase
     private string ZoomPercentText => $"{(int)(_scale * 100)}%";
 
     /// <inheritdoc />
-    protected override async ValueTask DisposeAsyncCore()
+    public async ValueTask DisposeAsync()
     {
+        if (_disposed) return;
+        _disposed = true;
+
         if (_jsModule is not null)
         {
             await _jsModule.DisposeAsync();
         }
-
-        await base.DisposeAsyncCore();
     }
 }

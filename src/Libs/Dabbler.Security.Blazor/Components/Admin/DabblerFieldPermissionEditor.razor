@@ -33,28 +33,28 @@ else
         else
         {
             <div style="overflow-x:auto;">
-                <table style="width:100%;border-collapse:collapse;"
-                       aria-label="@($"Field permissions for {_entity.DisplayName}")">
+                <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                                aria-label="@($"Field permissions for {_entity.DisplayName}")">
                     <thead>
                         <tr>
-                            <th scope="col" style="padding:8px;text-align:left;min-width:140px;">Field</th>
+                            <th style="min-width:140px;">Field</th>
                             @foreach (var role in _roles)
                             {
-                                <th scope="col" style="padding:8px;text-align:center;min-width:130px;">@role</th>
+                                <th style="text-align:center;min-width:130px;">@role</th>
                             }
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var field in _entity.Fields)
                         {
-                            <tr style="border-top:1px solid #e0e0e0;">
-                                <th scope="row" style="padding:8px;text-align:left;">
+                            <tr>
+                                <td>
                                     <MudText Typo="Typo.subtitle2">@field.DisplayName</MudText>
-                                    <div style="font-size:0.75rem; color:#495057;">@field.Key</div>
-                                </th>
+                                    <MudText Typo="Typo.caption">@field.Key</MudText>
+                                </td>
                                 @foreach (var role in _roles)
                                 {
-                                    <td style="padding:4px 8px;text-align:center;">
+                                    <td style="text-align:center;">
                                         <MudSelect T="FieldAccessLevel"
                                                    Value="@GetLevel(role, field.Key)"
                                                    ValueChanged="@(v => SetLevel(role, field.Key, v))"
@@ -70,7 +70,7 @@ else
                             </tr>
                         }
                     </tbody>
-                </table>
+                </MudSimpleTable>
             </div>
         }
     </MudPaper>
@@ -95,10 +95,8 @@ else
     // (roleName, fieldKey) → FieldAccessLevel
     private readonly Dictionary<(string role, string field), FieldAccessLevel> _levels = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await ConfigManager.EnsureLoadedAsync();
-        LoadFromConfig();
         Notifier.Subscribe(OnConfigChangedAsync);
     }
 

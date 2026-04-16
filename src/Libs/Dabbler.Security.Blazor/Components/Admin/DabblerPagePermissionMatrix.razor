@@ -41,40 +41,38 @@
                     <MudCardHeader>
                         <CardHeaderContent>
                             <MudText Typo="Typo.subtitle1"><b>@pg.DisplayName</b></MudText>
-                            <div style="font-size:0.75rem; color:#495057;">@pg.Key</div>
+                            <MudText Typo="Typo.caption">@pg.Key</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                 <MudCardContent Class="pt-0">
-                    <table style="width:100%;border-collapse:collapse;"
-                           aria-label="@($"Page permissions for {pg.DisplayName}")">
+                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                                    aria-label="@($"Page permissions for {pg.DisplayName}")">
                         <thead>
                             <tr>
-                                <th scope="col" style="padding:4px 8px;text-align:left;min-width:160px;">Role</th>
-                                <th scope="col" style="padding:4px 8px;text-align:center;min-width:80px;">Allow</th>
-                                <th scope="col" style="padding:4px 8px;text-align:center;min-width:80px;">Deny</th>
+                                <th style="min-width:160px;">Role</th>
+                                <th style="text-align:center;min-width:80px;">Allow</th>
+                                <th style="text-align:center;min-width:80px;">Deny</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var role in _roles)
                             {
-                                <tr style="border-top:1px solid #e0e0e0;">
-                                    <th scope="row" style="padding:4px 8px;text-align:left;">
+                                <tr>
+                                    <td>
                                         <MudText Typo="Typo.body2">@role</MudText>
-                                    </th>
-                                    <td style="padding:2px 8px;text-align:center;">
+                                    </td>
+                                    <td style="text-align:center;">
                                         <MudCheckBox T="bool"
                                                      Value="@IsAllowed(role, pg.Key)"
                                                      ValueChanged="@(v => SetAllowed(role, pg.Key, v))"
-                                                     title="@($"Allow {role} access to {pg.DisplayName}")"
                                                      aria-label="@($"Allow {role} access to {pg.DisplayName}")"
                                                      Color="Color.Success"
                                                      Size="Size.Small" />
                                     </td>
-                                    <td style="padding:2px 8px;text-align:center;">
+                                    <td style="text-align:center;">
                                         <MudCheckBox T="bool"
                                                      Value="@IsDenied(role, pg.Key)"
                                                      ValueChanged="@(v => SetDenied(role, pg.Key, v))"
-                                                     title="@($"Deny {role} access to {pg.DisplayName}")"
                                                      aria-label="@($"Deny {role} access to {pg.DisplayName}")"
                                                      Color="Color.Error"
                                                      Size="Size.Small" />
@@ -82,7 +80,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </MudSimpleTable>
                 </MudCardContent>
             </MudCard>
         }

@@ -32,28 +32,28 @@
     else
     {
         <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;"
-                   aria-label="@($"Control permissions for {PageKey}")">
+            <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                            aria-label="@($"Control permissions for {PageKey}")">
                 <thead>
                     <tr>
-                        <th scope="col" style="padding:8px;text-align:left;min-width:160px;">Control</th>
+                        <th style="min-width:160px;">Control</th>
                         @foreach (var role in _roles)
                         {
-                            <th scope="col" style="padding:8px;text-align:center;min-width:130px;">@role</th>
+                            <th style="text-align:center;min-width:130px;">@role</th>
                         }
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var control in controls)
                     {
-                        <tr style="border-top:1px solid #e0e0e0;">
-                            <th scope="row" style="padding:8px;text-align:left;">
+                        <tr>
+                            <td>
                                 <MudText Typo="Typo.subtitle2">@control.DisplayName</MudText>
-                                <div style="font-size:0.75rem; color:#495057;">@control.Key</div>
-                            </th>
+                                <MudText Typo="Typo.caption">@control.Key</MudText>
+                            </td>
                             @foreach (var role in _roles)
                             {
-                                <td style="padding:4px 8px;text-align:center;">
+                                <td style="text-align:center;">
                                     <MudSelect T="ControlState"
                                                Value="@GetState(role, control.Key)"
                                                ValueChanged="@(v => SetState(role, control.Key, v))"
@@ -69,7 +69,7 @@
                         </tr>
                     }
                 </tbody>
-            </table>
+            </MudSimpleTable>
         </div>
     }
 </MudPaper>
@@ -93,10 +93,8 @@
     // (roleName, controlKey) → ControlState
     private readonly Dictionary<(string role, string control), ControlState> _states = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await ConfigManager.EnsureLoadedAsync();
-        LoadFromConfig();
         Notifier.Subscribe(OnConfigChangedAsync);
     }
 

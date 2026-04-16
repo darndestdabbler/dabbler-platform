@@ -78,26 +78,26 @@ else
                         <MudCardHeader>
                             <CardHeaderContent>
                                 <MudText Typo="Typo.subtitle2"><b>@control.DisplayName</b></MudText>
-                                <div style="font-size:0.75rem; color:#495057;">@control.Key</div>
+                                <MudText Typo="Typo.caption">@control.Key</MudText>
                             </CardHeaderContent>
                         </MudCardHeader>
                         <MudCardContent Class="pt-0">
-                        <table style="width:100%;border-collapse:collapse;"
-                               aria-label="@($"Control permissions for {control.DisplayName}")">
+                        <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                                        aria-label="@($"Control permissions for {control.DisplayName}")">
                             <thead>
                                 <tr>
-                                    <th scope="col" style="padding:4px 8px;text-align:left;min-width:130px;">Role</th>
-                                    <th scope="col" style="padding:4px 8px;text-align:left;">Permission</th>
+                                    <th style="min-width:130px;">Role</th>
+                                    <th>Permission</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var role in _roles)
                                 {
-                                    <tr style="border-top:1px solid #e0e0e0;">
-                                        <th scope="row" style="padding:4px 8px;text-align:left;">
+                                    <tr>
+                                        <td>
                                             <MudText Typo="Typo.body2">@role</MudText>
-                                        </th>
-                                        <td style="padding:4px 8px;">
+                                        </td>
+                                        <td>
                                             <MudSelect T="ControlState"
                                                        Value="@GetState(role, control.Key)"
                                                        ValueChanged="@(v => SetState(role, control.Key, v))"
@@ -113,7 +113,7 @@ else
                                     </tr>
                                 }
                             </tbody>
-                        </table>
+                        </MudSimpleTable>
                     </MudCardContent>
                 </MudCard>
             }
