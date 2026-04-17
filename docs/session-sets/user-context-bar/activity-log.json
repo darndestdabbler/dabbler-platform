@@ -108,6 +108,77 @@
           "costUsd": 0.27807
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/maintlayout-swap",
+      "dateTime": "2026-04-17T08:39:06.115230+00:00",
+      "description": "Removed lines 27-84 in MainLayout.razor (active-org summary, Switch-Org menu, DabblerRoleSwitcher, user-icon menu, dividers). Inserted <UserContextBar /> with UserName, UserRoles, ActiveOrganizationName, OrganizationOptions parameters.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/cleanup-codebehind",
+      "dateTime": "2026-04-17T08:39:06.115790+00:00",
+      "description": "Removed @using Dabbler.Security.Blazor.Components, _activeOrganizationKey field, SwitchOrganizationAsync method. Kept _isAdmin/_isSystemAdmin (used by nav drawer).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/preserve-testids",
+      "dateTime": "2026-04-17T08:39:06.116307+00:00",
+      "description": "data-testid='active-organization-label' preserved on the org link span via UserContextBar's _orgLinkAttributes dictionary (verified in bUnit tests from Session 1).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/update-conformance",
+      "dateTime": "2026-04-17T08:39:06.116828+00:00",
+      "description": "Conformance tests MudBlazorRebuildConformanceTests still pass (no structural count changes needed; MainLayout still contains MudLayout/MudAppBar/MudDrawer/MudMainContent/MudNavMenu/MudNavLink/MudThemeProvider).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/playwright",
+      "dateTime": "2026-04-17T08:39:06.116828+00:00",
+      "description": "Updated PlaywrightFixture.SwitchOrganizationFromShellAsync to click the org-link data-testid='active-organization-label' instead of the removed 'Switch org' button. Ran full Playwright suite: 67/75 passed. 8 failures are PRE-EXISTING on master (confirmed by stashed-baseline re-run) and unrelated to Session 2: drawer 'Admin'/'Retail Businesses' text not visible, layout-spacing assertion, ReportValidation enablement. These were not caused by the MainLayout/UserContextBar swap.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-17T08:39:06.117353+00:00",
+      "description": "dotnet build: 0 warnings, 0 errors. dotnet test (unit/integration, no Playwright): 525 passed, 1 pre-existing failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates, unrelated, already logged in Session 1). dotnet test Playwright: 67/75 passed, 8 pre-existing failures confirmed unchanged from master baseline.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-17T08:40:49.292114+00:00",
+      "description": "Cross-provider session verification via router (session-verification task)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 18652,
+          "outputTokens": 653,
+          "costUsd": 0.32875499999999996
+        }
+      ]
     }
   ]
 }

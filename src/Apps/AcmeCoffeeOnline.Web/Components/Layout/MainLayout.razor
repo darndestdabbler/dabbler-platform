@@ -1,8 +1,8 @@
 @inherits LayoutComponentBase
 @using System.Security.Claims
 @using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Components.Shared
 @using AcmeCoffeeOnline.Web.Services
-@using Dabbler.Security.Blazor.Components
 @inject NavigationManager NavigationManager
 @inject ShellSessionStateLoader ShellSessionStateLoader
 
@@ -24,64 +24,10 @@
 
         <MudSpacer />
 
-        @if (!string.IsNullOrWhiteSpace(_activeOrganizationName))
-        {
-            <div data-testid="active-organization-summary"
-                 style="display:flex; flex-direction:column; align-items:flex-end;">
-                <span class="mud-typography mud-typography-caption mud-secondary-text">Active org</span>
-                <span class="mud-typography mud-typography-body2" data-testid="active-organization-label">
-                    @_activeOrganizationName
-                </span>
-            </div>
-        }
-
-        @if (_organizationOptions.Count > 1 || _isSystemAdmin)
-        {
-            <MudMenu Label="Switch org" StartIcon="@Icons.Material.Filled.Business"
-                     Variant="Variant.Text" Color="Color.Inherit" Dense="true"
-                     AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-                @foreach (var organization in _organizationOptions)
-                {
-                    <MudMenuItem Disabled="@organization.IsActive"
-                                 OnClick="@(() => SwitchOrganizationAsync(organization.OrganizationId))">
-                        @organization.OrganizationName
-                    </MudMenuItem>
-                }
-            </MudMenu>
-        }
-
-        @if (!string.IsNullOrWhiteSpace(_activeOrganizationName) || _organizationOptions.Count > 0)
-        {
-            <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
-        }
-
-        <DabblerRoleSwitcher />
-        <MudDivider Vertical="true" FlexItem="true" Class="mx-1" Style="height: 24px;" />
-
-        <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Dense="true"
-                 AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-            <MudMenuItem Disabled="true">
-                <MudText Typo="Typo.body2" Style="font-weight: 600;">@_userName</MudText>
-            </MudMenuItem>
-            @if (!string.IsNullOrWhiteSpace(_activeOrganizationName))
-            {
-                <MudMenuItem Disabled="true">
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">
-                        @_activeOrganizationName (@_activeOrganizationKey)
-                    </MudText>
-                </MudMenuItem>
-            }
-            <MudMenuItem Disabled="true">
-                <MudText Typo="Typo.caption" Color="Color.Secondary">
-                    @(string.Join(", ", _userRoles))
-                </MudText>
-            </MudMenuItem>
-            <MudDivider />
-            <MudMenuItem Icon="@Icons.Material.Filled.Logout"
-                         OnClick="@(() => NavigationManager.NavigateTo("/auth/logout", forceLoad: true))">
-                Sign Out
-            </MudMenuItem>
-        </MudMenu>
+        <UserContextBar UserName="@_userName"
+                        UserRoles="@_userRoles"
+                        ActiveOrganizationName="@_activeOrganizationName"
+                        OrganizationOptions="@_organizationOptions" />
     </MudAppBar>
 
     @* ── Left navigation drawer ─────────────────────────────────────── *@
@@ -156,7 +102,6 @@
     private IReadOnlyList<string> _userRoles = Array.Empty<string>();
     private bool _isAdmin;
     private bool _isSystemAdmin;
-    private string? _activeOrganizationKey;
     private string? _activeOrganizationName;
     private IReadOnlyList<OrganizationOptionDto> _organizationOptions = [];
 
@@ -195,7 +140,6 @@
         _userRoles = shellState.UserRoles;
         _isAdmin = shellState.IsAdmin;
         _isSystemAdmin = shellState.IsSystemAdmin;
-        _activeOrganizationKey = shellState.ActiveOrganizationKey;
         _activeOrganizationName = shellState.ActiveOrganizationName;
         _organizationOptions = shellState.OrganizationOptions;
     }
@@ -203,19 +147,5 @@
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
-    }
-
-    private Task SwitchOrganizationAsync(int organizationId)
-    {
-        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        var returnUrl = string.IsNullOrWhiteSpace(relativePath)
-            ? "/"
-            : "/" + relativePath;
-
-        NavigationManager.NavigateTo(
-            $"/auth/switch-organization?organizationId={organizationId}&returnUrl={Uri.EscapeDataString(returnUrl)}",
-            forceLoad: true);
-
-        return Task.CompletedTask;
     }
 }

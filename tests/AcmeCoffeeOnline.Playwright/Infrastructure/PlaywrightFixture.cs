@@ -259,7 +259,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             return currentLabel;
         }
 
-        await page.GetByRole(AriaRole.Button, new() { Name = "Switch org" }).ClickAsync();
+        await activeOrganizationLabel.ClickAsync();
 
         var targetOrganization = page
             .Locator(".mud-popover-open")
