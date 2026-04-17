@@ -17,10 +17,15 @@ namespace Dabbler.Reports.Core.Layout;
 /// the available space (accounting for the page footer).</para>
 /// <para>
 /// Band rendering order:
-/// Page 1: PageHeader → ReportHeader → [GroupHeaders → Detail → GroupFooters]* → PageFooter
+/// Page 1: ReportHeader → PageHeader → [GroupHeaders → Detail → GroupFooters]* → PageFooter
 /// Page N: PageHeader → [GroupHeaders → Detail → GroupFooters]* → PageFooter
 /// Last page: ... → ReportFooter → PageFooter
-/// Empty data: PageHeader → NoData → PageFooter
+/// Empty data (page 1): ReportHeader → PageHeader → NoData → ReportFooter → PageFooter
+/// </para>
+/// <para>
+/// The report title (ReportHeader) sits above the repeating column headers
+/// (PageHeader) on page 1. On subsequent pages the PageHeader repeats alone
+/// so column headers remain visible while the report title does not.
 /// </para>
 /// </remarks>
 /// <example>
@@ -294,9 +299,7 @@ public class BandLayoutEngine
         private void ComposeEmptyReport()
         {
             StartNewPage();
-
-            if (_reportHeaderBand is not null)
-                EmitBand(_reportHeaderBand);
+            EmitFirstPageHeaderBands();
 
             if (_noDataBand is not null)
                 EmitBand(_noDataBand);
@@ -310,10 +313,7 @@ public class BandLayoutEngine
         private void ComposeDataReport()
         {
             StartNewPage();
-
-            // Report header on first page only
-            if (_reportHeaderBand is not null)
-                EmitBandWithPageBreakCheck(_reportHeaderBand);
+            EmitFirstPageHeaderBands();
 
             // Process each data row
             for (int rowIndex = 0; rowIndex < _data.Rows.Count; rowIndex++)
@@ -1346,7 +1346,20 @@ public class BandLayoutEngine
             _context.SetPageNumber(_currentPage.PageNumber);
             _yCursor = _marginTop;
 
-            // Emit page header
+            // Pages 2+ emit PageHeader at the top so column headers repeat.
+            // Page 1's order (ReportHeader above PageHeader) is driven by the
+            // Compose* method calling EmitFirstPageHeaderBands after StartNewPage.
+            if (_currentPage.PageNumber > 1 && _pageHeaderBand is not null)
+                EmitBand(_pageHeaderBand);
+        }
+
+        // On page 1, emit ReportHeader (title) above PageHeader (column headers).
+        // Called once by ComposeDataReport and ComposeEmptyReport after StartNewPage.
+        private void EmitFirstPageHeaderBands()
+        {
+            if (_reportHeaderBand is not null)
+                EmitBand(_reportHeaderBand);
+
             if (_pageHeaderBand is not null)
                 EmitBand(_pageHeaderBand);
         }
