@@ -149,6 +149,14 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         });
 
         await page.SetExtraHTTPHeadersAsync(new Dictionary<string, string>());
+
+        // The /test-auth/seeded-session endpoint returns JSON. Callers expect to
+        // interact with the app shell (drawer, routed content, etc.) afterward,
+        // so navigate to the dashboard to get onto an app route.
+        await page.GotoAsync($"{BaseUrl}/dashboard", new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle
+        });
     }
 
     public async Task SignOutAsync(IPage page)
@@ -365,7 +373,16 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await Assertions.Expect(appBar).ToBeVisibleAsync();
         var appBarBox = await appBar.BoundingBoxAsync();
         Assert.NotNull(appBarBox);
-        Assert.True(appBarBox.Y < boundingBox.Y, "App bar should be above main content.");
+
+        // MudMainContent uses padding-top (pt-16) to clear the fixed app bar, which
+        // means its bounding box starts at Y=0 (same as the app bar). Assert instead
+        // that the first visible child inside main content renders below the app bar.
+        var firstInteractiveChild = mainContent.Locator("h1, h2, h3, h4, h5, h6, .mud-card, .mud-paper").First;
+        var childBox = await firstInteractiveChild.BoundingBoxAsync();
+        Assert.NotNull(childBox);
+        Assert.True(
+            childBox.Y >= appBarBox.Y + appBarBox.Height,
+            $"First main-content child must render below app bar (child Y={childBox.Y}, app bar bottom={appBarBox.Y + appBarBox.Height}).");
     }
 
     public static async Task AssertNavDrawerVisibleAsync(IPage page)

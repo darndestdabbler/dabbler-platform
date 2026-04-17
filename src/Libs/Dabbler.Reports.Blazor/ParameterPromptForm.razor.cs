@@ -46,6 +46,21 @@ public partial class ParameterPromptForm : ComponentBase
     [Parameter]
     public bool IsLoading { get; set; }
 
+    private bool _initialValidationScheduled;
+
+    /// <inheritdoc />
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _form is not null && !_initialValidationScheduled)
+        {
+            _initialValidationScheduled = true;
+            // MudForm treats untouched required fields as valid until something
+            // triggers validation. Force an initial pass so the Run Report button
+            // starts disabled whenever required parameters are empty.
+            await _form.Validate();
+        }
+    }
+
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
