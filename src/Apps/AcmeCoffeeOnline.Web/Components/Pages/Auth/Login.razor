@@ -2,8 +2,12 @@
 @layout AcmeCoffeeOnline.Web.Components.Layout.AuthLayout
 @attribute [AllowAnonymous]
 @using System.Net.Http.Json
+@using Microsoft.Extensions.Options
+@using AcmeCoffeeOnline.Web.Configuration
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigation
+@inject IOptions<AppAuthenticationOptions> AuthOptions
+@inject IJSRuntime JS
 
 <PageTitle>Sign In — AcmeCoffeeDistributors</PageTitle>
 
@@ -165,6 +169,52 @@
             <MudLink Href="/register">Create one</MudLink>
         </MudText>
     </MudPaper>
+
+    @if (AuthOptions.Value.SeededSession.Enabled)
+    {
+        <MudPaper Elevation="1" Class="pa-6 mt-4" Style="border: 2px dashed var(--mud-palette-warning);">
+            <MudStack Spacing="3">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.Engineering" Color="Color.Warning" />
+                    <MudText Typo="Typo.subtitle1" Color="Color.Warning">Dev Quick Sign-In</MudText>
+                </MudStack>
+
+                <MudSelect T="string"
+                           @bind-Value="_selectedPersona"
+                           Label="Select a test persona"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter">
+                    @foreach (var persona in _devPersonas)
+                    {
+                        <MudSelectItem Value="@persona.Email">
+                            @persona.Label
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudButton OnClick="DevSignInAsync"
+                           Variant="Variant.Filled"
+                           Color="Color.Warning"
+                           FullWidth="true"
+                           Disabled="@(_devSigningIn || string.IsNullOrEmpty(_selectedPersona))">
+                    @if (_devSigningIn)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        @:Signing in...
+                    }
+                    else
+                    {
+                        @:Sign in as selected user
+                    }
+                </MudButton>
+
+                @if (!string.IsNullOrEmpty(_devError))
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@_devError</MudAlert>
+                }
+            </MudStack>
+        </MudPaper>
+    }
 </MudContainer>
 
 @code {
@@ -404,4 +454,51 @@
 
     private record VerifyResponse(bool Success, bool RequiresMfa, int? Id, string? Email, string? ExchangeToken);
     private record MfaVerifyResponse(string? ExchangeToken);
+
+    // ── Dev Quick Sign-In ──
+
+    private static readonly DevPersona[] _devPersonas =
+    [
+        new("admin@acmecoffee.com", "Admin — SystemAdmin (full access)"),
+        new("jdoe@acmecoffee.com", "Jordan Ellis — BackofficeUser"),
+        new("kbrown@acmecoffee.com", "Kai Brown — BackofficeUserAdmin"),
+        new("james.smith@example.com", "James Smith — Customer (retail business)"),
+        new("casey.hart@acmecoffee.com", "Casey Hart — Dual membership (internal + retail)"),
+        new("sloane.reyes@acmecoffee.com", "Sloane Reyes — Regional sales rep (multi-org admin)")
+    ];
+
+    private string? _selectedPersona;
+    private bool _devSigningIn;
+    private string? _devError;
+    private IJSObjectReference? _devSignInModule;
+
+    private async Task DevSignInAsync()
+    {
+        if (string.IsNullOrEmpty(_selectedPersona))
+            return;
+
+        _devSigningIn = true;
+        _devError = null;
+
+        try
+        {
+            _devSignInModule ??= await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./dev-quick-signin.js");
+
+            await _devSignInModule.InvokeVoidAsync(
+                "signIn",
+                _selectedPersona,
+                AuthOptions.Value.SeededSession.SharedSecret);
+        }
+        catch (Exception ex)
+        {
+            _devError = $"Sign-in failed: {ex.Message}";
+        }
+        finally
+        {
+            _devSigningIn = false;
+        }
+    }
+
+    private record DevPersona(string Email, string Label);
 }

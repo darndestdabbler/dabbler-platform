@@ -61,6 +61,7 @@
              ServerData="@ServerDataFuncAsync"
              Dense="true"
              Hover="true"
+             Bordered="true"
              RowsPerPage="25"
              ReadOnly="true"
              Loading="@_isLoading"
@@ -70,7 +71,8 @@
         <PropertyColumn Property="e => e.RoastLevel" Title="Roast Level" />
         <PropertyColumn Property="e => e.CaffeineContent" Title="Caffeine" />
         <PropertyColumn Property="e => e.GrindType" Title="Grind Type" />
-        <PropertyColumn Property="e => e.UnitPrice" Title="Unit Price" Format="C2" />
+        <PropertyColumn Property="e => e.UnitPrice" Title="Unit Price" Format="C2"
+                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
         <TemplateColumn Title="Available" Sortable="true">
             <CellTemplate>
                 <MudIcon Icon="@(context.Item.IsAvailable ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
@@ -102,10 +104,24 @@
     public string? Title { get; set; }
 
     [Parameter]
+    public string? InitialSearchTerm { get; set; }
+
+    [Parameter]
     public bool AutoLoadOnFilterChange { get; set; } = true;
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(InitialSearchTerm) && _currentFilter is null)
+        {
+            _currentFilter = new CompositeFilterDescriptor
+            {
+                Filters = [new FilterDescriptor("Name", "contains", InitialSearchTerm.Trim())]
+            };
+        }
+    }
 
     private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
     {

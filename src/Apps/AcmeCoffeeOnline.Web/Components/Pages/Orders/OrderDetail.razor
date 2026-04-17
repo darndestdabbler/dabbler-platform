@@ -166,14 +166,18 @@ else if (State.Record is not null)
                     <MudDataGrid T="OrderItemDto"
                                  Items="State.Record.OrderItems"
                                  Dense="true"
+                                 Bordered="true"
                                  Hover="true"
                                  ReadOnly="true">
                         <Columns>
                             <PropertyColumn Property="i => i.ProductName" Title="Product" />
                             <PropertyColumn Property="i => i.Quantity" Title="Qty" />
-                            <PropertyColumn Property="i => i.UnitPrice" Title="Unit Price" Format="C2" />
-                            <PropertyColumn Property="i => i.Discount" Title="Discount %" Format="N0" />
-                            <TemplateColumn Title="Line Total" Sortable="false">
+                            <PropertyColumn Property="i => i.UnitPrice" Title="Unit Price" Format="C2"
+                                           CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
+                            <PropertyColumn Property="i => i.Discount" Title="Discount %" Format="N0"
+                                           CellStyle="text-align:right; max-width:110px" HeaderStyle="text-align:right; max-width:110px" />
+                            <TemplateColumn Title="Line Total" Sortable="false"
+                                           CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px">
                                 <CellTemplate>
                                     @{ var lineTotal = OrderDetailState.CalculateLineTotal(context.Item); }
                                     @lineTotal.ToString("C2")
@@ -217,6 +221,7 @@ else if (State.Record is not null)
                                  Items="State.Notes"
                                  Dense="true"
                                  Hover="true"
+                                 Bordered="true"
                                  ReadOnly="true">
                         <Columns>
                             <PropertyColumn Property="n => n.NoteDate" Title="Date" Format="g" />

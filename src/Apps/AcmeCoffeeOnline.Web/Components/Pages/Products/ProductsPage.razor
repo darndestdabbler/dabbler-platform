@@ -5,9 +5,12 @@
 
 <PageTitle>Products — AcmeCoffeeDistributors</PageTitle>
 
-<ProductList DataProvider="DataProvider" Title="Products" />
+<ProductList DataProvider="DataProvider" Title="Products" InitialSearchTerm="@Search" />
 
 @code {
+    [SupplyParameterFromQuery]
+    public string? Search { get; set; }
+
     [Inject]
     private IGridDataProvider<ProductDto> DataProvider { get; set; } = default!;
 }

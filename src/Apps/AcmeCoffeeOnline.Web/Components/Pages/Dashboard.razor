@@ -125,13 +125,19 @@
 
     private Task SearchOrdersAsync()
     {
-        NavigationManager.NavigateTo("/orders");
+        var url = string.IsNullOrWhiteSpace(_orderSearchText)
+            ? "/orders"
+            : $"/orders?search={Uri.EscapeDataString(_orderSearchText.Trim())}";
+        NavigationManager.NavigateTo(url);
         return Task.CompletedTask;
     }
 
     private Task SearchProductsAsync()
     {
-        NavigationManager.NavigateTo("/products");
+        var url = string.IsNullOrWhiteSpace(_productSearchText)
+            ? "/products"
+            : $"/products?search={Uri.EscapeDataString(_productSearchText.Trim())}";
+        NavigationManager.NavigateTo(url);
         return Task.CompletedTask;
     }
 

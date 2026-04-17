@@ -40,13 +40,19 @@ public sealed class ShellSessionStateLoader
 
         var rolesSet = new HashSet<string>(userRoles, StringComparer.OrdinalIgnoreCase);
         var isSystemAdmin = rolesSet.Contains("SystemAdmin");
-        var isAdmin = isSystemAdmin || rolesSet.Contains("BackofficeUserAdmin");
 
         IReadOnlyList<OrganizationOptionDto> organizationOptions = [];
         if (user.Identity?.IsAuthenticated == true)
         {
             organizationOptions = await _organizationOptionsApiClient.GetOptionsAsync(cancellationToken);
         }
+
+        // Show admin nav if the user has BackofficeUserAdmin in any org membership,
+        // not just the currently active one. They still need to switch to that org
+        // to use admin features, but the nav group should be discoverable.
+        var isAdmin = isSystemAdmin
+            || rolesSet.Contains("BackofficeUserAdmin")
+            || organizationOptions.Any(o => o.RoleNames.Contains("BackofficeUserAdmin", StringComparer.OrdinalIgnoreCase));
 
         return new ShellSessionState(
             user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty,

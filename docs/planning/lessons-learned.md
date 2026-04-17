@@ -192,3 +192,75 @@ Use this structure for new entries:
 - **Action for future sessions:** Before starting a UI rebuild, verify that
   domain logic is factored into separate classes and not embedded in component
   code-behind files.
+
+## UAT Checklists Must Include Explicit Test Data And Search Terms
+
+- **Context:** Human-executed UAT against the post-rebuild application
+- **Failure or friction:** The UAT checklist asked the reviewer to use search
+  widgets and filter panels without specifying what to search for. The reviewer
+  does not know the seeded test data and should not have to guess or explore
+  the database to find usable inputs.
+- **Lesson:** UAT checklists should include concrete search terms, filter
+  values, entity names, order numbers, and other test data the reviewer needs
+  so they can execute each step without prerequisite investigation.
+- **Action for future sessions:** When generating human-UAT checklists,
+  include specific seeded-data examples in the HumanAction field for any step
+  that involves searching, filtering, or selecting by name or ID. Reference
+  the seed data source if the reviewer needs to find additional examples.
+
+## Navigation Actions Must Pass User Input To The Target Page
+
+- **Context:** Dashboard search widgets for Orders and Products
+- **Failure or friction:** The search fields captured user input but the
+  navigation methods discarded it, calling `NavigateTo("/orders")` without
+  appending the search term as a query parameter. The target pages also had
+  no query parameter handling.
+- **Lesson:** When a UI control collects input that should influence the
+  destination page, the navigation call must pass that input (typically as a
+  query parameter), and the target page must read and apply it.
+- **Action for future sessions:** When adding search, filter, or context-
+  carrying navigation, wire both ends: the source must pass the parameter and
+  the target must consume it. Review navigation calls during code review for
+  dropped parameters.
+
+## Fixed-Position App Bars Need A Content Offset
+
+- **Context:** MudBlazor layout with MudAppBar and MudMainContent
+- **Failure or friction:** Page titles, back buttons, and headings were hidden
+  behind the fixed-position app bar across every page in the application. The
+  MudMainContent had general padding but no top offset for the app bar height.
+- **Lesson:** When using a fixed or sticky app bar, the main content area must
+  have top padding or margin equal to or greater than the app bar height. This
+  is easy to miss because scrolled content appears fine — only the top of the
+  page is clipped.
+- **Action for future sessions:** After adding or modifying a fixed app bar,
+  verify that the first visible element on every page clears the bar without
+  scrolling. Add this to the layout smoke-check during UI sessions.
+
+## ValueChanged Callbacks Must Cover All Editable Fields
+
+- **Context:** Product detail form with Save/Undo dirty-state tracking
+- **Failure or friction:** The Undo button stayed permanently disabled because
+  five of eight editable fields (UnitPrice, RoastLevel, CaffeineContent,
+  GrindType, IsAvailable) lacked ValueChanged callbacks. Only Name,
+  Description, and ImageUrl called `OnFieldChanged`, so editing the other
+  fields never triggered `UpdateDirtyState()`.
+- **Lesson:** When a form tracks dirty state via field-change callbacks, every
+  editable field must participate. Missing one callback means that field's
+  changes are invisible to the dirty-state tracker.
+- **Action for future sessions:** When adding or reviewing a form with dirty-
+  state tracking, verify that every bound field has a change callback wired to
+  the state tracker. Treat an incomplete callback set as a defect, not a
+  cosmetic issue.
+
+## Currency And Date Columns Should Be Right-Aligned By Default
+
+- **Context:** MudDataGrid columns for currency and date values
+- **Failure or friction:** Currency (UnitPrice, Total) and date (OrderDate,
+  ShipDate) columns were left-aligned, making them harder to scan and compare.
+- **Lesson:** Numeric and date columns should be right-aligned as a convention.
+  MudBlazor does not default to this, so it must be set explicitly.
+- **Action for future sessions:** When defining grid columns, apply
+  `CellStyle="text-align:right" HeaderStyle="text-align:right"` to currency,
+  numeric, and date columns. Consider encoding this as a team convention or
+  helper so it is not forgotten per-page.

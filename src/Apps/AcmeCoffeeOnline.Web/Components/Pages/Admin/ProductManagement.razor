@@ -35,14 +35,15 @@
     }
     else
     {
-        <MudDataGrid T="ProductDto" Items="_products" Dense="true" Hover="true" Striped="true"
+        <MudDataGrid T="ProductDto" Items="_products" Dense="true" Hover="true" Striped="true" Bordered="true"
                      SortMode="SortMode.Single" Filterable="false">
             <Columns>
                 <PropertyColumn Property="x => x.Name" Title="Name" />
                 <PropertyColumn Property="x => x.RoastLevel" Title="Roast" />
                 <PropertyColumn Property="x => x.CaffeineContent" Title="Caffeine" />
                 <PropertyColumn Property="x => x.GrindType" Title="Grind" />
-                <PropertyColumn Property="x => x.UnitPrice" Title="Price" Format="C2" />
+                <PropertyColumn Property="x => x.UnitPrice" Title="Price" Format="C2"
+                               CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
                 <TemplateColumn Title="Available" Sortable="false">
                     <CellTemplate>
                         <MudSwitch T="bool" Value="context.Item.IsAvailable" Color="Color.Success"

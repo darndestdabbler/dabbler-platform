@@ -70,6 +70,101 @@ builder.Services.AddDabblerSecurity(options =>
             entra.DefaultRoles = ["Customer"];
         });
     }
+
+    // ── Protectable pages (mirrors API registrations) ────────────────────
+    options.RegisterPages(pages =>
+    {
+        pages.Add("/", "Home", "Landing page");
+        pages.Add("/products", "Products", "Product catalog");
+        pages.Add("/customers", "Customers", "Customer management");
+        pages.Add("/orders", "Orders", "Order management");
+        pages.Add("/admin/users", "User Administration", "Manage backoffice users and roles");
+        pages.Add("/admin/products", "Product Administration", "Manage product lists and pricing");
+        pages.Add("/admin/security", "Security Dashboard", "Runtime security configuration");
+    });
+
+    // ── Protectable entities with fields ─────────────────────────────────
+    options.RegisterEntities(entities =>
+    {
+        entities.Add("Product", "Products", fields =>
+        {
+            fields.Add("Name", "Name");
+            fields.Add("RoastLevel", "Roast Level");
+            fields.Add("CaffeineContent", "Caffeine Content");
+            fields.Add("GrindType", "Grind Type");
+            fields.Add("UnitPrice", "Unit Price");
+            fields.Add("Description", "Description");
+            fields.Add("IsAvailable", "Is Available");
+        });
+        entities.Add("Customer", "Customers", fields =>
+        {
+            fields.Add("Email", "Email");
+            fields.Add("FirstName", "First Name");
+            fields.Add("LastName", "Last Name");
+            fields.Add("Phone", "Phone");
+            fields.Add("Address", "Address");
+            fields.Add("City", "City");
+            fields.Add("State", "State");
+            fields.Add("ZipCode", "Zip Code");
+            fields.Add("IsActive", "Is Active");
+        });
+        entities.Add("Order", "Orders", fields =>
+        {
+            fields.Add("OrderDate", "Order Date");
+            fields.Add("ShipDate", "Ship Date");
+            fields.Add("Status", "Status");
+            fields.Add("Total", "Total");
+        });
+        entities.Add("OrderItem", "Order Items", fields =>
+        {
+            fields.Add("ProductId", "Product");
+            fields.Add("Quantity", "Quantity");
+            fields.Add("UnitPrice", "Unit Price");
+            fields.Add("Discount", "Discount");
+        });
+        entities.Add("OrderNote", "Order Notes", fields =>
+        {
+            fields.Add("NoteText", "Note Text");
+            fields.Add("NoteDate", "Note Date");
+            fields.Add("Author", "Author");
+        });
+    });
+
+    // ── Protectable API endpoints ────────────────────────────────────────
+    options.RegisterEndpoints(endpoints =>
+    {
+        endpoints.Add("GetProducts", "GET Products", "GET", "/api/products");
+        endpoints.Add("GetProductById", "GET Product by ID", "GET", "/api/products/{id}");
+        endpoints.Add("CreateProduct", "Create Product", "POST", "/api/products");
+        endpoints.Add("UpdateProduct", "Update Product", "PUT", "/api/products/{id}");
+        endpoints.Add("ToggleProductAvailability", "Toggle Availability", "PATCH", "/api/products/{id}/availability");
+        endpoints.Add("GetCustomers", "GET Customers", "GET", "/api/customers");
+        endpoints.Add("GetCustomerById", "GET Customer by ID", "GET", "/api/customers/{id}");
+        endpoints.Add("CreateCustomer", "Create Customer", "POST", "/api/customers");
+        endpoints.Add("UpdateCustomer", "Update Customer", "PUT", "/api/customers/{id}");
+        endpoints.Add("SearchCustomers", "Search Customers", "GET", "/api/customers/search");
+        endpoints.Add("GetOrders", "GET Orders", "GET", "/api/orders");
+        endpoints.Add("GetOrderById", "GET Order by ID", "GET", "/api/orders/{id}");
+        endpoints.Add("GetOrdersByCustomer", "GET Orders by Customer", "GET", "/api/orders/by-customer/{customerId}");
+        endpoints.Add("CreateOrder", "Create Order", "POST", "/api/orders");
+        endpoints.Add("UpdateOrderStatus", "Update Order Status", "PATCH", "/api/orders/{id}/status");
+        endpoints.Add("AddOrderItem", "Add Order Item", "POST", "/api/orders/{orderId}/items");
+        endpoints.Add("RemoveOrderItem", "Remove Order Item", "DELETE", "/api/orders/{orderId}/items/{itemId}");
+        endpoints.Add("GetOrderNotes", "GET Order Notes", "GET", "/api/orders/{orderId}/notes");
+        endpoints.Add("CreateOrderNote", "Create Order Note", "POST", "/api/orders/{orderId}/notes");
+        endpoints.Add("UpdateOrderNote", "Update Order Note", "PUT", "/api/orders/{orderId}/notes/{noteId}");
+        endpoints.Add("DeleteOrderNote", "Delete Order Note", "DELETE", "/api/orders/{orderId}/notes/{noteId}");
+    });
+
+    // ── Protectable UI controls ──────────────────────────────────────────
+    options.RegisterControls(controls =>
+    {
+        controls.Add("CreateProductButton", "/products", "Create Product button");
+        controls.Add("EditPriceButton", "/products", "Edit Price button");
+        controls.Add("DeleteCustomerButton", "/customers", "Delete Customer button");
+        controls.Add("DeleteOrderButton", "/orders", "Delete Order button");
+        controls.Add("UpdateStatusButton", "/orders", "Update Order Status button");
+    });
 });
 
 builder.Services.UseJsonFileStore(
@@ -123,6 +218,9 @@ builder.Services.PostConfigure<CookieAuthenticationOptions>(
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDabblerSecurityBlazor();
+
+// Override the default NullUserListProvider so the User Assignments tab shows real users.
+builder.Services.AddScoped<IUserListProvider, EfUserListProvider>();
 
 if ((builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Test"))
     && builder.Configuration.GetValue<bool>("PlatformStubMode:Enabled"))

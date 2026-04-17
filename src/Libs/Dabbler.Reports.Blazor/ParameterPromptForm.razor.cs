@@ -157,7 +157,10 @@ public partial class ParameterPromptForm : ComponentBase
             EventCallback.Factory.Create<DateTime?>(this, val => OnValueChanged(param, val)));
         builder.AddAttribute(4, "Required", param.IsRequired);
         builder.AddAttribute(5, "RequiredError", $"{param.PromptText} is required");
-        builder.AddAttribute(6, "UserAttributes", BuildAriaAttributes(param));
+        builder.AddAttribute(6, "Editable", true);
+        builder.AddAttribute(7, "DateFormat", "MM/dd/yyyy");
+        builder.AddAttribute(8, "Placeholder", "MM/DD/YYYY");
+        builder.AddAttribute(9, "UserAttributes", BuildAriaAttributes(param));
         builder.CloseComponent();
     }
 

@@ -86,6 +86,11 @@ not silently violate these principles without explicit human approval.
 - Use `MudDataGrid<T>` directly with `ServerData` callbacks, column definitions,
   sorting, and paging. Do not wrap it in a custom component unless a specific,
   justified need arises.
+- Apply `Bordered="true"` to all MudDataGrid instances for visual column
+  separation. Right-align currency and numeric columns with
+  `CellStyle="text-align:right; max-width:130px"` and a matching HeaderStyle.
+  Right-align date columns using the same pattern. The max-width keeps values
+  close to their headers in flexible layouts.
 - Use `MudForm` directly for detail pages with MudBlazor input components and
   built-in validation. Child entity grids belong in `MudTabs`. Popup editing
   uses `MudDialog` with `MudForm` content.

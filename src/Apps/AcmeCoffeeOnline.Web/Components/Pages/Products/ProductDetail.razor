@@ -60,7 +60,8 @@ else if (_record is not null)
 
             <MudItem xs="12" md="6">
                 <MudNumericField T="decimal"
-                                 @bind-Value="_record.UnitPrice"
+                                 Value="_record.UnitPrice"
+                                 ValueChanged="@((decimal v) => { _record.UnitPrice = v; OnFieldChanged(string.Empty); })"
                                  Label="Unit Price"
                                  Min="0.01m"
                                  Max="9999.99m"
@@ -74,7 +75,8 @@ else if (_record is not null)
 
             <MudItem xs="12" md="6">
                 <MudSelect T="RoastLevel"
-                           @bind-Value="_record.RoastLevel"
+                           Value="_record.RoastLevel"
+                           ValueChanged="@((RoastLevel v) => { _record.RoastLevel = v; OnFieldChanged(string.Empty); })"
                            Label="Roast Level"
                            Variant="Variant.Outlined"
                            data-testid="field-roast-level">
@@ -87,7 +89,8 @@ else if (_record is not null)
 
             <MudItem xs="12" md="6">
                 <MudSelect T="CaffeineContent"
-                           @bind-Value="_record.CaffeineContent"
+                           Value="_record.CaffeineContent"
+                           ValueChanged="@((CaffeineContent v) => { _record.CaffeineContent = v; OnFieldChanged(string.Empty); })"
                            Label="Caffeine Content"
                            Variant="Variant.Outlined"
                            data-testid="field-caffeine-content">
@@ -100,7 +103,8 @@ else if (_record is not null)
 
             <MudItem xs="12" md="6">
                 <MudSelect T="GrindType"
-                           @bind-Value="_record.GrindType"
+                           Value="_record.GrindType"
+                           ValueChanged="@((GrindType v) => { _record.GrindType = v; OnFieldChanged(string.Empty); })"
                            Label="Grind Type"
                            Variant="Variant.Outlined"
                            data-testid="field-grind-type">
@@ -113,7 +117,8 @@ else if (_record is not null)
 
             <MudItem xs="12" md="6">
                 <MudCheckBox T="bool"
-                             @bind-Value="_record.IsAvailable"
+                             Value="_record.IsAvailable"
+                             ValueChanged="@((bool v) => { _record.IsAvailable = v; OnFieldChanged(string.Empty); })"
                              Label="Available"
                              Color="Color.Primary"
                              data-testid="field-is-available" />

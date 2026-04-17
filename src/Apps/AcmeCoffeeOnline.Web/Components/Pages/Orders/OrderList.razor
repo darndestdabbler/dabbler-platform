@@ -50,6 +50,7 @@
              ServerData="@ServerDataFuncAsync"
              Dense="true"
              Hover="true"
+             Bordered="true"
              RowsPerPage="25"
              ReadOnly="true"
              Loading="@_isLoading"
@@ -64,7 +65,8 @@
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="e => e.CustomerName" Title="Retail Business Contact" />
-        <PropertyColumn Property="e => e.OrderDate" Title="Order Date" Format="d" />
+        <PropertyColumn Property="e => e.OrderDate" Title="Order Date" Format="d"
+                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
         <TemplateColumn Title="Status" Sortable="true">
             <CellTemplate>
                 <MudChip T="string"
@@ -75,8 +77,10 @@
                 </MudChip>
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="e => e.Total" Title="Total" Format="C2" />
-        <PropertyColumn Property="e => e.ShipDate" Title="Ship Date" Format="d" />
+        <PropertyColumn Property="e => e.Total" Title="Total" Format="C2"
+                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
+        <PropertyColumn Property="e => e.ShipDate" Title="Ship Date" Format="d"
+                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
     </Columns>
     <PagerContent>
         <MudDataGridPager T="OrderDto" />
@@ -98,10 +102,24 @@
     public IGridDataProvider<OrderDto> DataProvider { get; set; } = default!;
 
     [Parameter]
+    public string? InitialSearchTerm { get; set; }
+
+    [Parameter]
     public bool AutoLoadOnFilterChange { get; set; } = true;
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(InitialSearchTerm) && _currentFilter is null)
+        {
+            _currentFilter = new CompositeFilterDescriptor
+            {
+                Filters = [new FilterDescriptor("CustomerName", "contains", InitialSearchTerm.Trim())]
+            };
+        }
+    }
 
     private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
     {

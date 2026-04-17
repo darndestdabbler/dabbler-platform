@@ -40,7 +40,7 @@ else
 
     <MudPaper Elevation="1" Class="pa-4">
         <MudDataGrid T="AdminUserScopeUserDto" Items="_scope.Users" Filterable="true" SortMode="SortMode.Single"
-                     Dense="true" Hover="true" Striped="true">
+                     Dense="true" Hover="true" Striped="true" Bordered="true">
             <Columns>
                 <PropertyColumn Property="x => x.DisplayName" Title="Name" />
                 <PropertyColumn Property="x => x.Email" Title="Email" />
