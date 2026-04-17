@@ -12,8 +12,6 @@ architecture, testing, and human-UAT rules.
 Read `docs/planning/lessons-learned.md` for repo-specific failure patterns and
 reusable tactics learned from prior sessions.
 Read `docs/ai-led-session-workflow.md` for the complete session-set workflow.
-Read `docs/platform-guardrails.md` and `docs/dev-test-auth-modes.md` before
-changing auth helpers, browser coverage, or workflow assets.
 
 Current intended development mode: use integrated source references under
 `src/Libs/`. Do not add new sibling-repo dependencies unless a session spec

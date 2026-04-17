@@ -3,12 +3,8 @@
 > **Purpose:** Consolidate the durable architecture, testing, UI, workflow,
 > and human-UAT guidance that should carry forward across this repo and future
 > projects built from the same platform direction.
-> **Primary sources:** `docs/planning/user-functionality-notes.md`,
-> `docs/planning/testing-hierarcy.pdf`,
-> `docs/planning/phase-2-platform-roadmap.md`,
-> `docs/platform-guardrails.md`,
-> `docs/dev-test-auth-modes.md`, and
-> `docs/planning/reusable-platform-stub-guide.md`
+> **Primary sources:** `docs/planning/testing-hierarchy.pdf`,
+> `docs/planning/phase-3-platform-roadmap.md`
 
 This document is the short, durable guidance layer.
 
@@ -69,8 +65,7 @@ not silently violate these principles without explicit human approval.
   or developer experience.
 - Do not build and maintain custom wrapper surfaces that merely duplicate
   MudBlazor behavior without adding durable platform value.
-- Keep grids, forms, reports, and navigation aligned with the durable intent in
-  `user-functionality-notes.md`:
+- Keep grids, forms, reports, and navigation aligned with the durable intent:
   filter-first search experiences, detail forms with validation and tab order,
   report output beyond flat tables, and clear top/left navigation patterns.
 - The demo app should be presentation-worthy and broad enough to prove the
@@ -230,8 +225,8 @@ Testing should follow this order of preference:
 - Save verifier output raw and never edit session-review files after they are
   written.
 - Log every AI-led session step in the active session set.
-- Keep auth, browser coverage, and workflow-asset changes aligned with
-  `docs/platform-guardrails.md` and `docs/dev-test-auth-modes.md`.
+- Keep auth, browser coverage, and workflow-asset changes aligned with the
+  security and auth guidance in this document.
 - AI instruction documents should reference this file directly so future agent
   runs inherit the same durable expectations.
 - When the human gives a session instruction or decision that appears durable
