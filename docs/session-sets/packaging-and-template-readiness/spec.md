@@ -47,7 +47,10 @@ paths.
 4. Delete obsolete docs-level files from `docs/` that are not on the keep list.
 5. Remove the `samples/` folder and clean up its project references from
    `Dabbler.Platform.sln`.
-6. Promote `scripts/full-app-uat/*.ps1` to `scripts/` and remove the subfolder.
+6. Confirm `scripts/dev-tools/*.ps1` are in place (moved in `dev-tools-ui`
+   session set) and that `scripts/dev-tools/README.md` still points the human
+   to the in-app Dev menu as the preferred UX. No further promotion needed —
+   the old `scripts/full-app-uat/` folder was removed in that earlier set.
 7. Clean up stale file references in `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, and
    `docs/planning/guiding-principles.md` that point to deleted files.
 8. Delete `FOLDERS_AND_FILES_TO_SAVE.md` after cleanup is complete.

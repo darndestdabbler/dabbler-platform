@@ -117,20 +117,28 @@ human to judge things automation cannot score.
 
 ## Helper Usage
 
+The preferred developer UX is the in-app **Dev** menu in the AcmeCoffeeOnline
+app bar (visible only when `Authentication:SeededSession:Enabled=true` in
+Development or Test). It exposes Quick Sign-In, Session Info, and Magic Links
+without leaving the browser.
+
+The PowerShell helpers remain for headless or CI scenarios. They live under
+`scripts/dev-tools/` — see `scripts/dev-tools/README.md` for details.
+
 Current session snapshot after an organization switch:
 
 ```powershell
-.\scripts\full-app-uat\Get-SessionInfo.ps1
+.\scripts\dev-tools\Get-SessionInfo.ps1
 ```
 
 Clear any prior magic links for the customer test user:
 
 ```powershell
-.\scripts\full-app-uat\Get-MagicLinks.ps1 -Email james.smith@example.com -Clear
+.\scripts\dev-tools\Get-MagicLinks.ps1 -Email james.smith@example.com -Clear
 ```
 
 Read the newly captured magic link after requesting sign-in:
 
 ```powershell
-.\scripts\full-app-uat\Get-MagicLinks.ps1 -Email james.smith@example.com
+.\scripts\dev-tools\Get-MagicLinks.ps1 -Email james.smith@example.com
 ```
