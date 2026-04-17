@@ -12,6 +12,40 @@ html, body {
     font-family: 'Roboto', sans-serif;
 }
 
+/* ── User context bar (app-bar user/role/org sentence) ──────────────────── */
+
+.user-context-bar {
+    flex-wrap: nowrap;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.user-context-bar .user-context-name,
+.user-context-bar .user-context-org {
+    max-width: 18ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-context-bar .user-context-role {
+    white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+    .user-context-bar .user-context-name,
+    .user-context-bar .user-context-org {
+        max-width: 12ch;
+    }
+}
+
+@media (max-width: 600px) {
+    .user-context-bar .user-context-name,
+    .user-context-bar .user-context-org {
+        max-width: 8ch;
+    }
+}
+
 /* ── Standalone stub shell ───────────────────────────────────────────────── */
 
 .standalone-shell {

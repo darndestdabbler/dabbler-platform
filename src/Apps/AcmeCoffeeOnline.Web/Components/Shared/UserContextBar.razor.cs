@@ -51,7 +51,8 @@ public partial class UserContextBar : ComponentBase, IDisposable
     {
         ["data-testid"] = "user-context-user",
         ["role"] = "button",
-        ["aria-label"] = $"{_userName}, sign out"
+        ["aria-label"] = $"{_userName}, sign out",
+        ["title"] = _userName
     };
 
     private Dictionary<string, object?> _roleLinkAttributes => new()
@@ -59,9 +60,12 @@ public partial class UserContextBar : ComponentBase, IDisposable
         ["data-testid"] = "user-context-role",
         ["role"] = _canSwitchRole ? "button" : null,
         ["aria-disabled"] = _canSwitchRole ? null : "true",
+        ["aria-haspopup"] = _canSwitchRole ? "menu" : null,
+        ["tabindex"] = _canSwitchRole ? null : "-1",
         ["aria-label"] = _canSwitchRole
             ? $"{_activeRoleDisplay}, switch role"
-            : _activeRoleDisplay
+            : _activeRoleDisplay,
+        ["title"] = _activeRoleDisplay
     };
 
     private Dictionary<string, object?> _orgLinkAttributes => new()
@@ -69,9 +73,12 @@ public partial class UserContextBar : ComponentBase, IDisposable
         ["data-testid"] = "active-organization-label",
         ["role"] = _canSwitchOrg ? "button" : null,
         ["aria-disabled"] = _canSwitchOrg ? null : "true",
+        ["aria-haspopup"] = _canSwitchOrg ? "menu" : null,
+        ["tabindex"] = _canSwitchOrg ? null : "-1",
         ["aria-label"] = _canSwitchOrg
             ? $"{_activeOrganizationName}, switch organization"
-            : _activeOrganizationName
+            : _activeOrganizationName,
+        ["title"] = _activeOrganizationName
     };
 
     protected override async Task OnInitializedAsync()

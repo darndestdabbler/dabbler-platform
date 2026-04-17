@@ -1,12 +1,16 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 
-<div data-testid="user-context-bar" class="d-flex align-center">
+<div data-testid="user-context-bar"
+     class="d-flex align-center user-context-bar"
+     role="group"
+     aria-label="User context">
     <MudLink Color="Color.Inherit"
              Underline="Underline.Hover"
              OnClick="OpenSignOutDialogAsync"
+             Class="user-context-name"
              UserAttributes="@_userLinkAttributes">@_userName</MudLink>
 
-    <span class="mx-1 mud-typography mud-typography-body2">as</span>
+    <span class="mx-1 mud-typography mud-typography-body2" aria-hidden="true">as</span>
 
     @if (_canSwitchRole)
     {
@@ -17,6 +21,7 @@
             <ActivatorContent>
                 <MudLink Color="Color.Inherit"
                          Underline="Underline.Hover"
+                         Class="user-context-role"
                          UserAttributes="@_roleLinkAttributes">@_activeRoleDisplay</MudLink>
             </ActivatorContent>
             <ChildContent>
@@ -39,10 +44,11 @@
         <MudLink Color="Color.Inherit"
                  Underline="Underline.None"
                  Disabled="true"
+                 Class="user-context-role"
                  UserAttributes="@_roleLinkAttributes">@_activeRoleDisplay</MudLink>
     }
 
-    <span class="mx-1 mud-typography mud-typography-body2">for</span>
+    <span class="mx-1 mud-typography mud-typography-body2" aria-hidden="true">for</span>
 
     @if (_canSwitchOrg)
     {
@@ -53,6 +59,7 @@
             <ActivatorContent>
                 <MudLink Color="Color.Inherit"
                          Underline="Underline.Hover"
+                         Class="user-context-org"
                          UserAttributes="@_orgLinkAttributes">@_activeOrganizationName</MudLink>
             </ActivatorContent>
             <ChildContent>
@@ -71,6 +78,7 @@
         <MudLink Color="Color.Inherit"
                  Underline="Underline.None"
                  Disabled="true"
+                 Class="user-context-org"
                  UserAttributes="@_orgLinkAttributes">@_activeOrganizationName</MudLink>
     }
 </div>

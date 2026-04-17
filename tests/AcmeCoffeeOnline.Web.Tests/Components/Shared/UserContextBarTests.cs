@@ -174,6 +174,148 @@ public sealed class UserContextBarTests : TestContext
     }
 
     [Fact]
+    public void Bar_HasGroupRoleAndAriaLabel_ForScreenReaders()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission { AllowedRoles = [] });
+
+        var cut = RenderBar(
+            userName: "Alex",
+            userRoles: ["Customer"],
+            activeOrgName: "Org X",
+            organizationOptions: SingleOrg("x", "Org X"));
+
+        var bar = cut.Find("[data-testid='user-context-bar']");
+        Assert.Equal("group", bar.GetAttribute("role"));
+        Assert.Equal("User context", bar.GetAttribute("aria-label"));
+    }
+
+    [Fact]
+    public void ConnectorWords_AreAriaHidden()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission { AllowedRoles = [] });
+
+        var cut = RenderBar(
+            userName: "Alex",
+            userRoles: ["Customer"],
+            activeOrgName: "Org X",
+            organizationOptions: SingleOrg("x", "Org X"));
+
+        var connectors = cut.FindAll("[data-testid='user-context-bar'] > span[aria-hidden='true']");
+        var texts = connectors.Select(s => s.TextContent.Trim()).ToList();
+        Assert.Contains("as", texts);
+        Assert.Contains("for", texts);
+    }
+
+    [Fact]
+    public void UserAndOrgLinks_ExposeTitleAttribute_ForHoverTooltip()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission { AllowedRoles = [] });
+
+        var cut = RenderBar(
+            userName: "Casey Hart",
+            userRoles: ["SystemAdmin"],
+            activeOrgName: "Internal Operations",
+            organizationOptions: SingleOrg("internal", "Internal Operations"));
+
+        var userLink = cut.Find("[data-testid='user-context-user']");
+        Assert.Equal("Casey Hart", userLink.GetAttribute("title"));
+
+        var orgLink = cut.Find("[data-testid='active-organization-label']");
+        Assert.Equal("Internal Operations", orgLink.GetAttribute("title"));
+    }
+
+    [Fact]
+    public void Links_ExposeSpecSentenceAriaLabels()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission
+        {
+            AllowedRoles = ["SystemAdmin", "BackofficeUserAdmin"]
+        });
+
+        var cut = RenderBar(
+            userName: "Casey Hart",
+            userRoles: ["SystemAdmin"],
+            activeOrgName: "Internal Operations",
+            organizationOptions: TwoOrgs(activeName: "Internal Operations"));
+
+        Assert.Equal(
+            "Casey Hart, sign out",
+            cut.Find("[data-testid='user-context-user']").GetAttribute("aria-label"));
+        Assert.Equal(
+            "System Admin, switch role",
+            cut.Find("[data-testid='user-context-role']").GetAttribute("aria-label"));
+        Assert.Equal(
+            "Internal Operations, switch organization",
+            cut.Find("[data-testid='active-organization-label']").GetAttribute("aria-label"));
+    }
+
+    [Fact]
+    public void DisabledLinks_HaveTabindexMinusOne_AndSkipMenuAttributes()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission { AllowedRoles = [] });
+
+        var cut = RenderBar(
+            userName: "Jamie Retail",
+            userRoles: ["Customer"],
+            activeOrgName: "Jamie's Coffee Shop",
+            organizationOptions: SingleOrg("jamies", "Jamie's Coffee Shop"));
+
+        var roleLink = cut.Find("[data-testid='user-context-role']");
+        Assert.Equal("-1", roleLink.GetAttribute("tabindex"));
+        Assert.False(roleLink.HasAttribute("aria-haspopup"),
+            "Disabled role link should not advertise a popup.");
+
+        var orgLink = cut.Find("[data-testid='active-organization-label']");
+        Assert.Equal("-1", orgLink.GetAttribute("tabindex"));
+        Assert.False(orgLink.HasAttribute("aria-haspopup"),
+            "Disabled org link should not advertise a popup.");
+    }
+
+    [Fact]
+    public void EnabledMenuLinks_AdvertisePopup()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission
+        {
+            AllowedRoles = ["SystemAdmin", "BackofficeUserAdmin"]
+        });
+
+        var cut = RenderBar(
+            userName: "Casey Hart",
+            userRoles: ["SystemAdmin"],
+            activeOrgName: "Internal Operations",
+            organizationOptions: TwoOrgs(activeName: "Internal Operations"));
+
+        Assert.Equal("menu",
+            cut.Find("[data-testid='user-context-role']").GetAttribute("aria-haspopup"));
+        Assert.Equal("menu",
+            cut.Find("[data-testid='active-organization-label']").GetAttribute("aria-haspopup"));
+    }
+
+    [Fact]
+    public void Links_CarryResponsiveCssClasses_ForTruncation()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission
+        {
+            AllowedRoles = ["SystemAdmin", "BackofficeUserAdmin"]
+        });
+
+        var cut = RenderBar(
+            userName: "Casey Hart",
+            userRoles: ["SystemAdmin"],
+            activeOrgName: "Internal Operations",
+            organizationOptions: TwoOrgs(activeName: "Internal Operations"));
+
+        var userLink = cut.Find("[data-testid='user-context-user']");
+        Assert.Contains("user-context-name", userLink.GetAttribute("class") ?? string.Empty);
+
+        var roleLink = cut.Find("[data-testid='user-context-role']");
+        Assert.Contains("user-context-role", roleLink.GetAttribute("class") ?? string.Empty);
+
+        var orgLink = cut.Find("[data-testid='active-organization-label']");
+        Assert.Contains("user-context-org", orgLink.GetAttribute("class") ?? string.Empty);
+    }
+
+    [Fact]
     public void CancelingSignOut_DoesNotNavigate()
     {
         RegisterSecurityConfig(new RoleSwitchingPermission { AllowedRoles = [] });
