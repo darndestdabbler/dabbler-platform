@@ -9,6 +9,7 @@ public interface IOrderService
     Task<OrderDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<PagedResponse<OrderDto>> GetByCustomerIdAsync(int customerId, PagedRequest request, CancellationToken cancellationToken = default);
     Task<OrderDto> CreateAsync(OrderDto dto, CancellationToken cancellationToken = default);
+    Task<OrderDto?> UpdateAsync(int id, OrderDto dto, CancellationToken cancellationToken = default);
     Task<StatusTransitionResult> UpdateStatusAsync(int id, OrderStatus newStatus, CancellationToken cancellationToken = default);
     Task<OrderItemDto?> AddItemAsync(int orderId, OrderItemDto dto, CancellationToken cancellationToken = default);
     Task<bool> RemoveItemAsync(int orderId, int itemId, CancellationToken cancellationToken = default);

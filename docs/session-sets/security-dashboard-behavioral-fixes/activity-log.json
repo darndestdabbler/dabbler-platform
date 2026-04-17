@@ -82,6 +82,112 @@
           "costUsd": 0.341805
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/clarify-scope",
+      "dateTime": "2026-04-17T19:33:04.139942+00:00",
+      "description": "Kickoff clarification: user confirmed expected scope is 'full detail-page editing (status + line items + customer)' like the products detail page.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/repro",
+      "dateTime": "2026-04-17T19:33:04.140942+00:00",
+      "description": "Reproduced by reading OrderDetailPage.razor, OrderDetail.razor, ProductDetailPage.razor. Root cause identified: OrderDetailPage hardcodes IsReadOnly=true, so status buttons, Add Product, Remove items, Add/Edit/Delete notes are never rendered for any role. Also, no UpdateOrder endpoint or API client method exists for editing an existing order's header (Notes, ShipDate) \u2014 OrderDetailState.SaveAsync returns false whenever !isNew.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/trace",
+      "dateTime": "2026-04-17T19:33:04.140942+00:00",
+      "description": "Traced OrderDetail -> OrderDetailState -> OrderApiClient -> OrdersController -> OrderService. Confirmed: endpoint-level authorization is the actual gate (Products follows 'show edit UI to everyone; API enforces auth' pattern). Row filter in OrderService.ApplyRowFilter correctly scopes existing-order mutations to the caller's CustomerId for Customer role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/fix",
+      "dateTime": "2026-04-17T19:33:04.141939+00:00",
+      "description": "Implemented across server and client: added IOrderService.UpdateAsync + OrderService.UpdateAsync (updates Notes, ShipDate, ModifiedDate, ModifiedBy; row-filtered); added OrdersController UpdateAsync at PUT /api/orders/{id} with [DabblerEndpointAuthorize('UpdateOrder')]; added UpdateOrder endpoint permission to security-config.json (SystemAdmin, BackofficeUserAdmin, BackofficeUser); added OrderApiClient.UpdateAsync; updated OrderDetailState.SaveAsync to route to create-on-new and update-on-existing; flipped OrderDetailPage IsReadOnly to false; added Save/Undo toolbar for existing orders to OrderDetail with dirty-state tracking over Notes and ShipDate; rewired Notes TextField and ShipDate DatePicker to change-callbacks that drive dirty state; updated OrderDetailState.UpdateStatusAsync to re-fetch the order after a status change so server-side side effects (ShipDate on Shipped) show in the UI.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/integration-test",
+      "dateTime": "2026-04-17T19:33:04.141939+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Api.Tests/OrderUpdateTests.cs with two real-DB cases: SystemAdmin updates Notes and ShipDate and the change persists (then restores); a different Customer cannot update another customer's order (row filter returns null, DB unchanged).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/playwright",
+      "dateTime": "2026-04-17T19:33:04.141939+00:00",
+      "description": "Added OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync to tests/AcmeCoffeeOnline.Playwright/OrdersWorkflowTests.cs. Drives drawer -> /orders, clicks the first row, asserts Save/Undo/Add Product controls are visible and Save/Undo start disabled, edits Notes, asserts Save enables, clicks Save, re-fetches the order via API and asserts Notes persisted, then restores the original Notes so later tests aren't affected. Updated the file's header doc-comment which previously stated IsReadOnly=true was the current state.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/web-unit-test",
+      "dateTime": "2026-04-17T19:33:04.143075+00:00",
+      "description": "Updated tests/AcmeCoffeeOnline.Web.Tests/Services/OrderDetailStateTests.cs: replaced the outdated SaveAsync_RequiresNewRecordAndSuccessfulCreate test with SaveAsync_CreatesNewOrderThroughClient (create path) and SaveAsync_UpdatesExistingOrderThroughClient (update path).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-17T19:33:04.143075+00:00",
+      "description": "dotnet build: success (0 errors, 1 pre-existing warning in WebGuardrailTests). dotnet test (non-Playwright): 547 passed, 1 pre-existing failure in WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md from commit 8730107 \u2014 same unrelated failure noted in Session 1). New tests: 2/2 OrderUpdateTests pass, 2/2 OrderDetailStateTests create/update cases pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-17T19:33:56.709195+00:00",
+      "description": "Cross-provider verification via router (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 34858,
+          "outputTokens": 2407,
+          "costUsd": 0.703395
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/verification-round-2",
+      "dateTime": "2026-04-17T19:37:59.385389+00:00",
+      "description": "Round-2 verification after fixes applied to round-1 issues (model: opus).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 16022,
+          "outputTokens": 1092,
+          "costUsd": 0.32223
+        }
+      ]
     }
   ]
 }

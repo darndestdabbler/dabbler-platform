@@ -75,18 +75,30 @@ public sealed class OrderDetailState
 
     public async Task<bool> SaveAsync(bool isNew, CancellationToken cancellationToken = default)
     {
-        if (!isNew || Record is null)
+        if (Record is null)
         {
             return false;
         }
 
-        var created = await _orderClient.CreateAsync(Record, cancellationToken);
-        if (created is null)
+        if (isNew)
+        {
+            var created = await _orderClient.CreateAsync(Record, cancellationToken);
+            if (created is null)
+            {
+                return false;
+            }
+
+            Record = created;
+            return true;
+        }
+
+        var updated = await _orderClient.UpdateAsync(Record.Id, Record, cancellationToken);
+        if (updated is null)
         {
             return false;
         }
 
-        Record = created;
+        Record = updated;
         return true;
     }
 
@@ -112,7 +124,12 @@ public sealed class OrderDetailState
         try
         {
             await _orderClient.UpdateStatusAsync(Record.Id, newStatus, cancellationToken);
-            Record.Status = newStatus;
+            // Re-fetch so server-side side effects (e.g. ShipDate on Shipped) show in the UI.
+            var refreshed = await _orderClient.GetByIdAsync(Record.Id, cancellationToken);
+            if (refreshed is not null)
+                Record = refreshed;
+            else
+                Record.Status = newStatus;
         }
         finally
         {

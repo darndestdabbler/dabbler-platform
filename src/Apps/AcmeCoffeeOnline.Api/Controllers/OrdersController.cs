@@ -84,6 +84,24 @@ public class OrdersController : ControllerBase
         return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created);
     }
 
+    [HttpPut("{id:int}")]
+    [DabblerEndpointAuthorize("UpdateOrder")]
+    public async Task<ActionResult<OrderDto>> UpdateAsync(
+        int id,
+        [FromBody] OrderDto dto,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var updated = await _orderService.UpdateAsync(id, dto, cancellationToken);
+        if (updated is null)
+            return NotFound();
+
+        await _permissionService.ApplyFieldPermissionsAsync(updated, userId, "Order");
+        return Ok(updated);
+    }
+
     [HttpPatch("{id:int}/status")]
     [DabblerEndpointAuthorize("UpdateOrderStatus")]
     public async Task<ActionResult> UpdateStatusAsync(

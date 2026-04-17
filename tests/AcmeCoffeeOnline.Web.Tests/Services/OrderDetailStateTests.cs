@@ -108,7 +108,7 @@ public sealed class OrderDetailStateTests
     }
 
     [Fact]
-    public async Task SaveAsync_RequiresNewRecordAndSuccessfulCreate()
+    public async Task SaveAsync_CreatesNewOrderThroughClient()
     {
         var created = new OrderDto
         {
@@ -117,7 +117,7 @@ public sealed class OrderDetailStateTests
         };
         var state = new OrderDetailState(CreateClient((request, _) =>
         {
-            return Task.FromResult(request.RequestUri?.PathAndQuery == "/api/orders"
+            return Task.FromResult(request.Method.Method == "POST" && request.RequestUri?.PathAndQuery == "/api/orders"
                 ? StubHttpMessageHandler.Json(HttpStatusCode.Created, created)
                 : StubHttpMessageHandler.Empty(HttpStatusCode.NotFound));
         }));
@@ -125,10 +125,36 @@ public sealed class OrderDetailStateTests
         Assert.False(await state.SaveAsync(isNew: true));
 
         state.SetRecord(new OrderDto { CustomerId = 5, Status = OrderStatus.Pending });
-        Assert.False(await state.SaveAsync(isNew: false));
-
         Assert.True(await state.SaveAsync(isNew: true));
         Assert.Equal(88, state.Record!.Id);
+    }
+
+    [Fact]
+    public async Task SaveAsync_UpdatesExistingOrderThroughClient()
+    {
+        var updated = new OrderDto
+        {
+            Id = 42,
+            CustomerId = 7,
+            Notes = "Updated notes",
+            Status = OrderStatus.Confirmed
+        };
+        var state = new OrderDetailState(CreateClient((request, _) =>
+        {
+            return Task.FromResult(request.Method.Method == "PUT" && request.RequestUri?.PathAndQuery == "/api/orders/42"
+                ? StubHttpMessageHandler.Json(HttpStatusCode.OK, updated)
+                : StubHttpMessageHandler.Empty(HttpStatusCode.NotFound));
+        }));
+        state.SetRecord(new OrderDto
+        {
+            Id = 42,
+            CustomerId = 7,
+            Notes = "Original notes",
+            Status = OrderStatus.Confirmed
+        });
+
+        Assert.True(await state.SaveAsync(isNew: false));
+        Assert.Equal("Updated notes", state.Record!.Notes);
     }
 
     [Fact]

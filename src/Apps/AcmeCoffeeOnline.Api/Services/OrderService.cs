@@ -107,6 +107,28 @@ public class OrderService : IOrderService
         return MapToDto(created);
     }
 
+    public async Task<OrderDto?> UpdateAsync(int id, OrderDto dto, CancellationToken cancellationToken = default)
+    {
+        var order = await FindOrderWithRowFilterAsync(id, cancellationToken);
+        if (order is null)
+            return null;
+
+        order.Notes = dto.Notes;
+        order.ShipDate = dto.ShipDate;
+        order.ModifiedDate = DateTime.UtcNow;
+        order.ModifiedBy = dto.ModifiedBy;
+
+        await _db.SaveChangesAsync(cancellationToken);
+
+        var refreshed = await BuildOrderQuery()
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+            .Include(o => o.OrderNotes)
+            .FirstAsync(o => o.Id == id, cancellationToken);
+
+        return MapToDto(refreshed);
+    }
+
     public async Task<StatusTransitionResult> UpdateStatusAsync(int id, OrderStatus newStatus, CancellationToken cancellationToken = default)
     {
         var order = await FindOrderWithRowFilterAsync(id, cancellationToken);

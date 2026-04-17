@@ -46,6 +46,13 @@ public class OrderApiClient
         return await response.Content.ReadFromJsonAsync<OrderDto>(cancellationToken);
     }
 
+    public async Task<OrderDto?> UpdateAsync(int id, OrderDto dto, CancellationToken cancellationToken = default)
+    {
+        var response = await _http.PutAsJsonAsync($"api/orders/{id}", dto, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<OrderDto>(cancellationToken);
+    }
+
     public async Task UpdateStatusAsync(
         int id, OrderStatus newStatus, CancellationToken cancellationToken = default)
     {

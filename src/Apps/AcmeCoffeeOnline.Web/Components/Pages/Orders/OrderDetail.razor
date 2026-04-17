@@ -33,9 +33,15 @@ else if (State.Record is not null)
                                    Size="Size.Small"
                                    StartIcon="@GetTransitionIcon(transition)"
                                    OnClick="@(() => UpdateStatusAsync(transition))"
-                                   Disabled="State.IsStatusUpdating">
+                                   Disabled="@(State.IsStatusUpdating || _isDirty)">
                             @transition
                         </MudButton>
+                    }
+                    @if (_isDirty)
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            Save or undo header changes before changing status.
+                        </MudText>
                     }
                 }
             </MudStack>
@@ -53,6 +59,27 @@ else if (State.Record is not null)
                        Disabled="_saving"
                        data-testid="save-button">
                 Save
+            </MudButton>
+        </MudStack>
+    }
+    else if (!IsReadOnly && !IsNew)
+    {
+        <MudStack Row="true" Spacing="2" Class="mb-4">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       OnClick="HandleSaveAsync"
+                       Disabled="@(!_isDirty || _saving)"
+                       data-testid="save-button">
+                Save
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.Undo"
+                       OnClick="HandleUndo"
+                       Disabled="@(!_isDirty)"
+                       data-testid="undo-button">
+                Undo
             </MudButton>
         </MudStack>
     }
@@ -78,7 +105,8 @@ else if (State.Record is not null)
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudDatePicker @bind-Date="_shipDate"
+                <MudDatePicker Date="_shipDate"
+                               DateChanged="OnShipDateChanged"
                                Label="Ship Date"
                                ReadOnly="IsReadOnly"
                                Variant="Variant.Outlined"
@@ -99,7 +127,8 @@ else if (State.Record is not null)
 
             <MudItem xs="12" md="8">
                 <MudTextField T="string"
-                              @bind-Value="State.Record.Notes"
+                              Value="State.Record.Notes"
+                              ValueChanged="OnNotesChanged"
                               Label="Notes"
                               ReadOnly="IsReadOnly"
                               Variant="Variant.Outlined"
@@ -296,6 +325,9 @@ else
 
     private MudForm? _form;
     private bool _saving;
+    private bool _isDirty;
+    private string? _snapshotNotes;
+    private DateTime? _snapshotShipDate;
 
     // Date pickers need nullable DateTime?
     private DateTime? _orderDate;
@@ -326,7 +358,52 @@ else
         {
             _orderDate = State.Record.OrderDate;
             _shipDate = State.Record.ShipDate;
+            TakeSnapshot();
+            UpdateDirtyState();
         }
+    }
+
+    private void TakeSnapshot()
+    {
+        if (State.Record is null) return;
+        _snapshotNotes = State.Record.Notes;
+        _snapshotShipDate = State.Record.ShipDate;
+    }
+
+    private void UpdateDirtyState()
+    {
+        if (State.Record is null || IsNew)
+        {
+            _isDirty = false;
+            return;
+        }
+
+        _isDirty = !string.Equals(State.Record.Notes, _snapshotNotes, StringComparison.Ordinal)
+            || State.Record.ShipDate != _snapshotShipDate;
+    }
+
+    private void OnNotesChanged(string? value)
+    {
+        if (State.Record is null) return;
+        State.Record.Notes = value;
+        UpdateDirtyState();
+    }
+
+    private void OnShipDateChanged(DateTime? value)
+    {
+        _shipDate = value;
+        if (State.Record is not null)
+            State.Record.ShipDate = value;
+        UpdateDirtyState();
+    }
+
+    private void HandleUndo()
+    {
+        if (State.Record is null) return;
+        State.Record.Notes = _snapshotNotes;
+        State.Record.ShipDate = _snapshotShipDate;
+        _shipDate = _snapshotShipDate;
+        UpdateDirtyState();
     }
 
     // ── Save ────────────────────────────────────────────────────────
@@ -342,7 +419,16 @@ else
         try
         {
             if (await State.SaveAsync(IsNew))
+            {
                 IsNew = false;
+                if (State.Record is not null)
+                {
+                    _orderDate = State.Record.OrderDate;
+                    _shipDate = State.Record.ShipDate;
+                }
+                TakeSnapshot();
+                UpdateDirtyState();
+            }
 
             await OnSaved.InvokeAsync();
         }
@@ -376,6 +462,12 @@ else
     private async Task UpdateStatusAsync(OrderStatus newStatus)
     {
         await State.UpdateStatusAsync(newStatus);
+        if (State.Record is not null)
+        {
+            _shipDate = State.Record.ShipDate;
+            TakeSnapshot();
+            UpdateDirtyState();
+        }
     }
 
     // ── M:M Order Items ─────────────────────────────────────────────
