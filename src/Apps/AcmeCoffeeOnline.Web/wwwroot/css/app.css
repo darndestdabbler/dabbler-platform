@@ -31,9 +31,10 @@ html, body {
 }
 
 .user-context-bar .mud-link-disabled {
-    color: inherit;
+    color: inherit !important;
     text-decoration: none;
     cursor: default;
+    opacity: 1;
 }
 
 /* ── Standalone stub shell ───────────────────────────────────────────────── */
