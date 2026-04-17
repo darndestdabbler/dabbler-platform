@@ -2,6 +2,7 @@
 @using System.Security.Claims
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Components.Shared
+@using AcmeCoffeeOnline.Web.Components.Shared.DevTools
 @using AcmeCoffeeOnline.Web.Services
 @inject NavigationManager NavigationManager
 @inject ShellSessionStateLoader ShellSessionStateLoader
@@ -23,6 +24,8 @@
         </MudText>
 
         <MudSpacer />
+
+        <DevToolsMenu />
 
         <UserContextBar UserName="@_userName"
                         UserRoles="@_userRoles"

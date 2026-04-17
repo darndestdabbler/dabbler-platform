@@ -1,0 +1,113 @@
+@using AcmeCoffeeOnline.Web.Configuration
+@using Microsoft.Extensions.Options
+@inject IOptions<AppAuthenticationOptions> AuthOptions
+@inject IJSRuntime JS
+
+<MudDialog>
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Login" Color="Color.Warning" />
+            <MudText Typo="Typo.h6">Dev Quick Sign-In</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudText Typo="Typo.body2">
+                Pick a seeded persona. Signing in reloads the page under the selected identity.
+            </MudText>
+
+            <MudSelect T="string"
+                       @bind-Value="_selectedPersona"
+                       Label="Select a test persona"
+                       Variant="Variant.Outlined"
+                       AnchorOrigin="Origin.BottomCenter"
+                       data-testid="dev-tools-persona-select">
+                @foreach (var persona in _devPersonas)
+                {
+                    <MudSelectItem Value="@persona.Email">
+                        @persona.Label
+                    </MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <MudAlert Severity="Severity.Error" Dense="true" data-testid="dev-tools-persona-error">
+                    @_error
+                </MudAlert>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Warning"
+                   OnClick="SignInAsync"
+                   Disabled="@(_signingIn || string.IsNullOrEmpty(_selectedPersona))"
+                   data-testid="dev-tools-persona-signin">
+            @if (_signingIn)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                @:Signing in...
+            }
+            else
+            {
+                @:Sign in as selected user
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private static readonly DevPersona[] _devPersonas =
+    [
+        new("admin@acmecoffee.com", "Admin — SystemAdmin (full access)"),
+        new("jdoe@acmecoffee.com", "Jordan Ellis — BackofficeUser"),
+        new("kbrown@acmecoffee.com", "Kai Brown — BackofficeUserAdmin"),
+        new("james.smith@example.com", "James Smith — Customer (retail business)"),
+        new("casey.hart@acmecoffee.com", "Casey Hart — Dual membership (internal + retail)"),
+        new("sloane.reyes@acmecoffee.com", "Sloane Reyes — Regional sales rep (multi-org admin)")
+    ];
+
+    private string? _selectedPersona;
+    private bool _signingIn;
+    private string? _error;
+    private IJSObjectReference? _module;
+
+    private async Task SignInAsync()
+    {
+        if (string.IsNullOrEmpty(_selectedPersona))
+        {
+            return;
+        }
+
+        _signingIn = true;
+        _error = null;
+
+        try
+        {
+            _module ??= await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./dev-quick-signin.js");
+
+            await _module.InvokeVoidAsync(
+                "signIn",
+                _selectedPersona,
+                AuthOptions.Value.SeededSession.SharedSecret);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Sign-in failed: {ex.Message}";
+        }
+        finally
+        {
+            _signingIn = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private sealed record DevPersona(string Email, string Label);
+}

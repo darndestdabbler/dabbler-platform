@@ -283,6 +283,12 @@ builder.Services.AddSingleton<IEntityMetadataProvider, AcmeCoffeeMetadataProvide
 // INavigationDataProvider registration removed — was consumed only by DabblerShell,
 // which has been replaced by MudBlazor-native layout with route-based navigation.
 
+// Dev Tools: TestAuthClient is registered unconditionally. It reports IsEnabled from
+// the same AppAuthenticationOptions gate the DevToolsMenu and /test-auth/* endpoints
+// read, so the menu still hides in prod. Unconditional registration avoids DI failures
+// if a dialog is resolved before the gate is consulted.
+builder.Services.AddScoped<AcmeCoffeeOnline.Web.Services.DevTools.TestAuthClient>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
