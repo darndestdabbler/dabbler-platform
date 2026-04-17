@@ -20,10 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Libs\Dabbler.Security\Dabbler.Security.csproj" />
-    <ProjectReference Include="..\..\samples\Dabbler.Security.Sample\SampleApp.Api\SampleApp.Api.csproj" />
-    <ProjectReference Include="..\..\samples\Dabbler.Security.Sample\Dabbler.Security.DevIdp\Dabbler.Security.DevIdp.csproj">
-      <Aliases>devidp</Aliases>
-    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

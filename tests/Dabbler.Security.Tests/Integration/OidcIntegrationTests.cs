@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using Dabbler.Security.Abstractions;
 using Dabbler.Security.Data;
@@ -527,4 +528,28 @@ public class OidcIntegrationTests
 
     private record WhoAmIResponse(
         string? UserId, string? Email, string? DisplayName, string[] Roles);
+
+    internal sealed class CookieHandler(HttpMessageHandler inner) : DelegatingHandler(inner)
+    {
+        private readonly CookieContainer _jar = new();
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var uri = request.RequestUri!;
+            var cookieHeader = _jar.GetCookieHeader(uri);
+            if (!string.IsNullOrEmpty(cookieHeader))
+                request.Headers.TryAddWithoutValidation("Cookie", cookieHeader);
+
+            var response = await base.SendAsync(request, cancellationToken);
+
+            if (response.Headers.TryGetValues("Set-Cookie", out var setCookies))
+            {
+                foreach (var sc in setCookies)
+                    _jar.SetCookies(uri, sc);
+            }
+
+            return response;
+        }
+    }
 }
