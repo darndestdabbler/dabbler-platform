@@ -18,22 +18,29 @@ public partial class FilterPanel<T> : ComponentBase, IDisposable
     private IReadOnlyList<FilterColumnDefinition> _filterableColumns = [];
     private string _ariaLabel = "Filter panel";
 
+    /// <summary>The filterable column definitions that drive editor rendering.</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<FilterColumnDefinition> Columns { get; set; } = [];
 
+    /// <summary>Raised whenever the composite filter changes, emitting the latest descriptor.</summary>
     [Parameter]
     public EventCallback<CompositeFilterDescriptor?> FilterChanged { get; set; }
 
+    /// <summary>When true, shows the "Add group" control for composing multi-group filters.</summary>
     [Parameter]
     public bool ShowAddGroup { get; set; } = true;
 
+    /// <summary>When true, renders an active-filter chip summary above the editors.</summary>
     [Parameter]
     public bool ShowFilterChips { get; set; } = true;
 
+    /// <summary>The coordinator that owns filter-group state for this panel.</summary>
     public FilteringCoordinator Coordinator { get; } = new();
 
+    /// <summary>Returns the current composite filter, or null when no filters are set.</summary>
     public CompositeFilterDescriptor? GetCompositeFilter() => Coordinator.GetCompositeFilter();
 
+    /// <summary>Returns a human-readable summary of the current filter for display.</summary>
     public string GetFilterSummary()
     {
         return FilterSummaryBuilder.GetSummary(Coordinator.Groups, Columns);
