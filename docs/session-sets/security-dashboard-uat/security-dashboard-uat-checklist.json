@@ -1,0 +1,395 @@
+{
+  "ProjectName": "Dabbler Platform / AcmeCoffeeOnline Security Dashboard",
+  "ReleaseLabel": "security-dashboard-uat",
+  "DocumentDate": "4/17/2026, 12:00:00 PM",
+  "Review": [
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Navigation to Dashboard",
+      "ItemLabel": "Admin menu exposes Security Dashboard clearly",
+      "HumanAction": "Sign in as admin@acmecoffee.com. Expand the Admin group in the left nav drawer and look for the Security entry. Click it.",
+      "Expectation": "The Security entry is labeled clearly (e.g., 'Security'), has a recognizable icon, and navigates to /admin/security without a flash of empty content. The URL and page title both reflect the Security Dashboard.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Page Header",
+      "ItemLabel": "Page header reads cleanly and is not clipped",
+      "HumanAction": "Arrive at /admin/security as admin. Look at the top of the page: the 'Security Dashboard' heading, the descriptive subtitle, and the vertical spacing above the tab strip.",
+      "Expectation": "The heading is fully visible (not hidden behind the app bar), there is a single header (no duplicate 'Security Administration' header), the subtitle describes the purpose, and spacing feels intentional on both small and large viewports.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Role-Based Access",
+      "ItemLabel": "Non-SystemAdmin cannot reach the dashboard",
+      "HumanAction": "Sign out and sign in as jdoe@acmecoffee.com (BackofficeUser). Try to navigate to /admin/security directly via the URL bar.",
+      "Expectation": "Access is denied cleanly. The user either sees an access-denied message or is redirected. The Admin > Security nav item is not visible (or is disabled) for this persona.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Role-Based Access",
+      "ItemLabel": "BackofficeUserAdmin cannot reach the dashboard",
+      "HumanAction": "Sign out and sign in as kbrown@acmecoffee.com (a seeded BackofficeUserAdmin — tjones@acmecoffee.com also works). Attempt /admin/security both via the nav drawer and via the URL.",
+      "Expectation": "Access is denied. Seed config restricts /admin/security to SystemAdmin only; BackofficeUserAdmin should be blocked, matching the PagePermissions in security-config.json.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for Shell and Access",
+      "HumanAction": "Use this row for any unscripted feedback about navigation, the page header, or role-based access to the dashboard.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Tab Strip",
+      "Subarea": "Layout and Labels",
+      "ItemLabel": "All seven tabs are present and legible",
+      "HumanAction": "As SystemAdmin, review the dashboard tab strip. Confirm the seven tabs: Roles, Page Access, Entity Access, Endpoint Access, Control Permissions, Row Filters, User Assignments.",
+      "Expectation": "All seven tabs are visible without horizontal scrolling at a normal desktop width. Labels are readable and not truncated. The active tab is visually distinct (e.g., underline, color). Tab order follows the logical flow: Roles first, user assignments last.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Tab Strip",
+      "Subarea": "Tab Switching",
+      "ItemLabel": "Tab switching feels smooth and predictable",
+      "HumanAction": "Click each of the seven tabs in order, then back in reverse. Watch for layout shift, flicker, and loading delay.",
+      "Expectation": "Each tab renders content quickly (under ~500 ms perceived). No layout jumps, no empty flash. Previously entered edit state within a tab is preserved when you return to it, or is clearly discarded with a message.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Tab Strip",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the Tab Strip",
+      "HumanAction": "Use this row for any unscripted feedback about the tab strip layout, labels, active-tab styling, or switching behavior.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Roles Tab",
+      "Subarea": "Role List",
+      "ItemLabel": "All four seeded roles are shown",
+      "HumanAction": "Open the Roles tab. Count the rows and read each role name and description.",
+      "Expectation": "Exactly four roles are listed: SystemAdmin, BackofficeUserAdmin, BackofficeUser, Customer. Each row shows the role name and its description. SystemAdmin has no inheritance; the other three form the chain Customer → BackofficeUser → BackofficeUserAdmin.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Roles Tab",
+      "Subarea": "Inheritance Visualization",
+      "ItemLabel": "Inheritance chain is clear",
+      "HumanAction": "On the Roles tab, look for the column, chip, badge, or indented indentation that communicates the 'InheritsFrom' relationship. Hover any inheritance indicator.",
+      "Expectation": "The inheritance relationship is visible at a glance — a child role shows its parent. A reviewer can tell that BackofficeUserAdmin inherits from BackofficeUser which inherits from Customer without having to open a detail panel.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Roles Tab",
+      "Subarea": "Role Editing",
+      "ItemLabel": "Edit role dialog opens and saves",
+      "HumanAction": "Click Edit on the BackofficeUser role. Modify the description to add ' (UAT edit)'. Save. Refresh the page and reopen the role.",
+      "Expectation": "The edit dialog is labeled, fields are clearly editable, and Save provides a success indication (toast or row update). After refresh, the edit persists in security-config.json. Undo the change before moving on.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Roles Tab",
+      "Subarea": "Role Editing",
+      "ItemLabel": "Add and delete role flows are discoverable",
+      "HumanAction": "Look for controls to add a new role and to delete an existing role. If present, try adding a TEMP role then deleting it.",
+      "Expectation": "Add and Delete controls are findable and clearly labeled. Delete either requires a confirmation or cannot be performed on roles that are referenced elsewhere. Validation messages are readable. No TEMP role is left behind.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Roles Tab",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the Roles tab",
+      "HumanAction": "Use this row for any unscripted feedback about the Roles tab.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Page Access Tab",
+      "Subarea": "Matrix Layout",
+      "ItemLabel": "Page-by-role matrix reads cleanly",
+      "HumanAction": "Open the Page Access tab. Scan the column headers (roles) and row headers (page keys). Look for the seven pages: /, /products, /customers, /orders, /admin/users, /admin/products, /admin/security.",
+      "Expectation": "Each of the 7 seeded pages is a row. Each of the 4 roles is a column. Cell values (Allow vs. Deny / inherited vs. explicit) are readable. Admin-only pages (/admin/security, /admin/products) are visibly more restrictive than public pages (/, /products).",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Page Access Tab",
+      "Subarea": "Matrix Editing",
+      "ItemLabel": "Toggle a page permission and see it apply",
+      "HumanAction": "Pick a safe cell (e.g., /products for BackofficeUser). Toggle it from Allow to Deny. Save if required. In a second browser tab signed in as jdoe@acmecoffee.com, try to reach /products.",
+      "Expectation": "The toggle is obvious and immediate. A save/discard indicator makes it clear whether the change is persisted. The denied user is blocked from /products in the second tab. Toggle it back before leaving the tab.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Page Access Tab",
+      "Subarea": "Inherited vs Explicit",
+      "ItemLabel": "Inherited permissions are visually distinct",
+      "HumanAction": "Look at the cells for a child role (e.g., BackofficeUserAdmin) where no explicit permission is set but the parent role has one. Hover for a tooltip if available.",
+      "Expectation": "Inherited values are visually distinct from explicit values (e.g., italic, dimmed, a small chip, or tooltip). A reviewer can tell at a glance whether a cell is an explicit override or inherited from a parent role.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Page Access Tab",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the Page Access tab",
+      "HumanAction": "Use this row for any unscripted feedback about the Page Access tab.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Entity Access Tab",
+      "Subarea": "Entity List and CRUD Matrix",
+      "ItemLabel": "All five entities appear with CRUD columns",
+      "HumanAction": "Open the Entity Access tab. Confirm the entities: Product, Customer, Order, OrderItem, OrderNote. For each, confirm there are columns/indicators for Create, Read, Update, Delete per role.",
+      "Expectation": "All 5 seeded entities are present. The CRUD matrix is readable; Customer-role restrictions are visible (e.g., Customer has Read-only on Product, Read on OrderItem, no Delete anywhere).",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Entity Access Tab",
+      "Subarea": "Field Permissions",
+      "ItemLabel": "Field-level permissions are reachable and clear",
+      "HumanAction": "Drill into the Product entity. Locate the UnitPrice field-permission entry. Review the per-role access level (Editable, ReadOnly, Hidden) and any controls to change it.",
+      "Expectation": "Field permissions are reachable with at most one click. Product.UnitPrice shows Editable for SystemAdmin/BackofficeUserAdmin, ReadOnly for BackofficeUser and Customer. Access-level values are labeled with plain English, not just codes.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Entity Access Tab",
+      "Subarea": "Runtime Editing",
+      "ItemLabel": "Revoking an entity operation takes effect",
+      "HumanAction": "For Order, remove Update from BackofficeUser. Save. In a second browser tab as jdoe@acmecoffee.com, attempt to change an order status.",
+      "Expectation": "The change is saved. The second-tab user sees the Update Status button disabled/hidden, or the request is rejected with a clear message. Restore the permission when done.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Entity Access Tab",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the Entity Access tab",
+      "HumanAction": "Use this row for any unscripted feedback about the Entity Access tab.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Endpoint Access Tab",
+      "Subarea": "Endpoint List",
+      "ItemLabel": "All 21 registered endpoints are shown",
+      "HumanAction": "Open the Endpoint Access tab. Scan the list/matrix of endpoints and count them.",
+      "Expectation": "Exactly 21 endpoint keys are present. The full seeded list is: GetProducts, GetProductById, CreateProduct, UpdateProduct, ToggleProductAvailability, GetCustomers, GetCustomerById, CreateCustomer, UpdateCustomer, SearchCustomers, GetOrders, GetOrderById, GetOrdersByCustomer, CreateOrder, UpdateOrderStatus, AddOrderItem, RemoveOrderItem, GetOrderNotes, CreateOrderNote, UpdateOrderNote, DeleteOrderNote. Endpoint keys are readable; role columns match the Page Access tab.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Endpoint Access Tab",
+      "Subarea": "Grouping or Filtering",
+      "ItemLabel": "Long endpoint list is navigable",
+      "HumanAction": "With 21 endpoints the list is long. Try any available filter, search, or grouping control (by resource, by method, by role).",
+      "Expectation": "A reviewer can find a specific endpoint without scrolling through 20 rows — either via search, grouping, or clear column sorting. If no such affordance exists, note whether it would be valuable.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Endpoint Access Tab",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the Endpoint Access tab",
+      "HumanAction": "Use this row for any unscripted feedback about the Endpoint Access tab.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Control Permissions Tab",
+      "Subarea": "Control List",
+      "ItemLabel": "All five registered controls appear with page context",
+      "HumanAction": "Open the Control Permissions tab. Confirm: CreateProductButton (/products), EditPriceButton (/products), DeleteCustomerButton (/customers), DeleteOrderButton (/orders), UpdateStatusButton (/orders).",
+      "Expectation": "All 5 controls are shown with both PageKey and ControlKey visible. The triplet (Enabled / Disabled / Hidden) is clearly rendered per role per control.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Control Permissions Tab",
+      "Subarea": "State Semantics",
+      "ItemLabel": "Enabled / Disabled / Hidden meanings are clear",
+      "HumanAction": "Look at the state cells — are the three states visually distinguishable and intuitively labeled? Compare EditPriceButton (BackofficeUser=Disabled) vs CreateProductButton (BackofficeUser=Hidden).",
+      "Expectation": "The three states are visually distinct (color, icon, or text). A reviewer can tell the difference between 'user sees a disabled button' and 'user does not see the button at all' without reading documentation.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Control Permissions Tab",
+      "Subarea": "Runtime Change",
+      "ItemLabel": "Hiding a control takes effect immediately",
+      "HumanAction": "Change DeleteOrderButton for BackofficeUser from Hidden to Enabled. Save. In a second tab as jdoe@acmecoffee.com, open an order and check for the delete button. Restore to Hidden when done.",
+      "Expectation": "The save is acknowledged. The second-tab user sees the delete button after refresh. After reverting, the button is hidden again. The Web app's security-config.json reflects the final state.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Control Permissions Tab",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the Control Permissions tab",
+      "HumanAction": "Use this row for any unscripted feedback about the Control Permissions tab.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Row Filters Tab",
+      "Subarea": "Existing Filter Display",
+      "ItemLabel": "Customer row filter on Order is shown clearly",
+      "HumanAction": "Open the Row Filters tab. Find the Customer role filter on the Order entity.",
+      "Expectation": "One filter is shown: Entity=Order, Role=Customer, Expression='CustomerId == @CurrentUserId', Description='Customers see only their own orders.' The expression is rendered in a monospace or readable format. The description is visible without scrolling.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Row Filters Tab",
+      "Subarea": "Add and Edit",
+      "ItemLabel": "Adding a new row filter is intuitive",
+      "HumanAction": "Attempt to add a new row filter (e.g., BackofficeUser on Customer with expression 'IsActive == true'). Use the form. Cancel without saving — no new filter should persist.",
+      "Expectation": "The add flow is findable. Entity, Role, Expression, and Description fields are labeled and validated. Cancel leaves the list unchanged. If there is any syntax validation on the expression, the message is readable.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Row Filters Tab",
+      "Subarea": "Customer-scoped Query Behavior",
+      "ItemLabel": "Customer persona sees only their own orders",
+      "HumanAction": "In a second tab as james.smith@example.com (Customer), navigate to /orders. Compare to the SystemAdmin view of /orders.",
+      "Expectation": "The Customer sees only orders where they are the customer. The row filter is demonstrably enforced end-to-end. The admin view shows all orders. Note whether the filter behavior matches what a reviewer would expect from the expression shown in the tab.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Row Filters Tab",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the Row Filters tab",
+      "HumanAction": "Use this row for any unscripted feedback about the Row Filters tab.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "User Assignments Tab",
+      "Subarea": "User List",
+      "ItemLabel": "Seeded users appear with their roles",
+      "HumanAction": "Open the User Assignments tab. Look for the seeded users: admin@acmecoffee.com, jdoe@acmecoffee.com, asmith@acmecoffee.com, mwilson@acmecoffee.com, kbrown@acmecoffee.com, tjones@acmecoffee.com, sloane.reyes@acmecoffee.com, casey.hart@acmecoffee.com, and any retail @example.com users (e.g., james.smith@example.com).",
+      "Expectation": "All seeded users are listed with their role memberships and those memberships match the seed: admin = SystemAdmin; jdoe/asmith/mwilson = BackofficeUser; kbrown/tjones = BackofficeUserAdmin; sloane.reyes = BackofficeUser in the internal organization plus BackofficeUserAdmin across multiple retail-business organizations (regional sales rep scope); casey.hart = BackofficeUser in the internal organization plus Customer in a retail organization (dual-membership bridge); @example.com users = Customer. Columns are readable and the organization scope for each role assignment is visible or reachable.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "User Assignments Tab",
+      "Subarea": "Role Assignment Editing",
+      "ItemLabel": "Assigning and removing a role works and persists",
+      "HumanAction": "Pick a low-risk test user (jdoe). Grant them the BackofficeUserAdmin role. Save. Have jdoe sign in again in a second tab and confirm elevated access. Remove the role when done.",
+      "Expectation": "Grant and revoke controls are obvious. The change persists after refresh. The second-tab user sees elevated nav items after re-authenticating. After revocation, access reverts. The user-roles store reflects the final state.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "User Assignments Tab",
+      "Subarea": "Search and Scale",
+      "ItemLabel": "User list handles search and larger volumes gracefully",
+      "HumanAction": "If a search/filter exists, try searching by partial email. If the list grows beyond one screen, scroll. Observe how paging or virtualization is handled.",
+      "Expectation": "Search or filter narrows the list promptly. No frozen UI, no silent failure on empty results. Empty-state text is helpful. If there is no search, note whether it would be valuable for larger tenants.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "User Assignments Tab",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for the User Assignments tab",
+      "HumanAction": "Use this row for any unscripted feedback about the User Assignments tab.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Persistence Round-Trip",
+      "ItemLabel": "Changes survive a browser refresh and app restart",
+      "HumanAction": "Make a benign edit in two different tabs (e.g., a role description and a page permission). Refresh the browser, then stop and restart the Web app. Reopen the dashboard.",
+      "Expectation": "All changes are still present after refresh and restart. The security-config.json file on disk contains the updated state. Revert any benign edits after verification.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Feedback and Errors",
+      "ItemLabel": "Save and error messaging feel trustworthy",
+      "HumanAction": "Trigger at least one error path: attempt to save an invalid role name, or cancel a dialog mid-edit. Note the visual and textual feedback.",
+      "Expectation": "Errors are surfaced clearly (toast, inline message, or dialog). Success confirmations are brief and non-blocking. No silent failures. Nothing relies on the user noticing a row changed color.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Keyboard and Accessibility",
+      "ItemLabel": "Dashboard is operable via keyboard",
+      "HumanAction": "Starting at the tab strip, Tab through each tab and into its content. Try to toggle a permission, open a dialog, and save with Enter.",
+      "Expectation": "Focus is clearly visible at every stop. Tab order is logical. Dialogs trap focus until dismissed. No keyboard traps. No action requires a mouse-only affordance.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Responsive Behavior",
+      "ItemLabel": "Dashboard behaves reasonably at narrower widths",
+      "HumanAction": "Resize the browser to roughly tablet width (~900 px). Re-run a quick pass of the Page Access and Entity Access tabs.",
+      "Expectation": "Matrices either adapt (wrap, horizontal scroll within the tab) or gracefully degrade. Headers remain visible. The tab strip does not overflow in a broken way.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Presentation Readiness",
+      "ItemLabel": "Would you demo this to a stakeholder today?",
+      "HumanAction": "Step back and consider the dashboard as a whole. Imagine walking a stakeholder through each tab.",
+      "Expectation": "The dashboard feels polished, coherent, and trustworthy end to end. You are comfortable demoing it without preamble or excuses.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback across the whole dashboard",
+      "HumanAction": "Use this row for anything cross-cutting that did not fit in a specific tab's feedback.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    }
+  ]
+}
