@@ -264,3 +264,60 @@ Use this structure for new entries:
   `CellStyle="text-align:right" HeaderStyle="text-align:right"` to currency,
   numeric, and date columns. Consider encoding this as a team convention or
   helper so it is not forgotten per-page.
+
+## Test-Auth Sign-In Helpers Must Leave The Page On An App Route
+
+- **Context:** Playwright fixture helper `SeededSignInAsync` that authenticates
+  through a JSON-returning `/test-auth/seeded-session` endpoint
+- **Failure or friction:** Six Playwright tests timed out waiting for drawer
+  text because `SeededSignInAsync` left the page on the raw JSON response.
+  Any subsequent `NavigateViaDrawerAsync` or other shell interaction had no
+  drawer to find. Tests that happened to call `GotoAsync("/dashboard")` right
+  after sign-in masked the problem; tests that trusted the helper were broken.
+- **Lesson:** Sign-in helpers that rely on a JSON-returning endpoint must end
+  on an app route, otherwise the helper is not self-sufficient and every
+  caller has to remember a follow-up navigation. Test flakiness and timeouts
+  that point at shell elements should first confirm the page is actually on
+  the app, not on a helper endpoint.
+- **Action for future sessions:** When authoring or auditing a sign-in /
+  impersonation helper, add an explicit `GotoAsync` to a known app route at
+  the end so callers can interact with the shell immediately. Prefer "helpers
+  leave the browser where a real user would be" as a design rule.
+
+## MudForm Does Not Invalidate Required-But-Untouched Fields On Load
+
+- **Context:** `ParameterPromptForm` in Dabbler.Reports.Blazor with required
+  DatePicker parameters bound through `MudForm.IsValid`
+- **Failure or friction:** `MudForm` treated required fields as valid until
+  something triggered validation, so the "Run Report" button stayed enabled
+  when required dates were empty. The button's disabled state was driven by
+  `IsValid`, which was `true` on initial render because no validation pass
+  had been invoked yet.
+- **Lesson:** If a button's enablement depends on `IsValid` and required
+  fields can be empty on load, the form needs an explicit `Validate()` call
+  on first render so `IsValid` reflects the real state instead of the pristine
+  default.
+- **Action for future sessions:** When binding `MudForm.IsValid` to a gate
+  for submit/run actions, call `_form.Validate()` in
+  `OnAfterRenderAsync(firstRender: true)`. Add a test that asserts the submit
+  button is disabled before any user interaction when required fields are
+  empty.
+
+## Bounding-Box Assertions Do Not Account For Padding-Based Layout Offsets
+
+- **Context:** `AssertLayoutSpacingAsync` Playwright helper that previously
+  compared the app bar's bounding box to `MudMainContent`'s bounding box
+- **Failure or friction:** The assertion `appBarBox.Y < mainContentBox.Y`
+  consistently failed because `MudMainContent` clears the fixed app bar with
+  top padding (`pt-16`) instead of a top margin. Its bounding box legitimately
+  starts at Y=0, the same as the app bar. The visual layout was correct; the
+  assertion was checking the wrong thing.
+- **Lesson:** Bounding-box assertions don't see padding. When a layout offsets
+  content with padding instead of margin, an "element X is below element Y"
+  check has to measure the first visible child inside the padded container,
+  not the container itself.
+- **Action for future sessions:** For "header clears content" style assertions,
+  locate the first visible child (heading, card, paper) inside the main
+  content area and compare its Y to `appBar.Y + appBar.Height`. Avoid naive
+  box-to-box comparisons when one of the elements uses padding to offset its
+  inner content.
