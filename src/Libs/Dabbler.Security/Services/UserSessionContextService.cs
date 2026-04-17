@@ -123,18 +123,27 @@ public sealed class UserSessionContextService : IUserSessionContextService
 
     private readonly DabblerSecurityDbContext _db;
     private readonly DabblerSecurityOptions _options;
+    private readonly IUserRoleStore? _userRoleStore;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserSessionContextService"/> class.
     /// </summary>
     /// <param name="db">The security DbContext.</param>
     /// <param name="optionsAccessor">The security options.</param>
+    /// <param name="userRoleStore">
+    /// Optional string-keyed role store. When registered (via <c>UseJsonFileStore</c> or
+    /// <c>UseEfCoreStore</c>), its assignments are merged into the effective roles so that
+    /// admin UI edits through <see cref="IUserRoleStore"/> are reflected in the claims
+    /// built for the next authenticated request.
+    /// </param>
     public UserSessionContextService(
         DabblerSecurityDbContext db,
-        IOptions<DabblerSecurityOptions> optionsAccessor)
+        IOptions<DabblerSecurityOptions> optionsAccessor,
+        IUserRoleStore? userRoleStore = null)
     {
         _db = db;
         _options = optionsAccessor.Value;
+        _userRoleStore = userRoleStore;
     }
 
     /// <inheritdoc />
@@ -173,6 +182,14 @@ public sealed class UserSessionContextService : IUserSessionContextService
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
+        // Also load assignments from the string-keyed role store (populated by the admin
+        // UI via IUserRoleStore). These are treated as global assignments for claim purposes
+        // and are included in isSystemAdmin so a user elevated through the admin UI can
+        // actually exercise SystemAdmin behavior (including cross-organization access).
+        var storeRoles = _userRoleStore is null
+            ? (IReadOnlyList<string>)[]
+            : await _userRoleStore.GetRolesAsync(user.Id.ToString(), ct);
+
         var availableOrganizations = memberships
             .Select(membership => new UserSessionOrganization(
                 membership.OrganizationId,
@@ -192,7 +209,8 @@ public sealed class UserSessionContextService : IUserSessionContextService
                     .ToArray()))
             .ToList();
 
-        var isSystemAdmin = globalRoles.Contains(SystemAdminRoleName, StringComparer.OrdinalIgnoreCase);
+        var isSystemAdmin = globalRoles.Contains(SystemAdminRoleName, StringComparer.OrdinalIgnoreCase)
+            || storeRoles.Contains(SystemAdminRoleName, StringComparer.OrdinalIgnoreCase);
         var activeOrganization = await ResolveActiveOrganizationAsync(
             requestedOrganizationId,
             memberships,
@@ -211,6 +229,11 @@ public sealed class UserSessionContextService : IUserSessionContextService
             {
                 effectiveRoles.Add(roleName);
             }
+        }
+
+        foreach (var roleName in storeRoles)
+        {
+            effectiveRoles.Add(roleName);
         }
 
         if (memberships.Count == 0 && effectiveRoles.Count == 0)

@@ -6,6 +6,7 @@ using Dabbler.Security.Configuration;
 using Dabbler.Security.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using MudBlazor;
 
 namespace Dabbler.Security.Blazor.Tests.Components.Admin;
 
@@ -129,6 +130,50 @@ public class DabblerUserRoleManagerTests
         // Verify the user row and role store are present
         cut.Markup.Should().Contain("Alice");
         roleStore.Verify(s => s.GetAllAsync(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task SelectingSystemAdminAndClickingAdd_PersistsElevationAndRendersChip()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles =
+            [
+                new RoleDefinition { RoleName = "BackofficeUser" },
+                new RoleDefinition { RoleName = "SystemAdmin" }
+            ]
+        };
+        var (manager, _) = BuildManager(config);
+        var userList = BuildUserList(new UserSummary("42", "Jordan Ellis", "jdoe@acmecoffee.com"));
+        var roleStore = BuildRoleStore(new Dictionary<string, List<string>>
+        {
+            ["42"] = ["BackofficeUser"]
+        });
+
+        ctx.SetupForDabbler(
+            roles: ["SystemAdmin"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(userList.Object);
+                svc.AddSingleton(roleStore.Object);
+            });
+
+        var cut = ctx.RenderComponent<DabblerUserRoleManager>();
+        await cut.InvokeAsync(() => Task.CompletedTask);
+
+        var select = cut.FindComponent<MudSelect<string>>();
+        await cut.InvokeAsync(async () => await select.Instance.ValueChanged.InvokeAsync("SystemAdmin"));
+
+        var addButton = cut.Find("button[aria-label*='Add selected role to Jordan Ellis']");
+        addButton.HasAttribute("disabled").Should().BeFalse();
+        await cut.InvokeAsync(() => addButton.ClickAsync(new()));
+
+        roleStore.Verify(
+            s => s.AddRoleAsync("42", "SystemAdmin", It.IsAny<CancellationToken>()),
+            Times.Once);
+        cut.Markup.Should().Contain("SystemAdmin");
     }
 
     [Fact]

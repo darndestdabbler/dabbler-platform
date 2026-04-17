@@ -188,6 +188,103 @@
           "costUsd": 0.32223
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/repro",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Read spec + planning docs. Reproduced the UAT claim by tracing the admin UI path: DabblerUserRoleManager.AddRoleAsync -> IUserRoleStore -> JsonFileUserRoleStore (user-roles.json); sign-in path: UserSessionContextService.BuildAsync reads roles only from AppUserRoles navigation. The two stores never sync.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/root-cause",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Root cause: UserSessionContextService.BuildAsync ignores IUserRoleStore. Host app is configured with UseJsonFileStore (writing to user-roles.json). Admin elevations persist to user-roles.json but are never merged into the claims built for the target user on next sign-in, so the elevated user still lacks the role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/fix",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Injected IUserRoleStore (optional) into UserSessionContextService. BuildAsync now loads the user roles from the store keyed by user.Id.ToString() and merges them into effectiveRoles. Promoted isSystemAdmin to also consider store-sourced SystemAdmin assignments so a store-elevated admin can cross-org target like a seed-admin. InternalUserMiddleware and all CreatePrincipalAsync callers inherit the fix through BuildAsync.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/bunit",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Added bUnit test SelectingSystemAdminAndClickingAdd_PersistsElevationAndRendersChip to DabblerUserRoleManagerTests: renders the component for Jordan Ellis, drives MudSelect ValueChanged to SystemAdmin, clicks the Add button, verifies IUserRoleStore.AddRoleAsync(userId, SystemAdmin) was invoked and that the SystemAdmin chip appears in the row markup.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/integration-test",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Added tests/Dabbler.Security.Tests/Persistence/EfCoreUserRoleStoreTests.cs covering AddRoleAsync/GetRolesAsync/GetAllAsync/RemoveRoleAsync round-trip against the AppUserRoleAssignments table. Extended UserSessionContextServiceTests with three cases: store roles merge into EffectiveRoles; store-elevated SystemAdmin can target an organization without membership; CreatePrincipalAsync stamps store roles as ClaimTypes.Role claims.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/playwright",
+      "dateTime": "2026-04-17T19:54:26.028297+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUserAssignmentsTests.cs. As admin, navigates /admin/security, opens the User Assignments tab, picks SystemAdmin for Jordan Ellis from the MudSelect popover, clicks the add icon, asserts the chip appears, then seeded-signs-in Jordan in a second page and asserts SessionInfo.Roles contains SystemAdmin. Baseline-and-cleanup bookends confirm the role is absent before elevation and removed after (via the MudChip close button).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-17T19:54:26.029396+00:00",
+      "description": "dotnet build: success (0 errors, 1 pre-existing warning in WebGuardrailTests). dotnet test (non-Playwright): 547 passed, 1 pre-existing failure in WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md from commit 8730107, unrelated). Security.Tests: 268 total pass (including 3 new UserSessionContextService merge tests and 4 new EfCoreUserRoleStore tests). Security.Blazor.Tests: 121 total pass (including 1 new DabblerUserRoleManager test).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-17T19:56:06.369906+00:00",
+      "description": "Cross-provider verification via router (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 22440,
+          "outputTokens": 2582,
+          "costUsd": 0.53025
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification-round-2",
+      "dateTime": "2026-04-17T19:57:55.704800+00:00",
+      "description": "Round-2 verification after Playwright setup-guard fix (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 5313,
+          "outputTokens": 1274,
+          "costUsd": 0.17524499999999998
+        }
+      ]
     }
   ]
 }

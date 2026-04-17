@@ -5,6 +5,7 @@ using Dabbler.Security.Options;
 using Dabbler.Security.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace Dabbler.Security.Tests.Services;
 
@@ -12,6 +13,7 @@ public sealed class UserSessionContextServiceTests : IDisposable
 {
     private readonly DabblerSecurityDbContext _db;
     private readonly UserSessionContextService _service;
+    private readonly Mock<IUserRoleStore> _userRoleStoreMock;
 
     public UserSessionContextServiceTests()
     {
@@ -20,13 +22,18 @@ public sealed class UserSessionContextServiceTests : IDisposable
             .Options;
 
         _db = new DabblerSecurityDbContext(options);
+        _userRoleStoreMock = new Mock<IUserRoleStore>();
+        _userRoleStoreMock
+            .Setup(s => s.GetRolesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string>)[]);
         _service = new UserSessionContextService(
             _db,
             Microsoft.Extensions.Options.Options.Create(new DabblerSecurityOptions
             {
                 DefaultOrganizationKey = "internal",
                 DefaultOrganizationName = "Internal Operations"
-            }));
+            }),
+            _userRoleStoreMock.Object);
     }
 
     [Fact]
@@ -124,6 +131,65 @@ public sealed class UserSessionContextServiceTests : IDisposable
         sessionContext.ActiveOrganizationMembershipId.Should().BeNull();
         sessionContext.ActiveCustomerId.Should().Be(77);
         sessionContext.EffectiveRoles.Should().Contain("SystemAdmin");
+    }
+
+    [Fact]
+    public async Task BuildAsync_MergesRolesFromUserRoleStore()
+    {
+        var (user, _, _) = await SeedDualMembershipUserAsync();
+
+        _userRoleStoreMock
+            .Setup(s => s.GetRolesAsync(user.Id.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string>)["SystemAdmin"]);
+
+        var sessionContext = await _service.BuildAsync(user.Id);
+
+        sessionContext.Should().NotBeNull();
+        sessionContext!.EffectiveRoles.Should().Contain("SystemAdmin");
+        sessionContext.EffectiveRoles.Should().Contain("BackofficeUser");
+    }
+
+    [Fact]
+    public async Task BuildAsync_StoreElevatedSystemAdminCanTargetAnyOrganization()
+    {
+        var (user, _, retailOrganization) = await SeedDualMembershipUserAsync();
+        var outsideOrganization = new AppOrganization
+        {
+            Id = 99,
+            Key = "customer-99",
+            Name = "Outside Retail",
+            IsInternal = false,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        _db.AppOrganizations.Add(outsideOrganization);
+        await _db.SaveChangesAsync();
+
+        _userRoleStoreMock
+            .Setup(s => s.GetRolesAsync(user.Id.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string>)["SystemAdmin"]);
+
+        var sessionContext = await _service.BuildAsync(user.Id, outsideOrganization.Id);
+
+        sessionContext.Should().NotBeNull();
+        sessionContext!.ActiveOrganizationId.Should().Be(outsideOrganization.Id);
+        sessionContext.ActiveOrganizationMembershipId.Should().BeNull();
+        sessionContext.EffectiveRoles.Should().Contain("SystemAdmin");
+    }
+
+    [Fact]
+    public async Task CreatePrincipalAsync_StampsStoreRolesAsClaims()
+    {
+        var (user, _, _) = await SeedDualMembershipUserAsync();
+
+        _userRoleStoreMock
+            .Setup(s => s.GetRolesAsync(user.Id.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string>)["SystemAdmin"]);
+
+        var principal = await _service.CreatePrincipalAsync(user.Id);
+
+        principal.Should().NotBeNull();
+        principal!.FindAll(ClaimTypes.Role).Select(claim => claim.Value).Should().Contain("SystemAdmin");
     }
 
     public void Dispose()
