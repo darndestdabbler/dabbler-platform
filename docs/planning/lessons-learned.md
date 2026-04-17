@@ -321,3 +321,42 @@ Use this structure for new entries:
   content area and compare its Y to `appBar.Y + appBar.Height`. Avoid naive
   box-to-box comparisons when one of the elements uses padding to offset its
   inner content.
+
+## Send Related Files To The Cross-Provider Verifier Or Disclaim What Is Out Of Scope
+
+- **Context:** End-of-session cross-provider verification via the AI router
+- **Failure or friction:** Round-1 verification produced two false positives
+  (one Critical, one Major) claiming that `GET`, `PUT`, and `DELETE`
+  note-endpoint actions were missing from `OrdersController.cs`. They
+  actually live in a sibling `OrderNotesController.cs` that was not included
+  in the verification prompt.
+- **Lesson:** The verifier only sees what the prompt includes. If the session
+  touches one file in a conceptual area (e.g., orders CRUD), related files
+  in the same area should be supplied too, or the prompt should explicitly
+  say "notes CRUD lives in `OrderNotesController.cs` and is not being
+  changed this session" so the verifier does not hallucinate missing code.
+- **Action for future sessions:** Before calling the router for verification,
+  list related files the verifier might reasonably look for and either
+  include them or add a "files not in scope but present in the repo"
+  section to the prompt.
+
+## Hard-Asserted Disabled-State Tests Become Regressions When The Feature Gets Enabled
+
+- **Context:** Two pre-existing Playwright tests asserted SystemAdmin saw no
+  status-transition buttons, no "Add Product" button, and no "Add Note"
+  button on the Order detail page because `OrderDetailPage.razor` rendered
+  with `IsReadOnly="true"`.
+- **Failure or friction:** When the session fix flipped `IsReadOnly` to
+  `false`, those tests silently inverted from safeguards into guaranteed
+  regressions. They had to be rewritten during verification-driven repair
+  rather than catching a real defect.
+- **Lesson:** A test that asserts a control is absent under a feature flag
+  or parameter is only durable when it signs in as the role that genuinely
+  gets that absent state. Asserting "SystemAdmin cannot see X" is not a
+  stable assertion if the product direction for SystemAdmin is to see X.
+- **Action for future sessions:** When writing "disabled state" or "hidden
+  control" tests, sign in as the role whose product definition mandates
+  that state (for order edit, that is `Customer`, not `SystemAdmin`).
+  Complement with a positive-path test that confirms a privileged role
+  does see the control. Flag any disabled-state test that uses a
+  privileged role as a maintenance risk.
