@@ -16,34 +16,23 @@ html, body {
 
 .user-context-bar {
     flex-wrap: nowrap;
-    min-width: 0;
-    max-width: 100%;
+    white-space: nowrap;
 }
 
 .user-context-bar .user-context-name,
+.user-context-bar .user-context-role,
 .user-context-bar .user-context-org {
-    max-width: 18ch;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.user-context-bar .user-context-role {
-    white-space: nowrap;
+.user-context-bar a.mud-link:hover,
+.user-context-bar a.mud-link:focus-visible {
+    color: #1976D2;
 }
 
-@media (max-width: 960px) {
-    .user-context-bar .user-context-name,
-    .user-context-bar .user-context-org {
-        max-width: 12ch;
-    }
-}
-
-@media (max-width: 600px) {
-    .user-context-bar .user-context-name,
-    .user-context-bar .user-context-org {
-        max-width: 8ch;
-    }
+.user-context-bar .mud-link-disabled {
+    text-decoration: none;
+    cursor: default;
 }
 
 /* ── Standalone stub shell ───────────────────────────────────────────────── */

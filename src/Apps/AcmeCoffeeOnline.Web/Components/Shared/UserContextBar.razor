@@ -5,7 +5,7 @@
      role="group"
      aria-label="User context">
     <MudLink Color="Color.Inherit"
-             Underline="Underline.Hover"
+             Underline="Underline.Always"
              OnClick="OpenSignOutDialogAsync"
              Class="user-context-name"
              UserAttributes="@_userLinkAttributes">@_userName</MudLink>
@@ -20,7 +20,7 @@
                  Dense="true">
             <ActivatorContent>
                 <MudLink Color="Color.Inherit"
-                         Underline="Underline.Hover"
+                         Underline="Underline.Always"
                          Class="user-context-role"
                          UserAttributes="@_roleLinkAttributes">@_activeRoleDisplay</MudLink>
             </ActivatorContent>
@@ -58,7 +58,7 @@
                  Dense="true">
             <ActivatorContent>
                 <MudLink Color="Color.Inherit"
-                         Underline="Underline.Hover"
+                         Underline="Underline.Always"
                          Class="user-context-org"
                          UserAttributes="@_orgLinkAttributes">@_activeOrganizationName</MudLink>
             </ActivatorContent>

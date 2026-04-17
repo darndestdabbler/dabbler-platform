@@ -207,24 +207,6 @@ public sealed class UserContextBarTests : TestContext
     }
 
     [Fact]
-    public void UserAndOrgLinks_ExposeTitleAttribute_ForHoverTooltip()
-    {
-        RegisterSecurityConfig(new RoleSwitchingPermission { AllowedRoles = [] });
-
-        var cut = RenderBar(
-            userName: "Casey Hart",
-            userRoles: ["SystemAdmin"],
-            activeOrgName: "Internal Operations",
-            organizationOptions: SingleOrg("internal", "Internal Operations"));
-
-        var userLink = cut.Find("[data-testid='user-context-user']");
-        Assert.Equal("Casey Hart", userLink.GetAttribute("title"));
-
-        var orgLink = cut.Find("[data-testid='active-organization-label']");
-        Assert.Equal("Internal Operations", orgLink.GetAttribute("title"));
-    }
-
-    [Fact]
     public void Links_ExposeSpecSentenceAriaLabels()
     {
         RegisterSecurityConfig(new RoleSwitchingPermission
@@ -292,7 +274,7 @@ public sealed class UserContextBarTests : TestContext
     }
 
     [Fact]
-    public void Links_CarryResponsiveCssClasses_ForTruncation()
+    public void Links_CarryCssHookClasses_ForStyling()
     {
         RegisterSecurityConfig(new RoleSwitchingPermission
         {
@@ -313,6 +295,48 @@ public sealed class UserContextBarTests : TestContext
 
         var orgLink = cut.Find("[data-testid='active-organization-label']");
         Assert.Contains("user-context-org", orgLink.GetAttribute("class") ?? string.Empty);
+    }
+
+    [Fact]
+    public void EnabledLinks_UseAlwaysUnderlineVariant()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission
+        {
+            AllowedRoles = ["SystemAdmin", "BackofficeUserAdmin"]
+        });
+
+        var cut = RenderBar(
+            userName: "Casey Hart",
+            userRoles: ["SystemAdmin"],
+            activeOrgName: "Internal Operations",
+            organizationOptions: TwoOrgs(activeName: "Internal Operations"));
+
+        // MudLink with Underline.Always renders class "mud-link-underline-always"
+        foreach (var testId in new[] { "user-context-user", "user-context-role", "active-organization-label" })
+        {
+            var link = cut.Find($"[data-testid='{testId}']");
+            var classes = link.GetAttribute("class") ?? string.Empty;
+            Assert.Contains("mud-link-underline-always", classes);
+        }
+    }
+
+    [Fact]
+    public void DisabledLinks_UseNoneUnderlineVariant()
+    {
+        RegisterSecurityConfig(new RoleSwitchingPermission { AllowedRoles = [] });
+
+        var cut = RenderBar(
+            userName: "Jamie Retail",
+            userRoles: ["Customer"],
+            activeOrgName: "Jamie's Coffee Shop",
+            organizationOptions: SingleOrg("jamies", "Jamie's Coffee Shop"));
+
+        foreach (var testId in new[] { "user-context-role", "active-organization-label" })
+        {
+            var link = cut.Find($"[data-testid='{testId}']");
+            var classes = link.GetAttribute("class") ?? string.Empty;
+            Assert.Contains("mud-link-underline-none", classes);
+        }
     }
 
     [Fact]
