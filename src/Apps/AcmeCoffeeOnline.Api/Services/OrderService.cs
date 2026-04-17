@@ -312,24 +312,18 @@ public class OrderService : IOrderService
 
     private IQueryable<Order> ApplyRowFilter(IQueryable<Order> query)
     {
-        if (_currentUser.Role == Shared.Enums.UserRole.SystemAdmin)
+        // Internal staff (BackofficeUser and above) see all orders.
+        // Matches the security-config row filter: only Customer is scoped.
+        if (_currentUser.Role >= Shared.Enums.UserRole.BackofficeUser)
         {
             return query;
         }
 
-        if (_currentUser.ActiveOrganizationId.HasValue)
-        {
-            return _currentUser.CustomerId.HasValue
-                ? query.Where(o => o.CustomerId == _currentUser.CustomerId.Value)
-                : query.Where(_ => false);
-        }
-
-        if (_currentUser.Role == Shared.Enums.UserRole.Customer && _currentUser.CustomerId.HasValue)
-        {
-            return query.Where(o => o.CustomerId == _currentUser.CustomerId.Value);
-        }
-
-        return query;
+        // Customer role: own orders only. Deny-all when the customer identity
+        // cannot be resolved — safer than leaking every customer's orders.
+        return _currentUser.CustomerId.HasValue
+            ? query.Where(o => o.CustomerId == _currentUser.CustomerId.Value)
+            : query.Where(_ => false);
     }
 
     private static bool IsValidTransition(OrderStatus current, OrderStatus next)

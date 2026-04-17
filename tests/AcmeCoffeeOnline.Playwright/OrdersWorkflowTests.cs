@@ -44,6 +44,30 @@ public sealed class OrdersWorkflowTests
     // ── Orders List Tests ──────────────────────────────────────────────
 
     [Fact]
+    public async Task OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "jdoe@acmecoffee.com");
+            await _fixture.NavigateViaDrawerAsync(page, "Orders", ".*/orders$");
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            var rowCount = await PlaywrightFixture.GetGridRowCountAsync(page);
+            Assert.True(
+                rowCount > 0,
+                $"BackofficeUser jdoe@acmecoffee.com should see seeded orders, got {rowCount} rows.");
+
+            await Assertions.Expect(page.GetByText(new Regex(@"\d+ records"))).ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    [Fact]
     public async Task OrdersList_LoadsWithDataAndColumnsVisibleAsync()
     {
         var page = await _fixture.CreatePageAsync();

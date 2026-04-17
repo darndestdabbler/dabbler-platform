@@ -1,0 +1,87 @@
+{
+  "sessionSetName": "security-dashboard-behavioral-fixes",
+  "createdDate": "2026-04-17T19:09:21.092700+00:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/repro",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Read spec, planning docs, and Orders-related code; identified that jdoe signs into the internal org as BackofficeUser and ApplyRowFilter returns Where(_=>false) when ActiveOrganizationId.HasValue and CustomerId is null.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/trace",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Traced row-filter pipeline: IRowFilterService is registered but unused; OrderService.ApplyRowFilter hardcodes logic that filters by CustomerId when any ActiveOrganizationId is set, regardless of role. CurrentUserService.Role returns highest role from claims.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/decision",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Confirmed rule from config and role description: Customer -> own orders only; BackofficeUser and above -> all orders. Matches security-config.json RowFilters which only scopes the Customer role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/fix",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Rewrote OrderService.ApplyRowFilter to key off role only: Role >= BackofficeUser -> pass-through; Customer with CustomerId -> filter; Customer with no CustomerId -> deny-all. Removes the ActiveOrganizationId.HasValue branch that caused the bug.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/integration-test",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Api.Tests/OrderVisibilityTests.cs with three real-DB cases: BackofficeUser jdoe sees total order count; Customer sees only own orders; SystemAdmin sees all.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/playwright",
+      "dateTime": "2026-04-17T19:15:35.260754+00:00",
+      "description": "Added OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync to OrdersWorkflowTests.cs exercising the drawer-driven nav as jdoe.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-17T19:17:39.243217+00:00",
+      "description": "dotnet build: success (0 warnings, 0 errors). dotnet test: 561 passed; one pre-existing failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates references docs/workflow-auth-observability.md which was removed in commit 8730107 and is unrelated to this session). All 3 new OrderVisibilityTests pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-17T19:19:48.497956+00:00",
+      "description": "Cross-provider verification via router (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 16252,
+          "outputTokens": 1307,
+          "costUsd": 0.341805
+        }
+      ]
+    }
+  ]
+}
