@@ -72,9 +72,11 @@
     private async Task OpenAddDialogAsync()
     {
         var availableRoles = _roles.Select(r => r.RoleName).ToList();
+        var existingRoleNames = _roles.Select(r => r.RoleName).ToList();
         var parameters = new DialogParameters<RoleFormDialog>
         {
-            { x => x.AvailableRoles, availableRoles }
+            { x => x.AvailableRoles, availableRoles },
+            { x => x.ExistingRoleNames, existingRoleNames }
         };
 
         var dialog = await DialogService.ShowAsync<RoleFormDialog>("Add Role", parameters,
@@ -90,13 +92,15 @@
     private async Task OpenEditDialogAsync(RoleDefinition role)
     {
         var availableRoles = _roles.Where(r => r.RoleName != role.RoleName).Select(r => r.RoleName).ToList();
+        var existingRoleNames = _roles.Select(r => r.RoleName).ToList();
         var parameters = new DialogParameters<RoleFormDialog>
         {
             { x => x.RoleName, role.RoleName },
             { x => x.Description, role.Description },
             { x => x.InheritsFrom, role.InheritsFrom },
             { x => x.IsEdit, true },
-            { x => x.AvailableRoles, availableRoles }
+            { x => x.AvailableRoles, availableRoles },
+            { x => x.ExistingRoleNames, existingRoleNames }
         };
 
         var dialog = await DialogService.ShowAsync<RoleFormDialog>("Edit Role", parameters,

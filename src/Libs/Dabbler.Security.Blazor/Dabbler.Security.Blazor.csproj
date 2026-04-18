@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Dabbler.Security\Dabbler.Security.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dabbler.Security.Blazor.Tests" />
+  </ItemGroup>
+
 </Project>

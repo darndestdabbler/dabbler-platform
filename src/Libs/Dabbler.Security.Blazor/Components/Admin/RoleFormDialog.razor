@@ -6,6 +6,13 @@
         <MudText Typo="Typo.h6">@(IsEdit ? "Edit Role" : "Add Role")</MudText>
     </TitleContent>
     <DialogContent>
+        @if (_duplicateNameError)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-2"
+                      data-testid="role-form-duplicate-alert">
+                A role with this name already exists.
+            </MudAlert>
+        }
         <MudTextField T="string"
                       @ref="_roleNameField"
                       @bind-Value="RoleName"
@@ -28,7 +35,8 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save"
+                   data-testid="role-form-save">Save</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -41,9 +49,11 @@
     [Parameter] public string? InheritsFrom { get; set; }
     [Parameter] public bool IsEdit { get; set; }
     [Parameter] public List<string> AvailableRoles { get; set; } = [];
+    [Parameter] public List<string> ExistingRoleNames { get; set; } = [];
     [Parameter] public string RoleNameError { get; set; } = string.Empty;
 
     private MudTextField<string>? _roleNameField;
+    private bool _duplicateNameError;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -56,12 +66,45 @@
 
     private void Cancel() => MudDialog.Cancel();
 
-    private void Save() => MudDialog.Close(DialogResult.Ok(new RoleFormResult
+    internal void Save()
     {
-        RoleName = RoleName,
-        Description = Description,
-        InheritsFrom = string.IsNullOrWhiteSpace(InheritsFrom) ? null : InheritsFrom
-    }));
+        if (IsDuplicateRoleName(RoleName, IsEdit, ExistingRoleNames))
+        {
+            _duplicateNameError = true;
+            StateHasChanged();
+            return;
+        }
+
+        _duplicateNameError = false;
+        MudDialog.Close(DialogResult.Ok(new RoleFormResult
+        {
+            RoleName = RoleName,
+            Description = Description,
+            InheritsFrom = string.IsNullOrWhiteSpace(InheritsFrom) ? null : InheritsFrom
+        }));
+    }
+
+    internal static bool IsDuplicateRoleName(
+        string? candidate,
+        bool isEdit,
+        IEnumerable<string>? existingRoleNames)
+    {
+        if (isEdit || string.IsNullOrWhiteSpace(candidate) || existingRoleNames is null)
+        {
+            return false;
+        }
+
+        var trimmed = candidate.Trim();
+        foreach (var existing in existingRoleNames)
+        {
+            if (!string.IsNullOrEmpty(existing)
+                && string.Equals(existing, trimmed, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public sealed class RoleFormResult
     {

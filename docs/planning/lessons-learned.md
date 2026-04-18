@@ -201,6 +201,14 @@ Use this structure for new entries:
 
 ## UAT Checklists Must Include Explicit Test Data And Search Terms
 
+- **Collapsed to reference on 2026-04-18** (Step 10b reorganization review
+  for the `security-dashboard-polish` session set). The same guidance is
+  already captured — with equivalent specificity — in
+  `project-guidance.md` → Conventions → Human UAT And Checklist Editor:
+  *"Include concrete test data (search terms, entity names, order numbers,
+  seeded emails) in the `HumanAction` field for any step that involves
+  searching, filtering, or selecting by name or ID."* Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Human-executed UAT against the post-rebuild application
 - **Failure or friction:** The UAT checklist asked the reviewer to use search
   widgets and filter panels without specifying what to search for. The reviewer
@@ -330,6 +338,13 @@ Use this structure for new entries:
 
 ## Send Related Files To The Cross-Provider Verifier Or Disclaim What Is Out Of Scope
 
+- **Promoted to:** `project-guidance.md` → Conventions → Workflow Expectations
+  on 2026-04-18 (Step 10b reorganization review for the
+  `security-dashboard-polish` session set). Applied successfully as the right
+  call in two contexts: the original orders/notes incident, and Session 8 of
+  `security-dashboard-polish` where a proactive "Out-of-scope disclosures"
+  section in the round-1 verification prompt kept false positives at zero.
+- **Original entry preserved below for context.**
 - **Context:** End-of-session cross-provider verification via the AI router
 - **Failure or friction:** Round-1 verification produced two false positives
   (one Critical, one Major) claiming that `GET`, `PUT`, and `DELETE`

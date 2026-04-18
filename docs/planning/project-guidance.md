@@ -276,3 +276,8 @@ before proceeding.
   be incorporated into this document.
 - When a failure reveals a reusable strategy, recommend a corresponding
   update to `docs/planning/lessons-learned.md`.
+- Before calling `route(task_type="session-verification")`, include related
+  files the verifier might reasonably look for, or disclose them in an
+  out-of-scope section of the prompt. Missing context produces false positives
+  about "missing" code that actually lives in a sibling file; the verifier
+  only sees what the prompt includes.

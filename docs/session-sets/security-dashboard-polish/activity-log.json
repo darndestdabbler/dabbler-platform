@@ -508,6 +508,120 @@
           "costUsd": 0.187425
         }
       ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 1,
+      "stepKey": "session-8/read-guidance",
+      "dateTime": "2026-04-18T06:28:09.317341+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 2,
+      "stepKey": "session-8/keyboard",
+      "dateTime": "2026-04-18T06:28:09.319371+00:00",
+      "description": "Added arrow-key/Home/End navigation to DabblerSecurityDashboard.razor. Wrapped MudTabs in a div with @onkeydown handler bound to HandleTabKeyDown; @bind-ActivePanelIndex now drives the active tab. NextPanelIndex is a pure internal static so both pure unit tests and bUnit DOM tests can exercise it.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 3,
+      "stepKey": "session-8/error-demo",
+      "dateTime": "2026-04-18T06:28:09.321767+00:00",
+      "description": "Surfaced duplicate-role-name error inline in the Add Role dialog. RoleFormDialog.razor now accepts ExistingRoleNames, validates on Save via IsDuplicateRoleName (case-insensitive + trim), and renders a MudAlert with data-testid=role-form-duplicate-alert without closing the dialog. DabblerRoleManager.razor passes the current role names when opening the Add dialog.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 4,
+      "stepKey": "session-8/bunit-keyboard",
+      "dateTime": "2026-04-18T06:28:09.322743+00:00",
+      "description": "Added DabblerSecurityDashboardKeyboardTests: Theory for NextPanelIndex semantics (ArrowRight/ArrowLeft wraparound, Home, End, unhandled keys) plus bUnit tests that fire @onkeydown on the wrapper div and assert the internal ActivePanelIndex via InternalsVisibleTo.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 5,
+      "stepKey": "session-8/bunit-validation",
+      "dateTime": "2026-04-18T06:28:09.323743+00:00",
+      "description": "Added RoleFormDialogTests + RoleFormDialogHost razor helper that mounts MudDialogProvider in the host render tree, shows RoleFormDialog via IDialogService, clicks Save, and asserts the inline alert appears without closing the dialog. Also covers the edit-mode path where the name matches an existing role without triggering the alert.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 6,
+      "stepKey": "session-8/build-and-test",
+      "dateTime": "2026-04-18T06:28:09.324751+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 2 pre-existing warnings. dotnet test (non-Playwright): all 166 Dabbler.Security.Blazor.Tests pass, all 277 Dabbler.Security.Tests pass. One pre-existing failure in AcmeCoffeeOnline.Web.Tests.WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md \u2014 confirmed present on master before any Session 8 change, unrelated to this session).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 7,
+      "stepKey": "session-8/verification",
+      "dateTime": "2026-04-18T06:31:05.683748+00:00",
+      "description": "Cross-provider verification via opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8513,
+          "outputTokens": 2202,
+          "costUsd": 0.292845
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 8,
+      "stepKey": "session-8/verification-round2",
+      "dateTime": "2026-04-18T06:33:40.538273+00:00",
+      "description": "Round 2 cross-provider verification via opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 7266,
+          "outputTokens": 849,
+          "costUsd": 0.172665
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 9,
+      "stepKey": "session-8/change-log",
+      "dateTime": "2026-04-18T06:35:00.448346+00:00",
+      "description": "Generated change-log.md via gemini-pro.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 10950,
+          "outputTokens": 749,
+          "costUsd": 0.021177500000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 10,
+      "stepKey": "session-8/reorganization",
+      "dateTime": "2026-04-18T07:59:18.551546+00:00",
+      "description": "Step 10b reorganization review: human accepted two proposals. (1) Promoted lessons-learned entry \"Send Related Files To The Cross-Provider Verifier Or Disclaim What Is Out Of Scope\" to project-guidance.md under Conventions -> Workflow Expectations (two-context threshold met: original orders/notes false-positive incident plus proactive out-of-scope disclosures in this session). (2) Collapsed lessons-learned entry \"UAT Checklists Must Include Explicit Test Data And Search Terms\" to a reference pointing at the equivalent Human UAT And Checklist Editor convention. Neither entry was deleted; both were annotated in place.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }
