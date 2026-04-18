@@ -1,3 +1,5 @@
+@using Dabbler.Security.Abstractions
+@using Dabbler.Security.Authorization
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Registration
 @using Dabbler.Security.Services
@@ -25,6 +27,8 @@
     }
     else
     {
+        <InheritedLegend />
+
         <MudTextField @bind-Value="_filter"
                       Placeholder="Filter entities…"
                       Adornment="Adornment.Start"
@@ -84,14 +88,37 @@
                                     </td>
                                     @foreach (var op in _crudOps)
                                     {
+                                        var resolution = ResolveCell(role, entity.Key, op);
+                                        var isInherited = resolution.InheritedFromRole is not null;
+                                        var cellClass = isInherited ? "permission-cell inherited" : "permission-cell";
+                                        var tooltipText = isInherited ? $"inherited from {resolution.InheritedFromRole}" : string.Empty;
                                         <td style="text-align:center; padding-left:2px; padding-right:2px;">
-                                            <MudCheckBox T="bool"
-                                                         Value="@HasOp(role, entity.Key, op)"
-                                                         ValueChanged="@(v => SetOp(role, entity.Key, op, v))"
-                                                         aria-label="@($"{op} permission for {role} on {entity.DisplayName}")"
-                                                         Color="@OpColor(op)"
-                                                         Size="Size.Small"
-                                                         Class="ma-0 pa-0 d-inline-flex" />
+                                            @if (isInherited)
+                                            {
+                                                <MudTooltip Text="@tooltipText">
+                                                    <div class="@cellClass">
+                                                        <MudCheckBox T="bool"
+                                                                     Value="@resolution.HasOp"
+                                                                     ValueChanged="@(v => SetOp(role, entity.Key, op, v))"
+                                                                     aria-label="@($"{op} permission for {role} on {entity.DisplayName} ({tooltipText})")"
+                                                                     Color="@OpColor(op)"
+                                                                     Size="Size.Small"
+                                                                     Class="ma-0 pa-0 d-inline-flex" />
+                                                    </div>
+                                                </MudTooltip>
+                                            }
+                                            else
+                                            {
+                                                <div class="@cellClass">
+                                                    <MudCheckBox T="bool"
+                                                                 Value="@resolution.HasOp"
+                                                                 ValueChanged="@(v => SetOp(role, entity.Key, op, v))"
+                                                                 aria-label="@($"{op} permission for {role} on {entity.DisplayName}")"
+                                                                 Color="@OpColor(op)"
+                                                                 Size="Size.Small"
+                                                                 Class="ma-0 pa-0 d-inline-flex" />
+                                                </div>
+                                            }
                                         </td>
                                     }
                                 </tr>
@@ -115,17 +142,27 @@
     }
 </MudPaper>
 
+<style>
+    .permission-cell.inherited {
+        font-style: italic;
+        opacity: 0.6;
+    }
+</style>
+
 @code {
     /// <summary>
     /// A user interface for managing entity-level CRUD (Create, Read, Update, Delete) permissions
     /// for all registered entities across all defined roles.
     /// It displays a filterable list of cards, each representing an entity with a permission matrix.
     /// It also provides a drill-down to edit field-level permissions using the <see cref="DabblerFieldPermissionEditor"/> component.
+    /// Cells whose effective op comes from a parent role are rendered italic/dim with an
+    /// "inherited from &lt;parent&gt;" tooltip.
     /// </summary>
 
     private static readonly string[] _crudOps = ["Create", "Read", "Update", "Delete"];
 
     private List<string> _roles = [];
+    private List<RoleDefinition> _roleDefs = [];
     private string _filter = string.Empty;
 
     // (roleName, entityKey) → set of allowed operations
@@ -143,7 +180,8 @@
     private void LoadFromConfig()
     {
         var config = ConfigManager.Current;
-        _roles = config.Roles.Select(r => r.RoleName).ToList();
+        _roleDefs = config.Roles.ToList();
+        _roles = _roleDefs.Select(r => r.RoleName).ToList();
 
         _ops.Clear();
         foreach (var ep in config.EntityPermissions)
@@ -167,10 +205,16 @@
         key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
         displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
 
-    private bool HasOp(string role, string entity, string op)
+    private readonly record struct CellResolution(bool HasOp, string? InheritedFromRole);
+
+    private CellResolution ResolveCell(string role, string entityKey, string op)
     {
-        var key = (role, entity);
-        return _ops.TryGetValue(key, out var ops) && ops.Contains(op);
+        var chain = PermissionResolver.ResolveRoleChain(
+            role,
+            r => _ops.TryGetValue((r, entityKey), out var ops) && ops.Contains(op),
+            _roleDefs);
+
+        return new CellResolution(chain.Found, chain.InheritedFromRole);
     }
 
     private void SetOp(string role, string entity, string op, bool value)

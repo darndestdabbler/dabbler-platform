@@ -1,3 +1,5 @@
+@using Dabbler.Security.Abstractions
+@using Dabbler.Security.Authorization
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Registration
 @using Dabbler.Security.Services
@@ -25,6 +27,8 @@
     }
     else
     {
+        <InheritedLegend />
+
         <MudTextField @bind-Value="_filter"
                       Placeholder="Filter pages…"
                       Adornment="Adornment.Start"
@@ -61,14 +65,33 @@
                         <tbody>
                             @foreach (var role in _roles)
                             {
+                                var resolution = ResolveCell(role, pg.Key);
+                                var isInherited = resolution.InheritedFromRole is not null;
+                                var cellClass = isInherited ? "permission-cell inherited" : "permission-cell";
+                                var tooltipText = isInherited ? $"inherited from {resolution.InheritedFromRole}" : string.Empty;
                                 <tr>
                                     <td>
                                         <MudText Typo="Typo.body2">@role</MudText>
                                     </td>
                                     <td style="text-align:center;">
-                                        <DenyAllowSwitch Value="@GetState(role, pg.Key)"
-                                                         ValueChanged="@(v => SetState(role, pg.Key, v))"
-                                                         AriaLabel="@($"Permission for {role} to access {pg.DisplayName}")" />
+                                        @if (isInherited)
+                                        {
+                                            <MudTooltip Text="@tooltipText">
+                                                <div class="@cellClass">
+                                                    <DenyAllowSwitch Value="@resolution.State"
+                                                                     ValueChanged="@(v => SetState(role, pg.Key, v))"
+                                                                     AriaLabel="@($"Permission for {role} to access {pg.DisplayName} ({tooltipText})")" />
+                                                </div>
+                                            </MudTooltip>
+                                        }
+                                        else
+                                        {
+                                            <div class="@cellClass">
+                                                <DenyAllowSwitch Value="@resolution.State"
+                                                                 ValueChanged="@(v => SetState(role, pg.Key, v))"
+                                                                 AriaLabel="@($"Permission for {role} to access {pg.DisplayName}")" />
+                                            </div>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -85,14 +108,25 @@
     }
 </MudPaper>
 
+<style>
+    .permission-cell.inherited {
+        font-style: italic;
+        opacity: 0.6;
+    }
+</style>
+
 @code {
     /// <summary>
     /// A component for managing page access permissions.
     /// It displays a matrix of registered pages and defined roles, allowing administrators
     /// to grant or deny access for each role-page combination via a single three-state switch
     /// (Deny / Unset / Allow). Mutual exclusion is enforced at the data-model level.
+    /// Cells whose effective value comes from a parent role are rendered italic/dim with an
+    /// "inherited from &lt;parent&gt;" tooltip so administrators can tell explicit values
+    /// apart from inherited ones.
     /// </summary>
     private List<string> _roles = [];
+    private List<RoleDefinition> _roleDefs = [];
     private string _filter = string.Empty;
 
     // roleName → (pageKey → PermissionState). Unset is represented as the absence of a pageKey entry.
@@ -109,7 +143,8 @@
     private void LoadFromConfig()
     {
         var config = ConfigManager.Current;
-        _roles = config.Roles.Select(r => r.RoleName).ToList();
+        _roleDefs = config.Roles.ToList();
+        _roles = _roleDefs.Select(r => r.RoleName).ToList();
 
         _state.Clear();
         foreach (var role in _roles)
@@ -142,10 +177,20 @@
         key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
         displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
 
-    private PermissionState GetState(string role, string pageKey) =>
-        _state.TryGetValue(role, out var s) && s.TryGetValue(pageKey, out var st)
-            ? st
-            : PermissionState.Unset;
+    private readonly record struct CellResolution(PermissionState State, string? InheritedFromRole);
+
+    private CellResolution ResolveCell(string role, string pageKey)
+    {
+        var chain = PermissionResolver.ResolveRoleChain(
+            role,
+            r => _state.TryGetValue(r, out var s) && s.ContainsKey(pageKey),
+            _roleDefs);
+
+        if (!chain.Found) return new CellResolution(PermissionState.Unset, null);
+
+        var sourceRole = chain.InheritedFromRole ?? role;
+        return new CellResolution(_state[sourceRole][pageKey], chain.InheritedFromRole);
+    }
 
     private void SetState(string role, string pageKey, PermissionState newState)
     {
@@ -173,8 +218,14 @@
         var pagePerms = pageKeys.Select(pageKey => new PagePermission
         {
             PageKey = pageKey,
-            AllowedRoles = _roles.Where(r => GetState(r, pageKey) == PermissionState.Allow).ToList(),
-            DeniedRoles = _roles.Where(r => GetState(r, pageKey) == PermissionState.Deny).ToList(),
+            AllowedRoles = _roles
+                .Where(r => _state.TryGetValue(r, out var s)
+                            && s.TryGetValue(pageKey, out var st)
+                            && st == PermissionState.Allow).ToList(),
+            DeniedRoles = _roles
+                .Where(r => _state.TryGetValue(r, out var s)
+                            && s.TryGetValue(pageKey, out var st)
+                            && st == PermissionState.Deny).ToList(),
         }).ToList();
 
         var updated = new SecurityConfiguration

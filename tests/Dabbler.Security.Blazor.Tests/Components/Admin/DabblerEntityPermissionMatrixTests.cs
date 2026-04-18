@@ -258,6 +258,79 @@ public class DabblerEntityPermissionMatrixTests
         cut.HasComponent<DabblerFieldPermissionEditor>().Should().BeTrue();
     }
 
+    /// <summary>
+    /// Session 6 invariant: when a role has no own entity-op entry but a parent role does,
+    /// the cell renders with the "inherited" class and a tooltip that names the parent.
+    /// </summary>
+    [Fact]
+    public void InheritedOpCell_RendersInheritedClass_AndTooltipNamesParentRole()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles =
+            [
+                new RoleDefinition { RoleName = "Admin" },
+                new RoleDefinition { RoleName = "Manager", InheritsFrom = "Admin" }
+            ],
+            EntityPermissions =
+            [
+                new EntityPermission
+                {
+                    EntityKey = "Order",
+                    RolePermissions =
+                    [
+                        new EntityRolePermission { RoleName = "Admin", AllowedOperations = ["Read"] }
+                    ]
+                }
+            ]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("Order"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEntityPermissionMatrix>();
+
+        // Admin has Read explicit. Manager inherits Read from Admin.
+        // So there's exactly one "inherited" cell — Manager/Read. The other seven cells
+        // (Admin CRUD + Manager CUD) are either explicit (Admin/Read) or not-inherited-because-unchecked.
+        cut.FindAll("div.permission-cell.inherited").Should().HaveCount(1,
+            "only Manager's Read cell should render as inherited");
+
+        // The tooltip should name Admin as the source.
+        var tooltips = cut.FindComponents<MudBlazor.MudTooltip>();
+        tooltips.Select(t => t.Instance.Text).Should().Contain("inherited from Admin");
+    }
+
+    [Fact]
+    public void InheritedLegend_IsRendered_WhenRolesAndEntitiesExist()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("Order"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEntityPermissionMatrix>();
+
+        cut.FindAll("[data-testid='inherited-legend']").Should().NotBeEmpty();
+    }
+
     [Fact]
     public async Task SaveButton_PersistsEntityPermissions()
     {

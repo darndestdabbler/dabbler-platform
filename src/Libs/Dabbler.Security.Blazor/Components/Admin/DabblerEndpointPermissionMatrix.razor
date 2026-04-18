@@ -1,3 +1,5 @@
+@using Dabbler.Security.Abstractions
+@using Dabbler.Security.Authorization
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Registration
 @using Dabbler.Security.Services
@@ -25,6 +27,8 @@
     }
     else
     {
+        <InheritedLegend />
+
         <MudTextField @bind-Value="_filter"
                       Placeholder="Filter endpoints…"
                       Adornment="Adornment.Start"
@@ -70,14 +74,33 @@
                         <tbody>
                             @foreach (var role in _roles)
                             {
+                                var resolution = ResolveCell(role, ep.Key);
+                                var isInherited = resolution.InheritedFromRole is not null;
+                                var cellClass = isInherited ? "permission-cell inherited" : "permission-cell";
+                                var tooltipText = isInherited ? $"inherited from {resolution.InheritedFromRole}" : string.Empty;
                                 <tr>
                                     <td>
                                         <MudText Typo="Typo.body2">@role</MudText>
                                     </td>
                                     <td style="text-align:center;">
-                                        <DenyAllowSwitch Value="@GetState(role, ep.Key)"
-                                                         ValueChanged="@(v => SetState(role, ep.Key, v))"
-                                                         AriaLabel="@($"Permission for {role} to call {ep.DisplayName}")" />
+                                        @if (isInherited)
+                                        {
+                                            <MudTooltip Text="@tooltipText">
+                                                <div class="@cellClass">
+                                                    <DenyAllowSwitch Value="@resolution.State"
+                                                                     ValueChanged="@(v => SetState(role, ep.Key, v))"
+                                                                     AriaLabel="@($"Permission for {role} to call {ep.DisplayName} ({tooltipText})")" />
+                                                </div>
+                                            </MudTooltip>
+                                        }
+                                        else
+                                        {
+                                            <div class="@cellClass">
+                                                <DenyAllowSwitch Value="@resolution.State"
+                                                                 ValueChanged="@(v => SetState(role, ep.Key, v))"
+                                                                 AriaLabel="@($"Permission for {role} to call {ep.DisplayName}")" />
+                                            </div>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -94,14 +117,24 @@
     }
 </MudPaper>
 
+<style>
+    .permission-cell.inherited {
+        font-style: italic;
+        opacity: 0.6;
+    }
+</style>
+
 @code {
     /// <summary>
     /// A user interface for managing access permissions for all registered API endpoints across all defined roles.
     /// Each role × endpoint cell uses a single three-state switch (Deny / Unset / Allow); mutual exclusion
     /// is enforced at the data-model level so a role cannot be both allowed and denied on the same endpoint.
+    /// Cells whose effective value comes from a parent role are rendered italic/dim with an
+    /// "inherited from &lt;parent&gt;" tooltip.
     /// </summary>
 
     private List<string> _roles = [];
+    private List<RoleDefinition> _roleDefs = [];
     private string _filter = string.Empty;
 
     // roleName → (endpointKey → PermissionState). Unset is represented as the absence of a key entry.
@@ -118,7 +151,8 @@
     private void LoadFromConfig()
     {
         var config = ConfigManager.Current;
-        _roles = config.Roles.Select(r => r.RoleName).ToList();
+        _roleDefs = config.Roles.ToList();
+        _roles = _roleDefs.Select(r => r.RoleName).ToList();
 
         _state.Clear();
         foreach (var role in _roles)
@@ -151,10 +185,20 @@
         key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
         displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
 
-    private PermissionState GetState(string role, string endpointKey) =>
-        _state.TryGetValue(role, out var s) && s.TryGetValue(endpointKey, out var st)
-            ? st
-            : PermissionState.Unset;
+    private readonly record struct CellResolution(PermissionState State, string? InheritedFromRole);
+
+    private CellResolution ResolveCell(string role, string endpointKey)
+    {
+        var chain = PermissionResolver.ResolveRoleChain(
+            role,
+            r => _state.TryGetValue(r, out var s) && s.ContainsKey(endpointKey),
+            _roleDefs);
+
+        if (!chain.Found) return new CellResolution(PermissionState.Unset, null);
+
+        var sourceRole = chain.InheritedFromRole ?? role;
+        return new CellResolution(_state[sourceRole][endpointKey], chain.InheritedFromRole);
+    }
 
     private void SetState(string role, string endpointKey, PermissionState newState)
     {
@@ -182,8 +226,14 @@
         var endpointPerms = endpointKeys.Select(epKey => new EndpointPermission
         {
             EndpointKey = epKey,
-            AllowedRoles = _roles.Where(r => GetState(r, epKey) == PermissionState.Allow).ToList(),
-            DeniedRoles = _roles.Where(r => GetState(r, epKey) == PermissionState.Deny).ToList()
+            AllowedRoles = _roles
+                .Where(r => _state.TryGetValue(r, out var s)
+                            && s.TryGetValue(epKey, out var st)
+                            && st == PermissionState.Allow).ToList(),
+            DeniedRoles = _roles
+                .Where(r => _state.TryGetValue(r, out var s)
+                            && s.TryGetValue(epKey, out var st)
+                            && st == PermissionState.Deny).ToList()
         }).ToList();
 
         var updated = new SecurityConfiguration

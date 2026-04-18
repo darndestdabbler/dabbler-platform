@@ -1,0 +1,18 @@
+@using MudBlazor
+
+<MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" Dense="true" Icon="@Icons.Material.Filled.Info"
+          Class="inherited-legend mb-3" data-testid="inherited-legend">
+    <span><b>Solid</b> = explicit</span>
+    <span class="mx-1">·</span>
+    <span class="inherited-sample">italic/dim = inherited</span>
+</MudAlert>
+
+<style>
+    .inherited-legend .inherited-sample {
+        font-style: italic;
+        opacity: 0.6;
+    }
+</style>
+
+@* One-line legend card explaining the inherited-vs-explicit convention used
+   across the Page, Endpoint, and Entity permission matrices. *@

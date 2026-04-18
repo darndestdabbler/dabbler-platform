@@ -312,6 +312,114 @@ public class DabblerPagePermissionMatrixTests
     }
 
     /// <summary>
+    /// Session 6 invariant: when a role has no own entry but a parent role does,
+    /// the cell renders with the "inherited" class and a tooltip that names the parent.
+    /// The parent's own cell stays un-styled.
+    /// </summary>
+    [Fact]
+    public void InheritedCell_RendersInheritedClass_AndTooltipNamesParentRole()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles =
+            [
+                new RoleDefinition { RoleName = "Admin" },
+                new RoleDefinition { RoleName = "Manager", InheritsFrom = "Admin" }
+            ],
+            PagePermissions =
+            [
+                new PagePermission { PageKey = "dashboard", AllowedRoles = ["Admin"] }
+            ]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("dashboard"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerPagePermissionMatrix>();
+
+        // Manager inherits Admin → one cell flagged inherited.
+        cut.FindAll("div.permission-cell.inherited").Should().HaveCount(1,
+            "only Manager's cell is inherited; Admin's cell is explicit");
+
+        // Manager's switch should reflect the inherited Allow state.
+        var toggles = cut.FindComponents<DenyAllowSwitch>();
+        toggles.Should().HaveCount(2);
+        toggles.Select(t => t.Instance.Value).Should().AllBeEquivalentTo(PermissionState.Allow,
+            "Manager should show the inherited Allow alongside Admin's explicit Allow");
+
+        // The MudTooltip wrapping the inherited cell names the parent role.
+        var tooltips = cut.FindComponents<MudBlazor.MudTooltip>();
+        tooltips.Select(t => t.Instance.Text).Should().Contain("inherited from Admin");
+    }
+
+    /// <summary>
+    /// Explicit entries on the role itself are not styled as inherited, even when a
+    /// parent role also has an entry — explicit wins.
+    /// </summary>
+    [Fact]
+    public void ExplicitCell_OverridesParent_DoesNotRenderInheritedStyle()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles =
+            [
+                new RoleDefinition { RoleName = "Admin" },
+                new RoleDefinition { RoleName = "Manager", InheritsFrom = "Admin" }
+            ],
+            PagePermissions =
+            [
+                // Admin allows; Manager explicitly denies. Manager's cell is NOT inherited.
+                new PagePermission { PageKey = "dashboard", AllowedRoles = ["Admin"], DeniedRoles = ["Manager"] }
+            ]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("dashboard"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerPagePermissionMatrix>();
+
+        cut.FindAll("div.permission-cell.inherited").Should().BeEmpty(
+            "both cells have explicit entries, so neither inherits");
+    }
+
+    [Fact]
+    public void InheritedLegend_IsRendered_WhenRolesAndPagesExist()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("dashboard"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerPagePermissionMatrix>();
+
+        cut.FindAll("[data-testid='inherited-legend']").Should().NotBeEmpty();
+    }
+
+    /// <summary>
     /// Unset = role absent from both AllowedRoles and DeniedRoles. Saving with an Unset
     /// cell must not put the role into either list.
     /// </summary>

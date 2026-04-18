@@ -308,6 +308,76 @@ public class DabblerEndpointPermissionMatrixTests
     }
 
     /// <summary>
+    /// Session 6 invariant: when a role has no own endpoint entry but a parent role does,
+    /// the cell renders with the "inherited" class and a tooltip that names the parent.
+    /// </summary>
+    [Fact]
+    public void InheritedCell_RendersInheritedClass_AndTooltipNamesParentRole()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles =
+            [
+                new RoleDefinition { RoleName = "Admin" },
+                new RoleDefinition { RoleName = "Manager", InheritsFrom = "Admin" }
+            ],
+            EndpointPermissions =
+            [
+                new EndpointPermission
+                {
+                    EndpointKey = "GET /api/orders",
+                    AllowedRoles = ["Admin"]
+                }
+            ]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry(("GET /api/orders", "List Orders", "GET")));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
+
+        cut.FindAll("div.permission-cell.inherited").Should().HaveCount(1,
+            "only Manager's cell is inherited; Admin's cell is explicit");
+
+        var toggles = cut.FindComponents<DenyAllowSwitch>();
+        toggles.Should().HaveCount(2);
+        toggles.Select(t => t.Instance.Value).Should().AllBeEquivalentTo(PermissionState.Allow);
+
+        var tooltips = cut.FindComponents<MudBlazor.MudTooltip>();
+        tooltips.Select(t => t.Instance.Text).Should().Contain("inherited from Admin");
+    }
+
+    [Fact]
+    public void InheritedLegend_IsRendered_WhenRolesAndEndpointsExist()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry(("GET /api/orders", "List Orders", "GET")));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
+
+        cut.FindAll("[data-testid='inherited-legend']").Should().NotBeEmpty();
+    }
+
+    /// <summary>
     /// Unset = role absent from both AllowedRoles and DeniedRoles.
     /// </summary>
     [Fact]
