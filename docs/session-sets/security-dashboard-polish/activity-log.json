@@ -171,6 +171,86 @@
           "costUsd": 0.22441499999999998
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-guidance",
+      "dateTime": "2026-04-18T05:05:04.486242+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session. Confirmed session-2 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/deny-model",
+      "dateTime": "2026-04-18T05:05:04.487747+00:00",
+      "description": "Added EndpointPermission.DeniedRoles (List<string>) to Dabbler.Security.Configuration.EndpointPermission so mutual-exclusion Deny is a first-class concept alongside AllowedRoles. Added AppEndpointPermission.Allowed (bool, default true) so existing rows retain Allow semantics; new writes set the column explicitly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/persistence",
+      "dateTime": "2026-04-18T05:05:04.488752+00:00",
+      "description": "Created migration 20260418050000_AddEndpointPermissionAllowed (Up: AddColumn Allowed bit NOT NULL defaultValue:true; Down: DropColumn) plus matching Designer + updated DabblerSecurityDbContextModelSnapshot.cs to include Property<bool>(\"Allowed\"). Updated EfCoreSecurityStore.LoadAsync to project Allowed=true \u2192 AllowedRoles, Allowed=false \u2192 DeniedRoles; updated SyncEndpointPermissionsAsync to emit two rows when both lists are set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/handler-deny-precedence",
+      "dateTime": "2026-04-18T05:05:04.488752+00:00",
+      "description": "EndpointAuthorizationHandler.HandleRequirementAsync: added Deny-precedence check (DeniedRoles.Any(r => userRoles.Contains(r)) \u2192 return without Succeed) mirroring PageAuthorizationHandler. A user holding both an allowed and a denied role is now denied. Existing allow/fail-open/fail-closed paths unchanged.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/switch-reuse",
+      "dateTime": "2026-04-18T05:05:04.489752+00:00",
+      "description": "Refactored DabblerEndpointPermissionMatrix.razor to reuse the shared DenyAllowSwitch + deny-allow-header.svg from session 2. Internal state moved from HashSet<string> _allowed to Dictionary<string, Dictionary<string, PermissionState>>. SaveAsync projects the ternary in-memory state back to the parallel AllowedRoles/DeniedRoles lists on EndpointPermission, enforcing mutual exclusion at the model level. Cards widened to 340/600px and the permission column uses width:1%; white-space:nowrap; text-align:center to remove horizontal scroll at normal desktop widths \u2014 same visual convention as Page Access.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/bunit-invariant",
+      "dateTime": "2026-04-18T05:05:04.489752+00:00",
+      "description": "Rewrote DabblerEndpointPermissionMatrixTests.cs: replaced the checkbox-based 'ExistingAllowedEndpoints_CheckedOnRender' test with 'ExistingAllowedEndpoints_RenderSwitchInAllowState'. Added 'ExistingDeniedEndpoints_RenderSwitchInDenyState', 'RendersDenyAllowHeaderSvg_NotSeparateAllowAndDenyColumns', 'FlipAllowToDeny_DropsAllow_AndAddsDeny_OnSave' (the endpoint mutual-exclusion invariant), 'FlipDenyToAllow_DropsDeny_AndAddsAllow_OnSave', and 'SetToUnset_OmitsRoleFromBothLists_OnSave'. Added 'DeniedRole_DoesNotSucceed_EvenWhenSameUserHasAnAllowedRole' in EndpointAuthorizationHandlerTests.cs and 'SaveAsync_ThenLoad_RoundTripsEndpointPermissions_WithAllowAndDeny' in EfCoreSecurityStoreTests.cs for persistence and handler coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-18T05:05:04.491256+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 2 pre-existing warnings (MUD0002 on Dense and CS8604 in WebGuardrailTests). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 131/131 (+5 vs session 2), Dabbler.Security.Tests 270/270 (+2 vs session 2), Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-2 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-18T05:07:15.111336+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/session-003.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 20058,
+          "outputTokens": 1620,
+          "costUsd": 0.42236999999999997
+        }
+      ]
     }
   ]
 }

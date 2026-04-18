@@ -67,6 +67,10 @@ public class EndpointAuthorizationHandler : AuthorizationHandler<EndpointPermiss
 
         var userRoles = GetEffectiveRoles(context.User, config);
 
+        // Deny takes precedence over allow, matching PageAuthorizationHandler.
+        if (permission.DeniedRoles.Any(r => userRoles.Contains(r)))
+            return;
+
         if (permission.AllowedRoles.Any(r => userRoles.Contains(r)))
             context.Succeed(requirement);
     }

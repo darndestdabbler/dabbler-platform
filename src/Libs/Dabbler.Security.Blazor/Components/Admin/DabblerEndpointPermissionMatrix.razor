@@ -37,7 +37,7 @@
         <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
         @foreach (var ep in Registry.Endpoints.Where(e => MatchesFilter(e.Key, e.DisplayName)))
         {
-            <MudCard Elevation="1" Style="min-width:260px; flex:1 1 260px; max-width:480px;">
+            <MudCard Elevation="1" Style="min-width:340px; flex:1 1 340px; max-width:600px;">
                 <MudCardHeader>
                     <CardHeaderContent>
                         <div class="d-flex align-center gap-2">
@@ -54,12 +54,17 @@
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent Class="pt-0">
-                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent; width:100%;"
                                     aria-label="@($"Endpoint permissions for {ep.DisplayName}")">
                         <thead>
                             <tr>
                                 <th style="min-width:160px;">Role</th>
-                                <th style="text-align:center;min-width:80px;">Allow</th>
+                                <th style="text-align:center; width:1%; white-space:nowrap;">
+                                    <img src="_content/Dabbler.Security.Blazor/deny-allow-header.svg"
+                                         alt="Deny or Allow"
+                                         title="Deny or Allow"
+                                         style="height:48px; display:inline-block;" />
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -70,12 +75,9 @@
                                         <MudText Typo="Typo.body2">@role</MudText>
                                     </td>
                                     <td style="text-align:center;">
-                                        <MudCheckBox T="bool"
-                                                     Value="@IsAllowed(role, ep.Key)"
-                                                     ValueChanged="@(v => SetAllowed(role, ep.Key, v))"
-                                                     aria-label="@($"Allow {role} access to {ep.DisplayName}")"
-                                                     Color="Color.Success"
-                                                     Size="Size.Small" />
+                                        <DenyAllowSwitch Value="@GetState(role, ep.Key)"
+                                                         ValueChanged="@(v => SetState(role, ep.Key, v))"
+                                                         AriaLabel="@($"Permission for {role} to call {ep.DisplayName}")" />
                                     </td>
                                 </tr>
                             }
@@ -85,21 +87,26 @@
             </MudCard>
         }
         </div>
+
+        <MudText Typo="Typo.caption" Class="mt-2">
+            <b>Allow</b> = role may call this endpoint. <b>Deny</b> = role is explicitly denied (takes precedence over Allow). <b>—</b> = role has no opinion for this endpoint.
+        </MudText>
     }
 </MudPaper>
 
 @code {
     /// <summary>
     /// A user interface for managing access permissions for all registered API endpoints across all defined roles.
-    /// It displays a filterable list of cards, each representing an endpoint. For each endpoint,
-    /// administrators can allow or deny access for each role.
+    /// Each role × endpoint cell uses a single three-state switch (Deny / Unset / Allow); mutual exclusion
+    /// is enforced at the data-model level so a role cannot be both allowed and denied on the same endpoint.
     /// </summary>
 
     private List<string> _roles = [];
     private string _filter = string.Empty;
 
-    // roleName → set of allowed endpointKeys
-    private readonly Dictionary<string, HashSet<string>> _allowed = new(StringComparer.OrdinalIgnoreCase);
+    // roleName → (endpointKey → PermissionState). Unset is represented as the absence of a key entry.
+    private readonly Dictionary<string, Dictionary<string, PermissionState>> _state =
+        new(StringComparer.OrdinalIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
@@ -113,14 +120,23 @@
         var config = ConfigManager.Current;
         _roles = config.Roles.Select(r => r.RoleName).ToList();
 
-        _allowed.Clear();
+        _state.Clear();
         foreach (var role in _roles)
-            _allowed[role] = [];
+        {
+            _state[role] = new Dictionary<string, PermissionState>(StringComparer.OrdinalIgnoreCase);
+        }
 
         foreach (var ep in config.EndpointPermissions)
         {
             foreach (var role in ep.AllowedRoles)
-                if (_allowed.TryGetValue(role, out var s)) s.Add(ep.EndpointKey);
+            {
+                if (_state.TryGetValue(role, out var s)) s[ep.EndpointKey] = PermissionState.Allow;
+            }
+            // Deny overwrites Allow if both were stored for the same role (defensive — pre-fix data).
+            foreach (var role in ep.DeniedRoles)
+            {
+                if (_state.TryGetValue(role, out var s)) s[ep.EndpointKey] = PermissionState.Deny;
+            }
         }
     }
 
@@ -135,14 +151,27 @@
         key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
         displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
 
-    private bool IsAllowed(string role, string endpointKey) =>
-        _allowed.TryGetValue(role, out var s) && s.Contains(endpointKey);
+    private PermissionState GetState(string role, string endpointKey) =>
+        _state.TryGetValue(role, out var s) && s.TryGetValue(endpointKey, out var st)
+            ? st
+            : PermissionState.Unset;
 
-    private void SetAllowed(string role, string endpointKey, bool value)
+    private void SetState(string role, string endpointKey, PermissionState newState)
     {
-        if (!_allowed.ContainsKey(role)) _allowed[role] = [];
-        if (value) _allowed[role].Add(endpointKey);
-        else _allowed[role].Remove(endpointKey);
+        if (!_state.TryGetValue(role, out var s))
+        {
+            s = new Dictionary<string, PermissionState>(StringComparer.OrdinalIgnoreCase);
+            _state[role] = s;
+        }
+
+        if (newState == PermissionState.Unset)
+        {
+            s.Remove(endpointKey);
+        }
+        else
+        {
+            s[endpointKey] = newState;
+        }
     }
 
     private async Task SaveAsync()
@@ -153,7 +182,8 @@
         var endpointPerms = endpointKeys.Select(epKey => new EndpointPermission
         {
             EndpointKey = epKey,
-            AllowedRoles = _roles.Where(r => IsAllowed(r, epKey)).ToList()
+            AllowedRoles = _roles.Where(r => GetState(r, epKey) == PermissionState.Allow).ToList(),
+            DeniedRoles = _roles.Where(r => GetState(r, epKey) == PermissionState.Deny).ToList()
         }).ToList();
 
         var updated = new SecurityConfiguration
@@ -172,6 +202,7 @@
         Snackbar.Add("Endpoint permissions saved.", Severity.Success);
     }
 
+    /// <inheritdoc />
     public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
 
     private static Color HttpMethodColor(string method) => method.ToUpperInvariant() switch

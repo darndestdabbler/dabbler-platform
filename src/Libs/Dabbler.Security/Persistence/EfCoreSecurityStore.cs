@@ -108,7 +108,8 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
                 .Select(g => new EndpointPermission
                 {
                     EndpointKey = g.Key,
-                    AllowedRoles = g.Select(p => p.Role!.Name).ToList()
+                    AllowedRoles = g.Where(p => p.Allowed).Select(p => p.Role!.Name).ToList(),
+                    DeniedRoles = g.Where(p => !p.Allowed).Select(p => p.Role!.Name).ToList()
                 }).ToList(),
 
             ControlPermissions = controlPerms
@@ -275,7 +276,18 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
                 db.AppEndpointPermissions.Add(new AppEndpointPermission
                 {
                     RoleId = role.Id,
-                    EndpointKey = ep.EndpointKey
+                    EndpointKey = ep.EndpointKey,
+                    Allowed = true
+                });
+            }
+            foreach (var roleName in ep.DeniedRoles)
+            {
+                if (!rolesByName.TryGetValue(roleName, out var role)) continue;
+                db.AppEndpointPermissions.Add(new AppEndpointPermission
+                {
+                    RoleId = role.Id,
+                    EndpointKey = ep.EndpointKey,
+                    Allowed = false
                 });
             }
         }

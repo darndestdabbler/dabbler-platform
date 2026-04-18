@@ -80,7 +80,7 @@ public class DabblerEndpointPermissionMatrixTests
     }
 
     [Fact]
-    public void ExistingAllowedEndpoints_CheckedOnRender()
+    public void ExistingAllowedEndpoints_RenderSwitchInAllowState()
     {
         using var ctx = new TestContext();
         var config = new SecurityConfiguration
@@ -107,9 +107,67 @@ public class DabblerEndpointPermissionMatrixTests
 
         var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
 
-        var checkboxes = cut.FindAll("input[type='checkbox']");
-        checkboxes.Should().HaveCountGreaterOrEqualTo(1);
-        checkboxes[0].GetAttribute("checked").Should().NotBeNull();
+        var toggle = cut.FindComponent<DenyAllowSwitch>();
+        toggle.Instance.Value.Should().Be(PermissionState.Allow);
+    }
+
+    [Fact]
+    public void ExistingDeniedEndpoints_RenderSwitchInDenyState()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }],
+            EndpointPermissions =
+            [
+                new EndpointPermission
+                {
+                    EndpointKey = "GET /api/orders",
+                    DeniedRoles = ["Admin"]
+                }
+            ]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry(("GET /api/orders", "List Orders", "GET")));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
+
+        var toggle = cut.FindComponent<DenyAllowSwitch>();
+        toggle.Instance.Value.Should().Be(PermissionState.Deny);
+    }
+
+    [Fact]
+    public void RendersDenyAllowHeaderSvg_NotSeparateAllowAndDenyColumns()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry(("GET /api/orders", "List Orders", "GET")));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
+
+        cut.Markup.Should().Contain("_content/Dabbler.Security.Blazor/deny-allow-header.svg");
+        // Old header text columns should be gone (the switch shows them inline instead).
+        var headerCells = cut.FindAll("th").Select(th => th.TextContent.Trim()).ToList();
+        headerCells.Should().NotContain("Allow");
+        headerCells.Should().NotContain("Deny");
     }
 
     [Fact]
@@ -146,6 +204,152 @@ public class DabblerEndpointPermissionMatrixTests
         store.Verify(s => s.SaveAsync(
             It.Is<SecurityConfiguration>(c => c.EndpointPermissions.Any(e =>
                 e.EndpointKey == "POST /api/invoices" && e.AllowedRoles.Contains("Manager"))),
+            default), Times.Once);
+    }
+
+    /// <summary>
+    /// The mutual-exclusion invariant for endpoints. Flipping a cell from Allow to Deny must drop
+    /// the role from AllowedRoles AND add it to DeniedRoles in the saved configuration.
+    /// </summary>
+    [Fact]
+    public async Task FlipAllowToDeny_DropsAllow_AndAddsDeny_OnSave()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }],
+            EndpointPermissions =
+            [
+                new EndpointPermission
+                {
+                    EndpointKey = "GET /api/orders",
+                    AllowedRoles = ["Admin"]
+                }
+            ]
+        };
+        var (manager, store) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry(("GET /api/orders", "List Orders", "GET")));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
+
+        var toggle = cut.FindComponent<DenyAllowSwitch>();
+        toggle.Instance.Value.Should().Be(PermissionState.Allow);
+
+        await cut.InvokeAsync(() =>
+            toggle.Instance.ValueChanged.InvokeAsync(PermissionState.Deny));
+
+        toggle = cut.FindComponent<DenyAllowSwitch>();
+        toggle.Instance.Value.Should().Be(PermissionState.Deny);
+
+        var saveButton = cut.Find("button.mud-button-filled");
+        await cut.InvokeAsync(() => saveButton.Click());
+
+        store.Verify(s => s.SaveAsync(
+            It.Is<SecurityConfiguration>(c => c.EndpointPermissions.Any(e =>
+                e.EndpointKey == "GET /api/orders"
+                && e.DeniedRoles.Contains("Admin")
+                && !e.AllowedRoles.Contains("Admin"))),
+            default), Times.Once);
+    }
+
+    /// <summary>
+    /// Inverse invariant: Deny -> Allow drops Deny and adds Allow.
+    /// </summary>
+    [Fact]
+    public async Task FlipDenyToAllow_DropsDeny_AndAddsAllow_OnSave()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }],
+            EndpointPermissions =
+            [
+                new EndpointPermission
+                {
+                    EndpointKey = "GET /api/orders",
+                    DeniedRoles = ["Admin"]
+                }
+            ]
+        };
+        var (manager, store) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry(("GET /api/orders", "List Orders", "GET")));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
+
+        var toggle = cut.FindComponent<DenyAllowSwitch>();
+        toggle.Instance.Value.Should().Be(PermissionState.Deny);
+
+        await cut.InvokeAsync(() =>
+            toggle.Instance.ValueChanged.InvokeAsync(PermissionState.Allow));
+
+        var saveButton = cut.Find("button.mud-button-filled");
+        await cut.InvokeAsync(() => saveButton.Click());
+
+        store.Verify(s => s.SaveAsync(
+            It.Is<SecurityConfiguration>(c => c.EndpointPermissions.Any(e =>
+                e.EndpointKey == "GET /api/orders"
+                && e.AllowedRoles.Contains("Admin")
+                && !e.DeniedRoles.Contains("Admin"))),
+            default), Times.Once);
+    }
+
+    /// <summary>
+    /// Unset = role absent from both AllowedRoles and DeniedRoles.
+    /// </summary>
+    [Fact]
+    public async Task SetToUnset_OmitsRoleFromBothLists_OnSave()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }],
+            EndpointPermissions =
+            [
+                new EndpointPermission
+                {
+                    EndpointKey = "GET /api/orders",
+                    AllowedRoles = ["Admin"]
+                }
+            ]
+        };
+        var (manager, store) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry(("GET /api/orders", "List Orders", "GET")));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEndpointPermissionMatrix>();
+
+        var toggle = cut.FindComponent<DenyAllowSwitch>();
+        await cut.InvokeAsync(() =>
+            toggle.Instance.ValueChanged.InvokeAsync(PermissionState.Unset));
+
+        var saveButton = cut.Find("button.mud-button-filled");
+        await cut.InvokeAsync(() => saveButton.Click());
+
+        store.Verify(s => s.SaveAsync(
+            It.Is<SecurityConfiguration>(c => c.EndpointPermissions.Any(e =>
+                e.EndpointKey == "GET /api/orders"
+                && !e.AllowedRoles.Contains("Admin")
+                && !e.DeniedRoles.Contains("Admin"))),
             default), Times.Once);
     }
 }

@@ -89,6 +89,31 @@ public class EndpointAuthorizationHandlerTests
     }
 
     [Fact]
+    public async Task DeniedRole_DoesNotSucceed_EvenWhenSameUserHasAnAllowedRole()
+    {
+        var config = new SecurityConfiguration
+        {
+            EndpointPermissions =
+            [
+                new EndpointPermission
+                {
+                    EndpointKey = "POST /api/orders",
+                    AllowedRoles = ["Manager"],
+                    DeniedRoles = ["Contractor"]
+                }
+            ]
+        };
+        var handler = CreateHandler(config);
+        var context = CreateContext(
+            UserWithRoles("Manager", "Contractor"),
+            new EndpointPermissionRequirement("POST /api/orders"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task SwitchedRole_OverridesClaimsRoles()
     {
         var config = new SecurityConfiguration

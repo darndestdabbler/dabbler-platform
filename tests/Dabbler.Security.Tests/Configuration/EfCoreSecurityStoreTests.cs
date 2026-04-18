@@ -143,6 +143,34 @@ public sealed class EfCoreSecurityStoreTests
     }
 
     [Fact]
+    public async Task SaveAsync_ThenLoad_RoundTripsEndpointPermissions_WithAllowAndDeny()
+    {
+        var (factory, _, _) = await CreateFactoryWithRolesAsync();
+        var store = new EfCoreSecurityStore(factory);
+
+        var config = new SecurityConfiguration
+        {
+            EndpointPermissions =
+            [
+                new EndpointPermission
+                {
+                    EndpointKey = "POST /api/orders",
+                    AllowedRoles = ["Manager"],
+                    DeniedRoles = ["Viewer"]
+                }
+            ]
+        };
+
+        await store.SaveAsync(config);
+        var loaded = await store.LoadAsync();
+
+        var ep = loaded.EndpointPermissions.Should().ContainSingle().Subject;
+        ep.EndpointKey.Should().Be("POST /api/orders");
+        ep.AllowedRoles.Should().ContainSingle("Manager");
+        ep.DeniedRoles.Should().ContainSingle("Viewer");
+    }
+
+    [Fact]
     public async Task SaveAsync_ThenLoad_RoundTripsControlPermissions()
     {
         var (factory, _, _) = await CreateFactoryWithRolesAsync();

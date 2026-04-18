@@ -33,4 +33,11 @@ public class AppEndpointPermission
     /// This key should match an endpoint registered via the application's configuration.
     /// </summary>
     public string EndpointKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// A boolean value indicating whether the specified role is granted (<see langword="true"/>)
+    /// or explicitly denied (<see langword="false"/>) access to the endpoint. Deny takes
+    /// precedence over allow when a user holds both.
+    /// </summary>
+    public bool Allowed { get; set; } = true;
 }

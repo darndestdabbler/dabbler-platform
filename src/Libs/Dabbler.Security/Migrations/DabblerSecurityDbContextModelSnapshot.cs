@@ -62,6 +62,9 @@ namespace Dabbler.Security.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Allowed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("EndpointKey")
                         .IsRequired()
                         .HasMaxLength(500)
