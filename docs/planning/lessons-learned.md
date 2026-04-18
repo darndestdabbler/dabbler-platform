@@ -360,3 +360,27 @@ Use this structure for new entries:
   Complement with a positive-path test that confirms a privileged role
   does see the control. Flag any disabled-state test that uses a
   privileged role as a maintenance risk.
+
+## Follow The Spec's Semantic Intent, Not Its Widget Name
+
+- **Context:** Session 2 of `security-dashboard-polish` asked for "one
+  `MudSwitch` bound to a three-state model (Allow / Deny / Unset) or to a
+  single allow/deny enum" to replace two independent checkboxes in the
+  Page Access matrix.
+- **Failure or friction:** `MudSwitch` in MudBlazor 8.x is natively binary.
+  Implementing a true tri-state through `MudSwitch<bool?>` would have
+  required hackery, and collapsing to two states would have regressed
+  runtime authorization semantics — "role has no opinion" and "role
+  explicitly denies" produce different outcomes for multi-role users, so
+  Unset must stay distinguishable from Deny.
+- **Lesson:** When a spec names a specific widget but the semantics it
+  describes don't fit that widget, pick the widget that honors the
+  semantics (here, `MudToggleGroup<T>` with `SelectionMode.SingleSelection`)
+  rather than forcing a mismatched control. The spec authorized the
+  tri-state model explicitly; the widget name was guidance, not a mandate.
+- **Action for future sessions:** When a spec's named control can't
+  express the stated semantics, choose the semantically correct control
+  and call out the deviation explicitly in the end-of-session
+  verification prompt (files, reasoning, why the alternative would
+  regress). Do not silently substitute and do not force the named widget
+  into a shape it wasn't designed for.
