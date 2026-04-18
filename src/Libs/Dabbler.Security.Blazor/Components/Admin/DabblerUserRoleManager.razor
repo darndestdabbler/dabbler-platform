@@ -17,6 +17,12 @@
                       Immediate="true" DebounceInterval="200"
                       Class="ml-4" Style="max-width:280px" />
     </div>
+    <div class="d-flex align-center mb-4">
+        <MudSwitch T="bool" @bind-Value="_showUnassigned"
+                   Label="Show unassigned users"
+                   Color="Color.Primary"
+                   data-testid="show-unassigned-toggle" />
+    </div>
 
     @if (_loading)
     {
@@ -89,13 +95,26 @@
     private List<string> _availableRoles = [];
     private bool _loading = true;
     private string _search = string.Empty;
+    private bool _showUnassigned;
 
-    private IEnumerable<UserRow> FilteredRows =>
-        string.IsNullOrWhiteSpace(_search)
-            ? _userRows
-            : _userRows.Where(r =>
-                r.User.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-                r.User.Email.Contains(_search, StringComparison.OrdinalIgnoreCase));
+    private IEnumerable<UserRow> FilteredRows
+    {
+        get
+        {
+            IEnumerable<UserRow> rows = _userRows;
+            if (!_showUnassigned)
+            {
+                rows = rows.Where(r => r.Roles.Count > 0);
+            }
+            if (!string.IsNullOrWhiteSpace(_search))
+            {
+                rows = rows.Where(r =>
+                    r.User.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+                    r.User.Email.Contains(_search, StringComparison.OrdinalIgnoreCase));
+            }
+            return rows;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

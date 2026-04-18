@@ -446,6 +446,68 @@
           "costUsd": 0.512925
         }
       ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 1,
+      "stepKey": "session-7/read-guidance",
+      "dateTime": "2026-04-18T06:12:15.880108+00:00",
+      "description": "Read project-guidance.md and lessons-learned.md pre-session. Confirmed session-6 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 2,
+      "stepKey": "session-7/toggle",
+      "dateTime": "2026-04-18T06:12:15.881172+00:00",
+      "description": "Added MudSwitch<bool> to DabblerUserRoleManager.razor with Label=\"Show unassigned users\", Color=Primary, data-testid=\"show-unassigned-toggle\", two-way bound to new private bool _showUnassigned (defaults to false). Rendered inside a div.d-flex.align-center.mb-4 directly below the header row so it sits visually above the MudTable without disturbing the existing search textbox layout.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 3,
+      "stepKey": "session-7/client-filter",
+      "dateTime": "2026-04-18T06:12:15.882178+00:00",
+      "description": "Rewrote FilteredRows to compose the unassigned filter with the existing search filter. When _showUnassigned is false, rows are restricted to r.Roles.Count > 0 before search is applied. When true, the full _userRows list passes through (minus search). No change to persistence, IUserListProvider, or IUserRoleStore calls \u2014 the filter is purely client-side on the in-memory _userRows collection.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 4,
+      "stepKey": "session-7/bunit",
+      "dateTime": "2026-04-18T06:12:15.883177+00:00",
+      "description": "Added DabblerUserRoleManagerTests: ShowUnassignedSwitchOff_HidesUsersWithNoRoles_AndKeepsAssigned (default-off hides Bob, keeps Alice; verifies GetUsersAsync called only once), ShowUnassignedSwitchOn_RevealsFullRoster_WithoutRefetch (toggles switch via MudSwitch<bool>.ValueChanged, asserts both Alice and Bob now appear, verifies GetUsersAsync and GetAllAsync were each called exactly once \u2014 no refetch on toggle), ShowUnassignedSwitchOff_IsTheDefault (asserts toggle.Value is false on initial render and a user with no roles is not in markup). Updated existing tests: Renders_UsersWithCurrentRoles (gave Bob a Viewer role so he now appears under the default filter), AddRole_CallsRoleStore (gave Alice a Viewer role so she appears), and renamed UserWithNoRoles_ShowsNoRolesAssignedText to UserWithNoRoles_ShowsNoRolesAssignedText_WhenUnassignedToggleIsOn, which now flips the switch on before asserting the caption.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 5,
+      "stepKey": "session-7/build-and-test",
+      "dateTime": "2026-04-18T06:12:15.884691+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: succeeded with 0 errors, 2 pre-existing warnings (MUD0002 on DenyAllowSwitch Dense, CS8604 in WebGuardrailTests). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 145/145 (+3 vs session 6; the three new toggle tests), Dabbler.Security.Tests 277/277, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-6 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 6,
+      "stepKey": "session-7/verification",
+      "dateTime": "2026-04-18T06:13:25.236025+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/ for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 6525,
+          "outputTokens": 1194,
+          "costUsd": 0.187425
+        }
+      ]
     }
   ]
 }

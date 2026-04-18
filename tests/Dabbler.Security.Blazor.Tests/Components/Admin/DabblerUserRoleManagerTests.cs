@@ -59,7 +59,8 @@ public class DabblerUserRoleManagerTests
             new UserSummary("u2", "Bob", "bob@test.com"));
         var roleStore = BuildRoleStore(new Dictionary<string, List<string>>
         {
-            ["u1"] = ["Admin"]
+            ["u1"] = ["Admin"],
+            ["u2"] = ["Viewer"]
         });
 
         ctx.SetupForDabbler(
@@ -77,6 +78,7 @@ public class DabblerUserRoleManagerTests
         cut.Markup.Should().Contain("Alice");
         cut.Markup.Should().Contain("Bob");
         cut.Markup.Should().Contain("Admin");
+        cut.Markup.Should().Contain("Viewer");
     }
 
     [Fact]
@@ -109,11 +111,14 @@ public class DabblerUserRoleManagerTests
         using var ctx = new TestContext();
         var config = new SecurityConfiguration
         {
-            Roles = [new RoleDefinition { RoleName = "Editor" }]
+            Roles = [new RoleDefinition { RoleName = "Editor" }, new RoleDefinition { RoleName = "Viewer" }]
         };
         var (manager, _) = BuildManager(config);
         var userList = BuildUserList(new UserSummary("u1", "Alice", "alice@test.com"));
-        var roleStore = BuildRoleStore();
+        var roleStore = BuildRoleStore(new Dictionary<string, List<string>>
+        {
+            ["u1"] = ["Viewer"]
+        });
 
         ctx.SetupForDabbler(
             roles: ["SystemAdministrator"],
@@ -177,7 +182,7 @@ public class DabblerUserRoleManagerTests
     }
 
     [Fact]
-    public async Task UserWithNoRoles_ShowsNoRolesAssignedText()
+    public async Task UserWithNoRoles_ShowsNoRolesAssignedText_WhenUnassignedToggleIsOn()
     {
         using var ctx = new TestContext();
         var config = new SecurityConfiguration
@@ -200,6 +205,119 @@ public class DabblerUserRoleManagerTests
         var cut = ctx.RenderComponent<DabblerUserRoleManager>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
+        // Default toggle-off hides unassigned users; reveal them first.
+        var toggle = cut.FindComponent<MudSwitch<bool>>();
+        await cut.InvokeAsync(() => toggle.Instance.ValueChanged.InvokeAsync(true));
+
         cut.Markup.Should().Contain("No roles assigned");
+    }
+
+    [Fact]
+    public async Task ShowUnassignedSwitchOff_HidesUsersWithNoRoles_AndKeepsAssigned()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        var userList = BuildUserList(
+            new UserSummary("u1", "Alice", "alice@test.com"),
+            new UserSummary("u2", "Bob", "bob@test.com"));
+        var roleStore = BuildRoleStore(new Dictionary<string, List<string>>
+        {
+            ["u1"] = ["Admin"]
+        });
+
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(userList.Object);
+                svc.AddSingleton(roleStore.Object);
+            });
+
+        var cut = ctx.RenderComponent<DabblerUserRoleManager>();
+        await cut.InvokeAsync(() => Task.CompletedTask);
+
+        cut.Markup.Should().Contain("Alice");
+        cut.Markup.Should().NotContain("Bob");
+
+        // Default off: no call should have been made a second time.
+        userList.Verify(p => p.GetUsersAsync(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task ShowUnassignedSwitchOn_RevealsFullRoster_WithoutRefetch()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        var userList = BuildUserList(
+            new UserSummary("u1", "Alice", "alice@test.com"),
+            new UserSummary("u2", "Bob", "bob@test.com"));
+        var roleStore = BuildRoleStore(new Dictionary<string, List<string>>
+        {
+            ["u1"] = ["Admin"]
+        });
+
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(userList.Object);
+                svc.AddSingleton(roleStore.Object);
+            });
+
+        var cut = ctx.RenderComponent<DabblerUserRoleManager>();
+        await cut.InvokeAsync(() => Task.CompletedTask);
+
+        // Sanity: filter-off hides Bob.
+        cut.Markup.Should().NotContain("Bob");
+
+        var toggle = cut.FindComponent<MudSwitch<bool>>();
+        await cut.InvokeAsync(() => toggle.Instance.ValueChanged.InvokeAsync(true));
+
+        cut.Markup.Should().Contain("Alice");
+        cut.Markup.Should().Contain("Bob");
+
+        // Toggling the switch must not re-fetch from the user list provider or the role store.
+        userList.Verify(p => p.GetUsersAsync(default), Times.Once);
+        roleStore.Verify(s => s.GetAllAsync(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task ShowUnassignedSwitchOff_IsTheDefault()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        var userList = BuildUserList(
+            new UserSummary("u1", "Charlie", "charlie@test.com"));
+        var roleStore = BuildRoleStore(); // no assignments for anyone
+
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(userList.Object);
+                svc.AddSingleton(roleStore.Object);
+            });
+
+        var cut = ctx.RenderComponent<DabblerUserRoleManager>();
+        await cut.InvokeAsync(() => Task.CompletedTask);
+
+        var toggle = cut.FindComponent<MudSwitch<bool>>();
+        toggle.Instance.Value.Should().BeFalse();
+        cut.Markup.Should().NotContain("Charlie");
     }
 }
