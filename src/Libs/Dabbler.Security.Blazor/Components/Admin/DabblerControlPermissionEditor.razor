@@ -60,9 +60,33 @@
                                                aria-label="@($"{control.DisplayName} permission for {role}")"
                                                Margin="Margin.Dense"
                                                Variant="Variant.Outlined">
-                                        <MudSelectItem Value="ControlState.Enabled">Enabled</MudSelectItem>
-                                        <MudSelectItem Value="ControlState.Disabled">Disabled</MudSelectItem>
-                                        <MudSelectItem Value="ControlState.Hidden">Hidden</MudSelectItem>
+                                        <MudSelectItem Value="ControlState.Enabled">
+                                            <span class="d-inline-flex align-center gap-2">
+                                                <img src="_content/Dabbler.Security.Blazor/enabled.svg"
+                                                     alt=""
+                                                     aria-hidden="true"
+                                                     style="width:18px;height:18px;" />
+                                                <span>Enabled</span>
+                                            </span>
+                                        </MudSelectItem>
+                                        <MudSelectItem Value="ControlState.Disabled">
+                                            <span class="d-inline-flex align-center gap-2">
+                                                <img src="_content/Dabbler.Security.Blazor/disabled.svg"
+                                                     alt=""
+                                                     aria-hidden="true"
+                                                     style="width:18px;height:18px;" />
+                                                <span>Disabled</span>
+                                            </span>
+                                        </MudSelectItem>
+                                        <MudSelectItem Value="ControlState.Hidden">
+                                            <span class="d-inline-flex align-center gap-2">
+                                                <img src="_content/Dabbler.Security.Blazor/hidden.svg"
+                                                     alt=""
+                                                     aria-hidden="true"
+                                                     style="width:18px;height:18px;" />
+                                                <span>Hidden</span>
+                                            </span>
+                                        </MudSelectItem>
                                     </MudSelect>
                                 </td>
                             }

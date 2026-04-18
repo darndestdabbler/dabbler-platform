@@ -120,6 +120,65 @@ public class DabblerControlPermissionEditorTests
     }
 
     [Fact]
+    public void StateDropdown_RendersIconAndText_ForEachControlState()
+    {
+        // Three roles seeded with one of each ControlState so every state's
+        // selected-display template renders in the same CUT markup.
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles =
+            [
+                new RoleDefinition { RoleName = "RoleEnabled" },
+                new RoleDefinition { RoleName = "RoleDisabled" },
+                new RoleDefinition { RoleName = "RoleHidden" }
+            ],
+            ControlPermissions =
+            [
+                new ControlPermission
+                {
+                    PageKey = "orders",
+                    ControlKey = "delete-btn",
+                    RolePermissions =
+                    [
+                        new ControlRolePermission { RoleName = "RoleEnabled",  State = ControlState.Enabled },
+                        new ControlRolePermission { RoleName = "RoleDisabled", State = ControlState.Disabled },
+                        new ControlRolePermission { RoleName = "RoleHidden",   State = ControlState.Hidden }
+                    ]
+                }
+            ]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("orders", "delete-btn"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerControlPermissionEditor>(p =>
+            p.Add(c => c.PageKey, "orders"));
+
+        cut.Markup.Should().Contain("_content/Dabbler.Security.Blazor/enabled.svg");
+        cut.Markup.Should().Contain("_content/Dabbler.Security.Blazor/disabled.svg");
+        cut.Markup.Should().Contain("_content/Dabbler.Security.Blazor/hidden.svg");
+        cut.Markup.Should().Contain("Enabled");
+        cut.Markup.Should().Contain("Disabled");
+        cut.Markup.Should().Contain("Hidden");
+
+        // Icons are decorative; screen readers read the text label only.
+        var iconImgs = cut.FindAll("img[src*='_content/Dabbler.Security.Blazor/']");
+        iconImgs.Should().NotBeEmpty();
+        foreach (var img in iconImgs)
+        {
+            img.GetAttribute("aria-hidden").Should().Be("true");
+            img.GetAttribute("alt").Should().Be(string.Empty);
+        }
+    }
+
+    [Fact]
     public async Task SaveButton_PersistsControlPermissions()
     {
         using var ctx = new TestContext();

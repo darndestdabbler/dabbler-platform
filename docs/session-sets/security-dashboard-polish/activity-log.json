@@ -322,6 +322,59 @@
           "costUsd": 0.224325
         }
       ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/read-guidance",
+      "dateTime": "2026-04-18T05:25:14.843969+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session. Confirmed session-4 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/icon-markup",
+      "dateTime": "2026-04-18T05:25:14.845962+00:00",
+      "description": "Moved enabled.svg, disabled.svg, hidden.svg from src/Libs/Dabbler.Security.Blazor/ project root into wwwroot/ so they are served as Razor-class-library static web assets at _content/Dabbler.Security.Blazor/<state>.svg (same auto-wiring mechanism used in sessions 2 and 4). Added icon+text templates to every MudSelectItem in DabblerControlPermissionTab.razor and DabblerControlPermissionEditor.razor: each item wraps an <img src=\"_content/Dabbler.Security.Blazor/<state>.svg\" alt='' aria-hidden='true' style='width:18px;height:18px;'> and a <span>Enabled/Disabled/Hidden</span> in a d-inline-flex align-center gap-2 container so the icon sits to the left of the text. alt='' + aria-hidden='true' marks the icon decorative so screen readers read only the text label (icons augment, do not replace \u2014 per spec). DabblerControlPermissionTab's MudSelect min-width widened 130->150px so the icon+label pair doesn't clip.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/bunit",
+      "dateTime": "2026-04-18T05:25:14.845962+00:00",
+      "description": "Added StateDropdown_RendersIconAndText_ForEachControlState bUnit test to both DabblerControlPermissionEditorTests.cs and a new DabblerControlPermissionTabTests.cs file. Each test seeds three roles (RoleEnabled, RoleDisabled, RoleHidden) with one ControlRolePermission per state so all three state display templates render in the same CUT markup (MudSelect only renders the selected item's content when closed; using multiple pre-seeded rows avoids needing to open the popover). Asserts each of the three _content/Dabbler.Security.Blazor/<state>.svg URLs is present, each text label (Enabled/Disabled/Hidden) is present, and every icon img has aria-hidden=true with empty alt so screen readers read only the adjacent text.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-04-18T05:25:14.848114+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 2 pre-existing warnings (MUD0002 on DenyAllowSwitch Dense, CS8604 in WebGuardrailTests). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 135/135 (+2 vs session 4: the two new icon+text tests), Dabbler.Security.Tests 270/270, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-4 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-04-18T05:26:10.675806+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/ for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 9708,
+          "outputTokens": 680,
+          "costUsd": 0.19662000000000002
+        }
+      ]
     }
   ]
 }
