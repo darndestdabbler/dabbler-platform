@@ -5,36 +5,45 @@
 Integrated repo for the AcmeCoffeeOnline rebuild, required Dabbler libraries,
 and the AI-led workflow assets used to develop from one canonical solution.
 
-Read `README.md` for the current repo layout and build entry points.
-Read `docs/planning/guiding-principles.md` for the durable cross-project
-architecture, testing, and human-UAT rules.
-Read `docs/planning/lessons-learned.md` for repo-specific failure patterns and
-reusable tactics learned from prior sessions.
-Read `docs/ai-led-session-workflow.md` for the complete session-set workflow.
-
 Current intended development mode: use integrated source references under
 `src/Libs/`. Do not add new sibling-repo dependencies unless a session spec
 explicitly requires an import from a sibling repo.
 
-## AI Router
+## Required reading before every session
 
-This project includes an AI Router module (`ai-router/`) for routing reasoning
-tasks to cheaper models and verifying results cross-provider.
+- `README.md` -- repo layout and build entry points
+- `docs/planning/project-guidance.md` -- durable principles + conventions
+- `docs/planning/lessons-learned.md` -- repo-specific failure patterns and
+  tactics learned from prior sessions
+- `docs/ai-led-session-workflow.md` -- the authoritative session-set
+  workflow. This is the single source of truth for the step-by-step
+  procedure, the AI router usage, cross-provider verification, UAT checklist
+  handling, the Step 10 reorganization review, and the mandatory rules list.
+  Do not duplicate that content here.
 
-### When to use the router
+When the human says **"Start the next session"**, follow the workflow in
+`docs/ai-led-session-workflow.md` exactly. What follows below is only the
+Gemini-specific bootstrap the workflow needs.
 
-- Code review: `route(code, task_type="code-review")` -- auto-verified
-- Security review: `route(code, task_type="security-review")` -- auto-verified
-- Documentation: `route(code, task_type="documentation")`
-- Analysis: `route(question, task_type="analysis")`
-- Test generation: `route(code, task_type="test-generation")`
+## Gemini-specific bootstrap
 
-Do NOT route file creation, shell commands, or anything needing the filesystem.
+### API key export (Windows)
 
-### How to use it
+```bash
+export GEMINI_API_KEY=$(powershell -Command "[System.Environment]::GetEnvironmentVariable('GEMINI_API_KEY', 'User')" | tr -d '\r')
+export ANTHROPIC_API_KEY=$(powershell -Command "[System.Environment]::GetEnvironmentVariable('ANTHROPIC_API_KEY', 'User')" | tr -d '\r')
+.venv/Scripts/python.exe -c "
+import os
+missing = [k for k in ('ANTHROPIC_API_KEY', 'GEMINI_API_KEY') if not os.environ.get(k)]
+if missing:
+    raise SystemExit(f'Missing environment variables: {missing}')
+print('API keys OK')
+"
+```
 
-The module folder is `ai-router/` (hyphen). Import via `importlib` since Python
-cannot import hyphenated names:
+If keys are missing, stop and tell the human.
+
+### AI router import
 
 ```python
 import importlib.util, sys
@@ -50,136 +59,12 @@ def load_ai_router():
 
 ar = load_ai_router()
 route = ar.route
-
-result = route(
-    content="<the text to analyze>",
-    task_type="code-review",
-    context="<optional background>"
-)
-print(result.content)
-print(result.total_cost_usd)
 ```
 
-Use `.venv/Scripts/python.exe` to run Python scripts on Windows.
-The same module also exposes reusable notification helpers, including
-`send_session_complete_notification()`, which reads `PUSHOVER_API_KEY` and
-`PUSHOVER_USER_KEY` from the environment or Windows User environment.
-
-## Session Set Workflow
-
-When the human says **"Start the next session"**, follow the procedure in
-`docs/ai-led-session-workflow.md` exactly. Summary:
-
-### Step 0: Verify API Keys
-
-```bash
-export GEMINI_API_KEY=$(powershell -Command "[System.Environment]::GetEnvironmentVariable('GEMINI_API_KEY', 'User')" | tr -d '\r')
-export ANTHROPIC_API_KEY=$(powershell -Command "[System.Environment]::GetEnvironmentVariable('ANTHROPIC_API_KEY', 'User')" | tr -d '\r')
-.venv/Scripts/python.exe -c "
-import os
-missing = [k for k in ('ANTHROPIC_API_KEY', 'GEMINI_API_KEY') if not os.environ.get(k)]
-if missing:
-    raise SystemExit(f'Missing environment variables: {missing}')
-print('API keys OK')
-"
-```
-
-### Step 1: Identify the Active Session Set
-
-```python
-from ai_router.session_log import find_active_session_set, SessionLog
-
-SESSION_SET = find_active_session_set("docs/session-sets")
-log = SessionLog(SESSION_SET)
-next_session = log.get_next_session_number()
-```
-
-### Steps 2-4: Read Spec, Check Prerequisites, Execute Steps
-
-See `docs/ai-led-session-workflow.md` Steps 2-4.
-
-- File creation/modification: do directly, then `log.log_step()`
-- Reasoning tasks: `route()` first, then `log.log_step()` with cost data
-
-### Step 5: Build and Test
-
-```bash
-dotnet build
-dotnet test
-```
-
-### Step 6: End-of-Session Verification (MANDATORY)
-
-You MUST NOT verify your own work. Call `route(task_type="session-verification")`
-to dispatch to an external AI model for independent review.
-
-### Step 7: Cost Report, Commit, Notify, Stop
-
-```python
-from ai_router import print_cost_report
-print_cost_report(SESSION_SET)
-```
-
-```bash
-git add -A
-git commit -m "Session N of M: <description>"
-git push
-```
-
-```python
-from ai_router import send_session_complete_notification
-
-try:
-    send_session_complete_notification(
-        session_set=SESSION_SET,
-        session_number=next_session,
-        total_sessions=log.total_sessions,
-        verification_verdict="VERIFIED",
-        summary="<short description>"
-    )
-except Exception as exc:
-    print(f"Session completed, but Pushover notification failed: {exc}")
-```
-
-If Pushover keys are configured, send the notification after a successful push.
-If the notification fails, report it, but do not treat the session itself as
-failed or roll back the successful work.
-
-Do NOT start the next session. Wait for the human.
-
-## Rules
-
-- **One session only.** Never execute more than your assigned session.
-- **Never skip verification.** Every session must be independently verified.
-- **Never edit session review files.** They are the verifier's raw output.
-- **Log every step** via `log.log_step()`.
-- **Delegate reasoning** to `route()` -- do not perform reviews or analysis
-  yourself when the task should go through the router.
-- **Use the checklist-editor schema** for human-UAT checklist JSON files and
-  keep human results inline in that same file.
-- **Treat pending human UAT as blocking.** If you prepare a checklist for human
-  execution, hand it off clearly, point to the checklist editor, state that you
-  are waiting, and do not start downstream sessions unless the human explicitly
-  overrides that pause.
-- **Share screenshots during UI and E2E work when practical.** If you are
-  already exercising the browser and the overhead is reasonable, include
-  screenshots in the chat so the human can see visual progress.
-- **Before every session, read both guidance files.**
-  `docs/planning/guiding-principles.md` and
-  `docs/planning/lessons-learned.md` are mandatory pre-session context.
-- **Escalate durable new guidance.** If the human gives an instruction that
-  looks like a future guiding principle, ask whether it should be added to
-  `docs/planning/guiding-principles.md`.
-- **Recommend lessons learned after failures.** When a failure suggests a
-  reusable tactic, propose an update to `docs/planning/lessons-learned.md`.
-
-## Code Style
-
-- Namespaces: `AcmeCoffeeOnline.Web`, `AcmeCoffeeOnline.Api`,
-  `AcmeCoffeeOnline.Shared`, and `Dabbler.*` for integrated libraries
-- PascalCase public, `_camelCase` private
-- Nullable reference types enabled
-- All event handlers return `Task`, suffix `Async`
+Use `.venv/Scripts/python.exe` to run Python scripts on Windows. The same
+module exposes `send_session_complete_notification()`, which reads
+`PUSHOVER_API_KEY` and `PUSHOVER_USER_KEY` from the environment or Windows
+User environment.
 
 ## Building & Testing
 
@@ -198,3 +83,6 @@ docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit
 - `docker/` -- local and CI-like compose stack
 - `ai-router/` -- routing code, prompt templates, and workflow utilities
 - `docs/` -- workflow docs and session sets
+
+Code style conventions (namespaces, casing, nullable, `Async` suffix) live in
+`docs/planning/project-guidance.md` -> Conventions -> Code Style.

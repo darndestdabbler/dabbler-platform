@@ -86,7 +86,7 @@ git (see `git status`). Each session below wires the ones it needs.
 ### Session 1 of 8: Access-denied flow
 
 **Steps:**
-1. Read `docs/planning/guiding-principles.md` and
+1. Read `docs/planning/project-guidance.md` and
    `docs/planning/lessons-learned.md`.
 2. Change `PageAuthorizationHandler.HandleRequirementAsync` so that a
    denial calls `context.Fail()` (today it returns silently, which lets

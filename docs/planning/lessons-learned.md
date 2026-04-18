@@ -7,8 +7,12 @@
 
 Review this file before every AI-led session.
 
-Unlike `guiding-principles.md`, which captures broad cross-project rules, this
-file is for practical lessons learned from actual execution in this repo.
+Unlike `project-guidance.md`, which captures durable principles and
+conventions, this file is for practical lessons learned from actual execution
+in this repo. A lesson that has been applied as the right call in at least
+two different contexts is a promotion candidate for Conventions (or, rarely,
+Principles) in `project-guidance.md`. See `docs/ai-led-session-workflow.md`
+Step 10 for the end-of-session-set reorganization review.
 
 ## How To Use This File
 
@@ -16,8 +20,10 @@ file is for practical lessons learned from actual execution in this repo.
 - Add entries when a failure, surprise, or avoidable friction reveals a better
   repeatable strategy.
 - Prefer short, action-oriented lessons over long retrospectives.
-- When a lesson becomes broad enough to guide future projects, ask the human
-  whether it should also be promoted into `guiding-principles.md`.
+- When a lesson has proven itself in two or more different contexts, propose
+  promoting it to `project-guidance.md` — as a Convention if it is a specific
+  rule, or a Principle if it is durable strategy. Never delete a lesson; only
+  move it.
 
 ## Entry Template
 
@@ -384,3 +390,27 @@ Use this structure for new entries:
   verification prompt (files, reasoning, why the alternative would
   regress). Do not silently substitute and do not force the named widget
   into a shape it wasn't designed for.
+
+## Report Footer Totals Must Align Under Their Detail Column
+
+- **Context:** `reportFooter` and `groupFooter` bands in report RDFs
+  (e.g., `orders-by-customer.rdf.json`, `sales-by-product.rdf.json`).
+- **Failure or friction:** A Grand Total aggregate was positioned
+  mid-column (e.g., `Count(*)` at x=5.0 when the "Items" column header
+  was at x=6.2), and a separate descriptor label ("orders", "units")
+  was parked at the actual column X to "explain" the number. The label
+  and the number overlapped in the PDF export and the number did not
+  appear under the column it summarized.
+- **Lesson:** An aggregate in a footer band that summarizes a detail
+  column must share the detail column's X and width. Adding a
+  descriptor label next to a misaligned aggregate is a smell — the
+  column header already names the quantity, and the label ends up
+  colliding with the value. The descriptor label is a sign of the
+  alignment bug, not a fix for it.
+- **Action for future sessions:** When authoring or reviewing a report
+  RDF, verify that every numeric aggregate in `reportFooter` /
+  `groupFooter` bands matches the X and width of the corresponding
+  element in the `detail` band. Treat any noun label ("orders",
+  "units", "items") placed adjacent to an aggregate as a warning sign:
+  either the aggregate is misaligned, or the column header is too
+  vague and should be renamed instead of labeled twice.

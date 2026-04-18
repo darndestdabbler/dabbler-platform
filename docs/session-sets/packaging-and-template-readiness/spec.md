@@ -38,7 +38,7 @@ paths.
 ### Session 1 of 7: Repository Cleanup
 
 **Steps:**
-1. Read `docs/planning/guiding-principles.md` and
+1. Read `docs/planning/project-guidance.md` and
    `docs/planning/lessons-learned.md`.
 2. Delete completed session-set folders that are no longer needed, keeping only
    the active and reference sets listed in `FOLDERS_AND_FILES_TO_SAVE.md`.
@@ -52,13 +52,13 @@ paths.
    to the in-app Dev menu as the preferred UX. No further promotion needed —
    the old `scripts/full-app-uat/` folder was removed in that earlier set.
 7. Clean up stale file references in `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, and
-   `docs/planning/guiding-principles.md` that point to deleted files.
+   `docs/planning/project-guidance.md` that point to deleted files.
 8. Delete `FOLDERS_AND_FILES_TO_SAVE.md` after cleanup is complete.
 9. Build and test to confirm no regressions.
 
 **Creates:** Leaner repository with only active assets
 **Touches:** `Dabbler.Platform.sln`, `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`,
-`docs/planning/guiding-principles.md`, `scripts/`
+`docs/planning/project-guidance.md`, `scripts/`
 **Ends with:** Build and tests pass with no broken references
 **Progress keys:** `session-1/delete-session-sets`,
 `session-1/delete-planning-docs`, `session-1/delete-docs`,
@@ -156,7 +156,7 @@ without inheriting accidental historical defaults
 ### Session 6 of 7: Playwright E2E Tests For Packaging And Template Features
 
 **Steps:**
-1. Read `docs/planning/guiding-principles.md` and
+1. Read `docs/planning/project-guidance.md` and
    `docs/planning/lessons-learned.md`.
 2. Identify the user-facing features and workflows introduced or changed by
    this session set (packaging install paths, template scaffolding, stub
@@ -181,7 +181,7 @@ work as intended before human UAT
 ### Session 7 of 7: Human UAT Checklist And Closeout
 
 **Steps:**
-1. Read `docs/planning/guiding-principles.md` and
+1. Read `docs/planning/project-guidance.md` and
    `docs/planning/lessons-learned.md`.
 2. Generate a human-UAT checklist JSON against the checklist-editor schema,
    covering the packaging, template, and consumer-facing aspects that

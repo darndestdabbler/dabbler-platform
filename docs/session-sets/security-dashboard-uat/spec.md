@@ -86,7 +86,7 @@ itself.
 ### Session 1 of 1: Generate UAT Checklist and Hand Off
 
 **Steps:**
-1. Read `docs/planning/guiding-principles.md` and
+1. Read `docs/planning/project-guidance.md` and
    `docs/planning/lessons-learned.md`.
 2. Generate the UAT checklist JSON against the checklist-editor schema with
    functional areas covering each dashboard tab plus dashboard-wide concerns

@@ -6,11 +6,17 @@ tool) acts as the **orchestrator**, executing a predefined session plan one
 session at a time. A separate **AI Router** Python module routes reasoning
 tasks to cheaper external models and enforces cross-provider verification.
 
+This document is the single source of truth for the session-set workflow
+itself — procedure, rules, router usage, verification, UAT handling, and
+session-set close. `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` provide only
+agent-specific bootstrap (API key export, router import snippet) and point
+here for everything else.
+
 The orchestrator can change from session to session at the human's discretion.
-All three orchestrators follow the same workflow -- only the instruction file
+All three orchestrators follow the same workflow — only the instruction file
 they read differs.
 
-Read `docs/planning/guiding-principles.md` and
+Read `docs/planning/project-guidance.md` and
 `docs/planning/lessons-learned.md` before every session and before changing
 architecture, testing strategy, workflow assets, or human-UAT conventions.
 
@@ -24,6 +30,7 @@ Human
 Orchestrator (Claude / Codex / Gemini)
   |
   |-- reads instruction file (CLAUDE.md / AGENTS.md / GEMINI.md)
+  |-- reads project-guidance.md and lessons-learned.md
   |-- reads spec.md in the active session set
   |-- reads activity-log.json for prior progress
   |
@@ -46,6 +53,8 @@ Orchestrator (Claude / Codex / Gemini)
   |-- prints cost report
   |-- commits and pushes
   |-- sends session-complete notification (if configured)
+  |-- on last session: generates change-log.md AND proposes reorganization
+  |                    candidates for project-guidance.md / lessons-learned.md
   +-- STOPS (one session per conversation)
 ```
 
@@ -63,9 +72,12 @@ session set lives in `docs/session-sets/<name>/` and contains:
 | `session-reviews/session-NNN.md` | Raw verifier output for each session (never edited) |
 | `session-reviews/issues-NNN.json` | Issue log if verification found problems |
 | `change-log.md` | Generated after the final session; marks the set as complete |
+| `<name>-uat-checklist.json` | Per-set human-UAT checklist (if the set requires one) |
 
-Human-UAT sets may also include checklist JSON files intended for the
-checklist editor.
+Human-UAT sets use one checklist per session set, named after the set, rather
+than re-running an earlier set's checklist. See
+`docs/planning/project-guidance.md` → Conventions → Human UAT And Checklist
+Editor.
 
 ### Session
 
@@ -259,28 +271,31 @@ The router uses `.venv/Scripts/python.exe` on Windows.
 ## Executing a Session
 
 When the human says **"Start the next session"**, the orchestrator follows
-this exact procedure:
+this exact procedure.
 
 ### UAT Checklist Rule
 
-When a session set includes human-executed UAT checklists:
+When a session set includes a human-executed UAT checklist:
 
-- the checklist JSON must match the schema from
+- Each session set gets its own checklist named
+  `<session-set-slug>-uat-checklist.json`, placed inside the session set's
+  folder. Do not re-use or re-run a checklist from an earlier session set.
+- The checklist JSON must match the schema from
   `https://github.com/darndestdabbler/uat-checklist-editor/blob/main/checklist-schema.json`
-- the human runs it through
+- The human runs it through
   `https://darndestdabbler.github.io/uat-checklist-editor/`
-- review results are saved inline in the checklist JSON
-- do not create a separate empty findings scaffold just to hold future human
+- Review results are saved inline in the checklist JSON
+- Do not create a separate empty findings scaffold just to hold future human
   review results
-- after a checklist is prepared and waiting on the human, do not start a new
+- After a checklist is prepared and waiting on the human, do not start a new
   session that depends on or bypasses that review unless the human explicitly
   says to do so
 
-### Step 0: Verify API Keys
+### Step 0: Verify API Keys And Read Guidance
 
 Before doing anything else:
 
-1. Read `docs/planning/guiding-principles.md`
+1. Read `docs/planning/project-guidance.md`
 2. Read `docs/planning/lessons-learned.md`
 3. Then load keys from the environment and confirm both are present
 
@@ -313,7 +328,7 @@ Confirm that files listed in prior sessions' "Creates" and "Touches" exist.
 
 For each step in the session plan:
 
-**File work** -- create or edit files directly:
+**File work** — create or edit files directly:
 ```python
 log.log_step(
     session_number=N,
@@ -325,7 +340,7 @@ log.log_step(
 )
 ```
 
-**Reasoning tasks** -- delegate to the router:
+**Reasoning tasks** — delegate to the router:
 ```python
 from ai_router import route
 
@@ -350,7 +365,7 @@ During execution:
 
 - if the human gives a decision or instruction that looks durable enough to
   guide future sessions or future projects, ask whether it should be added to
-  `docs/planning/guiding-principles.md`
+  `docs/planning/project-guidance.md`
 - if a failure or avoidable friction suggests a reusable tactic, recommend an
   update to `docs/planning/lessons-learned.md`
 
@@ -437,8 +452,8 @@ otherwise successful session.
 Report: session number, verification verdict, deferred issues (if any),
 cost summary, and sessions remaining.
 
-If the session produced or refreshed a human-UAT checklist that still needs the
-human to run it, the stop message must also:
+If the session produced or refreshed a human-UAT checklist that still needs
+the human to run it, the stop message must also:
 
 - clearly identify the checklist path
 - point the human to the checklist editor URL
@@ -447,10 +462,57 @@ human to run it, the stop message must also:
 
 **Do not start the next session. Wait for the human.**
 
-### Step 10: Last Session Only
+### Step 10: Last Session Only — Change Log And Reorganization Proposals
+
+On the last session of a session set, after Step 9 but before the final
+commit and push, the orchestrator produces two artifacts:
+
+#### 10a. Change Log
 
 Generate `change-log.md` using `route(task_type="documentation")`. This marks
 the session set as complete.
+
+#### 10b. Reorganization Proposals (Mandatory)
+
+Review `docs/planning/project-guidance.md` and
+`docs/planning/lessons-learned.md` and propose any reorganization that this
+session set's experience justifies. Candidate moves include:
+
+- **Lesson → Convention.** A lesson in `lessons-learned.md` that has been
+  applied as the right call in **at least two different contexts** (different
+  session sets, features, or problem areas) is a promotion candidate. A
+  single repeat is not enough — wait for the second context.
+- **Lesson → Principle.** A lesson that has proven itself strategic in ≥2
+  contexts and is broader than a specific pattern may be promoted directly
+  to Principles. Rare — most promotions go to Conventions first.
+- **Convention → Principle.** A convention whose rationale has become
+  clearly strategic (not just a rule, but a reason the rule exists).
+- **Principle → Convention.** A principle that turns out to be a specific
+  rule rather than durable strategy.
+- **Relocation within a file.** Moving an item to a more fitting section.
+- **Staleness flag.** An item whose driving context is gone may be flagged
+  for the human — but do not delete. Only move, with a note about why.
+
+Procedure:
+
+1. Scan both files and identify candidates with reasoning.
+2. Present each candidate to the human, one at a time:
+   - What is moving (text or pointer)
+   - From where, to where
+   - Why (which two-or-more contexts justify the move; or why the current
+     classification is wrong)
+3. Human accepts or rejects each proposal.
+4. Apply accepted proposals. **Never delete content — only move.** If the
+   destination already contains equivalent guidance, collapse by reference
+   rather than duplicate.
+5. If no candidates qualify, output exactly:
+   > No reorganization changes recommended for `project-guidance.md` or
+   > `lessons-learned.md`.
+6. Include the reorganization result in the final commit for the session
+   set.
+
+This step is mandatory even when the output is "no changes recommended" —
+the review itself is the checkpoint.
 
 ---
 
@@ -465,28 +527,27 @@ the orchestrator to follow this same workflow.
 | Codex (OpenAI) | `AGENTS.md` (repo root) | `~/.codex/instructions.md` |
 | Gemini | `GEMINI.md` (repo root) | Varies by tool |
 
-The human chooses which agent to use for each session. The agent reads its own
-instruction file, which tells it how to import the AI router, follow the
-session-set workflow, and where to find the spec.
+The human chooses which agent to use for each session. The agent reads its
+own instruction file. Each instruction file keeps only agent-specific
+bootstrap (API key export syntax, router import snippet) and points here
+for the full workflow and rules.
 
 ### What Goes in the Instruction File
 
 Each agent-specific file should contain:
 
-1. **Project overview** -- what the repo is, package structure
-2. **Guiding-principles reference** -- pointer to the durable cross-project
-   guidance
-3. **Lessons-learned reference** -- pointer to the practical repo-specific
-   failure and strategy notes
-4. **Session-set workflow reference** -- pointer to this document
-5. **AI router import snippet** -- how to load the `ai-router` module
-6. **API key export commands** -- platform-specific commands to load keys
-7. **Build and test commands** -- `dotnet build`, `dotnet test`
-8. **Notification helper usage** -- reusable end-of-session alert via `ai-router`
-9. **Code style rules** -- naming conventions, patterns to follow
-10. **Mandatory rules** -- never skip verification, one session only, log every
-    step, delegate reasoning, honor pending human-UAT blockers, and surface
-    durable new guidance to the human
+1. **Project overview** — what the repo is, package structure
+2. **Pointer to `docs/planning/project-guidance.md`**
+3. **Pointer to `docs/planning/lessons-learned.md`**
+4. **Pointer to this workflow doc** for the full procedure and rules
+5. **AI router import snippet** — how to load the `ai-router` module
+6. **API key export commands** — platform-specific commands to load keys
+7. **Build and test commands**
+8. **Solution structure**
+
+The instruction file **should not** duplicate the per-step procedure, the
+rules list, the UAT checklist rule, or the reorganization-proposal rule —
+those live here, and duplication creates drift.
 
 ### Switching Orchestrators Between Sessions
 
@@ -497,7 +558,7 @@ The orchestrator:
 1. Reads the activity log to find the next session number
 2. Reads the spec to find that session's plan
 3. Checks prerequisites from prior sessions
-4. Executes -- regardless of which agent ran previous sessions
+4. Executes — regardless of which agent ran previous sessions
 
 ---
 
@@ -565,15 +626,48 @@ automatically sends the response to a model from a different provider:
 - Sonnet output -> verified by Gemini Pro (Google)
 - Opus output -> verified by Gemini Pro (Google)
 
+### When To Use The Router
+
+- Code review → `route(code, task_type="code-review")` ← auto-verified
+- Security review → `route(code, task_type="security-review")` ← auto-verified
+- Documentation → `route(code, task_type="documentation")`
+- Analysis → `route(question, task_type="analysis")`
+- Test generation → `route(code, task_type="test-generation")`
+
+Do NOT route file creation, shell commands, or anything needing the
+filesystem.
+
 ---
 
 ## Rules (Apply to All Orchestrators)
 
+This is the authoritative rules list. Instruction files (`CLAUDE.md`,
+`AGENTS.md`, `GEMINI.md`) reference this section rather than duplicating it.
+
 1. **One session only.** Never execute more than the assigned session.
-2. **Never skip verification.** Every session must be independently verified.
+2. **Never skip verification.** Every session must be independently verified
+   by a different AI provider via `route(task_type="session-verification")`.
 3. **Never edit session review files.** They are the verifier's raw output.
-4. **Log every step** via `log.log_step()`.
-5. **Delegate reasoning** to `route()` -- do not perform reviews or analysis
-   yourself when the task should go through the router.
+4. **Log every step** via `log.log_step()` — including build, test, and
+   verification.
+5. **Delegate reasoning** to `route()` — do not perform reviews, analysis, or
+   documentation yourself when the task should go through the router.
 6. **Do not commit with unresolved Critical/Major issues.** Inform the human.
 7. **The human controls orchestrator choice.** Any session can use any agent.
+8. **Before every session, read both guidance files.**
+   `docs/planning/project-guidance.md` and
+   `docs/planning/lessons-learned.md` are mandatory pre-session context.
+9. **Treat pending human UAT as blocking.** Do not start downstream sessions
+   on top of a checklist the human has not yet reviewed unless the human
+   explicitly overrides the pause.
+10. **One UAT checklist per session set.** Name it
+    `<session-set-slug>-uat-checklist.json` and keep human results inline.
+11. **Share screenshots during UI and E2E work when practical.**
+12. **Escalate durable new guidance.** If the human gives an instruction that
+    looks like a future principle or convention, ask whether it should be
+    added to `docs/planning/project-guidance.md`.
+13. **Recommend lessons learned after failures.** When a failure suggests a
+    reusable tactic, propose an update to `docs/planning/lessons-learned.md`.
+14. **Run the Step 10 reorganization review on the last session of every
+    set.** Output "no changes recommended" if nothing qualifies — but do the
+    review.
