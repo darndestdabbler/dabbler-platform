@@ -37,7 +37,7 @@
         <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
         @foreach (var entity in Registry.Entities.Where(e => MatchesFilter(e.Key, e.DisplayName)))
         {
-            <MudCard Elevation="1" Style="min-width:260px; flex:1 1 260px; max-width:480px;">
+            <MudCard Elevation="1" Style="min-width:340px; flex:1 1 340px; max-width:600px;">
                 <MudCardHeader>
                     <CardHeaderContent>
                         <div class="d-flex align-center gap-2">
@@ -58,15 +58,19 @@
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent Class="pt-0">
-                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent; width:100%;"
                                     aria-label="@($"Entity permissions for {entity.DisplayName}")">
                         <thead>
                             <tr>
-                                <th style="min-width:160px;">Role</th>
+                                <th style="min-width:140px;">Role</th>
                                 @foreach (var op in _crudOps)
                                 {
-                                    <th style="text-align:center;min-width:70px;">
-                                        <MudText Typo="Typo.caption" Color="@OpMudColor(op)">@op</MudText>
+                                    <th style="text-align:center; width:1%; white-space:nowrap; padding-left:2px; padding-right:2px;">
+                                        <img src="@($"_content/Dabbler.Security.Blazor/{op.ToLowerInvariant()}-header.svg")"
+                                             alt="@op"
+                                             title="@op"
+                                             aria-label="@op"
+                                             style="height:48px; display:inline-block;" />
                                     </th>
                                 }
                             </tr>
@@ -80,13 +84,14 @@
                                     </td>
                                     @foreach (var op in _crudOps)
                                     {
-                                        <td style="text-align:center;">
+                                        <td style="text-align:center; padding-left:2px; padding-right:2px;">
                                             <MudCheckBox T="bool"
                                                          Value="@HasOp(role, entity.Key, op)"
                                                          ValueChanged="@(v => SetOp(role, entity.Key, op, v))"
                                                          aria-label="@($"{op} permission for {role} on {entity.DisplayName}")"
                                                          Color="@OpColor(op)"
-                                                         Size="Size.Small" />
+                                                         Size="Size.Small"
+                                                         Class="ma-0 pa-0 d-inline-flex" />
                                         </td>
                                     }
                                 </tr>
@@ -105,7 +110,7 @@
         </div>
 
         <MudText Typo="Typo.caption" Class="mt-2">
-            C = Create &nbsp;|&nbsp; R = Read &nbsp;|&nbsp; U = Update &nbsp;|&nbsp; D = Delete
+            Column icons: <b>Create</b>, <b>Read</b>, <b>Update</b>, <b>Delete</b>. Hover or use assistive tech to read each header label.
         </MudText>
     }
 </MudPaper>

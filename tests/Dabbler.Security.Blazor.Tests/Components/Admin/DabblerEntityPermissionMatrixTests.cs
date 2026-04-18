@@ -66,11 +66,74 @@ public class DabblerEntityPermissionMatrixTests
         cut.Markup.Should().Contain("Viewer");
         cut.Markup.Should().Contain("Order");
         cut.Markup.Should().Contain("Product");
-        // CRUD legend
-        cut.Markup.Should().Contain("C");
-        cut.Markup.Should().Contain("R");
-        cut.Markup.Should().Contain("U");
-        cut.Markup.Should().Contain("D");
+    }
+
+    [Fact]
+    public void CrudHeaders_RenderSvgImages_WithAccessibleNames()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("Order"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEntityPermissionMatrix>();
+
+        var expected = new[]
+        {
+            ("Create", "_content/Dabbler.Security.Blazor/create-header.svg"),
+            ("Read",   "_content/Dabbler.Security.Blazor/read-header.svg"),
+            ("Update", "_content/Dabbler.Security.Blazor/update-header.svg"),
+            ("Delete", "_content/Dabbler.Security.Blazor/delete-header.svg"),
+        };
+
+        foreach (var (op, src) in expected)
+        {
+            var img = cut.FindAll($"thead th img[src='{src}']").Should().NotBeEmpty($"{op} header image should be rendered").And.Subject.First();
+            img.GetAttribute("alt").Should().Be(op, $"{op} header image must expose an alt text for screen readers");
+            img.GetAttribute("title").Should().Be(op, $"{op} header image must expose a title tooltip");
+            img.GetAttribute("aria-label").Should().Be(op, $"{op} header image must expose an aria-label");
+        }
+
+        // The old text-only column labels should no longer appear as standalone header text.
+        cut.FindAll("thead th span.mud-typography").Should().BeEmpty("CRUD header text was replaced by 45° SVG icons");
+    }
+
+    [Fact]
+    public void CrudCells_AreCentered()
+    {
+        using var ctx = new TestContext();
+        var config = new SecurityConfiguration
+        {
+            Roles = [new RoleDefinition { RoleName = "Admin" }]
+        };
+        var (manager, _) = BuildManager(config);
+        ctx.SetupForDabbler(
+            roles: ["SystemAdministrator"],
+            configureServices: svc =>
+            {
+                svc.AddSingleton(manager);
+                svc.AddSingleton(BuildRegistry("Order"));
+                svc.AddSingleton<AuthorizationStateNotifier>();
+            });
+
+        var cut = ctx.RenderComponent<DabblerEntityPermissionMatrix>();
+
+        var bodyCells = cut.FindAll("tbody td").Skip(1).Take(4).ToList(); // skip role-name td
+        bodyCells.Should().HaveCount(4);
+        foreach (var td in bodyCells)
+        {
+            (td.GetAttribute("style") ?? string.Empty).Should().Contain("text-align:center");
+        }
     }
 
     [Fact]
