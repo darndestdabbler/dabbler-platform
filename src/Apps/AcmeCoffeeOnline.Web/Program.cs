@@ -299,7 +299,35 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+
+// Re-execute /not-found ONLY for genuine 404 responses. Do not intercept
+// 401/403 — those must surface through the Blazor <NotAuthorized> fragment
+// so the user sees the centered access-denied card instead of a 404 page.
+app.UseStatusCodePages(async statusContext =>
+{
+    if (statusContext.HttpContext.Response.StatusCode != StatusCodes.Status404NotFound)
+    {
+        return;
+    }
+
+    var context = statusContext.HttpContext;
+    var originalPath = context.Request.Path;
+    var originalQueryString = context.Request.QueryString;
+
+    context.Request.Path = "/not-found";
+    context.Request.QueryString = QueryString.Empty;
+
+    try
+    {
+        await statusContext.Next(context);
+    }
+    finally
+    {
+        context.Request.Path = originalPath;
+        context.Request.QueryString = originalQueryString;
+    }
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
@@ -582,7 +610,8 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
 app.MapGet("/auth/challenge/{scheme}", async (
     string scheme,
     string? returnUrl,
-    HttpContext context) =>
+    HttpContext context,
+    ILoggerFactory loggerFactory) =>
 {
     var safeReturnUrl = IsLocalUrl(returnUrl) ? returnUrl! : "/";
 
@@ -592,7 +621,17 @@ app.MapGet("/auth/challenge/{scheme}", async (
         Items = { ["scheme"] = scheme, ["provider"] = scheme }
     };
 
-    await context.ChallengeAsync(scheme, properties);
+    try
+    {
+        await context.ChallengeAsync(scheme, properties);
+    }
+    catch (Exception ex)
+    {
+        var logger = loggerFactory.CreateLogger("AcmeCoffeeOnline.ExternalAuth");
+        logger.LogWarning(ex, "SSO challenge for scheme {Scheme} failed; redirecting to /login?error=sso-unavailable.", scheme);
+        return Results.Redirect("/login?error=sso-unavailable");
+    }
+
     return Results.Empty;
 });
 

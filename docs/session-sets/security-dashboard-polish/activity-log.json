@@ -1,0 +1,87 @@
+{
+  "sessionSetName": "security-dashboard-polish",
+  "createdDate": "2026-04-18T04:19:38.787862+00:00",
+  "totalSessions": 8,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-guidance",
+      "dateTime": "2026-04-18T04:19:38.792866+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session; confirmed user direction to start security-dashboard-polish Session 1 despite UAT folder still showing in-progress (it is a single-session UAT-prep spec whose change-log.md was never generated; human UAT results already in the checklist JSON).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/handler-fail",
+      "dateTime": "2026-04-18T04:30:06.860314+00:00",
+      "description": "PageAuthorizationHandler.HandleRequirementAsync now calls context.Fail() with an AuthorizationFailureReason on every denial path (unregistered-fail-closed, explicit Deny, no-allowed-role, scoped-admin missing session context or organization match). Succeeds paths unchanged.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/status-codes",
+      "dateTime": "2026-04-18T04:30:06.860314+00:00",
+      "description": "Replaced app.UseStatusCodePagesWithReExecute(\"/not-found\") with a custom app.UseStatusCodePages handler that only re-executes /not-found for genuine 404 responses. 401/403 are no longer swallowed and can now surface the Blazor <NotAuthorized> fragment.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/not-authorized-fragment",
+      "dateTime": "2026-04-18T04:30:06.861313+00:00",
+      "description": "Created Components/Shared/AccessDeniedCard.razor (centered MudCard with lock icon, approved copy \"You dont have access to this page. If you need access, please request it from your administrator.\", role=alert, aria-live=assertive, Back to dashboard button navigating to /dashboard). Wired Routes.razor <NotAuthorized> to render <AccessDeniedCard />. Updated /access-denied page (AccessDenied.razor) to render the same card while preserving its existing data-testid=\"access-denied-page\" wrapper so existing Playwright/WebGuardrail tests that depend on the redirect path keep passing.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/playwright",
+      "dateTime": "2026-04-18T04:30:06.861313+00:00",
+      "description": "Added AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync Playwright test. Signs in as BackofficeUser jdoe@acmecoffee.com, navigates to /admin/security, asserts URL does not contain /not-found, and asserts access-denied-card, approved copy, and access-denied-back-button are visible.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/bunit",
+      "dateTime": "2026-04-18T04:30:06.862313+00:00",
+      "description": "Added AccessDeniedCardTests bUnit suite (4 tests): approved copy is rendered, Back-to-dashboard button is rendered, clicking the button calls NavigationManager.NavigateTo(\"/dashboard\"), and wrapper has role=alert + aria-live=assertive.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-18T04:30:06.862313+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 1 pre-existing CS8604 warning in WebGuardrailTests.cs. dotnet test (non-Playwright): 575 passed, 1 failed. The single failure is the pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md), identical to UAT session 1 and unrelated to this session. AccessDeniedCardTests: 4/4 passed. No other regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-18T04:32:50.193551+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/session-1-review-1.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 6732,
+          "outputTokens": 1300,
+          "costUsd": 0.19848
+        }
+      ]
+    }
+  ]
+}

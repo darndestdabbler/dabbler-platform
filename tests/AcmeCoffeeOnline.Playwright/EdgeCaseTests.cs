@@ -166,4 +166,42 @@ public sealed class EdgeCaseTests
             await _fixture.ClosePageAsync(page);
         }
     }
+
+    [Fact]
+    public async Task AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync()
+    {
+        // Regression guard for the security-dashboard-polish Session 1 spec:
+        // a BackofficeUser hitting /admin/security must land on the centered
+        // access-denied card with the approved copy, never on the /not-found
+        // page. The request may end at /access-denied (current cookie redirect
+        // behavior) or stay on /admin/security (when rendered via Blazor's
+        // <NotAuthorized> fragment) — both paths must show the same card.
+        var page = await _fixture.CreatePageAsync();
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "jdoe@acmecoffee.com");
+
+            await page.GotoAsync($"{_fixture.BaseUrl}/admin/security", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle
+            });
+
+            Assert.DoesNotContain("/not-found", page.Url, StringComparison.OrdinalIgnoreCase);
+
+            await Assertions.Expect(page.GetByTestId("access-denied-card"))
+                .ToBeVisibleAsync();
+
+            await Assertions.Expect(page.GetByText(
+                    "You don't have access to this page. If you need access, please request it from your administrator."))
+                .ToBeVisibleAsync();
+
+            await Assertions.Expect(page.GetByTestId("access-denied-back-button"))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
 }

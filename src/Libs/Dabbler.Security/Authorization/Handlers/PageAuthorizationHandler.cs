@@ -69,7 +69,13 @@ public class PageAuthorizationHandler : AuthorizationHandler<PagePermissionRequi
         if (permission == null)
         {
             if (_unregisteredPolicy == UnregisteredResourcePolicy.FailOpen)
+            {
                 context.Succeed(requirement);
+                return;
+            }
+
+            context.Fail(new AuthorizationFailureReason(
+                this, $"Page '{requirement.PageKey}' is not registered and policy is FailClosed."));
             return;
         }
 
@@ -77,7 +83,11 @@ public class PageAuthorizationHandler : AuthorizationHandler<PagePermissionRequi
 
         // Deny takes precedence
         if (permission.DeniedRoles.Any(r => userRoles.Contains(r)))
+        {
+            context.Fail(new AuthorizationFailureReason(
+                this, $"User role is explicitly denied for page '{requirement.PageKey}'."));
             return;
+        }
 
         if (permission.AllowedRoles.Any(r => userRoles.Contains(r)))
         {
@@ -87,17 +97,23 @@ public class PageAuthorizationHandler : AuthorizationHandler<PagePermissionRequi
 
         if (!string.Equals(requirement.PageKey, ScopedAdminRoute, StringComparison.OrdinalIgnoreCase))
         {
+            context.Fail(new AuthorizationFailureReason(
+                this, $"User has no allowed role for page '{requirement.PageKey}'."));
             return;
         }
 
         var userIdClaim = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!int.TryParse(userIdClaim, out var userId))
         {
+            context.Fail(new AuthorizationFailureReason(
+                this, "Unable to resolve user identifier for scoped admin page."));
             return;
         }
 
         if (_userSessionContextService is null)
         {
+            context.Fail(new AuthorizationFailureReason(
+                this, "Session context service is not available for scoped admin page."));
             return;
         }
 
@@ -106,7 +122,11 @@ public class PageAuthorizationHandler : AuthorizationHandler<PagePermissionRequi
                 organization.RoleNames.Contains(ScopedAdminRoleName, StringComparer.OrdinalIgnoreCase)) == true)
         {
             context.Succeed(requirement);
+            return;
         }
+
+        context.Fail(new AuthorizationFailureReason(
+            this, $"User lacks scoped admin role '{ScopedAdminRoleName}' in any organization."));
     }
 
     private IReadOnlySet<string> GetEffectiveRoles(ClaimsPrincipal user, SecurityConfiguration config)
