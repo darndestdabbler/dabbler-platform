@@ -18,8 +18,9 @@ explicitly requires an import from a sibling repo.
 - `docs/ai-led-session-workflow.md` — the authoritative session-set workflow.
   This is the single source of truth for the step-by-step procedure, the AI
   router usage, cross-provider verification, UAT checklist handling, the
-  Step 10 reorganization review, and the mandatory rules list. Do not
-  duplicate that content here.
+  Step 9 reorganization review (run after the Step 8 notify so the human
+  is not blocking the completion signal), and the mandatory rules list.
+  Do not duplicate that content here.
 
 When the human says **"Start the next session"**, follow the workflow in
 `docs/ai-led-session-workflow.md` exactly. What follows below is only the

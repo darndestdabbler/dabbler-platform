@@ -25,7 +25,7 @@ When a principle implies a specific rule, put the principle under Principles
 and the concrete rule under Conventions. At the end of every session set the
 orchestrator proposes reorganization candidates — promotions from Lessons to
 Conventions/Principles, demotions, relocations — and the human accepts or
-rejects each (see `docs/ai-led-session-workflow.md` Step 10).
+rejects each (see `docs/ai-led-session-workflow.md` Step 9, post-notify).
 
 ---
 

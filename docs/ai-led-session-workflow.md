@@ -50,11 +50,15 @@ Orchestrator (Claude / Codex / Gemini)
   |     |-- saves raw verifier output (never edited)
   |     +-- fixes issues if found (max 2 retries)
   |
+  |-- on last session: generates change-log.md (part of the same commit)
   |-- prints cost report
   |-- commits and pushes
   |-- sends session-complete notification (if configured)
-  |-- on last session: generates change-log.md AND proposes reorganization
-  |                    candidates for project-guidance.md / lessons-learned.md
+  |-- on last session ONLY (after notify, so the human is not blocking
+  |                    the notification on answering proposals):
+  |                    proposes reorganization candidates for
+  |                    project-guidance.md / lessons-learned.md, then
+  |                    commits and pushes any accepted changes separately
   +-- STOPS (one session per conversation)
 ```
 
@@ -412,11 +416,22 @@ dispatches to a different AI provider for independent review.
 4. Re-run verification (max 2 retries). Use `complexity_hint=85` if any
    issue is Major or Critical.
 
-### Step 8: Cost Report, Commit, and Notify
+### Step 8: Cost Report, Change Log (Last Session), Commit, Push, And Notify
+
+Print the cost report:
 
 ```python
 from ai_router import print_cost_report
 print_cost_report(SESSION_SET)
+```
+
+**Last session only — generate the change log before committing.** This
+is the former Step 10a. It must land in the same commit as the final
+session's code so the session set is marked complete in a single push.
+
+```python
+result = route(content=change_log_prompt, task_type="documentation")
+# write docs/session-sets/<name>/change-log.md
 ```
 
 Commit and push:
@@ -427,7 +442,9 @@ git push
 ```
 
 Then send a session-complete notification through the reusable helper in
-`ai-router/`:
+`ai-router/`. **Critical ordering:** notify here — before the Step 9
+reorganization review — so the human is not holding up the "session
+complete" signal while they think about proposals.
 
 ```python
 from ai_router import send_session_complete_notification
@@ -447,36 +464,18 @@ except Exception as exc:
 If notification delivery fails, report it, but do not undo or fail an
 otherwise successful session.
 
-### Step 9: Stop
+### Step 9: Last Session Only — Reorganization Proposals (Post-Notify)
 
-Report: session number, verification verdict, deferred issues (if any),
-cost summary, and sessions remaining.
+**Non-last sessions skip this step and proceed to Step 10.**
 
-If the session produced or refreshed a human-UAT checklist that still needs
-the human to run it, the stop message must also:
+On the last session, AFTER notifying in Step 8, review
+`docs/planning/project-guidance.md` and `docs/planning/lessons-learned.md`
+and propose any reorganization that this session set's experience
+justifies. This step is run after notify because it blocks on a human
+response; the human should already have received the completion
+notification and can answer on their own schedule.
 
-- clearly identify the checklist path
-- point the human to the checklist editor URL
-- state that work is waiting on the human review
-- keep any optional parallel suggestions low-risk and clearly optional
-
-**Do not start the next session. Wait for the human.**
-
-### Step 10: Last Session Only — Change Log And Reorganization Proposals
-
-On the last session of a session set, after Step 9 but before the final
-commit and push, the orchestrator produces two artifacts:
-
-#### 10a. Change Log
-
-Generate `change-log.md` using `route(task_type="documentation")`. This marks
-the session set as complete.
-
-#### 10b. Reorganization Proposals (Mandatory)
-
-Review `docs/planning/project-guidance.md` and
-`docs/planning/lessons-learned.md` and propose any reorganization that this
-session set's experience justifies. Candidate moves include:
+Candidate moves include:
 
 - **Lesson → Convention.** A lesson in `lessons-learned.md` that has been
   applied as the right call in **at least two different contexts** (different
@@ -508,11 +507,32 @@ Procedure:
 5. If no candidates qualify, output exactly:
    > No reorganization changes recommended for `project-guidance.md` or
    > `lessons-learned.md`.
-6. Include the reorganization result in the final commit for the session
-   set.
+6. If any proposal was accepted, commit and push those changes in a
+   **separate follow-up commit**:
+   ```bash
+   git add docs/planning/project-guidance.md docs/planning/lessons-learned.md
+   git commit -m "Session set <name>: Step 9 reorganization (<summary>)"
+   git push
+   ```
+   If no proposal was accepted, no additional commit is needed.
 
 This step is mandatory even when the output is "no changes recommended" —
 the review itself is the checkpoint.
+
+### Step 10: Stop
+
+Report: session number, verification verdict, deferred issues (if any),
+cost summary, and sessions remaining.
+
+If the session produced or refreshed a human-UAT checklist that still needs
+the human to run it, the stop message must also:
+
+- clearly identify the checklist path
+- point the human to the checklist editor URL
+- state that work is waiting on the human review
+- keep any optional parallel suggestions low-risk and clearly optional
+
+**Do not start the next session. Wait for the human.**
 
 ---
 
@@ -668,6 +688,8 @@ This is the authoritative rules list. Instruction files (`CLAUDE.md`,
     added to `docs/planning/project-guidance.md`.
 13. **Recommend lessons learned after failures.** When a failure suggests a
     reusable tactic, propose an update to `docs/planning/lessons-learned.md`.
-14. **Run the Step 10 reorganization review on the last session of every
-    set.** Output "no changes recommended" if nothing qualifies — but do the
-    review.
+14. **Run the Step 9 reorganization review on the last session of every
+    set, after the notify.** Output "no changes recommended" if nothing
+    qualifies — but do the review. Apply any accepted proposals in a
+    separate follow-up commit so the session-complete notification is
+    never held up by the human reviewing proposals.

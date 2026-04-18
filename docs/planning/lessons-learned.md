@@ -12,7 +12,7 @@ conventions, this file is for practical lessons learned from actual execution
 in this repo. A lesson that has been applied as the right call in at least
 two different contexts is a promotion candidate for Conventions (or, rarely,
 Principles) in `project-guidance.md`. See `docs/ai-led-session-workflow.md`
-Step 10 for the end-of-session-set reorganization review.
+Step 9 (run after the Step 8 notify) for the end-of-session-set reorganization review.
 
 ## How To Use This File
 
