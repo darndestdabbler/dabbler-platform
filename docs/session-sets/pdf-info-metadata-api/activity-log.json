@@ -1,0 +1,105 @@
+{
+  "sessionSetName": "pdf-info-metadata-api",
+  "createdDate": "2026-04-18T08:22:25.325815+00:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-18T08:22:25.326813+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md. Confirmed E2E standards (real UI + DB), UAT per-set checklist convention, end-of-set reorg review, and the \"send related files to verifier\" convention.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/read-dabbler-pdf",
+      "dateTime": "2026-04-18T08:22:25.327814+00:00",
+      "description": "Read ../dabbler-pdf/CLAUDE.md. Confirmed: scoped OpenPDF port, namespaces DabblerPdf.{Document,Pdf,Text,Image,Utilities}, nullable enabled, PascalCase public, _camelCase private, Async suffix on event handlers, LGPL-2.1/MPL-2.0 license headers required on every source file. Session-set workflow mirrors this repo.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/read-source",
+      "dateTime": "2026-04-18T08:22:25.327814+00:00",
+      "description": "Re-read src/DabblerPdf/Pdf/PdfWriter.cs (Close() writes /Producer into /Info at lines 261-264), src/DabblerPdf/Document/Document.cs (no metadata API; lifecycle is Open/NewPage/Close with EnsureOpen guard), src/DabblerPdf/Pdf/PdfName.cs (has Info, Producer, CreationDate; missing Title, Author, Subject, Keywords, Creator, ModDate). Also read src/DabblerPdf/Pdf/PdfString.cs \u2014 PdfString.WriteLiteral already escapes \\, (, ), CR, LF, so info strings require no new escaping work.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/survey-openpdf",
+      "dateTime": "2026-04-18T08:22:25.328814+00:00",
+      "description": "Surveyed upstream OpenPDF com.lowagie.text.Document metadata API: addTitle(String), addAuthor(String), addSubject(String), addKeywords(String), addCreator(String), addProducer() (no-arg; sets producer), addCreationDate() (no-arg; sets to now). All return boolean indicating success. Values are staged on Document; PdfWriter consumes them when writing the info dictionary at close time.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/compare-options",
+      "dateTime": "2026-04-18T08:22:25.328814+00:00",
+      "description": "Compared Option A (AddXxx methods) vs Option B (properties): lineage favours A (matches OpenPDF); .NET idiom favours B (object-initialiser); testability roughly equal (both need an internal read-back for tests); forward-compat favours A (overloads for AddCreationDate are natural). DabblerPdf already mixes verbs and state (Open/NewPage/Close are methods, PageSize/PageNumber are properties), so either fits the existing surface.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/decide",
+      "dateTime": "2026-04-18T08:22:25.329430+00:00",
+      "description": "Decision: Option A. See session-reviews/session-001.md for the full rationale and API sketch. Summary: AddTitle/AddAuthor/AddSubject/AddKeywords/AddCreator/AddCreationDate(), SuppressCreationDate() opt-out, auto-stage CreationDate at Close(), null => ArgumentNullException, empty/whitespace => silent no-op, InvalidOperationException after Close(), last-write-wins for repeated calls, internal Document.GetMetadata() accessor, new DabblerPdf.Utilities.PdfDate helper for PDF-spec-formatted date strings.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/api-sketch",
+      "dateTime": "2026-04-18T08:22:25.329430+00:00",
+      "description": "Embedded full API sketch + behavioural rules + code snippets in the Session 1 verification prompt so the verifier evaluates it and the raw output becomes the permanent design artifact at session-reviews/session-001.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/companion-plan",
+      "dateTime": "2026-04-18T08:22:25.329430+00:00",
+      "description": "Companion ../dabbler-pdf/docs/session-sets/pdf-info-metadata-api/ will contain a single session (Session 1 of 1) corresponding to this set's Session 2. One session is sufficient: the work is additive, single-repo, and tightly scoped \u2014 add PdfName constants, Document API, writer wire-up, date helper, tests, changelog, pack 1.1.0. Session 2 of this set creates that companion spec + activity log.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-18T08:22:25.329430+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: succeeded, 0 errors, 2 warnings (pre-existing: MUD0002 Dense on MudToggleGroup in DenyAllowSwitch.razor; CS8604 nullable in WebGuardrailTests.cs). dotnet test Dabbler.Platform.sln: 905 passed, 4 pre-existing failures \u2014 AcmeCoffeeOnline.Web.Tests.WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (1); AcmeCoffeeOnline.Playwright SmokeTests, SecurityDashboardUserAssignmentsTests, and EdgeCaseTests Playwright tests (3, need Docker host). Session 1 is strictly read-only and touched no code, so none of these failures originate here.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-18T08:23:07.191193+00:00",
+      "description": "Cross-provider verification via ai-router (round 1). Model: opus. Tokens in/out: 4213/1867. Raw verdict saved to session-reviews/session-001.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 4213,
+          "outputTokens": 1867,
+          "costUsd": 0.20321999999999998
+        }
+      ]
+    }
+  ]
+}
