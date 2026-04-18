@@ -82,6 +82,95 @@
           "costUsd": 0.19848
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-guidance",
+      "dateTime": "2026-04-18T04:51:05.966988+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session. Confirmed session-1 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/header-svg",
+      "dateTime": "2026-04-18T04:51:05.968492+00:00",
+      "description": "Moved deny-allow-header.svg from project root to src/Libs/Dabbler.Security.Blazor/wwwroot/ so it is served as a Razor-class-library static web asset at _content/Dabbler.Security.Blazor/deny-allow-header.svg. No csproj changes needed \u2014 wwwroot is auto-wired by Microsoft.NET.Sdk.Razor.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/permission-state",
+      "dateTime": "2026-04-18T04:51:05.969099+00:00",
+      "description": "Added PermissionState enum (Unset=0, Allow=1, Deny=2) in src/Libs/Dabbler.Security/Configuration/PermissionState.cs. Mutual exclusion is now a property of the data model itself \u2014 a cell is exactly one of the three values.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/switch-component",
+      "dateTime": "2026-04-18T04:51:05.969536+00:00",
+      "description": "Created shared DenyAllowSwitch.razor in src/Libs/Dabbler.Security.Blazor/Components/Admin/ wrapping MudToggleGroup<PermissionState> with single-selection mode, three items (Deny / \u2014 / Allow), and role-aware color (Error for Deny, Success for Allow, Default for Unset). Exposes Value, ValueChanged, and AriaLabel parameters. Sessions 3 and 4 will reuse it. Chose MudToggleGroup over MudSwitch<bool?> because the three-state decision is fundamentally ternary and toggle-group enforces mutual exclusion visually and structurally.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/switch-control",
+      "dateTime": "2026-04-18T04:51:05.970209+00:00",
+      "description": "Refactored DabblerPagePermissionMatrix.razor: replaced the two MudCheckBox columns (Allow / Deny) with a single column hosting a DenyAllowSwitch per cell. Internal state moved from separate _allowed/_denied HashSet<string> dictionaries to a single nested Dictionary<string, Dictionary<string, PermissionState>>. Save-time projection produces the same PagePermission.AllowedRoles / DeniedRoles shape, so persistence format and handler behavior are unchanged. Legend caption updated to describe the three states.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/widths",
+      "dateTime": "2026-04-18T04:51:05.970209+00:00",
+      "description": "Widened matrix cards ~33%: card style changed from min-width:260px/flex:1 1 260px/max-width:480px to min-width:340px/flex:1 1 340px/max-width:600px. Single permission column uses width:1%; white-space:nowrap; text-align:center so the switch sits centered and the Role column takes the remaining space \u2014 removes horizontal scroll at normal desktop widths. Table now has width:100%.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/bunit-invariant",
+      "dateTime": "2026-04-18T04:51:05.971553+00:00",
+      "description": "Updated DabblerPagePermissionMatrixTests.cs: replaced the checkbox-based 'ExistingAllowedPermissions_CheckedOnRender' test with 'ExistingAllowedPermissions_RenderSwitchInAllowState' (asserts DenyAllowSwitch.Value is PermissionState.Allow). Added 'ExistingDeniedPermissions_RenderSwitchInDenyState', 'RendersDenyAllowHeaderSvg_NotSeparateAllowAndDenyColumns', 'FlipAllowToDeny_DropsAllow_AndAddsDeny_OnSave' (the Allow\u2192Deny mutual-exclusion invariant called out in the spec), 'FlipDenyToAllow_DropsDeny_AndAddsAllow_OnSave', and 'SetToUnset_OmitsRoleFromBothLists_OnSave'. The invariant test is whitebox-executed through the shared DenyAllowSwitch's ValueChanged callback, which is the exact path MudToggleGroup invokes on user selection.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-18T04:51:05.971553+00:00",
+      "description": "dotnet build: succeeded with 0 errors after shutting down two stray dev-server processes (AcmeCoffeeOnline.Web PID 6460 and AcmeCoffeeOnline.Api PID 37188) that were holding DLL file locks; user authorized via 'continue'. Pre-existing CS8604 warning in WebGuardrailTests.cs persists (unrelated). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 126/126 passed (4 new + replaced tests all green); Dabbler.Security.Tests 268/268; Dabbler.Reports.Blazor.Tests 13/13; Dabbler.Components.Tests 33/33; AcmeCoffeeOnline.Api.Tests 17/17; AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Session 1 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-18T04:52:20.170861+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/session-2-review-1.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8516,
+          "outputTokens": 1289,
+          "costUsd": 0.22441499999999998
+        }
+      ]
     }
   ]
 }

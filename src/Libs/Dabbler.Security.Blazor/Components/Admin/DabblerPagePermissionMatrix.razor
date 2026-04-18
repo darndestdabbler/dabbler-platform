@@ -37,7 +37,7 @@
         <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
         @foreach (var pg in Registry.Pages.Where(p => MatchesFilter(p.Key, p.DisplayName)))
         {
-                <MudCard Elevation="1" Style="min-width:260px; flex:1 1 260px; max-width:480px;">
+                <MudCard Elevation="1" Style="min-width:340px; flex:1 1 340px; max-width:600px;">
                     <MudCardHeader>
                         <CardHeaderContent>
                             <MudText Typo="Typo.subtitle1"><b>@pg.DisplayName</b></MudText>
@@ -45,13 +45,17 @@
                         </CardHeaderContent>
                     </MudCardHeader>
                 <MudCardContent Class="pt-0">
-                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent;"
+                    <MudSimpleTable Dense="true" Hover="true" Style="background:transparent; width:100%;"
                                     aria-label="@($"Page permissions for {pg.DisplayName}")">
                         <thead>
                             <tr>
                                 <th style="min-width:160px;">Role</th>
-                                <th style="text-align:center;min-width:80px;">Allow</th>
-                                <th style="text-align:center;min-width:80px;">Deny</th>
+                                <th style="text-align:center; width:1%; white-space:nowrap;">
+                                    <img src="_content/Dabbler.Security.Blazor/deny-allow-header.svg"
+                                         alt="Deny or Allow"
+                                         title="Deny or Allow"
+                                         style="height:48px; display:inline-block;" />
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,20 +66,9 @@
                                         <MudText Typo="Typo.body2">@role</MudText>
                                     </td>
                                     <td style="text-align:center;">
-                                        <MudCheckBox T="bool"
-                                                     Value="@IsAllowed(role, pg.Key)"
-                                                     ValueChanged="@(v => SetAllowed(role, pg.Key, v))"
-                                                     aria-label="@($"Allow {role} access to {pg.DisplayName}")"
-                                                     Color="Color.Success"
-                                                     Size="Size.Small" />
-                                    </td>
-                                    <td style="text-align:center;">
-                                        <MudCheckBox T="bool"
-                                                     Value="@IsDenied(role, pg.Key)"
-                                                     ValueChanged="@(v => SetDenied(role, pg.Key, v))"
-                                                     aria-label="@($"Deny {role} access to {pg.DisplayName}")"
-                                                     Color="Color.Error"
-                                                     Size="Size.Small" />
+                                        <DenyAllowSwitch Value="@GetState(role, pg.Key)"
+                                                         ValueChanged="@(v => SetState(role, pg.Key, v))"
+                                                         AriaLabel="@($"Permission for {role} to access {pg.DisplayName}")" />
                                     </td>
                                 </tr>
                             }
@@ -87,7 +80,7 @@
         </div>
 
         <MudText Typo="Typo.caption" Class="mt-2">
-            <b>Allow</b> = role may access this page. <b>Deny</b> = role is explicitly denied (takes precedence over Allow).
+            <b>Allow</b> = role may access this page. <b>Deny</b> = role is explicitly denied (takes precedence over Allow). <b>—</b> = role has no opinion for this page.
         </MudText>
     }
 </MudPaper>
@@ -96,15 +89,15 @@
     /// <summary>
     /// A component for managing page access permissions.
     /// It displays a matrix of registered pages and defined roles, allowing administrators
-    /// to grant or deny access for each role-page combination.
+    /// to grant or deny access for each role-page combination via a single three-state switch
+    /// (Deny / Unset / Allow). Mutual exclusion is enforced at the data-model level.
     /// </summary>
     private List<string> _roles = [];
     private string _filter = string.Empty;
 
-    // roleName → set of allowed pageKeys
-    private readonly Dictionary<string, HashSet<string>> _allowed = new(StringComparer.OrdinalIgnoreCase);
-    // roleName → set of denied pageKeys
-    private readonly Dictionary<string, HashSet<string>> _denied = new(StringComparer.OrdinalIgnoreCase);
+    // roleName → (pageKey → PermissionState). Unset is represented as the absence of a pageKey entry.
+    private readonly Dictionary<string, Dictionary<string, PermissionState>> _state =
+        new(StringComparer.OrdinalIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,20 +111,23 @@
         var config = ConfigManager.Current;
         _roles = config.Roles.Select(r => r.RoleName).ToList();
 
-        _allowed.Clear();
-        _denied.Clear();
+        _state.Clear();
         foreach (var role in _roles)
         {
-            _allowed[role] = [];
-            _denied[role] = [];
+            _state[role] = new Dictionary<string, PermissionState>(StringComparer.OrdinalIgnoreCase);
         }
 
         foreach (var pp in config.PagePermissions)
         {
             foreach (var role in pp.AllowedRoles)
-                if (_allowed.TryGetValue(role, out var a)) a.Add(pp.PageKey);
+            {
+                if (_state.TryGetValue(role, out var s)) s[pp.PageKey] = PermissionState.Allow;
+            }
+            // Deny overwrites Allow if both were stored for the same role (defensive — pre-fix data).
             foreach (var role in pp.DeniedRoles)
-                if (_denied.TryGetValue(role, out var d)) d.Add(pp.PageKey);
+            {
+                if (_state.TryGetValue(role, out var s)) s[pp.PageKey] = PermissionState.Deny;
+            }
         }
     }
 
@@ -146,24 +142,27 @@
         key.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
         displayName.Contains(_filter, StringComparison.OrdinalIgnoreCase);
 
-    private bool IsAllowed(string role, string pageKey) =>
-        _allowed.TryGetValue(role, out var s) && s.Contains(pageKey);
+    private PermissionState GetState(string role, string pageKey) =>
+        _state.TryGetValue(role, out var s) && s.TryGetValue(pageKey, out var st)
+            ? st
+            : PermissionState.Unset;
 
-    private bool IsDenied(string role, string pageKey) =>
-        _denied.TryGetValue(role, out var s) && s.Contains(pageKey);
-
-    private void SetAllowed(string role, string pageKey, bool value)
+    private void SetState(string role, string pageKey, PermissionState newState)
     {
-        if (!_allowed.ContainsKey(role)) _allowed[role] = [];
-        if (value) _allowed[role].Add(pageKey);
-        else _allowed[role].Remove(pageKey);
-    }
+        if (!_state.TryGetValue(role, out var s))
+        {
+            s = new Dictionary<string, PermissionState>(StringComparer.OrdinalIgnoreCase);
+            _state[role] = s;
+        }
 
-    private void SetDenied(string role, string pageKey, bool value)
-    {
-        if (!_denied.ContainsKey(role)) _denied[role] = [];
-        if (value) _denied[role].Add(pageKey);
-        else _denied[role].Remove(pageKey);
+        if (newState == PermissionState.Unset)
+        {
+            s.Remove(pageKey);
+        }
+        else
+        {
+            s[pageKey] = newState;
+        }
     }
 
     private async Task SaveAsync()
@@ -174,8 +173,8 @@
         var pagePerms = pageKeys.Select(pageKey => new PagePermission
         {
             PageKey = pageKey,
-            AllowedRoles = _roles.Where(r => IsAllowed(r, pageKey)).ToList(),
-            DeniedRoles = _roles.Where(r => IsDenied(r, pageKey)).ToList()
+            AllowedRoles = _roles.Where(r => GetState(r, pageKey) == PermissionState.Allow).ToList(),
+            DeniedRoles = _roles.Where(r => GetState(r, pageKey) == PermissionState.Deny).ToList(),
         }).ToList();
 
         var updated = new SecurityConfiguration
@@ -187,7 +186,7 @@
             EndpointPermissions = config.EndpointPermissions,
             ControlPermissions = config.ControlPermissions,
             RowFilters = config.RowFilters,
-            RoleSwitching = config.RoleSwitching
+            RoleSwitching = config.RoleSwitching,
         };
 
         await ConfigManager.SaveAsync(updated);
