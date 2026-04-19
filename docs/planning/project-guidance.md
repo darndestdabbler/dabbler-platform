@@ -55,6 +55,32 @@ rejects each (see `docs/ai-led-session-workflow.md` Step 9, post-notify).
   explicit and well-documented.
 - Treat authorization as a runtime system that governs:
   users-to-roles, API capabilities, UI functionality, and page access.
+- Authorization is built around five baked-in roles defined in code
+  (`SystemAdmin`, `CrossOrgUserAdmin`, `CrossOrgMonitor`, `UserAdmin`,
+  `User`) plus zero or more app-defined **user-type** roles. Baked-in
+  roles carry compiled privilege rules that handlers consult before any
+  configuration lookup. Applications cannot alter a baked-in role's
+  privileges; they may only set a per-deployment `DisplayAlias`, or
+  register additional non-user-type roles through the
+  `IBakedInRoleProvider` DI contract.
+- User-type roles are default-permissive and shaped entirely by explicit
+  **restrictions**: `ColumnRestriction` (view-only or hidden),
+  `RowRestriction` (filter expression limiting visible records), and
+  `UiRestriction` (disabled or hidden page or control). User-type roles
+  are configured in JSON; baked-in roles are not.
+- **Role inheritance is not supported.** A user assigned to multiple
+  roles must explicitly switch to operate under each one, and every
+  transactional entity records the `RoleId` under which each write was
+  made (see the `transactional-system-columns` session set).
+- Sensitive-field masking is modelled separately from restrictions as
+  platform-wide **Default Masks** plus per-role **Mask Exemptions** with
+  optional `ExpiresAt` and explicit authority rules (separation of
+  duties). Masks render even when the stored value is null, so presence
+  or absence of a sensitive field never leaks through an empty-looking
+  unmasked control.
+- Every role — baked-in and app-defined — has a canonical immutable
+  `Name` used in handlers, claims, and audit records, plus an optional
+  `DisplayAlias` shown in the dashboard, role switcher, and audit UI.
 - Support organization and role switching as a first-class concept:
   `SystemAdmin` can switch freely, while other users can switch only among
   their valid organizations.

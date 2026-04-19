@@ -1,4 +1,5 @@
 using Dabbler.Security.Abstractions;
+using Dabbler.Security.Authorization;
 using Dabbler.Security.Authorization.Handlers;
 using Dabbler.Security.Configuration;
 using Dabbler.Security.Data;
@@ -106,6 +107,11 @@ public static class ServiceCollectionExtensions
         services.AddAuthorization();
         services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IAuthorizationPolicyProvider, Dabbler.Security.Authorization.DabblerAuthorizationPolicyProvider>();
+
+        // The platform supplies the five canonical baked-in roles. Applications
+        // that need additional non-user-type baked-in roles can replace this
+        // registration with their own IBakedInRoleProvider implementation.
+        services.TryAddSingleton<IBakedInRoleProvider, PlatformBakedInRoleProvider>();
 
         // The 5 resource-specific handlers are scoped so they can receive the scoped IRoleSwitcher.
         services.AddScoped<IAuthorizationHandler, PageAuthorizationHandler>();

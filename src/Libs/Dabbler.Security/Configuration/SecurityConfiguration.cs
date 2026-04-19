@@ -45,4 +45,18 @@ public sealed class SecurityConfiguration
     /// Configuration for role switching capabilities, allowing administrators or privileged users to assume other roles.
     /// </summary>
     public RoleSwitchingPermission RoleSwitching { get; set; } = new();
+
+    /// <summary>
+    /// Per-deployment display-alias overrides for baked-in roles. The key is
+    /// the canonical baked-in role name (e.g., <c>SystemAdmin</c>); the value
+    /// is the label shown in the dashboard, role switcher, and audit UI.
+    /// </summary>
+    /// <remarks>
+    /// Baked-in role canonical names and compiled privileges are immutable.
+    /// Only the visible label is overridable, and the default comes from
+    /// <c>BakedInRoleDefinition.DefaultDisplayAlias</c> when no override is
+    /// present.
+    /// </remarks>
+    public Dictionary<string, string> BakedInRoleAliasOverrides { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
 }
