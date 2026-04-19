@@ -30,6 +30,17 @@ providers:
       max_retries: 2
       backoff_base_seconds: 2
 
+  openai:
+    api_key_env: OPENAI_API_KEY
+    base_url: https://api.openai.com/v1
+    rate_limit:
+      requests_per_minute: 60
+      tokens_per_minute: 100000
+    timeout_seconds: 300
+    retry:
+      max_retries: 2
+      backoff_base_seconds: 2
+
 # --- Model Registry ---
 # Each model has a tier (1=cheap/fast, 2=balanced, 3=powerful/expensive),
 # pricing, context limits, and a reference to its prompt template.
@@ -44,6 +55,13 @@ models:
     max_output_tokens: 65536
     system_prompt_file: prompt-templates/google-system.md
     notes: "Best for simple analysis, formatting, boilerplate generation"
+    # Default API parameters sent with every call. Can be overridden
+    # per-task-type below, and further overridden by router-tuning.json.
+    # For Gemini 2.5 models: thinking_budget is an integer cap on
+    # thinking tokens. -1 = dynamic, 0 = off, positive = hard cap.
+    # For Gemini 3.x models: use thinking_level (MINIMAL|LOW|MEDIUM|HIGH).
+    generation_params:
+      thinking_budget: 0          # Flash tier: thinking off by default
 
   gemini-pro:
     provider: google
@@ -55,6 +73,8 @@ models:
     max_output_tokens: 65536
     system_prompt_file: prompt-templates/google-system.md
     notes: "Good for medium-complexity analysis, documentation, code review"
+    generation_params:
+      thinking_budget: -1         # dynamic; Gemini picks how deep to think
 
   sonnet:
     provider: anthropic
@@ -66,6 +86,15 @@ models:
     max_output_tokens: 16000
     system_prompt_file: prompt-templates/anthropic-system.md
     notes: "Use when Anthropic quality needed but Opus overkill"
+    # Sonnet 4.6 defaults to effort=high internally if effort is unset,
+    # which burns tokens on every call. Explicitly setting effort here
+    # avoids that. Adaptive thinking is opt-in; when disabled, the model
+    # responds without thinking blocks (fastest, cheapest).
+    generation_params:
+      effort: medium              # low|medium|high|xhigh
+      thinking:
+        enabled: false            # set true to send thinking:{type:adaptive}
+        type: adaptive
 
   opus:
     provider: anthropic
@@ -77,6 +106,57 @@ models:
     max_output_tokens: 32000
     system_prompt_file: prompt-templates/anthropic-system.md
     notes: "Reserved for complex architectural reasoning"
+    # Opus is only invoked for tier-3 tasks (architecture, security review,
+    # session verification). Adaptive thinking is on by default because
+    # those tasks benefit from deep reasoning. Override per task type below
+    # if a specific tier-3 task should skip thinking.
+    generation_params:
+      effort: high                # architecture-class work gets high effort
+      thinking:
+        enabled: true
+        type: adaptive
+    # NOTE: To upgrade to Opus 4.7, change model_id to claude-opus-4-7.
+    # Opus 4.7 supports task_budget (beta) — a token budget that spans
+    # the full agentic loop. Adds ~1-1.35x tokens due to new tokenizer.
+    # When upgrading, bump max_output_tokens to at least 64000.
+
+  # --- OpenAI GPT-5.x family -----------------------------------------------
+  # Added as verification models initially. Used by the cross-provider map
+  # to independently review work from Anthropic and Google models. Once you
+  # have data on how well they verify, consider promoting them to generator
+  # slots in tier_assignments.
+  gpt-5-4:
+    provider: openai
+    model_id: gpt-5.4
+    tier: 3
+    input_cost_per_1m: 2.50
+    output_cost_per_1m: 15.00
+    max_context_tokens: 272000
+    max_output_tokens: 32000
+    system_prompt_file: prompt-templates/openai-system.md
+    notes: "Frontier OpenAI model. Used to verify Opus output (cross-provider)
+      and as a cheaper frontier alternative for session verification of
+      implementation-heavy work. Opus-class quality at ~60% of Opus cost."
+    generation_params:
+      reasoning_effort: high
+    # NOTE: Prompts over 272K input tokens trigger 2x input + 1.5x output
+    # pricing for the full session. The router caps input at 80% of
+    # max_context_tokens, which keeps you under that ceiling by default.
+
+  gpt-5-4-mini:
+    provider: openai
+    model_id: gpt-5.4-mini
+    tier: 2
+    input_cost_per_1m: 0.75
+    output_cost_per_1m: 4.50
+    max_context_tokens: 400000
+    max_output_tokens: 16000
+    system_prompt_file: prompt-templates/openai-system.md
+    notes: "Small OpenAI model. Used to verify Gemini Pro output
+      (cross-provider). Cheaper than Sonnet ($3/$15) and Claude Haiku
+      ($1/$5) with a larger context window."
+    generation_params:
+      reasoning_effort: medium
 
 # --- Routing Thresholds ---
 # Complexity score 1-100 mapped to tiers.
@@ -96,6 +176,82 @@ routing:
     # Force Sonnet for code review -- Anthropic models are stronger at
     # careful line-by-line reasoning and catching subtle issues.
     code-review: sonnet
+
+# --- Per-Task-Type Generation Parameter Overrides ---
+# Structure: task_type_params.<task_type>.<model_name> = {params to override}
+# These override the model-level generation_params above. Missing entries
+# fall back to model defaults. router-tuning.json (optional overlay file)
+# can further override these at runtime.
+task_type_params:
+  # Cheap, mechanical tasks: no thinking, low effort.
+  formatting:
+    sonnet:     { effort: low, thinking: { enabled: false } }
+    opus:       { effort: low, thinking: { enabled: false } }
+    gemini-flash: { thinking_budget: 0 }
+    gemini-pro: { thinking_budget: 0 }
+    gpt-5-4-mini: { reasoning_effort: none }
+    gpt-5-4:    { reasoning_effort: none }
+  summarization:
+    sonnet:     { effort: low, thinking: { enabled: false } }
+    opus:       { effort: low, thinking: { enabled: false } }
+    gemini-flash: { thinking_budget: 0 }
+    gemini-pro: { thinking_budget: 0 }
+    gpt-5-4-mini: { reasoning_effort: none }
+    gpt-5-4:    { reasoning_effort: low }
+  documentation:
+    sonnet:     { effort: low, thinking: { enabled: false } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4-mini: { reasoning_effort: low }
+
+  # Medium tasks: adaptive thinking, medium effort.
+  test-generation:
+    sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4-mini: { reasoning_effort: medium }
+  code-review:
+    sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4-mini: { reasoning_effort: medium }
+  analysis:
+    sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4-mini: { reasoning_effort: medium }
+  refactoring:
+    sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4-mini: { reasoning_effort: medium }
+
+  # Heavy tasks: high effort, deep thinking. These are the places
+  # where you actually want the model to spend tokens.
+  session-verification:
+    sonnet:     { effort: high, thinking: { enabled: true, type: adaptive } }
+    opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: high }
+    gpt-5-4-mini: { reasoning_effort: high }
+  security-review:
+    sonnet:     { effort: high, thinking: { enabled: true, type: adaptive } }
+    opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: high }
+  architecture:
+    opus:       { effort: xhigh, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: xhigh }
+  planning:
+    opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: high }
+
+  # Verification task type used by the internal verify() path. Kept
+  # separate from 'session-verification' so the overlay won't bleed
+  # across them. Default is medium reasoning for the verifier.
+  verification:
+    sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
+    opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: high }
+    gpt-5-4-mini: { reasoning_effort: medium }
 
 # --- Complexity Estimation Weights ---
 # These weights control how the complexity score is calculated.
@@ -193,14 +349,24 @@ verification:
 
   # Cross-provider model pairings.
   # When a model from provider X generates a response, verification
-  # is routed to a model from provider Y at the same (or nearest) tier.
-  # The router selects automatically — these mappings define the pool.
+  # is routed to a model from provider Y — a DIFFERENT provider — so
+  # we catch provider-specific blind spots. With three providers
+  # (Anthropic, Google, OpenAI), we rotate so every provider both
+  # generates and verifies. The router picks automatically; these
+  # mappings define the pool.
   cross_provider_map:
-    # "if the generator was THIS model, verify with THAT model"
-    gemini-flash: sonnet        # Google Tier 1 → Anthropic Tier 2 (no Tier 1 Anthropic)
-    gemini-pro: sonnet           # Google Tier 2 → Anthropic Tier 2
-    sonnet: gemini-pro           # Anthropic Tier 2 → Google Tier 2
-    opus: gemini-pro             # Anthropic Tier 3 → Google Tier 2 (Pro is sufficient to verify)
+    # Anthropic → Google (unchanged)
+    sonnet: gemini-pro
+    # Google → OpenAI (was → sonnet; moved to distribute load)
+    gemini-flash: gpt-5-4-mini
+    gemini-pro: gpt-5-4-mini
+    # Anthropic Opus (expensive) → OpenAI frontier (cheaper than pairing
+    # two Opus-class models across providers; GPT-5.4 at high effort is
+    # ~60% the output cost of Opus)
+    opus: gpt-5-4
+    # OpenAI → Anthropic (closes the triangle; Sonnet verifies GPT work)
+    gpt-5-4-mini: sonnet
+    gpt-5-4: opus
 
   # Which task types are auto-verified when using route().
   # If a task type is listed here, route() automatically calls verify()

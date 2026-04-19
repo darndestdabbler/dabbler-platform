@@ -196,6 +196,13 @@ and workflow utilities live under `ai-router/prompt-templates/` and
 `ai-router/utils/`. Key sections:
 
 **Models:** Define available models with tier, pricing, and context limits.
+Each model may also declare `generation_params` controlling the API-level
+reasoning knobs: `effort` and `thinking` for Anthropic (Sonnet/Opus), and
+`thinking_budget` (Gemini 2.5) or `thinking_level` (Gemini 3.x) for Google.
+These are sent on every call, so leaving `effort` unset on Sonnet 4.6
+means the API defaults to `high` — which burns tokens unnecessarily on
+simple tasks. Explicitly setting `effort: medium` (or lower per task
+type) is the single biggest cost lever.
 
 ```yaml
 models:
@@ -245,6 +252,32 @@ verification:
     - security-review
 ```
 
+**Per-task-type parameter overrides:** `task_type_params` maps each task
+type to per-model parameter overrides, layered on top of each model's
+`generation_params`. This is where cheap tasks like `formatting` and
+`summarization` get `effort: low` and `thinking_budget: 0`, while
+`architecture` and `session-verification` get deeper reasoning.
+
+```yaml
+task_type_params:
+  formatting:
+    sonnet:       { effort: low, thinking: { enabled: false } }
+    gemini-flash: { thinking_budget: 0 }
+  session-verification:
+    sonnet:       { effort: high, thinking: { enabled: true, type: adaptive } }
+    gemini-pro:   { thinking_budget: -1 }
+```
+
+**Optional human overlay (`router-tuning.json`):** A separate JSON file
+in `ai-router/` (beside `router-config.yaml`) that overrides the YAML
+at runtime. Edit it to experiment with a run — change `max_tier` to cap
+spend, adjust `effort_by_task_type` or `thinking_budget_by_task_type_gemini25`
+to tune depth. If the file is missing, YAML defaults apply. The router
+logs which overrides were applied when it starts.
+
+Precedence (low → high): model-level `generation_params` →
+`task_type_params` override → `router-tuning.json` overlay.
+
 ### 4. Set Environment Variables
 
 The router requires API keys as environment variables:
@@ -252,6 +285,7 @@ The router requires API keys as environment variables:
 ```
 ANTHROPIC_API_KEY   (for Claude Sonnet/Opus)
 GEMINI_API_KEY      (for Gemini Flash/Pro)
+OPENAI_API_KEY      (for GPT-5.4 and GPT-5.4 Mini)
 PUSHOVER_API_KEY    (optional, for end-of-session phone notifications)
 PUSHOVER_USER_KEY   (optional, for end-of-session phone notifications)
 ```
@@ -265,10 +299,13 @@ the current process environment does not already contain the Pushover keys.
 
 ```bash
 python -m venv .venv
-.venv/Scripts/pip install pyyaml google-genai anthropic
+.venv/Scripts/pip install pyyaml google-genai anthropic httpx
 ```
 
-The router uses `.venv/Scripts/python.exe` on Windows.
+The router uses `httpx` directly — it does NOT require the `openai`,
+`anthropic`, or `google-genai` SDKs at runtime (those are listed for
+compatibility with other tools in the repo). OpenAI calls go through
+the Responses API via plain HTTP.
 
 ---
 
@@ -352,7 +389,9 @@ result = route(
     content="<the text to analyze>",
     task_type="code-review",       # or documentation, analysis, etc.
     context="<optional background>",
-    complexity_hint=None           # optional 1-100 override
+    complexity_hint=None,          # optional 1-100 override
+    session_set=str(SESSION_SET),  # enables per-set metrics grouping
+    session_number=N,              # enables per-session metrics grouping
 )
 
 # Use result.content, then log:
@@ -394,7 +433,9 @@ dispatches to a different AI provider for independent review.
    result = route(
        content=verification_prompt,
        task_type="session-verification",
-       complexity_hint=70
+       complexity_hint=70,
+       session_set=str(SESSION_SET),
+       session_number=N,
    )
    log.save_session_review(
        session_number=N,
@@ -630,7 +671,9 @@ On Windows, use `.venv/Scripts/python.exe` to run Python.
 | 1 | Gemini Flash | Google | $0.15 | $0.60 | Simple formatting, boilerplate |
 | 2 | Gemini Pro | Google | $1.25 | $10.00 | Documentation, medium analysis |
 | 2 | Sonnet | Anthropic | $3.00 | $15.00 | Code review, when Anthropic quality matters |
+| 2 | GPT-5.4 Mini | OpenAI | $0.75 | $4.50 | Cross-provider verification of Gemini output |
 | 3 | Opus | Anthropic | $15.00 | $75.00 | Architecture, security, verification |
+| 3 | GPT-5.4 | OpenAI | $2.50 | $15.00 | Frontier verification of Opus output |
 
 ### Escalation
 
@@ -640,11 +683,18 @@ router automatically escalates to the next tier (up to 2 escalations).
 ### Cross-Provider Verification
 
 For auto-verified task types (code-review, security-review), the router
-automatically sends the response to a model from a different provider:
+automatically sends the response to a model from a different provider.
+With three providers (Anthropic, Google, OpenAI) the map rotates so
+every provider acts as both generator and verifier:
 
-- Gemini output -> verified by Sonnet (Anthropic)
-- Sonnet output -> verified by Gemini Pro (Google)
-- Opus output -> verified by Gemini Pro (Google)
+- Sonnet (Anthropic) output → verified by Gemini Pro (Google)
+- Gemini Flash/Pro (Google) output → verified by GPT-5.4 Mini (OpenAI)
+- Opus (Anthropic) output → verified by GPT-5.4 (OpenAI)
+- GPT-5.4 Mini (OpenAI) output → verified by Sonnet (Anthropic)
+- GPT-5.4 (OpenAI) output → verified by Opus (Anthropic)
+
+The pairings are set in `router-config.yaml` under
+`verification.cross_provider_map`.
 
 ### When To Use The Router
 
@@ -659,6 +709,147 @@ filesystem.
 
 ---
 
+## Metrics and Observability
+
+Every routed call, verifier call, and tiebreaker call is appended to a
+global log at `ai-router/router-metrics.jsonl`. The log is append-only
+JSON lines (one record per line). It spans all session sets — it is
+NOT per-session-set — so cross-project trends can be analyzed.
+
+### What gets logged
+
+For each call: timestamp, session set, session number, call type
+(route/verify/tiebreaker), task type, model, provider, tier,
+complexity score, effort / thinking setting, input and output tokens,
+cost, elapsed time, escalation flag, stop reason. Verifier calls
+additionally log the verdict (VERIFIED / ISSUES_FOUND) and issue count.
+
+### Reading the log
+
+Call `print_metrics_report()` for a terminal summary:
+
+```python
+from ai_router import print_metrics_report
+print_metrics_report()
+```
+
+The report groups by model, task type, verifier, and session set,
+showing call counts, costs, escalation rates, and verifier pass rates.
+
+For deeper analysis, read the JSONL file directly. The human or an
+orchestrator can hand the file to a reasoning model and ask
+questions like *"which task types are escalating most?"* or *"is GPT-5.4
+a stricter or looser verifier than Opus?"* — the records carry enough
+context to answer those without additional instrumentation.
+
+### Threading session info
+
+When the orchestrator calls `route()`, it should pass `session_set`
+and `session_number` so the metrics can be grouped by session:
+
+```python
+result = route(
+    content=prompt,
+    task_type="code-review",
+    session_set=str(SESSION_SET),
+    session_number=next_session,
+)
+```
+
+These kwargs are optional — if omitted, the metric still records but
+without session-level grouping.
+
+### Disabling metrics
+
+Set `metrics.enabled: false` in `router-tuning.json` to stop writing.
+The log is append-only; rotate or archive manually when it gets large
+(expect ~100 bytes per call, so thousands of calls per megabyte).
+
+---
+
+## Delegation Discipline
+
+The orchestrator's job is to plan, sequence, and dispatch — not to do
+every piece of reasoning itself. Orchestrators tend to hoard work
+because calling themselves "feels faster." In practice that means paying
+the orchestrator's premium model rate for tasks a Gemini Flash or
+Sonnet call at low effort would handle just as well.
+
+The following discipline applies to every session.
+
+### Default: Route Reasoning, Own Mechanics
+
+The orchestrator does these **directly**, without calling `route()`:
+
+- Reading the spec and the activity log
+- Creating, editing, renaming, or deleting files
+- Running shell commands (build, test, git, Docker)
+- Dispatching work to `route()` and logging the result
+- Single-file edits under ~50 lines that are mechanical (renames,
+  imports, formatting, trivial boilerplate the spec dictates verbatim)
+- Interpreting errors enough to decide which task to route next
+
+The orchestrator **always** routes these through `route()`, never
+performs them itself:
+
+- Code review
+- Security review
+- Architecture decisions, pattern selection, design proposals
+- Analysis of existing code or test results beyond a surface read
+- Documentation writing (change logs, READMEs, doc comments on
+  non-trivial APIs)
+- Test generation beyond one-off smoke tests
+- Session verification (the cross-provider check at end of session)
+- Any task that requires producing more than ~50 lines of reasoned
+  output
+
+### The "I'll just do this directly" trap
+
+When the orchestrator catches itself thinking *"this is easy, I'll
+handle it myself and save the API call,"* that is a signal to route,
+not a reason to proceed. The orchestrator is not cheap — its own
+token rate for reasoning work is the highest in the system. Routing
+a task to Gemini Flash or low-effort Sonnet is almost always the
+cheaper and more auditable choice, because the routed call's cost
+and output are logged.
+
+The one valid reason to skip `route()` and do the work directly is
+when the task genuinely meets all three criteria from the "directly"
+list above: mechanical, single-file, under ~50 lines. If any of
+those is in doubt, route it.
+
+### How the router already keeps itself cheap
+
+The orchestrator does not pick the model or the effort level. Those
+come from `router-config.yaml` + `router-tuning.json`:
+
+- The router estimates complexity and picks the cheapest capable tier
+- `task_type_params` sets per-task effort/thinking defaults (low for
+  formatting, high for verification)
+- `router-tuning.json` lets the human override those per run without
+  touching YAML
+- For code-review/security-review/architecture, a second provider
+  auto-verifies — independently, without the orchestrator asking
+- Escalation kicks in automatically if a tier-1 response looks
+  truncated or refuses
+
+The orchestrator's only job is to pick the right `task_type` when
+calling `route()`. Everything else — model selection, effort, thinking
+depth, verification — the router handles. Passing the wrong
+`task_type` (e.g., tagging an architecture decision as `documentation`)
+undercuts the tuning, so this matters.
+
+### Thresholds (human-tunable)
+
+The thresholds above (~50 lines, single file) live in
+`router-tuning.json` under `delegation.direct_work_max_lines` and
+`delegation.direct_work_max_files`. The human can adjust these per
+project. The `always_route_task_types` list in the same file is the
+authoritative list of task types the orchestrator must never handle
+directly.
+
+---
+
 ## Rules (Apply to All Orchestrators)
 
 This is the authoritative rules list. Instruction files (`CLAUDE.md`,
@@ -670,8 +861,11 @@ This is the authoritative rules list. Instruction files (`CLAUDE.md`,
 3. **Never edit session review files.** They are the verifier's raw output.
 4. **Log every step** via `log.log_step()` — including build, test, and
    verification.
-5. **Delegate reasoning** to `route()` — do not perform reviews, analysis, or
-   documentation yourself when the task should go through the router.
+5. **Delegate reasoning** to `route()`. See the Delegation Discipline
+   section above for the full criteria. In short: code review, security
+   review, analysis, architecture, documentation, test generation, and
+   session verification always go through `route()`. Do the work yourself
+   only for mechanical, single-file edits under ~50 lines.
 6. **Do not commit with unresolved Critical/Major issues.** Inform the human.
 7. **The human controls orchestrator choice.** Any session can use any agent.
 8. **Before every session, read both guidance files.**

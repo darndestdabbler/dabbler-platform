@@ -1,6 +1,10 @@
-"""Load and validate router-config.yaml."""
+"""Load and validate router-config.yaml, and merge the optional
+router-tuning.json overlay. Also exposes a helper to resolve the
+effective generation params for a (model, task_type) pair."""
 
 import os
+import json
+import copy
 import yaml
 from pathlib import Path
 
@@ -105,4 +109,133 @@ def load_config(path: str | None = None) -> dict:
     else:
         config["_verification_template"] = ""
 
+    # --- Tuning overlay (router-tuning.json) ---------------------------------
+    # Optional per-run overlay. Keys present here override the YAML.
+    tuning_path = os.environ.get("AI_ROUTER_TUNING")
+    if tuning_path is None:
+        tuning_path = str(config_dir / "router-tuning.json")
+
+    tuning: dict = {}
+    if Path(tuning_path).exists():
+        with open(tuning_path) as f:
+            try:
+                tuning = json.load(f)
+            except json.JSONDecodeError as e:
+                raise ValueError(
+                    f"router-tuning.json is not valid JSON: {e}"
+                )
+
+    config["_tuning"] = tuning
+    config["_tuning_applied"] = _summarize_tuning(tuning) if tuning else []
+
+    # Apply tuning: max_tier cap
+    if isinstance(tuning.get("max_tier"), dict):
+        cap = tuning["max_tier"].get("value")
+        if isinstance(cap, int) and 1 <= cap <= 3:
+            config["routing"]["_max_tier_cap"] = cap
+
     return config
+
+
+def _summarize_tuning(tuning: dict) -> list[str]:
+    """Produce a short list of 'what got overridden' strings, for logging."""
+    notes = []
+    for key in (
+        "max_tier",
+        "effort_by_task_type",
+        "adaptive_thinking_by_task_type",
+        "thinking_budget_by_task_type_gemini25",
+        "thinking_level_by_task_type_gemini3",
+        "reasoning_effort_by_task_type_openai",
+    ):
+        if key in tuning:
+            block = tuning[key]
+            if isinstance(block, dict):
+                n = sum(1 for k in block if not k.startswith("_"))
+                notes.append(f"{key}({n} entries)")
+            else:
+                notes.append(key)
+    return notes
+
+
+def resolve_generation_params(
+    model_name: str,
+    task_type: str,
+    config: dict,
+) -> dict:
+    """Resolve effective generation_params for a (model, task_type) pair.
+
+    Precedence (lowest to highest):
+      1. Model-level defaults: config['models'][model_name]['generation_params']
+      2. Per-task-type override: config['task_type_params'][task_type][model_name]
+      3. Tuning overlay (router-tuning.json) — applied last so the human wins.
+
+    Returns a dict with any subset of:
+      effort, thinking (dict), thinking_budget (int), thinking_level (str).
+    """
+    model_cfg = config["models"].get(model_name, {})
+    params = copy.deepcopy(model_cfg.get("generation_params", {}) or {})
+
+    # Per-task-type YAML override
+    tt_block = config.get("task_type_params", {}).get(task_type, {}) or {}
+    overrides = tt_block.get(model_name, {}) or {}
+    params = _deep_merge(params, overrides)
+
+    # Tuning overlay (runtime, human-editable)
+    tuning = config.get("_tuning", {}) or {}
+    provider = model_cfg.get("provider", "")
+
+    if provider == "anthropic":
+        effort_map = tuning.get("effort_by_task_type", {}) or {}
+        if task_type in effort_map:
+            params["effort"] = effort_map[task_type]
+
+        adapt_map = tuning.get("adaptive_thinking_by_task_type", {}) or {}
+        if task_type in adapt_map:
+            want = bool(adapt_map[task_type])
+            thinking = params.get("thinking", {}) or {}
+            thinking = {**thinking, "enabled": want}
+            if want and "type" not in thinking:
+                thinking["type"] = "adaptive"
+            params["thinking"] = thinking
+
+    elif provider == "google":
+        model_id = model_cfg.get("model_id", "")
+        if model_id.startswith("gemini-3"):
+            lvl_map = tuning.get(
+                "thinking_level_by_task_type_gemini3", {}
+            ) or {}
+            if task_type in lvl_map:
+                params["thinking_level"] = lvl_map[task_type]
+                # thinking_level and thinking_budget are mutually exclusive
+                params.pop("thinking_budget", None)
+        else:
+            budget_map = tuning.get(
+                "thinking_budget_by_task_type_gemini25", {}
+            ) or {}
+            if task_type in budget_map:
+                params["thinking_budget"] = budget_map[task_type]
+
+    elif provider == "openai":
+        effort_map = tuning.get(
+            "reasoning_effort_by_task_type_openai", {}
+        ) or {}
+        if task_type in effort_map:
+            params["reasoning_effort"] = effort_map[task_type]
+
+    return params
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Return a new dict where override keys win. Nested dicts merge."""
+    out = copy.deepcopy(base)
+    for k, v in (override or {}).items():
+        if (
+            k in out
+            and isinstance(out[k], dict)
+            and isinstance(v, dict)
+        ):
+            out[k] = _deep_merge(out[k], v)
+        else:
+            out[k] = copy.deepcopy(v)
+    return out

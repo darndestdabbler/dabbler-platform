@@ -48,13 +48,14 @@ the SessionLog class:
     log.log_step(session_number=1, step_number=1, ...)
 """
 
-from .config import load_config
+from .config import load_config, resolve_generation_params
 from .models import estimate_complexity, pick_model
 from .providers import call_model
 from .prompting import build_prompt
 from .rate_limiter import RateLimiter
 from .session_log import SessionLog
 from .escalation import should_escalate, get_escalation_model
+from .metrics import record_call, load_metrics, print_metrics_report
 from .notifications import (
     NotificationResult,
     send_pushover_notification,
@@ -135,7 +136,9 @@ def route(
     task_type: str = "general",
     context: str = "",
     complexity_hint: Optional[int] = None,
-    max_tier: int = 3
+    max_tier: int = 3,
+    session_set: Optional[str] = None,
+    session_number: Optional[int] = None,
 ) -> RouteResult:
     """
     Route a task to the best model based on complexity estimation.
@@ -148,6 +151,10 @@ def route(
         complexity_hint: Optional manual complexity score (1-100).
                          If provided, weighted into the estimate.
         max_tier: Maximum tier to use (for cost-capped runs).
+        session_set: Optional path or slug identifying the active session set.
+                     Passed through to the metrics log so reports can group
+                     by session set.
+        session_number: Optional session number (1, 2, ...) for metrics.
 
     Returns:
         RouteResult with the AI response and metadata.
@@ -164,7 +171,13 @@ def route(
         config=_config["complexity"]
     )
 
-    # 2. Pick model
+    # 2. Apply tuning's max_tier cap (if set) — human-editable ceiling
+    #    on how expensive a model this run is allowed to use.
+    tuning_cap = _config.get("routing", {}).get("_max_tier_cap")
+    if isinstance(tuning_cap, int):
+        max_tier = min(max_tier, tuning_cap)
+
+    # 3. Pick model
     model_name = pick_model(score, max_tier, task_type, _config)
     model_cfg = _config["models"][model_name]
 
@@ -196,6 +209,11 @@ def route(
         # Rate limit
         _rate_limiters[provider_name].wait()
 
+        # Resolve effective generation params for this (model, task_type)
+        gen_params = resolve_generation_params(
+            current_model_name, task_type, _config
+        )
+
         # Call API
         start = time.time()
         result = call_model(
@@ -204,7 +222,8 @@ def route(
             system_prompt=system_prompt,
             user_message=user_message,
             max_tokens=current_cfg["max_output_tokens"],
-            config=_config["providers"][provider_name]
+            config=_config["providers"][provider_name],
+            generation_params=gen_params,
         )
         elapsed = time.time() - start
 
@@ -257,6 +276,26 @@ def route(
         verification=None
     )
 
+    # 6a. Record generator-call metrics (best-effort; never blocks)
+    record_call(
+        _config,
+        call_type="route",
+        task_type=task_type,
+        model=current_model_name,
+        provider=_config["models"][current_model_name]["provider"],
+        tier=_config["models"][current_model_name]["tier"],
+        complexity_score=score,
+        generation_params=gen_params,
+        input_tokens=result.input_tokens,
+        output_tokens=result.output_tokens,
+        cost_usd=cost,
+        elapsed_seconds=elapsed,
+        escalated=len(escalation_history) > 0,
+        stop_reason=result.stop_reason,
+        session_set=session_set,
+        session_number=session_number,
+    )
+
     # 7. Auto-verify if this task type is configured for it
     v_config = _config.get("verification", {})
     auto_types = v_config.get("auto_verify_task_types", [])
@@ -266,7 +305,9 @@ def route(
         verification = _run_verification(
             route_result=route_result,
             original_task=user_message,
-            task_type=task_type
+            task_type=task_type,
+            session_set=session_set,
+            session_number=session_number,
         )
         if verification:
             route_result.verification = verification
@@ -285,7 +326,9 @@ def route(
                     and on_disagree == "re-route"):
                 route_result = _tiebreaker_reroute(
                     route_result, user_message, task_type,
-                    verification, v_config
+                    verification, v_config,
+                    session_set=session_set,
+                    session_number=session_number,
                 )
 
     if task_type == "session-verification":
@@ -304,7 +347,9 @@ def query(
     model: str,
     content: str,
     task_type: str = "general",
-    context: str = ""
+    context: str = "",
+    session_set: Optional[str] = None,
+    session_number: Optional[int] = None,
 ) -> RouteResult:
     """
     Call a specific model directly, bypassing complexity estimation.
@@ -325,6 +370,8 @@ def query(
 
     _rate_limiters[provider_name].wait()
 
+    gen_params = resolve_generation_params(model, task_type, _config)
+
     start = time.time()
     result = call_model(
         provider_name=provider_name,
@@ -332,12 +379,33 @@ def query(
         system_prompt=system_prompt,
         user_message=user_message,
         max_tokens=model_cfg["max_output_tokens"],
-        config=_config["providers"][provider_name]
+        config=_config["providers"][provider_name],
+        generation_params=gen_params,
     )
     elapsed = time.time() - start
 
     cost = _calculate_cost(
         result.input_tokens, result.output_tokens, model_cfg
+    )
+
+    # Record direct-query metrics (best-effort)
+    record_call(
+        _config,
+        call_type="route",
+        task_type=task_type,
+        model=model,
+        provider=provider_name,
+        tier=model_cfg.get("tier", 0),
+        complexity_score=None,
+        generation_params=gen_params,
+        input_tokens=result.input_tokens,
+        output_tokens=result.output_tokens,
+        cost_usd=cost,
+        elapsed_seconds=elapsed,
+        escalated=False,
+        stop_reason=result.stop_reason,
+        session_set=session_set,
+        session_number=session_number,
     )
 
     return RouteResult(
@@ -360,7 +428,9 @@ def query(
 def verify(
     route_result: RouteResult,
     original_task: str = "",
-    task_type: str = "general"
+    task_type: str = "general",
+    session_set: Optional[str] = None,
+    session_number: Optional[int] = None,
 ) -> VerificationResult:
     """
     Independently verify a RouteResult using a model from a different provider.
@@ -370,12 +440,17 @@ def verify(
         original_task: The original task/prompt (if not provided, the
                        verifier only sees the response, not the task).
         task_type: Task type for context in the verification prompt.
+        session_set: Optional session set identifier for metrics.
+        session_number: Optional session number for metrics.
 
     Returns:
         VerificationResult with verdict, issues, and cost.
     """
     _init()
-    result = _run_verification(route_result, original_task, task_type)
+    result = _run_verification(
+        route_result, original_task, task_type,
+        session_set=session_set, session_number=session_number
+    )
     if result is None:
         raise RuntimeError(
             f"No cross-provider verifier available for "
@@ -387,7 +462,9 @@ def verify(
 def _run_verification(
     route_result: RouteResult,
     original_task: str,
-    task_type: str
+    task_type: str,
+    session_set: Optional[str] = None,
+    session_number: Optional[int] = None,
 ) -> Optional[VerificationResult]:
     """Internal: execute a verification call."""
     v_config = _config.get("verification", {})
@@ -431,14 +508,24 @@ def _run_verification(
     # 4. Call verifier
     _rate_limiters[verifier_provider].wait()
 
+    # Verifier runs against a synthetic 'verification' task type so the
+    # router-tuning.json entries for session-verification/code-review/etc.
+    # don't accidentally apply to it. Falls back to model defaults.
+    v_gen_params = resolve_generation_params(
+        verifier_name, "verification", _config
+    )
+
+    v_start = time.time()
     v_result = call_model(
         provider_name=verifier_provider,
         model_id=verifier_cfg["model_id"],
         system_prompt=system_prompt,
         user_message=user_message,
         max_tokens=verifier_cfg["max_output_tokens"],
-        config=_config["providers"][verifier_provider]
+        config=_config["providers"][verifier_provider],
+        generation_params=v_gen_params,
     )
+    v_elapsed = time.time() - v_start
 
     v_cost = _calculate_cost(
         v_result.input_tokens, v_result.output_tokens, verifier_cfg
@@ -446,6 +533,29 @@ def _run_verification(
 
     # 5. Parse verdict
     verdict, issues = parse_verification_response(v_result.content)
+
+    # 5a. Record verifier-call metrics (best-effort)
+    record_call(
+        _config,
+        call_type="verify",
+        task_type=task_type,
+        model=verifier_name,
+        provider=verifier_provider,
+        tier=verifier_cfg.get("tier", 0),
+        complexity_score=None,
+        generation_params=v_gen_params,
+        input_tokens=v_result.input_tokens,
+        output_tokens=v_result.output_tokens,
+        cost_usd=v_cost,
+        elapsed_seconds=v_elapsed,
+        escalated=False,
+        stop_reason=v_result.stop_reason,
+        session_set=session_set,
+        session_number=session_number,
+        verifier_of=route_result.model_name,
+        verdict=verdict,
+        issue_count=len(issues),
+    )
 
     # 6. Build and return verification result
     generator_cfg = _config["models"][route_result.model_name]
@@ -489,7 +599,9 @@ def _tiebreaker_reroute(
     user_message: str,
     task_type: str,
     verification: VerificationResult,
-    v_config: dict
+    v_config: dict,
+    session_set: Optional[str] = None,
+    session_number: Optional[int] = None,
 ) -> RouteResult:
     """When generator and verifier disagree, send to a Tier 3 tiebreaker."""
     tiebreaker_name = v_config.get("settings", {}).get(
@@ -523,17 +635,48 @@ def _tiebreaker_reroute(
 
     _rate_limiters[tb_provider].wait()
 
+    # Tiebreakers should always get deep reasoning since they resolve
+    # genuine disagreement. Route under the task type so its per-task
+    # tuning applies, and the tiebreaker (Opus) will use its high-effort
+    # defaults.
+    tb_gen_params = resolve_generation_params(
+        tiebreaker_name, task_type, _config
+    )
+
+    tb_start = time.time()
     tb_result = call_model(
         provider_name=tb_provider,
         model_id=tb_cfg["model_id"],
         system_prompt=system_prompt,
         user_message=tb_prompt,
         max_tokens=tb_cfg["max_output_tokens"],
-        config=_config["providers"][tb_provider]
+        config=_config["providers"][tb_provider],
+        generation_params=tb_gen_params,
     )
+    tb_elapsed = time.time() - tb_start
 
     tb_cost = _calculate_cost(
         tb_result.input_tokens, tb_result.output_tokens, tb_cfg
+    )
+
+    # Record tiebreaker metrics (best-effort)
+    record_call(
+        _config,
+        call_type="tiebreaker",
+        task_type=task_type,
+        model=tiebreaker_name,
+        provider=tb_provider,
+        tier=tb_cfg.get("tier", 0),
+        complexity_score=None,
+        generation_params=tb_gen_params,
+        input_tokens=tb_result.input_tokens,
+        output_tokens=tb_result.output_tokens,
+        cost_usd=tb_cost,
+        elapsed_seconds=tb_elapsed,
+        escalated=False,
+        stop_reason=tb_result.stop_reason,
+        session_set=session_set,
+        session_number=session_number,
     )
 
     route_result.content = tb_result.content
