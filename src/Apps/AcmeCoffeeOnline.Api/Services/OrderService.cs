@@ -2,19 +2,27 @@ using AcmeCoffeeOnline.Api.Data;
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Shared.Enums;
 using AcmeCoffeeOnline.Shared.Models;
+using Dabbler.Security.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcmeCoffeeOnline.Api.Services;
 
 public class OrderService : IOrderService
 {
+    private const string OrderEntityKey = "Order";
+
     private readonly AcmeCoffeeDbContext _db;
     private readonly ICurrentUserService _currentUser;
+    private readonly IRowRestrictionBroker _rowRestrictionBroker;
 
-    public OrderService(AcmeCoffeeDbContext db, ICurrentUserService currentUser)
+    public OrderService(
+        AcmeCoffeeDbContext db,
+        ICurrentUserService currentUser,
+        IRowRestrictionBroker rowRestrictionBroker)
     {
         _db = db;
         _currentUser = currentUser;
+        _rowRestrictionBroker = rowRestrictionBroker;
     }
 
     public async Task<PagedResponse<OrderDto>> GetAllAsync(PagedRequest request, CancellationToken cancellationToken = default)
@@ -334,8 +342,19 @@ public class OrderService : IOrderService
 
     private IQueryable<Order> ApplyRowFilter(IQueryable<Order> query)
     {
+        // Session 4 of rearchitect-role-administration-foundations: consult the
+        // IRowRestrictionBroker first. When a user-type role has a configured
+        // RowRestriction for the Order entity, the broker returns the compiled
+        // expression and we honour it. The legacy enum-based branch below is
+        // kept as the default policy for the current seed configuration, which
+        // Session 5 migrates into proper RowRestriction entries.
+        var brokerFilter = _rowRestrictionBroker.GetRestriction<Order>(OrderEntityKey);
+        if (brokerFilter is not null)
+        {
+            return query.Where(brokerFilter);
+        }
+
         // Internal staff (BackofficeUser and above) see all orders.
-        // Matches the security-config row filter: only Customer is scoped.
         if (_currentUser.Role >= Shared.Enums.UserRole.BackofficeUser)
         {
             return query;

@@ -269,6 +269,77 @@
           "costUsd": 0.03612625
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-04-19T16:56:07.605966+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, and spec.md before starting. Surveyed existing row-filter runtime (RowFilter, RowFilterService, OrderService.ApplyRowFilter, OrderVisibilityTests, UserSessionContextService) so the port preserves semantics.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/row-restriction-port",
+      "dateTime": "2026-04-19T16:56:07.606959+00:00",
+      "description": "Added Dabbler.Security/Services/RowRestrictionExpressionBuilder.cs as a static helper that ports the legacy RowFilterService grammar (single '==' equality with int literal, single-quoted string, or @Token placeholder). The token dictionary is passed by the caller so the builder stays free of claims/HTTP concerns. Returns null on parse failure, unknown property, or missing/null token so the broker can fail-closed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/broker",
+      "dateTime": "2026-04-19T16:56:07.607967+00:00",
+      "description": "Added IRowRestrictionBroker (new DI contract) and RowRestrictionBroker. The broker resolves the active ClaimsPrincipal via IHttpContextAccessor, normalizes the effective role set through IRoleSwitcher, short-circuits to null whenever any effective role is in IBakedInRoleProvider.GetBakedInRoles() (baked-in privileges govern), then searches SecurityConfigurationManager.Current.UserTypeRoles for RowRestrictions whose EntityKey matches case-insensitively. A user-type role with no restriction for the entity is default-permissive -> broker returns null immediately. If every matched role has a restriction, the broker OR-combines them via a parameter-rebinding ExpressionVisitor so the returned expression is a single well-formed Expression<Func<T,bool>>. Tokens @CurrentUserId, @CurrentUserCustomerId, @CurrentOrganizationId are pulled from claims.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/sample-integration",
+      "dateTime": "2026-04-19T16:56:07.607967+00:00",
+      "description": "Adapted AcmeCoffeeOnline.Api.Services.OrderService.ApplyRowFilter to consult IRowRestrictionBroker first (entityKey 'Order'). When the broker returns a filter, it is applied and the hardcoded enum-based branch is skipped. Legacy UserRole-enum fallback remains for the current seed configuration (no user-type RowRestrictions yet); Session 5 of the set migrates the Customer-scoping rule into a proper RowRestriction, at which point the broker path takes over naturally.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/integration-test",
+      "dateTime": "2026-04-19T16:56:07.609116+00:00",
+      "description": "Added tests/Dabbler.Security.Tests/Services/RowRestrictionExpressionBuilderTests.cs (8 cases: int, string, case-insensitive token, missing/null token -> null, unknown property -> null, unparseable input -> null, empty -> null) and RowRestrictionBrokerTests.cs (10 cases: unauthenticated -> null, baked-in short-circuit, single user-type role with restriction -> compiled filter, role without matching entity -> null, case-insensitive entity match, parse failure -> deny-all for that role, multi-role OR, multi-role with one unrestricted -> null, legacy InheritsFrom is not followed, switched role replaces the effective role list). Added tests/AcmeCoffeeOnline.Api.Tests/RowRestrictionIntegrationTests.cs with 2 cases that swap ISecurityConfigurationStore via WithWebHostBuilder and ConfigureTestServices, run OrderService.GetAllAsync end-to-end, and prove: (1) a user-type role with CustomerId == @CurrentUserCustomerId sees only the matching customer's orders; (2) a user-type role with no Order restriction sees all orders.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-19T16:56:07.610124+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 0 warnings from the new code. (Solution-wide warning count unchanged from Session 3's transitional [Obsolete] surface, which Set B will resolve.) dotnet test excluding Playwright: 569 passed, 1 failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates, pre-existing since commit 8730107 which deleted docs/workflow-auth-observability.md; flagged unchanged from Sessions 1, 2, and 3). Net +20 new tests over Session 3's 549 baseline (8 expression-builder + 10 broker unit tests + 2 integration tests).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-19T16:56:44.594605+00:00",
+      "description": "Cross-provider verification via opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 29559,
+          "outputTokens": 1448,
+          "costUsd": 0.551985
+        }
+      ]
     }
   ]
 }

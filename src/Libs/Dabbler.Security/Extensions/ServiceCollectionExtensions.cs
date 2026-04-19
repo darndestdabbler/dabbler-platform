@@ -135,6 +135,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMfaService, MfaService>();
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<IRowFilterService, RowFilterService>();
+        services.AddScoped<IRowRestrictionBroker, RowRestrictionBroker>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IExternalLoginService, ExternalLoginService>();
         services.TryAddSingleton<DevEmailInbox>();
