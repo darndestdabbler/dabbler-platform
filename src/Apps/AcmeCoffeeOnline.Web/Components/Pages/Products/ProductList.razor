@@ -2,6 +2,7 @@
 @using AcmeCoffeeOnline.Shared.Enums
 @using Dabbler.Components
 @using Dabbler.Components.Data
+@using Dabbler.Security.Blazor.Components.Restriction
 @using MudBlazor
 
 @* ── Title ──────────────────────────────────────────────────────────── *@
@@ -71,8 +72,14 @@
         <PropertyColumn Property="e => e.RoastLevel" Title="Roast Level" />
         <PropertyColumn Property="e => e.CaffeineContent" Title="Caffeine" />
         <PropertyColumn Property="e => e.GrindType" Title="Grind Type" />
-        <PropertyColumn Property="e => e.UnitPrice" Title="Unit Price" Format="C2"
-                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
+        <RestrictedGridColumn EntityKey="Product" ColumnKey="UnitPrice">
+            <ChildContent Context="restriction">
+                <PropertyColumn Property="e => e.UnitPrice" Title="Unit Price" Format="C2"
+                                Editable="@(restriction.Editability != ColumnEditability.ReadOnly)"
+                                CellStyle="text-align:right; max-width:130px"
+                                HeaderStyle="text-align:right; max-width:130px" />
+            </ChildContent>
+        </RestrictedGridColumn>
         <TemplateColumn Title="Available" Sortable="true">
             <CellTemplate>
                 <MudIcon Icon="@(context.Item.IsAvailable ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"

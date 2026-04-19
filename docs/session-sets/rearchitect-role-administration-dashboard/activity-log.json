@@ -608,6 +608,131 @@
           "costUsd": 0.242895
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 12,
+      "stepKey": "session-4/commit",
+      "dateTime": "2026-04-19T19:13:35.083108+00:00",
+      "description": "Committed 12 files (8 added, 4 modified, 1447 insertions) as Session 4 of 8 (commit 90850f3). Pushed to origin/master. Cost for session: $1.7 (opus x2 verification rounds). Step 9 reorganization review is NOT run here (only on the last session of the set \u2014 Session 8).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/read-planning",
+      "dateTime": "2026-04-19T20:00:00+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, spec.md, activity-log (Sessions 1-4), and roadmap memory. Confirmed E2E + UAT-per-set + reorg + Send-related-files-to-verifier conventions, the MudToggleGroup vs MudSwitch lesson, and the Hard-asserted disabled-state lesson. Verified API keys present.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/binder-design",
+      "dateTime": "2026-04-19T20:01:00+00:00",
+      "description": "Created src/Libs/Dabbler.Security.Blazor/Components/Restriction/ tree: RestrictionResolution.cs (readonly record struct with Visibility/Editability/IsMasked/MaskFormat plus ColumnVisibility + ColumnEditability enums and Unrestricted factory), IRestrictionBinder.cs (async ResolveAsync + pure synchronous Resolve overload for tests/non-Blazor consumers), RestrictionBinder.cs (instance impl injecting SecurityConfigurationManager + AuthenticationStateProvider + IRoleSwitcher + IBakedInRoleProvider; pure static Evaluate covers multi-role most-permissive aggregation, baked-in short-circuit, default-mask + per-role exemption with ExpiresAt expiry).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/restricted-form-field",
+      "dateTime": "2026-04-19T20:02:00+00:00",
+      "description": "Created Components/Restriction/RestrictedFormField.razor: subscribes to AuthorizationStateNotifier, calls Binder.ResolveAsync on init + on every notification + on key change. Render contract: Hidden -> nothing; Masked + no exemption -> MaskedTemplate (default placeholder span with data-masked='true'/data-mask-format/data-testid='restricted-field-masked-{entity}-{column}'); otherwise -> ChildContent(RestrictionResolution) so the consumer wires Disabled/ReadOnly from state.Editability.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/restricted-grid-column",
+      "dateTime": "2026-04-19T20:03:00+00:00",
+      "description": "Created Components/Restriction/RestrictedGridColumn.razor (analogous wrapper for MudDataGrid columns). Hidden -> emits no column (MudDataGrid registers only columns that render); otherwise -> invokes ChildContent(state) so the consumer wires IsEditable / Editable / CellTemplate from state. Masked rendering left to the consumer because grids have N cells with per-row values; documented in xml-doc.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/reference-integration",
+      "dateTime": "2026-04-19T20:04:00+00:00",
+      "description": "Adapted ProductDetail.razor: wrapped the UnitPrice MudNumericField in <RestrictedFormField EntityKey='Product' ColumnKey='UnitPrice'> with Disabled+ReadOnly bound to restriction.Editability. Adapted ProductList.razor: wrapped the UnitPrice PropertyColumn in <RestrictedGridColumn EntityKey='Product' ColumnKey='UnitPrice'> with Editable bound to restriction.Editability. Both files now @using Dabbler.Security.Blazor.Components.Restriction.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/binder-registration",
+      "dateTime": "2026-04-19T20:05:00+00:00",
+      "description": "Registered AddScoped<IRestrictionBinder, RestrictionBinder>() in Dabbler.Security.Blazor/Extensions/ServiceCollectionExtensions.AddDabblerSecurityBlazor (NOT in Dabbler.Security; that direction would create a Security -> Security.Blazor cycle). Scoped lifetime matches IRoleSwitcher so the binder sees role-switch state for the current circuit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 7,
+      "stepKey": "session-5/seed-warehouseuser",
+      "dateTime": "2026-04-19T20:06:00+00:00",
+      "description": "Added WarehouseUser user-type role to security-config.json (both Web and Api copies) plus SecuritySeedData.cs: a single ColumnRestriction (Product/UnitPrice = Hidden) so the Hidden-path Playwright test has a real role to drive. Extended appsettings.Development.json SeededSession.AllowedRoles with WarehouseUser. The pre-existing BackofficeUser role had /products Hidden which would block the Playwright proof, so a dedicated test role was the cleanest path.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/binder-unit-tests",
+      "dateTime": "2026-04-19T20:07:00+00:00",
+      "description": "Added tests/Dabbler.Security.Blazor.Tests/Components/Restriction/RestrictionBinderTests.cs (16 facts covering: NoRoles unrestricted; baked-in short-circuit; ViewOnly + Hidden single-role; role-not-in-config default-permissive; multi-role most-permissive across visibility and editability; both-ViewOnly stays ReadOnly; both-Hidden stays Hidden; default-mask without exemption; active exemption; expired exemption stays masked; exemption for other role stays masked; baked-in role in user set always unmasked; permanent exemption; entity/column key echoed in result).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 9,
+      "stepKey": "session-5/wrapper-bunit-tests",
+      "dateTime": "2026-04-19T20:08:00+00:00",
+      "description": "Added RestrictedFormFieldTests.cs (7 facts: Hidden renders nothing; ViewOnly passes ReadOnly state; no-restriction passes Editable state; baked-in bypasses; default-mask renders placeholder span; custom MaskedTemplate overrides default; AuthorizationStateChange triggers re-resolution within circuit). Added RestrictedGridColumnTests.cs (5 facts: Hidden does not invoke ChildContent; ViewOnly passes ReadOnly; no-restriction passes Editable; default-mask still invokes child with masked state; AuthorizationStateChange removes column from render).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 10,
+      "stepKey": "session-5/playwright-restriction-coverage",
+      "dateTime": "2026-04-19T20:09:00+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Playwright/RestrictionEnforcementTests.cs (3 tests against /products and /products/{id}): SystemAdmin sees the UnitPrice column header and the form field is enabled + not readonly; Customer sees the form field but it is Disabled (their seeded ColumnRestriction.ViewOnly path); WarehouseUser sees neither the grid column header nor the form field (their seeded ColumnRestriction.Hidden path). Uses the existing PlaywrightFixture.SeededSignInAsync helper.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 11,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-04-19T20:10:00+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 191 CS0618 warnings (unchanged from Session 4 \u2014 all legacy [Obsolete] refs deferred per Session 2 ends-with hedge). dotnet test non-Playwright: 602 passed, 1 pre-existing failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates expects docs/workflow-auth-observability.md removed in commit 8730107 \u2014 noted in every prior session). Per-suite: Dabbler.Components.Tests 33/33, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Security.Blazor.Tests 171/171 (+30 new across Restriction/), AcmeCoffeeOnline.Api.Tests 27/27 (renamed/expanded MigratedSecurityConfigSeedTests.SeededConfiguration_ContainsExpectedUserTypeRoles_UnderNewShapeAsync to assert WarehouseUser), Dabbler.Security.Tests 236/236, AcmeCoffeeOnline.Web.Tests 122/123.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 12,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-04-19T20:13:00+00:00",
+      "description": "Cross-provider verification via ai-router (round 1). Model: opus. Tokens in/out: 41790/9100. Prompt attached Session 5 spec excerpt + 9 created files + 8 modified files + 8 supporting files (ColumnRestriction, DefaultMaskRule, MaskExemption, RoleDefinition, IBakedInRoleProvider, AuthorizationStateNotifier, IRoleSwitcher, DabblerSecured); disclosed deferred Set D mask renderer, SaveAsync->ConfigurationChanged chain, MaskedTemplate extension hook, narrow-by-design WarehouseUser scope, RestrictedGridColumn masked rendering asymmetry, and the pre-existing WorkflowAssetSmokeTests failure as out-of-scope. Verdict: PASS, no blocking issues, four non-blocking observations (default-struct null MaskFormat is inert; grid masked rendering asymmetry is documented; implicit Hidden else acceptable; no CancellationToken matches existing patterns). See session-reviews/session-005.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 41790,
+          "outputTokens": 9100,
+          "costUsd": 1.30935
+        }
+      ]
     }
   ]
 }

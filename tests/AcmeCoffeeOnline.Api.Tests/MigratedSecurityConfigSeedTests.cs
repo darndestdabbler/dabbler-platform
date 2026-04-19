@@ -33,7 +33,7 @@ public sealed class MigratedSecurityConfigSeedTests : IClassFixture<WebApplicati
     }
 
     [Fact]
-    public async Task SeededConfiguration_ContainsCustomerAndBackofficeUserRoles_UnderNewShapeAsync()
+    public async Task SeededConfiguration_ContainsExpectedUserTypeRoles_UnderNewShapeAsync()
     {
         using var factory = _factory.WithWebHostBuilder(b => b.UseEnvironment("Development"));
         await using var scope = factory.Services.CreateAsyncScope();
@@ -42,8 +42,11 @@ public sealed class MigratedSecurityConfigSeedTests : IClassFixture<WebApplicati
         await manager.EnsureLoadedAsync();
         var config = manager.Current;
 
+        // WarehouseUser was added in Session 5 of
+        // rearchitect-role-administration-dashboard as the Hidden-path
+        // reference role for the data-bound restriction enforcement seam.
         Assert.Collection(
-            config.UserTypeRoles.OrderBy(r => r.RoleName),
+            config.UserTypeRoles.OrderBy(r => r.RoleName, StringComparer.Ordinal),
             role =>
             {
                 Assert.Equal("BackofficeUser", role.RoleName);
@@ -53,6 +56,15 @@ public sealed class MigratedSecurityConfigSeedTests : IClassFixture<WebApplicati
             {
                 Assert.Equal("Customer", role.RoleName);
                 Assert.Equal("Customer", role.DisplayAlias);
+            },
+            role =>
+            {
+                Assert.Equal("WarehouseUser", role.RoleName);
+                Assert.Equal("Warehouse User", role.DisplayAlias);
+                Assert.Contains(role.ColumnRestrictions, cr =>
+                    cr.EntityKey == "Product"
+                    && cr.ColumnKey == "UnitPrice"
+                    && cr.RestrictionKind == ColumnRestrictionKind.Hidden);
             });
     }
 

@@ -1,6 +1,7 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Shared.Enums
 @using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Security.Blazor.Components.Restriction
 @using MudBlazor
 @inject ProductApiClient ProductClient
 
@@ -59,18 +60,24 @@ else if (_record is not null)
             </MudItem>
 
             <MudItem xs="12" md="6">
-                <MudNumericField T="decimal"
-                                 Value="_record.UnitPrice"
-                                 ValueChanged="@((decimal v) => { _record.UnitPrice = v; OnFieldChanged(string.Empty); })"
-                                 Label="Unit Price"
-                                 Min="0.01m"
-                                 Max="9999.99m"
-                                 Format="N2"
-                                 Adornment="Adornment.Start"
-                                 AdornmentText="$"
-                                 Variant="Variant.Outlined"
-                                 Immediate="true"
-                                 data-testid="field-unit-price" />
+                <RestrictedFormField EntityKey="Product" ColumnKey="UnitPrice">
+                    <ChildContent Context="restriction">
+                        <MudNumericField T="decimal"
+                                         Value="_record.UnitPrice"
+                                         ValueChanged="@((decimal v) => { _record.UnitPrice = v; OnFieldChanged(string.Empty); })"
+                                         Label="Unit Price"
+                                         Min="0.01m"
+                                         Max="9999.99m"
+                                         Format="N2"
+                                         Adornment="Adornment.Start"
+                                         AdornmentText="$"
+                                         Variant="Variant.Outlined"
+                                         Immediate="true"
+                                         Disabled="@(restriction.Editability == ColumnEditability.ReadOnly)"
+                                         ReadOnly="@(restriction.Editability == ColumnEditability.ReadOnly)"
+                                         data-testid="field-unit-price" />
+                    </ChildContent>
+                </RestrictedFormField>
             </MudItem>
 
             <MudItem xs="12" md="6">

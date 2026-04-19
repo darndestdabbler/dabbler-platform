@@ -71,6 +71,24 @@ public static class SecuritySeedData
         },
         new()
         {
+            RoleName = "WarehouseUser",
+            DisplayAlias = "Warehouse User",
+            Description = "Warehouse staff with read access to product availability but no visibility into pricing. Provides the Hidden-path reference for the data-bound restriction enforcement seam.",
+            ColumnRestrictions =
+            [
+                new() { EntityKey = "Product", ColumnKey = "UnitPrice", RestrictionKind = ColumnRestrictionKind.Hidden }
+            ],
+            UiRestrictions =
+            [
+                new() { PageKey = "/admin/products", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/admin/users", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/admin/security", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/customers", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/orders", ControlKey = "*", Kind = UiRestrictionKind.Hidden }
+            ]
+        },
+        new()
+        {
             RoleName = "Customer",
             DisplayAlias = "Customer",
             Description = "Retail-business account with self-service access to its own orders and profile.",

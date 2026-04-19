@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dabbler.Security.Blazor.Components.Restriction;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +24,12 @@ public static class ServiceCollectionExtensions
         services.AddMudServices();
         services.AddAuthorizationCore();
         services.AddCascadingAuthenticationState();
-        
+
+        // Data-bound restriction binder consumed by RestrictedFormField /
+        // RestrictedGridColumn. Scoped lifetime matches IRoleSwitcher so the
+        // binder sees role-switch state for the current circuit.
+        services.AddScoped<IRestrictionBinder, RestrictionBinder>();
+
         // Register the delegating handler to pass user headers to the API
         services.AddTransient<UserIdentityHandler>();
 

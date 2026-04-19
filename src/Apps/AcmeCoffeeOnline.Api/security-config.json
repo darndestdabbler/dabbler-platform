@@ -17,6 +17,22 @@
       ]
     },
     {
+      "RoleName": "WarehouseUser",
+      "DisplayAlias": "Warehouse User",
+      "Description": "Warehouse staff with read access to product availability but no visibility into pricing. Provides the Hidden-path reference for the data-bound restriction enforcement seam.",
+      "ColumnRestrictions": [
+        { "EntityKey": "Product", "ColumnKey": "UnitPrice", "RestrictionKind": "Hidden" }
+      ],
+      "RowRestrictions": [],
+      "UiRestrictions": [
+        { "PageKey": "/admin/products", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/users", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/security", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/customers", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/orders", "ControlKey": "*", "Kind": "Hidden" }
+      ]
+    },
+    {
       "RoleName": "Customer",
       "DisplayAlias": "Customer",
       "Description": "Retail-business account with self-service access to its own orders and profile.",
