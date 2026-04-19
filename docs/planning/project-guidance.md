@@ -243,6 +243,14 @@ before proceeding.
   goal is to validate navigation or operability. Do not bypass the control
   under test with direct route navigation and then treat that as proof that
   the navigation control works.
+- Disabled-state and hidden-control tests should sign in as the role whose
+  product definition mandates that absence. Asserting that a privileged role
+  (for example, SystemAdmin) cannot see a control is brittle: when the product
+  expands that role's access, the safeguard inverts into a guaranteed
+  regression. Pair every "control absent" test with a positive-path test
+  where a permitted role sees the control, and prefer to drive absence
+  assertions through the role whose deny semantics are intrinsic to the
+  model.
 - For supported user workflows, automation should prove not only persistence
   outcomes but also visible UI outcomes: route changes when expected, active
   state changes, refreshed grid contents after add or delete, snackbar or

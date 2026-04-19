@@ -363,6 +363,18 @@ Use this structure for new entries:
 
 ## Hard-Asserted Disabled-State Tests Become Regressions When The Feature Gets Enabled
 
+- **Promoted to:** `project-guidance.md` → Conventions → Testing Conventions
+  on 2026-04-19 (Step 9 reorganization review for the
+  `rearchitect-role-administration-foundations` session set). Applied
+  successfully as the right call in two contexts: the original
+  security-dashboard-polish incident (SystemAdmin "no order edit" tests
+  inverted when `IsReadOnly` flipped), and Session 3 of
+  `rearchitect-role-administration-foundations` where
+  `WebGuardrailTests.BackofficeAdmin_RouteAccess_MatchesFocusedAdminNavigationAsync`
+  had to be relaxed to accept 200 on `/admin/products` and
+  `/admin/security` because the rewritten handlers no longer restrict
+  SystemAdmin. Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Two pre-existing Playwright tests asserted SystemAdmin saw no
   status-transition buttons, no "Add Product" button, and no "Add Note"
   button on the Order detail page because `OrderDetailPage.razor` rendered
@@ -381,6 +393,33 @@ Use this structure for new entries:
   Complement with a positive-path test that confirms a privileged role
   does see the control. Flag any disabled-state test that uses a
   privileged role as a maintenance risk.
+
+## Mark `[Obsolete]` Instead Of Deleting Cascading Types When A Future Session Already Owns The Consumer Rewrite
+
+- **Context:** Session 2 of `rearchitect-role-administration-foundations`
+  was instructed to physically delete `PagePermission`, `EndpointPermission`,
+  `EntityPermission`, `FieldPermission`, `ControlPermission`, `RowFilter`,
+  and `RoleSwitchingPermission`, plus the `RoleDefinition.InheritsFrom`
+  field. Those types had ~50 consumer files (5 handlers, the permission
+  resolver and service, two persistence stores, seven Blazor admin matrix
+  components, the dashboard, and ~20 test files), most of which Session 3
+  rewrote and Set B will rebuild.
+- **Failure or friction:** Physical deletion in Session 2 would have
+  forced Session 3's handler rewrite plus a chunk of Set B's dashboard
+  rebuild into a single conversation, violating the one-session-per-
+  conversation rule and overrunning the spec's session boundaries.
+- **Lesson:** When a spec calls for physical deletion of a type whose
+  consumers number in the dozens and a later session or set is already
+  scheduled to rewrite those consumers, marking the type `[Obsolete]`
+  preserves the deletion signal (compiler warnings on every consumer)
+  while keeping the build green and respecting session boundaries. The
+  cross-provider verifier explicitly endorsed this deviation in the
+  Session 2 review as "arguably superior to the literal spec instruction."
+- **Action for future sessions:** Before physically deleting a type, count
+  consumer files. If a scheduled future session already owns the consumer
+  rewrite, mark `[Obsolete]` instead and disclose the deviation in the
+  cross-provider verification prompt. The deletion lands naturally in the
+  session that rewrites the last consumer.
 
 ## Follow The Spec's Semantic Intent, Not Its Widget Name
 
