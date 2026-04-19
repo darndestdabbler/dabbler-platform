@@ -2,8 +2,12 @@
 @layout AcmeCoffeeOnline.Web.Components.Layout.AuthLayout
 @attribute [AllowAnonymous]
 @using System.Net.Http.Json
+@using Microsoft.Extensions.Options
+@using AcmeCoffeeOnline.Web.Configuration
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigation
+@inject IOptions<AppAuthenticationOptions> AuthOptions
+@inject IJSRuntime JS
 
 <PageTitle>Sign In — AcmeCoffeeDistributors</PageTitle>
 
@@ -17,22 +21,25 @@
         }
 
         @* ── Entra ID / Organization sign-in ── *@
-        <MudText Typo="Typo.body2" Class="mb-3">For internal staff in the internal organization:</MudText>
-        <MudButton Href="@EntraIdChallengeUrl"
-                   Variant="Variant.Outlined"
-                   Color="Color.Primary"
-                   FullWidth="true"
-                   StartIcon="@Icons.Material.Filled.Business"
-                   Class="mb-6"
-                   tabindex="1">
-            Sign in with your organization account
-        </MudButton>
+        @if (AuthOptions.Value.ShowSsoButton)
+        {
+            <MudText Typo="Typo.body2" Class="mb-3">For internal staff in the internal organization:</MudText>
+            <MudButton Href="@EntraIdChallengeUrl"
+                       Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Business"
+                       Class="mb-6"
+                       tabindex="1">
+                Sign in with your organization account
+            </MudButton>
 
-        <div class="d-flex align-center my-4">
-            <MudDivider Class="flex-grow-1" />
-            <MudText Typo="Typo.body2" Class="mx-4 mud-text-secondary">or</MudText>
-            <MudDivider Class="flex-grow-1" />
-        </div>
+            <div class="d-flex align-center my-4">
+                <MudDivider Class="flex-grow-1" />
+                <MudText Typo="Typo.body2" Class="mx-4 mud-text-secondary">or</MudText>
+                <MudDivider Class="flex-grow-1" />
+            </div>
+        }
 
         @* ── Magic link sign-in ── *@
         <MudText Typo="Typo.body2" Class="mb-3 mt-4">For retail-business buyers and employees — sign in with email:</MudText>
@@ -158,6 +165,14 @@
             </MudButton>
         }
 
+        @if (AuthOptions.Value.SeededSession.Enabled)
+        {
+            <MudText Typo="Typo.caption" Class="mt-4 d-block mud-text-secondary">
+                In local dev, magic-link codes are written to an in-memory inbox:
+                <MudLink Href="/dev/email-inbox" Target="_blank">View dev email inbox</MudLink>
+            </MudText>
+        }
+
         <MudDivider Class="my-6" />
 
         <MudText Typo="Typo.body2" Align="Align.Center">
@@ -166,6 +181,51 @@
         </MudText>
     </MudPaper>
 
+    @if (AuthOptions.Value.SeededSession.Enabled)
+    {
+        <MudPaper Elevation="1" Class="pa-6 mt-4" Style="border: 2px dashed var(--mud-palette-warning);">
+            <MudStack Spacing="3">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.Engineering" Color="Color.Warning" />
+                    <MudText Typo="Typo.subtitle1" Color="Color.Warning">Dev Quick Sign-In</MudText>
+                </MudStack>
+
+                <MudSelect T="string"
+                           @bind-Value="_selectedPersona"
+                           Label="Select a test persona"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter">
+                    @foreach (var persona in _devPersonas)
+                    {
+                        <MudSelectItem Value="@persona.Email">
+                            @persona.Label
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudButton OnClick="DevSignInAsync"
+                           Variant="Variant.Filled"
+                           Color="Color.Warning"
+                           FullWidth="true"
+                           Disabled="@(_devSigningIn || string.IsNullOrEmpty(_selectedPersona))">
+                    @if (_devSigningIn)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        @:Signing in...
+                    }
+                    else
+                    {
+                        @:Sign in as selected user
+                    }
+                </MudButton>
+
+                @if (!string.IsNullOrEmpty(_devError))
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@_devError</MudAlert>
+                }
+            </MudStack>
+        </MudPaper>
+    }
 </MudContainer>
 
 @code {
@@ -198,6 +258,7 @@
         _queryError = Error switch
         {
             "external-auth-failed" => "Organization sign-in failed. Please try again.",
+            "sso-unavailable" => "Organization sign-in is not available in this environment.",
             "provisioning-failed" => "Unable to set up your account. Please contact support.",
             "expired" => "Your sign-in link has expired. Please request a new one.",
             _ => null
@@ -405,4 +466,51 @@
 
     private record VerifyResponse(bool Success, bool RequiresMfa, int? Id, string? Email, string? ExchangeToken);
     private record MfaVerifyResponse(string? ExchangeToken);
+
+    // ── Dev Quick Sign-In ──
+
+    private static readonly DevPersona[] _devPersonas =
+    [
+        new("admin@acmecoffee.com", "Admin — SystemAdmin (full access)"),
+        new("jdoe@acmecoffee.com", "Jordan Ellis — BackofficeUser"),
+        new("kbrown@acmecoffee.com", "Kai Brown — BackofficeUserAdmin"),
+        new("james.smith@example.com", "James Smith — Customer (retail business)"),
+        new("casey.hart@acmecoffee.com", "Casey Hart — Dual membership (internal + retail)"),
+        new("sloane.reyes@acmecoffee.com", "Sloane Reyes — Regional sales rep (multi-org admin)")
+    ];
+
+    private string? _selectedPersona;
+    private bool _devSigningIn;
+    private string? _devError;
+    private IJSObjectReference? _devSignInModule;
+
+    private async Task DevSignInAsync()
+    {
+        if (string.IsNullOrEmpty(_selectedPersona))
+            return;
+
+        _devSigningIn = true;
+        _devError = null;
+
+        try
+        {
+            _devSignInModule ??= await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./dev-quick-signin.js");
+
+            await _devSignInModule.InvokeVoidAsync(
+                "signIn",
+                _selectedPersona,
+                AuthOptions.Value.SeededSession.SharedSecret);
+        }
+        catch (Exception ex)
+        {
+            _devError = $"Sign-in failed: {ex.Message}";
+        }
+        finally
+        {
+            _devSigningIn = false;
+        }
+    }
+
+    private record DevPersona(string Email, string Label);
 }

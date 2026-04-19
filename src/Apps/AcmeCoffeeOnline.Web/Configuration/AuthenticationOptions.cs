@@ -14,6 +14,8 @@ public sealed class AppAuthenticationOptions
 
     public string DeliveryMode { get; set; } = AuthenticationDeliveryMode.MagicLink.ToString();
 
+    public bool ShowSsoButton { get; set; }
+
     public SeededSessionOptions SeededSession { get; set; } = new();
 }
 

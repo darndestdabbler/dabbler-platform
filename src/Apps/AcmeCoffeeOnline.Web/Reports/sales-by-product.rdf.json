@@ -397,22 +397,13 @@
         },
         {
           "type": "TextField",
-          "x": 4.5,
+          "x": 5.5,
           "y": 0.1,
-          "width": 1.5,
+          "width": 1.0,
           "height": 0.3,
           "expression": "Sum([Quantity], \"report\")",
           "formatString": "N0",
           "styleName": "grandTotalCount"
-        },
-        {
-          "type": "StaticText",
-          "x": 5.7,
-          "y": 0.1,
-          "width": 1.0,
-          "height": 0.3,
-          "value": "units",
-          "styleName": "grandTotalCountLabel"
         },
         {
           "type": "TextField",
@@ -541,11 +532,6 @@
       "isBold": true,
       "foregroundColor": "#333333",
       "horizontalAlignment": "Right"
-    },
-    {
-      "name": "grandTotalCountLabel",
-      "fontSize": 10,
-      "foregroundColor": "#333333"
     },
     {
       "name": "grandTotalAmount",

@@ -387,22 +387,13 @@
         },
         {
           "type": "TextField",
-          "x": 5.0,
-          "y": 0.1,
-          "width": 1.5,
-          "height": 0.3,
-          "expression": "Count(*)",
-          "formatString": "N0",
-          "styleName": "grandTotalCount"
-        },
-        {
-          "type": "StaticText",
           "x": 6.2,
           "y": 0.1,
           "width": 1.3,
           "height": 0.3,
-          "value": "orders",
-          "styleName": "grandTotalCountLabel"
+          "expression": "Count(*)",
+          "formatString": "N0",
+          "styleName": "grandTotalCount"
         },
         {
           "type": "TextField",
@@ -524,11 +515,6 @@
       "isBold": true,
       "foregroundColor": "#333333",
       "horizontalAlignment": "Right"
-    },
-    {
-      "name": "grandTotalCountLabel",
-      "fontSize": 10,
-      "foregroundColor": "#333333"
     },
     {
       "name": "grandTotalAmount",
