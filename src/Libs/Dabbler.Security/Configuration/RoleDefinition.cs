@@ -1,9 +1,18 @@
 namespace Dabbler.Security.Configuration;
 
 /// <summary>
-/// Defines a security role within the Dabbler application. Roles are fundamental
-/// units for assigning permissions across various application resources.
+/// Defines a user-type role. Each user-type role is default-permissive — its access
+/// is narrowed only by the three restriction lists (<see cref="ColumnRestrictions"/>,
+/// <see cref="RowRestrictions"/>, <see cref="UiRestrictions"/>) plus any
+/// <see cref="MaskExemption"/> rows that target it.
 /// </summary>
+/// <remarks>
+/// Baked-in roles (SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor, UserAdmin,
+/// User) are not represented by <see cref="RoleDefinition"/> instances in
+/// <c>SecurityConfiguration.UserTypeRoles</c>. They live as code constants with
+/// compiled privilege rules; only their <c>DisplayAlias</c> is per-deployment
+/// configurable, via <c>SecurityConfiguration.BakedInRoleAliasOverrides</c>.
+/// </remarks>
 public sealed class RoleDefinition
 {
     /// <summary>
@@ -28,15 +37,32 @@ public sealed class RoleDefinition
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// Optional. When set, this role inherits all permissions of the named parent role.
-    /// Inheritance is transitive, meaning a role can inherit from a role that also inherits.
+    /// Column-level restrictions for this role. Absence means the role can see
+    /// and edit every column on every entity.
     /// </summary>
-    /// <remarks>
-    /// Role inheritance is removed from the authorization model (see
-    /// <c>docs/session-sets/rearchitect-role-administration-foundations/spec.md</c>).
-    /// This field remains on the type only for JSON round-trip compatibility
-    /// during the transition and is ignored at runtime; it will be deleted
-    /// in Session 2 of the Foundations set.
-    /// </remarks>
+    public List<ColumnRestriction> ColumnRestrictions { get; set; } = [];
+
+    /// <summary>
+    /// Row-level restrictions for this role. Absence means the role can see
+    /// every record of every entity (modulo the global organization filter
+    /// delivered in Session Set C).
+    /// </summary>
+    public List<RowRestriction> RowRestrictions { get; set; } = [];
+
+    /// <summary>
+    /// Page- and control-level UI restrictions for this role. Absence means the
+    /// role can see and interact with every page and every control.
+    /// </summary>
+    public List<UiRestriction> UiRestrictions { get; set; } = [];
+
+    /// <summary>
+    /// Legacy inheritance pointer. Role inheritance is removed from the
+    /// authorization model — a user assigned to multiple roles must explicitly
+    /// switch. Retained on the type only so the legacy EF store and Blazor
+    /// admin components continue to compile between Session 2 and Session 3 of
+    /// the <c>rearchitect-role-administration-foundations</c> set; no handler
+    /// consults it at runtime.
+    /// </summary>
+    [Obsolete("Role inheritance is removed; handlers no longer consult InheritsFrom. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
     public string? InheritsFrom { get; set; }
 }

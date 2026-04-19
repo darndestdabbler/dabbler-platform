@@ -3,6 +3,13 @@ namespace Dabbler.Security.Configuration;
 /// <summary>
 /// Defines a row-level security filter for data entities based on user roles.
 /// </summary>
+/// <remarks>
+/// Legacy grant-based type. Replaced by per-role <see cref="RowRestriction"/>
+/// plus the <c>IRowRestrictionBroker</c> runtime wired in Session 4 of
+/// <c>rearchitect-role-administration-foundations</c>. Scheduled for removal
+/// in Session 3 alongside the handler rewrite.
+/// </remarks>
+[Obsolete("Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
 public sealed class RowFilter
 {
     /// <summary>

@@ -3,6 +3,14 @@ namespace Dabbler.Security.Configuration;
 /// <summary>
 /// Defines CRUD (Create, Read, Update, Delete) permissions for a specific entity.
 /// </summary>
+/// <remarks>
+/// Legacy grant-based type. User-type roles are now default-permissive;
+/// narrowing access happens through <see cref="ColumnRestriction"/>
+/// (per-column view-only / hidden) rather than per-entity CRUD grants.
+/// Scheduled for removal in Session 3 of
+/// <c>rearchitect-role-administration-foundations</c>.
+/// </remarks>
+[Obsolete("Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
 public sealed class EntityPermission
 {
     /// <summary>The entity key as registered via options.RegisterEntities().</summary>

@@ -3,6 +3,12 @@ namespace Dabbler.Security.Configuration;
 /// <summary>
 /// Defines security permissions for a specific UI control on a given page.
 /// </summary>
+/// <remarks>
+/// Legacy grant-based type. Replaced by per-role <see cref="UiRestriction"/>.
+/// Scheduled for removal in Session 3 of
+/// <c>rearchitect-role-administration-foundations</c>.
+/// </remarks>
+[Obsolete("Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
 public sealed class ControlPermission
 {
     /// <summary>The page this control lives on.</summary>

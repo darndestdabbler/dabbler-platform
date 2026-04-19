@@ -82,6 +82,104 @@
           "costUsd": 0.0315225
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, spec.md, and the referenced architecture + roadmap docs before starting.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/column-restriction",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "Added Dabbler.Security/Configuration/ColumnRestriction.cs with EntityKey/ColumnKey/RestrictionKind and ColumnRestrictionKind enum (ViewOnly | Hidden). Masking intentionally excluded as a kind per spec.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/row-restriction",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "Added Dabbler.Security/Configuration/RowRestriction.cs with EntityKey/FilterExpression. Grammar matches the legacy RowFilterService so Session 4 can port the expression evaluator directly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/ui-restriction",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "Added Dabbler.Security/Configuration/UiRestriction.cs with PageKey/ControlKey/Kind and UiRestrictionKind enum (Disabled | Hidden). Documented the '*' convention for Entire Page on ControlKey.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/default-mask-rule",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "Added Dabbler.Security/Configuration/DefaultMaskRule.cs with EntityKey/ColumnKey/MaskFormat. Noted null-data rendering rule and the {last4}/{firstChar}/blank-equals-********  token contract for Session Set D wiring.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/mask-exemption",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "Added Dabbler.Security/Configuration/MaskExemption.cs with EntityKey/ColumnKey/TargetRoleName/GrantedBy/GrantedAt/ExpiresAt? Documented the separation-of-duties authority rules (CrossOrgUserAdmin-only for SystemAdmin/CrossOrgMonitor targets; self-granted + time-bound for CrossOrgUserAdmin).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/security-config-shrink",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "Added new SecurityConfiguration fields (UserTypeRoles, OrganizationSwitching, DefaultMasks, MaskExemptions) plus new OrganizationSwitching type. Legacy fields (Roles, PagePermissions, EntityPermissions, FieldPermissions, EndpointPermissions, ControlPermissions, RowFilters, RoleSwitching) marked [Obsolete] with deletion scheduled for Session 3 alongside handler rewrite. Kept BakedInRoleAliasOverrides from Session 1. Added ColumnRestrictions/RowRestrictions/UiRestrictions lists to RoleDefinition. Marked RoleDefinition.InheritsFrom [Obsolete].",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/delete-old-types",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "DEVIATED FROM SPEC: marked PagePermission, EndpointPermission, EntityPermission, FieldPermission, ControlPermission, RowFilter, and RoleSwitchingPermission as [Obsolete] instead of physically deleting them. Rationale: physical deletion cascades into 50+ consumer files (5 handlers, PermissionResolver, PermissionService, EfCoreSecurityStore, JsonFileSecurityStore, 7 Blazor admin matrix components, DabblerSecurityDashboard, and ~20 test files) that Session 3 rewrites (handlers) and Session Set B rebuilds (dashboard). Deleting in Session 2 would require doing Session 3 and Set B work here, violating the one-session-per-conversation rule and the 'session-by-session verification' discipline that the roadmap explicitly calls for. [Obsolete] retains the deletion signal while keeping dotnet build green (step 9 gate). Session 3 will drop the types as a natural side-effect of the handler rewrite.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-19T15:30:00.000000+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 679 warnings (all CS0618 from deliberate [Obsolete] markings on legacy Configuration types/fields). dotnet test (excluding Playwright): 629 passed, 1 failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates -- same pre-existing failure noted in Session 1's log, caused by docs/workflow-auth-observability.md deletion in commit 8730107, unrelated to Session 2).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-19T15:35:00.000000+00:00",
+      "description": "Cross-provider verification via Opus (tier 3). Verdict: VERIFIED. No Critical or Major issues. Opus endorsed the deviation on spec step 8 as 'arguably superior to the literal spec instruction' because [Obsolete] markers provide compiler-enforced visibility of every remaining legacy consumer while keeping the dotnet build at 0 errors for the step 9 gate. Minor items logged (GrantedAt initializer, RowRestriction grammar doc) are non-blocking.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 4029,
+          "outputTokens": 2370,
+          "costUsd": 0.238185
+        }
+      ]
     }
   ]
 }
