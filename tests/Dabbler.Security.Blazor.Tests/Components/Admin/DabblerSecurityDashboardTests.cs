@@ -5,8 +5,10 @@ using Dabbler.Security.Authorization;
 using Dabbler.Security.Blazor.Components.Admin;
 using Dabbler.Security.Blazor.Tests.TestHelpers;
 using Dabbler.Security.Configuration;
+using Dabbler.Security.Data;
 using Dabbler.Security.Registration;
 using Dabbler.Security.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -30,6 +32,11 @@ public class DabblerSecurityDashboardTests
         svc.AddSingleton<AuthorizationStateNotifier>();
         svc.AddSingleton<IBakedInRoleProvider, PlatformBakedInRoleProvider>();
         svc.AddSingleton(MetadataRegistry.Empty);
+
+        var dbOptions = new DbContextOptionsBuilder<DabblerSecurityDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
+            .Options;
+        svc.AddScoped(_ => new DabblerSecurityDbContext(dbOptions));
     }
 
     [Fact]

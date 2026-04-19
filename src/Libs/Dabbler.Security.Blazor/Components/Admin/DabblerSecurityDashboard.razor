@@ -1,4 +1,5 @@
 @using System.Security.Claims
+@using Dabbler.Security.Blazor.Components.Admin.Organization
 @using Dabbler.Security.Authorization
 @using Dabbler.Security.Blazor.Components.Admin.Masks
 @using Dabbler.Security.Blazor.Components.Admin.Role
@@ -28,6 +29,10 @@
                 else if (tab.Key == TabKey.DefaultMasks)
                 {
                     <DefaultMasksTab />
+                }
+                else if (tab.Key == TabKey.OrganizationMasterDetails)
+                {
+                    <OrganizationMasterDetailsTab />
                 }
                 else
                 {

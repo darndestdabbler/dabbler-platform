@@ -733,6 +733,144 @@
           "costUsd": 1.30935
         }
       ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 1,
+      "stepKey": "session-6/read-planning",
+      "dateTime": "2026-04-19T21:13:40.564035+00:00",
+      "description": "Read docs/planning/project-guidance.md, docs/planning/lessons-learned.md, the Session 6 spec excerpt, and prior session activity. Verified API keys present. Routed the Session 6 spec contradiction through the AI router: the roadmap and architecture doc keep transactional OrganizationId/global EF filtering in Set C, so Session 6 proceeds with the Organization dashboard tab plus a deferred seam rather than a fake AcmeCoffeeDbContext filter.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "architecture",
+          "inputTokens": 382,
+          "outputTokens": 821,
+          "costUsd": 0.008688
+        },
+        {
+          "model": "gpt-5-4-mini",
+          "taskType": "architecture-verification",
+          "inputTokens": 1360,
+          "outputTokens": 3947,
+          "costUsd": 0.018781
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 2,
+      "stepKey": "session-6/organization-master-grid",
+      "dateTime": "2026-04-19T21:13:40.565547+00:00",
+      "description": "Created OrganizationMasterDetailsTab + OrganizationMasterGrid under src/Libs/Dabbler.Security.Blazor/Components/Admin/Organization/. Wired the dashboard's Organization Master Details tab to a real filterable MudDataGrid<AppOrganization> backed by DabblerSecurityDbContext. The grid projects Key, Name, IsInternal, IsActive, and active membership counts, exposes a New Organization action, and uses FilterPanel columns for Key/Name/IsInternal/IsActive.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 3,
+      "stepKey": "session-6/organization-details-form",
+      "dateTime": "2026-04-19T21:13:40.565547+00:00",
+      "description": "Created OrganizationDetailsForm.razor and composed it beneath the grid. The details form loads the selected organization, supports create/edit/archive flows, keeps Key immutable after creation, validates required text fields, normalizes new organization keys to lower-case for production/test parity, blocks duplicate keys, and refreshes the master grid after persistence.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 4,
+      "stepKey": "session-6/org-scope-filter",
+      "dateTime": "2026-04-19T21:13:40.565547+00:00",
+      "description": "Added src/Libs/Dabbler.Security/Services/OrganizationScopeFilter.cs as an explicit deferred seam for Set C. It documents why the real EF global query filter cannot ship yet (Product/Customer/Order still lack OrganizationId) and centralizes the cross-organization bypass rule via BakedInRolePrivileges.CanSeeAllOrganizations. AcmeCoffeeDbContext was intentionally left unchanged this session.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 5,
+      "stepKey": "session-6/remove-manual-filters",
+      "dateTime": "2026-04-19T21:13:40.570730+00:00",
+      "description": "No service-layer manual org filters were removed in Session 6. Because the real OrganizationId-backed global EF filter remains a Set C concern, CustomerService / ProductService / OrderService behavior was left intact rather than partially reworking data scoping early.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 6,
+      "stepKey": "session-6/integration-tests",
+      "dateTime": "2026-04-19T21:13:40.571812+00:00",
+      "description": "Added focused test coverage for the new surface: OrganizationMasterGridTests (render/counts, IsActive filtering, New button callback), OrganizationDetailsFormTests (create, edit, archive, and case-variant duplicate-key rejection), OrganizationScopeFilterTests (all baked-in role bypass semantics + deferred-reason contract), and updated DabblerSecurityDashboardTests service registration so the live Organization tab renders inside the dashboard test tree.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 7,
+      "stepKey": "session-6/build-and-test",
+      "dateTime": "2026-04-19T21:13:40.573729+00:00",
+      "description": "dotnet build Dabbler.Platform.sln succeeded with 0 errors. Targeted validation passed: Dabbler.Security.Blazor.Tests 178/178 and Dabbler.Security.Tests 244/244. A full dotnet test Dabbler.Platform.sln run still reports the same two non-session-specific buckets: 1 pre-existing AcmeCoffeeOnline.Web.Tests failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates expecting docs/workflow-auth-observability.md from an earlier repo state) and broad Playwright localhost:5010 connection-refused failures because the app/browser stack was not running in this plain dotnet test path.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 8,
+      "stepKey": "session-6/verification",
+      "dateTime": "2026-04-19T21:13:40.574811+00:00",
+      "description": "Cross-provider verification round 1 via ai-router. Model: opus. Prompt attached the Session 6 implementation files and supporting unchanged model files, disclosed the Set C dependency, and reported build/test outcomes. Raw review saved to session-reviews/session-006.md. Round 1 requested two medium test additions (edit existing organization and duplicate-key rejection).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 19155,
+          "outputTokens": 3779,
+          "costUsd": 0.57075
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 9,
+      "stepKey": "session-6/verification-round-2",
+      "dateTime": "2026-04-19T21:13:40.576794+00:00",
+      "description": "Cross-provider verification round 2 via ai-router after adding the missing edit-path and duplicate-key tests and cleaning up the OrganizationDetailsForm test helper. Raw review appended to session-reviews/session-006.md. This round surfaced a medium false positive about a missing unique index because ModelBuilderExtensions.cs was not included in the prompt.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 19982,
+          "outputTokens": 4569,
+          "costUsd": 0.642405
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 10,
+      "stepKey": "session-6/verification-round-3",
+      "dateTime": "2026-04-19T21:13:40.577861+00:00",
+      "description": "Cross-provider verification round 3 via ai-router after including ModelBuilderExtensions.cs to show AppOrganization.Key is already uniquely indexed. Raw review appended to session-reviews/session-006.md. The remaining medium finding highlighted case-sensitivity drift between SQL Server collation and the InMemory test provider for the create-time duplicate-key check. That was fixed immediately afterward by lower-case key normalization plus a case-insensitive duplicate query and the duplicate-key test was updated to use a case-variant input. Targeted Blazor tests were re-run green after the fix. No further verifier retry was run because this was the second allowed retry.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 23334,
+          "outputTokens": 5504,
+          "costUsd": 0.76281
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 11,
+      "stepKey": "session-6/commit",
+      "dateTime": "2026-04-19T21:13:40.580071+00:00",
+      "description": "Session 6 artifacts prepared for commit/push: Organization Master Details tab implementation, deferred OrganizationScopeFilter seam, dashboard test/service updates, session review rounds, and issue log. Change log generation is skipped because this is not the last session of the set.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

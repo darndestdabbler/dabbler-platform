@@ -1,0 +1,286 @@
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Security.Data
+@using Microsoft.EntityFrameworkCore
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Organization
+@inject DabblerSecurityDbContext DbContext
+
+<div data-testid="organization-master-grid-container">
+    <FilterPanel T="OrganizationRow"
+                 @ref="_filterPanel"
+                 Columns="_filterColumns"
+                 FilterChanged="OnFilterChanged"
+                 ShowAddGroup="false"
+                 ShowFilterChips="true" />
+
+    <div class="d-flex align-center my-2">
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            @($"{FilteredRows.Count} of {_rows.Count} organizations")
+        </MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.AddBusiness"
+                   OnClick="OnCreateRequestedAsync"
+                   data-testid="organization-grid-add-button">
+            New organization
+        </MudButton>
+    </div>
+
+    <MudDataGrid T="OrganizationRow"
+                 Items="@FilteredRows"
+                 Dense="true"
+                 Hover="true"
+                 Bordered="true"
+                 Striped="true"
+                 SelectedItemChanged="OnSelectionChangedAsync"
+                 SelectedItem="@_selected"
+                 data-testid="organization-master-grid">
+        <Columns>
+            <TemplateColumn Title="Key" Sortable="true">
+                <CellTemplate>
+                    <MudText Typo="Typo.body2"
+                             data-testid="@($"organization-row-{context.Item.Id}-key")">
+                        @context.Item.Key
+                    </MudText>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="e => e.Name" Title="Name" Sortable="true" />
+            <TemplateColumn Title="Internal" Sortable="true">
+                <CellTemplate>
+                    <MudChip T="string"
+                             Size="Size.Small"
+                             Color="@(context.Item.IsInternal ? Color.Primary : Color.Default)"
+                             Variant="Variant.Outlined"
+                             data-testid="@($"organization-row-{context.Item.Id}-internal-chip")">
+                        @(context.Item.IsInternal ? "Internal" : "External")
+                    </MudChip>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Status" Sortable="true">
+                <CellTemplate>
+                    <MudChip T="string"
+                             Size="Size.Small"
+                             Color="@(context.Item.IsActive ? Color.Success : Color.Warning)"
+                             Variant="Variant.Outlined"
+                             data-testid="@($"organization-row-{context.Item.Id}-active-chip")">
+                        @(context.Item.IsActive ? "Active" : "Archived")
+                    </MudChip>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Active Members" Sortable="true">
+                <CellTemplate>
+                    <MudText Typo="Typo.body2"
+                             Style="text-align:right;"
+                             data-testid="@($"organization-row-{context.Item.Id}-membership-count")">
+                        @context.Item.ActiveMembershipCount
+                    </MudText>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<int?> SelectedOrganizationIdChanged { get; set; }
+
+    [Parameter]
+    public EventCallback CreateRequested { get; set; }
+
+    private FilterPanel<OrganizationRow>? _filterPanel;
+    private CompositeFilterDescriptor? _filter;
+    private List<OrganizationRow> _rows = [];
+    private OrganizationRow? _selected;
+
+    private readonly List<FilterColumnDefinition> _filterColumns =
+    [
+        new FilterColumnDefinition
+        {
+            Header = "Key",
+            PropertyName = nameof(OrganizationRow.Key),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Name",
+            PropertyName = nameof(OrganizationRow.Name),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Internal",
+            PropertyName = nameof(OrganizationRow.IsInternal),
+            EditorType = FilterEditorType.CheckBox,
+            DefaultOperator = FilterOperators.Equals,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Active",
+            PropertyName = nameof(OrganizationRow.IsActive),
+            EditorType = FilterEditorType.CheckBox,
+            DefaultOperator = FilterOperators.Equals,
+        },
+    ];
+
+    private IReadOnlyList<OrganizationRow> FilteredRows => ApplyFilter(_rows, _filter);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshAsync();
+    }
+
+    public async Task RefreshAsync(int? selectedOrganizationId = null)
+    {
+        _rows = await DbContext.AppOrganizations
+            .AsNoTracking()
+            .OrderBy(organization => organization.Name)
+            .Select(organization => new OrganizationRow
+            {
+                Id = organization.Id,
+                Key = organization.Key,
+                Name = organization.Name,
+                IsInternal = organization.IsInternal,
+                IsActive = organization.IsActive,
+                CreatedAt = organization.CreatedAt,
+                ActiveMembershipCount = organization.Memberships.Count(membership =>
+                    membership.DeletedAt == null && membership.IsActive)
+            })
+            .ToListAsync();
+
+        if (selectedOrganizationId.HasValue)
+        {
+            _selected = _rows.FirstOrDefault(row => row.Id == selectedOrganizationId.Value);
+        }
+        else if (_selected is not null)
+        {
+            _selected = _rows.FirstOrDefault(row => row.Id == _selected.Id);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private static IReadOnlyList<OrganizationRow> ApplyFilter(
+        IReadOnlyList<OrganizationRow> rows,
+        CompositeFilterDescriptor? filter)
+    {
+        if (filter is null || filter.Filters.Count == 0)
+        {
+            return rows;
+        }
+
+        return rows.Where(row =>
+        {
+            foreach (var entry in filter.Filters)
+            {
+                switch (entry.PropertyName)
+                {
+                    case nameof(OrganizationRow.Key):
+                    {
+                        var needle = entry.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(needle)
+                            && !row.Key.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false;
+                        }
+
+                        break;
+                    }
+
+                    case nameof(OrganizationRow.Name):
+                    {
+                        var needle = entry.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(needle)
+                            && !row.Name.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false;
+                        }
+
+                        break;
+                    }
+
+                    case nameof(OrganizationRow.IsInternal):
+                    {
+                        var expected = ToNullableBool(entry.Value);
+                        if (expected.HasValue && row.IsInternal != expected.Value)
+                        {
+                            return false;
+                        }
+
+                        break;
+                    }
+
+                    case nameof(OrganizationRow.IsActive):
+                    {
+                        var expected = ToNullableBool(entry.Value);
+                        if (expected.HasValue && row.IsActive != expected.Value)
+                        {
+                            return false;
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            return true;
+        }).ToList();
+    }
+
+    private static bool? ToNullableBool(object? value)
+    {
+        return value switch
+        {
+            null => null,
+            bool boolean => boolean,
+            string text when bool.TryParse(text, out var parsed) => parsed,
+            _ => null
+        };
+    }
+
+    private void OnFilterChanged(CompositeFilterDescriptor? descriptor)
+    {
+        _filter = descriptor;
+        StateHasChanged();
+    }
+
+    private async Task OnSelectionChangedAsync(OrganizationRow? row)
+    {
+        _selected = row;
+
+        if (SelectedOrganizationIdChanged.HasDelegate)
+        {
+            await SelectedOrganizationIdChanged.InvokeAsync(row?.Id);
+        }
+    }
+
+    private async Task OnCreateRequestedAsync()
+    {
+        _selected = null;
+
+        if (CreateRequested.HasDelegate)
+        {
+            await CreateRequested.InvokeAsync();
+        }
+
+        if (SelectedOrganizationIdChanged.HasDelegate)
+        {
+            await SelectedOrganizationIdChanged.InvokeAsync(null);
+        }
+    }
+
+    public sealed class OrganizationRow
+    {
+        public int Id { get; set; }
+        public string Key { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public bool IsInternal { get; set; }
+        public bool IsActive { get; set; }
+        public int ActiveMembershipCount { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+}

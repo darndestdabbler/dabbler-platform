@@ -1,0 +1,304 @@
+@using Dabbler.Security.Data
+@using Dabbler.Security.Entities
+@using Microsoft.EntityFrameworkCore
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Organization
+@inject DabblerSecurityDbContext DbContext
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="1" Class="pa-4 mt-4" data-testid="organization-details-form">
+    <MudText Typo="Typo.subtitle1" Class="mb-1">
+        @(_selection.IsNew ? "Create Organization" : "Organization Details")
+    </MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        @(_selection.IsNew
+            ? "Add a new organization row to the security store."
+            : "Edit the selected organization, or archive it to remove it from active switching lists.")
+    </MudText>
+
+    <MudForm @ref="_form">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <div data-testid="organization-key-field">
+                    <MudTextField T="string"
+                                  @bind-Value="_model.Key"
+                                  Label="Key"
+                                  Required="true"
+                                  RequiredError="Key is required."
+                                  Validation="@(new Func<string, string?>(ValidateRequiredText))"
+                                  Disabled="@(!_selection.IsNew)"
+                                  HelperText="@(_selection.IsNew ? "Stable organization key used in session context and seeds." : "Keys stay immutable after creation.")" />
+                </div>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <div data-testid="organization-name-field">
+                    <MudTextField T="string"
+                                  @bind-Value="_model.Name"
+                                  Label="Name"
+                                  Required="true"
+                                  RequiredError="Name is required."
+                                  Validation="@(new Func<string, string?>(ValidateRequiredText))" />
+                </div>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <div data-testid="organization-is-internal-field">
+                    <MudSwitch T="bool"
+                               @bind-Value="_model.IsInternal"
+                               Color="Color.Primary">
+                        Internal organization
+                    </MudSwitch>
+                </div>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <div data-testid="organization-is-active-field">
+                    <MudSwitch T="bool"
+                               @bind-Value="_model.IsActive"
+                               Color="Color.Success"
+                               Disabled="@_selection.IsNew">
+                        Active organization
+                    </MudSwitch>
+                </div>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Created: @(_model.CreatedAt is null ? "New row" : _model.CreatedAt.Value.ToString("u"))
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.body2" Color="Color.Secondary" data-testid="organization-member-count">
+                    Active memberships: @_model.ActiveMembershipCount
+                </MudText>
+            </MudItem>
+        </MudGrid>
+
+        <div class="d-flex justify-end gap-2 mt-4">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       OnClick="ResetAsync"
+                       data-testid="organization-reset-button">
+                Reset
+            </MudButton>
+            @if (!_selection.IsNew && _model.IsActive)
+            {
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Warning"
+                           OnClick="ArchiveAsync"
+                           data-testid="organization-archive-button">
+                    Archive
+                </MudButton>
+            }
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="SaveAsync"
+                       data-testid="organization-save-button">
+                Save
+            </MudButton>
+        </div>
+    </MudForm>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public OrganizationSelection Selection { get; set; } = OrganizationSelection.CreateNew();
+
+    [Parameter]
+    public EventCallback<int> Persisted { get; set; }
+
+    private readonly OrganizationEditorModel _model = new();
+    private MudForm? _form;
+    private OrganizationSelection _selection = OrganizationSelection.CreateNew();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_selection == Selection)
+        {
+            return;
+        }
+
+        _selection = Selection;
+        await LoadSelectionAsync();
+    }
+
+    private async Task LoadSelectionAsync()
+    {
+        if (_selection.IsNew)
+        {
+            _model.Id = null;
+            _model.Key = string.Empty;
+            _model.Name = string.Empty;
+            _model.IsInternal = false;
+            _model.IsActive = true;
+            _model.CreatedAt = null;
+            _model.ActiveMembershipCount = 0;
+            return;
+        }
+
+        var projection = await DbContext.AppOrganizations
+            .AsNoTracking()
+            .Where(organization => organization.Id == _selection.OrganizationId)
+            .Select(organization => new OrganizationEditorModel
+            {
+                Id = organization.Id,
+                Key = organization.Key,
+                Name = organization.Name,
+                IsInternal = organization.IsInternal,
+                IsActive = organization.IsActive,
+                CreatedAt = organization.CreatedAt,
+                ActiveMembershipCount = organization.Memberships.Count(membership =>
+                    membership.DeletedAt == null && membership.IsActive)
+            })
+            .FirstOrDefaultAsync();
+
+        if (projection is null)
+        {
+            _model.Id = null;
+            _model.Key = string.Empty;
+            _model.Name = string.Empty;
+            _model.IsInternal = false;
+            _model.IsActive = true;
+            _model.CreatedAt = null;
+            _model.ActiveMembershipCount = 0;
+            _selection = OrganizationSelection.CreateNew();
+            return;
+        }
+
+        _model.Id = projection.Id;
+        _model.Key = projection.Key;
+        _model.Name = projection.Name;
+        _model.IsInternal = projection.IsInternal;
+        _model.IsActive = projection.IsActive;
+        _model.CreatedAt = projection.CreatedAt;
+        _model.ActiveMembershipCount = projection.ActiveMembershipCount;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_form is not null)
+        {
+            await _form.Validate();
+            if (!_form.IsValid)
+            {
+                return;
+            }
+        }
+
+        var key = _model.Key.Trim();
+        var name = _model.Name.Trim();
+        var normalizedKey = key.ToLowerInvariant();
+
+        if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(name))
+        {
+            Snackbar.Add("Key and name are required.", Severity.Warning);
+            return;
+        }
+
+        if (_selection.IsNew)
+        {
+            var duplicateExists = await DbContext.AppOrganizations
+                .AsNoTracking()
+                .AnyAsync(organization => organization.Key.ToLower() == normalizedKey);
+
+            if (duplicateExists)
+            {
+                Snackbar.Add($"Organization key '{key}' already exists.", Severity.Error);
+                return;
+            }
+
+            var entity = new AppOrganization
+            {
+                Key = normalizedKey,
+                Name = name,
+                IsInternal = _model.IsInternal,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            DbContext.AppOrganizations.Add(entity);
+            await DbContext.SaveChangesAsync();
+
+            Snackbar.Add("Organization created.", Severity.Success);
+            await PersistSelectionAsync(entity.Id);
+            return;
+        }
+
+        var existing = await DbContext.AppOrganizations
+            .FirstOrDefaultAsync(organization => organization.Id == _selection.OrganizationId);
+
+        if (existing is null)
+        {
+            Snackbar.Add("Organization could not be found.", Severity.Error);
+            return;
+        }
+
+        existing.Name = name;
+        existing.IsInternal = _model.IsInternal;
+        existing.IsActive = _model.IsActive;
+        await DbContext.SaveChangesAsync();
+
+        Snackbar.Add("Organization updated.", Severity.Success);
+        await PersistSelectionAsync(existing.Id);
+    }
+
+    private async Task ArchiveAsync()
+    {
+        if (_selection.IsNew)
+        {
+            return;
+        }
+
+        var existing = await DbContext.AppOrganizations
+            .FirstOrDefaultAsync(organization => organization.Id == _selection.OrganizationId);
+
+        if (existing is null)
+        {
+            Snackbar.Add("Organization could not be found.", Severity.Error);
+            return;
+        }
+
+        existing.IsActive = false;
+        await DbContext.SaveChangesAsync();
+
+        Snackbar.Add("Organization archived.", Severity.Info);
+        await PersistSelectionAsync(existing.Id);
+    }
+
+    private async Task ResetAsync()
+    {
+        await LoadSelectionAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task PersistSelectionAsync(int organizationId)
+    {
+        _selection = OrganizationSelection.ForExisting(organizationId);
+        await LoadSelectionAsync();
+
+        if (Persisted.HasDelegate)
+        {
+            await Persisted.InvokeAsync(organizationId);
+        }
+    }
+
+    private static string? ValidateRequiredText(string? value)
+        => string.IsNullOrWhiteSpace(value) ? "Value is required." : null;
+
+    public sealed record OrganizationSelection(int? OrganizationId)
+    {
+        public bool IsNew => !OrganizationId.HasValue;
+
+        public static OrganizationSelection CreateNew() => new((int?)null);
+
+        public static OrganizationSelection ForExisting(int organizationId) => new(organizationId);
+    }
+
+    private sealed class OrganizationEditorModel
+    {
+        public int? Id { get; set; }
+        public string Key { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public bool IsInternal { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTime? CreatedAt { get; set; }
+        public int ActiveMembershipCount { get; set; }
+    }
+}

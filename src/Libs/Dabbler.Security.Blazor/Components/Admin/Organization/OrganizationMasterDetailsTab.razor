@@ -1,0 +1,51 @@
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Organization
+
+<div data-testid="organization-master-details-tab">
+    <MudText Typo="Typo.h6" Class="mb-1">Organization Master Details</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Create, edit, and archive organizations. The grid stays filterable by
+        key, name, internal/external status, and active/archive status.
+    </MudText>
+
+    <OrganizationMasterGrid @ref="_grid"
+                            SelectedOrganizationIdChanged="OnSelectedOrganizationIdChangedAsync"
+                            CreateRequested="OnCreateRequestedAsync" />
+
+    <OrganizationDetailsForm Selection="@_selection"
+                             Persisted="OnPersistedAsync" />
+</div>
+
+@code {
+    private OrganizationMasterGrid? _grid;
+    private OrganizationDetailsForm.OrganizationSelection _selection =
+        OrganizationDetailsForm.OrganizationSelection.CreateNew();
+
+    private Task OnSelectedOrganizationIdChangedAsync(int? organizationId)
+    {
+        _selection = organizationId.HasValue
+            ? OrganizationDetailsForm.OrganizationSelection.ForExisting(organizationId.Value)
+            : OrganizationDetailsForm.OrganizationSelection.CreateNew();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnCreateRequestedAsync()
+    {
+        _selection = OrganizationDetailsForm.OrganizationSelection.CreateNew();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnPersistedAsync(int organizationId)
+    {
+        _selection = OrganizationDetailsForm.OrganizationSelection.ForExisting(organizationId);
+
+        if (_grid is not null)
+        {
+            await _grid.RefreshAsync(organizationId);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+}
