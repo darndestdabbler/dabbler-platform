@@ -37,6 +37,24 @@ public class DabblerSecurityDashboardTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
             .Options;
         svc.AddScoped(_ => new DabblerSecurityDbContext(dbOptions));
+
+        // The Users and Role Assignment tab pulls these services as soon as it
+        // is the active panel (e.g., for UserAdmin). Stub them out empty so the
+        // dashboard renders cleanly under any role; per-tab unit tests cover
+        // the populated paths.
+        var queryMock = new Mock<IAdminUserQueryService>();
+        queryMock.Setup(q => q.GetUsersAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        queryMock.Setup(q => q.GetActorActiveAdminRole()).Returns((string?)null);
+        queryMock.Setup(q => q.GetActorUserId()).Returns(string.Empty);
+        queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HashSet<int>());
+        svc.AddSingleton(queryMock.Object);
+
+        var userRoleStore = new Mock<IUserRoleStore>();
+        userRoleStore.Setup(s => s.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, IReadOnlyList<string>>());
+        svc.AddSingleton(userRoleStore.Object);
     }
 
     [Fact]

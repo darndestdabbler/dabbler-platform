@@ -871,6 +871,182 @@
       "description": "Session 6 artifacts prepared for commit/push: Organization Master Details tab implementation, deferred OrganizationScopeFilter seam, dashboard test/service updates, session review rounds, and issue log. Change log generation is skipped because this is not the last session of the set.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 1,
+      "stepKey": "session-7/read-planning",
+      "dateTime": "2026-04-19T22:31:36.094963+00:00",
+      "description": "Read docs/planning/project-guidance.md, docs/planning/lessons-learned.md, spec.md, and prior session activity (Sessions 1-6 in activity-log). Confirmed Session 7 scope: Users and Role Assignment tab with FilterPanel + master grid + details surface, authority gating (UserAdmin org scope, CrossOrgUserAdmin cannot assign SystemAdmin, self-assign CrossOrgUserAdmin), adaptation of DabblerUserRoleManager, and Playwright coverage for the CrossOrgUserAdmin-elevates-BackofficeUser workflow.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 2,
+      "stepKey": "session-7/route-architecture-plan",
+      "dateTime": "2026-04-19T22:31:36.096971+00:00",
+      "description": "Routed architecture-design task for the Users tab to ai-router. Model: gemini-pro. Cross-provider verifier (gpt-5-4-mini) flagged key issues: the proposed ClaimsPrincipal-bearing authority signature was not a pure function (fixed by using explicit derived facts); UserRow using Guid UserId conflicted with existing AppUser.Id=int (fixed by using string form of int); Playwright plan invented seeded accounts without grounding. Used the verifier feedback to guide the implementation.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "architecture",
+          "inputTokens": 1962,
+          "outputTokens": 2299,
+          "costUsd": 0.0254
+        }
+      ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 3,
+      "stepKey": "session-7/role-assignment-authority",
+      "dateTime": "2026-04-19T22:31:36.099227+00:00",
+      "description": "Created src/Libs/Dabbler.Security/Services/RoleAssignmentAuthority.cs mirroring MaskExemptionAuthority. Pure static function Evaluate(granterRole, granterUserId, granterOrgIds, targetUserId, targetOrgIds, targetCurrentRoles, proposedRoleName) returning RoleAssignmentAuthorityResult { Outcome(Allowed|Denied|OutOfOrganizationScope|NonUserTypeCombination), Message }. Encodes all architecture-doc rules: SystemAdmin can assign anything; CrossOrgUserAdmin can assign user-type/UserAdmin/CrossOrgMonitor but not SystemAdmin, and only self-assigns CrossOrgUserAdmin; UserAdmin is org-scoped and cannot assign cross-org roles; user-type/CrossOrgMonitor cannot assign; non-user-type + another role combination rejected except UserAdmin-multi-org. Also exposes EvaluateRemoval for chip close handling.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 4,
+      "stepKey": "session-7/admin-user-query-service",
+      "dateTime": "2026-04-19T22:31:36.100228+00:00",
+      "description": "Created IAdminUserQueryService + AdminUserQueryService in Dabbler.Security. Returns AdminUserRow { UserId, DisplayName, Email, IsActive, Organizations[], Roles[] } by joining DabblerSecurityDbContext.AppUsers with their active memberships and IUserRoleStore.GetAllAsync. Scope-filters at query time: SystemAdmin/CrossOrgUserAdmin/CrossOrgMonitor (CanSeeAllOrganizations privilege) see the full list; UserAdmin sees only users whose memberships intersect the actor's. Also surfaces GetActorActiveAdminRole, GetActorUserId, GetActorAssignedOrganizationIdsAsync so the details surface can drive authority checks without leaking IHttpContextAccessor to Blazor components. Registered scoped in Dabbler.Security/Extensions/ServiceCollectionExtensions.cs alongside IRowRestrictionBroker.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 5,
+      "stepKey": "session-7/users-master-grid",
+      "dateTime": "2026-04-19T22:31:36.102225+00:00",
+      "description": "Created Components/Admin/Users/UsersMasterGrid.razor. FilterPanel<AdminUserRow> over Name, Email, ActiveRole, ActiveOrganization, IsActive. MudDataGrid projects Name, Email, Roles (as chips), Organizations (as chips), and Status. Selection events flow through SelectedUserChanged EventCallback. RefreshAsync(userId?) re-queries the service and also raises SelectedUserChanged with the freshly-projected row so the details surface re-renders against fresh data after an assign/remove action.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 6,
+      "stepKey": "session-7/user-role-assignment-details",
+      "dateTime": "2026-04-19T22:31:36.103611+00:00",
+      "description": "Created Components/Admin/Users/UserRoleAssignmentDetails.razor. Renders current roles as chips (with OnClose handler when RoleAssignmentAuthority.EvaluateRemoval permits removal for the active role), then a MudSelect listing only the roles RoleAssignmentAuthority.Evaluate allows for the target, plus an Assign button. Subscribes to AuthorizationStateNotifier to rebuild the assignable list when config changes. No-actor-role path shows a read-only alert. Persistence flows through IUserRoleStore.AddRoleAsync / RemoveRoleAsync; the spec's user-roles.json shape is unchanged because the store abstraction already handles round-trip correctly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 7,
+      "stepKey": "session-7/users-and-role-assignment-tab",
+      "dateTime": "2026-04-19T22:31:36.105620+00:00",
+      "description": "Created Components/Admin/Users/UsersAndRoleAssignmentTab.razor \u2014 thin composer that wires the grid's SelectedUserChanged event into the details surface, and on RolesChanged refreshes the grid (which re-raises SelectedUserChanged with the freshly-projected row so the details view auto-updates). Wired into DabblerSecurityDashboard.razor as the active render for TabKey.UsersAndRoleAssignment; the prior stub message is gone.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 8,
+      "stepKey": "session-7/retire-legacy-user-role-manager",
+      "dateTime": "2026-04-19T22:31:36.107124+00:00",
+      "description": "Deleted src/Libs/Dabbler.Security.Blazor/Components/Admin/DabblerUserRoleManager.razor and tests/Dabbler.Security.Blazor.Tests/Components/Admin/DabblerUserRoleManagerTests.cs. The legacy flat MudTable had no web-app page consumer (the /admin/users route is owned by UserManagement.razor which uses AdminUserScopeService for BackofficeUserAdmin elevation only) and its functionality is fully replaced by the Users tab. IUserListProvider and EfUserListProvider are retained since the contract is public and could be consumed by other apps; they are now orphaned in the UI layer but do not cause build errors.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 9,
+      "stepKey": "session-7/unit-tests",
+      "dateTime": "2026-04-19T22:31:36.109133+00:00",
+      "description": "Added tests/Dabbler.Security.Tests/Services/RoleAssignmentAuthorityTests.cs with 29 facts covering: blank granter/target/proposed role; user-type granter denial; CrossOrgMonitor denial; SystemAdmin assigning user-type, CrossOrgUserAdmin initially, and SystemAdmin; CrossOrgUserAdmin cannot assign SystemAdmin, cannot assign CrossOrgUserAdmin to another user, may self-assign CrossOrgUserAdmin, may assign CrossOrgMonitor, may assign user-type ignoring scope; UserAdmin cannot assign cross-org roles, may assign user-type in shared org, out-of-scope for no-overlap, out-of-scope for no-granter-orgs; non-user-type combination guards in both directions; already-holds denial; plus EvaluateRemoval coverage for each role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 10,
+      "stepKey": "session-7/bunit-tests",
+      "dateTime": "2026-04-19T22:31:36.113340+00:00",
+      "description": "Added tests/Dabbler.Security.Blazor.Tests/Components/Admin/Users/ with UsersMasterGridTests.cs (5 facts: renders rows; filter by email; filter by role uses any-role contains; RefreshAsync with selected id re-raises SelectedUserChanged with fresh row; refresh button reloads from query service) and UserRoleAssignmentDetailsTests.cs (6 facts: empty state when no user selected; current roles render as chips; CrossOrgUserAdmin cannot see SystemAdmin in dropdown but sees user-type roles; no-actor-role shows read-only alert; AssignAsync calls IUserRoleStore.AddRoleAsync and raises RolesChanged; chip close callback calls RemoveRoleAsync and raises RolesChanged). Also updated DabblerSecurityDashboardTests to register stub IAdminUserQueryService + IUserRoleStore so the Users tab renders cleanly under the UserAdmin-active-tab path.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 11,
+      "stepKey": "session-7/playwright-role-assignment",
+      "dateTime": "2026-04-19T22:31:36.116339+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Playwright/UsersAndRoleAssignmentWorkflowTests.cs with the CrossOrgUserAdmin-elevates-customer workflow test. Signs in as admin@acmecoffee.com with role override CrossOrgUserAdmin (the seed data has no dedicated CrossOrgUserAdmin identity; using role override matches the pattern from SecurityDashboardFiveTabSmokeTests and RestrictionEnforcementTests), navigates to the Users tab, locates the target customer by seeded user id, selects the row, picks BackofficeUser via the MudSelect dropdown, clicks Assign, and asserts both the details surface's current-roles chip and the grid row's role chip appear. Cleans up the assignment via chip close in the finally block for idempotency. The target-user-sees-new-affordances assertion the spec mentions was scoped down to UI-side assignment persistence + grid reactivity; a full affordance sweep requires richer seeded role fixtures (no seed identity currently has BackofficeUser-specific-only affordances that round-trip through sign-in without the SystemAdmin override path). Disclosed to the verifier.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 12,
+      "stepKey": "session-7/build-and-test",
+      "dateTime": "2026-04-19T22:31:36.118350+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 0 warnings (the 191 CS0618 Obsolete warnings that surfaced in Sessions 3-6 are now suppressed \u2014 the two-part Session 6 build run validated that already). dotnet test (excluding Playwright): 181/181 Dabbler.Security.Blazor.Tests, 273/273 Dabbler.Security.Tests, 33/33 Dabbler.Components.Tests, 27/27 AcmeCoffeeOnline.Api.Tests, 13/13 Dabbler.Reports.Blazor.Tests, 122/123 AcmeCoffeeOnline.Web.Tests. The one AcmeCoffeeOnline.Web.Tests failure is the pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates expecting docs/workflow-auth-observability.md from an earlier repo state (same failure recorded in Session 6 step 7). Playwright test suite was not executed in this plain dotnet test path because the app/browser stack was not running; the new workflow test compiles cleanly and follows the same PlaywrightFixture pattern as SecurityDashboardFiveTabSmokeTests and RestrictionEnforcementTests.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 13,
+      "stepKey": "session-7/verification",
+      "dateTime": "2026-04-19T22:45:48.085220+00:00",
+      "description": "Cross-provider verification round 1 via direct GPT-5.4 call. Model: gpt-5.4. Tokens in/out: 47547/12261. Cost: $0.3028. Switched to GPT-5.4 because Opus (tier-3 default for session-verification) returned consistent 529 overloaded errors for the full verification prompt (~220K chars). GPT-5.4 is the documented tier-3 cross-provider counterpart per router-config.yaml verification.cross_provider_map, so cross-provider property (Claude codebase generator + OpenAI verifier) is preserved. See session-reviews/session-007.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5.4",
+          "taskType": "session-verification",
+          "inputTokens": 47547,
+          "outputTokens": 12261,
+          "costUsd": 0.3027825
+        }
+      ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 14,
+      "stepKey": "session-7/verification-round-2",
+      "dateTime": "2026-04-19T22:57:18.865704+00:00",
+      "description": "Cross-provider verification round 2 via direct GPT-5.4 call after addressing all four round-1 issues. Model: gpt-5.4. Tokens in/out: 11747/7676. Cost: $0.1445. See session-reviews/session-007.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5.4",
+          "taskType": "session-verification",
+          "inputTokens": 11747,
+          "outputTokens": 7676,
+          "costUsd": 0.1445075
+        }
+      ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 15,
+      "stepKey": "session-7/verification-round-3",
+      "dateTime": "2026-04-19T22:59:48.021479+00:00",
+      "description": "Cross-provider verification round 3 (final allowed retry) via direct GPT-5.4 call after fixing the round-2 IsRecognizedRole provider-backing issue. Model: gpt-5.4. Tokens in/out: 8366/4276. Cost: $0.0851. See session-reviews/session-007.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5.4",
+          "taskType": "session-verification",
+          "inputTokens": 8366,
+          "outputTokens": 4276,
+          "costUsd": 0.085055
+        }
+      ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 16,
+      "stepKey": "session-7/post-fix-build-and-test",
+      "dateTime": "2026-04-19T23:01:15.592488+00:00",
+      "description": "Re-ran build + targeted tests after applying round-1, round-2, and round-3 fixes. dotnet build Dabbler.Platform.sln: 0 errors. dotnet test (excluding Playwright): Dabbler.Components.Tests 33/33, Dabbler.Security.Blazor.Tests 185/185 (was 181 \u2014 added 4 new bUnit defensive checks: AssignAsync rejects unknown role; AssignAsync rejects authority-forbidden roles at submit time; AssignAsync rejects baked-in roles not exposed by the configured provider; RemoveRoleAsync rejects forbidden removals). AcmeCoffeeOnline.Api.Tests 27/27. Dabbler.Reports.Blazor.Tests 13/13. Dabbler.Security.Tests 279/279 (was 273 \u2014 added 6 new AdminUserQueryServiceTests integration tests against EF Core in-memory DabblerSecurityDbContext: SystemAdmin sees all + full org listings; CrossOrgMonitor sees all (regression for the misclass fix); UserAdmin sees only shared-org users + only shared-scope memberships (regression for the projection-leak fix); non-admin user gets empty list (fail-closed); unauthenticated actor gets empty list; GetActorAssignedOrganizationIdsAsync returns expected ids). AcmeCoffeeOnline.Web.Tests 122/123 (one pre-existing WorkflowAssetSmokeTests failure expecting docs/workflow-auth-observability.md from a stale repo state \u2014 unchanged from Session 6 step 7).",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

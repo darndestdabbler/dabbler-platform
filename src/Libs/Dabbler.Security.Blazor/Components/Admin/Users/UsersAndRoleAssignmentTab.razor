@@ -1,0 +1,41 @@
+@using Dabbler.Security.Services
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Users
+
+<div data-testid="users-and-role-assignment-tab">
+    <MudText Typo="Typo.h6" Class="mb-1">Users and Role Assignment</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Search users by name, email, role, or organization. Select a user to
+        manage their role assignments. UserAdmin sees only users in their
+        assigned organizations; SystemAdmin and CrossOrgUserAdmin see all users.
+    </MudText>
+
+    <UsersMasterGrid @ref="_grid"
+                     SelectedUserChanged="OnSelectedUserChangedAsync" />
+
+    <UserRoleAssignmentDetails User="@_selectedUser"
+                               RolesChanged="OnRolesChangedAsync" />
+</div>
+
+@code {
+    private UsersMasterGrid? _grid;
+    private AdminUserRow? _selectedUser;
+
+    private Task OnSelectedUserChangedAsync(AdminUserRow? row)
+    {
+        _selectedUser = row;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnRolesChangedAsync(string userId)
+    {
+        // The grid raises SelectedUserChanged with the freshly-projected row
+        // as part of its refresh, which flows back through OnSelectedUserChangedAsync
+        // and updates _selectedUser in the same circuit.
+        if (_grid is not null)
+        {
+            await _grid.RefreshAsync(userId);
+        }
+    }
+}
