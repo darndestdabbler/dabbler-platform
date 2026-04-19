@@ -1,10 +1,12 @@
 @using System.Security.Claims
+@using Dabbler.Security.Authorization
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @inject SecurityConfigurationManager SecurityConfigManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IRoleSwitcher RoleSwitcher
+@inject IBakedInRoleProvider BakedInRoleProvider
 @inject AuthorizationStateNotifier Notifier
 @implements IDisposable
 
@@ -26,24 +28,27 @@ else
 @code {
     /// <summary>
     /// A declarative security component that wraps content and controls its visibility and interactivity
-    /// based on the current user's permissions. It can hide, disable, or enable its child content.
+    /// based on the current user's active role under the restriction-based authorization model.
+    /// Evaluates the active role's <see cref="UiRestriction"/> list for the given page + control; baked-in
+    /// roles always see the content (user-type roles are default-permissive in the absence of a restriction).
     /// </summary>
-    
+
     /// <summary>
     /// Gets or sets the unique key for the page or view containing the control. This is required.
     /// </summary>
     [Parameter, EditorRequired] public string PageKey { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Gets or sets the unique key for the control being secured within the page. This is required.
     /// </summary>
     [Parameter, EditorRequired] public string ControlKey { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Gets or sets the content to be secured.
     /// </summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
+    private const string WildcardControlKey = "*";
     private ControlState _state = ControlState.Enabled;
 
     /// <inheritdoc />
@@ -73,29 +78,68 @@ else
             return;
         }
 
-        var permission = config.ControlPermissions.FirstOrDefault(c =>
-            string.Equals(c.PageKey, PageKey, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(c.ControlKey, ControlKey, StringComparison.OrdinalIgnoreCase));
-
-        if (permission == null)
+        var effectiveRoles = RoleSwitcher.EffectiveRoles(user).ToList();
+        if (effectiveRoles.Count == 0)
         {
-            // No config registered — leave Enabled (FailOpen default)
-            _state = ControlState.Enabled;
+            _state = ControlState.Hidden;
             return;
         }
 
-        var userRoles = new HashSet<string>(
-            RoleSwitcher.EffectiveRoles(user),
-            StringComparer.OrdinalIgnoreCase);
+        _state = ResolveControlState(effectiveRoles, PageKey, ControlKey, config, BakedInRoleProvider);
+    }
 
-        var matchingStates = permission.RolePermissions
-            .Where(rp => userRoles.Contains(rp.RoleName))
-            .Select(rp => rp.State)
-            .ToList();
+    internal static ControlState ResolveControlState(
+        IReadOnlyList<string> effectiveRoles,
+        string pageKey,
+        string controlKey,
+        SecurityConfiguration config,
+        IBakedInRoleProvider bakedInRoleProvider)
+    {
+        var mostPermissive = ControlState.Hidden;
+        var matched = false;
 
-        _state = matchingStates.Count == 0
-            ? ControlState.Hidden
-            : (ControlState)matchingStates.Min(s => (int)s);
+        foreach (var roleName in effectiveRoles)
+        {
+            var state = ResolveForRole(roleName, pageKey, controlKey, config, bakedInRoleProvider);
+            matched = true;
+            if ((int)state < (int)mostPermissive)
+                mostPermissive = state;
+        }
+
+        return matched ? mostPermissive : ControlState.Hidden;
+    }
+
+    private static ControlState ResolveForRole(
+        string roleName,
+        string pageKey,
+        string controlKey,
+        SecurityConfiguration config,
+        IBakedInRoleProvider bakedInRoleProvider)
+    {
+        if (bakedInRoleProvider.TryGetBakedInRole(roleName) is not null)
+            return ControlState.Enabled;
+
+        var userTypeRole = config.UserTypeRoles.FirstOrDefault(r =>
+            string.Equals(r.RoleName, roleName, StringComparison.OrdinalIgnoreCase));
+        if (userTypeRole is null)
+            return ControlState.Enabled;
+
+        var entirePage = userTypeRole.UiRestrictions.FirstOrDefault(r =>
+            string.Equals(r.PageKey, pageKey, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(r.ControlKey, WildcardControlKey, StringComparison.Ordinal));
+        if (entirePage?.Kind == UiRestrictionKind.Hidden)
+            return ControlState.Hidden;
+
+        var perControl = userTypeRole.UiRestrictions.FirstOrDefault(r =>
+            string.Equals(r.PageKey, pageKey, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(r.ControlKey, controlKey, StringComparison.OrdinalIgnoreCase));
+
+        return perControl?.Kind switch
+        {
+            UiRestrictionKind.Hidden => ControlState.Hidden,
+            UiRestrictionKind.Disabled => ControlState.Disabled,
+            _ => ControlState.Enabled,
+        };
     }
 
     /// <inheritdoc />

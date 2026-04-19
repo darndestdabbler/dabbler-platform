@@ -51,17 +51,8 @@ This registers MudBlazor services, cascading authentication state, and a `Delega
 
 | Component | Description |
 |---|---|
-| `DabblerSecurityDashboard` | Central admin panel with a tabbed interface for all permission management. |
-| `DabblerRoleManager` | Create, edit, and delete roles with inheritance configuration. |
+| `DabblerSecurityDashboard` | Central admin panel. Under the restriction-based model (session set `rearchitect-role-administration-dashboard`), it exposes five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, and Role Documentation. Each tab is gated by the active baked-in role. |
 | `DabblerUserRoleManager` | Manage user-to-role assignments. |
-| `DabblerPagePermissionMatrix` | Matrix UI for configuring page-level access by role. |
-| `DabblerEntityPermissionMatrix` | Matrix UI for configuring entity CRUD permissions by role. |
-| `DabblerFieldPermissionEditor` | Configure field-level access (Editable, ReadOnly, Hidden) by role. |
-| `DabblerEndpointPermissionMatrix` | Matrix UI for configuring API endpoint access by role. |
-| `DabblerControlPermissionEditor` | Configure UI control states (Enabled, Disabled, Hidden) by role. |
-| `DabblerControlPermissionTab` | Tabbed interface for control permission editing within the dashboard. |
-| `DabblerRowFilterEditor` | Configure per-role data scoping filters for row-level security. |
-| `DabblerRowFilterTab` | Tabbed interface for row filter editing within the dashboard. |
 
 ## Current Contract Notes
 

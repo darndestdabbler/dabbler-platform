@@ -99,6 +99,140 @@
           "costUsd": 0.3996
         }
       ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/commit",
+      "dateTime": "2026-04-19T17:54:30.998188+00:00",
+      "description": "Committed spec.md + activity-log.json + issue-logs/session-001.json + session-reviews/session-001.md as Session 1 of 8. Pushed to origin/master (8e9864c). Pushover notification sent. Step 9 reorganization review is NOT run here (only on the last session of the set \u2014 Session 8).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-19T18:12:20.748524+00:00",
+      "description": "Read docs/planning/project-guidance.md, docs/planning/lessons-learned.md, spec.md, and Session 1 activity-log. Confirmed Session 2 scope and the 'best-effort' deletion hedge in Session 2 Ends-with.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/inventory-consumers",
+      "dateTime": "2026-04-19T18:12:20.749536+00:00",
+      "description": "Grepped all consumers of legacy types and admin components. Found PermissionService, EfCoreSecurityStore, JsonFileSecurityStore, RowFilterService, DabblerRoleSwitcher, UserContextBar still reference obsolete fields (PagePermissions, EntityPermissions, FieldPermissions, ControlPermissions, EndpointPermissions, RowFilters, RoleSwitching). Per spec Ends-with hedge, legacy type physical deletion is deferred to the sessions that rewrite those consumers.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/stub-five-tabs",
+      "dateTime": "2026-04-19T18:12:20.749536+00:00",
+      "description": "Rewrote DabblerSecurityDashboard.razor from seven MudTabPanel entries to five stub tabs (Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, Role Documentation). Each tab renders a stub message keyed by data-testid identifying the future session that wires real content (Sessions 3/4/6/7/8). Kept arrow-key navigation via NextPanelIndex static helper.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/tab-authorization",
+      "dateTime": "2026-04-19T18:12:20.750531+00:00",
+      "description": "Each TabDescriptor carries AllowedBakedInRoles. OnInitializedAsync resolves the active ClaimsPrincipal's effective roles through IRoleSwitcher, maps those to baked-in canonical names via IBakedInRoleProvider.TryGetBakedInRole, and filters AllTabs to the subset matching AllowedBakedInRoles. Tabs the active role cannot see are not rendered. Gating matches the spec: Role Master Details + Default Masks = SystemAdmin only; Organization Master Details = SystemAdmin + CrossOrgUserAdmin; Users and Role Assignment = SystemAdmin + CrossOrgUserAdmin + UserAdmin; Role Documentation = all five baked-in roles.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/delete-legacy-components",
+      "dateTime": "2026-04-19T18:12:20.751530+00:00",
+      "description": "Deleted 12 legacy admin razor components: DabblerPagePermissionMatrix, DabblerEndpointPermissionMatrix, DabblerEntityPermissionMatrix, DabblerFieldPermissionEditor, DabblerControlPermissionTab, DabblerControlPermissionEditor, DabblerRowFilterTab, DabblerRowFilterEditor, DabblerRoleManager, DenyAllowSwitch, InheritedLegend, RoleFormDialog. DabblerUserRoleManager retained (Session 7 adapts it). DabblerSecured.razor rewritten to use UiRestrictions + IBakedInRoleProvider (replaces config.ControlPermissions lookup). Moved ControlState enum out of the [Obsolete] ControlPermission.cs file into its own ControlState.cs so DabblerSecured does not depend on an obsolete file.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/delete-obsolete-config-types",
+      "dateTime": "2026-04-19T18:12:20.751530+00:00",
+      "description": "DEFERRED per the session Ends-with hedge. Physical deletion of PagePermission, EntityPermission, FieldPermission, ControlPermission, EndpointPermission, RowFilter, RoleSwitchingPermission did NOT land this session because non-UI consumers still reference them: PermissionService (entity CRUD checks consumed by Orders/Customers/Products controllers), EfCoreSecurityStore/JsonFileSecurityStore (load/save roundtrip), RowFilterService (superseded by RowRestrictionBroker but not yet removed), DabblerRoleSwitcher/UserContextBar (RoleSwitching.AllowedRoles). Each of those consumers has its own future session in Set B (Session 5 restriction seam, Session 6 org filter, Session 7 users + role assignment) or Set D that will remove the dependency. When the last non-UI consumer goes away, the type's deletion lands in that session.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/delete-ef-entities",
+      "dateTime": "2026-04-19T18:12:20.752532+00:00",
+      "description": "DEFERRED for the same reason. AppPagePermission, AppFieldPermission, AppControlPermission, AppRowFilter, AppEndpointPermission survive because EfCoreSecurityStore + ModelBuilderExtensions + DbContext DbSets still map them. Physical deletion requires an EF migration and will land alongside the store rewrite in the session that removes the last consumer.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/delete-role-inheritance-helper",
+      "dateTime": "2026-04-19T18:12:20.752532+00:00",
+      "description": "Deleted RoleInheritanceHelper.cs. Had zero production callers after Set A. Removed its stale doc-comment reference from EndpointAuthorizationHandlerTests.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/delete-permission-resolver",
+      "dateTime": "2026-04-19T18:12:20.753531+00:00",
+      "description": "Deleted PermissionResolver.cs and PermissionResolverTests.cs. The only consumers were the legacy matrix components deleted in this session. Matches Step 7a's most-likely outcome.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/update-nav",
+      "dateTime": "2026-04-19T18:12:20.753531+00:00",
+      "description": "DabblerSecurityNav.razor is unchanged \u2014 it points at /admin/security (the new five-tab dashboard) which is the same route, and it does not reference any of the deleted sub-components. Spot-checked DabblerSecured consumers and the dashboard page attribute; both compile.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 11,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-19T18:12:20.754532+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 191 CS0618 warnings (all legacy [Obsolete] references in the non-UI consumers covered above \u2014 expected and will decrease as deletions progress through Sessions 3-7). dotnet test non-Playwright: 510 passed, 1 pre-existing unrelated failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates expects docs/workflow-auth-observability.md which was removed in commit 8730107 and is already noted in Session 1's build step as pre-existing). Per-suite: Dabbler.Components.Tests 33/33, Dabbler.Security.Blazor.Tests 107/107 (includes new DabblerSecurityDashboardTests and rewritten DabblerSecuredTests), Dabbler.Reports.Blazor.Tests 13/13, AcmeCoffeeOnline.Api.Tests 27/27, Dabbler.Security.Tests 208/208, AcmeCoffeeOnline.Web.Tests 122/123.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 12,
+      "stepKey": "session-2/playwright-five-tab-smoke",
+      "dateTime": "2026-04-19T18:12:20.754532+00:00",
+      "description": "Added SecurityDashboardFiveTabSmokeTests.cs (two tests): SystemAdmin sees all five tab labels; UserAdmin sees only Users and Role Assignment + Role Documentation (the two tabs permitted by their baked-in privileges) and the other three do not render. Deleted SecurityDashboardUserAssignmentsTests.cs \u2014 it targeted the legacy 'User Assignments' tab which no longer exists; the equivalent coverage returns in Session 7 once the Users and Role Assignment tab is real. Updated appsettings.Development.json SeededSession.AllowedRoles to include the five baked-in canonical role names (SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor, UserAdmin, User) in addition to the legacy aliases already there, so Playwright can seed sessions as any baked-in role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 13,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-19T18:14:24.449132+00:00",
+      "description": "Cross-provider verification via ai-router (round 1). Model: opus. Tokens in/out: 13271/847. See session-reviews/session-002.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 13271,
+          "outputTokens": 847,
+          "costUsd": 0.26259
+        }
+      ]
     }
   ]
 }

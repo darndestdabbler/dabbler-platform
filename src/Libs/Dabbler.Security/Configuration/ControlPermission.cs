@@ -39,15 +39,3 @@ public sealed class ControlRolePermission
     public ControlState State { get; set; } = ControlState.Enabled;
 }
 
-/// <summary>
-/// Specifies the possible security-driven states for a UI control.
-/// </summary>
-public enum ControlState
-{
-    /// <summary>The control is fully functional and visible.</summary>
-    Enabled = 0,
-    /// <summary>The control is visible but non-interactive (e.g., greyed out).</summary>
-    Disabled = 1,
-    /// <summary>The control is completely removed from the UI and not visible.</summary>
-    Hidden = 2
-}

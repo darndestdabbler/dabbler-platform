@@ -211,28 +211,6 @@ public sealed class MudBlazorRebuildConformanceTests
         Assert.Contains("MudTabPanel", content);
     }
 
-    [Fact]
-    public void PermissionMatrices_UseMudSimpleTable()
-    {
-        var repoRoot = GetRepoRoot();
-        var componentsDir = Path.Combine(repoRoot, "src", "Libs", "Dabbler.Security.Blazor", "Components", "Admin");
-
-        string[] matrixFiles =
-        [
-            "DabblerPagePermissionMatrix.razor",
-            "DabblerEntityPermissionMatrix.razor",
-            "DabblerEndpointPermissionMatrix.razor"
-        ];
-
-        foreach (var file in matrixFiles)
-        {
-            var path = Path.Combine(componentsDir, file);
-            if (!File.Exists(path)) continue;
-            var content = File.ReadAllText(path);
-            Assert.Contains("MudSimpleTable", content);
-        }
-    }
-
     // ── Deleted Wrapper Sweep ─────────────────────────────────────────
 
     [Theory]

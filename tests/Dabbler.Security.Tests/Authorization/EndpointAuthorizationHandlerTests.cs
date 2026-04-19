@@ -122,8 +122,7 @@ public class EndpointAuthorizationHandlerTests
         // User-type endpoint access is default-permissive, so the inheritance
         // guarantee is carried more visibly by the page and control handlers.
         // Kept here as a companion assertion: the endpoint handler never reads
-        // RoleDefinition.InheritsFrom, verified structurally by the "zero call
-        // sites" check on RoleInheritanceHelper.ExpandRoles.
+        // RoleDefinition.InheritsFrom.
 #pragma warning disable CS0618 // legacy field deliberately used to assert it is ignored
         var config = new SecurityConfiguration
         {

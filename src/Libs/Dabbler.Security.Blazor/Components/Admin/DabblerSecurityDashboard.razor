@@ -1,8 +1,14 @@
-@using Dabbler.Security.Blazor.Components.Admin
+@using System.Security.Claims
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @page "/admin/security"
 @attribute [Dabbler.Security.Authorization.DabblerPageAuthorize("/admin/security")]
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IRoleSwitcher RoleSwitcher
+@inject IBakedInRoleProvider BakedInRoleProvider
 
 <PageTitle>Security Administration</PageTitle>
 
@@ -10,40 +16,106 @@
      @onkeydown="HandleTabKeyDown">
     <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4"
              @bind-ActivePanelIndex="_activePanelIndex">
-        <MudTabPanel Text="Roles">
-            <DabblerRoleManager />
-        </MudTabPanel>
-        <MudTabPanel Text="Page Access">
-            <DabblerPagePermissionMatrix />
-        </MudTabPanel>
-        <MudTabPanel Text="Entity Access">
-            <DabblerEntityPermissionMatrix />
-        </MudTabPanel>
-        <MudTabPanel Text="Endpoint Access">
-            <DabblerEndpointPermissionMatrix />
-        </MudTabPanel>
-        <MudTabPanel Text="Control Permissions">
-            <DabblerControlPermissionTab />
-        </MudTabPanel>
-        <MudTabPanel Text="Row Filters">
-            <DabblerRowFilterTab />
-        </MudTabPanel>
-        <MudTabPanel Text="User Assignments">
-            <DabblerUserRoleManager />
-        </MudTabPanel>
+        @foreach (var tab in _visibleTabs)
+        {
+            <MudTabPanel Text="@tab.Label">
+                <MudText Typo="Typo.body2" data-testid="@tab.StubTestId">@tab.StubMessage</MudText>
+            </MudTabPanel>
+        }
     </MudTabs>
 </div>
 
 @code {
-    internal const int TabCount = 7;
+    /// <summary>
+    /// The five canonical tab keys for the restriction-based security dashboard.
+    /// Ordering matches the architecture doc's recommended UI layout.
+    /// </summary>
+    internal enum TabKey
+    {
+        RoleMasterDetails,
+        DefaultMasks,
+        OrganizationMasterDetails,
+        UsersAndRoleAssignment,
+        RoleDocumentation,
+    }
+
+    internal sealed record TabDescriptor(
+        TabKey Key,
+        string Label,
+        string StubTestId,
+        string StubMessage,
+        IReadOnlyList<string> AllowedBakedInRoles);
+
+    internal static readonly IReadOnlyList<TabDescriptor> AllTabs =
+    [
+        new(TabKey.RoleMasterDetails,
+            "Role Master Details",
+            "role-master-details-stub",
+            "Role Master Details — wired in Session 3 of rearchitect-role-administration-dashboard.",
+            [BakedInRoles.SystemAdmin]),
+        new(TabKey.DefaultMasks,
+            "Default Masks",
+            "default-masks-stub",
+            "Default Masks — wired in Session 4 of rearchitect-role-administration-dashboard.",
+            [BakedInRoles.SystemAdmin]),
+        new(TabKey.OrganizationMasterDetails,
+            "Organization Master Details",
+            "organization-master-details-stub",
+            "Organization Master Details — wired in Session 6 of rearchitect-role-administration-dashboard.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin]),
+        new(TabKey.UsersAndRoleAssignment,
+            "Users and Role Assignment",
+            "users-and-role-assignment-stub",
+            "Users and Role Assignment — wired in Session 7 of rearchitect-role-administration-dashboard.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.UserAdmin]),
+        new(TabKey.RoleDocumentation,
+            "Role Documentation",
+            "role-documentation-stub",
+            "Role Documentation — wired in Session 8 of rearchitect-role-administration-dashboard.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.CrossOrgMonitor,
+             BakedInRoles.UserAdmin, BakedInRoles.User]),
+    ];
 
     private int _activePanelIndex;
+    private IReadOnlyList<TabDescriptor> _visibleTabs = [];
 
     internal int ActivePanelIndex => _activePanelIndex;
+    internal IReadOnlyList<TabDescriptor> VisibleTabs => _visibleTabs;
+    internal int TabCount => _visibleTabs.Count;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _visibleTabs = ResolveVisibleTabs(authState.User, RoleSwitcher, BakedInRoleProvider, AllTabs);
+    }
+
+    internal static IReadOnlyList<TabDescriptor> ResolveVisibleTabs(
+        ClaimsPrincipal user,
+        IRoleSwitcher roleSwitcher,
+        IBakedInRoleProvider bakedInRoleProvider,
+        IReadOnlyList<TabDescriptor> allTabs)
+    {
+        var effectiveRoles = new HashSet<string>(
+            roleSwitcher.EffectiveRoles(user),
+            StringComparer.OrdinalIgnoreCase);
+
+        var bakedInRoles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var roleName in effectiveRoles)
+        {
+            var bakedIn = bakedInRoleProvider.TryGetBakedInRole(roleName);
+            if (bakedIn is not null)
+                bakedInRoles.Add(bakedIn.Name);
+        }
+
+        return allTabs
+            .Where(t => t.AllowedBakedInRoles.Any(bakedInRoles.Contains))
+            .ToList();
+    }
 
     private void HandleTabKeyDown(KeyboardEventArgs args)
     {
-        if (NextPanelIndex(_activePanelIndex, args.Key, TabCount) is { } index)
+        if (NextPanelIndex(_activePanelIndex, args.Key, _visibleTabs.Count) is { } index)
         {
             _activePanelIndex = index;
         }
