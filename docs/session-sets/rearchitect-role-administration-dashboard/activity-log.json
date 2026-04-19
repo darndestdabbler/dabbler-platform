@@ -1,0 +1,104 @@
+{
+  "sessionSetName": "rearchitect-role-administration-dashboard",
+  "createdDate": "2026-04-19T17:43:34.908798+00:00",
+  "totalSessions": 8,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-19T17:43:34.910826+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md. Confirmed E2E testing standards, UAT per-set checklist convention, end-of-set reorg review, \"send related files to verifier\" convention, the new 2026-04-19 lesson on hard-asserted disabled-state tests (promoted to Testing Conventions), and the baked-in role principle added in Set A Session 1.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/read-roadmap",
+      "dateTime": "2026-04-19T17:43:34.911827+00:00",
+      "description": "Read C:/Users/denmi/.claude/plans/ok-i-did-some-abstract-blossom.md (multi-session-set roadmap for A/B/D/C). Confirmed Set B scope = 6-7 sessions; 7 roadmap items (delete old + stub five-tab layout, Role Master Details, Default Masks, data-bound enforcement, Organization Master Details, Users and Role Assignment, Role Documentation + UAT + change log).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/read-architecture-doc",
+      "dateTime": "2026-04-19T17:43:34.911827+00:00",
+      "description": "Read docs/session-sets/rearchitecting-role-administration/rearchitecting-role-administration.md. Confirmed five top-level tabs (not four), FilterPanel<T> convention for every master-detail grid, DisplayAlias inline-editable everywhere, binary ColumnRestriction (ViewOnly|Hidden) with masking modeled separately, MudSwitch tri-state incompatibility (lesson: use MudToggleGroup), mask-exemption authority rules (separation of duties).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/read-set-a-change-log",
+      "dateTime": "2026-04-19T17:43:34.912827+00:00",
+      "description": "Read rearchitect-role-administration-foundations/change-log.md. Confirmed Set A shipped: BakedInRoles constants + 5 privilege classes + IBakedInRoleProvider + PlatformBakedInRoleProvider; ColumnRestriction, RowRestriction, UiRestriction, DefaultMaskRule, MaskExemption, OrganizationSwitching types; DisplayAlias on RoleDefinition + BakedInRoleAliasOverrides on SecurityConfiguration; RowRestrictionBroker + Expression Builder; rewritten Page/Endpoint/Control handlers; Entity/Field handlers deleted; seed migration (BackofficeUserAdmin -> baked-in CrossOrgUserAdmin, BackofficeUser/Customer as user-type roles). Follow-up items deferred to Set B: dashboard rebuild, EF org-scope query filter, [Obsolete] legacy type physical deletion (progressive).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/inventory-legacy-files",
+      "dateTime": "2026-04-19T17:43:34.912827+00:00",
+      "description": "Inventoried current-state legacy files. Admin components still present: DabblerPagePermissionMatrix, DabblerEndpointPermissionMatrix, DabblerEntityPermissionMatrix, DabblerFieldPermissionEditor, DabblerControlPermissionTab, DabblerControlPermissionEditor, DabblerRowFilterTab, DabblerRowFilterEditor, DabblerRoleManager, DenyAllowSwitch, InheritedLegend, RoleFormDialog. [Obsolete] config types still present: PagePermission, EntityPermission, FieldPermission, ControlPermission, EndpointPermission, RowFilter, RoleSwitchingPermission. EF entities still present: AppPagePermission, AppFieldPermission, AppControlPermission, AppRowFilter. RoleInheritanceHelper still on disk (zero production callers after Set A). PermissionResolver.cs still present. Consumer count (grep AllowedRoles|PagePermission|EntityPermission|FieldPermission|ControlPermission|RowFilter|RoleInheritanceHelper): 107 occurrences across 25 files, mostly in EfCoreSecurityStore, ModelBuilderExtensions, handler Requirements, and the matrix components. Confirmed dashboard currently has 7 MudTabPanel entries in DabblerSecurityDashboard.razor.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/draft-spec",
+      "dateTime": "2026-04-19T17:43:34.912827+00:00",
+      "description": "Fleshed out spec.md from stub. Now 8 sessions total: Session 1 fleshes the spec; Sessions 2-8 execute the 7 roadmap items. Each session has Steps, Creates, Touches, Ends-with, and Progress keys. Risk notes cover Session 5 size, deletion cascades, verification prompt scope, bUnit interaction coverage, disabled-state test discipline, Playwright churn between Sessions 2-8, and role-switch reactivity. Exit criteria at whole-set level. Detailed confirmation of Set A deliverables vs. Set B needs recorded upfront so the verifier can sanity-check without re-reading Set A.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-19T17:45:02.334889+00:00",
+      "description": "Build: 0 errors, 506 warnings (all CS0618 [Obsolete] warnings from Set A's legacy types still pending progressive deletion in Sessions 2-8). Non-Playwright tests: 577 passed, 1 pre-existing failure (AcmeCoffeeOnline.Web.Tests.WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates expects docs/workflow-auth-observability.md which was deleted in commit 8730107; failure unrelated to this session and already tracked in Set A Session 5). Baseline confirmed green aside from known pre-existing drift.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-19T17:48:20.448585+00:00",
+      "description": "Cross-provider verification via ai-router (round 1). Model: opus. Tokens in/out: 22256/2223. Prompt attached spec.md, architecture doc, and Set A change-log; disclosed planning docs, roadmap, and current executable code as out-of-scope. See session-reviews/session-001.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 22256,
+          "outputTokens": 2223,
+          "costUsd": 0.500565
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/verification-round-2",
+      "dateTime": "2026-04-19T17:53:18.478359+00:00",
+      "description": "Round 2 cross-provider verification via ai-router. Model: opus. Tokens in/out: 18580/1612. Re-verified all 7 fixes from round 1 plus checks for new issues. See session-reviews/session-001-review-002.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 18580,
+          "outputTokens": 1612,
+          "costUsd": 0.3996
+        }
+      ]
+    }
+  ]
+}
