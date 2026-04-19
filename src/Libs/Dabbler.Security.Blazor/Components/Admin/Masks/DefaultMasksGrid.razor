@@ -1,0 +1,284 @@
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Masks
+@inject SecurityConfigurationManager ConfigManager
+@inject MetadataRegistry Metadata
+@inject ISnackbar Snackbar
+
+<div data-testid="default-masks-grid-container">
+    <FilterPanel T="DefaultMaskRule"
+                 @ref="_filterPanel"
+                 Columns="_filterColumns"
+                 FilterChanged="OnFilterChanged"
+                 ShowAddGroup="false"
+                 ShowFilterChips="true" />
+
+    <MudPaper Class="pa-3 my-3" Elevation="0" Outlined="true">
+        <div class="d-flex flex-wrap align-center gap-2">
+            <MudSelect T="string" Label="Table" @bind-Value="_newTableKey"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       data-testid="default-mask-new-table"
+                       Style="min-width:180px;">
+                @foreach (var table in Metadata.Tables)
+                {
+                    <MudSelectItem T="string" Value="@table.Key">@table.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect T="string" Label="Column" @bind-Value="_newColumnKey"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       Disabled="@string.IsNullOrEmpty(_newTableKey)"
+                       data-testid="default-mask-new-column"
+                       Style="min-width:180px;">
+                @foreach (var column in Metadata.GetColumns(_newTableKey ?? string.Empty))
+                {
+                    <MudSelectItem T="string" Value="@column.Key">@column.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudTextField T="string" Label="Mask format" @bind-Value="_newMaskFormat"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          HelperText="@MaskFormatHelper"
+                          data-testid="default-mask-new-format"
+                          Style="min-width:220px;" />
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="AddAsync"
+                       Disabled="@(!CanAdd)"
+                       data-testid="default-mask-add-button">
+                Add
+            </MudButton>
+        </div>
+    </MudPaper>
+
+    <div class="d-flex align-center mb-2">
+        <MudText Typo="Typo.body2" Color="Color.Secondary" data-testid="default-mask-count">
+            @($"{FilteredRows.Count} of {ConfigManager.Current.DefaultMasks.Count} declared masks")
+        </MudText>
+    </div>
+
+    @if (ConfigManager.Current.DefaultMasks.Count == 0)
+    {
+        <MudText Typo="Typo.body2" Class="pa-3" data-testid="default-mask-empty">
+            No default masks declared. Every column renders its raw stored value.
+        </MudText>
+    }
+    else
+    {
+        <MudDataGrid T="DefaultMaskRule"
+                     Items="@FilteredRows"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="true"
+                     Striped="true"
+                     data-testid="default-mask-grid">
+            <Columns>
+                <TemplateColumn Title="Table" Sortable="true">
+                    <CellTemplate>
+                        @ResolveTableDisplay(context.Item.EntityKey)
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Column" Sortable="true">
+                    <CellTemplate>
+                        @ResolveColumnDisplay(context.Item.EntityKey, context.Item.ColumnKey)
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Mask format" Sortable="true">
+                    <CellTemplate>
+                        <MudTextField T="string"
+                                      Value="@context.Item.MaskFormat"
+                                      ValueChanged="@(v => OnMaskFormatChangedAsync(context.Item, v))"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Immediate="false"
+                                      DebounceInterval="400"
+                                      Placeholder="********"
+                                      data-testid="@($"default-mask-format-{context.Item.EntityKey}-{context.Item.ColumnKey}")" />
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Remove" Sortable="false">
+                    <CellTemplate>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       OnClick="@(() => RemoveAsync(context.Item))"
+                                       title="Remove default mask"
+                                       aria-label="@($"Remove default mask on {context.Item.EntityKey}.{context.Item.ColumnKey}")"
+                                       data-testid="@($"default-mask-remove-{context.Item.EntityKey}-{context.Item.ColumnKey}")" />
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Inline-editable grid of <see cref="DefaultMaskRule"/> rows. Table and
+    /// Column are cascading <see cref="MudSelect{T}"/> values sourced from the
+    /// <see cref="MetadataRegistry"/>; <see cref="DefaultMaskRule.MaskFormat"/>
+    /// is a free-text template that supports <c>{last4}</c> / <c>{firstChar}</c>
+    /// tokens (blank renders as <c>********</c>). Session Set D wires the
+    /// actual rendering surface — this session only edits and persists rows.
+    /// </summary>
+
+    /// <summary>
+    /// Raised after the <see cref="SecurityConfiguration.DefaultMasks"/> list
+    /// changes and the configuration has been persisted.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnPersisted { get; set; }
+
+    private const string MaskFormatHelper =
+        "Tokens: {last4}, {firstChar}. Blank renders as ********.";
+
+    private FilterPanel<DefaultMaskRule>? _filterPanel;
+    private CompositeFilterDescriptor? _filter;
+
+    private string? _newTableKey;
+    private string? _newColumnKey;
+    private string _newMaskFormat = string.Empty;
+
+    private readonly List<FilterColumnDefinition> _filterColumns = new()
+    {
+        new FilterColumnDefinition
+        {
+            Header = "Table",
+            PropertyName = nameof(DefaultMaskRule.EntityKey),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Column",
+            PropertyName = nameof(DefaultMaskRule.ColumnKey),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Mask format",
+            PropertyName = nameof(DefaultMaskRule.MaskFormat),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+    };
+
+    private IReadOnlyList<DefaultMaskRule> FilteredRows =>
+        ApplyFilter(ConfigManager.Current.DefaultMasks, _filter);
+
+    private bool CanAdd =>
+        !string.IsNullOrEmpty(_newTableKey)
+        && !string.IsNullOrEmpty(_newColumnKey)
+        && !ConfigManager.Current.DefaultMasks.Any(r =>
+            string.Equals(r.EntityKey, _newTableKey, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(r.ColumnKey, _newColumnKey, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Prefills the "add" form so the safety-net one-click flow can hand a
+    /// table/column pair to the grid. Callers invoke this and then invoke
+    /// <see cref="AddAsync"/>.
+    /// </summary>
+    /// <param name="entityKey">Table (entity) key.</param>
+    /// <param name="columnKey">Column (field) key.</param>
+    public Task AddFromSafetyNetAsync(string entityKey, string columnKey)
+    {
+        _newTableKey = entityKey;
+        _newColumnKey = columnKey;
+        _newMaskFormat = string.Empty;
+        return AddAsync();
+    }
+
+    private async Task AddAsync()
+    {
+        if (!CanAdd) return;
+
+        ConfigManager.Current.DefaultMasks.Add(new DefaultMaskRule
+        {
+            EntityKey = _newTableKey!,
+            ColumnKey = _newColumnKey!,
+            MaskFormat = _newMaskFormat ?? string.Empty,
+        });
+
+        await PersistAsync("Default mask added.");
+
+        _newTableKey = null;
+        _newColumnKey = null;
+        _newMaskFormat = string.Empty;
+    }
+
+    private async Task RemoveAsync(DefaultMaskRule row)
+    {
+        ConfigManager.Current.DefaultMasks.Remove(row);
+        await PersistAsync("Default mask removed.");
+    }
+
+    private async Task OnMaskFormatChangedAsync(DefaultMaskRule row, string newFormat)
+    {
+        var sanitized = newFormat ?? string.Empty;
+        if (string.Equals(row.MaskFormat, sanitized, StringComparison.Ordinal))
+            return;
+        row.MaskFormat = sanitized;
+        await PersistAsync("Default mask updated.");
+    }
+
+    private async Task PersistAsync(string successMessage)
+    {
+        await ConfigManager.SaveAsync(ConfigManager.Current);
+        Snackbar.Add(successMessage, Severity.Success);
+        if (OnPersisted.HasDelegate)
+            await OnPersisted.InvokeAsync();
+    }
+
+    /// <summary>
+    /// Invoked by the <see cref="FilterPanel{T}"/> when the user changes the
+    /// filter. Exposed as <c>internal</c> so tests can exercise the filter
+    /// pipeline without driving the panel's private UI.
+    /// </summary>
+    internal void OnFilterChanged(CompositeFilterDescriptor? descriptor)
+    {
+        _filter = descriptor;
+        StateHasChanged();
+    }
+
+    private static IReadOnlyList<DefaultMaskRule> ApplyFilter(
+        IReadOnlyList<DefaultMaskRule> rows,
+        CompositeFilterDescriptor? filter)
+    {
+        if (filter is null || filter.Filters.Count == 0)
+            return rows;
+
+        return rows.Where(r =>
+        {
+            foreach (var entry in filter.Filters)
+            {
+                var needle = entry.Value as string;
+                if (string.IsNullOrEmpty(needle)) continue;
+                var haystack = entry.PropertyName switch
+                {
+                    nameof(DefaultMaskRule.EntityKey) => r.EntityKey,
+                    nameof(DefaultMaskRule.ColumnKey) => r.ColumnKey,
+                    nameof(DefaultMaskRule.MaskFormat) => r.MaskFormat,
+                    _ => string.Empty,
+                };
+                if (!haystack.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
+            return true;
+        }).ToList();
+    }
+
+    private string ResolveTableDisplay(string key) =>
+        Metadata.GetTable(key)?.DisplayName ?? key;
+
+    private string ResolveColumnDisplay(string tableKey, string columnKey)
+    {
+        var col = Metadata.GetColumns(tableKey)
+            .FirstOrDefault(c => string.Equals(c.Key, columnKey, StringComparison.OrdinalIgnoreCase));
+        return col?.DisplayName ?? columnKey;
+    }
+}

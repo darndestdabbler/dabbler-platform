@@ -1,5 +1,6 @@
 @using System.Security.Claims
 @using Dabbler.Security.Authorization
+@using Dabbler.Security.Blazor.Components.Admin.Masks
 @using Dabbler.Security.Blazor.Components.Admin.Role
 @using Dabbler.Security.Services
 @using Microsoft.AspNetCore.Components.Authorization
@@ -23,6 +24,10 @@
                 @if (tab.Key == TabKey.RoleMasterDetails)
                 {
                     <RoleMasterDetailsTab />
+                }
+                else if (tab.Key == TabKey.DefaultMasks)
+                {
+                    <DefaultMasksTab />
                 }
                 else
                 {

@@ -9,7 +9,9 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IRoleSwitcher RoleSwitcher
 @inject IBakedInRoleProvider BakedInRoleProvider
+@inject AuthorizationStateNotifier Notifier
 @inject ISnackbar Snackbar
+@implements IDisposable
 
 <div data-testid="mask-exemptions-subtab">
     <MudText Typo="Typo.subtitle1" Class="mb-2">Mask Exemptions</MudText>
@@ -199,6 +201,7 @@
         await ConfigManager.EnsureLoadedAsync();
         await ResolveGranterAsync();
         RebuildTableKeys();
+        Notifier.Subscribe(OnConfigChangedAsync);
     }
 
     /// <inheritdoc />
@@ -206,6 +209,21 @@
     {
         RebuildTableKeys();
     }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        // When the Default Masks tab adds or removes a rule, the cascading
+        // Table / Column dropdowns here must reflect that change in the same
+        // circuit (spec § Session 4 step 4 — "push through a notification
+        // event"). A stale exemption pointing at a removed DefaultMaskRule
+        // simply filters out of the Column dropdown; existing rows remain
+        // visible in the grid until an admin removes them.
+        RebuildTableKeys();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
 
     private async Task ResolveGranterAsync()
     {

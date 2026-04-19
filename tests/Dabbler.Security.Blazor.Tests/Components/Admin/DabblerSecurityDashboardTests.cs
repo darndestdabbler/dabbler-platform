@@ -5,6 +5,7 @@ using Dabbler.Security.Authorization;
 using Dabbler.Security.Blazor.Components.Admin;
 using Dabbler.Security.Blazor.Tests.TestHelpers;
 using Dabbler.Security.Configuration;
+using Dabbler.Security.Registration;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,7 @@ public class DabblerSecurityDashboardTests
         svc.AddSingleton(manager);
         svc.AddSingleton<AuthorizationStateNotifier>();
         svc.AddSingleton<IBakedInRoleProvider, PlatformBakedInRoleProvider>();
+        svc.AddSingleton(MetadataRegistry.Empty);
     }
 
     [Fact]

@@ -403,6 +403,211 @@
           "costUsd": 1.598595
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 18,
+      "stepKey": "session-3/commit",
+      "dateTime": "2026-04-19T18:53:25.549178+00:00",
+      "description": "Committed 25 files (3217 insertions) as Session 3 of 8 (commit c6013bd). Pushed to origin/master.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-04-19T19:06:33.621483+00:00",
+      "description": "Read docs/planning/project-guidance.md, docs/planning/lessons-learned.md, spec.md, activity-log (Sessions 1-3), and Session 3 review. Confirmed FilterPanel<T> convention, MudToggleGroup vs MudSwitch lesson, and the promoted \"Send related files to the cross-provider verifier\" convention. Verified API keys present.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/default-masks-grid",
+      "dateTime": "2026-04-19T19:06:33.621483+00:00",
+      "description": "Created src/Libs/Dabbler.Security.Blazor/Components/Admin/Masks/DefaultMasksGrid.razor: FilterPanel<DefaultMaskRule> (Table/Column/Mask format text contains) + add-row form (cascading MudSelect Table \u2192 Column from MetadataRegistry + MudTextField MaskFormat with {last4}/{firstChar} helper text) + MudDataGrid with inline-editable MaskFormat (debounced 400ms), delete button per row, visible \"N of M declared masks\" count label, and empty-state text. Duplicate-guard on Add keyed by (EntityKey, ColumnKey). Exposed public AddFromSafetyNetAsync(entityKey, columnKey) so the parent tab can delegate the safety-net one-click add.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/sensitive-name-safety-net",
+      "dateTime": "2026-04-19T19:06:33.622924+00:00",
+      "description": "Created Components/Admin/Masks/SensitiveNameSafetyNet.razor. Compiled regex /ssn|taxid|ein|dob|password|ccnum|salary/i (case-insensitive) evaluated against every (table, column) pair in MetadataRegistry.Tables, filtered by an OrdinalIgnoreCase hashset of already-declared DefaultMasks. Renders a collapsible MudCollapse panel with a \"Warning\" alert when undeclared matches exist and a green Severity.Success alert when clear. Each row has an \"Add to Default Masks\" button that emits OnAddMatch so the parent tab funnels the add through a single persistence path. Rebuild() is public and calls StateHasChanged so the parent can trigger a rescan after persisting.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/default-masks-tab",
+      "dateTime": "2026-04-19T19:06:33.623928+00:00",
+      "description": "Created Components/Admin/Masks/DefaultMasksTab.razor: thin composer that subscribes to AuthorizationStateNotifier on init and disposes on teardown. OnGridPersistedAsync rescans the safety net. OnAddFromSafetyNetAsync routes the safety-net click through the grid's AddFromSafetyNetAsync so a single code path governs persistence, snackbar, and cross-tab notification. OnConfigChangedAsync rescans when a SIBLING tab (e.g., Mask Exemptions sub-tab) mutates the configuration within the same circuit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/wire-into-dashboard",
+      "dateTime": "2026-04-19T19:06:33.624929+00:00",
+      "description": "DabblerSecurityDashboard.razor: added @using for the Masks namespace and replaced the Default Masks stub with <DefaultMasksTab /> via the existing TabKey switch. SystemAdmin-only gating already lands in Session 2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/mask-exemptions-cross-tab-reactivity",
+      "dateTime": "2026-04-19T19:06:33.625928+00:00",
+      "description": "Updated Components/Admin/Role/MaskExemptionsSubTab.razor to subscribe to AuthorizationStateNotifier and Dispose the subscription. OnConfigChangedAsync calls RebuildTableKeys + InvokeAsync(StateHasChanged) so the cascading Table/Column dropdowns react within the same circuit when the Default Masks tab adds or removes a rule. This is the \"push through a notification event\" item from the Session 4 spec.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/dashboard-test-service-registration",
+      "dateTime": "2026-04-19T19:06:33.626928+00:00",
+      "description": "Added MetadataRegistry.Empty to DabblerSecurityDashboardTests service registration so the existing ArrowRight/End/ArrowLeft keyboard tests survive the Default Masks tab now rendering a real component tree (it needs MetadataRegistry, SecurityConfigurationManager, and AuthorizationStateNotifier). No assertion changes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/bunit-tests",
+      "dateTime": "2026-04-19T19:06:33.627927+00:00",
+      "description": "14 new bUnit tests across three files: SensitiveNameSafetyNetTests (5) \u2014 no-matches clear alert, undeclared sensitive columns render, already-declared columns excluded, non-sensitive columns ignored, click raises OnAddMatch with match details. DefaultMasksGridTests (5) \u2014 empty state, rows render with count, remove persists and raises OnPersisted, AddFromSafetyNet prefills+persists, AddFromSafetyNet idempotent. DefaultMasksTabTests (4) \u2014 renders header+children, safety-net add flows through grid, remove rescans safety net, external SaveAsync on a sibling triggers safety-net rescan within the same circuit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-19T19:06:33.628927+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 191 CS0618 warnings (unchanged from Session 3 \u2014 legacy [Obsolete] types deliberately preserved per session 2 ends-with hedge). dotnet test non-Playwright: 572 passed, 1 pre-existing unrelated failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates, same as Sessions 1-3). Per-suite: Dabbler.Components.Tests 33/33, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Security.Blazor.Tests 141/141 (+14 new Masks tests), AcmeCoffeeOnline.Api.Tests 27/27, Dabbler.Security.Tests 236/236, AcmeCoffeeOnline.Web.Tests 122/123.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-04-19T19:06:40.226420+00:00",
+      "description": "Read docs/planning/project-guidance.md, docs/planning/lessons-learned.md, spec.md, activity-log (Sessions 1-3), and Session 3 review. Confirmed FilterPanel<T> convention, MudToggleGroup vs MudSwitch lesson, and the promoted \"Send related files to the cross-provider verifier\" convention. Verified API keys present.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/default-masks-grid",
+      "dateTime": "2026-04-19T19:06:40.227420+00:00",
+      "description": "Created src/Libs/Dabbler.Security.Blazor/Components/Admin/Masks/DefaultMasksGrid.razor: FilterPanel<DefaultMaskRule> (Table/Column/Mask format text contains) + add-row form (cascading MudSelect Table \u2192 Column from MetadataRegistry + MudTextField MaskFormat with {last4}/{firstChar} helper text) + MudDataGrid with inline-editable MaskFormat (debounced 400ms), delete button per row, visible \"N of M declared masks\" count label, and empty-state text. Duplicate-guard on Add keyed by (EntityKey, ColumnKey). Exposed public AddFromSafetyNetAsync(entityKey, columnKey) so the parent tab can delegate the safety-net one-click add.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/sensitive-name-safety-net",
+      "dateTime": "2026-04-19T19:06:40.228716+00:00",
+      "description": "Created Components/Admin/Masks/SensitiveNameSafetyNet.razor. Compiled regex /ssn|taxid|ein|dob|password|ccnum|salary/i (case-insensitive) evaluated against every (table, column) pair in MetadataRegistry.Tables, filtered by an OrdinalIgnoreCase hashset of already-declared DefaultMasks. Renders a collapsible MudCollapse panel with a \"Warning\" alert when undeclared matches exist and a green Severity.Success alert when clear. Each row has an \"Add to Default Masks\" button that emits OnAddMatch so the parent tab funnels the add through a single persistence path. Rebuild() is public and calls StateHasChanged so the parent can trigger a rescan after persisting.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/default-masks-tab",
+      "dateTime": "2026-04-19T19:06:40.229718+00:00",
+      "description": "Created Components/Admin/Masks/DefaultMasksTab.razor: thin composer that subscribes to AuthorizationStateNotifier on init and disposes on teardown. OnGridPersistedAsync rescans the safety net. OnAddFromSafetyNetAsync routes the safety-net click through the grid's AddFromSafetyNetAsync so a single code path governs persistence, snackbar, and cross-tab notification. OnConfigChangedAsync rescans when a SIBLING tab (e.g., Mask Exemptions sub-tab) mutates the configuration within the same circuit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/wire-into-dashboard",
+      "dateTime": "2026-04-19T19:06:40.230718+00:00",
+      "description": "DabblerSecurityDashboard.razor: added @using for the Masks namespace and replaced the Default Masks stub with <DefaultMasksTab /> via the existing TabKey switch. SystemAdmin-only gating already lands in Session 2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/mask-exemptions-cross-tab-reactivity",
+      "dateTime": "2026-04-19T19:06:40.231718+00:00",
+      "description": "Updated Components/Admin/Role/MaskExemptionsSubTab.razor to subscribe to AuthorizationStateNotifier and Dispose the subscription. OnConfigChangedAsync calls RebuildTableKeys + InvokeAsync(StateHasChanged) so the cascading Table/Column dropdowns react within the same circuit when the Default Masks tab adds or removes a rule. This is the \"push through a notification event\" item from the Session 4 spec.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/dashboard-test-service-registration",
+      "dateTime": "2026-04-19T19:06:40.232718+00:00",
+      "description": "Added MetadataRegistry.Empty to DabblerSecurityDashboardTests service registration so the existing ArrowRight/End/ArrowLeft keyboard tests survive the Default Masks tab now rendering a real component tree (it needs MetadataRegistry, SecurityConfigurationManager, and AuthorizationStateNotifier). No assertion changes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/bunit-tests",
+      "dateTime": "2026-04-19T19:06:40.234228+00:00",
+      "description": "14 new bUnit tests across three files: SensitiveNameSafetyNetTests (5) \u2014 no-matches clear alert, undeclared sensitive columns render, already-declared columns excluded, non-sensitive columns ignored, click raises OnAddMatch with match details. DefaultMasksGridTests (5) \u2014 empty state, rows render with count, remove persists and raises OnPersisted, AddFromSafetyNet prefills+persists, AddFromSafetyNet idempotent. DefaultMasksTabTests (4) \u2014 renders header+children, safety-net add flows through grid, remove rescans safety net, external SaveAsync on a sibling triggers safety-net rescan within the same circuit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-19T19:06:40.235236+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 191 CS0618 warnings (unchanged from Session 3 \u2014 legacy [Obsolete] types deliberately preserved per session 2 ends-with hedge). dotnet test non-Playwright: 572 passed, 1 pre-existing unrelated failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates, same as Sessions 1-3). Per-suite: Dabbler.Components.Tests 33/33, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Security.Blazor.Tests 141/141 (+14 new Masks tests), AcmeCoffeeOnline.Api.Tests 27/27, Dabbler.Security.Tests 236/236, AcmeCoffeeOnline.Web.Tests 122/123.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-19T19:09:01.751011+00:00",
+      "description": "Cross-provider verification via ai-router (round 1). Model: opus. Tokens in/out: 25969/7560. Prompt attached Session 4 spec excerpt + all six created files + three modified files + five supporting files (DefaultMaskRule, MaskExemption, MetadataRegistry, SecurityConfigurationManager, AuthorizationStateNotifier); disclosed Session 3 Role Master Details tree, security-config.json seed, MaskExemptionAuthority, ResourceRegistry + Registrars, and deferred Playwright/Set D as out-of-scope. See session-reviews/session-004.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 25969,
+          "outputTokens": 7560,
+          "costUsd": 0.9565349999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 11,
+      "stepKey": "session-4/verification-round-2",
+      "dateTime": "2026-04-19T19:12:17.464637+00:00",
+      "description": "Round 2 cross-provider verification via ai-router after fixing both round-1 minor findings: swapped DefaultMasksTab child order so the safety-net panel renders below the grid (matching the spec), and added Filter_ByTableKey_NarrowsVisibleRows bUnit test exercising the OnFilterChanged -> FilteredRows pipeline. Model: opus. Tokens in/out: 8398/1559. See session-reviews/session-004-review-002.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8398,
+          "outputTokens": 1559,
+          "costUsd": 0.242895
+        }
+      ]
     }
   ]
 }
