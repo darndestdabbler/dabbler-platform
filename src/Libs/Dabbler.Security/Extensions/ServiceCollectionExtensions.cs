@@ -113,10 +113,11 @@ public static class ServiceCollectionExtensions
         // registration with their own IBakedInRoleProvider implementation.
         services.TryAddSingleton<IBakedInRoleProvider, PlatformBakedInRoleProvider>();
 
-        // The 5 resource-specific handlers are scoped so they can receive the scoped IRoleSwitcher.
+        // The three resource-specific handlers are scoped so they can receive the scoped IRoleSwitcher.
+        // Entity and Field handlers were removed in Session 3 of
+        // rearchitect-role-administration-foundations: entity CRUD is now default-permissive,
+        // and field access is shaped by ColumnRestriction + DefaultMasks / MaskExemptions.
         services.AddScoped<IAuthorizationHandler, PageAuthorizationHandler>();
-        services.AddScoped<IAuthorizationHandler, EntityAuthorizationHandler>();
-        services.AddScoped<IAuthorizationHandler, FieldAuthorizationHandler>();
         services.AddScoped<IAuthorizationHandler, EndpointAuthorizationHandler>();
         services.AddScoped<IAuthorizationHandler, ControlAuthorizationHandler>();
 

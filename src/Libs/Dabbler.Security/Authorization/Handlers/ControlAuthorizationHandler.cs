@@ -1,51 +1,54 @@
-using System.Security.Claims;
 using Dabbler.Security.Authorization.Requirements;
 using Dabbler.Security.Configuration;
-using Dabbler.Security.Options;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 
 namespace Dabbler.Security.Authorization.Handlers;
 
 /// <summary>
-/// Handles authorization for UI controls based on a <see cref="ControlPermissionRequirement"/>.
+/// UI control authorization under the restriction-based model.
 /// </summary>
 /// <remarks>
-/// This handler determines if a user can view a specific UI control on a page. It succeeds if the resolved
-/// state for the user is not <see cref="ControlState.Hidden"/>.
-/// The resolved state is the most permissive state (<see cref="ControlState.Enabled"/> &gt; <see cref="ControlState.Disabled"/> &gt; <see cref="ControlState.Hidden"/>)
-/// granted by any of the user's effective roles.
-/// If a control is not explicitly configured, access is determined by the <see cref="UnregisteredResourcePolicy"/>.
+/// <para>
+/// Baked-in roles always succeed. User-type roles consult the role's
+/// <see cref="UiRestriction"/> list:
+/// </para>
+/// <list type="bullet">
+///   <item>An entire-page <c>Hidden</c> restriction (<c>ControlKey == "*"</c>)
+///     also hides every control on the page.</item>
+///   <item>A per-control restriction with <see cref="UiRestrictionKind.Hidden"/>
+///     fails authorization so the control is not rendered.</item>
+///   <item>A per-control restriction with <see cref="UiRestrictionKind.Disabled"/>
+///     succeeds; the control renders but the UI is responsible for the
+///     non-interactive state.</item>
+///   <item>Absence of a restriction succeeds (user-type roles are default-permissive).</item>
+/// </list>
 /// </remarks>
 public class ControlAuthorizationHandler : AuthorizationHandler<ControlPermissionRequirement>
 {
+    private const string WildcardControlKey = "*";
+
     private readonly SecurityConfigurationManager _manager;
-    private readonly UnregisteredResourcePolicy _unregisteredPolicy;
     private readonly IRoleSwitcher _roleSwitcher;
+    private readonly IBakedInRoleProvider _bakedInRoleProvider;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ControlAuthorizationHandler"/> class.
     /// </summary>
     /// <param name="manager">The security configuration manager.</param>
-    /// <param name="options">The Dabbler security options.</param>
-    /// <param name="roleSwitcher">The service for determining a user's effective roles.</param>
+    /// <param name="roleSwitcher">The scoped role switcher that yields the user's active role(s).</param>
+    /// <param name="bakedInRoleProvider">The baked-in role provider consulted before any JSON-configured restriction lookup.</param>
     public ControlAuthorizationHandler(
         SecurityConfigurationManager manager,
-        IOptions<DabblerSecurityOptions> options,
-        IRoleSwitcher roleSwitcher)
+        IRoleSwitcher roleSwitcher,
+        IBakedInRoleProvider bakedInRoleProvider)
     {
         _manager = manager;
-        _unregisteredPolicy = options.Value.UnregisteredResourcePolicy;
         _roleSwitcher = roleSwitcher;
+        _bakedInRoleProvider = bakedInRoleProvider;
     }
 
-    /// <summary>
-    /// Handles the authorization requirement for a UI control.
-    /// </summary>
-    /// <param name="context">The authorization handler context.</param>
-    /// <param name="requirement">The control permission requirement to evaluate.</param>
-    /// <returns>A <see cref="Task"/> that represents the asynchronous handle operation.</returns>
+    /// <inheritdoc />
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         ControlPermissionRequirement requirement)
@@ -56,46 +59,38 @@ public class ControlAuthorizationHandler : AuthorizationHandler<ControlPermissio
         await _manager.EnsureLoadedAsync();
         var config = _manager.Current;
 
-        var permission = config.ControlPermissions
-            .FirstOrDefault(c =>
-                string.Equals(c.PageKey, requirement.PageKey, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(c.ControlKey, requirement.ControlKey, StringComparison.OrdinalIgnoreCase));
-
-        if (permission == null)
+        foreach (var roleName in _roleSwitcher.EffectiveRoles(context.User))
         {
-            if (_unregisteredPolicy == UnregisteredResourcePolicy.FailOpen)
+            if (IsAllowed(roleName, requirement.PageKey, requirement.ControlKey, config))
+            {
                 context.Succeed(requirement);
-            return;
+                return;
+            }
         }
-
-        var userRoles = GetEffectiveRoles(context.User, config);
-
-        var resolvedState = ResolveControlState(permission, userRoles);
-
-        // Succeed (visible) unless the resolved state is Hidden
-        if (resolvedState != ControlState.Hidden)
-            context.Succeed(requirement);
     }
 
-    private static ControlState ResolveControlState(
-        ControlPermission permission,
-        IReadOnlySet<string> userRoles)
+    private bool IsAllowed(string roleName, string pageKey, string controlKey, SecurityConfiguration config)
     {
-        var matchingStates = permission.RolePermissions
-            .Where(rp => userRoles.Contains(rp.RoleName))
-            .Select(rp => rp.State)
-            .ToList();
+        if (_bakedInRoleProvider.TryGetBakedInRole(roleName) is not null)
+            return true;
 
-        if (matchingStates.Count == 0)
-            return ControlState.Hidden;
+        // User-type roles are default-permissive. A role absent from UserTypeRoles
+        // has no restrictions configured and therefore succeeds.
+        var userTypeRole = config.UserTypeRoles.FirstOrDefault(r =>
+            string.Equals(r.RoleName, roleName, StringComparison.OrdinalIgnoreCase));
+        if (userTypeRole is null)
+            return true;
 
-        // Return the most permissive state (lowest enum value: Enabled=0, Disabled=1, Hidden=2)
-        return (ControlState)matchingStates.Min(s => (int)s);
-    }
+        var entirePageRestriction = userTypeRole.UiRestrictions.FirstOrDefault(r =>
+            string.Equals(r.PageKey, pageKey, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(r.ControlKey, WildcardControlKey, StringComparison.Ordinal));
+        if (entirePageRestriction?.Kind == UiRestrictionKind.Hidden)
+            return false;
 
-    private IReadOnlySet<string> GetEffectiveRoles(ClaimsPrincipal user, SecurityConfiguration config)
-    {
-        var directRoles = _roleSwitcher.EffectiveRoles(user);
-        return RoleInheritanceHelper.ExpandRoles(directRoles, config.Roles);
+        var controlRestriction = userTypeRole.UiRestrictions.FirstOrDefault(r =>
+            string.Equals(r.PageKey, pageKey, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(r.ControlKey, controlKey, StringComparison.OrdinalIgnoreCase));
+
+        return controlRestriction?.Kind != UiRestrictionKind.Hidden;
     }
 }

@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Dabbler.Security.Abstractions;
+using Dabbler.Security.Authorization;
 using Dabbler.Security.Authorization.Handlers;
 using Dabbler.Security.Authorization.Requirements;
 using Dabbler.Security.Configuration;
-using Dabbler.Security.Options;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Authorization;
 
@@ -13,14 +13,16 @@ public class EndpointAuthorizationHandlerTests
 {
     private static EndpointAuthorizationHandler CreateHandler(
         SecurityConfiguration config,
-        UnregisteredResourcePolicy policy = UnregisteredResourcePolicy.FailOpen,
         IRoleSwitcher? roleSwitcher = null)
     {
         var store = new Mock<ISecurityConfigurationStore>();
         store.Setup(s => s.LoadAsync(default)).ReturnsAsync(config);
         var manager = new SecurityConfigurationManager(store.Object);
-        var options = Microsoft.Extensions.Options.Options.Create(new DabblerSecurityOptions { UnregisteredResourcePolicy = policy });
-        return new EndpointAuthorizationHandler(manager, options, roleSwitcher ?? new SessionRoleSwitcher());
+
+        return new EndpointAuthorizationHandler(
+            manager,
+            roleSwitcher ?? new SessionRoleSwitcher(),
+            new PlatformBakedInRoleProvider());
     }
 
     private static ClaimsPrincipal UserWithRoles(params string[] roles)
@@ -35,14 +37,10 @@ public class EndpointAuthorizationHandlerTests
         => new([req], user, null);
 
     [Fact]
-    public async Task AllowedRole_Succeeds()
+    public async Task BakedInSystemAdmin_Succeeds()
     {
-        var config = new SecurityConfiguration
-        {
-            EndpointPermissions = [new EndpointPermission { EndpointKey = "POST /api/orders", AllowedRoles = ["Manager"] }]
-        };
-        var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("Manager"), new EndpointPermissionRequirement("POST /api/orders"));
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(UserWithRoles(BakedInRoles.SystemAdmin), new EndpointPermissionRequirement("POST /api/orders"));
 
         await handler.HandleAsync(context);
 
@@ -50,26 +48,10 @@ public class EndpointAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task RoleNotInAllowList_DoesNotSucceed()
+    public async Task BakedInCrossOrgMonitor_Succeeds()
     {
-        var config = new SecurityConfiguration
-        {
-            EndpointPermissions = [new EndpointPermission { EndpointKey = "DELETE /api/users", AllowedRoles = ["Admin"] }]
-        };
-        var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("Viewer"), new EndpointPermissionRequirement("DELETE /api/users"));
-
-        await handler.HandleAsync(context);
-
-        context.HasSucceeded.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task UnregisteredEndpoint_FailOpen_Succeeds()
-    {
-        var config = new SecurityConfiguration();
-        var handler = CreateHandler(config, UnregisteredResourcePolicy.FailOpen);
-        var context = CreateContext(UserWithRoles("Admin"), new EndpointPermissionRequirement("GET /api/unknown"));
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(UserWithRoles(BakedInRoles.CrossOrgMonitor), new EndpointPermissionRequirement("GET /api/reports"));
 
         await handler.HandleAsync(context);
 
@@ -77,36 +59,39 @@ public class EndpointAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task UnregisteredEndpoint_FailClosed_DoesNotSucceed()
-    {
-        var config = new SecurityConfiguration();
-        var handler = CreateHandler(config, UnregisteredResourcePolicy.FailClosed);
-        var context = CreateContext(UserWithRoles("Admin"), new EndpointPermissionRequirement("GET /api/unknown"));
-
-        await handler.HandleAsync(context);
-
-        context.HasSucceeded.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task DeniedRole_DoesNotSucceed_EvenWhenSameUserHasAnAllowedRole()
+    public async Task KnownUserTypeRole_Succeeds()
     {
         var config = new SecurityConfiguration
         {
-            EndpointPermissions =
-            [
-                new EndpointPermission
-                {
-                    EndpointKey = "POST /api/orders",
-                    AllowedRoles = ["Manager"],
-                    DeniedRoles = ["Contractor"]
-                }
-            ]
+            UserTypeRoles = [new RoleDefinition { RoleName = "BackofficeUser" }]
         };
         var handler = CreateHandler(config);
-        var context = CreateContext(
-            UserWithRoles("Manager", "Contractor"),
-            new EndpointPermissionRequirement("POST /api/orders"));
+        var context = CreateContext(UserWithRoles("BackofficeUser"), new EndpointPermissionRequirement("POST /api/orders"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UnknownNonBakedInRole_IsDefaultPermissive()
+    {
+        // Default-permissive at the endpoint layer for user-type roles. There is
+        // no endpoint-level restriction type in the new model.
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(UserWithRoles("BackofficeUser"), new EndpointPermissionRequirement("POST /api/orders"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UnauthenticatedUser_DoesNotSucceed()
+    {
+        var handler = CreateHandler(new SecurityConfiguration());
+        var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+        var context = CreateContext(anonymous, new EndpointPermissionRequirement("GET /api/reports"));
 
         await handler.HandleAsync(context);
 
@@ -118,16 +103,44 @@ public class EndpointAuthorizationHandlerTests
     {
         var config = new SecurityConfiguration
         {
-            EndpointPermissions = [new EndpointPermission { EndpointKey = "GET /api/reports", AllowedRoles = ["Viewer"] }]
+            UserTypeRoles = [new RoleDefinition { RoleName = "Customer" }]
         };
         var switcher = new SessionRoleSwitcher();
-        switcher.SwitchToRole("Viewer");
+        switcher.SwitchToRole("Customer");
 
         var handler = CreateHandler(config, roleSwitcher: switcher);
-        var context = CreateContext(UserWithRoles("Admin"), new EndpointPermissionRequirement("GET /api/reports"));
+        var context = CreateContext(UserWithRoles(BakedInRoles.SystemAdmin), new EndpointPermissionRequirement("GET /api/orders"));
 
         await handler.HandleAsync(context);
 
-        context.HasSucceeded.Should().BeTrue();
+        context.HasSucceeded.Should().BeTrue("switched Customer is a known user-type role");
+    }
+
+    [Fact]
+    public async Task RoleInheritance_IsNotApplied_AtEndpointLayer()
+    {
+        // User-type endpoint access is default-permissive, so the inheritance
+        // guarantee is carried more visibly by the page and control handlers.
+        // Kept here as a companion assertion: the endpoint handler never reads
+        // RoleDefinition.InheritsFrom, verified structurally by the "zero call
+        // sites" check on RoleInheritanceHelper.ExpandRoles.
+#pragma warning disable CS0618 // legacy field deliberately used to assert it is ignored
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Junior",
+                    InheritsFrom = BakedInRoles.SystemAdmin
+                }
+            ]
+        };
+#pragma warning restore CS0618
+
+        var handler = CreateHandler(config);
+        var context = CreateContext(UserWithRoles("Junior"), new EndpointPermissionRequirement("GET /api/reports"));
+        await handler.HandleAsync(context);
+        context.HasSucceeded.Should().BeTrue("default-permissive endpoint access is granted on Junior's own merit, not by inheriting SystemAdmin");
     }
 }

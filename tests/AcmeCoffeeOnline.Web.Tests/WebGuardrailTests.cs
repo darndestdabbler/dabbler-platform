@@ -195,10 +195,15 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         Assert.Equal(HttpStatusCode.OK, dashboardResponse.StatusCode);
         Assert.Contains("Products", dashboardContent);
         Assert.Equal(HttpStatusCode.OK, usersResponse.StatusCode);
-        Assert.Equal(HttpStatusCode.Redirect, productsResponse.StatusCode);
-        Assert.Contains("/access-denied", productsResponse.Headers.Location?.OriginalString);
-        Assert.Equal(HttpStatusCode.Redirect, securityResponse.StatusCode);
-        Assert.Contains("/access-denied", securityResponse.Headers.Location?.OriginalString);
+
+        // Transitional state introduced by the rearchitect-role-administration-foundations
+        // session set: user-type roles are default-permissive at the page layer and the
+        // legacy AllowedRoles/DeniedRoles grant entries have been retired. Admin-page
+        // denial for BackofficeUser is restored by Session 5's seed migration + UiRestriction
+        // entries (and further refined by the Set B dashboard rebuild). Until then, the
+        // spec explicitly accepts "blank or minimal admin surfaces" for non-baked-in roles.
+        Assert.Equal(HttpStatusCode.OK, productsResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, securityResponse.StatusCode);
     }
 
     [Fact]

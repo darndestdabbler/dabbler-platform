@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Dabbler.Security.Abstractions;
+using Dabbler.Security.Authorization;
 using Dabbler.Security.Authorization.Handlers;
 using Dabbler.Security.Authorization.Requirements;
 using Dabbler.Security.Configuration;
-using Dabbler.Security.Options;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Authorization;
 
@@ -13,15 +13,16 @@ public class PageAuthorizationHandlerTests
 {
     private static PageAuthorizationHandler CreateHandler(
         SecurityConfiguration config,
-        UnregisteredResourcePolicy policy = UnregisteredResourcePolicy.FailOpen,
         IRoleSwitcher? roleSwitcher = null)
     {
         var store = new Mock<ISecurityConfigurationStore>();
         store.Setup(s => s.LoadAsync(default)).ReturnsAsync(config);
         var manager = new SecurityConfigurationManager(store.Object);
 
-        var options = Microsoft.Extensions.Options.Options.Create(new DabblerSecurityOptions { UnregisteredResourcePolicy = policy });
-        return new PageAuthorizationHandler(manager, options, roleSwitcher ?? new SessionRoleSwitcher());
+        return new PageAuthorizationHandler(
+            manager,
+            roleSwitcher ?? new SessionRoleSwitcher(),
+            new PlatformBakedInRoleProvider());
     }
 
     private static ClaimsPrincipal UserWithRoles(params string[] roles)
@@ -36,14 +37,10 @@ public class PageAuthorizationHandlerTests
         => new([req], user, null);
 
     [Fact]
-    public async Task AllowedRole_Succeeds()
+    public async Task BakedInSystemAdmin_Succeeds_ForAnyPage()
     {
-        var config = new SecurityConfiguration
-        {
-            PagePermissions = [new PagePermission { PageKey = "orders", AllowedRoles = ["Manager"] }]
-        };
-        var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("Manager"), new PagePermissionRequirement("orders"));
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(UserWithRoles(BakedInRoles.SystemAdmin), new PagePermissionRequirement("orders"));
 
         await handler.HandleAsync(context);
 
@@ -51,19 +48,50 @@ public class PageAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task DeniedRole_DoesNotSucceed_EvenIfAllowed()
+    public async Task BakedInCrossOrgMonitor_Succeeds_ForAnyPage()
+    {
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(UserWithRoles(BakedInRoles.CrossOrgMonitor), new PagePermissionRequirement("reports"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UserTypeRole_WithoutRestrictions_IsDefaultPermissive()
     {
         var config = new SecurityConfiguration
         {
-            PagePermissions = [new PagePermission
-            {
-                PageKey = "admin",
-                AllowedRoles = ["Admin"],
-                DeniedRoles = ["Admin"]  // deny wins
-            }]
+            UserTypeRoles = [new RoleDefinition { RoleName = "BackofficeUser" }]
         };
         var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("Admin"), new PagePermissionRequirement("admin"));
+        var context = CreateContext(UserWithRoles("BackofficeUser"), new PagePermissionRequirement("orders"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UserTypeRole_WithEntirePageHidden_Fails()
+    {
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "admin", ControlKey = "*", Kind = UiRestrictionKind.Hidden }
+                    ]
+                }
+            ]
+        };
+        var handler = CreateHandler(config);
+        var context = CreateContext(UserWithRoles("Customer"), new PagePermissionRequirement("admin"));
 
         await handler.HandleAsync(context);
 
@@ -71,16 +99,24 @@ public class PageAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task InheritedRole_Succeeds()
+    public async Task UserTypeRole_WithEntirePageDisabled_Succeeds()
     {
-        // Junior inherits from Manager; page allows Manager
         var config = new SecurityConfiguration
         {
-            Roles = [new RoleDefinition { RoleName = "Junior", InheritsFrom = "Manager" }],
-            PagePermissions = [new PagePermission { PageKey = "reports", AllowedRoles = ["Manager"] }]
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "orders", ControlKey = "*", Kind = UiRestrictionKind.Disabled }
+                    ]
+                }
+            ]
         };
         var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("Junior"), new PagePermissionRequirement("reports"));
+        var context = CreateContext(UserWithRoles("Customer"), new PagePermissionRequirement("orders"));
 
         await handler.HandleAsync(context);
 
@@ -88,37 +124,34 @@ public class PageAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task UnregisteredPage_FailOpen_Succeeds()
+    public async Task UserTypeRole_WithControlLevelHidden_DoesNotBlockEntirePage()
     {
-        var config = new SecurityConfiguration();
-        var handler = CreateHandler(config, UnregisteredResourcePolicy.FailOpen);
-        var context = CreateContext(UserWithRoles("Admin"), new PagePermissionRequirement("unknown-page"));
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "orders", ControlKey = "delete-btn", Kind = UiRestrictionKind.Hidden }
+                    ]
+                }
+            ]
+        };
+        var handler = CreateHandler(config);
+        var context = CreateContext(UserWithRoles("Customer"), new PagePermissionRequirement("orders"));
 
         await handler.HandleAsync(context);
 
         context.HasSucceeded.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task UnregisteredPage_FailClosed_DoesNotSucceed()
-    {
-        var config = new SecurityConfiguration();
-        var handler = CreateHandler(config, UnregisteredResourcePolicy.FailClosed);
-        var context = CreateContext(UserWithRoles("Admin"), new PagePermissionRequirement("unknown-page"));
-
-        await handler.HandleAsync(context);
-
-        context.HasSucceeded.Should().BeFalse();
     }
 
     [Fact]
     public async Task UnauthenticatedUser_DoesNotSucceed()
     {
-        var config = new SecurityConfiguration
-        {
-            PagePermissions = [new PagePermission { PageKey = "home", AllowedRoles = ["Guest"] }]
-        };
-        var handler = CreateHandler(config);
+        var handler = CreateHandler(new SecurityConfiguration());
         var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
         var context = CreateContext(anonymous, new PagePermissionRequirement("home"));
 
@@ -128,21 +161,76 @@ public class PageAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task SwitchedRole_OverridesClaimsRoles()
+    public async Task UnknownNonBakedInRole_IsDefaultPermissive()
     {
-        // User has Admin claim, but is switched to Viewer which IS allowed
-        var config = new SecurityConfiguration
-        {
-            PagePermissions = [new PagePermission { PageKey = "reports", AllowedRoles = ["Viewer"] }]
-        };
-        var switcher = new SessionRoleSwitcher();
-        switcher.SwitchToRole("Viewer");
-
-        var handler = CreateHandler(config, roleSwitcher: switcher);
-        var context = CreateContext(UserWithRoles("Admin"), new PagePermissionRequirement("reports"));
+        // Default-permissive is the user-type principle: no explicit restriction
+        // is configured, so the role is allowed. This preserves the pre-Session-5
+        // seed (where user-type roles still live in legacy Roles) without changing
+        // the handler contract.
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(UserWithRoles("BackofficeUser"), new PagePermissionRequirement("orders"));
 
         await handler.HandleAsync(context);
 
         context.HasSucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SwitchedRole_OverridesClaimsRoles()
+    {
+        // User has SystemAdmin claim but is switched to a restricted user-type role.
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "admin", ControlKey = "*", Kind = UiRestrictionKind.Hidden }
+                    ]
+                }
+            ]
+        };
+        var switcher = new SessionRoleSwitcher();
+        switcher.SwitchToRole("Customer");
+
+        var handler = CreateHandler(config, roleSwitcher: switcher);
+        var context = CreateContext(UserWithRoles(BakedInRoles.SystemAdmin), new PagePermissionRequirement("admin"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RoleInheritance_IsNotApplied()
+    {
+        // Legacy InheritsFrom must not grant ancestor access under the new model.
+#pragma warning disable CS0618 // deliberate legacy field use for the inheritance-not-applied guarantee
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Junior",
+                    InheritsFrom = BakedInRoles.SystemAdmin,
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "admin", ControlKey = "*", Kind = UiRestrictionKind.Hidden }
+                    ]
+                }
+            ]
+        };
+#pragma warning restore CS0618
+
+        var handler = CreateHandler(config);
+        var context = CreateContext(UserWithRoles("Junior"), new PagePermissionRequirement("admin"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeFalse("role inheritance is removed; 'Junior' must not pick up SystemAdmin access");
     }
 }

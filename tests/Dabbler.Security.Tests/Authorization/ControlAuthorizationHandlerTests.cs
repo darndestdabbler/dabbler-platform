@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Dabbler.Security.Abstractions;
+using Dabbler.Security.Authorization;
 using Dabbler.Security.Authorization.Handlers;
 using Dabbler.Security.Authorization.Requirements;
 using Dabbler.Security.Configuration;
-using Dabbler.Security.Options;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Authorization;
 
@@ -13,14 +13,16 @@ public class ControlAuthorizationHandlerTests
 {
     private static ControlAuthorizationHandler CreateHandler(
         SecurityConfiguration config,
-        UnregisteredResourcePolicy policy = UnregisteredResourcePolicy.FailOpen,
         IRoleSwitcher? roleSwitcher = null)
     {
         var store = new Mock<ISecurityConfigurationStore>();
         store.Setup(s => s.LoadAsync(default)).ReturnsAsync(config);
         var manager = new SecurityConfigurationManager(store.Object);
-        var options = Microsoft.Extensions.Options.Options.Create(new DabblerSecurityOptions { UnregisteredResourcePolicy = policy });
-        return new ControlAuthorizationHandler(manager, options, roleSwitcher ?? new SessionRoleSwitcher());
+
+        return new ControlAuthorizationHandler(
+            manager,
+            roleSwitcher ?? new SessionRoleSwitcher(),
+            new PlatformBakedInRoleProvider());
     }
 
     private static ClaimsPrincipal UserWithRoles(params string[] roles)
@@ -35,21 +37,12 @@ public class ControlAuthorizationHandlerTests
         => new([req], user, null);
 
     [Fact]
-    public async Task EnabledControl_Succeeds()
+    public async Task BakedInRole_Succeeds_ForAnyControl()
     {
-        var config = new SecurityConfiguration
-        {
-            ControlPermissions =
-            [
-                new ControlPermission
-                {
-                    PageKey = "dashboard", ControlKey = "export-btn",
-                    RolePermissions = [new ControlRolePermission { RoleName = "Admin", State = ControlState.Enabled }]
-                }
-            ]
-        };
-        var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("Admin"), new ControlPermissionRequirement("dashboard", "export-btn"));
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(
+            UserWithRoles(BakedInRoles.SystemAdmin),
+            new ControlPermissionRequirement("dashboard", "export-btn"));
 
         await handler.HandleAsync(context);
 
@@ -57,22 +50,16 @@ public class ControlAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task DisabledControl_Succeeds()
+    public async Task UserTypeRole_WithoutRestrictions_IsDefaultPermissive()
     {
-        // Disabled means visible but inactive — authorization still succeeds (hidden would not)
         var config = new SecurityConfiguration
         {
-            ControlPermissions =
-            [
-                new ControlPermission
-                {
-                    PageKey = "orders", ControlKey = "delete-btn",
-                    RolePermissions = [new ControlRolePermission { RoleName = "Viewer", State = ControlState.Disabled }]
-                }
-            ]
+            UserTypeRoles = [new RoleDefinition { RoleName = "BackofficeUser" }]
         };
         var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("Viewer"), new ControlPermissionRequirement("orders", "delete-btn"));
+        var context = CreateContext(
+            UserWithRoles("BackofficeUser"),
+            new ControlPermissionRequirement("orders", "delete-btn"));
 
         await handler.HandleAsync(context);
 
@@ -80,21 +67,26 @@ public class ControlAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task HiddenControl_DoesNotSucceed()
+    public async Task HiddenControl_Fails()
     {
         var config = new SecurityConfiguration
         {
-            ControlPermissions =
+            UserTypeRoles =
             [
-                new ControlPermission
+                new RoleDefinition
                 {
-                    PageKey = "admin", ControlKey = "nuke-btn",
-                    RolePermissions = [new ControlRolePermission { RoleName = "User", State = ControlState.Hidden }]
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "admin", ControlKey = "nuke-btn", Kind = UiRestrictionKind.Hidden }
+                    ]
                 }
             ]
         };
         var handler = CreateHandler(config);
-        var context = CreateContext(UserWithRoles("User"), new ControlPermissionRequirement("admin", "nuke-btn"));
+        var context = CreateContext(
+            UserWithRoles("Customer"),
+            new ControlPermissionRequirement("admin", "nuke-btn"));
 
         await handler.HandleAsync(context);
 
@@ -102,11 +94,70 @@ public class ControlAuthorizationHandlerTests
     }
 
     [Fact]
-    public async Task UnregisteredControl_FailOpen_Succeeds()
+    public async Task DisabledControl_Succeeds()
     {
-        var config = new SecurityConfiguration();
-        var handler = CreateHandler(config, UnregisteredResourcePolicy.FailOpen);
-        var context = CreateContext(UserWithRoles("Admin"), new ControlPermissionRequirement("page", "unknown-ctrl"));
+        // Disabled means visible but non-interactive; authorization must succeed so the
+        // control renders.
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "orders", ControlKey = "delete-btn", Kind = UiRestrictionKind.Disabled }
+                    ]
+                }
+            ]
+        };
+        var handler = CreateHandler(config);
+        var context = CreateContext(
+            UserWithRoles("Customer"),
+            new ControlPermissionRequirement("orders", "delete-btn"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task EntirePageHidden_AlsoHidesEveryControlOnIt()
+    {
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles =
+            [
+                new RoleDefinition
+                {
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "admin", ControlKey = "*", Kind = UiRestrictionKind.Hidden }
+                    ]
+                }
+            ]
+        };
+        var handler = CreateHandler(config);
+        var context = CreateContext(
+            UserWithRoles("Customer"),
+            new ControlPermissionRequirement("admin", "arbitrary-btn"));
+
+        await handler.HandleAsync(context);
+
+        context.HasSucceeded.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task UnknownNonBakedInRole_IsDefaultPermissive()
+    {
+        // Default-permissive: a role not in UserTypeRoles has no explicit
+        // restriction, so the control is visible.
+        var handler = CreateHandler(new SecurityConfiguration());
+        var context = CreateContext(
+            UserWithRoles("BackofficeUser"),
+            new ControlPermissionRequirement("dashboard", "export-btn"));
 
         await handler.HandleAsync(context);
 
@@ -118,23 +169,28 @@ public class ControlAuthorizationHandlerTests
     {
         var config = new SecurityConfiguration
         {
-            ControlPermissions =
+            UserTypeRoles =
             [
-                new ControlPermission
+                new RoleDefinition
                 {
-                    PageKey = "dashboard", ControlKey = "export-btn",
-                    RolePermissions = [new ControlRolePermission { RoleName = "Viewer", State = ControlState.Enabled }]
+                    RoleName = "Customer",
+                    UiRestrictions =
+                    [
+                        new UiRestriction { PageKey = "admin", ControlKey = "nuke-btn", Kind = UiRestrictionKind.Hidden }
+                    ]
                 }
             ]
         };
         var switcher = new SessionRoleSwitcher();
-        switcher.SwitchToRole("Viewer");
+        switcher.SwitchToRole("Customer");
 
         var handler = CreateHandler(config, roleSwitcher: switcher);
-        var context = CreateContext(UserWithRoles("Admin"), new ControlPermissionRequirement("dashboard", "export-btn"));
+        var context = CreateContext(
+            UserWithRoles(BakedInRoles.SystemAdmin),
+            new ControlPermissionRequirement("admin", "nuke-btn"));
 
         await handler.HandleAsync(context);
 
-        context.HasSucceeded.Should().BeTrue();
+        context.HasSucceeded.Should().BeFalse("switcher overrides the SystemAdmin claim with the restricted Customer role");
     }
 }
