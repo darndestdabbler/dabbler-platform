@@ -1047,6 +1047,121 @@
       "description": "Re-ran build + targeted tests after applying round-1, round-2, and round-3 fixes. dotnet build Dabbler.Platform.sln: 0 errors. dotnet test (excluding Playwright): Dabbler.Components.Tests 33/33, Dabbler.Security.Blazor.Tests 185/185 (was 181 \u2014 added 4 new bUnit defensive checks: AssignAsync rejects unknown role; AssignAsync rejects authority-forbidden roles at submit time; AssignAsync rejects baked-in roles not exposed by the configured provider; RemoveRoleAsync rejects forbidden removals). AcmeCoffeeOnline.Api.Tests 27/27. Dabbler.Reports.Blazor.Tests 13/13. Dabbler.Security.Tests 279/279 (was 273 \u2014 added 6 new AdminUserQueryServiceTests integration tests against EF Core in-memory DabblerSecurityDbContext: SystemAdmin sees all + full org listings; CrossOrgMonitor sees all (regression for the misclass fix); UserAdmin sees only shared-org users + only shared-scope memberships (regression for the projection-leak fix); non-admin user gets empty list (fail-closed); unauthenticated actor gets empty list; GetActorAssignedOrganizationIdsAsync returns expected ids). AcmeCoffeeOnline.Web.Tests 122/123 (one pre-existing WorkflowAssetSmokeTests failure expecting docs/workflow-auth-observability.md from a stale repo state \u2014 unchanged from Session 6 step 7).",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 1,
+      "stepKey": "session-8/read-planning",
+      "dateTime": "2026-04-19T23:15:56.073047+00:00",
+      "description": "Read docs/planning/project-guidance.md, docs/planning/lessons-learned.md, the architecture doc, and the activity log. Confirmed Sessions 1-7 complete; Session 8 is the final session. Spec's Session 8 plan: Role Documentation tab, UAT checklist JSON, full dashboard Playwright sweep, change log, verification, commit+push, Pushover, Step 9 reorganization review.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 2,
+      "stepKey": "session-8/role-documentation-tab",
+      "dateTime": "2026-04-19T23:15:56.076047+00:00",
+      "description": "Created src/Libs/Dabbler.Security.Blazor/Components/Admin/Documentation/RoleDocumentationTab.razor. Static, read-only tab using MudExpansionPanels: five panels for the baked-in roles (sourced from IBakedInRoleProvider; capabilities list built from BakedInRolePrivileges flags), plus two summary panels for user-type default privileges and the Default Masks + Mask Exemptions semantics. Reflects BakedInRoleAliasOverrides from SecurityConfiguration so displayed aliases match the rest of the dashboard. Wired into DabblerSecurityDashboard.razor (TabKey.RoleDocumentation).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 3,
+      "stepKey": "session-8/bunit-tests",
+      "dateTime": "2026-04-19T23:15:56.077055+00:00",
+      "description": "Created tests/Dabbler.Security.Blazor.Tests/Components/Admin/Documentation/RoleDocumentationTabTests.cs with 6 tests: all-five-baked-in-panels present, user-type-defaults + default-masks panels present, SystemAdmin capabilities include all-privileges line, CrossOrgMonitor capabilities note read-only + cross-org, User panel shows user-type, alias-override from config surfaces. Also tightened two pre-existing DabblerSecurityDashboardTests (UserAdmin, PlainUser, CrossOrgUserAdmin) to assert VisibleTabs labels instead of raw markup substrings (necessary because Role Documentation content legitimately mentions other tab names as cross-references).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 4,
+      "stepKey": "session-8/uat-checklist",
+      "dateTime": "2026-04-19T23:15:56.078784+00:00",
+      "description": "Wrote docs/session-sets/rearchitect-role-administration-dashboard/rearchitect-role-administration-dashboard-uat-checklist.json per UAT checklist editor schema (ProjectName, ReleaseLabel, DocumentDate, Review[]). 34 review items across 7 functional areas: Shell and Access, Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, Role Documentation, Data-bound Restriction Enforcement, Cross-Cutting Quality. Every searching/selecting HumanAction includes concrete seeded data: admin@acmecoffee.com (SystemAdmin), asmith@acmecoffee.com (CrossOrgUserAdmin id 3), jdoe/mwilson/kbrown/tjones@acmecoffee.com (BackofficeUser), Customer.SocialSecurityNumber for mask rules, Product.UnitPrice for restriction enforcement. IsOtherItem rows included per functional area.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 5,
+      "stepKey": "session-8/playwright-full-dashboard-sweep",
+      "dateTime": "2026-04-19T23:15:56.081009+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Playwright/SecurityDashboardFullSweepTests.cs: Theory/MemberData matrix over all five baked-in roles asserting visible vs. hidden tabs by AriaRole.Tab selector (complements Session 2's SystemAdmin+UserAdmin smoke); arrow-key navigation test exercising ArrowRight (forward + wrap), ArrowLeft (wrap), Home, End against [data-testid=security-dashboard-tabstrip] (covers tab-strip arrow-key nav lesson from security-dashboard-polish Session 6); Role Documentation tab assertion (all five role panels + two summary panels visible); safety-net Add-to-Default-Masks flow (click flagged add button, assert rescan removes row). Playwright project builds clean.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 6,
+      "stepKey": "session-8/fix-workflow-asset-smoke-test",
+      "dateTime": "2026-04-19T23:15:56.083007+00:00",
+      "description": "Fixed pre-existing failing test WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates in AcmeCoffeeOnline.Web.Tests. Test referenced docs/workflow-auth-observability.md which was deleted in commit 8730107 (Repository cleanup and packaging-and-template-readiness spec update, 2026-04-16) without updating the test. Dropped the three observabilityDoc Assert.Contains lines and removed docs/workflow-auth-observability.md from requiredFiles list. Minor mechanical fix; the deleted doc and its references are all gone.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 7,
+      "stepKey": "session-8/build-and-test",
+      "dateTime": "2026-04-19T23:15:56.085287+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 145 warnings (all pre-existing [Obsolete] warnings from legacy types scheduled for removal with Set D/C cleanup). dotnet test (excluding Playwright): Dabbler.Components.Tests 33/33, Dabbler.Security.Blazor.Tests 191/191 (was 185, +6 RoleDocumentationTabTests; 3 DabblerSecurityDashboardTests tightened), Dabbler.Reports.Blazor.Tests 13/13, AcmeCoffeeOnline.Api.Tests 27/27, Dabbler.Security.Tests 279/279, AcmeCoffeeOnline.Web.Tests 123/123 (was 122 failing; fixed WorkflowAssetSmokeTests). Total 666/666 green.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 8,
+      "stepKey": "session-8/change-log",
+      "dateTime": "2026-04-19T23:30:29.192730+00:00",
+      "description": "Generated change-log.md. First attempt through route(task_type=documentation) failed with Gemini Pro 400 Bad Request on 4 tries despite identical prompt succeeding via raw httpx call to the same model. Fell back to direct Gemini Pro API call (api.generateContent) with the repo's google-system.md prompt -- returned clean change log (output 9615 chars, input 1095 tok, output 2480 tok, thoughts 1506 tok). Corrected path hallucinations in the generated draft (model invented Dabbler.Security.Blazor/Components/Dashboard/ and AcmeCoffee.E2ETests paths; actual paths are Components/Admin/Role etc. and tests/AcmeCoffeeOnline.Playwright). Wrote final change-log.md with accurate per-session summaries, Files Created grouped by area with correct paths, Files Modified or Deleted list, and Follow-up section identifying what's deferred to Set D (masking rendering + audit) and Set C (transactional system columns) plus the remaining ~145 [Obsolete] warnings expected to cascade with Set D/C.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro-direct",
+          "taskType": "documentation",
+          "inputTokens": 1095,
+          "outputTokens": 3986,
+          "costUsd": 0.04122875
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 9,
+      "stepKey": "session-8/verification",
+      "dateTime": "2026-04-19T23:30:29.194743+00:00",
+      "description": "Cross-provider session verification via route(task_type=session-verification). Prompt included the 8 files created/modified + a clear 'out of scope but present' disclosure per the promoted convention. Router routed to Opus (tier 3) with complexity_hint=70. Verdict: OVERALL: VERIFIED. Two Minor + one Observation. Minor 1: empty-string alias override in RoleDocumentationTab renders spurious 'Override:' label. Minor 2: change-log says 'seven functional areas' but actually eight. Observation: CrossOrgMonitor not exercised in bUnit dashboard tests (Playwright covers it). Cost: $0.8410 (21682 in + 6877 out tokens, elapsed 128.9s).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 21682,
+          "outputTokens": 6877,
+          "costUsd": 0.841
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 10,
+      "stepKey": "session-8/post-verification-fixes",
+      "dateTime": "2026-04-19T23:30:29.197744+00:00",
+      "description": "Applied both Minor fixes from the verifier: (1) normalize empty-string alias override to null in RoleDocumentationTab.razor so spurious 'Override:' label never renders; (2) fixed 'seven' -> 'eight' in change-log.md Session 8 summary. Also added Dashboard_CrossOrgMonitor_SeesOnlyRoleDocumentation bUnit test for parity with the Playwright matrix (addresses the observation). Re-ran DabblerSecurityDashboardTests + RoleDocumentationTabTests: 23/23 passed (was 22, +1 CrossOrgMonitor test).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 11,
+      "stepKey": "session-8/final-build-and-test",
+      "dateTime": "2026-04-19T23:30:29.199743+00:00",
+      "description": "Final build + test gate. dotnet build Dabbler.Platform.sln: 0 errors. dotnet test (excluding Playwright): 667 passed (was 666; +1 CrossOrgMonitor bUnit test).",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

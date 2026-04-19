@@ -85,11 +85,8 @@ public class DabblerSecurityDashboardTests
 
         var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
 
-        cut.Markup.Should().NotContain("Role Master Details");
-        cut.Markup.Should().NotContain("Default Masks");
-        cut.Markup.Should().NotContain("Organization Master Details");
-        cut.Markup.Should().Contain("Users and Role Assignment");
-        cut.Markup.Should().Contain("Role Documentation");
+        cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo(
+            "Users and Role Assignment", "Role Documentation");
         cut.Instance.TabCount.Should().Be(2);
     }
 
@@ -103,11 +100,8 @@ public class DabblerSecurityDashboardTests
 
         var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
 
-        cut.Markup.Should().NotContain("Role Master Details");
-        cut.Markup.Should().NotContain("Default Masks");
-        cut.Markup.Should().Contain("Organization Master Details");
-        cut.Markup.Should().Contain("Users and Role Assignment");
-        cut.Markup.Should().Contain("Role Documentation");
+        cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo(
+            "Organization Master Details", "Users and Role Assignment", "Role Documentation");
         cut.Instance.TabCount.Should().Be(3);
     }
 
@@ -121,11 +115,21 @@ public class DabblerSecurityDashboardTests
 
         var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
 
-        cut.Markup.Should().NotContain("Role Master Details");
-        cut.Markup.Should().NotContain("Default Masks");
-        cut.Markup.Should().NotContain("Organization Master Details");
-        cut.Markup.Should().NotContain("Users and Role Assignment");
-        cut.Markup.Should().Contain("Role Documentation");
+        cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo("Role Documentation");
+        cut.Instance.TabCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void Dashboard_CrossOrgMonitor_SeesOnlyRoleDocumentation()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(
+            roles: [BakedInRoles.CrossOrgMonitor],
+            configureServices: svc => RegisterDashboardServices(svc));
+
+        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
+
+        cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo("Role Documentation");
         cut.Instance.TabCount.Should().Be(1);
     }
 

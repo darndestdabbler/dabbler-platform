@@ -1,0 +1,321 @@
+{
+  "ProjectName": "Dabbler Platform / AcmeCoffeeOnline Security Dashboard Rebuild",
+  "ReleaseLabel": "rearchitect-role-administration-dashboard",
+  "DocumentDate": "2026-04-19",
+  "Review": [
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Dashboard reachability",
+      "ItemLabel": "SystemAdmin can reach /admin/security through the nav drawer",
+      "HumanAction": "Sign in as admin@acmecoffee.com (SystemAdmin). Open the left nav drawer, expand the Admin group, and click Security.",
+      "Expectation": "The Security Dashboard renders at /admin/security, shows the page title 'Security Administration', and the tab strip displays five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, Role Documentation. No flash of empty content.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-role tab gating",
+      "ItemLabel": "CrossOrgUserAdmin sees three tabs, not five",
+      "HumanAction": "Sign out and sign in as asmith@acmecoffee.com (seeded CrossOrgUserAdmin — user id 3 in user-roles.json). Navigate to /admin/security.",
+      "Expectation": "Only three tabs render: Organization Master Details, Users and Role Assignment, Role Documentation. Role Master Details and Default Masks are absent (compiled privileges forbid them).",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-role tab gating",
+      "ItemLabel": "BackofficeUser (plain user-type role) sees only Role Documentation",
+      "HumanAction": "Sign out and sign in as jdoe@acmecoffee.com (seeded BackofficeUser — user id 2). Navigate to /admin/security directly via URL.",
+      "Expectation": "Only the Role Documentation tab renders. All four administrative tabs are absent. No 403 page — the tab-gating is a visibility restriction, not a page restriction, for the Role Documentation path.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Tab keyboard navigation",
+      "ItemLabel": "Arrow keys move between tabs; Home/End jump to endpoints",
+      "HumanAction": "Signed in as SystemAdmin, click the Role Master Details tab to focus the tab strip. Press ArrowRight four times; observe each tab becoming active in order. Press ArrowLeft twice. Press Home; then press End.",
+      "Expectation": "ArrowRight advances one tab at a time and wraps from the last tab back to the first. ArrowLeft moves backward and wraps from the first tab to the last. Home activates Role Master Details. End activates Role Documentation. No layout shift or focus loss.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for Shell and Access",
+      "HumanAction": "Use this row for any unscripted feedback about reaching the dashboard or per-role tab gating.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Role Master Details",
+      "Subarea": "Grid rendering and filter panel",
+      "ItemLabel": "All roles appear with baked-in rows greyed and chipped",
+      "HumanAction": "Signed in as SystemAdmin, open the Role Master Details tab. Review the grid.",
+      "Expectation": "Every role is listed: SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor, UserAdmin, User (all greyed with a 'baked-in' chip), plus user-type roles BackofficeUser, WarehouseUser, and Customer (not greyed). A FilterPanel<T> appears above the grid with fields for canonical name, alias, and description.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Master Details",
+      "Subarea": "Filter panel behavior",
+      "ItemLabel": "Filter panel narrows the grid by alias",
+      "HumanAction": "In the FilterPanel, add a filter on Alias contains 'Warehouse'. Apply.",
+      "Expectation": "Only the WarehouseUser row remains in the grid. Clearing the filter restores all rows.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Master Details",
+      "Subarea": "DisplayAlias inline edit",
+      "ItemLabel": "DisplayAlias is inline-editable for both baked-in and user-type rows",
+      "HumanAction": "Click the DisplayAlias cell for SystemAdmin (a baked-in row). Change it to 'Platform Owner'. Press Tab or click outside. Then click the DisplayAlias cell for BackofficeUser and change it to 'Back Office Staff'. Save or commit per the grid's save affordance.",
+      "Expectation": "Both edits persist (refresh the page and the new aliases survive). The canonical name cell remains read-only in both cases. The 'baked-in' chip still shows on the SystemAdmin row.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Master Details",
+      "Subarea": "Sub-tab rendering",
+      "ItemLabel": "User-type row surfaces four sub-tabs; baked-in row surfaces Mask Exemptions + privileges panel",
+      "HumanAction": "Select the BackofficeUser row. Inspect the details section below. Then select the CrossOrgMonitor row.",
+      "Expectation": "For BackofficeUser: four sub-tabs (Data Column Restrictions, Data Row Restrictions, Other UI Restrictions, Mask Exemptions). For CrossOrgMonitor: the Mask Exemptions sub-tab plus a read-only 'compiled privileges' panel showing Read-only = true and CanSeeAllOrganizations = true.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Master Details",
+      "Subarea": "Column restrictions sub-tab",
+      "ItemLabel": "Add a ColumnRestriction ViewOnly for Product.UnitPrice on BackofficeUser",
+      "HumanAction": "With BackofficeUser selected, open Data Column Restrictions. Add a row: Table = Product, Column = UnitPrice, RestrictionKind = ViewOnly. Save.",
+      "Expectation": "The row persists on reload. The RestrictionKind renders as a MudToggleGroup with ViewOnly selected — no Allow option (absence of row means allowed).",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Master Details",
+      "Subarea": "Mask exemptions sub-tab",
+      "ItemLabel": "Mask Exemption grant respects separation-of-duties authority rules",
+      "HumanAction": "While SystemAdmin, select the User baked-in row. Open the Mask Exemptions sub-tab. Try adding an exemption for Customer.SocialSecurityNumber (this assumes Session 3 seeded at least one DefaultMaskRule for SSN). Leave ExpiresAt blank.",
+      "Expectation": "SystemAdmin can grant the exemption without an expiry for a user-type target (the User baked-in role is user-type). Row appears with Status = Active.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Master Details",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for Role Master Details",
+      "HumanAction": "Use this row for any unscripted feedback about the Role Master Details tab, the filter panel, sub-tabs, or authority-rule enforcement.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Default Masks",
+      "Subarea": "Grid and filter",
+      "ItemLabel": "Default Masks grid edits and persists",
+      "HumanAction": "On the Default Masks tab, add a row: Table = Customer, Column = SocialSecurityNumber, MaskFormat = XXX-XX-{last4}. Save. Then use the FilterPanel to search MaskFormat contains 'last4'.",
+      "Expectation": "The row persists on reload. The filter reduces the grid to matching rows only. Clearing the filter restores all rows.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks",
+      "Subarea": "Sensitive-name safety net",
+      "ItemLabel": "Safety net flags undeclared sensitive-pattern columns and the Add button declares them",
+      "HumanAction": "Expand the 'Sensitive-name safety net' panel. Identify a flagged undeclared column (e.g., Customer.DateOfBirth). Click 'Add to Default Masks'.",
+      "Expectation": "The flagged column becomes a new row in the Default Masks grid with MaskFormat blank (renders as ********). The safety-net panel rescans and no longer flags that column. Saving a non-matching row does not falsely re-add flags elsewhere.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks",
+      "Subarea": "Cross-tab reactivity",
+      "ItemLabel": "A new Default Mask becomes available to the Mask Exemptions sub-tab in the same circuit",
+      "HumanAction": "Add a new Default Mask (any Table + Column) on the Default Masks tab. Without reloading, click the Role Master Details tab, select the User row, and open the Mask Exemptions sub-tab. Attempt to add a new exemption.",
+      "Expectation": "The Table/Column cascading dropdowns in Mask Exemptions include the just-added column without a page reload.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for Default Masks",
+      "HumanAction": "Use this row for any unscripted feedback about the Default Masks tab or the sensitive-name safety net.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Rendering and org scope",
+      "ItemLabel": "Grid renders organizations; filter panel narrows results",
+      "HumanAction": "Signed in as SystemAdmin, open Organization Master Details. Use the FilterPanel to filter on Key contains 'cust-'.",
+      "Expectation": "The grid shows the seeded organizations (Internal Organization + one per customer). The filter narrows the list to customer-based organizations only. Clearing the filter restores the full list.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Create / edit / archive",
+      "ItemLabel": "Create a new organization, edit its name, archive it",
+      "HumanAction": "Click the new-organization action. Create with Key = 'uat-test-org' and Name = 'UAT Test Org'. Save. Then reopen and change the Name to 'UAT Test Org (renamed)'. Save. Finally, archive it.",
+      "Expectation": "All three mutations persist across reload. The archived organization no longer appears under the default filter but is reachable with an archived-rows toggle (if provided).",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Org-scope EF filter",
+      "ItemLabel": "CrossOrgUserAdmin sees all organizations; BackofficeUser sees only theirs",
+      "HumanAction": "Sign in as asmith@acmecoffee.com (CrossOrgUserAdmin). Note the rowcount on the grid. Sign out and sign in as jdoe@acmecoffee.com (BackofficeUser) and navigate to /customers (BackofficeUser has access) or /orders.",
+      "Expectation": "CrossOrgUserAdmin sees every organization's data. BackofficeUser sees only the data scoped to their assigned organization(s). The EF global query filter enforces this without manual per-service filtering.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for Organization Master Details",
+      "HumanAction": "Use this row for any unscripted feedback about the Organization tab or the org-scope query filter.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Grid and filter",
+      "ItemLabel": "Users grid renders; filter narrows by email",
+      "HumanAction": "Signed in as SystemAdmin, open Users and Role Assignment. Use the FilterPanel to filter Email contains 'kbrown'.",
+      "Expectation": "Only Kai Brown (kbrown@acmecoffee.com) appears. The grid shows Active Role and Active Organization columns populated. Clearing the filter restores all rows.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Role assignment mutation",
+      "ItemLabel": "Elevate mwilson@acmecoffee.com from BackofficeUser to WarehouseUser as CrossOrgUserAdmin",
+      "HumanAction": "Sign in as asmith@acmecoffee.com (CrossOrgUserAdmin). Open Users and Role Assignment. Select mwilson@acmecoffee.com (Morgan Wilson). In the details area, change their role for the Internal Organization from BackofficeUser to WarehouseUser. Save.",
+      "Expectation": "The save succeeds and persists. Signing back in as mwilson@acmecoffee.com and choosing WarehouseUser surfaces the WarehouseUser column restrictions (Product.UnitPrice is Hidden).",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Authority rule: no SystemAdmin assignment by CrossOrgUserAdmin",
+      "ItemLabel": "CrossOrgUserAdmin cannot assign SystemAdmin",
+      "HumanAction": "Still signed in as asmith (CrossOrgUserAdmin), attempt to assign SystemAdmin to tjones@acmecoffee.com.",
+      "Expectation": "The SystemAdmin role is not offered in the dropdown OR the save is denied with a clear message. Audit/error wording points to the authority rule (only SystemAdmin can assign SystemAdmin).",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Authority rule: UserAdmin org scoping",
+      "ItemLabel": "UserAdmin sees only users in their assigned organizations",
+      "HumanAction": "If a UserAdmin seed user exists in the environment, sign in as that user and open Users and Role Assignment. Otherwise, have SystemAdmin temporarily assign UserAdmin to a test user (e.g., tjones) for a single organization and re-sign-in as that user.",
+      "Expectation": "The grid shows only users who are assigned to the UserAdmin's organizations. Users outside those orgs do not appear.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for Users and Role Assignment",
+      "HumanAction": "Use this row for any unscripted feedback about the Users tab, assignment flow, or authority rules.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Role Documentation",
+      "Subarea": "Content presence",
+      "ItemLabel": "Role Documentation tab surfaces every baked-in role, user-type defaults, and mask semantics",
+      "HumanAction": "Open the Role Documentation tab (any role can reach it). Expand each panel.",
+      "Expectation": "Five expansion panels exist for the baked-in roles (SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor, UserAdmin, User) each with canonical name, default alias, description, and a Capabilities list. Two additional panels summarize user-type default privileges and the Default Masks / Mask Exemptions semantics. CrossOrgMonitor shows 'read-only' in its Capabilities list.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Documentation",
+      "Subarea": "Alias override surfacing",
+      "ItemLabel": "Documentation reflects BakedInRoleAliasOverrides",
+      "HumanAction": "As SystemAdmin, edit the SystemAdmin DisplayAlias in Role Master Details to 'Platform Owner'. Then open the Role Documentation tab and expand the SystemAdmin panel.",
+      "Expectation": "The panel header shows the new display alias ('Platform Owner'), and the canonical-name line still shows SystemAdmin and the default alias. No page reload should be required.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Role Documentation",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for Role Documentation",
+      "HumanAction": "Use this row for any unscripted feedback about the Role Documentation tab's content or presentation.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Data-bound Restriction Enforcement",
+      "Subarea": "ViewOnly path",
+      "ItemLabel": "BackofficeUser sees Product.UnitPrice read-only on the product detail form",
+      "HumanAction": "With the BackofficeUser role still carrying the ColumnRestriction ViewOnly on Product.UnitPrice (seeded by security-config.json), sign in as jdoe@acmecoffee.com. Navigate to /admin/products (if allowed) or a product detail page exposed to BackofficeUser. Locate the UnitPrice field.",
+      "Expectation": "The UnitPrice field renders disabled/read-only. Attempting to type into it has no effect. The product list grid UnitPrice column renders but without an editor affordance.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-bound Restriction Enforcement",
+      "Subarea": "Hidden path",
+      "ItemLabel": "WarehouseUser cannot see Product.UnitPrice anywhere",
+      "HumanAction": "Sign in as a user assigned to the WarehouseUser role (e.g., mwilson@acmecoffee.com after elevation in the earlier UAT step). Navigate to /products.",
+      "Expectation": "The UnitPrice column is absent from the product list grid, and any product detail form does not render the UnitPrice field at all.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-bound Restriction Enforcement",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for restriction enforcement",
+      "HumanAction": "Use this row for any unscripted feedback about how column restrictions render in forms and grids.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Visual styling",
+      "ItemLabel": "Tab strip, grids, and filter panels have consistent spacing and contrast",
+      "HumanAction": "As SystemAdmin, cycle through all five tabs. Watch for readable text, adequate spacing between the app bar and the tab strip, readable selected-tab state, and readable baked-in-chip and greyed-row rendering.",
+      "Expectation": "No layout overlap. Selected-tab state is visually distinct without losing contrast. Baked-in chips remain legible on greyed rows. No elements are clipped behind the app bar.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Accessibility",
+      "ItemLabel": "Keyboard users can reach and operate every tab and grid",
+      "HumanAction": "Using only the keyboard, tab through the dashboard from the app bar down to a row in each tab's grid. Confirm focus is visible at every stop.",
+      "Expectation": "Visible focus ring on every interactive element. Tab order is logical. Arrow keys in the tab strip operate as expected. Dialogs and editors can be dismissed with Escape.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Other",
+      "ItemLabel": "Open feedback for cross-cutting quality",
+      "HumanAction": "Use this row for any unscripted feedback about accessibility, styling, or overall dashboard polish.",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "",
+      "IsOtherItem": true
+    }
+  ]
+}

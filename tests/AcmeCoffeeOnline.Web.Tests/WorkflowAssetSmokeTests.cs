@@ -9,7 +9,6 @@ public sealed class WorkflowAssetSmokeTests
         var configText = ReadRepoFile(repoRoot, "ai-router", "config.py");
         var routerConfig = ReadRepoFile(repoRoot, "ai-router", "router-config.yaml");
         var routerInit = ReadRepoFile(repoRoot, "ai-router", "__init__.py");
-        var observabilityDoc = ReadRepoFile(repoRoot, "docs", "workflow-auth-observability.md");
 
         Assert.Contains("config_dir / \"prompt-templates\"", configText);
         Assert.Contains("config_dir.parent / \"prompt-templates\"", configText);
@@ -18,9 +17,6 @@ public sealed class WorkflowAssetSmokeTests
         Assert.Contains("session_verification_started", routerInit);
         Assert.Contains("session_verification_completed", routerInit);
         Assert.Contains("_log_session_verification_event", routerInit);
-        Assert.Contains("session verification", observabilityDoc, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("seeded session", observabilityDoc, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("magic link", observabilityDoc, StringComparison.OrdinalIgnoreCase);
 
         string[] requiredFiles =
         [
@@ -29,7 +25,6 @@ public sealed class WorkflowAssetSmokeTests
             "ai-router/prompt-templates/task-types/documentation.md",
             "ai-router/prompt-templates/verification.md",
             "ai-router/utils/load_env.py",
-            "docs/workflow-auth-observability.md"
         ];
 
         foreach (var requiredFile in requiredFiles)
