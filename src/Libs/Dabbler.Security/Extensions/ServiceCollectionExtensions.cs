@@ -189,6 +189,11 @@ public static class ServiceCollectionExtensions
                 opts.RegisteredControls);
         });
 
+        // MetadataRegistry is the semantic table/column facade over ResourceRegistry
+        // used by the restriction-based Role Master Details UI. Handlers keep using
+        // ResourceRegistry directly; admin cascading dropdowns use MetadataRegistry.
+        services.AddSingleton<MetadataRegistry>();
+
         return services;
     }
 

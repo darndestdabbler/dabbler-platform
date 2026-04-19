@@ -242,6 +242,167 @@
       "description": "Committed 40 changed files (647 insertions, 5037 deletions) as Session 2 of 8. Commit a0e8752. Pushed to origin/master.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-19T18:46:25.790760+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, spec.md, activity-log for Sessions 1-2. Confirmed restriction-based model, baked-in role surface, MetadataRegistry requirement, and the MudToggleGroup vs MudSwitch lesson from security-dashboard-polish.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/metadata-registry",
+      "dateTime": "2026-04-19T18:46:25.791759+00:00",
+      "description": "Created src/Libs/Dabbler.Security/Registration/MetadataRegistry.cs as a thin DI-registered facade over ResourceRegistry exposing Tables/GetColumns/Pages/GetControls plus EntirePageControlKey (\"*\") and EntirePageDisplayName constants. Registered singleton in Extensions/ServiceCollectionExtensions.cs alongside ResourceRegistry. Kept ResourceRegistry as-is so handlers keep their entity/field vocabulary.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/mask-exemption-authority-helper",
+      "dateTime": "2026-04-19T18:46:25.792759+00:00",
+      "description": "Added src/Libs/Dabbler.Security/Services/MaskExemptionAuthority.cs encoding the separation-of-duties rules from MaskExemption xml-doc + architecture doc: user-type/UserAdmin targets allow SystemAdmin or CrossOrgUserAdmin (no expiry required); SystemAdmin/CrossOrgMonitor targets require CrossOrgUserAdmin granter and non-null ExpiresAt; CrossOrgUserAdmin target is self-grant only with expiry. Returns structured (Outcome, Message) so the UI can distinguish Denied vs ExpiryRequired.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/role-master-grid",
+      "dateTime": "2026-04-19T18:46:25.792759+00:00",
+      "description": "Created Components/Admin/Role/RoleMasterGrid.razor (+RoleRow nested class): FilterPanel<RoleRow> over CanonicalName/DisplayAlias/Description, MudDataGrid listing baked-in rows (greyed, \"baked-in\" chip) + user-type rows combined, inline-editable DisplayAlias with 400ms debounce writing to BakedInRoleAliasOverrides (baked-in) or RoleDefinition.DisplayAlias (user-type). Add/Archive affordances gated by CanManageRoles. Add button opens AddUserTypeRoleDialog.razor (MudDialog).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/role-details-section",
+      "dateTime": "2026-04-19T18:46:25.793759+00:00",
+      "description": "Created Components/Admin/Role/RoleDetailsSection.razor with a RoleSelection record that dispatches: user-type -> four sub-tabs (Data Column/Row/UI Restrictions + Mask Exemptions); baked-in -> two sub-tabs (Mask Exemptions + Compiled Privileges). Baked-in chip rendered in header when selection IsBakedIn.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/column-restrictions-subtab",
+      "dateTime": "2026-04-19T18:46:25.794757+00:00",
+      "description": "Created Components/Admin/Role/ColumnRestrictionsSubTab.razor. MudSelect cascading Table->Column from MetadataRegistry; MudToggleGroup<ColumnRestrictionKind> (ViewOnly | Hidden, no Allow). Add/Remove/kind-change all persist through SecurityConfigurationManager.SaveAsync and raise OnPersisted.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/row-restrictions-subtab",
+      "dateTime": "2026-04-19T18:46:25.795757+00:00",
+      "description": "Created Components/Admin/Role/RowRestrictionsSubTab.razor: MudSelect Table + MudTextField filter expression (debounced). Placeholder \"e.g. CustomerId == @CurrentUserId\" bound via const field to avoid Razor @ escape issues.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/ui-restrictions-subtab",
+      "dateTime": "2026-04-19T18:46:25.795757+00:00",
+      "description": "Created Components/Admin/Role/UiRestrictionsSubTab.razor: MudSelect cascading Page->Control from MetadataRegistry; first control item is \"Entire Page\" mapped to \"*\" via MetadataRegistry.EntirePageControlKey. MudToggleGroup<UiRestrictionKind> (Disabled | Hidden). Renamed loop var to avoid Razor treating @page as a directive.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/mask-exemptions-subtab",
+      "dateTime": "2026-04-19T18:46:25.796758+00:00",
+      "description": "Created Components/Admin/Role/MaskExemptionsSubTab.razor. Works for user-type AND baked-in target roles (parameter TargetRoleName). Table/Column cascading sourced from SecurityConfiguration.DefaultMasks (empty-state alert shown until Session 4 ships the Default Masks tab). Resolves granter baked-in role via AuthenticationStateProvider + IRoleSwitcher + IBakedInRoleProvider, then calls MaskExemptionAuthority.Evaluate on each Add. Denied/ExpiryRequired surface as inline MudAlert. Expired rows render struck-through with Status chip + Renew action (renewal is +30 days, re-checked against authority).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 10,
+      "stepKey": "session-3/baked-in-privileges-panel",
+      "dateTime": "2026-04-19T18:46:25.797760+00:00",
+      "description": "Created Components/Admin/Role/BakedInPrivilegesPanel.razor: read-only MudSimpleTable listing every BakedInRolePrivileges flag as a row with success/neutral icons. Alias override banner shown when configured, default alias shown otherwise.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 11,
+      "stepKey": "session-3/role-master-details-tab",
+      "dateTime": "2026-04-19T18:46:25.798757+00:00",
+      "description": "Created Components/Admin/Role/RoleMasterDetailsTab.razor top-level composer: injects AuthenticationStateProvider/IRoleSwitcher/IBakedInRoleProvider, resolves CanManageRoles once for the active user, wires grid SelectedRoleChanged -> RoleSelection -> RoleDetailsSection. Subscribes to AuthorizationStateNotifier so an external config change (e.g., Session 4 Default Masks addition) rebuilds the grid in-circuit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 12,
+      "stepKey": "session-3/seed-default-mask-rule",
+      "dateTime": "2026-04-19T18:46:25.799756+00:00",
+      "description": "Seeded Customer.SocialSecurityNumber with MaskFormat \"XXX-XX-{last4}\" in both src/Apps/AcmeCoffeeOnline.Web/security-config.json and the Api copy so Session 3 Mask Exemptions cascading dropdowns have real source data before Session 4 ships the Default Masks tab. Suggested by spec step 9.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 13,
+      "stepKey": "session-3/wire-into-dashboard",
+      "dateTime": "2026-04-19T18:46:25.800758+00:00",
+      "description": "DabblerSecurityDashboard.razor: replaced the Role Master Details stub message with <RoleMasterDetailsTab /> via a TabKey switch. Other four tabs remain as Session-4/6/7/8 stubs. Added Dabbler.Components project reference to Dabbler.Security.Blazor.csproj so FilterPanel<T> could be consumed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 14,
+      "stepKey": "session-3/unit-tests",
+      "dateTime": "2026-04-19T18:46:25.801757+00:00",
+      "description": "Added tests/Dabbler.Security.Tests/Services/MaskExemptionAuthorityTests.cs (18 tests covering every granter+target+expiry combination in the authority matrix). Added tests/Dabbler.Security.Tests/Registration/MetadataRegistryTests.cs (8 tests covering Tables/GetTable/GetColumns/Pages/GetControls plus the EntirePage constants and Empty singleton).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 15,
+      "stepKey": "session-3/bunit-tests",
+      "dateTime": "2026-04-19T18:46:25.801757+00:00",
+      "description": "Added tests/Dabbler.Security.Blazor.Tests/Components/Admin/Role/ directory with {BakedInPrivilegesPanelTests, RoleMasterDetailsTabTests, RoleDetailsSectionTests, ColumnRestrictionsSubTabTests, MaskExemptionsSubTabTests}.cs. Cover baked-in privilege flag rendering, alias override display, user-type vs baked-in sub-tab dispatching, grid row rendering with baked-in chip, Add/Archive affordance gating by CanManageRoles, ColumnRestriction inline Remove persistence and OnPersisted callback, MaskExemptions empty state, active vs expired status chips, cross-role filtering.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 16,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-19T18:46:25.802930+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors. dotnet test non-Playwright: 558 passed, 1 pre-existing failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates - same as Session 1/2, unrelated). Per-suite: Dabbler.Components.Tests 33/33, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Security.Blazor.Tests 127/127 (+20 new Role tests), AcmeCoffeeOnline.Api.Tests 27/27, Dabbler.Security.Tests 236/236 (+28 new authority+metadata tests), AcmeCoffeeOnline.Web.Tests 122/123.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 17,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-19T18:51:57.348350+00:00",
+      "description": "Cross-provider verification via ai-router (round 1). Model: opus. Tokens in/out: 50288/11257. See session-reviews/session-003.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 50288,
+          "outputTokens": 11257,
+          "costUsd": 1.598595
+        }
+      ]
     }
   ]
 }

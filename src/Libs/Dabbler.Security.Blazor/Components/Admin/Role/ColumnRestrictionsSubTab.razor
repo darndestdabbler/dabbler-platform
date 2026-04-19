@@ -1,0 +1,192 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using Dabbler.Security.Services
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Role
+@inject SecurityConfigurationManager ConfigManager
+@inject MetadataRegistry Metadata
+@inject ISnackbar Snackbar
+
+<div data-testid="column-restrictions-subtab">
+    <MudText Typo="Typo.subtitle1" Class="mb-2">Data Column Restrictions</MudText>
+    <MudText Typo="Typo.caption" Class="mb-3">
+        Narrow this role's view or edit access on a specific column. Absence of
+        a restriction means the role can see and edit the column.
+    </MudText>
+
+    <MudPaper Class="pa-3 mb-3" Elevation="0" Outlined="true">
+        <div class="d-flex flex-wrap align-center gap-2">
+            <MudSelect T="string" Label="Table" @bind-Value="_newTableKey"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       data-testid="column-restriction-new-table"
+                       Style="min-width:180px;">
+                @foreach (var table in Metadata.Tables)
+                {
+                    <MudSelectItem T="string" Value="@table.Key">@table.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect T="string" Label="Column" @bind-Value="_newColumnKey"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       Disabled="@string.IsNullOrEmpty(_newTableKey)"
+                       data-testid="column-restriction-new-column"
+                       Style="min-width:180px;">
+                @foreach (var column in Metadata.GetColumns(_newTableKey ?? string.Empty))
+                {
+                    <MudSelectItem T="string" Value="@column.Key">@column.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudToggleGroup T="ColumnRestrictionKind"
+                            @bind-Value="_newKind"
+                            SelectionMode="SelectionMode.SingleSelection"
+                            Color="Color.Primary"
+                            Size="Size.Small"
+                            data-testid="column-restriction-new-kind">
+                <MudToggleItem T="ColumnRestrictionKind"
+                               Value="ColumnRestrictionKind.ViewOnly">View only</MudToggleItem>
+                <MudToggleItem T="ColumnRestrictionKind"
+                               Value="ColumnRestrictionKind.Hidden">Hidden</MudToggleItem>
+            </MudToggleGroup>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="AddAsync"
+                       Disabled="@(!CanAdd)"
+                       data-testid="column-restriction-add-button">
+                Add
+            </MudButton>
+        </div>
+    </MudPaper>
+
+    @if (Role.ColumnRestrictions.Count == 0)
+    {
+        <MudText Typo="Typo.body2" Class="pa-3" data-testid="column-restriction-empty">
+            No column restrictions configured. This role can see and edit every
+            column on every table.
+        </MudText>
+    }
+    else
+    {
+        <MudTable Items="@Role.ColumnRestrictions" Dense="true" Hover="true"
+                  Bordered="true" Striped="true"
+                  data-testid="column-restriction-grid">
+            <HeaderContent>
+                <MudTh>Table</MudTh>
+                <MudTh>Column</MudTh>
+                <MudTh>Restriction</MudTh>
+                <MudTh Style="width:48px;text-align:center;">Remove</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="row">
+                <MudTd DataLabel="Table">@ResolveTableDisplay(row.EntityKey)</MudTd>
+                <MudTd DataLabel="Column">@ResolveColumnDisplay(row.EntityKey, row.ColumnKey)</MudTd>
+                <MudTd DataLabel="Restriction">
+                    <MudToggleGroup T="ColumnRestrictionKind"
+                                    Value="row.RestrictionKind"
+                                    ValueChanged="@(v => OnKindChangedAsync(row, v))"
+                                    SelectionMode="SelectionMode.SingleSelection"
+                                    Color="Color.Primary"
+                                    Size="Size.Small"
+                                    data-testid="@($"column-restriction-kind-{row.EntityKey}-{row.ColumnKey}")">
+                        <MudToggleItem T="ColumnRestrictionKind"
+                                       Value="ColumnRestrictionKind.ViewOnly">View only</MudToggleItem>
+                        <MudToggleItem T="ColumnRestrictionKind"
+                                       Value="ColumnRestrictionKind.Hidden">Hidden</MudToggleItem>
+                    </MudToggleGroup>
+                </MudTd>
+                <MudTd Style="text-align:center;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="@(() => RemoveAsync(row))"
+                                   title="Remove restriction"
+                                   aria-label="@($"Remove restriction on {row.EntityKey}.{row.ColumnKey}")"
+                                   data-testid="@($"column-restriction-remove-{row.EntityKey}-{row.ColumnKey}")" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Inline-editable grid of <see cref="ColumnRestriction"/> rows for the given
+    /// user-type role. Tables and Columns are cascading dropdowns sourced from
+    /// the <see cref="MetadataRegistry"/>; <see cref="ColumnRestrictionKind"/>
+    /// renders as a <see cref="MudToggleGroup{T}"/> — never a <see cref="MudSwitch{T}"/>
+    /// (lessons-learned 2026-04-18 → "Follow The Spec's Semantic Intent").
+    /// </summary>
+
+    /// <summary>
+    /// The user-type role being edited. Required.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public RoleDefinition Role { get; set; } = default!;
+
+    /// <summary>
+    /// Raised after the role's <see cref="RoleDefinition.ColumnRestrictions"/>
+    /// list changes and the configuration has been persisted.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnPersisted { get; set; }
+
+    private string? _newTableKey;
+    private string? _newColumnKey;
+    private ColumnRestrictionKind _newKind = ColumnRestrictionKind.ViewOnly;
+
+    private bool CanAdd =>
+        !string.IsNullOrEmpty(_newTableKey)
+        && !string.IsNullOrEmpty(_newColumnKey)
+        && !Role.ColumnRestrictions.Any(r =>
+            string.Equals(r.EntityKey, _newTableKey, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(r.ColumnKey, _newColumnKey, StringComparison.OrdinalIgnoreCase));
+
+    private async Task AddAsync()
+    {
+        if (!CanAdd) return;
+
+        Role.ColumnRestrictions.Add(new ColumnRestriction
+        {
+            EntityKey = _newTableKey!,
+            ColumnKey = _newColumnKey!,
+            RestrictionKind = _newKind,
+        });
+
+        await PersistAsync("Column restriction added.");
+
+        _newTableKey = null;
+        _newColumnKey = null;
+        _newKind = ColumnRestrictionKind.ViewOnly;
+    }
+
+    private async Task RemoveAsync(ColumnRestriction row)
+    {
+        Role.ColumnRestrictions.Remove(row);
+        await PersistAsync("Column restriction removed.");
+    }
+
+    private async Task OnKindChangedAsync(ColumnRestriction row, ColumnRestrictionKind newKind)
+    {
+        if (row.RestrictionKind == newKind) return;
+        row.RestrictionKind = newKind;
+        await PersistAsync("Column restriction updated.");
+    }
+
+    private async Task PersistAsync(string successMessage)
+    {
+        await ConfigManager.SaveAsync(ConfigManager.Current);
+        Snackbar.Add(successMessage, Severity.Success);
+        if (OnPersisted.HasDelegate)
+            await OnPersisted.InvokeAsync();
+    }
+
+    private string ResolveTableDisplay(string key) =>
+        Metadata.GetTable(key)?.DisplayName ?? key;
+
+    private string ResolveColumnDisplay(string tableKey, string columnKey)
+    {
+        var col = Metadata.GetColumns(tableKey)
+            .FirstOrDefault(c => string.Equals(c.Key, columnKey, StringComparison.OrdinalIgnoreCase));
+        return col?.DisplayName ?? columnKey;
+    }
+}

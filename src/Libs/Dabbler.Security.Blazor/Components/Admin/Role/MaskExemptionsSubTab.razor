@@ -1,0 +1,339 @@
+@using System.Security.Claims
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Role
+@inject SecurityConfigurationManager ConfigManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IRoleSwitcher RoleSwitcher
+@inject IBakedInRoleProvider BakedInRoleProvider
+@inject ISnackbar Snackbar
+
+<div data-testid="mask-exemptions-subtab">
+    <MudText Typo="Typo.subtitle1" Class="mb-2">Mask Exemptions</MudText>
+    <MudText Typo="Typo.caption" Class="mb-3">
+        Grant this role the ability to see the unmasked value of a column that
+        is default-masked. Exemptions targeting certain baked-in roles require
+        an expiration under separation-of-duties rules.
+    </MudText>
+
+    @if (ConfigManager.Current.DefaultMasks.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-3" data-testid="mask-exemption-no-defaults">
+            No Default Masks are declared yet. Declare at least one in the
+            Default Masks tab before granting exemptions.
+        </MudAlert>
+    }
+    else
+    {
+        <MudPaper Class="pa-3 mb-3" Elevation="0" Outlined="true">
+            <div class="d-flex flex-wrap align-center gap-2">
+                <MudSelect T="string" Label="Table" @bind-Value="_newTableKey"
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           data-testid="mask-exemption-new-table"
+                           Style="min-width:180px;">
+                    @foreach (var table in _tableKeys)
+                    {
+                        <MudSelectItem T="string" Value="@table">@table</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudSelect T="string" Label="Column" @bind-Value="_newColumnKey"
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           Disabled="@string.IsNullOrEmpty(_newTableKey)"
+                           data-testid="mask-exemption-new-column"
+                           Style="min-width:180px;">
+                    @foreach (var col in ColumnsForSelectedTable())
+                    {
+                        <MudSelectItem T="string" Value="@col">@col</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudDatePicker Label="Expires at (optional)"
+                               @bind-Date="_newExpiresAt"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Clearable="true"
+                               data-testid="mask-exemption-new-expires" />
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="AddAsync"
+                           Disabled="@(!CanAdd)"
+                           data-testid="mask-exemption-add-button">
+                    Add
+                </MudButton>
+            </div>
+
+            @if (!string.IsNullOrEmpty(_authorityError))
+            {
+                <MudAlert Severity="Severity.Error" Dense="true" Class="mt-2"
+                          data-testid="mask-exemption-authority-error">
+                    @_authorityError
+                </MudAlert>
+            }
+        </MudPaper>
+    }
+
+    @if (ExemptionsForRole.Count == 0)
+    {
+        <MudText Typo="Typo.body2" Class="pa-3" data-testid="mask-exemption-empty">
+            No mask exemptions granted to this role.
+        </MudText>
+    }
+    else
+    {
+        <MudTable Items="@ExemptionsForRole" Dense="true" Hover="true"
+                  Bordered="true" Striped="true"
+                  data-testid="mask-exemption-grid">
+            <HeaderContent>
+                <MudTh>Table</MudTh>
+                <MudTh>Column</MudTh>
+                <MudTh>Granted by</MudTh>
+                <MudTh>Granted at</MudTh>
+                <MudTh>Expires at</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh Style="width:120px;text-align:center;">Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                @{
+                    var expired = IsExpired(context);
+                    var rowClass = expired ? "text-decoration-line-through" : string.Empty;
+                }
+                <MudTd DataLabel="Table" Class="@rowClass">@context.EntityKey</MudTd>
+                <MudTd DataLabel="Column" Class="@rowClass">@context.ColumnKey</MudTd>
+                <MudTd DataLabel="Granted by" Class="@rowClass">@context.GrantedBy</MudTd>
+                <MudTd DataLabel="Granted at" Class="@rowClass">@context.GrantedAt.ToString("g")</MudTd>
+                <MudTd DataLabel="Expires at" Class="@rowClass">
+                    @(context.ExpiresAt?.ToString("g") ?? "—")
+                </MudTd>
+                <MudTd DataLabel="Status">
+                    @if (expired)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Warning"
+                                 data-testid="@($"mask-exemption-status-expired-{context.EntityKey}-{context.ColumnKey}")">
+                            Expired
+                        </MudChip>
+                    }
+                    else
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Success"
+                                 data-testid="@($"mask-exemption-status-active-{context.EntityKey}-{context.ColumnKey}")">
+                            Active
+                        </MudChip>
+                    }
+                </MudTd>
+                <MudTd Style="text-align:center;">
+                    @if (expired)
+                    {
+                        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Primary"
+                                   OnClick="@(() => RenewAsync(context))"
+                                   data-testid="@($"mask-exemption-renew-{context.EntityKey}-{context.ColumnKey}")">
+                            Renew
+                        </MudButton>
+                    }
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="@(() => RemoveAsync(context))"
+                                   title="Remove exemption"
+                                   aria-label="@($"Remove exemption on {context.EntityKey}.{context.ColumnKey}")"
+                                   data-testid="@($"mask-exemption-remove-{context.EntityKey}-{context.ColumnKey}")" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Inline-editable grid of <see cref="MaskExemption"/> rows targeting a
+    /// specific role. Source of Table/Column dropdown values is
+    /// <see cref="SecurityConfiguration.DefaultMasks"/> — exemptions can only
+    /// target columns already declared sensitive. Authority rules
+    /// (<see cref="MaskExemptionAuthority"/>) are enforced on add.
+    /// </summary>
+
+    /// <summary>
+    /// The canonical name of the role being exempted (user-type role name OR
+    /// baked-in role name). Required.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string TargetRoleName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Raised after the exemption list changes and the configuration has been
+    /// persisted.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnPersisted { get; set; }
+
+    private string? _newTableKey;
+    private string? _newColumnKey;
+    private DateTime? _newExpiresAt;
+    private string? _authorityError;
+
+    private string _granterRoleName = string.Empty;
+    private string _granterUserId = string.Empty;
+    private string _granterDisplayIdentifier = string.Empty;
+
+    private IReadOnlyList<string> _tableKeys = [];
+
+    private IReadOnlyList<MaskExemption> ExemptionsForRole =>
+        ConfigManager.Current.MaskExemptions
+            .Where(e => string.Equals(e.TargetRoleName, TargetRoleName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+    private bool CanAdd =>
+        !string.IsNullOrEmpty(_newTableKey)
+        && !string.IsNullOrEmpty(_newColumnKey)
+        && !ConfigManager.Current.MaskExemptions.Any(e =>
+            string.Equals(e.EntityKey, _newTableKey, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(e.ColumnKey, _newColumnKey, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(e.TargetRoleName, TargetRoleName, StringComparison.OrdinalIgnoreCase));
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        await ResolveGranterAsync();
+        RebuildTableKeys();
+    }
+
+    /// <inheritdoc />
+    protected override void OnParametersSet()
+    {
+        RebuildTableKeys();
+    }
+
+    private async Task ResolveGranterAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                     ?? user.FindFirst(ClaimTypes.Email)?.Value
+                     ?? string.Empty;
+        _granterUserId = userId;
+        _granterDisplayIdentifier =
+            user.FindFirst(ClaimTypes.Email)?.Value
+            ?? user.Identity?.Name
+            ?? userId;
+
+        var effectiveRoles = RoleSwitcher.EffectiveRoles(user).ToList();
+        foreach (var roleName in effectiveRoles)
+        {
+            var bakedIn = BakedInRoleProvider.TryGetBakedInRole(roleName);
+            if (bakedIn is not null)
+            {
+                _granterRoleName = bakedIn.Name;
+                return;
+            }
+        }
+    }
+
+    private void RebuildTableKeys()
+    {
+        _tableKeys = ConfigManager.Current.DefaultMasks
+            .Select(d => d.EntityKey)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(k => k, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private IEnumerable<string> ColumnsForSelectedTable()
+    {
+        if (string.IsNullOrEmpty(_newTableKey))
+            return [];
+
+        return ConfigManager.Current.DefaultMasks
+            .Where(d => string.Equals(d.EntityKey, _newTableKey, StringComparison.OrdinalIgnoreCase))
+            .Select(d => d.ColumnKey)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(k => k, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task AddAsync()
+    {
+        if (!CanAdd) return;
+
+        var expiresAt = _newExpiresAt.HasValue
+            ? new DateTimeOffset(_newExpiresAt.Value, TimeSpan.Zero)
+            : (DateTimeOffset?)null;
+
+        var verdict = MaskExemptionAuthority.Evaluate(
+            granterRoleName: _granterRoleName,
+            granterUserId: _granterUserId,
+            targetRoleName: TargetRoleName,
+            targetUserId: null,
+            expiresAt: expiresAt);
+
+        if (!verdict.IsAllowed)
+        {
+            _authorityError = verdict.Message;
+            return;
+        }
+
+        _authorityError = null;
+
+        ConfigManager.Current.MaskExemptions.Add(new MaskExemption
+        {
+            EntityKey = _newTableKey!,
+            ColumnKey = _newColumnKey!,
+            TargetRoleName = TargetRoleName,
+            GrantedBy = _granterDisplayIdentifier,
+            GrantedAt = DateTimeOffset.UtcNow,
+            ExpiresAt = expiresAt,
+        });
+
+        await PersistAsync("Mask exemption granted.");
+
+        _newTableKey = null;
+        _newColumnKey = null;
+        _newExpiresAt = null;
+    }
+
+    private async Task RemoveAsync(MaskExemption row)
+    {
+        ConfigManager.Current.MaskExemptions.Remove(row);
+        await PersistAsync("Mask exemption removed.");
+    }
+
+    private async Task RenewAsync(MaskExemption row)
+    {
+        // Renewal defaults to +30 days from now. The active granter's authority
+        // is re-checked: a Renew that would require an expiry on a target the
+        // current user can't grant falls through to the snackbar error.
+        var proposedExpiry = DateTimeOffset.UtcNow.AddDays(30);
+
+        var verdict = MaskExemptionAuthority.Evaluate(
+            granterRoleName: _granterRoleName,
+            granterUserId: _granterUserId,
+            targetRoleName: row.TargetRoleName,
+            targetUserId: null,
+            expiresAt: proposedExpiry);
+
+        if (!verdict.IsAllowed)
+        {
+            Snackbar.Add(verdict.Message, Severity.Error);
+            return;
+        }
+
+        row.ExpiresAt = proposedExpiry;
+        row.GrantedBy = _granterDisplayIdentifier;
+        row.GrantedAt = DateTimeOffset.UtcNow;
+        await PersistAsync("Mask exemption renewed for 30 days.");
+    }
+
+    private static bool IsExpired(MaskExemption exemption) =>
+        exemption.ExpiresAt is { } expiry && expiry <= DateTimeOffset.UtcNow;
+
+    private async Task PersistAsync(string successMessage)
+    {
+        await ConfigManager.SaveAsync(ConfigManager.Current);
+        Snackbar.Add(successMessage, Severity.Success);
+        if (OnPersisted.HasDelegate)
+            await OnPersisted.InvokeAsync();
+    }
+}

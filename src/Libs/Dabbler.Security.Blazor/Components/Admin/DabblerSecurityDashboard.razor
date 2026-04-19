@@ -1,5 +1,6 @@
 @using System.Security.Claims
 @using Dabbler.Security.Authorization
+@using Dabbler.Security.Blazor.Components.Admin.Role
 @using Dabbler.Security.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
@@ -19,7 +20,14 @@
         @foreach (var tab in _visibleTabs)
         {
             <MudTabPanel Text="@tab.Label">
-                <MudText Typo="Typo.body2" data-testid="@tab.StubTestId">@tab.StubMessage</MudText>
+                @if (tab.Key == TabKey.RoleMasterDetails)
+                {
+                    <RoleMasterDetailsTab />
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" data-testid="@tab.StubTestId">@tab.StubMessage</MudText>
+                }
             </MudTabPanel>
         }
     </MudTabs>

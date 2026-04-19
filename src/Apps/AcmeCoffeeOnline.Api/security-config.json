@@ -44,7 +44,9 @@
   "OrganizationSwitching": {
     "AllowedRoles": []
   },
-  "DefaultMasks": [],
+  "DefaultMasks": [
+    { "EntityKey": "Customer", "ColumnKey": "SocialSecurityNumber", "MaskFormat": "XXX-XX-{last4}" }
+  ],
   "MaskExemptions": [],
   "BakedInRoleAliasOverrides": {}
 }

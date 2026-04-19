@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
     <ProjectReference Include="..\Dabbler.Security\Dabbler.Security.csproj" />
   </ItemGroup>
 
