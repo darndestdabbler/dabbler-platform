@@ -340,6 +340,103 @@
           "costUsd": 0.551985
         }
       ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/read-planning",
+      "dateTime": "2026-04-19T17:09:52.392835+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, and spec.md before starting.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/seed-security-config",
+      "dateTime": "2026-04-19T17:09:52.393831+00:00",
+      "description": "Migrated src/Apps/AcmeCoffeeOnline.Web/security-config.json and src/Apps/AcmeCoffeeOnline.Api/security-config.json to the restriction-based shape: removed legacy Roles/PagePermissions/EntityPermissions/FieldPermissions/EndpointPermissions/ControlPermissions/RowFilters/RoleSwitching; added UserTypeRoles (BackofficeUser with DisplayAlias 'Backoffice User' and Customer with DisplayAlias 'Customer'), OrganizationSwitching, DefaultMasks, MaskExemptions, BakedInRoleAliasOverrides. Translated FieldPermissions to ColumnRestrictions (Customer.IsActive Hidden for Customer; Product.UnitPrice/Customer.Email/Order.Status ViewOnly for Customer; Product.UnitPrice/Customer.IsActive ViewOnly for BackofficeUser). Translated PagePermission denials to UiRestrictions with ControlKey='*'. Translated ControlPermission Hidden states to per-control UiRestriction Hidden entries. Customer row restriction migrated to 'CustomerId == @CurrentUserCustomerId' so the Session 4 broker resolves it through the CustomerId claim that InternalUserMiddleware projects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/seed-user-roles",
+      "dateTime": "2026-04-19T17:09:52.394829+00:00",
+      "description": "Migrated src/Apps/AcmeCoffeeOnline.Web/user-roles.json (user 3: BackofficeUserAdmin -> CrossOrgUserAdmin baked-in) and src/Apps/AcmeCoffeeOnline.Api/user-roles.json (users 2,3: BackofficeUserAdmin -> CrossOrgUserAdmin). SystemAdmin and BackofficeUser assignments retained as-is.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/seed-data-helper",
+      "dateTime": "2026-04-19T17:09:52.395981+00:00",
+      "description": "Rewrote src/Apps/AcmeCoffeeOnline.Api/Data/SecuritySeedData.cs to produce the new SecurityConfiguration shape (UserTypeRoles + OrganizationSwitching + DefaultMasks + MaskExemptions + BakedInRoleAliasOverrides). Changed the SeedAsync gate from `existing.Roles.Count > 0` to `existing.UserTypeRoles.Count > 0` so the seeder no longer infinite-loops against a new-shape configuration. Mirrors the on-disk JSON exactly so dev/test environments converge on the same baseline.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/order-visibility-tests-update",
+      "dateTime": "2026-04-19T17:09:52.396996+00:00",
+      "description": "Updated tests/AcmeCoffeeOnline.Api.Tests/OrderVisibilityTests.cs Customer scenario to project a CustomerId claim into the test ClaimsPrincipal so the Session 4 broker resolves @CurrentUserCustomerId from the migrated row restriction. Mirrors the production projection done by InternalUserMiddleware. SetHttpContext gained an optional `int? customerId` parameter.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/integration-tests",
+      "dateTime": "2026-04-19T17:09:52.397993+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Api.Tests/MigratedSecurityConfigSeedTests.cs with 7 tests: (1) seeded UserTypeRoles contain BackofficeUser and Customer with the expected DisplayAlias, (2) Customer.IsActive ColumnRestriction is Hidden for Customer role, (3) Customer carries the Order RowRestriction with CustomerId == @CurrentUserCustomerId, (4) baked-in SystemAdmin succeeds against an empty SecurityConfiguration (no JSON needed), (5) unknown user-type role is default-permissive on the page handler, (6) ControlAuthorizationHandler hides a column control whose ControlKey matches a Hidden UiRestriction, (7) legacy InheritsFrom does not promote a user-type role to the inherited baked-in role's access. Plus an end-to-end broker test that proves the seeded Customer RowRestriction excludes other customers' orders via OrderService.GetAllAsync.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 7,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-04-19T17:09:52.398987+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 506 warnings (all pre-existing CS0618 from legacy [Obsolete] members that Set B will resolve). dotnet test (excluding Playwright): 577 passed, 1 failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates, the same pre-existing failure noted in Sessions 1-4 caused by docs/workflow-auth-observability.md deletion in commit 8730107, unrelated to Session 5). Net +8 over Session 4's 569 baseline (7 new MigratedSecurityConfigSeedTests + balance from incidental coverage).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-04-19T17:11:18.025970+00:00",
+      "description": "Cross-provider verification via opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 13553,
+          "outputTokens": 2517,
+          "costUsd": 0.39207000000000003
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 9,
+      "stepKey": "session-5/change-log",
+      "dateTime": "2026-04-19T17:12:44.298430+00:00",
+      "description": "Generated docs/session-sets/.../change-log.md via gemini-pro.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 11635,
+          "outputTokens": 2013,
+          "costUsd": 0.03467375
+        }
+      ]
     }
   ]
 }

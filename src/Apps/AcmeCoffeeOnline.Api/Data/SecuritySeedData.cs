@@ -4,307 +4,98 @@ using Dabbler.Security.Configuration;
 namespace AcmeCoffeeOnline.Api.Data;
 
 /// <summary>
-/// Provides the default runtime security configuration (roles, permissions, row filters)
-/// for the sample distributor application. Called during database initialization to seed
-/// the JSON file store if it has not been configured yet.
+/// Provides the default runtime <see cref="SecurityConfiguration"/> for the sample
+/// distributor application under the restriction-based authorization model
+/// introduced by the <c>rearchitect-role-administration-foundations</c> session set.
 /// </summary>
+/// <remarks>
+/// The two seeded user-type roles (<c>BackofficeUser</c> and <c>Customer</c>) match
+/// the migrated on-disk <c>security-config.json</c>; the file is the source of truth
+/// for runtime behaviour, and this seeder only fires for environments that have not
+/// yet been configured.
+/// </remarks>
 public static class SecuritySeedData
 {
     /// <summary>
-    /// Returns the default SecurityConfiguration with the sample app role hierarchy
-    /// and permission matrix.
+    /// Returns the default <see cref="SecurityConfiguration"/> with the restriction-based
+    /// user-type roles, organization-switching defaults, and (currently empty) default
+    /// masks and mask exemptions.
     /// </summary>
     public static SecurityConfiguration GetDefaultConfiguration()
     {
         return new SecurityConfiguration
         {
-            Roles = GetRoleDefinitions(),
-            PagePermissions = GetPagePermissions(),
-            EntityPermissions = GetEntityPermissions(),
-            FieldPermissions = GetFieldPermissions(),
-            EndpointPermissions = GetEndpointPermissions(),
-            ControlPermissions = GetControlPermissions(),
-            RowFilters = GetRowFilters(),
-            RoleSwitching = new RoleSwitchingPermission
-            {
-                AllowedRoles = ["SystemAdmin"]
-            }
+            UserTypeRoles = GetUserTypeRoles(),
+            OrganizationSwitching = new OrganizationSwitching { AllowedRoles = [] },
+            DefaultMasks = [],
+            MaskExemptions = [],
+            BakedInRoleAliasOverrides = []
         };
     }
 
     /// <summary>
-    /// Seeds the security configuration store if it contains no role definitions.
+    /// Seeds the security configuration store if it has not yet been configured under
+    /// the restriction-based model.
     /// </summary>
     public static async Task SeedAsync(IServiceProvider services)
     {
         var store = services.GetRequiredService<ISecurityConfigurationStore>();
         var existing = await store.LoadAsync();
 
-        if (existing.Roles.Count > 0)
-            return; // Already seeded
+        if (existing.UserTypeRoles.Count > 0)
+            return;
 
         var config = GetDefaultConfiguration();
         await store.SaveAsync(config);
     }
 
-    private static List<RoleDefinition> GetRoleDefinitions() =>
+    private static List<RoleDefinition> GetUserTypeRoles() =>
     [
-        new()
-        {
-            RoleName = "Customer",
-            Description = "Retail-business account with self-service access to its own orders and profile.",
-            InheritsFrom = null
-        },
         new()
         {
             RoleName = "BackofficeUser",
+            DisplayAlias = "Backoffice User",
             Description = "Internal staff with read/update access to all retail-business accounts and orders.",
-            InheritsFrom = "Customer"
-        },
-        new()
-        {
-            RoleName = "BackofficeUserAdmin",
-            Description = "Internal operations admin who can manage staff accounts and roles.",
-            InheritsFrom = "BackofficeUser"
-        },
-        new()
-        {
-            RoleName = "SystemAdmin",
-            Description = "Full system administrator with unrestricted access.",
-            InheritsFrom = "BackofficeUserAdmin"
-        }
-    ];
-
-    private static List<PagePermission> GetPagePermissions() =>
-    [
-        new() { PageKey = "/", AllowedRoles = ["Customer"], DeniedRoles = [] },
-        new() { PageKey = "/products", AllowedRoles = ["Customer"], DeniedRoles = [] },
-        new() { PageKey = "/customers", AllowedRoles = ["BackofficeUser"], DeniedRoles = [] },
-        new() { PageKey = "/orders", AllowedRoles = ["Customer"], DeniedRoles = [] },
-        new() { PageKey = "/admin/users", AllowedRoles = ["BackofficeUserAdmin"], DeniedRoles = [] },
-        new() { PageKey = "/admin/products", AllowedRoles = ["SystemAdmin"], DeniedRoles = [] },
-        new() { PageKey = "/admin/security", AllowedRoles = ["SystemAdmin"], DeniedRoles = [] }
-    ];
-
-    private static List<EntityPermission> GetEntityPermissions() =>
-    [
-        new()
-        {
-            EntityKey = "Product",
-            RolePermissions =
+            ColumnRestrictions =
             [
-                new() { RoleName = "Customer", AllowedOperations = ["Read"] },
-                new() { RoleName = "BackofficeUser", AllowedOperations = ["Read", "Update"] },
-                new() { RoleName = "SystemAdmin", AllowedOperations = ["Create", "Read", "Update", "Delete"] }
+                new() { EntityKey = "Product", ColumnKey = "UnitPrice", RestrictionKind = ColumnRestrictionKind.ViewOnly },
+                new() { EntityKey = "Customer", ColumnKey = "IsActive", RestrictionKind = ColumnRestrictionKind.ViewOnly }
+            ],
+            UiRestrictions =
+            [
+                new() { PageKey = "/products", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/admin/products", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/admin/security", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/customers", ControlKey = "DeleteCustomerButton", Kind = UiRestrictionKind.Hidden }
             ]
         },
         new()
         {
-            EntityKey = "Customer",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AllowedOperations = ["Read", "Update"] },
-                new() { RoleName = "BackofficeUser", AllowedOperations = ["Read", "Update"] },
-                new() { RoleName = "BackofficeUserAdmin", AllowedOperations = ["Create", "Read", "Update"] },
-                new() { RoleName = "SystemAdmin", AllowedOperations = ["Create", "Read", "Update", "Delete"] }
-            ]
-        },
-        new()
-        {
-            EntityKey = "Order",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AllowedOperations = ["Create", "Read"] },
-                new() { RoleName = "BackofficeUser", AllowedOperations = ["Read", "Update"] },
-                new() { RoleName = "SystemAdmin", AllowedOperations = ["Create", "Read", "Update", "Delete"] }
-            ]
-        },
-        new()
-        {
-            EntityKey = "OrderItem",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AllowedOperations = ["Create", "Read"] },
-                new() { RoleName = "BackofficeUser", AllowedOperations = ["Read", "Update"] },
-                new() { RoleName = "SystemAdmin", AllowedOperations = ["Create", "Read", "Update", "Delete"] }
-            ]
-        },
-        new()
-        {
-            EntityKey = "OrderNote",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AllowedOperations = ["Create", "Read"] },
-                new() { RoleName = "BackofficeUser", AllowedOperations = ["Create", "Read", "Update"] },
-                new() { RoleName = "SystemAdmin", AllowedOperations = ["Create", "Read", "Update", "Delete"] }
-            ]
-        }
-    ];
-
-    private static List<FieldPermission> GetFieldPermissions() =>
-    [
-        // Product: only SystemAdmin can edit pricing
-        new()
-        {
-            EntityKey = "Product",
-            FieldKey = "UnitPrice",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AccessLevel = FieldAccessLevel.ReadOnly },
-                new() { RoleName = "BackofficeUser", AccessLevel = FieldAccessLevel.ReadOnly },
-                new() { RoleName = "SystemAdmin", AccessLevel = FieldAccessLevel.Editable }
-            ]
-        },
-        // Product: BackofficeUser+ can toggle availability
-        new()
-        {
-            EntityKey = "Product",
-            FieldKey = "IsAvailable",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AccessLevel = FieldAccessLevel.ReadOnly },
-                new() { RoleName = "BackofficeUser", AccessLevel = FieldAccessLevel.Editable },
-                new() { RoleName = "SystemAdmin", AccessLevel = FieldAccessLevel.Editable }
-            ]
-        },
-        // Customer: email is read-only for the customer themselves
-        new()
-        {
-            EntityKey = "Customer",
-            FieldKey = "Email",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AccessLevel = FieldAccessLevel.ReadOnly },
-                new() { RoleName = "BackofficeUser", AccessLevel = FieldAccessLevel.Editable }
-            ]
-        },
-        // Customer: IsActive only editable by BackofficeUserAdmin+
-        new()
-        {
-            EntityKey = "Customer",
-            FieldKey = "IsActive",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AccessLevel = FieldAccessLevel.Hidden },
-                new() { RoleName = "BackofficeUser", AccessLevel = FieldAccessLevel.ReadOnly },
-                new() { RoleName = "BackofficeUserAdmin", AccessLevel = FieldAccessLevel.Editable }
-            ]
-        },
-        // Order: Status field is read-only for customers
-        new()
-        {
-            EntityKey = "Order",
-            FieldKey = "Status",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", AccessLevel = FieldAccessLevel.ReadOnly },
-                new() { RoleName = "BackofficeUser", AccessLevel = FieldAccessLevel.Editable }
-            ]
-        }
-    ];
-
-    private static List<EndpointPermission> GetEndpointPermissions() =>
-    [
-        // Products
-        new() { EndpointKey = "GetProducts", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "GetProductById", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "CreateProduct", AllowedRoles = ["SystemAdmin"] },
-        new() { EndpointKey = "UpdateProduct", AllowedRoles = ["BackofficeUser"] },
-        new() { EndpointKey = "ToggleProductAvailability", AllowedRoles = ["BackofficeUser"] },
-        // Customers
-        new() { EndpointKey = "GetCustomers", AllowedRoles = ["BackofficeUser"] },
-        new() { EndpointKey = "GetCustomerById", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "CreateCustomer", AllowedRoles = ["BackofficeUserAdmin"] },
-        new() { EndpointKey = "UpdateCustomer", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "SearchCustomers", AllowedRoles = ["BackofficeUser"] },
-        // Orders
-        new() { EndpointKey = "GetOrders", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "GetOrderById", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "GetOrdersByCustomer", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "CreateOrder", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "UpdateOrderStatus", AllowedRoles = ["BackofficeUser"] },
-        new() { EndpointKey = "AddOrderItem", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "RemoveOrderItem", AllowedRoles = ["Customer"] },
-        // Order Notes
-        new() { EndpointKey = "GetOrderNotes", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "CreateOrderNote", AllowedRoles = ["Customer"] },
-        new() { EndpointKey = "UpdateOrderNote", AllowedRoles = ["BackofficeUser"] },
-        new() { EndpointKey = "DeleteOrderNote", AllowedRoles = ["BackofficeUser"] }
-    ];
-
-    private static List<ControlPermission> GetControlPermissions() =>
-    [
-        new()
-        {
-            PageKey = "/products",
-            ControlKey = "CreateProductButton",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", State = ControlState.Hidden },
-                new() { RoleName = "BackofficeUser", State = ControlState.Hidden },
-                new() { RoleName = "SystemAdmin", State = ControlState.Enabled }
-            ]
-        },
-        new()
-        {
-            PageKey = "/products",
-            ControlKey = "EditPriceButton",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", State = ControlState.Hidden },
-                new() { RoleName = "BackofficeUser", State = ControlState.Disabled },
-                new() { RoleName = "SystemAdmin", State = ControlState.Enabled }
-            ]
-        },
-        new()
-        {
-            PageKey = "/customers",
-            ControlKey = "DeleteCustomerButton",
-            RolePermissions =
-            [
-                new() { RoleName = "BackofficeUser", State = ControlState.Hidden },
-                new() { RoleName = "BackofficeUserAdmin", State = ControlState.Hidden },
-                new() { RoleName = "SystemAdmin", State = ControlState.Enabled }
-            ]
-        },
-        new()
-        {
-            PageKey = "/orders",
-            ControlKey = "DeleteOrderButton",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", State = ControlState.Hidden },
-                new() { RoleName = "BackofficeUser", State = ControlState.Hidden },
-                new() { RoleName = "SystemAdmin", State = ControlState.Enabled }
-            ]
-        },
-        new()
-        {
-            PageKey = "/orders",
-            ControlKey = "UpdateStatusButton",
-            RolePermissions =
-            [
-                new() { RoleName = "Customer", State = ControlState.Hidden },
-                new() { RoleName = "BackofficeUser", State = ControlState.Enabled }
-            ]
-        }
-    ];
-
-    private static List<RowFilter> GetRowFilters() =>
-    [
-        new()
-        {
-            EntityKey = "Order",
             RoleName = "Customer",
-            FilterExpression = "CustomerId == @CurrentUserId",
-            Description = "Customers can only see their own orders"
-        },
-        new()
-        {
-            EntityKey = "OrderItem",
-            RoleName = "Customer",
-            FilterExpression = "Order.CustomerId == @CurrentUserId",
-            Description = "Customers can only see items on their own orders"
+            DisplayAlias = "Customer",
+            Description = "Retail-business account with self-service access to its own orders and profile.",
+            ColumnRestrictions =
+            [
+                new() { EntityKey = "Product", ColumnKey = "UnitPrice", RestrictionKind = ColumnRestrictionKind.ViewOnly },
+                new() { EntityKey = "Customer", ColumnKey = "Email", RestrictionKind = ColumnRestrictionKind.ViewOnly },
+                new() { EntityKey = "Customer", ColumnKey = "IsActive", RestrictionKind = ColumnRestrictionKind.Hidden },
+                new() { EntityKey = "Order", ColumnKey = "Status", RestrictionKind = ColumnRestrictionKind.ViewOnly }
+            ],
+            RowRestrictions =
+            [
+                new() { EntityKey = "Order", FilterExpression = "CustomerId == @CurrentUserCustomerId" }
+            ],
+            UiRestrictions =
+            [
+                new() { PageKey = "/customers", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/admin/users", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/admin/products", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/admin/security", ControlKey = "*", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/products", ControlKey = "CreateProductButton", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/products", ControlKey = "EditPriceButton", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/orders", ControlKey = "DeleteOrderButton", Kind = UiRestrictionKind.Hidden },
+                new() { PageKey = "/orders", ControlKey = "UpdateStatusButton", Kind = UiRestrictionKind.Hidden }
+            ]
         }
     ];
 }

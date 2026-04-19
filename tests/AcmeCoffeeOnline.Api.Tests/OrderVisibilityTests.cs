@@ -54,11 +54,17 @@ public sealed class OrderVisibilityTests : IClassFixture<WebApplicationFactory<P
         var ctx = await ResolveContextAsync(factory.Services);
 
         await using var scope = factory.Services.CreateAsyncScope();
+        // The Session 5 migrated security-config gives the Customer user-type role
+        // a RowRestriction on Order with `CustomerId == @CurrentUserCustomerId`. The
+        // broker resolves @CurrentUserCustomerId from the "CustomerId" claim that
+        // InternalUserMiddleware projects in production; the test fixture mirrors
+        // that projection here.
         SetHttpContext(
             scope.ServiceProvider,
             userId: ctx.FirstCustomerAppUserId,
             organizationId: ctx.FirstCustomerOrganizationId,
             organizationKey: ctx.FirstCustomerOrganizationKey,
+            customerId: ctx.FirstCustomerId,
             roleNames: "Customer");
 
         var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
@@ -139,6 +145,7 @@ public sealed class OrderVisibilityTests : IClassFixture<WebApplicationFactory<P
         int userId,
         int organizationId,
         string organizationKey,
+        int? customerId = null,
         params string[] roleNames)
     {
         var accessor = services.GetRequiredService<IHttpContextAccessor>();
@@ -148,6 +155,11 @@ public sealed class OrderVisibilityTests : IClassFixture<WebApplicationFactory<P
             new(UserSessionContextConstants.ActiveOrganizationIdClaimType, organizationId.ToString()),
             new(UserSessionContextConstants.ActiveOrganizationKeyClaimType, organizationKey)
         };
+
+        if (customerId is int cid)
+        {
+            claims.Add(new Claim("CustomerId", cid.ToString()));
+        }
 
         claims.AddRange(roleNames.Select(r => new Claim(ClaimTypes.Role, r)));
 

@@ -1,7 +1,7 @@
 {
   "1": [ "SystemAdmin" ],
-  "2": [ "BackofficeUserAdmin" ],
-  "3": [ "BackofficeUserAdmin" ],
+  "2": [ "CrossOrgUserAdmin" ],
+  "3": [ "CrossOrgUserAdmin" ],
   "4": [ "BackofficeUser" ],
   "5": [ "BackofficeUser" ],
   "6": [ "BackofficeUser" ]
