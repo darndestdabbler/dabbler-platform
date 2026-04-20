@@ -1,0 +1,103 @@
+{
+  "sessionSetName": "security-dashboard-uat-remediation",
+  "createdDate": "2026-04-20T07:53:47.008342+00:00",
+  "totalSessions": 8,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-context",
+      "dateTime": "2026-04-20T08:26:18.002603+00:00",
+      "description": "Read stub spec, prerequisite Set B UAT checklist, and project-guidance.md; verified API keys.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/promote-principle",
+      "dateTime": "2026-04-20T08:26:18.003604+00:00",
+      "description": "Promoted 'trust business + auditor backstop over auto-detection tooling' to Principle under Security And Organization Model in docs/planning/project-guidance.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/route-plan",
+      "dateTime": "2026-04-20T08:26:18.004609+00:00",
+      "description": "Routed planning task to flesh out spec.md into per-session plan, risk notes, and exit criteria.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "planning",
+          "inputTokens": 4951,
+          "outputTokens": 3680,
+          "costUsd": 0.04298875
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/splice-plan-into-spec",
+      "dateTime": "2026-04-20T08:31:05.380414+00:00",
+      "description": "Spliced fleshed-out Session Plan (8 sessions), Risk notes, and Exit criteria into spec.md. Standardized Session 1's format (Steps/Creates/Touches/Progress keys/Ends with) to match downstream sessions. Updated Session 8 to explicitly include Playwright suite run and change-log generation via task_type='summarization' per prior lesson.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-test",
+      "dateTime": "2026-04-20T08:33:14.665614+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 183 warnings (all expected [Obsolete] cascades from Set B). dotnet test (non-Playwright): 0 failed, 667 passed across 6 assemblies (Dabbler.Components 33, Dabbler.Reports.Blazor 13, Dabbler.Security.Blazor 192, AcmeCoffeeOnline.Api 27, Dabbler.Security 279, AcmeCoffeeOnline.Web 123). Playwright suite intentionally skipped \u2014 Session 1 ships no behavioural change.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/verify",
+      "dateTime": "2026-04-20T08:36:18.760745+00:00",
+      "description": "Cross-provider verification via task_type=session-verification. Verifier: opus. Raw review saved to session-reviews/session-001.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 12170,
+          "outputTokens": 8843,
+          "costUsd": 0.845775
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/fix-verifier-issues",
+      "dateTime": "2026-04-20T08:37:42.063968+00:00",
+      "description": "Addressed three Minor issues from round-1 verification: added Session 7 step 7 (new UX assertions) and step 8 (regression re-run); rewrote Finding 6 exit-criteria bullet to credit Sessions 4 and 7; added finding-6 co-reference to Session 7 step 2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verify-round-2",
+      "dateTime": "2026-04-20T08:38:48.529780+00:00",
+      "description": "Round-2 cross-provider verification after fixing three Minor round-1 issues. Verifier: opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 13505,
+          "outputTokens": 2129,
+          "costUsd": 0.36224999999999996
+        }
+      ]
+    }
+  ]
+}

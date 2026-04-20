@@ -78,6 +78,18 @@ rejects each (see `docs/ai-led-session-workflow.md` Step 9, post-notify).
   duties). Masks render even when the stored value is null, so presence
   or absence of a sensitive field never leaks through an empty-looking
   unmasked control.
+- **For compliance-accountable classifications the business already
+  owns — masking targets, retention classes, PII flags, and similar —
+  trust the business operator to populate them and rely on the internal
+  auditor as the backstop. Do not build or maintain auto-detection
+  tooling (name-scanners, "suggested items" safety-nets, auto-flag
+  heuristics) to second-guess the business.** Such tooling adds a
+  second system that can also be wrong without removing the auditor
+  review, and it imposes permanent code, UI, and test cost for a
+  speculative gain. This stance is specific to items a business role
+  is already accountable for under an external review process; it is
+  not a general rejection of security detection (dependency scanning,
+  test guardrails, automated access reviews, etc. remain encouraged).
 - Every role — baked-in and app-defined — has a canonical immutable
   `Name` used in handlers, claims, and audit records, plus an optional
   `DisplayAlias` shown in the dashboard, role switcher, and audit UI.
