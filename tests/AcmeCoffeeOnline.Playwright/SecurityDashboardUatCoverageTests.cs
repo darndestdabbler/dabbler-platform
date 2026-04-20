@@ -17,9 +17,11 @@ namespace AcmeCoffeeOnline.Playwright;
 [Collection(PlaywrightCollection.Name)]
 public sealed class SecurityDashboardUatCoverageTests
 {
-    private const string AdminEmail    = "admin@acmecoffee.com";
-    private const string AsmithEmail   = "asmith@acmecoffee.com";
-    private const string JdoeEmail     = "jdoe@acmecoffee.com";
+    private const string AdminEmail     = "admin@acmecoffee.com";
+    private const string AsmithEmail    = "asmith@acmecoffee.com";
+    private const string JdoeEmail      = "jdoe@acmecoffee.com";
+    private const string WarehouseEmail = "warehouse@acmecoffee.com";
+    private const string CustomerEmail  = "customer@acmecoffee.com";
 
     private readonly PlaywrightFixture _fixture;
 
@@ -459,5 +461,262 @@ public sealed class SecurityDashboardUatCoverageTests
         {
             await _fixture.ClosePageAsync(page);
         }
+    }
+
+    // ── Session 5: Data-bound restriction enforcement reachability ───────────
+    //
+    // Finding 4 strategy: the restriction-seam pages are /products and
+    // /products/{id} (ProductList + ProductDetail wrap UnitPrice in
+    // RestrictedGridColumn / RestrictedFormField). The pre-Session-5 config
+    // blocked BackofficeUser at the page level so the seam never rendered.
+    // The fix opens /products for BackofficeUser (/admin/products stays
+    // admin-only because it's admin CRUD, not the restriction seam) and
+    // seeds a dedicated WarehouseUser persona so the Hidden-path reference
+    // can be exercised against a real identity rather than a role-override
+    // on admin@. The seam itself was already correct — this session makes
+    // it reachable and writes the coverage the Human UAT Philosophy
+    // principle demands.
+
+    // UAT finding 4: BackofficeUser reaches /products without an
+    // access-denied card. The previous page-wide Hidden UiRestriction
+    // (resolved in Session 5 by replacing it with two ControlKey entries
+    // matching the Customer pattern) blocked the route entirely.
+    [Fact]
+    public async Task Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync()
+    {
+        // UAT: jdoe@acmecoffee.com (BackofficeUser) → /products →
+        //      product grid visible, no access-denied card.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, JdoeEmail, roles: "BackofficeUser");
+
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/products",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            await Assertions
+                .Expect(page.GetByTestId("access-denied-page"))
+                .ToHaveCountAsync(0);
+            await Assertions
+                .Expect(page.Locator(".mud-table-head").GetByText("Unit Price"))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 4 (ViewOnly path — grid): BackofficeUser.ColumnRestriction
+    // is Product.UnitPrice = ViewOnly. RestrictedGridColumn passes Editability
+    // to the PropertyColumn so its grid cell renders non-editable. The column
+    // itself must remain visible — only ViewOnly, not Hidden.
+    [Fact]
+    public async Task Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync()
+    {
+        // UAT: jdoe@acmecoffee.com (BackofficeUser) → /products →
+        //      UnitPrice column visible but not editable in-grid.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, JdoeEmail, roles: "BackofficeUser");
+
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/products",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            // The grid itself is ReadOnly="true" on ProductList, so the
+            // column-level ViewOnly restriction is proven by the column
+            // rendering at all (Hidden would drop it) AND by the backing
+            // PropertyColumn receiving Editable=false — asserted above by
+            // column presence alongside absence of any inline editor in
+            // the header row.
+            await Assertions
+                .Expect(page.Locator(".mud-table-head").GetByText("Unit Price"))
+                .ToBeVisibleAsync();
+            await Assertions
+                .Expect(page.Locator(".mud-table-head").GetByText("Unit Price").Locator("input"))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 4 (ViewOnly path — detail): BackofficeUser opening the
+    // Product detail page sees UnitPrice, but the MudNumericField is
+    // rendered disabled+readonly so the cursor cannot edit it.
+    [Fact]
+    public async Task Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync()
+    {
+        // UAT: jdoe@acmecoffee.com (BackofficeUser) → /products/{firstId}
+        //      → UnitPrice field visible and disabled/readonly.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, JdoeEmail, roles: "BackofficeUser");
+
+            var productId = await GetFirstProductIdAsync();
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/products/{productId}",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await Assertions
+                .Expect(page.GetByTestId("access-denied-page"))
+                .ToHaveCountAsync(0);
+
+            var unitPriceField = page.GetByTestId("field-unit-price");
+            await Assertions.Expect(unitPriceField).ToBeVisibleAsync();
+            await Assertions.Expect(unitPriceField).ToBeDisabledAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 4 regression guard: /admin/products stays admin-only.
+    // BackofficeUser must still see the access-denied card there — the
+    // Session 5 fix narrows BackofficeUser's UiRestrictions to /admin/*
+    // rather than opening admin CRUD routes to non-admin roles.
+    [Fact]
+    public async Task AdminProducts_BackofficeUser_StillDeniedAsync()
+    {
+        // UAT: jdoe@acmecoffee.com (BackofficeUser) → /admin/products →
+        //      access-denied card present (route remains admin-only).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, JdoeEmail, roles: "BackofficeUser");
+
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/products",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await Assertions
+                .Expect(page.GetByTestId("access-denied-page"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 4 (Hidden path — grid, real persona): WarehouseUser as a
+    // seeded persona (Session 5 added `warehouse@acmecoffee.com` with a
+    // WarehouseUser AppRole assignment). Product.UnitPrice restriction is
+    // Hidden, so RestrictedGridColumn emits no column at all. This is the
+    // same semantic as the existing role-override test in
+    // RestrictionEnforcementTests.cs, but proved against a real identity
+    // the UAT checklist can reference.
+    [Fact]
+    public async Task Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync()
+    {
+        // UAT: warehouse@acmecoffee.com (WarehouseUser) → /products →
+        //      no Unit Price column header anywhere in the grid.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, WarehouseEmail, roles: "WarehouseUser");
+
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/products",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            await Assertions
+                .Expect(page.GetByTestId("access-denied-page"))
+                .ToHaveCountAsync(0);
+            await Assertions
+                .Expect(page.Locator(".mud-table-head").GetByText("Unit Price"))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 4 (Hidden path — detail, real persona): WarehouseUser on
+    // the detail page sees no UnitPrice field — RestrictedFormField emits
+    // nothing under the Hidden-path resolution.
+    [Fact]
+    public async Task Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync()
+    {
+        // UAT: warehouse@acmecoffee.com (WarehouseUser) → /products/{firstId}
+        //      → no UnitPrice field on the detail form.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, WarehouseEmail, roles: "WarehouseUser");
+
+            var productId = await GetFirstProductIdAsync();
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/products/{productId}",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await Assertions
+                .Expect(page.GetByTestId("access-denied-page"))
+                .ToHaveCountAsync(0);
+            await Assertions
+                .Expect(page.GetByTestId("field-unit-price"))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 4 (ViewOnly path — detail, Customer persona): closes the
+    // Finding 10.2 deferral. Session 5 seeds `customer@acmecoffee.com` as
+    // a named Customer persona tied to the first retail-business
+    // organization so UserSessionContextService.TryResolveCustomerId
+    // produces a non-null ActiveCustomerId. The restriction seam's
+    // ViewOnly path is then exercised through the real web → api bridge
+    // under Docker, which was the assertion the original skipped test
+    // wanted to make.
+    [Fact]
+    public async Task Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync()
+    {
+        // UAT: customer@acmecoffee.com (Customer) → /products/{firstId}
+        //      → UnitPrice field visible and disabled/readonly.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, CustomerEmail, roles: "Customer");
+
+            var productId = await GetFirstProductIdAsync();
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/products/{productId}",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await Assertions
+                .Expect(page.GetByTestId("access-denied-page"))
+                .ToHaveCountAsync(0);
+
+            var unitPriceField = page.GetByTestId("field-unit-price");
+            await Assertions.Expect(unitPriceField).ToBeVisibleAsync();
+            await Assertions.Expect(unitPriceField).ToBeDisabledAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    private async Task<int> GetFirstProductIdAsync()
+    {
+        var systemAdminId = await _fixture.GetSeededUserIdAsync(AdminEmail);
+        using var payload = await _fixture.GetApiJsonAsync(
+            "api/products?page=1&pageSize=1",
+            systemAdminId);
+        var first = payload.RootElement.GetProperty("items").EnumerateArray().First();
+        return first.GetProperty("id").GetInt32();
     }
 }

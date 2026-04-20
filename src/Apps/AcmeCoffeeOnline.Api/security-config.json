@@ -10,9 +10,10 @@
       ],
       "RowRestrictions": [],
       "UiRestrictions": [
-        { "PageKey": "/products", "ControlKey": "*", "Kind": "Hidden" },
         { "PageKey": "/admin/products", "ControlKey": "*", "Kind": "Hidden" },
         { "PageKey": "/admin/security", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/products", "ControlKey": "CreateProductButton", "Kind": "Hidden" },
+        { "PageKey": "/products", "ControlKey": "EditPriceButton", "Kind": "Hidden" },
         { "PageKey": "/customers", "ControlKey": "DeleteCustomerButton", "Kind": "Hidden" }
       ]
     },

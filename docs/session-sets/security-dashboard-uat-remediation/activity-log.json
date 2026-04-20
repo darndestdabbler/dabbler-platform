@@ -327,6 +327,69 @@
           "costUsd": 0.065785
         }
       ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/diagnose-access-denied-and-pick-strategy",
+      "dateTime": "2026-04-20T15:21:41.186362+00:00",
+      "description": "Diagnosed UAT Finding 4. Root cause: security-config.json listed '/products' with ControlKey='*' Kind='Hidden' for BackofficeUser, so PageAuthorizationHandler returned false before the RestrictedFormField / RestrictedGridColumn seam in ProductList.razor + ProductDetail.razor could render degraded variants. WarehouseUser had no page-level block at '/products' but also had no seeded AppUser persona with a WarehouseUser AppRole assignment. Chose Strategy B from the spec's two options: move the seam page onto a route the target roles can reach. The seam already lives at '/products' + '/products/{id}'; '/admin/products' stays admin-only because it is admin CRUD, not the restriction-seam demo. The existing '/admin/products' Hidden entries for BackofficeUser and WarehouseUser are preserved.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/choose-restriction-seam-route-strategy",
+      "dateTime": "2026-04-20T15:21:41.187356+00:00",
+      "description": "Replaced the BackofficeUser page-wide '/products' Hidden UiRestriction with two ControlKey-scoped entries (CreateProductButton, EditPriceButton) matching the existing Customer pattern, in both src/Apps/AcmeCoffeeOnline.Web/security-config.json AND src/Apps/AcmeCoffeeOnline.Api/security-config.json. '/admin/products' stays page-wide Hidden for BackofficeUser. Customer's existing entries are unchanged. WarehouseUser's entries are unchanged (no '/products' page-level block to remove). Decision rationale captured in Step 6 verification prompt.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/seed-warehouse-and-customer-personas",
+      "dateTime": "2026-04-20T15:21:41.187356+00:00",
+      "description": "src/Apps/AcmeCoffeeOnline.Api/Data/SeedData.cs: appended 'WarehouseUser' to GetSecurityRoles() so the config-only role gets a backing AppRole row for AppUserRole assignments; added 'warehouse@acmecoffee.com' (internal-staff membership + WarehouseUser role) and 'customer@acmecoffee.com' (bridged to customer-1 so UserSessionContextService.TryResolveCustomerId yields ActiveCustomerId=1 + Customer role). Finding 10.2's original 'Docker bridge' theory was wrong \u2014 the root cause was that customer@acmecoffee.com was never in SeedData, so BuildAsync found no AppUser row and the downstream api call returned 401. Seeding closes that gap.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/implement-viewonly-and-hidden-rendering",
+      "dateTime": "2026-04-20T15:21:41.188940+00:00",
+      "description": "No implementation change needed \u2014 the RestrictedFormField / RestrictedGridColumn seam in ProductList.razor and ProductDetail.razor already honours ColumnRestriction ViewOnly (PropertyColumn Editable=false + MudNumericField Disabled/ReadOnly) and Hidden (no column / no field render). The Session 5 fix is purely configuration + seeding \u2014 opening the route and giving the target roles real personas the seam can resolve against.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/playwright-restriction-seam-coverage",
+      "dateTime": "2026-04-20T15:21:41.190501+00:00",
+      "description": "tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs: added 7 Session 5 tests with '// UAT:' cross-reference comments \u2014 Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync, Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync, Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync, AdminProducts_BackofficeUser_StillDeniedAsync (regression guard that /admin/products stays admin-only), Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync, Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync, Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync. tests/AcmeCoffeeOnline.Playwright/RestrictionEnforcementTests.cs: unskipped CustomerRole_SeesUnitPriceFieldButReadOnlyAsync and rewrote the comment to document the corrected root cause (persona was never seeded, not a Docker-bridge principal issue).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/build-and-nonplaywright-tests",
+      "dateTime": "2026-04-20T15:21:41.190501+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 183 warnings (all expected [Obsolete] cascades). dotnet test Dabbler.Platform.sln --no-build --filter FullyQualifiedName!~Playwright: 672 passed / 0 failed across 6 assemblies (Dabbler.Reports.Blazor 13, Dabbler.Components 33, Dabbler.Security.Blazor 196, AcmeCoffeeOnline.Api 27, AcmeCoffeeOnline.Web 123, Dabbler.Security 280). First run against the stale pre-Session-5 localdb threw a duplicate-key exception during EnsureMembershipsAsync on a (UserId=68, OrganizationId=1) tuple \u2014 this was a one-time reconciliation artefact against a dev-only SQL Server localdb; re-running the suite got 672/0. Fresh Docker SQL Server containers (used by the Playwright suite) initialise from empty so the artefact does not recur there.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 7,
+      "stepKey": "session-5/run-regression-tests",
+      "dateTime": "2026-04-20T15:38:04.428356+00:00",
+      "description": "Docker Playwright suite over two consecutive fresh-container runs: 109 passed / 1 failed / 110 total each run. Session 5's 7 new SecurityDashboardUatCoverageTests and the unskipped RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync all passed both runs. All pre-Session-5 tests preserved (Sessions 2-4 regression targets + RestrictionEnforcementTests SystemAdmin + WarehouseUser role-override tests). Single failure is a pre-existing MultiOrganizationWorkflowTests timing flake inside PlaywrightFixture.SwitchOrganizationFromShellAsync (line 281): run 1 failed E2E_WF_01_RegionalSalesRep; run 2 failed E2E_WF_02_DualMembershipUser. Same signature (switchedSession.ActiveOrganizationName returned pre-switch 'Internal Operations' instead of the expected retail business name). Different test fails on different run under identical seed/config \u2192 server-side org-switch round-trip cookie settle is racing with GetSessionInfoAsync. Independent of Session 5 changes; disclosed in the verifier prompt out-of-scope section.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

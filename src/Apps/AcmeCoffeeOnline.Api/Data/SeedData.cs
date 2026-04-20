@@ -244,6 +244,7 @@ public static class SeedData
             new() { Name = "BackofficeUser", Description = "Internal staff with read access to all retail-business accounts and orders.", IsSystemRole = true, InheritsFromRoleName = "Customer", CreatedAt = now },
             new() { Name = "BackofficeUserAdmin", Description = "Internal operations admin who can manage staff accounts and roles.", IsSystemRole = true, InheritsFromRoleName = "BackofficeUser", CreatedAt = now },
             new() { Name = "SystemAdmin", Description = "Full system administrator with unrestricted access.", IsSystemRole = true, InheritsFromRoleName = "BackofficeUserAdmin", CreatedAt = now },
+            new() { Name = "WarehouseUser", Description = "Warehouse staff with read access to product availability but no visibility into pricing; provides the Hidden-path reference for the data-bound restriction enforcement seam.", IsSystemRole = true, CreatedAt = now },
         ];
     }
 
@@ -255,14 +256,20 @@ public static class SeedData
         // System administrator
         users.Add(new AppUser { Email = "admin@acmecoffee.com", DisplayName = "Internal Platform Admin", CreatedAt = now });
 
-        // Internal staff users (3 staff + 2 admins + multi-org personas)
+        // Internal staff users (3 staff + 2 admins + multi-org personas + warehouse persona)
         users.Add(new AppUser { Email = "jdoe@acmecoffee.com", DisplayName = "Jordan Ellis", CreatedAt = now });
         users.Add(new AppUser { Email = "asmith@acmecoffee.com", DisplayName = "Avery Smith", CreatedAt = now });
         users.Add(new AppUser { Email = "mwilson@acmecoffee.com", DisplayName = "Morgan Wilson", CreatedAt = now });
         users.Add(new AppUser { Email = "kbrown@acmecoffee.com", DisplayName = "Kai Brown", CreatedAt = now });
         users.Add(new AppUser { Email = "tjones@acmecoffee.com", DisplayName = "Taylor Jones", CreatedAt = now });
+        users.Add(new AppUser { Email = "warehouse@acmecoffee.com", DisplayName = "Wren Hathaway", CreatedAt = now });
         users.Add(new AppUser { Email = RegionalSalesRepEmail, DisplayName = "Sloane Reyes", CreatedAt = now });
         users.Add(new AppUser { Email = DualMembershipUserEmail, DisplayName = "Casey Hart", CreatedAt = now });
+
+        // Retail-business contact persona used by Session 5 restriction-seam Playwright coverage.
+        // Distinct from the generated @example.com customer contacts so the Customer ViewOnly
+        // path has a named, stable persona the Playwright and UAT checklist can reference.
+        users.Add(new AppUser { Email = "customer@acmecoffee.com", DisplayName = "Cameron Rhodes", CreatedAt = now });
 
         // Retail-business contacts (one per current customer record, matching by email)
         foreach (var customer in customers)
@@ -344,6 +351,7 @@ public static class SeedData
             "mwilson@acmecoffee.com",
             "kbrown@acmecoffee.com",
             "tjones@acmecoffee.com",
+            "warehouse@acmecoffee.com",
             RegionalSalesRepEmail,
             DualMembershipUserEmail
         })
@@ -356,6 +364,13 @@ public static class SeedData
             var customerUser = users.First(u => u.Email == customer.Email);
             AddMembership(customerUser, customerOrganizations[GetCustomerOrganizationKey(customer)], isDefault: true);
         }
+
+        // customer@acmecoffee.com is bridged to the first retail-business organization so
+        // UserSessionContextService.TryResolveCustomerId yields a non-null ActiveCustomerId
+        // (the Customer row-restriction filter keys on @CurrentUserCustomerId).
+        var namedCustomerUser = users.First(u => u.Email == "customer@acmecoffee.com");
+        var namedCustomerOrganization = customerOrganizations[GetCustomerOrganizationKey(customers.OrderBy(c => c.Id).First())];
+        AddMembership(namedCustomerUser, namedCustomerOrganization, isDefault: true);
 
         var sharedRetailOrganizations = customers
             .OrderBy(c => c.Id)
@@ -438,11 +453,20 @@ public static class SeedData
             AddScopedRole(user, staffRole.Name, memberships => memberships.Single(m => m.IsDefault));
         }
 
+        // Warehouse staff persona — provides the WarehouseUser Hidden-path reference for the
+        // data-bound restriction enforcement seam (Session 5 of security-dashboard-uat-remediation).
+        var warehouseUser = users.First(u => u.Email == "warehouse@acmecoffee.com");
+        AddScopedRole(warehouseUser, "WarehouseUser", memberships => memberships.Single(m => m.IsDefault));
+
         // Retail-business contacts
         foreach (var user in users.Where(u => u.Email.EndsWith("@example.com")))
         {
             AddScopedRole(user, customerRole.Name, memberships => memberships.Single(m => m.IsDefault));
         }
+
+        // Named Customer persona for Session 5 restriction-seam Playwright coverage.
+        var namedCustomerPersona = users.First(u => u.Email == "customer@acmecoffee.com");
+        AddScopedRole(namedCustomerPersona, customerRole.Name, memberships => memberships.Single(m => m.IsDefault));
 
         // Regional sales rep: internal staff baseline plus UserAdmin-style access across multiple retail businesses.
         var regionalSalesRep = users.First(u => u.Email == RegionalSalesRepEmail);
