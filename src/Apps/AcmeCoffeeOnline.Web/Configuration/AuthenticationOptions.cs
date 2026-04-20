@@ -26,6 +26,12 @@ public sealed class SeededSessionOptions
     public string SharedSecret { get; set; } = string.Empty;
 
     public string[] AllowedRoles { get; set; } = [];
+
+    // When true, /test-auth/* endpoints skip the loopback-address check and
+    // rely solely on the shared-secret header. Required for Docker-compose
+    // E2E runs where playwright reaches the web container over the bridge
+    // network (non-loopback). Only takes effect in Development or Test.
+    public bool AllowNonLoopback { get; set; }
 }
 
 public sealed class AppAuthenticationOptionsValidator : IValidateOptions<AppAuthenticationOptions>

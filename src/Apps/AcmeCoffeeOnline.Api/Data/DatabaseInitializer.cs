@@ -15,7 +15,7 @@ public static class DatabaseInitializer
         var securityContext = scope.ServiceProvider.GetRequiredService<DabblerSecurityDbContext>();
         var securityOptions = scope.ServiceProvider.GetRequiredService<IOptions<DabblerSecurityOptions>>().Value;
 
-        await context.Database.MigrateAsync();
+        await context.Database.EnsureCreatedAsync();
         await securityContext.Database.MigrateAsync();
 
         if (!await context.Products.AnyAsync())

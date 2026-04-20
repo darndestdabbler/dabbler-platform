@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AcmeCoffeeOnline.Shared.DTOs;
+using Dabbler.Security.Authorization;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -11,6 +12,7 @@ public sealed record ShellSessionState(
     IReadOnlyList<string> UserRoles,
     bool IsAdmin,
     bool IsSystemAdmin,
+    bool CanReachSecurityDashboard,
     string? ActiveOrganizationKey,
     string? ActiveOrganizationName,
     IReadOnlyList<OrganizationOptionDto> OrganizationOptions);
@@ -54,6 +56,9 @@ public sealed class ShellSessionStateLoader
             || rolesSet.Contains("BackofficeUserAdmin")
             || organizationOptions.Any(o => o.RoleNames.Contains("BackofficeUserAdmin", StringComparer.OrdinalIgnoreCase));
 
+        var canReachSecurityDashboard = BakedInRoles.All.Any(bakedIn =>
+            rolesSet.Contains(bakedIn, StringComparer.OrdinalIgnoreCase));
+
         return new ShellSessionState(
             user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty,
             user.FindFirst(ClaimTypes.Name)?.Value
@@ -62,6 +67,7 @@ public sealed class ShellSessionStateLoader
             userRoles,
             isAdmin,
             isSystemAdmin,
+            canReachSecurityDashboard,
             user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationKeyClaimType),
             user.FindFirstValue(UserSessionContextConstants.ActiveOrganizationNameClaimType),
             organizationOptions);

@@ -67,21 +67,27 @@
                 </MudNavLink>
             </MudNavGroup>
 
-            @if (_isAdmin)
+            @if (_isAdmin || _canReachSecurityDashboard)
             {
                 <MudDivider Class="my-2" />
                 <MudNavGroup Title="Admin" Icon="@Icons.Material.Filled.AdminPanelSettings"
                              Expanded="false">
-                    <MudNavLink Href="/admin/users"
-                                Icon="@Icons.Material.Filled.People">
-                        User Management
-                    </MudNavLink>
-                    @if (_isSystemAdmin)
+                    @if (_isAdmin)
                     {
-                        <MudNavLink Href="/admin/products"
-                                    Icon="@Icons.Material.Filled.Inventory">
-                            Product Management
+                        <MudNavLink Href="/admin/users"
+                                    Icon="@Icons.Material.Filled.People">
+                            User Management
                         </MudNavLink>
+                        @if (_isSystemAdmin)
+                        {
+                            <MudNavLink Href="/admin/products"
+                                        Icon="@Icons.Material.Filled.Inventory">
+                                Product Management
+                            </MudNavLink>
+                        }
+                    }
+                    @if (_canReachSecurityDashboard)
+                    {
                         <MudNavLink Href="/admin/security"
                                     Icon="@Icons.Material.Filled.Shield">
                             Security Dashboard
@@ -105,6 +111,7 @@
     private IReadOnlyList<string> _userRoles = Array.Empty<string>();
     private bool _isAdmin;
     private bool _isSystemAdmin;
+    private bool _canReachSecurityDashboard;
     private string? _activeOrganizationName;
     private IReadOnlyList<OrganizationOptionDto> _organizationOptions = [];
 
@@ -143,6 +150,7 @@
         _userRoles = shellState.UserRoles;
         _isAdmin = shellState.IsAdmin;
         _isSystemAdmin = shellState.IsSystemAdmin;
+        _canReachSecurityDashboard = shellState.CanReachSecurityDashboard;
         _activeOrganizationName = shellState.ActiveOrganizationName;
         _organizationOptions = shellState.OrganizationOptions;
     }

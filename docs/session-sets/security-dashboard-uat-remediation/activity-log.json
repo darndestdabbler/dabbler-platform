@@ -194,6 +194,68 @@
           "costUsd": 0.40122
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/nav-visibility-and-tab-gating",
+      "dateTime": "2026-04-20T11:00:00+00:00",
+      "description": "Closed UAT Finding 2 (Security nav hidden for non-SystemAdmin). Added CanReachSecurityDashboard field to ShellSessionState (computed via BakedInRoles.All) in ShellSessionStateLoader.cs; restructured the Admin nav group in MainLayout.razor so the Security Dashboard link surfaces for any baked-in role holder. Tab visibility remains a compiled-privilege decision (no Session 3 change to DabblerPageAuthorize or user-roles.json). This was carried over from the prior-attempt session (Sonnet 4.6 Max) that ran out of context before shipping.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/playwright-per-role-nav-and-tab-coverage",
+      "dateTime": "2026-04-20T11:00:00+00:00",
+      "description": "Added four Playwright tests in SecurityDashboardUatCoverageTests.cs using explicit roles: override: SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync, SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync, SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync, and UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync (Session 2 regression re-run on the newly-permitted persona).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/docker-blazor-static-asset-fix",
+      "dateTime": "2026-04-20T12:30:00+00:00",
+      "description": "Fixed a .NET 10 Docker infrastructure bug blocking every Playwright test (99/99 failing on /_framework/blazor.web.js 404). Root cause: Dockerfile.Web's publish step used --no-restore after a csproj-only restore — under .NET 10 SDK (confirmed 10.0.201) that suppresses Blazor static-asset discovery and leaves blazor.web.js out of wwwroot/_framework/ and the static-web-assets endpoints manifest. The same source under .NET 11 preview SDK publishes correctly, which masked the bug locally (dev machine had 11.0.100-preview.2). Fix: dropped --no-restore from docker/Dockerfile.Web. Also adopted the canonical .NET 10 Blazor template pattern in Program.cs and App.razor — removed UseStaticFiles(), moved MapStaticAssets() adjacent to MapRazorComponents() in the endpoint section, switched the <script> tag to the @Assets[] helper. Diagnosed via: curl /_framework/blazor.web.js from inside the playwright container, copying the publish manifest out via docker cp, and replicating the Dockerfile staged restore pattern in an ad-hoc SDK container to isolate the culprit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/docker-test-auth-and-db-fixes",
+      "dateTime": "2026-04-20T13:15:00+00:00",
+      "description": "Fixed two more pre-existing Docker infrastructure issues surfaced once the blazor.web.js 404 was resolved. (a) /test-auth/* endpoints returned 403 for playwright → web requests because IsLoopbackOrInMemoryRequest rejects bridge-network traffic. Added Authentication:SeededSession:AllowNonLoopback opt-in (defaults to false; takes effect only when Development or Test and SeededSession:Enabled=true) and enabled it via env var in docker-compose.yml for the web service. Endpoint guards now bypass the loopback check when the flag is set while still enforcing the shared secret. (b) web service inherited the LocalDB connection string from appsettings.Development.json (api had been overridden; web had not), causing PlatformNotSupportedException → HTTP 500 on every authenticated request. Added ConnectionStrings__DefaultConnection env var to the web service in docker-compose.yml matching the api's sqlserver connection string.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/run-regression-tests",
+      "dateTime": "2026-04-20T13:40:00+00:00",
+      "description": "Full Docker Playwright suite: 95 passed / 4 failed out of 99 (prior baseline: 1 passed / 98 failed). All 9 Session 3-relevant tests passed (7 SecurityDashboardUatCoverageTests + 2 SecurityDashboardFiveTabSmokeTests). The 4 remaining failures are pre-existing Docker-specific bugs previously masked by the blazor.web.js 404 and are not caused by Session 3's changes: SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync (access-denied assertion on /admin/products), RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync (HTTP 500 on /products/17 via web → api 401), OrdersWorkflowTests.OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync (sqlserver state pollution between runs), EdgeCaseTests.AccessDenied_CustomerRole_BlockedFromCustomersPageAsync (access-denied UI contract drift). Filed as Finding 10 in spec.md with Session 4 Step 0 triage assignment so they are not indefinitely deferred. Non-Playwright build + test suites stayed green.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/verify",
+      "dateTime": "2026-04-20T13:55:00+00:00",
+      "description": "Cross-provider verification via task_type=session-verification, max_tier=2 to route to a non-Anthropic provider (Sessions 1 and 2 used opus). Verifier: gemini-pro. Verdict: Pass — no issues raised. Raw review saved to session-reviews/session-003.md. One benign observation: the DatabaseInitializer.cs MigrateAsync → EnsureCreatedAsync change (a prior-attempt Session 3 Docker fix that also shipped in this commit) was noted as low-risk and non-regressive.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 10582,
+          "outputTokens": 1324,
+          "costUsd": 0.0264675
+        }
+      ]
     }
   ]
 }

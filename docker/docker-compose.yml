@@ -31,6 +31,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AcmeCoffeeOnline_Dev;User Id=sa;Password=DabblerPlatform_2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
     ports:
       - "5011:8080"
     depends_on:
@@ -53,6 +54,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       Services__ApiBaseUrl: http://api:8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AcmeCoffeeOnline_Dev;User Id=sa;Password=DabblerPlatform_2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      Authentication__SeededSession__AllowNonLoopback: "true"
     ports:
       - "5010:8080"
     depends_on:
@@ -71,6 +74,7 @@ services:
       dockerfile: docker/Dockerfile.Playwright
     environment:
       PLAYWRIGHT_BASE_URL: http://web:8080
+      PLAYWRIGHT_API_BASE_URL: http://api:8080
     depends_on:
       web:
         condition: service_healthy

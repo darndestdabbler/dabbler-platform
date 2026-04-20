@@ -170,6 +170,46 @@ drawn directly from the human's inline feedback on
 - Update the bUnit and Playwright tests that assert arrow-key
   behaviour — delete those assertions (do not try to keep them alive).
 
+### 10. Docker test infrastructure — four pre-existing failures surfaced by Session 3
+
+Session 3 unmasked four pre-existing Docker-specific Playwright failures
+that were previously hidden by the `_framework/blazor.web.js` 404. All
+four existed before Session 3 and are unrelated to Finding 2. They must
+be triaged **at the start of Session 4** (before Session 4's scope work
+begins), not deferred past this set. Session 3 landed 95/99 green; these
+four are the gap.
+
+- **10.1** `SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync`
+  fails at `SmokeTests.cs:253`. The test asserts `access-denied-page` is
+  visible when `kbrown@acmecoffee.com` (BackofficeUserAdmin) navigates
+  to `/admin/products`. Either the test's assertion is stale (products
+  admin is now reachable by the role) or the page-authorization rule
+  drifted. Needs a same-session decision: update the test OR restore
+  the rule.
+- **10.2** `RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync`
+  fails with `HTTP 500: GET http://web:8080/products/17`. Web container
+  logs show `HttpRequestException: 401 (Unauthorized)` from the typed
+  `ProductApiClient` calling the api. Root cause is likely that the
+  api's authorization for `GET /api/products/{id}` rejects the web's
+  `X-Internal-Api-Key` + `X-App-User-Id` headers for a Customer-role
+  user under the Docker bridge network. Verify the internal-api-key
+  flow still authenticates in Docker.
+- **10.3** `OrdersWorkflowTests.OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync`
+  fails with `Assert.Equal` — expected `""` but got a previous run's
+  `UAT edit <guid>` note. This is sqlserver-container **state
+  pollution** between runs (the seeded AcmeCoffee DB retains notes
+  from prior test runs). Either reset the AcmeCoffee schema between
+  runs or scope the test to a unique order per run.
+- **10.4** `EdgeCaseTests.AccessDenied_CustomerRole_BlockedFromCustomersPageAsync`
+  fails waiting for `GetByRole(Link, "Go to sign in")` on the
+  access-denied page. The access-denied page no longer surfaces that
+  link, or the test's selector drifted. Align the test with the
+  current page contract.
+
+**Assigned to:** Session 4 Step 0 (pre-scope triage). Session 4 must
+confirm all four are fixed or explicitly retired before starting
+Session 4's primary work.
+
 ## Goals
 
 1. Every UAT finding above is closed, verified by:
@@ -313,6 +353,12 @@ on the broader persona set.
 ### Session 4 of 8: Organization scope filter and mutation UX
 
 **Steps:**
+0. **Pre-scope triage of Finding 10** (the four Docker-test-infra
+   failures surfaced by Session 3). For each of 10.1–10.4: confirm
+   the test is run under Docker, identify root cause, and either
+   fix the app/test or formally retire the assertion with a
+   one-line rationale in this spec. Full 99-test Playwright must
+   go clean (or cleanly-green-with-retired-tests) before Step 1.
 1. Fix the `OrganizationScopeFilter` so CrossOrgUserAdmin
    (`CanSeeAllOrganizations = true`) sees every organization, and
    BackofficeUser sees only its assigned org's records. The EF

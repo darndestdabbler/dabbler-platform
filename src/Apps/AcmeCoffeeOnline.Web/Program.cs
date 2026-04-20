@@ -298,7 +298,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 // Re-execute /not-found ONLY for genuine 404 responses. Do not intercept
 // 401/403 — those must surface through the Blazor <NotAuthorized> fragment
@@ -364,7 +363,7 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
         HttpContext context,
         IUserSessionContextService sessionContextService) =>
     {
-        if (!IsLoopbackOrInMemoryRequest(context))
+        if (!authOptions.SeededSession.AllowNonLoopback && !IsLoopbackOrInMemoryRequest(context))
         {
             return Results.StatusCode(StatusCodes.Status403Forbidden);
         }
@@ -412,7 +411,7 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
         string? email,
         bool clear = false) =>
     {
-        if (!IsLoopbackOrInMemoryRequest(context))
+        if (!authOptions.SeededSession.AllowNonLoopback && !IsLoopbackOrInMemoryRequest(context))
         {
             return Results.StatusCode(StatusCodes.Status403Forbidden);
         }
@@ -454,7 +453,7 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
         string? userId,
         int? organizationId) =>
     {
-        if (!IsLoopbackOrInMemoryRequest(context))
+        if (!authOptions.SeededSession.AllowNonLoopback && !IsLoopbackOrInMemoryRequest(context))
         {
             return Results.StatusCode(StatusCodes.Status403Forbidden);
         }
@@ -541,7 +540,7 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
         IUserSessionContextService sessionContextService,
         int organizationId) =>
     {
-        if (!IsLoopbackOrInMemoryRequest(context))
+        if (!authOptions.SeededSession.AllowNonLoopback && !IsLoopbackOrInMemoryRequest(context))
         {
             return Results.StatusCode(StatusCodes.Status403Forbidden);
         }
@@ -588,7 +587,7 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
 
     app.MapGet("/test-auth/sign-out", async (HttpContext context) =>
     {
-        if (!IsLoopbackOrInMemoryRequest(context))
+        if (!authOptions.SeededSession.AllowNonLoopback && !IsLoopbackOrInMemoryRequest(context))
         {
             return Results.StatusCode(StatusCodes.Status403Forbidden);
         }
@@ -882,6 +881,8 @@ app.MapGet("/auth/switch-organization", async (
     var safeReturnUrl = IsLocalUrl(returnUrl) ? returnUrl! : "/";
     return Results.Redirect(safeReturnUrl);
 }).RequireAuthorization();
+
+app.MapStaticAssets();
 
 app.MapRazorComponents<AcmeCoffeeOnline.Web.Components.App>()
     .AddInteractiveServerRenderMode();

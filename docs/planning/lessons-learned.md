@@ -565,3 +565,120 @@ Use this structure for new entries:
   summaries, and similar narrative prose, use `task_type="summarization"`.
   Consider adding a dedicated `change-log` or `narrative` task type with
   a no-op template if this pattern recurs.
+
+## `.NET 10` Publish With `--no-restore` Silently Drops Blazor Framework Assets
+
+- **Context:** Session 3 of `security-dashboard-uat-remediation`.
+  The Docker Playwright suite returned 99/99 failures because every
+  browser saw `GET /_framework/blazor.web.js` 404. Local `dotnet
+  publish` produced the file correctly; only the Docker image
+  omitted it.
+- **Failure or friction:** `Dockerfile.Web` used the classic
+  "copy csprojs → restore → copy source → publish `--no-restore`"
+  layer-caching pattern. Under `.NET 10 SDK (10.0.201)` specifically,
+  `dotnet publish --no-restore` after a csproj-only restore skips
+  the Blazor static-asset discovery pass, so `blazor.web.js` is never
+  added to `wwwroot/_framework/` or the
+  `.staticwebassets.endpoints.json` manifest. The bug was masked
+  locally because the dev machine used `.NET 11 preview SDK`, which
+  handles the same staged pattern correctly. SignalR (`/_blazor/negotiate`)
+  kept returning 200, which made it look like a Blazor wiring issue
+  rather than an asset-pipeline issue.
+- **Lesson:** Do not pass `--no-restore` to `dotnet publish` in a
+  `.NET 10` Docker build, even if an earlier stage ran `dotnet
+  restore`. The redundant restore is a no-op for package resolution
+  but is required to fire source-aware MSBuild targets (including
+  Blazor's static-asset registration). Also, when a Docker-only
+  build misbehaves, always compare the SDK inside the build image
+  against the local SDK — silent MSBuild-behaviour drift between
+  SDK versions is a real failure mode.
+- **Action for future sessions:** (1) When writing or editing a
+  `Dockerfile.*` for a Blazor Server app in this repo, leave
+  `dotnet publish` without `--no-restore`. Keep the csproj-first
+  restore layer for caching; it still works. (2) When a Docker
+  build produces output that differs from a local build, run
+  `dotnet --version` on both sides before debugging anything else.
+  (3) If `/_framework/blazor.web.js` 404s, `curl` it from inside
+  the web container, then grep the `*.staticwebassets.endpoints.json`
+  manifest — if the route is missing from the manifest, it is a
+  publish-pipeline problem, not a runtime middleware problem.
+
+## `.NET 9/10` Blazor: `MapStaticAssets()` Replaces `UseStaticFiles()` In The Endpoint Section
+
+- **Context:** Same Session 3 investigation. The prior attempt
+  added `app.MapStaticAssets()` next to `app.UseStaticFiles()` in
+  the middleware section of `Program.cs` and saw no change — which
+  initially suggested the problem was elsewhere.
+- **Failure or friction:** In `.NET 9+`, `MapStaticAssets()` is
+  designed to **replace** `UseStaticFiles()`, not coexist with it,
+  and it is an endpoint-routing operation: templates call it in the
+  `Map*` section adjacent to `MapRazorComponents<>()`, not in the
+  middleware section. Calling both middlewares in the wrong section
+  does not error out, it just produces a subtly wrong asset pipeline.
+  Additionally, `App.razor` should reference
+  `@Assets["_framework/blazor.web.js"]` (the helper that consults
+  the manifest), not the raw path.
+- **Lesson:** The canonical `.NET 10` Blazor Web App template is the
+  source of truth for the Program.cs shape; diff against `dotnet new
+  blazor -int Server` output when debugging asset-pipeline behaviour.
+- **Action for future sessions:** When working on Blazor static
+  assets: remove `UseStaticFiles()` if present, call `MapStaticAssets()`
+  immediately before `MapRazorComponents<>()`, and use the `@Assets[]`
+  helper in `App.razor`. If the asset pipeline behaves strangely,
+  `docker run --rm mcr.microsoft.com/dotnet/sdk:10.0 bash -c "dotnet new
+  blazor -o ref -int Server && ..."` gives a clean reference to diff
+  against.
+
+## Docker E2E: Loopback-Only Dev Endpoints Need An Explicit Bridge Bypass
+
+- **Context:** Same Session 3 investigation, after the blazor.web.js
+  fix. All authenticated Playwright tests still failed, because
+  `/test-auth/*` endpoints returned 403 to the playwright container.
+- **Failure or friction:** The `/test-auth/*` endpoints in
+  `AcmeCoffeeOnline.Web/Program.cs` gate on
+  `IsLoopbackOrInMemoryRequest` AND the `X-Test-Auth-Secret` header.
+  In Docker, playwright → web bridge-network traffic is not
+  loopback, so the guard rejects every request before checking the
+  secret. The 403 was previously invisible because the blazor.web.js
+  404 aborted tests earlier.
+- **Lesson:** Dev-only loopback gates should have an explicit
+  opt-in bypass for non-loopback callers that still trust the
+  shared secret — otherwise any bridge-networked E2E harness
+  (Docker, k8s, podman) is stuck. Leaving the bypass default-false
+  keeps the layered defense in plain Development runs.
+- **Action for future sessions:** When adding dev-only endpoints
+  protected by `IsLoopbackOrInMemoryRequest` (or equivalent), also
+  add a config-gated `AllowNonLoopback` knob on the options type,
+  enforce that it only takes effect in Development/Test, and
+  document the expected env-var wiring for Docker-compose. If a
+  bridge-networked test run returns 403 on a dev endpoint that
+  works via localhost, check the loopback gate before suspecting
+  secret mismatch.
+
+## Docker E2E: Connection Strings Must Be Set Per-Service
+
+- **Context:** Session 3 Docker infrastructure cleanup. After
+  fixing the test-auth 403, every authenticated Playwright page
+  still hit an HTTP 500; the web container log showed
+  `PlatformNotSupportedException: LocalDB is not supported on this
+  platform.`
+- **Failure or friction:** A prior Docker-infra pass had set
+  `ConnectionStrings__DefaultConnection` on the `api` service in
+  `docker/docker-compose.yml` but not on the `web` service. The
+  web service therefore inherited the `Server=(localdb)\...`
+  connection string from `appsettings.Development.json`, which
+  cannot resolve on a Linux container. Symptom surfaced only after
+  the earlier blocker was cleared.
+- **Lesson:** In a multi-service Docker-compose stack where each
+  service opens its own DbContext, the connection-string override
+  must be set on **every** service that talks to the DB, not just
+  the API. Don't assume a web-for-Blazor service is "just a
+  front-end" that delegates all DB access to the API — this repo's
+  web also owns a `DabblerSecurityDbContext` directly.
+- **Action for future sessions:** When reviewing a `docker-compose.yml`
+  for this repo, enumerate the services and cross-check each one
+  against its app's DbContext dependencies. If the service opens a
+  DbContext, it needs `ConnectionStrings__<Name>` set in `environment:`.
+  Also prefer a compose-level `x-common-env` anchor for shared
+  config like connection strings so future drift surfaces in one
+  place rather than per-service.

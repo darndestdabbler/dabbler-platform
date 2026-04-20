@@ -17,7 +17,9 @@ namespace AcmeCoffeeOnline.Playwright;
 [Collection(PlaywrightCollection.Name)]
 public sealed class SecurityDashboardUatCoverageTests
 {
-    private const string AdminEmail = "admin@acmecoffee.com";
+    private const string AdminEmail    = "admin@acmecoffee.com";
+    private const string AsmithEmail   = "asmith@acmecoffee.com";
+    private const string JdoeEmail     = "jdoe@acmecoffee.com";
 
     private readonly PlaywrightFixture _fixture;
 
@@ -140,6 +142,145 @@ public sealed class SecurityDashboardUatCoverageTests
             await Assertions
                 .Expect(page.GetByTestId("users-master-grid"))
                 .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions
+                .Expect(page.GetByTestId("user-role-assignment-details"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // ── Session 3: Per-role tab gating and Security nav visibility ───────────
+
+    // UAT finding 2: SystemAdmin sees the Security Dashboard nav entry in the
+    // Admin drawer group, reaches the page, and sees all five tabs.
+    [Fact]
+    public async Task SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync()
+    {
+        // UAT: admin@acmecoffee.com → Admin nav group → Security Dashboard →
+        //      five tabs visible (Role Master Details, Default Masks,
+        //      Organization Master Details, Users and Role Assignment,
+        //      Role Documentation).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }))
+                .ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Organization Master Details" }))
+                .ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Users and Role Assignment" }))
+                .ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Documentation" }))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 2: CrossOrgUserAdmin sees the Security Dashboard nav entry,
+    // can reach the page, and sees exactly three tabs (Org, Users, Role Doc).
+    [Fact]
+    public async Task SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync()
+    {
+        // UAT: asmith@acmecoffee.com (CrossOrgUserAdmin) → Admin nav group →
+        //      Security Dashboard → three tabs: Organization Master Details,
+        //      Users and Role Assignment, Role Documentation.
+        //      Role Master Details and Default Masks must be absent.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AsmithEmail, roles: "CrossOrgUserAdmin");
+
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Organization Master Details" }))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Users and Role Assignment" }))
+                .ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Documentation" }))
+                .ToBeVisibleAsync();
+
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }))
+                .ToHaveCountAsync(0);
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 2: Baked-in User (represented by jdoe) sees the Security
+    // Dashboard nav entry, reaches the page, and sees only Role Documentation.
+    [Fact]
+    public async Task SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync()
+    {
+        // UAT: jdoe@acmecoffee.com (baked-in User role) → Admin nav group →
+        //      Security Dashboard → one tab: Role Documentation.
+        //      All other tabs must be absent.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, JdoeEmail, roles: "User");
+
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Documentation" }))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }))
+                .ToHaveCountAsync(0);
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }))
+                .ToHaveCountAsync(0);
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Organization Master Details" }))
+                .ToHaveCountAsync(0);
+            await Assertions.Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Users and Role Assignment" }))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 2, step 4: Re-run Session 2 Users-tab load test under
+    // CrossOrgUserAdmin to confirm the DbContextFactory fix holds across
+    // the broader persona set now that this role can reach the page.
+    [Fact]
+    public async Task UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync()
+    {
+        // UAT: asmith@acmecoffee.com (CrossOrgUserAdmin) → /admin/security →
+        //      Users and Role Assignment tab → master-grid and details panel
+        //      render without a circuit exception.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AsmithEmail, roles: "CrossOrgUserAdmin");
+
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Users and Role Assignment" }).ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId("users-master-grid"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
             await Assertions
                 .Expect(page.GetByTestId("user-role-assignment-details"))
                 .ToBeVisibleAsync(new() { Timeout = 10_000 });
