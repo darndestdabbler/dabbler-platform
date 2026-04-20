@@ -31,7 +31,7 @@
                 </div>
             </TitleContent>
             <ChildContent>
-                <div class="master-detail-results-scroll" style="max-height:@ScrollMaxHeight;overflow-y:auto;">
+                <div class="master-detail-results-body" data-testid="@($"{TestId}-body")">
                     @ResultsContent
                 </div>
             </ChildContent>
@@ -88,13 +88,10 @@
     public string? CollapsedSummaryBadge { get; set; }
 
     /// <summary>
-    /// Max height of the results scroll region. Defaults to 24rem which lands
-    /// around a six-row viewport in the current dashboard tab density.
+    /// The results content (filter + action row + grid). Individual grids own
+    /// their own scroll regions so the filter controls stay visible when the
+    /// row set grows beyond the available viewport.
     /// </summary>
-    [Parameter]
-    public string ScrollMaxHeight { get; set; } = "24rem";
-
-    /// <summary>The results content (filter + action row + grid).</summary>
     [Parameter, EditorRequired]
     public RenderFragment ResultsContent { get; set; } = default!;
 

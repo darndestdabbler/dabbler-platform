@@ -576,6 +576,101 @@
           "costUsd": 0.05106
         }
       ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 1,
+      "stepKey": "session-8/review-session-7-against-plan",
+      "dateTime": "2026-04-20T22:07:50.832122+00:00",
+      "description": "Reviewed Session 7 spec contract, activity log, raw verifier notes, and live components. Routed the classification through route(task_type='analysis') -> gemini-pro. Outcome: (1) filter-change re-expand + summary-clear is a true Session 8 defect; (2) scroll region is applied at the wrong level (whole management surface scrolls instead of just the grid region); (3) DisplayAlias no longer uses ellipsis, but the live inline editor still needs a true wrapped-editor treatment to satisfy Session 8's 'wrapped body-typography styling in the visible editor/cell' wording.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 10343,
+          "outputTokens": 2983,
+          "costUsd": 0.03679625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 2,
+      "stepKey": "session-8/implement-filter-change-reexpand",
+      "dateTime": "2026-04-20T22:35:38.589722+00:00",
+      "description": "Implemented filter-change callbacks from RoleMasterGrid, OrganizationMasterGrid, UsersMasterGrid, and DefaultMasksGrid up into their tab composers. Session 8 contract now re-expands the shell and clears the collapsed summary state for Role/Organization/Users; Default Masks re-expands its lighter shell variant on filter change.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 3,
+      "stepKey": "session-8/finish-displayalias-readability-fix",
+      "dateTime": "2026-04-20T22:35:38.591851+00:00",
+      "description": "Finished the DisplayAlias readability fix in RoleMasterGrid. The inline editor now uses a wrapped two-line MudTextField (textarea-backed) with body-sized typography (`font-size:0.875rem; line-height:1.35`) and the existing 220px column cap, eliminating the remaining effective single-line truncation in the visible editor.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 4,
+      "stepKey": "session-8/fix-shell-scroll-region-behavior",
+      "dateTime": "2026-04-20T22:35:38.593423+00:00",
+      "description": "Moved the scrollable viewport from the shared MasterDetailExpansionShell body into the individual grid regions (`*-grid-scroll-region`) so filter controls and top-row actions stay visible while only the results grid scrolls. Updated Role, Organization, Users, and Default Masks surfaces to use per-grid max-height scroll regions (24rem; 28rem for Default Masks).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 5,
+      "stepKey": "session-8/update-coverage-for-remediation",
+      "dateTime": "2026-04-20T22:35:38.594476+00:00",
+      "description": "Updated Session 8 coverage. Routed the test-shape review through route(task_type='test-generation') -> gemini-pro, then added bUnit coverage for filter-change callback plumbing / shell reset behavior and DisplayAlias editor shape, plus Playwright coverage for Role/Organization/Users summary-reset flows and the wrapped DisplayAlias editor / scoped scroll-region assertions.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 21486,
+          "outputTokens": 6458,
+          "costUsd": 0.0823575
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 6,
+      "stepKey": "session-8/run-regression-tests",
+      "dateTime": "2026-04-20T22:35:38.596030+00:00",
+      "description": "Validation results: `dotnet build Dabbler.Platform.sln` green (0 errors, expected warnings only); `dotnet test Dabbler.Platform.sln --no-build` green with all 785 tests passing locally, including Playwright 124/124. Docker Playwright regression run finished 122/124: the two remaining failures are outside Session 8's write scope and Docker-only - `ProductAdministrationWorkflowTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync` (Create button stayed disabled in Docker only) and the already-documented org-switch timing flake `MultiOrganizationWorkflowTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync`. A follow-up routed analysis confirmed they are unrelated/pre-existing, so Session 8 proceeded to verification and closeout.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 776,
+          "outputTokens": 182,
+          "costUsd": 0.00279
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 7,
+      "stepKey": "session-8/verify",
+      "dateTime": "2026-04-21T02:08:00+00:00",
+      "description": "Cross-provider verification via task_type=session-verification. Verifier: opus. Raw review saved to session-reviews/session-008.md. Verdict: PASS with only low-severity observations (missing extra bUnit depth for Organization/Users tab composers and a non-blocking Default Masks scroll-height disclosure note).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 49317,
+          "outputTokens": 11268,
+          "costUsd": 1.584855
+        }
+      ]
     }
   ]
 }

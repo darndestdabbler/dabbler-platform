@@ -66,4 +66,28 @@ public class DefaultMasksTabTests
         cut.FindAll("[data-testid='sensitive-name-safety-net-clear']").Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task DefaultMasksTab_FilterChange_ReexpandsShell()
+    {
+        var (ctx, _) = Build(new SecurityConfiguration
+        {
+            DefaultMasks =
+            [
+                new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" },
+            ],
+        });
+        using var _1 = ctx;
+
+        var cut = ctx.RenderComponent<DefaultMasksTab>();
+        var grid = cut.FindComponent<DefaultMasksGrid>();
+
+        cut.Find("[data-testid='default-masks-shell-header']").Click();
+        cut.Find("[data-testid='default-masks-shell-summary']").TextContent.Should().Contain("Default Masks:");
+
+        await cut.InvokeAsync(() => grid.Instance.FiltersChanged.InvokeAsync());
+
+        cut.FindAll("[data-testid='default-masks-shell-summary']").Should().BeEmpty();
+        cut.Find("[data-testid='default-masks-shell-header']").TextContent.Should().Contain("Default Masks");
+    }
+
 }

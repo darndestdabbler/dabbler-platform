@@ -29,58 +29,61 @@
         </MudButton>
     </div>
 
-    <MudDataGrid T="OrganizationRow"
-                 Items="@FilteredRows"
-                 Dense="true"
-                 Hover="true"
-                 Bordered="true"
-                 Striped="true"
-                 SelectedItemChanged="OnSelectionChangedAsync"
-                 SelectedItem="@_selected"
-                 data-testid="organization-master-grid">
-        <Columns>
-            <TemplateColumn Title="Key" Sortable="true">
-                <CellTemplate>
-                    <MudText Typo="Typo.body2"
-                             data-testid="@($"organization-row-{context.Item.Id}-key")">
-                        @context.Item.Key
-                    </MudText>
-                </CellTemplate>
-            </TemplateColumn>
-            <PropertyColumn Property="e => e.Name" Title="Name" Sortable="true" />
-            <TemplateColumn Title="Internal" Sortable="true">
-                <CellTemplate>
-                    <MudChip T="string"
-                             Size="Size.Small"
-                             Color="@(context.Item.IsInternal ? Color.Primary : Color.Default)"
-                             Variant="Variant.Outlined"
-                             data-testid="@($"organization-row-{context.Item.Id}-internal-chip")">
-                        @(context.Item.IsInternal ? "Internal" : "External")
-                    </MudChip>
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn Title="Status" Sortable="true">
-                <CellTemplate>
-                    <MudChip T="string"
-                             Size="Size.Small"
-                             Color="@(context.Item.IsActive ? Color.Success : Color.Warning)"
-                             Variant="Variant.Outlined"
-                             data-testid="@($"organization-row-{context.Item.Id}-active-chip")">
-                        @(context.Item.IsActive ? "Active" : "Archived")
-                    </MudChip>
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn Title="Active Members" Sortable="true">
-                <CellTemplate>
-                    <MudText Typo="Typo.body2"
-                             Style="text-align:right;"
-                             data-testid="@($"organization-row-{context.Item.Id}-membership-count")">
-                        @context.Item.ActiveMembershipCount
-                    </MudText>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-    </MudDataGrid>
+    <div class="master-grid-scroll-region" style="max-height:24rem; overflow-y:auto;"
+         data-testid="organization-master-grid-scroll-region">
+        <MudDataGrid T="OrganizationRow"
+                     Items="@FilteredRows"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="true"
+                     Striped="true"
+                     SelectedItemChanged="OnSelectionChangedAsync"
+                     SelectedItem="@_selected"
+                     data-testid="organization-master-grid">
+            <Columns>
+                <TemplateColumn Title="Key" Sortable="true">
+                    <CellTemplate>
+                        <MudText Typo="Typo.body2"
+                                 data-testid="@($"organization-row-{context.Item.Id}-key")">
+                            @context.Item.Key
+                        </MudText>
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.Name" Title="Name" Sortable="true" />
+                <TemplateColumn Title="Internal" Sortable="true">
+                    <CellTemplate>
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="@(context.Item.IsInternal ? Color.Primary : Color.Default)"
+                                 Variant="Variant.Outlined"
+                                 data-testid="@($"organization-row-{context.Item.Id}-internal-chip")">
+                            @(context.Item.IsInternal ? "Internal" : "External")
+                        </MudChip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Status" Sortable="true">
+                    <CellTemplate>
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="@(context.Item.IsActive ? Color.Success : Color.Warning)"
+                                 Variant="Variant.Outlined"
+                                 data-testid="@($"organization-row-{context.Item.Id}-active-chip")">
+                            @(context.Item.IsActive ? "Active" : "Archived")
+                        </MudChip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Active Members" Sortable="true">
+                    <CellTemplate>
+                        <MudText Typo="Typo.body2"
+                                 Style="text-align:right;"
+                                 data-testid="@($"organization-row-{context.Item.Id}-membership-count")">
+                            @context.Item.ActiveMembershipCount
+                        </MudText>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </div>
 </div>
 
 @code {
@@ -89,6 +92,9 @@
 
     [Parameter]
     public EventCallback CreateRequested { get; set; }
+
+    [Parameter]
+    public EventCallback FiltersChanged { get; set; }
 
     private FilterPanel<OrganizationRow>? _filterPanel;
     private CompositeFilterDescriptor? _filter;
@@ -248,10 +254,17 @@
         };
     }
 
-    private void OnFilterChanged(CompositeFilterDescriptor? descriptor)
+    private async Task OnFilterChanged(CompositeFilterDescriptor? descriptor)
     {
         _filter = descriptor;
-        StateHasChanged();
+        if (FiltersChanged.HasDelegate)
+        {
+            await FiltersChanged.InvokeAsync();
+        }
+        else
+        {
+            StateHasChanged();
+        }
     }
 
     private async Task OnSelectionChangedAsync(OrganizationRow? row)

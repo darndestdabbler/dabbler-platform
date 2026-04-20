@@ -17,7 +17,8 @@
         <ResultsContent>
             <OrganizationMasterGrid @ref="_grid"
                                     SelectedOrganizationIdChanged="OnSelectedOrganizationIdChangedAsync"
-                                    CreateRequested="OnCreateRequestedAsync" />
+                                    CreateRequested="OnCreateRequestedAsync"
+                                    FiltersChanged="OnFiltersChangedAsync" />
         </ResultsContent>
     </MasterDetailExpansionShell>
 
@@ -69,6 +70,14 @@
     private Task OnResultsExpandedChangedAsync(bool expanded)
     {
         _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFiltersChangedAsync()
+    {
+        _isResultsExpanded = true;
+        _summaryText = null;
         StateHasChanged();
         return Task.CompletedTask;
     }

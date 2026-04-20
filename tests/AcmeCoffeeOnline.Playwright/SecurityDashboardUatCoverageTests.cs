@@ -1195,6 +1195,9 @@ public sealed class SecurityDashboardUatCoverageTests
             await Assertions
                 .Expect(page.GetByTestId("role-details-section"))
                 .ToBeVisibleAsync();
+            await Assertions
+                .Expect(page.Locator("[data-testid='role-master-grid-scroll-region'] [data-testid='role-master-details-shell-header']"))
+                .ToHaveCountAsync(0);
         }
         finally
         {
@@ -1202,18 +1205,132 @@ public sealed class SecurityDashboardUatCoverageTests
         }
     }
 
-    // UAT finding 8: the DisplayAlias column text must be readable — no
-    // clipping of ordinary aliases and no oversized font vs the Description
-    // column. Assert that the cell renders the seeded alias without breaking
-    // the column width cap, and that the MudTextField wrapper is visible so
-    // the inline editor remains usable.
+    // Session 8 remediation: after the user returns to the expanded results
+    // surface and changes a filter, the old collapsed-row summary must be
+    // cleared so the next collapse shows the generic panel header instead of
+    // stale selection context.
+    [Fact]
+    public async Task RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+            await page.GetByTestId("role-row-BackofficeUser")
+                .Locator("xpath=ancestor::tr[1]")
+                .ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId("role-master-details-shell-summary"))
+                .ToBeVisibleAsync();
+
+            await page.GetByTestId("role-master-details-shell-header").ClickAsync();
+            await page.GetByRole(AriaRole.Textbox, new() { Name = "Canonical name" }).First.FillAsync("System");
+            await page.GetByTestId("role-master-details-shell-header").ClickAsync();
+
+            var summary = page.GetByTestId("role-master-details-shell-summary");
+            await Assertions.Expect(summary).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            Assert.Equal("Roles", (await summary.InnerTextAsync()).Trim());
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    [Fact]
+    public async Task OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Organization Master Details" }).ClickAsync();
+            await page.GetByTestId("organization-row-1-key")
+                .Locator("xpath=ancestor::tr[1]")
+                .ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId("organization-master-details-shell-summary"))
+                .ToBeVisibleAsync();
+
+            await page.GetByTestId("organization-master-details-shell-header").ClickAsync();
+            await page.GetByTestId("organization-master-grid-container")
+                .GetByRole(AriaRole.Textbox, new() { Name = "Key" })
+                .First
+                .FillAsync("customer-");
+            await page.GetByTestId("organization-master-details-shell-header").ClickAsync();
+
+            var summary = page.GetByTestId("organization-master-details-shell-summary");
+            await Assertions.Expect(summary).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            Assert.Equal("Organizations", (await summary.InnerTextAsync()).Trim());
+            await Assertions
+                .Expect(page.Locator("[data-testid='organization-master-grid-scroll-region'] [data-testid='organization-master-details-shell-header']"))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    [Fact]
+    public async Task UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync()
+    {
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Users and Role Assignment" }).ClickAsync();
+
+            var firstRow = page.Locator("[data-testid^='users-row-'][data-testid$='-status-chip']").First
+                .Locator("xpath=ancestor::tr[1]");
+            await Assertions.Expect(firstRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await firstRow.ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId("users-and-role-assignment-shell-summary"))
+                .ToBeVisibleAsync();
+
+            await page.GetByTestId("users-and-role-assignment-shell-header").ClickAsync();
+            await page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).First.FillAsync("admin@");
+            await page.GetByTestId("users-and-role-assignment-shell-header").ClickAsync();
+
+            var summary = page.GetByTestId("users-and-role-assignment-shell-summary");
+            await Assertions.Expect(summary).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            Assert.Equal("Users", (await summary.InnerTextAsync()).Trim());
+            await Assertions
+                .Expect(page.Locator("[data-testid='users-master-grid-scroll-region'] [data-testid='users-and-role-assignment-shell-header']"))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 8 / Session 8 remediation: the DisplayAlias editor must be
+    // a wrapped, body-sized editor in the visible cell rather than an
+    // oversized single-line input that clips long values horizontally.
     [Fact]
     public async Task RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync()
     {
         // UAT: admin@acmecoffee.com → Role Master Details → BackofficeUser
-        //      row → Display alias cell is visible, carries the seeded
-        //      alias "Backoffice User", and its bounding box stays within
-        //      the Session 7 220px column cap.
+        //      row → Display alias editor renders the seeded alias in a
+        //      wrapped body-sized textarea and still respects the column cap.
         var page = await _fixture.CreatePageAsync();
         try
         {
@@ -1227,17 +1344,18 @@ public sealed class SecurityDashboardUatCoverageTests
             var aliasField = page.GetByTestId("role-row-BackofficeUser-alias");
             await Assertions.Expect(aliasField).ToBeVisibleAsync(new() { Timeout = 10_000 });
 
-            // MudTextField's unmatched `data-testid` attribute splats onto
-            // the rendered <input> element itself (Variant.Text), so the
-            // test id locator IS the input. Use InputValueAsync rather
-            // than InnerText or a descendant input lookup.
             var aliasValue = await aliasField.InputValueAsync();
             Assert.Equal("Backoffice User", aliasValue);
 
-            // The cell bounding box must respect the Session 7 column cap —
-            // the enclosing <td>'s max-width is 220px; the input itself can
-            // fill that cap, so the locator bounding box should stay at or
-            // under the cap (plus a small sub-pixel tolerance).
+            var tagName = await aliasField.EvaluateAsync<string>("el => el.tagName");
+            Assert.Equal("TEXTAREA", tagName);
+
+            var rows = await aliasField.EvaluateAsync<int>("el => parseInt(el.getAttribute('rows') || '0', 10)");
+            Assert.True(rows >= 2, $"Display alias editor should expose at least 2 rows, saw {rows}.");
+
+            var fontSize = await aliasField.EvaluateAsync<string>("el => getComputedStyle(el).fontSize");
+            Assert.Equal("14px", fontSize);
+
             var box = await aliasField.BoundingBoxAsync();
             Assert.NotNull(box);
             Assert.True(box!.Width <= 240,

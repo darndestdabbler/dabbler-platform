@@ -134,6 +134,35 @@ public class UsersMasterGridTests
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("2 of 2 users"));
     }
 
+    [Fact]
+    public void FilterChange_RaisesFiltersChanged_AndKeepsScrollRegionScopedToGrid()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(configureServices: services =>
+        {
+            RegisterQueryService(services, Alice, Bob, InactiveCarol);
+        });
+
+        var filterChangedCount = 0;
+        var cut = ctx.RenderComponent<UsersMasterGrid>(parameters => parameters
+            .Add(x => x.FiltersChanged, () =>
+            {
+                filterChangedCount++;
+                return Task.CompletedTask;
+            }));
+
+        var filterPanel = cut.FindComponent<FilterPanel<AdminUserRow>>();
+        cut.InvokeAsync(() =>
+            filterPanel.Instance.Coordinator.SetFilter(
+                0,
+                nameof(AdminUserRow.Email),
+                FilterOperators.Contains,
+                "alice"));
+
+        cut.WaitForAssertion(() => filterChangedCount.Should().Be(1));
+        cut.Find("[data-testid='users-master-grid-scroll-region']").Should().NotBeNull();
+    }
+
     private static void RegisterQueryService(IServiceCollection services, params AdminUserRow[] rows)
     {
         var mock = new Mock<IAdminUserQueryService>();

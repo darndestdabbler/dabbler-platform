@@ -21,10 +21,10 @@
                                 IsExpanded="@_isResultsExpanded"
                                 IsExpandedChanged="OnResultsExpandedChangedAsync"
                                 ExpandedHeaderText="Default Masks"
-                                CollapsedSummaryText="@CollapsedSummaryText"
-                                ScrollMaxHeight="28rem">
+                                CollapsedSummaryText="@CollapsedSummaryText">
         <ResultsContent>
-            <DefaultMasksGrid @ref="_grid" />
+            <DefaultMasksGrid @ref="_grid"
+                              FiltersChanged="OnFiltersChangedAsync" />
         </ResultsContent>
     </MasterDetailExpansionShell>
 </div>
@@ -56,6 +56,13 @@
     private Task OnResultsExpandedChangedAsync(bool expanded)
     {
         _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFiltersChangedAsync()
+    {
+        _isResultsExpanded = true;
         StateHasChanged();
         return Task.CompletedTask;
     }

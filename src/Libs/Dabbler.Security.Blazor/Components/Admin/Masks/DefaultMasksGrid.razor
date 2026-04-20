@@ -67,59 +67,62 @@
         </MudText>
     </div>
 
-    @if (ConfigManager.Current.DefaultMasks.Count == 0)
-    {
-        <MudText Typo="Typo.body2" Class="pa-3" data-testid="default-mask-empty">
-            No default masks declared. Every column renders its raw stored value.
-        </MudText>
-    }
-    else
-    {
-        <MudDataGrid T="DefaultMaskRule"
-                     Items="@FilteredRows"
-                     Dense="true"
-                     Hover="true"
-                     Bordered="true"
-                     Striped="true"
-                     data-testid="default-mask-grid">
-            <Columns>
-                <TemplateColumn Title="Table" Sortable="true">
-                    <CellTemplate>
-                        @ResolveTableDisplay(context.Item.EntityKey)
-                    </CellTemplate>
-                </TemplateColumn>
-                <TemplateColumn Title="Column" Sortable="true">
-                    <CellTemplate>
-                        @ResolveColumnDisplay(context.Item.EntityKey, context.Item.ColumnKey)
-                    </CellTemplate>
-                </TemplateColumn>
-                <TemplateColumn Title="Mask format" Sortable="true">
-                    <CellTemplate>
-                        <MudTextField T="string"
-                                      Value="@context.Item.MaskFormat"
-                                      ValueChanged="@(v => OnMaskFormatChangedAsync(context.Item, v))"
-                                      Variant="Variant.Text"
-                                      Margin="Margin.Dense"
-                                      Immediate="false"
-                                      DebounceInterval="400"
-                                      Placeholder="********"
-                                      data-testid="@($"default-mask-format-{context.Item.EntityKey}-{context.Item.ColumnKey}")" />
-                    </CellTemplate>
-                </TemplateColumn>
-                <TemplateColumn Title="Remove" Sortable="false">
-                    <CellTemplate>
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                       Size="Size.Small"
-                                       Color="Color.Error"
-                                       OnClick="@(() => RemoveAsync(context.Item))"
-                                       title="Remove default mask"
-                                       aria-label="@($"Remove default mask on {context.Item.EntityKey}.{context.Item.ColumnKey}")"
-                                       data-testid="@($"default-mask-remove-{context.Item.EntityKey}-{context.Item.ColumnKey}")" />
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-        </MudDataGrid>
-    }
+    <div class="master-grid-scroll-region" style="max-height:28rem; overflow-y:auto;"
+         data-testid="default-mask-grid-scroll-region">
+        @if (ConfigManager.Current.DefaultMasks.Count == 0)
+        {
+            <MudText Typo="Typo.body2" Class="pa-3" data-testid="default-mask-empty">
+                No default masks declared. Every column renders its raw stored value.
+            </MudText>
+        }
+        else
+        {
+            <MudDataGrid T="DefaultMaskRule"
+                         Items="@FilteredRows"
+                         Dense="true"
+                         Hover="true"
+                         Bordered="true"
+                         Striped="true"
+                         data-testid="default-mask-grid">
+                <Columns>
+                    <TemplateColumn Title="Table" Sortable="true">
+                        <CellTemplate>
+                            @ResolveTableDisplay(context.Item.EntityKey)
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Column" Sortable="true">
+                        <CellTemplate>
+                            @ResolveColumnDisplay(context.Item.EntityKey, context.Item.ColumnKey)
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Mask format" Sortable="true">
+                        <CellTemplate>
+                            <MudTextField T="string"
+                                          Value="@context.Item.MaskFormat"
+                                          ValueChanged="@(v => OnMaskFormatChangedAsync(context.Item, v))"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Immediate="false"
+                                          DebounceInterval="400"
+                                          Placeholder="********"
+                                          data-testid="@($"default-mask-format-{context.Item.EntityKey}-{context.Item.ColumnKey}")" />
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Remove" Sortable="false">
+                        <CellTemplate>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           Size="Size.Small"
+                                           Color="Color.Error"
+                                           OnClick="@(() => RemoveAsync(context.Item))"
+                                           title="Remove default mask"
+                                           aria-label="@($"Remove default mask on {context.Item.EntityKey}.{context.Item.ColumnKey}")"
+                                           data-testid="@($"default-mask-remove-{context.Item.EntityKey}-{context.Item.ColumnKey}")" />
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        }
+    </div>
 </div>
 
 @code {
@@ -138,6 +141,9 @@
     /// </summary>
     [Parameter]
     public EventCallback OnPersisted { get; set; }
+
+    [Parameter]
+    public EventCallback FiltersChanged { get; set; }
 
     private const string MaskFormatHelper =
         "Tokens: {last4}, {firstChar}. Blank renders as ********.";
@@ -236,10 +242,17 @@
     /// filter. Exposed as <c>internal</c> so tests can exercise the filter
     /// pipeline without driving the panel's private UI.
     /// </summary>
-    internal void OnFilterChanged(CompositeFilterDescriptor? descriptor)
+    internal async Task OnFilterChanged(CompositeFilterDescriptor? descriptor)
     {
         _filter = descriptor;
-        StateHasChanged();
+        if (FiltersChanged.HasDelegate)
+        {
+            await FiltersChanged.InvokeAsync();
+        }
+        else
+        {
+            StateHasChanged();
+        }
     }
 
     private static IReadOnlyList<DefaultMaskRule> ApplyFilter(

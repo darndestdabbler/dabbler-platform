@@ -34,66 +34,70 @@
         </MudButton>
     </div>
 
-    <MudDataGrid T="RoleRow"
-                 Items="@FilteredRows"
-                 Dense="true"
-                 Hover="true"
-                 Bordered="true"
-                 Striped="true"
-                 SelectedItemChanged="OnSelectionChanged"
-                 SelectedItem="@_selected"
-                 data-testid="role-master-grid">
-        <Columns>
-            <TemplateColumn Title="Canonical name" Sortable="true">
-                <CellTemplate>
-                    <div class="d-flex align-center gap-2"
-                         data-testid="@($"role-row-{context.Item.CanonicalName}")">
-                        <MudText Typo="Typo.body2" Style="@(context.Item.IsBakedIn ? "color:#6c757d;" : string.Empty)">
-                            @context.Item.CanonicalName
-                        </MudText>
-                        @if (context.Item.IsBakedIn)
+    <div class="master-grid-scroll-region" style="max-height:24rem; overflow-y:auto;"
+         data-testid="role-master-grid-scroll-region">
+        <MudDataGrid T="RoleRow"
+                     Items="@FilteredRows"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="true"
+                     Striped="true"
+                     SelectedItemChanged="OnSelectionChanged"
+                     SelectedItem="@_selected"
+                     data-testid="role-master-grid">
+            <Columns>
+                <TemplateColumn Title="Canonical name" Sortable="true">
+                    <CellTemplate>
+                        <div class="d-flex align-center gap-2"
+                             data-testid="@($"role-row-{context.Item.CanonicalName}")">
+                            <MudText Typo="Typo.body2" Style="@(context.Item.IsBakedIn ? "color:#6c757d;" : string.Empty)">
+                                @context.Item.CanonicalName
+                            </MudText>
+                            @if (context.Item.IsBakedIn)
+                            {
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                         data-testid="@($"role-row-{context.Item.CanonicalName}-baked-in-chip")">
+                                    baked-in
+                                </MudChip>
+                            }
+                        </div>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Display alias" Sortable="true"
+                                CellStyle="max-width:220px; white-space:normal; word-break:break-word; vertical-align:top;"
+                                HeaderStyle="max-width:220px;">
+                    <CellTemplate>
+                        <MudTextField T="string"
+                                      Value="@context.Item.DisplayAlias"
+                                      ValueChanged="@(v => OnDisplayAliasChangedAsync(context.Item, v))"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Immediate="false"
+                                      DebounceInterval="400"
+                                      Lines="2"
+                                      Style="font-size:0.875rem; line-height:1.35; width:100%;"
+                                      Placeholder="(no alias)"
+                                      data-testid="@($"role-row-{context.Item.CanonicalName}-alias")" />
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.Description" Title="Description" Sortable="true" />
+                <TemplateColumn Title="Actions" Sortable="false">
+                    <CellTemplate>
+                        @if (!context.Item.IsBakedIn && CanManageRoles)
                         {
-                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
-                                     data-testid="@($"role-row-{context.Item.CanonicalName}-baked-in-chip")">
-                                baked-in
-                            </MudChip>
+                            <MudIconButton Icon="@Icons.Material.Filled.Archive"
+                                           Size="Size.Small"
+                                           Color="Color.Warning"
+                                           OnClick="@(() => OnArchiveAsync(context.Item))"
+                                           title="Archive role"
+                                           aria-label="@($"Archive {context.Item.CanonicalName}")"
+                                           data-testid="@($"role-row-{context.Item.CanonicalName}-archive")" />
                         }
-                    </div>
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn Title="Display alias" Sortable="true"
-                            CellStyle="max-width:220px; white-space:normal; word-break:break-word;"
-                            HeaderStyle="max-width:220px;">
-                <CellTemplate>
-                    <MudTextField T="string"
-                                  Value="@context.Item.DisplayAlias"
-                                  ValueChanged="@(v => OnDisplayAliasChangedAsync(context.Item, v))"
-                                  Variant="Variant.Text"
-                                  Margin="Margin.Dense"
-                                  Immediate="false"
-                                  DebounceInterval="400"
-                                  Style="font-size:0.875rem; width:100%;"
-                                  Placeholder="(no alias)"
-                                  data-testid="@($"role-row-{context.Item.CanonicalName}-alias")" />
-                </CellTemplate>
-            </TemplateColumn>
-            <PropertyColumn Property="e => e.Description" Title="Description" Sortable="true" />
-            <TemplateColumn Title="Actions" Sortable="false">
-                <CellTemplate>
-                    @if (!context.Item.IsBakedIn && CanManageRoles)
-                    {
-                        <MudIconButton Icon="@Icons.Material.Filled.Archive"
-                                       Size="Size.Small"
-                                       Color="Color.Warning"
-                                       OnClick="@(() => OnArchiveAsync(context.Item))"
-                                       title="Archive role"
-                                       aria-label="@($"Archive {context.Item.CanonicalName}")"
-                                       data-testid="@($"role-row-{context.Item.CanonicalName}-archive")" />
-                    }
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-    </MudDataGrid>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </div>
 </div>
 
 @code {
@@ -117,6 +121,13 @@
     /// </summary>
     [Parameter]
     public EventCallback<RoleRow?> SelectedRoleChanged { get; set; }
+
+    /// <summary>
+    /// Raised whenever the filter panel changes so the parent tab can
+    /// re-expand the results shell and clear any collapsed summary state.
+    /// </summary>
+    [Parameter]
+    public EventCallback FiltersChanged { get; set; }
 
     private FilterPanel<RoleRow>? _filterPanel;
     private CompositeFilterDescriptor? _filter;
@@ -233,10 +244,17 @@
         }).ToList();
     }
 
-    private void OnFilterChanged(CompositeFilterDescriptor? descriptor)
+    private async Task OnFilterChanged(CompositeFilterDescriptor? descriptor)
     {
         _filter = descriptor;
-        StateHasChanged();
+        if (FiltersChanged.HasDelegate)
+        {
+            await FiltersChanged.InvokeAsync();
+        }
+        else
+        {
+            StateHasChanged();
+        }
     }
 
     private async Task OnSelectionChanged(RoleRow? row)

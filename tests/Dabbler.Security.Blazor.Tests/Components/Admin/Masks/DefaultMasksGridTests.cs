@@ -156,4 +156,39 @@ public class DefaultMasksGridTests
         cut.Find("[data-testid='default-mask-count']").TextContent.Should().Contain("3 of 3");
     }
 
+    [Fact]
+    public async Task FilterChange_RaisesFiltersChanged_AndKeepsScrollRegionScopedToGrid()
+    {
+        var config = new SecurityConfiguration
+        {
+            DefaultMasks =
+            [
+                new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" },
+            ],
+        };
+        var (ctx, _) = Build(config);
+        using var _1 = ctx;
+
+        var filterChangedCount = 0;
+        var cut = ctx.RenderComponent<DefaultMasksGrid>(parameters => parameters
+            .Add(x => x.FiltersChanged, () =>
+            {
+                filterChangedCount++;
+                return Task.CompletedTask;
+            }));
+
+        var descriptor = new CompositeFilterDescriptor
+        {
+            Filters =
+            [
+                new FilterDescriptor(nameof(DefaultMaskRule.EntityKey), FilterOperators.Contains, "Customer"),
+            ],
+        };
+
+        await cut.InvokeAsync(() => cut.Instance.OnFilterChanged(descriptor));
+
+        filterChangedCount.Should().Be(1);
+        cut.Find("[data-testid='default-mask-grid-scroll-region']").Should().NotBeNull();
+    }
+
 }

@@ -28,89 +28,95 @@
         </MudButton>
     </div>
 
-    <MudDataGrid T="AdminUserRow"
-                 Items="@FilteredRows"
-                 Dense="true"
-                 Hover="true"
-                 Bordered="true"
-                 Striped="true"
-                 SelectedItemChanged="OnSelectionChangedAsync"
-                 SelectedItem="@_selected"
-                 data-testid="users-master-grid">
-        <Columns>
-            <PropertyColumn Property="row => row.DisplayName" Title="Name" Sortable="true" />
-            <PropertyColumn Property="row => row.Email" Title="Email" Sortable="true" />
-            <TemplateColumn Title="Active Roles" Sortable="false">
-                <CellTemplate>
-                    @if (context.Item.Roles.Count == 0)
-                    {
-                        <MudText Typo="Typo.caption" Color="Color.Secondary"
-                                 data-testid="@($"users-row-{context.Item.UserId}-no-roles")">
-                            No roles
-                        </MudText>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-wrap gap-1"
-                             data-testid="@($"users-row-{context.Item.UserId}-roles")">
-                            @foreach (var role in context.Item.Roles)
-                            {
-                                <MudChip T="string"
-                                         Size="Size.Small"
-                                         Color="Color.Primary"
-                                         Variant="Variant.Outlined"
-                                         data-testid="@($"users-row-{context.Item.UserId}-role-{role}")">
-                                    @role
-                                </MudChip>
-                            }
-                        </div>
-                    }
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn Title="Organizations" Sortable="false">
-                <CellTemplate>
-                    @if (context.Item.Organizations.Count == 0)
-                    {
-                        <MudText Typo="Typo.caption" Color="Color.Secondary"
-                                 data-testid="@($"users-row-{context.Item.UserId}-no-orgs")">
-                            None
-                        </MudText>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-wrap gap-1"
-                             data-testid="@($"users-row-{context.Item.UserId}-orgs")">
-                            @foreach (var organization in context.Item.Organizations)
-                            {
-                                <MudChip T="string"
-                                         Size="Size.Small"
-                                         Color="@(organization.IsDefault ? Color.Secondary : Color.Default)"
-                                         Variant="Variant.Outlined">
-                                    @organization.OrganizationName
-                                </MudChip>
-                            }
-                        </div>
-                    }
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn Title="Status" Sortable="true">
-                <CellTemplate>
-                    <MudChip T="string"
-                             Size="Size.Small"
-                             Color="@(context.Item.IsActive ? Color.Success : Color.Warning)"
-                             Variant="Variant.Outlined"
-                             data-testid="@($"users-row-{context.Item.UserId}-status-chip")">
-                        @(context.Item.IsActive ? "Active" : "Inactive")
-                    </MudChip>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-    </MudDataGrid>
+    <div class="master-grid-scroll-region" style="max-height:24rem; overflow-y:auto;"
+         data-testid="users-master-grid-scroll-region">
+        <MudDataGrid T="AdminUserRow"
+                     Items="@FilteredRows"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="true"
+                     Striped="true"
+                     SelectedItemChanged="OnSelectionChangedAsync"
+                     SelectedItem="@_selected"
+                     data-testid="users-master-grid">
+            <Columns>
+                <PropertyColumn Property="row => row.DisplayName" Title="Name" Sortable="true" />
+                <PropertyColumn Property="row => row.Email" Title="Email" Sortable="true" />
+                <TemplateColumn Title="Active Roles" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.Roles.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary"
+                                     data-testid="@($"users-row-{context.Item.UserId}-no-roles")">
+                                No roles
+                            </MudText>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-1"
+                                 data-testid="@($"users-row-{context.Item.UserId}-roles")">
+                                @foreach (var role in context.Item.Roles)
+                                {
+                                    <MudChip T="string"
+                                             Size="Size.Small"
+                                             Color="Color.Primary"
+                                             Variant="Variant.Outlined"
+                                             data-testid="@($"users-row-{context.Item.UserId}-role-{role}")">
+                                        @role
+                                    </MudChip>
+                                }
+                            </div>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Organizations" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.Organizations.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary"
+                                     data-testid="@($"users-row-{context.Item.UserId}-no-orgs")">
+                                None
+                            </MudText>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-1"
+                                 data-testid="@($"users-row-{context.Item.UserId}-orgs")">
+                                @foreach (var organization in context.Item.Organizations)
+                                {
+                                    <MudChip T="string"
+                                             Size="Size.Small"
+                                             Color="@(organization.IsDefault ? Color.Secondary : Color.Default)"
+                                             Variant="Variant.Outlined">
+                                        @organization.OrganizationName
+                                    </MudChip>
+                                }
+                            </div>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Status" Sortable="true">
+                    <CellTemplate>
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="@(context.Item.IsActive ? Color.Success : Color.Warning)"
+                                 Variant="Variant.Outlined"
+                                 data-testid="@($"users-row-{context.Item.UserId}-status-chip")">
+                            @(context.Item.IsActive ? "Active" : "Inactive")
+                        </MudChip>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </div>
 </div>
 
 @code {
     [Parameter]
     public EventCallback<AdminUserRow?> SelectedUserChanged { get; set; }
+
+    [Parameter]
+    public EventCallback FiltersChanged { get; set; }
 
     private FilterPanel<AdminUserRow>? _filterPanel;
     private CompositeFilterDescriptor? _filter;
@@ -292,10 +298,17 @@
         };
     }
 
-    private void OnFilterChanged(CompositeFilterDescriptor? descriptor)
+    private async Task OnFilterChanged(CompositeFilterDescriptor? descriptor)
     {
         _filter = descriptor;
-        StateHasChanged();
+        if (FiltersChanged.HasDelegate)
+        {
+            await FiltersChanged.InvokeAsync();
+        }
+        else
+        {
+            StateHasChanged();
+        }
     }
 
     private async Task OnSelectionChangedAsync(AdminUserRow? row)

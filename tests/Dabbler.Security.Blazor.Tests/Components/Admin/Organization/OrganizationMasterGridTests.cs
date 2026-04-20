@@ -105,6 +105,35 @@ public class OrganizationMasterGridTests
         createRequested.Should().BeTrue();
     }
 
+    [Fact]
+    public void Grid_FilterChange_RaisesFiltersChanged_AndKeepsScrollRegionScopedToGrid()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(configureServices: services =>
+        {
+            RegisterDbContext(services, SeedOrganizations);
+        });
+
+        var filterChangedCount = 0;
+        var cut = ctx.RenderComponent<OrganizationMasterGrid>(parameters => parameters
+            .Add(x => x.FiltersChanged, () =>
+            {
+                filterChangedCount++;
+                return Task.CompletedTask;
+            }));
+        var filterPanel = cut.FindComponent<FilterPanel<OrganizationMasterGrid.OrganizationRow>>();
+
+        cut.InvokeAsync(() =>
+            filterPanel.Instance.Coordinator.SetFilter(
+                0,
+                nameof(OrganizationMasterGrid.OrganizationRow.Key),
+                FilterOperators.Contains,
+                "customer"));
+
+        cut.WaitForAssertion(() => filterChangedCount.Should().Be(1));
+        cut.Find("[data-testid='organization-master-grid-scroll-region']").Should().NotBeNull();
+    }
+
     private static void RegisterDbContext(
         IServiceCollection services,
         Action<DabblerSecurityDbContext> seed)

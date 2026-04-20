@@ -172,4 +172,57 @@ public class RoleMasterDetailsTabTests
         var addButton = cut.Find("[data-testid='role-master-add-button']");
         addButton.HasAttribute("disabled").Should().BeTrue();
     }
+
+    [Fact]
+    public async Task RoleMasterDetailsTab_FilterChange_ReexpandsShellAndClearsSummaryState()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(
+            roles: [BakedInRoles.SystemAdmin],
+            configureServices: svc => RegisterServices(
+                svc,
+                SeedConfiguration(new RoleDefinition { RoleName = "BackofficeUser" })));
+
+        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var grid = cut.FindComponent<RoleMasterGrid>();
+
+        await cut.InvokeAsync(() => grid.Instance.SelectedRoleChanged.InvokeAsync(new RoleMasterGrid.RoleRow
+        {
+            CanonicalName = "BackofficeUser",
+            DisplayAlias = "Backoffice User",
+            Description = string.Empty,
+            IsBakedIn = false,
+        }));
+
+        cut.Find("[data-testid='role-master-details-shell-summary']")
+            .TextContent.Should().Contain("Role: BackofficeUser");
+
+        await cut.InvokeAsync(() => grid.Instance.FiltersChanged.InvokeAsync());
+
+        cut.FindAll("[data-testid='role-master-details-shell-summary']").Should().BeEmpty();
+        cut.Find("[data-testid='role-master-details-shell-header']")
+            .TextContent.Should().Contain("Roles");
+    }
+
+    [Fact]
+    public void RoleMasterDetailsTab_DisplayAliasEditor_UsesWrappedBodySizedEditor()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(
+            roles: [BakedInRoles.SystemAdmin],
+            configureServices: svc => RegisterServices(
+                svc,
+                SeedConfiguration(new RoleDefinition
+                {
+                    RoleName = "BackofficeUser",
+                    DisplayAlias = "Backoffice User",
+                })));
+
+        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var aliasField = cut.Find("[data-testid='role-row-BackofficeUser-alias']");
+
+        cut.Markup.Should().Contain("font-size:0.875rem");
+        cut.Markup.Should().Contain("line-height:1.35");
+        aliasField.OuterHtml.Should().Contain("textarea");
+    }
 }

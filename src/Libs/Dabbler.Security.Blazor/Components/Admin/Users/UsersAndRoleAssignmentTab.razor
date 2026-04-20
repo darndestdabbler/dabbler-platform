@@ -18,7 +18,8 @@
                                 CollapsedSummaryText="@_summaryText">
         <ResultsContent>
             <UsersMasterGrid @ref="_grid"
-                             SelectedUserChanged="OnSelectedUserChangedAsync" />
+                             SelectedUserChanged="OnSelectedUserChangedAsync"
+                             FiltersChanged="OnFiltersChangedAsync" />
         </ResultsContent>
     </MasterDetailExpansionShell>
 
@@ -52,6 +53,14 @@
     private Task OnResultsExpandedChangedAsync(bool expanded)
     {
         _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFiltersChangedAsync()
+    {
+        _isResultsExpanded = true;
+        _summaryText = null;
         StateHasChanged();
         return Task.CompletedTask;
     }

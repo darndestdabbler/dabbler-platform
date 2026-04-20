@@ -30,7 +30,8 @@
         <ResultsContent>
             <RoleMasterGrid @ref="_grid"
                             CanManageRoles="@_canManageRoles"
-                            SelectedRoleChanged="OnSelectedRoleChangedAsync" />
+                            SelectedRoleChanged="OnSelectedRoleChangedAsync"
+                            FiltersChanged="OnFiltersChangedAsync" />
         </ResultsContent>
     </MasterDetailExpansionShell>
 
@@ -103,6 +104,15 @@
     private Task OnResultsExpandedChangedAsync(bool expanded)
     {
         _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFiltersChangedAsync()
+    {
+        _isResultsExpanded = true;
+        _summaryText = null;
+        _summaryBadge = null;
         StateHasChanged();
         return Task.CompletedTask;
     }
