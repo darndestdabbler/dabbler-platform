@@ -18,7 +18,7 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
     private readonly IRoleSwitcher _roleSwitcher;
     private readonly IBakedInRoleProvider _bakedInRoleProvider;
     private readonly IUserRoleStore _userRoleStore;
-    private readonly DabblerSecurityDbContext _db;
+    private readonly IDbContextFactory<DabblerSecurityDbContext> _dbFactory;
 
     /// <summary>Initializes a new instance of the <see cref="AdminUserQueryService"/> class.</summary>
     public AdminUserQueryService(
@@ -26,20 +26,27 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
         IRoleSwitcher roleSwitcher,
         IBakedInRoleProvider bakedInRoleProvider,
         IUserRoleStore userRoleStore,
-        DabblerSecurityDbContext db)
+        IDbContextFactory<DabblerSecurityDbContext> dbFactory)
     {
         _httpContextAccessor = httpContextAccessor;
         _roleSwitcher = roleSwitcher;
         _bakedInRoleProvider = bakedInRoleProvider;
         _userRoleStore = userRoleStore;
-        _db = db;
+        _dbFactory = dbFactory;
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(CancellationToken ct = default)
     {
+        // Use a single fresh context for the entire call. Earlier revisions
+        // reused a scoped DbContext, which crashed the Users tab with
+        // "A second operation was started on this context instance" when
+        // sibling Blazor components (UsersMasterGrid + UserRoleAssignmentDetails)
+        // kicked off concurrent queries during their initial render.
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
         var actorActiveRole = GetActorActiveAdminRole();
-        var scopeOrganizationIds = await GetActorAssignedOrganizationIdsAsync(ct);
+        var scopeOrganizationIds = await LoadActorAssignedOrganizationIdsAsync(db, ct);
         var actorSeesAllOrganizations = ActorSeesAllOrganizations(actorActiveRole);
 
         // Fail closed: a caller without an active baked-in admin role gets an
@@ -52,7 +59,7 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
             return [];
         }
 
-        var query = _db.AppUsers
+        var query = db.AppUsers
             .AsNoTracking()
             .Where(user => user.DeletedAt == null);
 
@@ -124,13 +131,21 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
     /// <inheritdoc />
     public async Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(CancellationToken ct = default)
     {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+        return await LoadActorAssignedOrganizationIdsAsync(db, ct);
+    }
+
+    private async Task<IReadOnlySet<int>> LoadActorAssignedOrganizationIdsAsync(
+        DabblerSecurityDbContext db,
+        CancellationToken ct)
+    {
         var userId = ResolveActorUserIdInt();
         if (userId is null)
         {
             return new HashSet<int>();
         }
 
-        var ids = await _db.AppUserOrganizationMemberships
+        var ids = await db.AppUserOrganizationMemberships
             .AsNoTracking()
             .Where(membership => membership.UserId == userId.Value
                 && membership.DeletedAt == null

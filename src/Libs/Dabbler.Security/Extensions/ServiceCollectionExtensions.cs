@@ -44,11 +44,27 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IValidateOptions<DabblerSecurityOptions>, DabblerSecurityOptionsValidator>();
 
-        services.AddDbContext<DabblerSecurityDbContext>((sp, opts) =>
+        // Shared configuration so AddDbContext and AddDbContextFactory cannot
+        // silently diverge if a future session adds an interceptor, sensitive-
+        // data logging, or a query filter.
+        static void ConfigureSecurityDbContext(IServiceProvider sp, DbContextOptionsBuilder opts)
         {
             var cfg = sp.GetRequiredService<IOptions<DabblerSecurityOptions>>().Value;
             opts.UseSqlServer(cfg.ConnectionString);
-        });
+        }
+
+        services.AddDbContext<DabblerSecurityDbContext>(ConfigureSecurityDbContext);
+
+        // AdminUserQueryService (and other services called from Blazor circuits
+        // where sibling components may await in parallel) resolves a fresh
+        // DbContext per call via this factory, avoiding the "second operation
+        // on this context instance" crash when multiple components fire
+        // concurrent OnInitializedAsync queries. Scoped lifetime keeps the
+        // factory compatible with the scoped DbContextOptions registered by
+        // AddDbContext above — Singleton would fail DI scope validation.
+        services.AddDbContextFactory<DabblerSecurityDbContext>(
+            ConfigureSecurityDbContext,
+            ServiceLifetime.Scoped);
 
         var authBuilder = services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(cookieOpts =>
@@ -242,11 +258,16 @@ public static class ServiceCollectionExtensions
     /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
     public static IServiceCollection UseEfCoreStore(this IServiceCollection services)
     {
-        services.AddDbContextFactory<DabblerSecurityDbContext>((sp, opts) =>
-        {
-            var cfg = sp.GetRequiredService<IOptions<DabblerSecurityOptions>>().Value;
-            opts.UseSqlServer(cfg.ConnectionString);
-        });
+        // Scoped lifetime matches the factory registered in AddDabblerSecurity
+        // and keeps DI scope validation happy (scoped DbContextOptions cannot
+        // be consumed from a singleton factory).
+        services.AddDbContextFactory<DabblerSecurityDbContext>(
+            (sp, opts) =>
+            {
+                var cfg = sp.GetRequiredService<IOptions<DabblerSecurityOptions>>().Value;
+                opts.UseSqlServer(cfg.ConnectionString);
+            },
+            ServiceLifetime.Scoped);
         services.AddSingleton<ISecurityConfigurationStore, EfCoreSecurityStore>();
         services.AddSingleton<IUserRoleStore, EfCoreUserRoleStore>();
         return services;

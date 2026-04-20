@@ -98,6 +98,102 @@
           "costUsd": 0.36224999999999996
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/diagnose-dbcontext-crash",
+      "dateTime": "2026-04-20T09:01:12.303136+00:00",
+      "description": "Diagnosed UAT finding 1. Root cause: UsersMasterGrid.OnInitializedAsync and UserRoleAssignmentDetails.OnInitializedAsync run concurrently during the initial Users-tab render. Both call through AdminUserQueryService, which held a scoped DabblerSecurityDbContext. Concurrent awaits on the same EF context throw 'A second operation was started on this context instance', followed by an ObjectDisposedException from the RemoteRenderer once the circuit unwinds.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refactor-to-dbcontextfactory",
+      "dateTime": "2026-04-20T09:01:12.304135+00:00",
+      "description": "Refactored AdminUserQueryService to depend on IDbContextFactory<DabblerSecurityDbContext>. Each public method now creates a fresh context via `await using var db = await _dbFactory.CreateDbContextAsync(ct)`. Internal helper `LoadActorAssignedOrganizationIdsAsync(db, ct)` reuses the caller's context so GetUsersAsync still runs its two queries on a single context instance while GetActorAssignedOrganizationIdsAsync (called from UserRoleAssignmentDetails) creates its own context \u2014 eliminating the concurrent-await collision. Updated 5 unit tests in AdminUserQueryServiceTests.cs to supply a factory and added a new ConcurrentCallsDoNotThrow regression guard that issues three parallel service calls and asserts no exception.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/update-di-registration",
+      "dateTime": "2026-04-20T09:01:12.304135+00:00",
+      "description": "Added AddDbContextFactory<DabblerSecurityDbContext> to AddDabblerSecurity in ServiceCollectionExtensions.cs alongside the existing AddDbContext call. Registered with ServiceLifetime.Scoped so it remains compatible with the scoped DbContextOptions<T> produced by AddDbContext \u2014 the default Singleton lifetime triggered 'Cannot consume scoped service DbContextOptions from singleton IDbContextFactory' in the 16 WebApplicationFactory-backed Web tests. Also changed UseEfCoreStore's pre-existing factory registration to Scoped for consistency even though it is not exercised by the current Web host (UseJsonFileStore is the active path). Audited sibling Blazor EF consumers: OrganizationMasterGrid and OrganizationDetailsForm inject scoped DabblerSecurityDbContext directly but do not trigger concurrent initial awaits (OrganizationMasterGrid's OnInitializedAsync is the only initial query; OrganizationDetailsForm queries only on user selection). Flagged for the verifier but deliberately left out of scope \u2014 Session 4 will restructure OrganizationMasterGrid for in-circuit refresh and is the natural owner of any further factory migration there.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/playwright-users-tab-coverage",
+      "dateTime": "2026-04-20T09:01:12.304135+00:00",
+      "description": "Created tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs with three tests covering UAT finding 1: UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync (the core regression guard), UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync (operability proof that seeded rows render), and UsersTab_RapidRemountDoesNotCrashAsync (defensive remount under the original concurrent-init pressure; uses Force=true on tab-strip clicks because the MudTabs re-render leaves a transient pointer-event overlay \u2014 the test's purpose is regression-guarding the DbContext fix, not proving tab-click UX). Each test method carries a `// UAT:` cross-reference comment per the newly promoted Human UAT Philosophy convention. Scaffold generated via route(task_type='test-generation') \u2192 gemini-pro; applied with minor stylistic cleanups (using-before-namespace ordering, non-nullable page var, Assertions.Expect style matching existing files).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 1710,
+          "outputTokens": 1047,
+          "costUsd": 0.0126075
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/run-regression-tests",
+      "dateTime": "2026-04-20T09:01:12.305135+00:00",
+      "description": "Build green (0 errors; expected [Obsolete] cascade warnings). Non-Playwright test suite: 668 passed / 0 failed across 6 assemblies (Dabbler.Components 33, Dabbler.Reports.Blazor 13, Dabbler.Security.Blazor 192, AcmeCoffeeOnline.Api 27, Dabbler.Security 280 \u2014 +1 from baseline for the new ConcurrentCallsDoNotThrow test, AcmeCoffeeOnline.Web 123). Playwright Security Dashboard regression set: 14 passed / 0 failed across four classes (SecurityDashboardUatCoverageTests x3 new, SecurityDashboardFiveTabSmokeTests x2, UsersAndRoleAssignmentWorkflowTests x1, SecurityDashboardFullSweepTests x8). Full Playwright suite not run on this session (explicitly scoped by spec risk notes to the dashboard coverage since that is the regression surface the DbContextFactory change touches); broader regression falls to Session 3 and Session 4 as new behaviour lands.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/verify",
+      "dateTime": "2026-04-20T09:03:18.270215+00:00",
+      "description": "Cross-provider verification via task_type=session-verification. Verifier: opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 6861,
+          "outputTokens": 5768,
+          "costUsd": 0.535515
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/fix-verifier-issues",
+      "dateTime": "2026-04-20T09:16:38.049966+00:00",
+      "description": "Addressed four Minor round-1 issues: replaced placebo ConcurrentCallsDoNotThrow test with a CountingDbContextFactory-backed EachPublicMethodResolvesItsOwnDbContext wiring assertion; extracted ConfigureSecurityDbContext local function to eliminate the duplicated DbContext configuration lambda; ran the full Playwright suite; disclosed that UserRoleAssignmentDetails.razor was unchanged despite the spec's pessimistic 'Touches' listing.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verify-round-2",
+      "dateTime": "2026-04-20T09:16:38.050965+00:00",
+      "description": "Round-2 cross-provider verification after the four Minor round-1 fixes. Verifier: opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 14763,
+          "outputTokens": 2397,
+          "costUsd": 0.40122
+        }
+      ]
     }
   ]
 }

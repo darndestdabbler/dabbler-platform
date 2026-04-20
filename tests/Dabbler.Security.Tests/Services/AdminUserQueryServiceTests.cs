@@ -34,8 +34,8 @@ public class AdminUserQueryServiceTests
     [Fact]
     public async Task SystemAdmin_SeesAllUsersAndAllOrganizations()
     {
-        await using var db = BuildSeededDb();
-        var sut = BuildSut(db, SystemAdminUserId, BakedInRoles.SystemAdmin);
+        var harness = BuildSeededHarness();
+        var sut = BuildSut(harness, SystemAdminUserId, BakedInRoles.SystemAdmin);
 
         var rows = await sut.GetUsersAsync();
 
@@ -61,8 +61,8 @@ public class AdminUserQueryServiceTests
         // forcing the service into the shared-org branch. This regression
         // would limit Monitor's visibility, contradicting its compiled
         // privilege profile.
-        await using var db = BuildSeededDb();
-        var sut = BuildSut(db, CrossOrgMonitorUserId, BakedInRoles.CrossOrgMonitor);
+        var harness = BuildSeededHarness();
+        var sut = BuildSut(harness, CrossOrgMonitorUserId, BakedInRoles.CrossOrgMonitor);
 
         var rows = await sut.GetUsersAsync();
 
@@ -78,7 +78,7 @@ public class AdminUserQueryServiceTests
         // for the visible InternalStaff row, only the Internal org membership
         // should appear; their other orgs (none here for the current user, but
         // we add a multi-org case below) must not surface.
-        await using var db = BuildSeededDb(seed =>
+        var harness = BuildSeededHarness(seed =>
         {
             // Give the InternalStaff user a second membership in RetailOrg1
             // so we can prove the projection narrows to the actor's scope.
@@ -92,7 +92,7 @@ public class AdminUserQueryServiceTests
             });
         });
 
-        var sut = BuildSut(db, UserAdminScopedToInternalUserId, BakedInRoles.UserAdmin);
+        var sut = BuildSut(harness, UserAdminScopedToInternalUserId, BakedInRoles.UserAdmin);
         var rows = await sut.GetUsersAsync();
 
         rows.Select(r => r.UserId).Should().BeEquivalentTo(
@@ -112,8 +112,8 @@ public class AdminUserQueryServiceTests
         // Verifier flagged: a user with no admin role but with org
         // memberships used to fall into the shared-org branch instead of
         // being rejected. The fix is fail-closed.
-        await using var db = BuildSeededDb();
-        var sut = BuildSut(db, RetailContact1UserId, BakedInRoles.User);
+        var harness = BuildSeededHarness();
+        var sut = BuildSut(harness, RetailContact1UserId, BakedInRoles.User);
 
         var rows = await sut.GetUsersAsync();
 
@@ -123,8 +123,8 @@ public class AdminUserQueryServiceTests
     [Fact]
     public async Task UnauthenticatedActor_GetsEmptyList()
     {
-        await using var db = BuildSeededDb();
-        var sut = BuildSut(db, actorUserId: null, activeRoleName: null);
+        var harness = BuildSeededHarness();
+        var sut = BuildSut(harness, actorUserId: null, activeRoleName: null);
 
         var rows = await sut.GetUsersAsync();
 
@@ -134,29 +134,72 @@ public class AdminUserQueryServiceTests
     [Fact]
     public async Task GetActorAssignedOrganizationIdsAsync_ReturnsActorMembershipIds()
     {
-        await using var db = BuildSeededDb();
-        var sut = BuildSut(db, UserAdminScopedToInternalUserId, BakedInRoles.UserAdmin);
+        var harness = BuildSeededHarness();
+        var sut = BuildSut(harness, UserAdminScopedToInternalUserId, BakedInRoles.UserAdmin);
 
         var ids = await sut.GetActorAssignedOrganizationIdsAsync();
 
         ids.Should().BeEquivalentTo(new[] { InternalOrgId });
     }
 
-    private static DabblerSecurityDbContext BuildSeededDb(Action<DabblerSecurityDbContext>? extraSeed = null)
+    [Fact]
+    public async Task EachPublicMethodResolvesItsOwnDbContext()
+    {
+        // Structural regression guard for the UAT-remediation Session 2
+        // refactor. The original crash came from sibling Blazor components
+        // on the Users tab awaiting a single shared scoped DbContext in
+        // parallel. The fix is factory injection: each public method
+        // resolves its own context from IDbContextFactory so calls cannot
+        // collide.
+        //
+        // A behavioural concurrent-call test against the EF InMemory
+        // provider would be a placebo because InMemory completes queries
+        // synchronously and never genuinely overlaps. Asserting that the
+        // factory is actually invoked by each public method proves the
+        // wiring is in place regardless of the provider's scheduling.
+        var counting = new CountingDbContextFactory(BuildSeededHarness().DbFactory);
+        var sut = BuildSut(new SeededHarness(counting), SystemAdminUserId, BakedInRoles.SystemAdmin);
+
+        await sut.GetUsersAsync();
+        counting.CreateCount.Should().Be(1, "GetUsersAsync must resolve a single context via the factory.");
+
+        await sut.GetActorAssignedOrganizationIdsAsync();
+        counting.CreateCount.Should().Be(2, "GetActorAssignedOrganizationIdsAsync must resolve its own context, not reuse any shared instance.");
+    }
+
+    private sealed class CountingDbContextFactory : IDbContextFactory<DabblerSecurityDbContext>
+    {
+        private readonly IDbContextFactory<DabblerSecurityDbContext> _inner;
+
+        public CountingDbContextFactory(IDbContextFactory<DabblerSecurityDbContext> inner)
+        {
+            _inner = inner;
+        }
+
+        public int CreateCount { get; private set; }
+
+        public DabblerSecurityDbContext CreateDbContext()
+        {
+            CreateCount++;
+            return _inner.CreateDbContext();
+        }
+    }
+
+    private static SeededHarness BuildSeededHarness(Action<DabblerSecurityDbContext>? extraSeed = null)
     {
         var options = new DbContextOptionsBuilder<DabblerSecurityDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
             .Options;
 
-        var db = new DabblerSecurityDbContext(options);
+        using var seedDb = new DabblerSecurityDbContext(options);
 
         var now = DateTime.UtcNow;
-        db.AppOrganizations.AddRange(
+        seedDb.AppOrganizations.AddRange(
             new AppOrganization { Id = InternalOrgId, Key = "internal", Name = "Internal Operations", IsInternal = true, IsActive = true, CreatedAt = now },
             new AppOrganization { Id = RetailOrg1Id, Key = "customer-101", Name = "Retail Business 101", IsInternal = false, IsActive = true, CreatedAt = now },
             new AppOrganization { Id = RetailOrg2Id, Key = "customer-102", Name = "Retail Business 102", IsInternal = false, IsActive = true, CreatedAt = now });
 
-        db.AppUsers.AddRange(
+        seedDb.AppUsers.AddRange(
             new AppUser { Id = SystemAdminUserId, Email = "sysadmin@test.local", DisplayName = "Sys Admin", IsActive = true, CreatedAt = now },
             new AppUser { Id = UserAdminScopedToInternalUserId, Email = "useradmin@test.local", DisplayName = "User Admin", IsActive = true, CreatedAt = now },
             new AppUser { Id = CrossOrgMonitorUserId, Email = "monitor@test.local", DisplayName = "Cross Org Monitor", IsActive = true, CreatedAt = now },
@@ -164,7 +207,7 @@ public class AdminUserQueryServiceTests
             new AppUser { Id = RetailContact1UserId, Email = "contact1@test.local", DisplayName = "Retail Contact 1", IsActive = true, CreatedAt = now },
             new AppUser { Id = RetailContact2UserId, Email = "contact2@test.local", DisplayName = "Retail Contact 2", IsActive = true, CreatedAt = now });
 
-        db.AppUserOrganizationMemberships.AddRange(
+        seedDb.AppUserOrganizationMemberships.AddRange(
             new AppUserOrganizationMembership { UserId = SystemAdminUserId, OrganizationId = InternalOrgId, IsDefault = true, IsActive = true, JoinedAt = now },
             new AppUserOrganizationMembership { UserId = UserAdminScopedToInternalUserId, OrganizationId = InternalOrgId, IsDefault = true, IsActive = true, JoinedAt = now },
             new AppUserOrganizationMembership { UserId = CrossOrgMonitorUserId, OrganizationId = InternalOrgId, IsDefault = true, IsActive = true, JoinedAt = now },
@@ -172,13 +215,14 @@ public class AdminUserQueryServiceTests
             new AppUserOrganizationMembership { UserId = RetailContact1UserId, OrganizationId = RetailOrg1Id, IsDefault = true, IsActive = true, JoinedAt = now },
             new AppUserOrganizationMembership { UserId = RetailContact2UserId, OrganizationId = RetailOrg2Id, IsDefault = true, IsActive = true, JoinedAt = now });
 
-        db.SaveChanges();
-        extraSeed?.Invoke(db);
-        db.SaveChanges();
-        return db;
+        seedDb.SaveChanges();
+        extraSeed?.Invoke(seedDb);
+        seedDb.SaveChanges();
+
+        return new SeededHarness(new InMemoryDbContextFactory(options));
     }
 
-    private static AdminUserQueryService BuildSut(DabblerSecurityDbContext db, int? actorUserId, string? activeRoleName)
+    private static AdminUserQueryService BuildSut(SeededHarness harness, int? actorUserId, string? activeRoleName)
     {
         var httpContextAccessor = new Mock<IHttpContextAccessor>();
         if (actorUserId.HasValue)
@@ -213,6 +257,20 @@ public class AdminUserQueryServiceTests
             roleSwitcher.Object,
             bakedInRoleProvider,
             userRoleStore.Object,
-            db);
+            harness.DbFactory);
+    }
+
+    private sealed record SeededHarness(IDbContextFactory<DabblerSecurityDbContext> DbFactory);
+
+    private sealed class InMemoryDbContextFactory : IDbContextFactory<DabblerSecurityDbContext>
+    {
+        private readonly DbContextOptions<DabblerSecurityDbContext> _options;
+
+        public InMemoryDbContextFactory(DbContextOptions<DabblerSecurityDbContext> options)
+        {
+            _options = options;
+        }
+
+        public DabblerSecurityDbContext CreateDbContext() => new(_options);
     }
 }
