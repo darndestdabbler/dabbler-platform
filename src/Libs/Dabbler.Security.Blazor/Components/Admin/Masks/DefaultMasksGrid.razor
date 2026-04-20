@@ -24,7 +24,10 @@
                        Style="min-width:180px;">
                 @foreach (var table in Metadata.Tables)
                 {
-                    <MudSelectItem T="string" Value="@table.Key">@table.DisplayName</MudSelectItem>
+                    <MudSelectItem T="string" Value="@table.Key"
+                                   data-testid="@($"default-mask-table-option-{table.Key}")">
+                        @table.DisplayName
+                    </MudSelectItem>
                 }
             </MudSelect>
 
@@ -33,9 +36,12 @@
                        Disabled="@string.IsNullOrEmpty(_newTableKey)"
                        data-testid="default-mask-new-column"
                        Style="min-width:180px;">
-                @foreach (var column in Metadata.GetColumns(_newTableKey ?? string.Empty))
+                @foreach (var column in AvailableColumns)
                 {
-                    <MudSelectItem T="string" Value="@column.Key">@column.DisplayName</MudSelectItem>
+                    <MudSelectItem T="string" Value="@column.Key"
+                                   data-testid="@($"default-mask-column-option-{column.Key}")">
+                        @column.DisplayName
+                    </MudSelectItem>
                 }
             </MudSelect>
 
@@ -143,6 +149,12 @@
     private string? _newColumnKey;
     private string _newMaskFormat = string.Empty;
 
+    private IEnumerable<RegisteredField> AvailableColumns =>
+        Metadata.GetColumns(_newTableKey ?? string.Empty)
+            .Where(c => !ConfigManager.Current.DefaultMasks.Any(r =>
+                string.Equals(r.EntityKey, _newTableKey, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(r.ColumnKey, c.Key, StringComparison.OrdinalIgnoreCase)));
+
     private readonly List<FilterColumnDefinition> _filterColumns = new()
     {
         new FilterColumnDefinition
@@ -177,21 +189,6 @@
         && !ConfigManager.Current.DefaultMasks.Any(r =>
             string.Equals(r.EntityKey, _newTableKey, StringComparison.OrdinalIgnoreCase)
             && string.Equals(r.ColumnKey, _newColumnKey, StringComparison.OrdinalIgnoreCase));
-
-    /// <summary>
-    /// Prefills the "add" form so the safety-net one-click flow can hand a
-    /// table/column pair to the grid. Callers invoke this and then invoke
-    /// <see cref="AddAsync"/>.
-    /// </summary>
-    /// <param name="entityKey">Table (entity) key.</param>
-    /// <param name="columnKey">Column (field) key.</param>
-    public Task AddFromSafetyNetAsync(string entityKey, string columnKey)
-    {
-        _newTableKey = entityKey;
-        _newColumnKey = columnKey;
-        _newMaskFormat = string.Empty;
-        return AddAsync();
-    }
 
     private async Task AddAsync()
     {

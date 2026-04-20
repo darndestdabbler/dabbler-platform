@@ -22,7 +22,10 @@
                        Style="min-width:180px;">
                 @foreach (var table in Metadata.Tables)
                 {
-                    <MudSelectItem T="string" Value="@table.Key">@table.DisplayName</MudSelectItem>
+                    <MudSelectItem T="string" Value="@table.Key"
+                                   data-testid="@($"column-restriction-table-option-{table.Key}")">
+                        @table.DisplayName
+                    </MudSelectItem>
                 }
             </MudSelect>
 
@@ -31,9 +34,12 @@
                        Disabled="@string.IsNullOrEmpty(_newTableKey)"
                        data-testid="column-restriction-new-column"
                        Style="min-width:180px;">
-                @foreach (var column in Metadata.GetColumns(_newTableKey ?? string.Empty))
+                @foreach (var column in AvailableColumns)
                 {
-                    <MudSelectItem T="string" Value="@column.Key">@column.DisplayName</MudSelectItem>
+                    <MudSelectItem T="string" Value="@column.Key"
+                                   data-testid="@($"column-restriction-column-option-{column.Key}")">
+                        @column.DisplayName
+                    </MudSelectItem>
                 }
             </MudSelect>
 
@@ -133,6 +139,17 @@
     private string? _newTableKey;
     private string? _newColumnKey;
     private ColumnRestrictionKind _newKind = ColumnRestrictionKind.ViewOnly;
+
+    // Hide columns that already have a restriction for this role so the user
+    // cannot land on a silently-disabled Add button (UAT finding 5b). The
+    // underlying duplicate guard in CanAdd stays — filter + guard together
+    // prevent the user from adding duplicates without ever seeing an
+    // unexplained disabled state.
+    private IEnumerable<RegisteredField> AvailableColumns =>
+        Metadata.GetColumns(_newTableKey ?? string.Empty)
+            .Where(c => !Role.ColumnRestrictions.Any(r =>
+                string.Equals(r.EntityKey, _newTableKey, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(r.ColumnKey, c.Key, StringComparison.OrdinalIgnoreCase)));
 
     private bool CanAdd =>
         !string.IsNullOrEmpty(_newTableKey)

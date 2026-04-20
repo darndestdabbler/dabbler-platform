@@ -114,24 +114,6 @@ public class DefaultMasksGridTests
     }
 
     [Fact]
-    public async Task AddFromSafetyNet_PrefillsAndPersistsNewRule()
-    {
-        var config = new SecurityConfiguration();
-        var (ctx, _) = Build(config);
-        using var _1 = ctx;
-
-        var cut = ctx.RenderComponent<DefaultMasksGrid>();
-
-        await cut.InvokeAsync(() => cut.Instance.AddFromSafetyNetAsync("Customer", "SocialSecurityNumber"));
-
-        config.DefaultMasks.Should().ContainSingle();
-        var rule = config.DefaultMasks[0];
-        rule.EntityKey.Should().Be("Customer");
-        rule.ColumnKey.Should().Be("SocialSecurityNumber");
-        rule.MaskFormat.Should().Be(string.Empty);
-    }
-
-    [Fact]
     public async Task Filter_ByTableKey_NarrowsVisibleRows()
     {
         var config = new SecurityConfiguration
@@ -174,24 +156,4 @@ public class DefaultMasksGridTests
         cut.Find("[data-testid='default-mask-count']").TextContent.Should().Contain("3 of 3");
     }
 
-    [Fact]
-    public async Task AddFromSafetyNet_IsIdempotent_DoesNotDuplicateExistingRule()
-    {
-        var config = new SecurityConfiguration
-        {
-            DefaultMasks =
-            [
-                new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" },
-            ],
-        };
-        var (ctx, _) = Build(config);
-        using var _1 = ctx;
-
-        var cut = ctx.RenderComponent<DefaultMasksGrid>();
-
-        await cut.InvokeAsync(() => cut.Instance.AddFromSafetyNetAsync("Customer", "SocialSecurityNumber"));
-
-        config.DefaultMasks.Should().ContainSingle();
-        config.DefaultMasks[0].MaskFormat.Should().Be("XXX-XX-{last4}");
-    }
 }

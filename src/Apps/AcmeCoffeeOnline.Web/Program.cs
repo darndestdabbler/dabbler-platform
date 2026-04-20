@@ -86,7 +86,7 @@ builder.Services.AddDabblerSecurity(options =>
     // ── Protectable entities with fields ─────────────────────────────────
     options.RegisterEntities(entities =>
     {
-        entities.Add("Product", "Products", fields =>
+        entities.Add("Product", "Product", fields =>
         {
             fields.Add("Name", "Name");
             fields.Add("RoastLevel", "Roast Level");
@@ -96,7 +96,7 @@ builder.Services.AddDabblerSecurity(options =>
             fields.Add("Description", "Description");
             fields.Add("IsAvailable", "Is Available");
         });
-        entities.Add("Customer", "Customers", fields =>
+        entities.Add("Customer", "Customer", fields =>
         {
             fields.Add("Email", "Email");
             fields.Add("FirstName", "First Name");
@@ -107,22 +107,23 @@ builder.Services.AddDabblerSecurity(options =>
             fields.Add("State", "State");
             fields.Add("ZipCode", "Zip Code");
             fields.Add("IsActive", "Is Active");
+            fields.Add("SocialSecurityNumber", "SSN");
         });
-        entities.Add("Order", "Orders", fields =>
+        entities.Add("Order", "Order", fields =>
         {
             fields.Add("OrderDate", "Order Date");
             fields.Add("ShipDate", "Ship Date");
             fields.Add("Status", "Status");
             fields.Add("Total", "Total");
         });
-        entities.Add("OrderItem", "Order Items", fields =>
+        entities.Add("OrderItem", "Order Item", fields =>
         {
             fields.Add("ProductId", "Product");
             fields.Add("Quantity", "Quantity");
             fields.Add("UnitPrice", "Unit Price");
             fields.Add("Discount", "Discount");
         });
-        entities.Add("OrderNote", "Order Notes", fields =>
+        entities.Add("OrderNote", "Order Note", fields =>
         {
             fields.Add("NoteText", "Note Text");
             fields.Add("NoteDate", "Note Date");

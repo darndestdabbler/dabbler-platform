@@ -390,6 +390,77 @@
       "description": "Docker Playwright suite over two consecutive fresh-container runs: 109 passed / 1 failed / 110 total each run. Session 5's 7 new SecurityDashboardUatCoverageTests and the unskipped RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync all passed both runs. All pre-Session-5 tests preserved (Sessions 2-4 regression targets + RestrictionEnforcementTests SystemAdmin + WarehouseUser role-override tests). Single failure is a pre-existing MultiOrganizationWorkflowTests timing flake inside PlaywrightFixture.SwitchOrganizationFromShellAsync (line 281): run 1 failed E2E_WF_01_RegionalSalesRep; run 2 failed E2E_WF_02_DualMembershipUser. Same signature (switchedSession.ActiveOrganizationName returned pre-switch 'Internal Operations' instead of the expected retail business name). Different test fails on different run under identical seed/config \u2192 server-side org-switch round-trip cookie settle is racing with GetSessionInfoAsync. Independent of Session 5 changes; disclosed in the verifier prompt out-of-scope section.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 1,
+      "stepKey": "session-6/remove-safety-net-feature",
+      "dateTime": "2026-04-20T17:51:29.390958+00:00",
+      "description": "Deleted the sensitive-name safety-net feature per the newly-promoted Principle (trust business + auditor backstop over auto-detection tooling). Removed: src/Libs/Dabbler.Security.Blazor/Components/Admin/Masks/SensitiveNameSafetyNet.razor (the entire component with its regex patterns ssn/taxid/ein/dob/password/ccnum/salary), the '<SensitiveNameSafetyNet>' embed + Rebuild callback from DefaultMasksTab.razor, the safety-net prefill helper 'AddFromSafetyNetAsync' from DefaultMasksGrid.razor, tests/Dabbler.Security.Blazor.Tests/Components/Admin/Masks/SensitiveNameSafetyNetTests.cs (5 tests), the two safety-net tests from DefaultMasksGridTests.cs, the 3 safety-net tests from DefaultMasksTabTests.cs, and the Playwright SensitiveNameSafetyNet_AddButton_DeclaresColumnInDefaultMasksAsync test. No separate scanner service existed \u2014 logic was component-local.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 2,
+      "stepKey": "session-6/fix-ssn-in-dropdown",
+      "dateTime": "2026-04-20T17:51:29.392496+00:00",
+      "description": "Finding 5a: Customer.SocialSecurityNumber now flows through to the Default Masks Column dropdown. Root cause: the Web and Api Program.cs entity registrations for Customer did not include a SocialSecurityNumber field, so Metadata.GetColumns('Customer') returned a field list without SSN and the dropdown rendered no such option. Added fields.Add('SocialSecurityNumber', 'SSN') to the Customer entity registration in both src/Apps/AcmeCoffeeOnline.Web/Program.cs and src/Apps/AcmeCoffeeOnline.Api/Program.cs. The seeded Customer.SocialSecurityNumber DefaultMask row (from Set B Session 3) now resolves its column display name to 'SSN' instead of falling back to the raw key.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 3,
+      "stepKey": "session-6/enable-add-column-restriction-button",
+      "dateTime": "2026-04-20T17:51:29.393581+00:00",
+      "description": "Finding 5b: Role Master Details > Data Column Restrictions > Add button was silently disabled when the user selected a (Table, Column) pair that already carried a restriction. Root cause was the duplicate-guard in CanAdd denying the Add with no UX cue \u2014 the UAT tester picked BackofficeUser + Product.UnitPrice which is already ViewOnly. Fix: added a new AvailableColumns computed property to ColumnRestrictionsSubTab.razor that filters Metadata.GetColumns(_newTableKey) to only columns without an existing restriction for this role. The Column dropdown now only offers selectable pairs, so the duplicate-guard never needs to fire and the Add button reliably transitions enabled once both dropdowns have values. CanAdd itself is preserved as a defence-in-depth guard. Applied the same filter pattern to DefaultMasksGrid.razor for symmetry, using the DefaultMasks list instead of Role.ColumnRestrictions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 4,
+      "stepKey": "session-6/singular-table-names-in-dropdown",
+      "dateTime": "2026-04-20T17:51:29.396191+00:00",
+      "description": "Finding 5c: Default Masks / Column Restrictions table dropdown now shows singular entity names. Root cause: the DisplayName argument in options.RegisterEntities(entities.Add('Customer', 'Customers', ...)) was the plural DbSet form. Changed to singular in both src/Apps/AcmeCoffeeOnline.Web/Program.cs and src/Apps/AcmeCoffeeOnline.Api/Program.cs: 'Products' -> 'Product', 'Customers' -> 'Customer', 'Orders' -> 'Order', 'Order Items' -> 'Order Item', 'Order Notes' -> 'Order Note'. The MetadataRegistry is the single source for both dropdowns (DefaultMasksGrid and ColumnRestrictionsSubTab) so the change flows through to both. Grid cell display via ResolveTableDisplay picks up the new singular form for existing rows too.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 5,
+      "stepKey": "session-6/playwright-masks-coverage",
+      "dateTime": "2026-04-20T17:51:29.397739+00:00",
+      "description": "Added 6 new Playwright tests to SecurityDashboardUatCoverageTests.cs (one per Finding 5 sub-item plus the 'already-restricted columns hidden from dropdown' regression guard): DefaultMasks_SafetyNetPanel_AbsentFromTabAsync (5d), DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync (5a grid-render path + 5c grid-render path), DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync (5c full dropdown path), DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync (5a fresh-add path), ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync (5b enabled/persist path), ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync (5b dropdown-filter guard). First run hit AriaRole.Option failures on 4 of 6 because MudBlazor 8.15 does not reliably expose the options under role=option; added explicit data-testid attributes to MudSelectItem elements (pattern 'default-mask-table-option-{key}' and 'column-restriction-table-option-{key}' / '-column-option-{key}') and switched the tests to GetByTestId per the UserRoleAssignmentDetails precedent. Each test carries a // UAT comment. Also added a bUnit test ColumnDropdown_ExcludesAlreadyRestrictedColumns asserting the AvailableColumns helper filters pre-restricted columns.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 6,
+      "stepKey": "session-6/run-regression-tests",
+      "dateTime": "2026-04-20T17:57:33.831818+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (all expected [Obsolete] cascades from Set B). dotnet test non-Playwright: 663 passed / 0 failed across 6 assemblies (Dabbler.Components 33, Dabbler.Reports.Blazor 13, Dabbler.Security.Blazor 187 -- -5 from session 5 baseline reflecting the deletion of 5 safety-net tests net +3 from the new ColumnDropdown_ExcludesAlreadyRestrictedColumns and DefaultMasksTab renders-without-safety-net tests, AcmeCoffeeOnline.Api 27, Dabbler.Security 280, AcmeCoffeeOnline.Web 123). Docker Playwright suite two runs: run 1 115/110 passed with 5 failed (4 of my Session 6 tests failed on AriaRole.Option + 1 pre-existing DashboardCards_ timing flake); fixed by adding data-testid attributes to MudSelectItems (pattern 'default-mask-table-option-{key}', 'default-mask-column-option-{key}', 'column-restriction-table-option-{key}', 'column-restriction-column-option-{key}') and switching tests to GetByTestId per the UserRoleAssignmentDetails precedent; run 2 115/113 passed with 2 failed. Both remaining failures are the same pre-existing MultiOrganizationWorkflowTests.SwitchOrganizationFromShellAsync flake documented in Session 5 -- Expected 'Retail Business 001' Actual 'Internal Operations', line 281 of PlaywrightFixture.cs, the org-switch cookie-settle race. All 6 new Session 6 Playwright tests (5 UAT coverage + 1 regression guard) plus every Session 2-5 test passed on run 2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 7,
+      "stepKey": "session-6/verify",
+      "dateTime": "2026-04-20T18:00:16.008049+00:00",
+      "description": "Cross-provider verification via task_type=session-verification, max_tier=2 to route to a non-Anthropic provider (Sessions 1-2 used opus, Sessions 3-5 used gemini-pro). Verifier: gemini-pro.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 37786,
+          "outputTokens": 923,
+          "costUsd": 0.0564625
+        }
+      ]
     }
   ]
 }

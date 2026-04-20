@@ -16,25 +16,20 @@
         sensitive field would itself leak information.
     </MudText>
 
-    <DefaultMasksGrid @ref="_grid"
-                      OnPersisted="OnGridPersistedAsync" />
-
-    <SensitiveNameSafetyNet @ref="_safetyNet"
-                            OnAddMatch="OnAddFromSafetyNetAsync" />
+    <DefaultMasksGrid @ref="_grid" />
 </div>
 
 @code {
     /// <summary>
-    /// Composer for the Default Masks tab. Owns the grid and the
-    /// sensitive-name safety-net panel. Subscribes to the
-    /// <see cref="AuthorizationStateNotifier"/> so saves in sibling tabs
-    /// (for example, a <c>MaskExemption</c> added from the Role Master
-    /// Details tab's Mask Exemptions sub-tab) trigger a rescan of the
-    /// safety-net panel in the same circuit.
+    /// Composer for the Default Masks tab. Business operators populate Default
+    /// Masks directly; the internal auditor is the compliance backstop (see
+    /// project-guidance.md → Principles → Security And Organization Model).
+    /// The tab still subscribes to <see cref="AuthorizationStateNotifier"/> so
+    /// the grid re-renders when a sibling tab persists a change that touches
+    /// the <c>DefaultMasks</c> list.
     /// </summary>
 
     private DefaultMasksGrid? _grid;
-    private SensitiveNameSafetyNet? _safetyNet;
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -43,21 +38,8 @@
         Notifier.Subscribe(OnConfigChangedAsync);
     }
 
-    private async Task OnGridPersistedAsync()
-    {
-        _safetyNet?.Rebuild();
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task OnAddFromSafetyNetAsync(SensitiveNameSafetyNet.SensitiveMatch match)
-    {
-        if (_grid is null) return;
-        await _grid.AddFromSafetyNetAsync(match.EntityKey, match.ColumnKey);
-    }
-
     private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
     {
-        _safetyNet?.Rebuild();
         await InvokeAsync(StateHasChanged);
     }
 

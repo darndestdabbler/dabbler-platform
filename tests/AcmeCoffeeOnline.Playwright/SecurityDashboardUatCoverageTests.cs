@@ -719,4 +719,315 @@ public sealed class SecurityDashboardUatCoverageTests
         var first = payload.RootElement.GetProperty("items").EnumerateArray().First();
         return first.GetProperty("id").GetInt32();
     }
+
+    // ── Session 6: Default Masks + Column Restrictions metadata + UI fixes ──
+
+    // UAT finding 5d: the sensitive-name safety-net feature was removed from
+    // the Default Masks tab (project-guidance.md → Principles → Security And
+    // Organization Model: trust business + auditor backstop over
+    // auto-detection tooling). Assert the panel no longer renders.
+    [Fact]
+    public async Task DefaultMasks_SafetyNetPanel_AbsentFromTabAsync()
+    {
+        // UAT: admin@acmecoffee.com → Default Masks tab → no safety-net panel.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }).ClickAsync();
+            await Assertions.Expect(page.GetByTestId("default-masks-tab")).ToBeVisibleAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId("sensitive-name-safety-net-container"))
+                .ToHaveCountAsync(0);
+            await Assertions
+                .Expect(page.GetByTestId("sensitive-name-safety-net-panel"))
+                .ToHaveCountAsync(0);
+            await Assertions
+                .Expect(page.GetByTestId("sensitive-name-safety-net-clear"))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 5a: the Customer.SocialSecurityNumber seed from Set B
+    // Session 3 must resolve through the MetadataRegistry so its row in the
+    // Default Masks grid carries the "SSN" column display label. Before
+    // the Session 6 fix, Customer's entity registration did not declare the
+    // SocialSecurityNumber field, so `ResolveColumnDisplay` fell back to the
+    // raw key and the grid read "SocialSecurityNumber".
+    //
+    // UAT finding 5c (table names singular): the same row renders under a
+    // Table column resolved to "Customer" (singular), not "Customers".
+    [Fact]
+    public async Task DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync()
+    {
+        // UAT: admin@acmecoffee.com → Default Masks → seeded
+        //      Customer.SocialSecurityNumber row shows Table="Customer"
+        //      and Column="SSN" (not the raw key).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }).ClickAsync();
+
+            var row = page.GetByTestId("default-mask-remove-Customer-SocialSecurityNumber")
+                .Locator("xpath=ancestor::tr[1]");
+            await Assertions.Expect(row).ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            var text = await row.InnerTextAsync();
+            Assert.Contains("Customer", text);
+            Assert.DoesNotContain("Customers", text);
+            Assert.Contains("SSN", text);
+            Assert.DoesNotContain("SocialSecurityNumber", text);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 5c (full dropdown): the Default Masks Table dropdown must
+    // list entity display names in singular form (Customer / Product /
+    // Order / Order Item / Order Note), not the plural DbSet forms.
+    [Fact]
+    public async Task DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync()
+    {
+        // UAT: admin@acmecoffee.com → Default Masks → open Table dropdown →
+        //      options read Customer / Product / Order (singular).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }).ClickAsync();
+            await page.GetByTestId("default-mask-new-table").ClickAsync();
+
+            // MudSelectItem popover options carry a data-testid per option
+            // (pattern `default-mask-table-option-{entityKey}`). Assert the
+            // options are present for the singular entity keys and that
+            // each option's visible text is the singular display name
+            // rather than the plural form.
+            var customerOption = page.GetByTestId("default-mask-table-option-Customer");
+            var productOption  = page.GetByTestId("default-mask-table-option-Product");
+            var orderOption    = page.GetByTestId("default-mask-table-option-Order");
+
+            await Assertions.Expect(customerOption).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions.Expect(productOption).ToBeVisibleAsync();
+            await Assertions.Expect(orderOption).ToBeVisibleAsync();
+
+            Assert.Equal("Customer", (await customerOption.InnerTextAsync()).Trim());
+            Assert.Equal("Product",  (await productOption.InnerTextAsync()).Trim());
+            Assert.Equal("Order",    (await orderOption.InnerTextAsync()).Trim());
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 5a (fresh add): after picking Customer in the Table
+    // dropdown, the Column dropdown must offer unmasked Customer columns.
+    // Adding Customer.Phone as a Default Mask persists the row and the
+    // grid refreshes in-circuit without a browser reload.
+    [Fact]
+    public async Task DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync()
+    {
+        // UAT: admin@acmecoffee.com → Default Masks → Table=Customer,
+        //      Column=Phone, MaskFormat=(blank) → Add → row appears.
+        const string entityKey = "Customer";
+        const string columnKey = "Phone";
+        var rowTestId = $"default-mask-remove-{entityKey}-{columnKey}";
+
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }).ClickAsync();
+
+            // Precondition: no existing Customer.Phone mask.
+            await Assertions.Expect(page.GetByTestId(rowTestId)).ToHaveCountAsync(0);
+
+            await page.GetByTestId("default-mask-new-table").ClickAsync();
+            await page.GetByTestId("default-mask-table-option-Customer").ClickAsync();
+
+            await page.GetByTestId("default-mask-new-column").ClickAsync();
+            await page.GetByTestId("default-mask-column-option-Phone").ClickAsync();
+
+            await page.GetByTestId("default-mask-add-button").ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId(rowTestId))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+        }
+        finally
+        {
+            // Clean up so subsequent runs start from the same config state.
+            try
+            {
+                var cleanup = page.GetByTestId(rowTestId);
+                if (await cleanup.CountAsync() > 0)
+                {
+                    await cleanup.ClickAsync();
+                }
+            }
+            catch
+            {
+                // Best-effort cleanup; do not fail the test on teardown.
+            }
+
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 5b: the Role Master Details ▸ Data Column Restrictions ▸
+    // Add button was disabled when the user selected a Table+Column pair
+    // that already had a restriction (BackofficeUser already has
+    // Product.UnitPrice), with no UX cue. Session 6 hides
+    // already-restricted columns from the Column dropdown so the only
+    // selectable pairs are ones where the Add button CAN be enabled.
+    [Fact]
+    public async Task ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync()
+    {
+        // UAT: admin@acmecoffee.com → Role Master Details → BackofficeUser →
+        //      Data Column Restrictions → Table=Customer, Column=Phone →
+        //      Add button enabled → row persists.
+        const string roleName = "BackofficeUser";
+        const string entityKey = "Customer";
+        const string columnKey = "Phone";
+        var addRowTestId = $"column-restriction-remove-{entityKey}-{columnKey}";
+
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+
+            var roleRow = page.GetByTestId($"role-row-{roleName}").Locator("xpath=ancestor::tr[1]");
+            await Assertions.Expect(roleRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await roleRow.ClickAsync();
+
+            await Assertions.Expect(page.GetByTestId("role-details-section")).ToBeVisibleAsync();
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Data Column Restrictions" }).ClickAsync();
+            await Assertions.Expect(page.GetByTestId("column-restrictions-subtab")).ToBeVisibleAsync();
+
+            // Precondition: Customer.Phone has no existing restriction.
+            await Assertions.Expect(page.GetByTestId(addRowTestId)).ToHaveCountAsync(0);
+
+            // Initial state: Add is disabled with no table/column selected.
+            await Assertions
+                .Expect(page.GetByTestId("column-restriction-add-button"))
+                .ToBeDisabledAsync();
+
+            await page.GetByTestId("column-restriction-new-table").ClickAsync();
+            await page.GetByTestId("column-restriction-table-option-Customer").ClickAsync();
+
+            await page.GetByTestId("column-restriction-new-column").ClickAsync();
+            await page.GetByTestId("column-restriction-column-option-Phone").ClickAsync();
+
+            // With a fresh pair selected the Add button must become enabled.
+            await Assertions
+                .Expect(page.GetByTestId("column-restriction-add-button"))
+                .ToBeEnabledAsync(new() { Timeout = 10_000 });
+
+            await page.GetByTestId("column-restriction-add-button").ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId(addRowTestId))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+        }
+        finally
+        {
+            // Clean up so subsequent runs start from the same config state.
+            try
+            {
+                var cleanup = page.GetByTestId(addRowTestId);
+                if (await cleanup.CountAsync() > 0)
+                {
+                    await cleanup.ClickAsync();
+                }
+            }
+            catch
+            {
+                // Best-effort cleanup; do not fail the test on teardown.
+            }
+
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 5b (dropdown filter): columns that already have a
+    // restriction on the selected role must not appear in the Column
+    // dropdown. BackofficeUser has Product.UnitPrice restricted; opening
+    // the Column dropdown with Table=Product selected must therefore not
+    // offer Unit Price.
+    [Fact]
+    public async Task ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync()
+    {
+        // UAT: admin@acmecoffee.com → Role Master Details → BackofficeUser →
+        //      Data Column Restrictions → Table=Product → Column dropdown
+        //      does not offer Unit Price (already restricted).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+
+            var roleRow = page.GetByTestId("role-row-BackofficeUser").Locator("xpath=ancestor::tr[1]");
+            await Assertions.Expect(roleRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await roleRow.ClickAsync();
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Data Column Restrictions" }).ClickAsync();
+
+            await page.GetByTestId("column-restriction-new-table").ClickAsync();
+            await page.GetByTestId("column-restriction-table-option-Product").ClickAsync();
+
+            await page.GetByTestId("column-restriction-new-column").ClickAsync();
+
+            // "Unit Price" (key UnitPrice) is already restricted for
+            // BackofficeUser in the seeded security-config.json, so it must
+            // not appear as an option in the Column dropdown.
+            await Assertions
+                .Expect(page.GetByTestId("column-restriction-column-option-UnitPrice"))
+                .ToHaveCountAsync(0);
+
+            // A Product column with no existing restriction (e.g., Name)
+            // must still be offered — sanity check that the filter is
+            // scoped to already-restricted pairs, not an "all options
+            // hidden" failure mode.
+            await Assertions
+                .Expect(page.GetByTestId("column-restriction-column-option-Name"))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
 }
