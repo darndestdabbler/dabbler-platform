@@ -204,6 +204,14 @@ before proceeding.
 - Use `MudLayout`, `MudAppBar`, `MudDrawer`, `MudNavMenu`, and
   `MudMainContent` for the application shell. Navigation is route-based with
   clean URLs, browser history support, and standard Blazor routing.
+- When a session spec names a specific MudBlazor widget but the semantics it
+  describes don't fit that widget, choose the widget that honors the semantics
+  rather than forcing a mismatched control. `MudSwitch` is natively binary in
+  MudBlazor 8.x — use `MudToggleGroup<T>` with
+  `SelectionMode.SingleSelection` for tri-state or multi-state selection
+  (e.g., `ColumnRestriction` ViewOnly|Hidden, `UiRestriction` Disabled|Hidden,
+  Allow|Deny|Unset). Call out the deviation explicitly in the end-of-session
+  verification prompt so the verifier sees the reasoning.
 
 ### Filter UI
 
@@ -315,3 +323,12 @@ before proceeding.
   out-of-scope section of the prompt. Missing context produces false positives
   about "missing" code that actually lives in a sibling file; the verifier
   only sees what the prompt includes.
+- Before physically deleting a type whose consumers are referenced by a
+  later session or session set, count the consumer files. If a scheduled
+  future session already owns the consumer rewrite, mark the type
+  `[Obsolete]` instead of deleting it. The compiler warnings surface on
+  every consumer so no reference slips through, the build stays green, and
+  the deletion lands naturally in the session that rewrites the last
+  consumer. Disclose the deviation in the end-of-session verification
+  prompt. Applies whenever consumer count and session boundaries would
+  otherwise force a single session to own a disproportionate rewrite.

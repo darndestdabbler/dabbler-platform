@@ -396,6 +396,16 @@ Use this structure for new entries:
 
 ## Mark `[Obsolete]` Instead Of Deleting Cascading Types When A Future Session Already Owns The Consumer Rewrite
 
+- **Promoted to:** `project-guidance.md` → Conventions → Workflow
+  Expectations on 2026-04-19 (Step 9 reorganization review for the
+  `rearchitect-role-administration-dashboard` session set). Applied
+  successfully as the right call in two contexts: Set A Session 2 (the
+  originating incident — physical deletion of seven configuration types
+  with ~50 consumer files would have forced Session 3 over its
+  boundaries), and Set B Sessions 2–8 (progressive `[Obsolete]` deletion
+  alongside UI consumer removal, with ~145 warnings still expected to
+  cascade out during Sets D/C). Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Session 2 of `rearchitect-role-administration-foundations`
   was instructed to physically delete `PagePermission`, `EndpointPermission`,
   `EntityPermission`, `FieldPermission`, `ControlPermission`, `RowFilter`,
@@ -423,6 +433,15 @@ Use this structure for new entries:
 
 ## Follow The Spec's Semantic Intent, Not Its Widget Name
 
+- **Promoted to:** `project-guidance.md` → Conventions → MudBlazor Usage
+  on 2026-04-19 (Step 9 reorganization review for the
+  `rearchitect-role-administration-dashboard` session set). Applied
+  successfully as the right call in two contexts: `security-dashboard-polish`
+  Session 2 (the originating `MudSwitch` tri-state incident) and Set B
+  Session 3 (`ColumnRestriction` ViewOnly|Hidden + `UiRestriction`
+  Disabled|Hidden both implemented as `MudToggleGroup<T>` despite the
+  spec text naming `MudSwitch`). Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Session 2 of `security-dashboard-polish` asked for "one
   `MudSwitch` bound to a three-state model (Allow / Deny / Unset) or to a
   single allow/deny enum" to replace two independent checkboxes in the
@@ -468,3 +487,28 @@ Use this structure for new entries:
   "units", "items") placed adjacent to an aggregate as a warning sign:
   either the aggregate is misaligned, or the column header is too
   vague and should be renamed instead of labeled twice.
+
+## `route(task_type=documentation)` Wraps Content In A Code-Documentation Template
+
+- **Context:** Session 8 of `rearchitect-role-administration-dashboard`
+  generated the change-log.md through the AI router.
+- **Failure or friction:** The `documentation` prompt template at
+  `ai-router/prompt-templates/task-types/documentation.md` is shaped for
+  "document this code" work (purpose / public API / usage examples /
+  caveats). When the content is narrative meta-prose like a change log,
+  the wrapped prompt produced `Gemini Pro 400 Bad Request` on every
+  retry. The same content sent directly to `generativelanguage.googleapis.com`
+  via raw `httpx` with the repo's `google-system.md` prompt returned 200.
+  Fell back to the direct API call for this session.
+- **Lesson:** The router's per-task-type template meaningfully alters the
+  prompt shape. For narrative docs (change logs, READMEs, summaries,
+  any free-form prose), use `task_type="summarization"` (no template in
+  `prompt-templates/task-types/`, so content passes through raw) rather
+  than `task_type="documentation"`, which is reserved for code
+  documentation. If a mysterious Gemini Pro 400 surfaces in the router
+  but direct API returns 200, suspect the task-template wrapping first.
+- **Action for future sessions:** Reserve `task_type="documentation"`
+  for code-doc generation. For change logs, release notes, session
+  summaries, and similar narrative prose, use `task_type="summarization"`.
+  Consider adding a dedicated `change-log` or `narrative` task type with
+  a no-op template if this pattern recurs.
