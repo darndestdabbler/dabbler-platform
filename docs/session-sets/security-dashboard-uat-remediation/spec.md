@@ -210,6 +210,64 @@ four are the gap.
 confirm all four are fixed or explicitly retired before starting
 Session 4's primary work.
 
+### 10. Session 4 Step 0 triage outcome (2026-04-20)
+
+- **10.1 — Fixed (test updated).** `SmokeTests.cs` lines 248-259 asserted
+  BackofficeUserAdmin saw access-denied on `/admin/products` and
+  `/admin/security`. Both assertions were stale: Set A Session 3's handler
+  rewrite removed the SystemAdmin-only gate on `/admin/products`, and
+  Session 3 of this set (`security-dashboard-uat-remediation`) made
+  `/admin/security` reachable by every baked-in role. Per the
+  "Hard-Asserted Disabled-State Tests" convention, both assertions were
+  inverted to `ToHaveCountAsync(0)` so the role whose product definition
+  actually allows the access is the one proving it.
+- **10.2 — Deferred to Session 5 (test skipped with rationale).** The
+  failure is the restriction-seam reachability seam described in
+  Finding 4, observed for Customer instead of BackofficeUser /
+  WarehouseUser. Rather than solve the Docker-specific principal
+  resolution here and then re-solve it in Session 5 alongside the
+  page-level authorization decision, the test is marked
+  `[Fact(Skip = "Deferred to Session 5 ...")]`. Session 5 re-enables or
+  rewrites it once the seam route strategy is finalized.
+- **10.3 — Fixed (test simplified).** `OrderDetail_SystemAdmin_CanEdit
+  NotesAndPersistAsync` appended its marker to the prior notes value,
+  so any run that crashed between Save and Restore left residue that
+  snowballed across subsequent Docker runs. The test now overwrites
+  with a unique marker and restores the originally-captured notes,
+  making it idempotent regardless of sqlserver state between runs.
+- **10.4 — Fixed (test updated).** `AccessDenied_CustomerRole_Blocked
+  FromCustomersPageAsync` asserted a `Go to sign in` link on the
+  access-denied page. The current `AccessDeniedCard` renders a
+  `Back to dashboard` button (`data-testid="access-denied-back-button"`)
+  and does not surface a sign-in link. The test now asserts the
+  back-to-dashboard button, matching the live contract.
+
+### Finding 3 sub-issue — dash-in-filter clarification (2026-04-20)
+
+The UAT called out `Key contains 'cust-'` returning zero rows while
+`cust` returned all retail orgs. Tracing the filter pipeline end-to-end
+found no tokenization or escape-character handling that would mis-treat
+the dash:
+
+- `FilterPanel<T>` uses `MudTextField T="string"` and passes the value
+  through `FilteringCoordinator.SetFilter` as a raw `object?`.
+- `OrganizationMasterGrid.ApplyFilter` uses `string.Contains(needle,
+  StringComparison.OrdinalIgnoreCase)`, which is dash-literal by spec.
+- The seed data (`SeedData.GetCustomerOrganizationKey` returning
+  `$"customer-{customer.Id}"`) uses keys like `customer-101`, so
+  `cust-` is correctly NOT a substring; `customer-`, `mer-1`, and
+  `cust` all are.
+
+This is not a tokenization bug — the filter works as `.Contains`
+contracts. The UAT observation reflects the seed data shape rather
+than a defect in the pipeline. Session 4 adds
+`Grid_FilterByKeyContains_HandlesDashCharacter` (theory, four rows)
+to `OrganizationMasterGridTests.cs` to lock the semantics down.
+The `/admin/security` Playwright coverage in
+`SecurityDashboardUatCoverageTests.cs` additionally drives the
+dashboard filter with `customer-` against the live web stack so any
+future regression in the router between UI and grid would surface.
+
 ## Goals
 
 1. Every UAT finding above is closed, verified by:

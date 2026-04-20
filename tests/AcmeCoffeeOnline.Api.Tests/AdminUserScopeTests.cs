@@ -106,7 +106,18 @@ public sealed class AdminUserScopeTests : IClassFixture<WebApplicationFactory<Pr
         var internalScopeCustomers = await customerService.GetAllAsync(new PagedRequest { Page = 1, PageSize = 10 });
 
         Assert.NotNull(internalScopeCustomers);
-        Assert.Equal(0, internalScopeCustomers.TotalCount);
+        // Session 4 of security-dashboard-uat-remediation (Finding 3): internal
+        // user-type roles (BackofficeUser here) with no CustomerId claim used
+        // to return 0 customers because CustomerService.ApplyOrganizationScope
+        // silently hit `query.Where(_ => false)`. That starved the /customers
+        // page of every row for CrossOrgUserAdmin and BackofficeUser alike.
+        // OrganizationScopeFilter.DeferredReason documents that true per-org
+        // scoping is a Set C deliverable (transactional entities don't carry
+        // OrganizationId yet), so until Set C, internal user-type roles fall
+        // through to the full set. The positive assertion here replaces the
+        // prior 0-row assertion without masking the true deferral.
+        Assert.True(internalScopeCustomers.TotalCount > 0,
+            "BackofficeUser must see all customers until Set C adds per-org scoping — the prior 0-row assertion encoded the CrossOrgUserAdmin/BackofficeUser bug that Finding 3 fixed.");
 
         SetHttpContext(
             testScope.ServiceProvider,

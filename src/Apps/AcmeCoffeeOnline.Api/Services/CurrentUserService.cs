@@ -88,6 +88,34 @@ public class CurrentUserService : ICurrentUserService
         }
     }
 
+    public IReadOnlyList<string> RoleNames
+    {
+        get
+        {
+            var context = _httpContextAccessor.HttpContext;
+
+            if (context?.Items["AppUserRoles"] is List<string?> roleNames)
+            {
+                return roleNames
+                    .Where(name => !string.IsNullOrEmpty(name))
+                    .Select(name => name!)
+                    .ToArray();
+            }
+
+            var roleClaims = context?.User.FindAll(ClaimTypes.Role);
+            if (roleClaims is not null)
+            {
+                return roleClaims
+                    .Select(claim => claim.Value)
+                    .Where(value => !string.IsNullOrEmpty(value))
+                    .ToArray();
+            }
+
+            var roleStr = _configuration["TestUser:Role"];
+            return string.IsNullOrWhiteSpace(roleStr) ? [] : new[] { roleStr };
+        }
+    }
+
     public int? ActiveOrganizationId
     {
         get

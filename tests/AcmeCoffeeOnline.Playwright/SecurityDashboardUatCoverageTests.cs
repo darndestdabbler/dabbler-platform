@@ -290,4 +290,174 @@ public sealed class SecurityDashboardUatCoverageTests
             await _fixture.ClosePageAsync(page);
         }
     }
+
+    // ── Session 4: Organization scope filter and mutation UX ─────────────────
+
+    // UAT finding 3: CrossOrgUserAdmin has CanSeeAllOrganizations=true, so
+    // GET /api/customers must return the full retail-customer set rather
+    // than silently filtering to zero rows. Prior bug: CustomerService's
+    // ApplyOrganizationScope compared against UserRole.SystemAdmin only —
+    // the AcmeCoffee UserRole enum does not carry CrossOrgUserAdmin, so
+    // asmith fell through to `query.Where(_ => false)`.
+    [Fact]
+    public async Task Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync()
+    {
+        // UAT: asmith@acmecoffee.com (CrossOrgUserAdmin) queries
+        //      /api/customers?page=1&pageSize=100 → non-zero total count
+        //      covering every seeded retail customer.
+        var asmithId = await _fixture.GetSeededUserIdAsync(AsmithEmail);
+        using var asmithPayload = await _fixture.GetApiJsonAsync(
+            "api/customers?page=1&pageSize=100",
+            asmithId);
+        var asmithTotal = asmithPayload.RootElement.GetProperty("totalCount").GetInt32();
+
+        var adminId = await _fixture.GetSeededUserIdAsync(AdminEmail);
+        using var adminPayload = await _fixture.GetApiJsonAsync(
+            "api/customers?page=1&pageSize=100",
+            adminId);
+        var adminTotal = adminPayload.RootElement.GetProperty("totalCount").GetInt32();
+
+        Assert.True(adminTotal > 0, $"Seed must expose at least one customer, found {adminTotal}.");
+        Assert.Equal(adminTotal, asmithTotal);
+    }
+
+    // UAT finding 3: BackofficeUser is not CanSeeAllOrganizations, but also
+    // has no linked CustomerId. Before the fix it saw zero customers — the
+    // `ActiveOrganizationId.HasValue && !CustomerId.HasValue` branch returned
+    // `query.Where(_ => false)`. The fix falls through to all customers
+    // (deferred to Set C per OrganizationScopeFilter.DeferredReason).
+    [Fact]
+    public async Task Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync()
+    {
+        // UAT: jdoe@acmecoffee.com (BackofficeUser) → /api/customers →
+        //      result.totalCount > 0.
+        var jdoeId = await _fixture.GetSeededUserIdAsync(JdoeEmail);
+        using var payload = await _fixture.GetApiJsonAsync(
+            "api/customers?page=1&pageSize=100",
+            jdoeId);
+        var total = payload.RootElement.GetProperty("totalCount").GetInt32();
+
+        Assert.True(total > 0, $"BackofficeUser must see at least one customer (pre-Set-C), found {total}.");
+    }
+
+    // UAT finding 3 sub-issue: the dash-in-filter claim. The seed uses
+    // "customer-{Id}" keys so `Key contains 'customer-'` must match every
+    // retail org, proving the filter does NOT mis-treat dashes. This also
+    // exercises in-circuit refresh on filter changes — typing into the
+    // filter must narrow the grid without a browser reload.
+    [Fact]
+    public async Task OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync()
+    {
+        // UAT: admin@acmecoffee.com → Admin → Security Dashboard →
+        //      Organization Master Details tab → type "customer-" in the
+        //      Key filter → grid narrows to retail orgs in-circuit.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Organization Master Details" })
+                .ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId("organization-master-grid"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // Capture the unfiltered row count (count grid rows via the
+            // per-row internal-chip testid pattern — the "Internal organization"
+            // label that belongs to the details form is always rendered and
+            // is not a reliable grid-row signal).
+            var gridRowChips = page.Locator("[data-testid^='organization-row-'][data-testid$='-internal-chip']");
+            var initialCount = await gridRowChips.CountAsync();
+            Assert.True(initialCount >= 2,
+                $"Seed must include at least one internal + one retail org, found {initialCount}.");
+
+            // The seed's internal org has id=1 → row testid "organization-row-1-*".
+            await Assertions
+                .Expect(page.GetByTestId("organization-row-1-internal-chip"))
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+
+            // Filter by "customer-" — the dash must survive the pipeline.
+            var keyFilter = page
+                .GetByRole(AriaRole.Textbox, new() { Name = "Key" })
+                .First;
+            await keyFilter.FillAsync("customer-");
+
+            // The internal row (id=1, key="internal") must drop out of the grid.
+            await Assertions
+                .Expect(page.GetByTestId("organization-row-1-internal-chip"))
+                .ToHaveCountAsync(0, new() { Timeout = 5_000 });
+
+            // At least one retail row must remain.
+            var filteredCount = await gridRowChips.CountAsync();
+            Assert.True(filteredCount > 0 && filteredCount < initialCount,
+                $"Filtered row count must drop from {initialCount} to a non-zero retail subset, saw {filteredCount}.");
+
+            // Negative check: "cust-" is not a substring of "customer-" —
+            // this is a literal .Contains call and must return zero rows.
+            await keyFilter.FillAsync("cust-");
+            await Assertions
+                .Expect(gridRowChips)
+                .ToHaveCountAsync(0, new() { Timeout = 5_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 6: Organization create must refresh the grid in-circuit
+    // so the human does not have to browser-refresh to see the new row.
+    // The IDbContextFactory refactor of OrganizationMasterGrid and
+    // OrganizationDetailsForm is the enabling change — each operation
+    // uses its own DbContext and cannot see a stale identity-map entry.
+    [Fact]
+    public async Task OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync()
+    {
+        // UAT: admin@acmecoffee.com → Security Dashboard → Organization
+        //      Master Details → New organization → Key "customer-uat-<guid>"
+        //      → Name "UAT New <guid>" → Save → grid shows the new row
+        //      with no manual refresh.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Organization Master Details" })
+                .ClickAsync();
+
+            await Assertions
+                .Expect(page.GetByTestId("organization-master-grid"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            var marker = Guid.NewGuid().ToString("N")[..8];
+            var newKey = $"customer-uat-{marker}";
+            var newName = $"UAT New {marker}";
+
+            await page.GetByTestId("organization-grid-add-button").ClickAsync();
+
+            await page.GetByTestId("organization-key-field").Locator("input").FillAsync(newKey);
+            await page.GetByTestId("organization-name-field").Locator("input").FillAsync(newName);
+            await page.GetByTestId("organization-save-button").ClickAsync();
+
+            // In-circuit refresh: the new key must appear in the grid without
+            // a navigation or reload. No `page.ReloadAsync` anywhere below.
+            await Assertions
+                .Expect(page.Locator($"text={newKey}").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions
+                .Expect(page.Locator($"text={newName}").First)
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
 }

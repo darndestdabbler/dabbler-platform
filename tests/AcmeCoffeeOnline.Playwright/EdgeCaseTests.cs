@@ -106,11 +106,13 @@ public sealed class EdgeCaseTests
             await Assertions.Expect(page.GetByTestId("access-denied-page"))
                 .ToBeVisibleAsync();
 
-            // Access denied page uses AuthLayout (not the main shell), so
-            // verify the page rendered its content and sign-in link
+            // Verify the AccessDeniedCard rendered its heading and the
+            // "Back to dashboard" escape hatch. (The prior assertion on a
+            // "Go to sign in" link was stale — the current card uses a
+            // back-to-dashboard button.)
             await Assertions.Expect(page.GetByText("Access denied"))
                 .ToBeVisibleAsync();
-            await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Go to sign in" }))
+            await Assertions.Expect(page.GetByTestId("access-denied-back-button"))
                 .ToBeVisibleAsync();
         }
         finally

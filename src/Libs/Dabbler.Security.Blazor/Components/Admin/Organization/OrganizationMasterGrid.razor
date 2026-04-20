@@ -4,7 +4,7 @@
 @using Microsoft.EntityFrameworkCore
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Organization
-@inject DabblerSecurityDbContext DbContext
+@inject IDbContextFactory<DabblerSecurityDbContext> DbFactory
 
 <div data-testid="organization-master-grid-container">
     <FilterPanel T="OrganizationRow"
@@ -136,7 +136,13 @@
 
     public async Task RefreshAsync(int? selectedOrganizationId = null)
     {
-        _rows = await DbContext.AppOrganizations
+        // Use IDbContextFactory so every refresh projects from a fresh
+        // DbContext. This avoids any stale identity-map entries that the
+        // OrganizationDetailsForm's tracked-edit path may have left behind
+        // on the shared scoped DbContext, and matches the Session 2 pattern
+        // that unblocked the Users tab under concurrent awaits.
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _rows = await db.AppOrganizations
             .AsNoTracking()
             .OrderBy(organization => organization.Name)
             .Select(organization => new OrganizationRow

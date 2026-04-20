@@ -241,7 +241,12 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("data-testid=\"standalone-shell\"", content);
-        Assert.Contains("_framework/blazor.web.js", content);
+        // Session 3 of security-dashboard-uat-remediation switched App.razor
+        // to `@Assets["_framework/blazor.web.js"]`, which the MapStaticAssets
+        // pipeline may fingerprint to `_framework/blazor.web.<hash>.js`. The
+        // guardrail we want is "the blazor web script was wired", not an
+        // exact-path match, so assert the prefix + extension separately.
+        Assert.Matches(@"_framework/blazor\.web[^""]*\.js", content);
         Assert.Contains("data-dabbler-asset=\"dabbler-shell.css\"", content);
         Assert.Contains("reusable platform stubs", content);
         Assert.Contains("Distributor Demo", content);

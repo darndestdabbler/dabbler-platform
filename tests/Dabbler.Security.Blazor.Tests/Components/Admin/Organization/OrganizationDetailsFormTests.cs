@@ -158,6 +158,18 @@ public class OrganizationDetailsFormTests
         }
 
         services.AddScoped(_ => new DabblerSecurityDbContext(options));
+        services.AddSingleton<IDbContextFactory<DabblerSecurityDbContext>>(
+            new TestDbContextFactory(options));
         return options;
+    }
+
+    private sealed class TestDbContextFactory : IDbContextFactory<DabblerSecurityDbContext>
+    {
+        private readonly DbContextOptions<DabblerSecurityDbContext> _options;
+
+        public TestDbContextFactory(DbContextOptions<DabblerSecurityDbContext> options)
+            => _options = options;
+
+        public DabblerSecurityDbContext CreateDbContext() => new(_options);
     }
 }

@@ -3,7 +3,7 @@
 @using Microsoft.EntityFrameworkCore
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Organization
-@inject DabblerSecurityDbContext DbContext
+@inject IDbContextFactory<DabblerSecurityDbContext> DbFactory
 @inject ISnackbar Snackbar
 
 <MudPaper Elevation="1" Class="pa-4 mt-4" data-testid="organization-details-form">
@@ -133,7 +133,10 @@
             return;
         }
 
-        var projection = await DbContext.AppOrganizations
+        // One-shot read context — never shared with the grid, so a prior
+        // tracked-edit cannot leave a stale entity in the identity map.
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var projection = await db.AppOrganizations
             .AsNoTracking()
             .Where(organization => organization.Id == _selection.OrganizationId)
             .Select(organization => new OrganizationEditorModel
@@ -192,9 +195,11 @@
             return;
         }
 
+        await using var db = await DbFactory.CreateDbContextAsync();
+
         if (_selection.IsNew)
         {
-            var duplicateExists = await DbContext.AppOrganizations
+            var duplicateExists = await db.AppOrganizations
                 .AsNoTracking()
                 .AnyAsync(organization => organization.Key.ToLower() == normalizedKey);
 
@@ -213,15 +218,15 @@
                 CreatedAt = DateTime.UtcNow
             };
 
-            DbContext.AppOrganizations.Add(entity);
-            await DbContext.SaveChangesAsync();
+            db.AppOrganizations.Add(entity);
+            await db.SaveChangesAsync();
 
             Snackbar.Add("Organization created.", Severity.Success);
             await PersistSelectionAsync(entity.Id);
             return;
         }
 
-        var existing = await DbContext.AppOrganizations
+        var existing = await db.AppOrganizations
             .FirstOrDefaultAsync(organization => organization.Id == _selection.OrganizationId);
 
         if (existing is null)
@@ -233,7 +238,7 @@
         existing.Name = name;
         existing.IsInternal = _model.IsInternal;
         existing.IsActive = _model.IsActive;
-        await DbContext.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
         Snackbar.Add("Organization updated.", Severity.Success);
         await PersistSelectionAsync(existing.Id);
@@ -246,7 +251,8 @@
             return;
         }
 
-        var existing = await DbContext.AppOrganizations
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var existing = await db.AppOrganizations
             .FirstOrDefaultAsync(organization => organization.Id == _selection.OrganizationId);
 
         if (existing is null)
@@ -256,7 +262,7 @@
         }
 
         existing.IsActive = false;
-        await DbContext.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
         Snackbar.Add("Organization archived.", Severity.Info);
         await PersistSelectionAsync(existing.Id);

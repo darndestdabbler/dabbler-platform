@@ -1,5 +1,6 @@
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Shared.Enums;
+using Dabbler.Security.Authorization;
 using Dabbler.Security.Data;
 using Dabbler.Security.Services;
 using Microsoft.EntityFrameworkCore;
@@ -16,15 +17,21 @@ public sealed class OrganizationOptionsService : IOrganizationOptionsService
     private readonly ICurrentUserService _currentUser;
     private readonly IUserSessionContextService _userSessionContextService;
     private readonly DabblerSecurityDbContext _securityDb;
+    private readonly OrganizationScopeFilter _organizationScopeFilter;
+    private readonly IBakedInRoleProvider _bakedInRoleProvider;
 
     public OrganizationOptionsService(
         ICurrentUserService currentUser,
         IUserSessionContextService userSessionContextService,
-        DabblerSecurityDbContext securityDb)
+        DabblerSecurityDbContext securityDb,
+        OrganizationScopeFilter organizationScopeFilter,
+        IBakedInRoleProvider bakedInRoleProvider)
     {
         _currentUser = currentUser;
         _userSessionContextService = userSessionContextService;
         _securityDb = securityDb;
+        _organizationScopeFilter = organizationScopeFilter;
+        _bakedInRoleProvider = bakedInRoleProvider;
     }
 
     public async Task<IReadOnlyList<OrganizationOptionDto>> GetOptionsAsync(CancellationToken cancellationToken = default)
@@ -44,7 +51,13 @@ public sealed class OrganizationOptionsService : IOrganizationOptionsService
             return [];
         }
 
-        if (_currentUser.Role == UserRole.SystemAdmin)
+        // Any baked-in role with CanSeeAllOrganizations=true (SystemAdmin,
+        // CrossOrgUserAdmin, CrossOrgMonitor) gets the full organization
+        // roster, not just the orgs they are directly a member of. The
+        // previous SystemAdmin-only gate silently starved CrossOrgUserAdmin
+        // and CrossOrgMonitor of the org switcher.
+        if (_organizationScopeFilter.CanBypassOrganizationScope(
+                _currentUser.RoleNames, _bakedInRoleProvider))
         {
             var availableOrganizationRoles = sessionContext.OrganizationMemberships
                 .ToDictionary(

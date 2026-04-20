@@ -54,6 +54,38 @@ public class OrganizationMasterGridTests
         activeRow.Should().Throw<Bunit.ElementNotFoundException>();
     }
 
+    [Theory]
+    [InlineData("cust", 1)]            // simple prefix match on "customer-101"
+    [InlineData("customer-", 1)]       // full prefix WITH a dash must still match
+    [InlineData("mer-1", 1)]           // substring spanning a dash must match
+    [InlineData("cust-", 0)]           // literal "cust-" is not a substring of "customer-101"
+    public void Grid_FilterByKeyContains_HandlesDashCharacter(string needle, int expectedVisibleCount)
+    {
+        // Session 4 of security-dashboard-uat-remediation — Finding 3 sub-issue:
+        // UAT flagged that filter `Key contains 'cust-'` returned nothing while
+        // `cust` did. The intended test here is that Contains is literal and
+        // dash-aware, not that "cust-" is treated as a prefix. The seed is
+        // "customer-101" so "cust-" is correctly absent; "customer-" and
+        // "mer-1" both span the dash and must match.
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(configureServices: services =>
+        {
+            RegisterDbContext(services, SeedOrganizations);
+        });
+
+        var cut = ctx.RenderComponent<OrganizationMasterGrid>();
+        var filterPanel = cut.FindComponent<FilterPanel<OrganizationMasterGrid.OrganizationRow>>();
+
+        cut.InvokeAsync(() =>
+            filterPanel.Instance.Coordinator.SetFilter(
+                0,
+                nameof(OrganizationMasterGrid.OrganizationRow.Key),
+                FilterOperators.Contains,
+                needle));
+
+        cut.Markup.Should().Contain($"{expectedVisibleCount} of 2 organizations");
+    }
+
     [Fact]
     public void Grid_NewOrganizationButton_RaisesCreateRequested()
     {
@@ -88,6 +120,18 @@ public class OrganizationMasterGridTests
         }
 
         services.AddScoped(_ => new DabblerSecurityDbContext(options));
+        services.AddSingleton<IDbContextFactory<DabblerSecurityDbContext>>(
+            new TestDbContextFactory(options));
+    }
+
+    private sealed class TestDbContextFactory : IDbContextFactory<DabblerSecurityDbContext>
+    {
+        private readonly DbContextOptions<DabblerSecurityDbContext> _options;
+
+        public TestDbContextFactory(DbContextOptions<DabblerSecurityDbContext> options)
+            => _options = options;
+
+        public DabblerSecurityDbContext CreateDbContext() => new(_options);
     }
 
     private static void SeedOrganizations(DabblerSecurityDbContext db)

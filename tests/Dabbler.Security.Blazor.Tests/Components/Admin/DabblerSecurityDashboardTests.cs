@@ -17,6 +17,16 @@ namespace Dabbler.Security.Blazor.Tests.Components.Admin;
 
 public class DabblerSecurityDashboardTests
 {
+    private sealed class DashboardTestDbContextFactory : IDbContextFactory<DabblerSecurityDbContext>
+    {
+        private readonly DbContextOptions<DabblerSecurityDbContext> _options;
+
+        public DashboardTestDbContextFactory(DbContextOptions<DabblerSecurityDbContext> options)
+            => _options = options;
+
+        public DabblerSecurityDbContext CreateDbContext() => new(_options);
+    }
+
     private static void RegisterDashboardServices(
         IServiceCollection svc,
         SecurityConfiguration? config = null)
@@ -37,6 +47,8 @@ public class DabblerSecurityDashboardTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
             .Options;
         svc.AddScoped(_ => new DabblerSecurityDbContext(dbOptions));
+        svc.AddSingleton<IDbContextFactory<DabblerSecurityDbContext>>(
+            new DashboardTestDbContextFactory(dbOptions));
 
         // The Users and Role Assignment tab pulls these services as soon as it
         // is the active panel (e.g., for UserAdmin). Stub them out empty so the
@@ -91,7 +103,7 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_CrossOrgUserAdmin_SeesFourTabs()
+    public void Dashboard_CrossOrgUserAdmin_SeesThreeTabs()
     {
         using var ctx = new TestContext();
         ctx.SetupForDabbler(

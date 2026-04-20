@@ -1,6 +1,8 @@
 using AcmeCoffeeOnline.Api.Data;
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Shared.Models;
+using Dabbler.Security.Authorization;
+using Dabbler.Security.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcmeCoffeeOnline.Api.Services;
@@ -9,11 +11,19 @@ public class CustomerService : ICustomerService
 {
     private readonly AcmeCoffeeDbContext _db;
     private readonly ICurrentUserService _currentUser;
+    private readonly OrganizationScopeFilter _organizationScopeFilter;
+    private readonly IBakedInRoleProvider _bakedInRoleProvider;
 
-    public CustomerService(AcmeCoffeeDbContext db, ICurrentUserService currentUser)
+    public CustomerService(
+        AcmeCoffeeDbContext db,
+        ICurrentUserService currentUser,
+        OrganizationScopeFilter organizationScopeFilter,
+        IBakedInRoleProvider bakedInRoleProvider)
     {
         _db = db;
         _currentUser = currentUser;
+        _organizationScopeFilter = organizationScopeFilter;
+        _bakedInRoleProvider = bakedInRoleProvider;
     }
 
     public async Task<PagedResponse<CustomerDto>> GetAllAsync(PagedRequest request, CancellationToken cancellationToken = default)
@@ -159,23 +169,30 @@ public class CustomerService : ICustomerService
 
     private IQueryable<Customer> ApplyOrganizationScope(IQueryable<Customer> query)
     {
-        if (_currentUser.Role == AcmeCoffeeOnline.Shared.Enums.UserRole.SystemAdmin)
+        // Any baked-in role with CanSeeAllOrganizations=true bypasses the
+        // per-organization scope (SystemAdmin, CrossOrgUserAdmin,
+        // CrossOrgMonitor). Previously this gate compared against the
+        // AcmeCoffee UserRole enum, which does not include CrossOrgUserAdmin
+        // — so that role silently fell through to the deny path below.
+        if (_organizationScopeFilter.CanBypassOrganizationScope(
+                _currentUser.RoleNames, _bakedInRoleProvider))
         {
             return query;
         }
 
-        if (_currentUser.ActiveOrganizationId.HasValue)
-        {
-            return _currentUser.CustomerId.HasValue
-                ? query.Where(customer => customer.Id == _currentUser.CustomerId.Value)
-                : query.Where(_ => false);
-        }
-
-        if (_currentUser.Role == AcmeCoffeeOnline.Shared.Enums.UserRole.Customer && _currentUser.CustomerId.HasValue)
+        // Customer-role users see only their own customer record, identified
+        // by the CustomerId claim that the InternalUserMiddleware / session
+        // context attaches when a login is linked to a Customer row.
+        if (_currentUser.CustomerId.HasValue
+            && _currentUser.Role == AcmeCoffeeOnline.Shared.Enums.UserRole.Customer)
         {
             return query.Where(customer => customer.Id == _currentUser.CustomerId.Value);
         }
 
+        // Internal user-type roles (BackofficeUser, BackofficeUserAdmin,
+        // WarehouseUser, …) see every customer until Set C adds
+        // Customer.OrganizationId and enables per-org scoping in EF.
+        // OrganizationScopeFilter.DeferredReason documents this deferral.
         return query;
     }
 }

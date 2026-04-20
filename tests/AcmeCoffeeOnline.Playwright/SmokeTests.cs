@@ -245,18 +245,22 @@ public sealed class SmokeTests
             // User Management accessible via admin drawer group
             await _fixture.NavigateViaDrawerGroupAsync(page, "Admin", "User Management", ".*/admin/users$");
 
-            // Product Management and Security Dashboard blocked for non-SystemAdmin
+            // Product Management is reachable by BackofficeUserAdmin after the
+            // Set A Session 3 handler rewrite removed the SystemAdmin-only gate.
             await page.GotoAsync($"{_fixture.BaseUrl}/admin/products", new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
             });
-            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
 
+            // Security Dashboard is reachable by any baked-in role after
+            // security-dashboard-uat-remediation Session 3 opened the page;
+            // per-tab visibility still gates admin tabs by compiled privilege.
             await page.GotoAsync($"{_fixture.BaseUrl}/admin/security", new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.NetworkIdle
             });
-            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
 
             // Switch to SystemAdmin and verify admin sections accessible
             await _fixture.SignOutAsync(page);
