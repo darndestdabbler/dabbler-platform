@@ -9,7 +9,6 @@ using Dabbler.Security.Data;
 using Dabbler.Security.Registration;
 using Dabbler.Security.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
@@ -145,68 +144,4 @@ public class DabblerSecurityDashboardTests
         cut.Instance.TabCount.Should().Be(1);
     }
 
-    [Fact]
-    public void Dashboard_ArrowRight_AdvancesActivePanel()
-    {
-        using var ctx = new TestContext();
-        ctx.SetupForDabbler(
-            roles: [BakedInRoles.SystemAdmin],
-            configureServices: svc => RegisterDashboardServices(svc));
-
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
-        cut.Instance.ActivePanelIndex.Should().Be(0);
-
-        var tabStrip = cut.Find("[data-testid='security-dashboard-tabstrip']");
-        tabStrip.KeyDown(new KeyboardEventArgs { Key = "ArrowRight" });
-
-        cut.Instance.ActivePanelIndex.Should().Be(1);
-    }
-
-    [Fact]
-    public void Dashboard_EndKey_JumpsToLastVisiblePanel()
-    {
-        using var ctx = new TestContext();
-        ctx.SetupForDabbler(
-            roles: [BakedInRoles.SystemAdmin],
-            configureServices: svc => RegisterDashboardServices(svc));
-
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
-        var tabStrip = cut.Find("[data-testid='security-dashboard-tabstrip']");
-
-        tabStrip.KeyDown(new KeyboardEventArgs { Key = "End" });
-
-        cut.Instance.ActivePanelIndex.Should().Be(cut.Instance.TabCount - 1);
-    }
-
-    [Fact]
-    public void Dashboard_ArrowLeftFromFirstPanel_WrapsToLast()
-    {
-        using var ctx = new TestContext();
-        ctx.SetupForDabbler(
-            roles: [BakedInRoles.SystemAdmin],
-            configureServices: svc => RegisterDashboardServices(svc));
-
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
-        var tabStrip = cut.Find("[data-testid='security-dashboard-tabstrip']");
-
-        tabStrip.KeyDown(new KeyboardEventArgs { Key = "ArrowLeft" });
-
-        cut.Instance.ActivePanelIndex.Should().Be(cut.Instance.TabCount - 1);
-    }
-
-    [Theory]
-    [InlineData(0, "ArrowRight", 5, 1)]
-    [InlineData(4, "ArrowRight", 5, 0)]
-    [InlineData(0, "ArrowLeft", 5, 4)]
-    [InlineData(2, "ArrowLeft", 5, 1)]
-    [InlineData(2, "Home", 5, 0)]
-    [InlineData(2, "End", 5, 4)]
-    [InlineData(2, "a", 5, null)]
-    [InlineData(2, "Tab", 5, null)]
-    [InlineData(0, "ArrowRight", 0, null)]
-    public void NextPanelIndex_ReturnsExpectedIndex(int current, string key, int count, object? expected)
-    {
-        var actual = DabblerSecurityDashboard.NextPanelIndex(current, key, count);
-        actual.Should().Be((int?)expected);
-    }
 }

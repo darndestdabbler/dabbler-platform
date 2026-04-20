@@ -1,5 +1,6 @@
 @using System.Security.Claims
 @using Dabbler.Security.Authorization
+@using Dabbler.Security.Blazor.Components.Admin.Shared
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Services
 @using Microsoft.AspNetCore.Components.Authorization
@@ -20,9 +21,18 @@
         exemptions below.
     </MudText>
 
-    <RoleMasterGrid @ref="_grid"
-                    CanManageRoles="@_canManageRoles"
-                    SelectedRoleChanged="OnSelectedRoleChangedAsync" />
+    <MasterDetailExpansionShell TestId="role-master-details-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Roles"
+                                CollapsedSummaryText="@_summaryText"
+                                CollapsedSummaryBadge="@_summaryBadge">
+        <ResultsContent>
+            <RoleMasterGrid @ref="_grid"
+                            CanManageRoles="@_canManageRoles"
+                            SelectedRoleChanged="OnSelectedRoleChangedAsync" />
+        </ResultsContent>
+    </MasterDetailExpansionShell>
 
     @if (_selection is not null)
     {
@@ -33,15 +43,20 @@
 
 @code {
     /// <summary>
-    /// Top-level composer for the Role Master Details tab. Owns the grid, the
-    /// selection state, and the sub-tab dispatcher. The active user's
-    /// compiled <c>CanManageRoles</c> privilege is resolved once at
-    /// initialization and passed down to the grid.
+    /// Top-level composer for the Role Master Details tab. Wraps the
+    /// <see cref="RoleMasterGrid"/> in a <see cref="MasterDetailExpansionShell"/>
+    /// so selecting a row collapses the results grid and shows a compact
+    /// summary header (e.g. <c>"Role: BackofficeUser"</c>) while the details
+    /// surface takes focus below. Re-expanding the header returns to the
+    /// results view.
     /// </summary>
 
     private RoleMasterGrid? _grid;
     private RoleDetailsSection.RoleSelection? _selection;
     private bool _canManageRoles;
+    private bool _isResultsExpanded = true;
+    private string? _summaryText;
+    private string? _summaryBadge;
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -69,6 +84,25 @@
     private Task OnSelectedRoleChangedAsync(RoleMasterGrid.RoleRow? row)
     {
         _selection = ResolveSelection(row);
+        if (row is not null)
+        {
+            _isResultsExpanded = false;
+            _summaryText = $"Role: {row.CanonicalName}";
+            _summaryBadge = row.IsBakedIn ? "baked-in" : null;
+        }
+        else
+        {
+            _isResultsExpanded = true;
+            _summaryText = null;
+            _summaryBadge = null;
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
         StateHasChanged();
         return Task.CompletedTask;
     }

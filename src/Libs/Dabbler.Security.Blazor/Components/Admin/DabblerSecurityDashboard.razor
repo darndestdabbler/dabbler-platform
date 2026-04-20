@@ -7,7 +7,6 @@
 @using Dabbler.Security.Blazor.Components.Admin.Role
 @using Dabbler.Security.Services
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @page "/admin/security"
 @attribute [Dabbler.Security.Authorization.DabblerPageAuthorize("/admin/security")]
@@ -17,8 +16,7 @@
 
 <PageTitle>Security Administration</PageTitle>
 
-<div data-testid="security-dashboard-tabstrip"
-     @onkeydown="HandleTabKeyDown">
+<div data-testid="security-dashboard-tabstrip">
     <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4"
              @bind-ActivePanelIndex="_activePanelIndex">
         @foreach (var tab in _visibleTabs)
@@ -141,28 +139,4 @@
             .ToList();
     }
 
-    private void HandleTabKeyDown(KeyboardEventArgs args)
-    {
-        if (NextPanelIndex(_activePanelIndex, args.Key, _visibleTabs.Count) is { } index)
-        {
-            _activePanelIndex = index;
-        }
-    }
-
-    internal static int? NextPanelIndex(int current, string key, int count)
-    {
-        if (count <= 0)
-        {
-            return null;
-        }
-
-        return key switch
-        {
-            "ArrowRight" => (current + 1) % count,
-            "ArrowLeft" => (current - 1 + count) % count,
-            "Home" => 0,
-            "End" => count - 1,
-            _ => null
-        };
-    }
 }

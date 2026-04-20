@@ -1,0 +1,108 @@
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Shared
+
+<div data-testid="@TestId" class="master-detail-expansion-shell mb-3">
+    <MudExpansionPanels MultiExpansion="false" Elevation="0">
+        <MudExpansionPanel Expanded="@IsExpanded"
+                           ExpandedChanged="@HandleExpandedChanged"
+                           DisableGutters="true">
+            <TitleContent>
+                <div class="d-flex align-center gap-2" data-testid="@($"{TestId}-header")">
+                    @if (IsExpanded)
+                    {
+                        <MudText Typo="Typo.subtitle2">@ExpandedHeaderText</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.subtitle2"
+                                 data-testid="@($"{TestId}-summary")">
+                            @(string.IsNullOrWhiteSpace(CollapsedSummaryText)
+                                ? ExpandedHeaderText
+                                : CollapsedSummaryText)
+                        </MudText>
+                        @if (!string.IsNullOrWhiteSpace(CollapsedSummaryBadge))
+                        {
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                     data-testid="@($"{TestId}-summary-badge")">
+                                @CollapsedSummaryBadge
+                            </MudChip>
+                        }
+                    }
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <div class="master-detail-results-scroll" style="max-height:@ScrollMaxHeight;overflow-y:auto;">
+                    @ResultsContent
+                </div>
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</div>
+
+@code {
+    /// <summary>
+    /// Shared master-details expansion wrapper. Each tab (Role, Organization,
+    /// Users, Default Masks) places its results grid inside
+    /// <see cref="ResultsContent"/>; row selection flips
+    /// <see cref="IsExpanded"/> to <c>false</c> and the caller provides a
+    /// compact <see cref="CollapsedSummaryText"/> so the human sees which row
+    /// is currently being edited in the details surface below. Changing a
+    /// filter re-expands the panel and the caller clears the summary.
+    /// </summary>
+
+    /// <summary>
+    /// The data-testid root for this shell. The header, summary, and optional
+    /// badge carry derived test ids (<c>{TestId}-header</c>,
+    /// <c>{TestId}-summary</c>, <c>{TestId}-summary-badge</c>) so Playwright
+    /// and bUnit assertions can find them without digging into MudBlazor
+    /// internals.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string TestId { get; set; } = "master-detail-shell";
+
+    /// <summary>Controls whether the results region is expanded.</summary>
+    [Parameter]
+    public bool IsExpanded { get; set; } = true;
+
+    /// <summary>Raised when the user expands or collapses the panel header.</summary>
+    [Parameter]
+    public EventCallback<bool> IsExpandedChanged { get; set; }
+
+    /// <summary>Header text shown while the panel is expanded (e.g. "Results").</summary>
+    [Parameter]
+    public string ExpandedHeaderText { get; set; } = "Results";
+
+    /// <summary>
+    /// Compact read-only summary shown when the panel is collapsed (e.g.
+    /// <c>"Role: BackofficeUser"</c>). When blank, the collapsed header
+    /// falls back to <see cref="ExpandedHeaderText"/>.
+    /// </summary>
+    [Parameter]
+    public string? CollapsedSummaryText { get; set; }
+
+    /// <summary>
+    /// Optional chip rendered next to the collapsed summary. Used for the
+    /// baked-in role indicator on Role Master Details.
+    /// </summary>
+    [Parameter]
+    public string? CollapsedSummaryBadge { get; set; }
+
+    /// <summary>
+    /// Max height of the results scroll region. Defaults to 24rem which lands
+    /// around a six-row viewport in the current dashboard tab density.
+    /// </summary>
+    [Parameter]
+    public string ScrollMaxHeight { get; set; } = "24rem";
+
+    /// <summary>The results content (filter + action row + grid).</summary>
+    [Parameter, EditorRequired]
+    public RenderFragment ResultsContent { get; set; } = default!;
+
+    private async Task HandleExpandedChanged(bool expanded)
+    {
+        if (IsExpanded == expanded) return;
+        IsExpanded = expanded;
+        if (IsExpandedChanged.HasDelegate)
+            await IsExpandedChanged.InvokeAsync(expanded);
+    }
+}

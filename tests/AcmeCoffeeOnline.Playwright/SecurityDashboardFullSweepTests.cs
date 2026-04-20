@@ -94,68 +94,6 @@ public sealed class SecurityDashboardFullSweepTests
         }
     }
 
-    [Fact]
-    public async Task TabStrip_ArrowKeys_AdvanceAndWrapAcrossAllFiveTabsAsync()
-    {
-        var page = await _fixture.CreatePageAsync();
-        try
-        {
-            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
-            await page.GotoAsync($"{_fixture.BaseUrl}/admin/security", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle,
-            });
-
-            var tabStrip = page.GetByTestId("security-dashboard-tabstrip");
-            await Assertions.Expect(tabStrip).ToBeVisibleAsync();
-
-            var firstTab = page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" });
-            await firstTab.FocusAsync();
-
-            // ArrowRight four times moves through the other four tabs in order.
-            var expectedAfterRight = new[]
-            {
-                "Default Masks",
-                "Organization Master Details",
-                "Users and Role Assignment",
-                "Role Documentation",
-            };
-            foreach (var label in expectedAfterRight)
-            {
-                await tabStrip.PressAsync("ArrowRight");
-                await Assertions
-                    .Expect(page.GetByRole(AriaRole.Tab, new() { Name = label, Selected = true }))
-                    .ToBeVisibleAsync();
-            }
-
-            // ArrowRight once more wraps back to the first tab.
-            await tabStrip.PressAsync("ArrowRight");
-            await Assertions
-                .Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details", Selected = true }))
-                .ToBeVisibleAsync();
-
-            // ArrowLeft wraps to the last tab.
-            await tabStrip.PressAsync("ArrowLeft");
-            await Assertions
-                .Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Documentation", Selected = true }))
-                .ToBeVisibleAsync();
-
-            // Home returns to first; End jumps to last.
-            await tabStrip.PressAsync("Home");
-            await Assertions
-                .Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details", Selected = true }))
-                .ToBeVisibleAsync();
-
-            await tabStrip.PressAsync("End");
-            await Assertions
-                .Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Documentation", Selected = true }))
-                .ToBeVisibleAsync();
-        }
-        finally
-        {
-            await _fixture.ClosePageAsync(page);
-        }
-    }
 
     [Fact]
     public async Task RoleDocumentationTab_RendersAllFiveBakedInPanelsAsync()

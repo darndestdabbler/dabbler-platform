@@ -461,6 +461,121 @@
           "costUsd": 0.0564625
         }
       ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 1,
+      "stepKey": "session-7/remove-arrow-key-handler",
+      "dateTime": "2026-04-20T18:49:56.012752+00:00",
+      "description": "Removed the dashboard tab-strip arrow-key navigation per UAT Finding 9 ('Let's not do fancy stuff with the keyboard events'). Dropped the @onkeydown attribute from DabblerSecurityDashboard.razor's outer div, deleted HandleTabKeyDown and NextPanelIndex (and the Microsoft.AspNetCore.Components.Web @using which was only required by the handler). Deleted three arrow-key bUnit tests and the NextPanelIndex theory (9 inline data cases) from DabblerSecurityDashboardTests.cs. Deleted the Playwright TabStrip_ArrowKeys_AdvanceAndWrapAcrossAllFiveTabsAsync test from SecurityDashboardFullSweepTests.cs. MudBlazor default tab behaviour and Tab-key focus progression remain.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 2,
+      "stepKey": "session-7/build-master-detail-expansion-shell",
+      "dateTime": "2026-04-20T18:49:56.013752+00:00",
+      "description": "Built src/Libs/Dabbler.Security.Blazor/Components/Admin/Shared/MasterDetailExpansionShell.razor as the shared idiom-A wrapper. Parameters: TestId (data-testid root), IsExpanded + IsExpandedChanged for two-way binding, ExpandedHeaderText, CollapsedSummaryText, optional CollapsedSummaryBadge (for the baked-in chip on Role Master Details), ScrollMaxHeight (default 24rem) so the inner MudExpansionPanel content respects the ~6-row viewport the plan requires, and ResultsContent RenderFragment. Added four bUnit tests (MasterDetailExpansionShellTests.cs) covering expanded header, collapsed summary + badge, collapsed without badge, and blank-summary fallback to expanded header text.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 3,
+      "stepKey": "session-7/apply-shell-to-role-master-details-and-fix-display-alias",
+      "dateTime": "2026-04-20T18:49:56.015179+00:00",
+      "description": "Wrapped RoleMasterGrid in MasterDetailExpansionShell inside RoleMasterDetailsTab.razor. State transitions: _isResultsExpanded starts true; selection -> collapsed + summary 'Role: {CanonicalName}' plus 'baked-in' badge for baked-in rows; deselect -> expanded + cleared summary; OnSubTabPersisted still calls grid Rebuild. Fixed UAT Finding 8 DisplayAlias clipping: added CellStyle max-width:220px with overflow:hidden + text-overflow:ellipsis on the Display alias TemplateColumn; pinned the MudTextField font-size to 0.875rem via Style so it matches the Typo.body2 surrounding copy; set width:100% on the field; added a (no alias) placeholder so empty cells read as intentional rather than blank.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 4,
+      "stepKey": "session-7/apply-shell-to-organization-master-details",
+      "dateTime": "2026-04-20T18:49:56.016424+00:00",
+      "description": "Wrapped OrganizationMasterGrid in MasterDetailExpansionShell inside OrganizationMasterDetailsTab.razor. Added an _isCreatingNew boolean so the OrganizationMasterGrid's 'new organization' click (which internally fires both CreateRequested and SelectedOrganizationIdChanged(null)) does not collapse-then-immediately-reset the shell state: CreateRequested sets the flag, SelectedOrganizationIdChanged(null) skips the reset while the flag is set, OnPersistedAsync clears it. Selection -> collapsed + summary 'Organization #{id}'; new organization -> collapsed + summary 'New organization' (the explicit cue UAT Finding 6 asked for); save -> keep collapsed, summary refreshed from persisted id; filter-change handling preserved from the grid itself.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 5,
+      "stepKey": "session-7/apply-shell-to-users-and-role-assignment",
+      "dateTime": "2026-04-20T18:49:56.017427+00:00",
+      "description": "Wrapped UsersMasterGrid in MasterDetailExpansionShell inside UsersAndRoleAssignmentTab.razor. State: selection -> collapsed + summary 'User: {DisplayName}'; deselect -> expanded + cleared summary. UserRoleAssignmentDetails stays below the shell so the role-assignment edit surface remains visible while the results grid is collapsed. RolesChanged callback unchanged -- the grid's internal RefreshAsync plus its own SelectedUserChanged re-fire drive in-circuit grid projection.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 6,
+      "stepKey": "session-7/apply-lighter-shell-to-default-masks",
+      "dateTime": "2026-04-20T18:49:56.018008+00:00",
+      "description": "Wrapped DefaultMasksGrid in MasterDetailExpansionShell inside DefaultMasksTab.razor using the plan's lighter variant. Collapsed summary is rule-count aware: 'Default Masks: {count} declared', recomputed on each render so sibling-tab AuthorizationStateNotifier mutations refresh the count without a manual callback. Scroll height bumped to 28rem because DefaultMasks has no separate details surface pulling eye-height away from the grid, so the grid itself gets a bit more viewport. No invented details editor -- per the plan's guardrail 'Do not invent a fake details editor just to force parity'.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 7,
+      "stepKey": "session-7/update-existing-playwright-to-new-ux",
+      "dateTime": "2026-04-20T18:49:56.019431+00:00",
+      "description": "Updated two existing Playwright tests that interact with the grid after row selection: UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync re-expands the shell (click users-and-role-assignment-shell-header) before asserting the new role chip on the grid row -- MudExpansionPanel's collapsed content is not visible to Playwright's ToBeVisibleAsync; and SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync re-expands the organization-master-details-shell-header between save and the 'new row visible' assertion. All other dashboard tests kept working on the initial-expanded state (they do a single row interaction then move to the details surface below). Playwright SensitiveNameSafetyNet test already removed in Session 6.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 8,
+      "stepKey": "session-7/add-new-ux-assertions",
+      "dateTime": "2026-04-20T18:49:56.020433+00:00",
+      "description": "Added 7 new Playwright tests in SecurityDashboardUatCoverageTests.cs: RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync (user-type role: no baked-in badge), RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync (baked-in role carries the chip), OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync (the New organization cue from UAT Finding 6), RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync (prove the re-expand flow works), RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync (DisplayAlias input reads the seeded alias via InputValueAsync and the bounding box stays within the 220px cap; first two locator strategies -- attribute-based and .Locator('input') -- hit MudBlazor 8.x splat quirks, so the test settled on the splatted input element being the testid target itself), Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync (regression guard for the arrow-key removal -- pressing ArrowRight on the tabstrip no longer changes selection), DefaultMasks_Shell_RendersDeclaredCountSummaryAsync (lighter variant's rule-count summary). Added one new bUnit test MasterDetailExpansionShellTests with 4 cases covering the shell in isolation (expanded, collapsed with badge, collapsed without badge, blank-summary fallback).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 9,
+      "stepKey": "session-7/run-regression-tests",
+      "dateTime": "2026-04-20T18:49:56.021941+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (all expected [Obsolete] cascades from Set B). dotnet test non-Playwright: 655 passed / 0 failed across 6 assemblies (Dabbler.Reports.Blazor 13, Dabbler.Components 33, Dabbler.Security.Blazor 179 -- -8 from session 6 baseline reflecting the 12 arrow-key tests deleted plus the 4 new MasterDetailExpansionShellTests, AcmeCoffeeOnline.Api 27, Dabbler.Security 280, AcmeCoffeeOnline.Web 123). Docker Playwright suite over four runs: run 1 118/121 with 3 Session 7 test issues (NewOrganization collapsed-then-reset, CreateOrganization grid-refresh needs re-expand, DisplayAlias locator brittle). Fixes: _isCreatingNew flag in OrganizationMasterDetailsTab, shell re-expand step in the CreateOrganization test, and simplified DisplayAlias test to use InputValueAsync on the splatted-testid input element. Run 4 (final): 120/121 pass, the single remaining failure is the documented pre-existing MultiOrganizationWorkflowTests.E2E_WF_01_RegionalSalesRep flake from Sessions 5-6 (PlaywrightFixture.cs:281, server-side org-switch cookie-settle race). All 7 new Session 7 tests, the 2 updated existing tests, and every Session 2-6 test passed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 10,
+      "stepKey": "session-7/verify",
+      "dateTime": "2026-04-20T18:52:01.379319+00:00",
+      "description": "Cross-provider verification via task_type=session-verification, max_tier=2 to keep verifier on a non-Anthropic provider (Sessions 1-2 used opus, Sessions 3-6 used gemini-pro). Verifier: gemini-pro.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 36858,
+          "outputTokens": 258,
+          "costUsd": 0.0486525
+        }
+      ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 11,
+      "stepKey": "session-7/verify-round-2",
+      "dateTime": "2026-04-20T18:53:43.596293+00:00",
+      "description": "Round-2 cross-provider verification after DisplayAlias wrap fix (and acknowledged deferral of filter-change re-expand). Verifier: opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 1044,
+          "outputTokens": 472,
+          "costUsd": 0.05106
+        }
+      ]
     }
   ]
 }

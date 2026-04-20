@@ -1,3 +1,4 @@
+@using Dabbler.Security.Blazor.Components.Admin.Shared
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Organization
 
@@ -8,9 +9,17 @@
         key, name, internal/external status, and active/archive status.
     </MudText>
 
-    <OrganizationMasterGrid @ref="_grid"
-                            SelectedOrganizationIdChanged="OnSelectedOrganizationIdChangedAsync"
-                            CreateRequested="OnCreateRequestedAsync" />
+    <MasterDetailExpansionShell TestId="organization-master-details-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Organizations"
+                                CollapsedSummaryText="@_summaryText">
+        <ResultsContent>
+            <OrganizationMasterGrid @ref="_grid"
+                                    SelectedOrganizationIdChanged="OnSelectedOrganizationIdChangedAsync"
+                                    CreateRequested="OnCreateRequestedAsync" />
+        </ResultsContent>
+    </MasterDetailExpansionShell>
 
     <OrganizationDetailsForm Selection="@_selection"
                              Persisted="OnPersistedAsync" />
@@ -20,26 +29,55 @@
     private OrganizationMasterGrid? _grid;
     private OrganizationDetailsForm.OrganizationSelection _selection =
         OrganizationDetailsForm.OrganizationSelection.CreateNew();
+    private bool _isResultsExpanded = true;
+    private string? _summaryText;
+    private bool _isCreatingNew;
 
     private Task OnSelectedOrganizationIdChangedAsync(int? organizationId)
     {
-        _selection = organizationId.HasValue
-            ? OrganizationDetailsForm.OrganizationSelection.ForExisting(organizationId.Value)
-            : OrganizationDetailsForm.OrganizationSelection.CreateNew();
+        if (organizationId.HasValue)
+        {
+            _isCreatingNew = false;
+            _selection = OrganizationDetailsForm.OrganizationSelection.ForExisting(organizationId.Value);
+            _isResultsExpanded = false;
+            _summaryText = $"Organization #{organizationId.Value}";
+        }
+        else if (!_isCreatingNew)
+        {
+            // Plain deselect (user clicked through the grid back to an
+            // unselected state). CreateRequested fires a null selection as
+            // part of its flow too, so we only reset here when we are NOT
+            // in the middle of staging a new organization.
+            _selection = OrganizationDetailsForm.OrganizationSelection.CreateNew();
+            _isResultsExpanded = true;
+            _summaryText = null;
+        }
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     private Task OnCreateRequestedAsync()
     {
+        _isCreatingNew = true;
         _selection = OrganizationDetailsForm.OrganizationSelection.CreateNew();
+        _isResultsExpanded = false;
+        _summaryText = "New organization";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     private async Task OnPersistedAsync(int organizationId)
     {
+        _isCreatingNew = false;
         _selection = OrganizationDetailsForm.OrganizationSelection.ForExisting(organizationId);
+        _summaryText = $"Organization #{organizationId}";
 
         if (_grid is not null)
         {

@@ -88,6 +88,10 @@ public sealed class UsersAndRoleAssignmentWorkflowTests
                 .Expect(page.GetByTestId($"user-role-assignment-current-{NewRole}"))
                 .ToBeVisibleAsync(new() { Timeout = 10_000 });
 
+            // Session 7: selecting a user collapsed the results shell. Re-expand
+            // it so the grid row chip becomes visible for the assertion below.
+            await page.GetByTestId("users-and-role-assignment-shell-header").ClickAsync();
+
             // The grid row itself also now carries the new chip.
             await Assertions
                 .Expect(page.GetByTestId($"users-row-{targetUserId}-role-{NewRole}"))

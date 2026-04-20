@@ -1,3 +1,4 @@
+@using Dabbler.Security.Blazor.Components.Admin.Shared
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Services
 @using MudBlazor
@@ -16,26 +17,47 @@
         sensitive field would itself leak information.
     </MudText>
 
-    <DefaultMasksGrid @ref="_grid" />
+    <MasterDetailExpansionShell TestId="default-masks-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Default Masks"
+                                CollapsedSummaryText="@CollapsedSummaryText"
+                                ScrollMaxHeight="28rem">
+        <ResultsContent>
+            <DefaultMasksGrid @ref="_grid" />
+        </ResultsContent>
+    </MasterDetailExpansionShell>
 </div>
 
 @code {
     /// <summary>
-    /// Composer for the Default Masks tab. Business operators populate Default
-    /// Masks directly; the internal auditor is the compliance backstop (see
-    /// project-guidance.md → Principles → Security And Organization Model).
-    /// The tab still subscribes to <see cref="AuthorizationStateNotifier"/> so
-    /// the grid re-renders when a sibling tab persists a change that touches
-    /// the <c>DefaultMasks</c> list.
+    /// Composer for the Default Masks tab. Applies the shared master-details
+    /// expansion shell as a lighter variant — Default Masks has no separate
+    /// details surface, so the shell's collapse state just condenses the
+    /// management surface into a single compact header summarising the rule
+    /// count. Business operators populate Default Masks directly; the
+    /// internal auditor is the compliance backstop (see project-guidance.md
+    /// → Principles → Security And Organization Model).
     /// </summary>
 
     private DefaultMasksGrid? _grid;
+    private bool _isResultsExpanded = true;
+
+    private string CollapsedSummaryText =>
+        $"Default Masks: {ConfigManager.Current.DefaultMasks.Count} declared";
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
     {
         await ConfigManager.EnsureLoadedAsync();
         Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)

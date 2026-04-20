@@ -571,32 +571,41 @@ coverage.
 
 ### Session 7 of 8: Master-details UX refactor + tab-strip keyboard removal + DisplayAlias width
 
+Detailed implementation plan: [session-7-master-details-implementation-plan.md](C:/Users/denmi/source/repos/dabbler-platform/docs/session-sets/security-dashboard-uat-remediation/session-7-master-details-implementation-plan.md). Treat that document as the concrete source of truth for Session 7 component sequencing, state transitions, and test updates.
+
+Human-approved Session 7 decisions:
+
+- Skip the dual-idiom spike and proceed directly with `Idiom A`.
+- Treat Default Masks as an approved partial adaptation of the master-details idiom rather than forcing an artificial row-details editor.
+- Prefer a small shared shell for the outer expansion/header/results/details behavior.
+- Fix Session 7-caused regression failures inline during Session 7 rather than deferring them by default.
+- Session 7 may be implemented mostly directly by the orchestrator rather than routing every difficult reasoning step. The mandatory exception is final verification: end-of-session verification must still go to another AI provider, and any verifier-requested fix must either be implemented or raised to the human for a decision before the session closes.
+
 **Steps:**
-1. Build a small spike of both master-details real-estate idioms on
-   the Role Master Details tab:
-   - **Idiom A:** wrap the results grid in a `MudExpansionPanel`;
-     on row select, collapse the panel and render a `RenderFragment`
-     summary of the selected row in the panel header; filter change
-     resets the panel and re-expands the grid.
-   - **Idiom B:** vertical-layout tabs — one tab for the results
-     grid, one tab for details; row select navigates to Details;
-     filter change navigates back to Results. For the Organization
-     Master Details new-record flow, the Details tab renames itself
-     to "New" when a new record is staged (per the UAT feedback).
-2. Pick one winner with reasoning captured in the verification
-   prompt, then apply uniformly to Role Master Details, Default
-   Masks, Organization Master Details, and Users and Role
-   Assignment. The chosen idiom must deliver a visible "new
-   record" cue on Organization Master Details so the human no
-   longer has to scroll to find the new row. (Closes finding 7;
+1. Apply the human-approved `Idiom A` plan from the companion
+   implementation document rather than running a dual-idiom spike.
+   Capture the approved spec deviation in the verification prompt:
+   - wrap the results grid or management surface in a
+     `MudExpansionPanel`
+   - on row select, collapse the panel and render a summary in the
+     panel header
+   - filter change re-expands the panel and clears the summary state
+   - Organization Master Details shows a visible `New organization`
+     cue when a create flow is staged
+2. Apply the chosen idiom across Role Master Details, Organization
+   Master Details, Users and Role Assignment, and the approved
+   partial-adaptation treatment for Default Masks. (Closes finding 7;
    closes the layout portion of finding 6 — Session 4 closes its
    in-circuit-refresh portion.)
 3. Standardize the results grid as the condensed MudDataGrid layout
    with a ~6-row default viewport, vertical scroll, and room to
-   expand to 10+ rows where the parent layout permits.
-4. Fix the DisplayAlias column: allow auto-sizing or text-wrap so
-   content isn't clipped, and reconcile the larger font so the
-   column matches siblings. (Closes finding 8.)
+   expand to 10+ rows where the parent layout permits. Preserve any
+   existing pagination behavior unless Session 7 proves a specific
+   incompatibility that must be documented explicitly.
+4. Fix the DisplayAlias column so content isn't clipped, and
+   reconcile the larger font so the column matches siblings.
+   Human-approved direction: use wrapped body-typography styling
+   rather than auto-growing width. (Closes finding 8.)
 5. **Remove** the tab-strip `@onkeydown` handler,
    `HandleTabKeyDown`, and `NextPanelIndex` logic from
    `DabblerSecurityDashboard.razor`. Let MudBlazor's default Tab
@@ -612,29 +621,30 @@ coverage.
    introduces. This is distinct from step 6 (updating existing
    tests to navigate the new layout) and covers:
    - The chosen master-details idiom's core behaviour (e.g., panel
-     collapse on row select + header summary for Idiom A, or
-     results→details tab navigation for Idiom B; plus the
-     Organization "Details → New" rename when a new record is
-     staged). (New assertions for finding 7.)
+     collapse on row select + header summary for Idiom A; plus the
+     Organization `New organization` create-state cue). (New
+     assertions for finding 7.)
    - The condensed grid viewport (~6 rows visible without scroll,
      expandable where the parent layout permits).
-   - DisplayAlias column text-wrap / auto-size behaviour so the
-     previously-clipped content is now fully visible and the font
-     matches sibling columns. (New assertions for finding 8.)
+   - DisplayAlias column text-wrap behaviour so the previously-
+     clipped content is now fully visible and the font matches
+     sibling columns. (New assertions for finding 8.)
 8. Regression: re-run Sessions 2-6 tests end-to-end against the
    new UX to confirm no behavioural regressions; this is the
-   largest regression pass of the set.
+   largest regression pass of the set. Fix Session 7-caused
+   regressions inline during Session 7; if a failure appears to be a
+   pre-existing unrelated defect, raise it to the human for
+   direction before expanding scope.
 
 **Creates:** None.
 **Touches:**
-- `src/Libs/Dabbler.Security.Blazor/Shared/DabblerSecurityDashboard.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/DabblerSecurityDashboard.razor`
   (remove arrow-key handler)
-- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Roles/RoleMasterDetails.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Role/RoleMasterDetailsTab.razor`
 - `src/Libs/Dabbler.Security.Blazor/Components/Admin/Masks/DefaultMasksTab.razor`
-- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Organizations/OrganizationMasterDetails.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Organization/OrganizationMasterDetailsTab.razor`
 - `src/Libs/Dabbler.Security.Blazor/Components/Admin/Users/UserRoleAssignmentDetails.razor`
-- Shared master-details wrapper component (if extracted during the
-  spike)
+- Shared master-details wrapper component
 - DisplayAlias column definitions
 - `tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs`
 - bUnit tests that still reference arrow-key nav (delete those
@@ -650,9 +660,11 @@ coverage.
 `session-7/run-regression-tests`.
 
 **Ends with:** Build + test green; one master-details idiom applied
-across all four tabs; condensed grid layout uniform; DisplayAlias
-readable and auto-fitting; arrow-key handler and its tests are
-deleted; full Playwright suite green against the new UX.
+across all four tabs, with Default Masks using the approved
+partial-adaptation treatment; condensed grid layout uniform;
+DisplayAlias readable with wrapped body typography; arrow-key
+handler and its tests are deleted; full Playwright suite green
+against the new UX.
 
 ### Session 8 of 8: UAT checklist + change log + Step 9 review
 

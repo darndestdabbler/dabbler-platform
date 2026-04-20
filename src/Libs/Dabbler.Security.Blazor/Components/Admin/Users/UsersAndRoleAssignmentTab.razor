@@ -1,3 +1,4 @@
+@using Dabbler.Security.Blazor.Components.Admin.Shared
 @using Dabbler.Security.Services
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Users
@@ -10,8 +11,16 @@
         assigned organizations; SystemAdmin and CrossOrgUserAdmin see all users.
     </MudText>
 
-    <UsersMasterGrid @ref="_grid"
-                     SelectedUserChanged="OnSelectedUserChangedAsync" />
+    <MasterDetailExpansionShell TestId="users-and-role-assignment-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Users"
+                                CollapsedSummaryText="@_summaryText">
+        <ResultsContent>
+            <UsersMasterGrid @ref="_grid"
+                             SelectedUserChanged="OnSelectedUserChangedAsync" />
+        </ResultsContent>
+    </MasterDetailExpansionShell>
 
     <UserRoleAssignmentDetails User="@_selectedUser"
                                RolesChanged="OnRolesChangedAsync" />
@@ -20,10 +29,29 @@
 @code {
     private UsersMasterGrid? _grid;
     private AdminUserRow? _selectedUser;
+    private bool _isResultsExpanded = true;
+    private string? _summaryText;
 
     private Task OnSelectedUserChangedAsync(AdminUserRow? row)
     {
         _selectedUser = row;
+        if (row is not null)
+        {
+            _isResultsExpanded = false;
+            _summaryText = $"User: {row.DisplayName}";
+        }
+        else
+        {
+            _isResultsExpanded = true;
+            _summaryText = null;
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
         StateHasChanged();
         return Task.CompletedTask;
     }

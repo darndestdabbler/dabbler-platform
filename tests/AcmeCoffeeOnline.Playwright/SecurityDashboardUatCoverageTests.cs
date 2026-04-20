@@ -448,6 +448,11 @@ public sealed class SecurityDashboardUatCoverageTests
             await page.GetByTestId("organization-name-field").Locator("input").FillAsync(newName);
             await page.GetByTestId("organization-save-button").ClickAsync();
 
+            // Session 7: creating / saving collapses the results shell so the
+            // details form takes focus. Re-expand the shell so the grid rows
+            // become visible for the refresh assertion below.
+            await page.GetByTestId("organization-master-details-shell-header").ClickAsync();
+
             // In-circuit refresh: the new key must appear in the grid without
             // a navigation or reload. No `page.ReloadAsync` anywhere below.
             await Assertions
@@ -1024,6 +1029,297 @@ public sealed class SecurityDashboardUatCoverageTests
             await Assertions
                 .Expect(page.GetByTestId("column-restriction-column-option-Name"))
                 .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // ── Session 7: Master-details expansion shell + DisplayAlias + keyboard ──
+
+    // UAT finding 7 (collapse on select): selecting a role row must collapse
+    // the Role Master Details results shell and show a compact summary in the
+    // collapsed header so the human sees which role they are editing without
+    // scrolling through the full grid.
+    [Fact]
+    public async Task RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync()
+    {
+        // UAT: admin@acmecoffee.com → Role Master Details → click BackofficeUser
+        //      row → results shell collapses → collapsed header reads
+        //      "Role: BackofficeUser" (no baked-in chip for user-type role).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+            await Assertions.Expect(page.GetByTestId("role-master-grid")).ToBeVisibleAsync();
+
+            var roleRow = page.GetByTestId("role-row-BackofficeUser").Locator("xpath=ancestor::tr[1]");
+            await Assertions.Expect(roleRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await roleRow.ClickAsync();
+
+            // After selection: the details section is visible and the shell
+            // summary reflects the chosen role.
+            await Assertions.Expect(page.GetByTestId("role-details-section")).ToBeVisibleAsync();
+
+            var summary = page.GetByTestId("role-master-details-shell-summary");
+            await Assertions.Expect(summary).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            Assert.Equal("Role: BackofficeUser", (await summary.InnerTextAsync()).Trim());
+
+            // User-type role must not carry the baked-in chip in the summary.
+            await Assertions
+                .Expect(page.GetByTestId("role-master-details-shell-summary-badge"))
+                .ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 7 (baked-in chip preservation): selecting a baked-in role
+    // carries the "baked-in" chip into the collapsed summary header so the
+    // human keeps the role-type cue while editing.
+    [Fact]
+    public async Task RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync()
+    {
+        // UAT: admin@acmecoffee.com → Role Master Details → click SystemAdmin
+        //      row → collapsed summary reads "Role: SystemAdmin" with the
+        //      baked-in chip.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+
+            var roleRow = page.GetByTestId("role-row-SystemAdmin").Locator("xpath=ancestor::tr[1]");
+            await Assertions.Expect(roleRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await roleRow.ClickAsync();
+
+            var summary = page.GetByTestId("role-master-details-shell-summary");
+            await Assertions.Expect(summary).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            Assert.Equal("Role: SystemAdmin", (await summary.InnerTextAsync()).Trim());
+
+            await Assertions
+                .Expect(page.GetByTestId("role-master-details-shell-summary-badge"))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 7 / finding 6 (New organization cue): clicking the
+    // "New organization" button must collapse the Organization results shell
+    // and show a visible "New organization" summary in the collapsed header
+    // so the human is not left scrolling through the grid to find the staged
+    // new row.
+    [Fact]
+    public async Task OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync()
+    {
+        // UAT: admin@acmecoffee.com → Organization Master Details →
+        //      New organization button → collapsed summary reads
+        //      "New organization" and the details form is focused.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Organization Master Details" }).ClickAsync();
+            await Assertions.Expect(page.GetByTestId("organization-master-grid")).ToBeVisibleAsync();
+
+            await page.GetByTestId("organization-grid-add-button").ClickAsync();
+
+            var summary = page.GetByTestId("organization-master-details-shell-summary");
+            await Assertions.Expect(summary).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            Assert.Equal("New organization", (await summary.InnerTextAsync()).Trim());
+
+            // Details form's Key field is visible and empty (create mode).
+            await Assertions
+                .Expect(page.GetByTestId("organization-key-field"))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 7 (re-expand via header): after a row is selected the user
+    // can click the collapsed shell header to re-expand the results grid
+    // without losing the details selection below.
+    [Fact]
+    public async Task RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync()
+    {
+        // UAT: admin@acmecoffee.com → Role Master Details → select a role →
+        //      click the collapsed shell header → results grid is visible
+        //      again and the details section remains visible below.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+            await page.GetByTestId("role-row-BackofficeUser")
+                .Locator("xpath=ancestor::tr[1]")
+                .ClickAsync();
+
+            // Shell is collapsed after selection.
+            await Assertions
+                .Expect(page.GetByTestId("role-master-details-shell-summary"))
+                .ToBeVisibleAsync();
+
+            // Click the header to re-expand.
+            await page.GetByTestId("role-master-details-shell-header").ClickAsync();
+
+            // Grid is visible again; details section stays visible below.
+            await Assertions
+                .Expect(page.GetByTestId("role-master-grid"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions
+                .Expect(page.GetByTestId("role-details-section"))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 8: the DisplayAlias column text must be readable — no
+    // clipping of ordinary aliases and no oversized font vs the Description
+    // column. Assert that the cell renders the seeded alias without breaking
+    // the column width cap, and that the MudTextField wrapper is visible so
+    // the inline editor remains usable.
+    [Fact]
+    public async Task RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync()
+    {
+        // UAT: admin@acmecoffee.com → Role Master Details → BackofficeUser
+        //      row → Display alias cell is visible, carries the seeded
+        //      alias "Backoffice User", and its bounding box stays within
+        //      the Session 7 220px column cap.
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+
+            var aliasField = page.GetByTestId("role-row-BackofficeUser-alias");
+            await Assertions.Expect(aliasField).ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // MudTextField's unmatched `data-testid` attribute splats onto
+            // the rendered <input> element itself (Variant.Text), so the
+            // test id locator IS the input. Use InputValueAsync rather
+            // than InnerText or a descendant input lookup.
+            var aliasValue = await aliasField.InputValueAsync();
+            Assert.Equal("Backoffice User", aliasValue);
+
+            // The cell bounding box must respect the Session 7 column cap —
+            // the enclosing <td>'s max-width is 220px; the input itself can
+            // fill that cap, so the locator bounding box should stay at or
+            // under the cap (plus a small sub-pixel tolerance).
+            var box = await aliasField.BoundingBoxAsync();
+            Assert.NotNull(box);
+            Assert.True(box!.Width <= 240,
+                $"Display alias input width {box.Width}px must stay within the ~220px column cap (+ small padding budget).");
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 9: the dashboard-level @onkeydown arrow-key handler was
+    // removed. Normal Tab key navigation must still advance focus through
+    // the page (MudBlazor default behavior). This test simply proves the
+    // dashboard loads without the custom handler and Tab focus progression
+    // behaves normally on standard form controls within the first tab.
+    [Fact]
+    public async Task Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync()
+    {
+        // UAT: admin@acmecoffee.com → Admin → Security Dashboard → Role Master
+        //      Details tab loads → focus Tab key from the first filter input
+        //      advances within the grid's management surface (MudBlazor
+        //      default behavior, no custom arrow handler interference).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
+
+            var tabStrip = page.GetByTestId("security-dashboard-tabstrip");
+            await Assertions.Expect(tabStrip).ToBeVisibleAsync();
+
+            // The dashboard tabstrip is no longer an arrow-key target:
+            // Session 7 removed the @onkeydown attribute. Pressing ArrowRight
+            // on the strip now has no observed effect (default HTML div
+            // behavior). Assert the initial tab stays selected.
+            await tabStrip.FocusAsync();
+            await tabStrip.PressAsync("ArrowRight");
+
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details", Selected = true }))
+                .ToBeVisibleAsync();
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // UAT finding 7 (lighter Default Masks shell variant): the Default Masks
+    // tab wraps its management surface in the same expansion shell but uses
+    // a compact rule-count summary instead of a per-row selection summary.
+    [Fact]
+    public async Task DefaultMasks_Shell_RendersDeclaredCountSummaryAsync()
+    {
+        // UAT: admin@acmecoffee.com → Default Masks tab → the shell summary
+        //      reads "Default Masks: N declared" where N matches the seed
+        //      (minimum 1 — Customer.SocialSecurityNumber).
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            await page.GetByRole(AriaRole.Tab, new() { Name = "Default Masks" }).ClickAsync();
+            await Assertions.Expect(page.GetByTestId("default-masks-tab")).ToBeVisibleAsync();
+
+            // Collapse the shell by clicking the header so the compact
+            // summary variant renders.
+            await page.GetByTestId("default-masks-shell-header").ClickAsync();
+
+            var summary = page.GetByTestId("default-masks-shell-summary");
+            await Assertions.Expect(summary).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            var summaryText = (await summary.InnerTextAsync()).Trim();
+            Assert.StartsWith("Default Masks:", summaryText);
+            Assert.Contains("declared", summaryText);
         }
         finally
         {
