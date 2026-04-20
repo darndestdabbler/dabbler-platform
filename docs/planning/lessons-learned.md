@@ -488,6 +488,59 @@ Use this structure for new entries:
   either the aggregate is misaligned, or the column header is too
   vague and should be renamed instead of labeled twice.
 
+## Every UAT Checklist Item Must Be Pre-Tested In Playwright Before The Human Runs The Checklist
+
+- **Context:** Human UAT run for the
+  `rearchitect-role-administration-dashboard` session set on 2026-04-19.
+- **Failure or friction:** The checklist was handed to the human without
+  an accompanying Playwright suite that drove each item's steps
+  end-to-end. The human discovered multiple blocking defects on the first
+  pass: the Users and Role Assignment tab throws a
+  `DbContext second-operation InvalidOperationException` from
+  `AdminUserQueryService.GetActorAssignedOrganizationIdsAsync` the moment
+  it renders; per-role tab gating hides the Security nav entry entirely
+  for non-SystemAdmin users (so CrossOrgUserAdmin, UserAdmin, and User
+  cannot reach the Role Documentation tab they're supposed to see);
+  CrossOrgUserAdmin and BackofficeUser both see zero retail-business
+  organizations because the new EF org-scope query filter is too
+  aggressive; Data-bound restriction pages return "Access denied" before
+  the enforcement seam renders; the Column Restrictions Add button is
+  disabled; the Default Masks column dropdown omits the seeded
+  `SocialSecurityNumber`; the sensitive-name safety-net Add flow requires
+  a browser refresh to update the grid. Three separate "Other" items on
+  the UAT explicitly called this out: *"I thought that we were supposed
+  to do Playwright tests before subjecting the human to testing"*, *"See
+  how this wastes time when you don't test this first"*, *"Before any
+  UAT, I think that you should perform the exact same steps in Playwright
+  — exact parameters — so that I am not wasting my time here."* Every one
+  of those defects is something a Playwright test with the same steps
+  and same seed data would have caught during the session that shipped
+  the feature.
+- **Lesson:** A UAT checklist is a human-judgment layer, not an
+  operability gate. Handing the human a checklist without first proving
+  the steps run end-to-end in an automated browser test inverts the
+  testing hierarchy: the human becomes the first automation pass.
+  That's slow, frustrating, and it burns goodwill. Every checklist item
+  must have a Playwright test that drives the same steps with the same
+  parameters before the checklist is committed and the human is notified.
+  For aesthetic/judgment items, the Playwright test still exercises the
+  sequence and asserts a reachable live state so the human is rendering
+  judgment on a verified-live UI, not debugging exceptions.
+- **Action for future sessions:** When generating a UAT checklist,
+  in the same session also add a `*UatCoverageTests.cs` file under
+  `tests/AcmeCoffeeOnline.Playwright/` with one test per Review item.
+  Each test (a) signs in as the named persona via
+  `PlaywrightFixture.SeededSignInAsync`, (b) executes the `HumanAction`
+  steps with the exact parameters the human will use, and (c) asserts
+  the objective portion of `Expectation` — route reached, required
+  controls present/enabled, expected persist/refresh behavior observed,
+  no unhandled circuit exception. Treat a checklist shipped without
+  this coverage as a session-closeout defect. Promoted as a Principle
+  under Human UAT Philosophy and as a Convention under Human UAT And
+  Checklist Editor on 2026-04-19 (same-day promotion after a single
+  sharp context because the cost of the missing discipline is high and
+  the rule is unambiguous).
+
 ## `route(task_type=documentation)` Wraps Content In A Code-Documentation Template
 
 - **Context:** Session 8 of `rearchitect-role-administration-dashboard`

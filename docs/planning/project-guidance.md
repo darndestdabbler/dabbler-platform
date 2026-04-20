@@ -170,6 +170,21 @@ needs correction before more human testing continues.
   overrides the pause.
 - Capture screenshot evidence when practical so the human can see styling and
   interaction changes evolve across sessions.
+- **Every UAT checklist item must be proven executable by automation before
+  the checklist is handed to the human.** For each item in the checklist,
+  there must be a Playwright test (or equivalent browser-level test) that
+  performs the same steps, with the same parameters, as the
+  `HumanAction` field, and asserts that the described `Expectation`
+  outcomes are reached. Items whose expected outcome is a subjective
+  design or aesthetic judgment ("feels smooth", "is legible", "spacing
+  feels intentional") still require a Playwright test that executes the
+  full sequence and asserts that nothing throws, no required control is
+  missing, and the UI reaches the state the human will be evaluating —
+  the human then renders the visual or design judgment on top of a
+  known-reachable state. This is not optional. UAT is confidence and
+  judgment, not first-pass operability verification; sending a human to
+  discover a null-reference exception or a missing nav entry wastes their
+  time and undermines the checklist's purpose.
 
 ### Precedence
 
@@ -291,6 +306,27 @@ before proceeding.
 - Handoff messages for pending UAT must be unmistakable: name the checklist
   path, link the editor, say that the agent is waiting for the human
   response, and keep any optional parallel work low-risk.
+- **Playwright pre-testing per UAT item is mandatory.** Before committing a
+  checklist to the repo and notifying the human, each `Review` item must
+  have a corresponding Playwright test that:
+  1. Signs in as the persona named in `HumanAction` (reuse
+     `PlaywrightFixture.SeededSignInAsync`).
+  2. Executes the same navigation and interaction steps the `HumanAction`
+     describes, using the same parameters (search terms, entity names,
+     role names, and identifiers the human will be told to use).
+  3. Asserts the objective portion of `Expectation` — that the expected
+     route was reached, the required controls are present and enabled,
+     the described persist/refresh behavior occurred, no unhandled
+     exception bubbled to the circuit, and no required data is missing
+     from the UI.
+  Group these tests in a `*UatCoverageTests.cs` file (or equivalent) under
+  `tests/AcmeCoffeeOnline.Playwright/` and cross-reference the UAT item
+  in a comment on each test method so future changes stay in sync with
+  the checklist. If a test is infeasible (e.g., the expectation is purely
+  aesthetic), the test must still cover the step sequence and assert
+  reachable-state so the human is rendering judgment on a verified-live
+  UI. Checklists shipped without this coverage are a session-closeout
+  defect — re-run the pre-test step before marking the session complete.
 
 ### Code Style
 
