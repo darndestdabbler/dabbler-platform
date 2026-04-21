@@ -9,16 +9,51 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as jdoe@acmecoffee.com with role User",
+          "Action": "Clear the dev email inbox so the \"top-most\" row you pick in step 4 is unambiguously the new magic-link message (navigate to /dev/email-inbox and click Clear if rows are present, or use the /test-auth/magic-links?clear=true endpoint).",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Open the login screen at /login",
           "Verifications": [
             {
-              "Text": "The Admin drawer group is visible in the left navigation",
+              "Text": "The login page is visible (data-testid login-page)",
               "VerificationMethod": "ui"
             }
           ]
         },
         {
-          "StepNumber": 2,
+          "StepNumber": 3,
+          "Action": "Fill the email input with `juser@acmecoffee.com` and click the \"Send sign-in link\" button",
+          "Verifications": [
+            {
+              "Text": "The login screen confirms the code was sent, displaying a \"We sent a sign-in code to\" message",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "In a second browser tab, open /dev/email-inbox and look at the top-most data row (the first `tbody tr.mud-table-row` element — tbody scoping is required because MudTable also renders a header `tr.mud-table-row` in thead)",
+          "Verifications": [
+            {
+              "Text": "The first `<a>` inside the top row's `td[data-label=\"Link\"]` has an href matching `^https?://.+/login\\?token=` (points at the magic-link landing URL)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Read the href of the anchor inside the top row's `td[data-label=\"Link\"]` and navigate the original tab to that URL (the magic-link landing URL)",
+          "Verifications": [
+            {
+              "Text": "The Admin drawer group is visible in the left navigation of the authenticated app",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
           "Action": "Navigate via the Admin drawer group to Security Dashboard (URL ends at /admin/security)",
           "Verifications": [
             {
@@ -45,13 +80,18 @@
         }
       ],
       "TestData": {
-        "Persona": "jdoe@acmecoffee.com",
-        "RolesOverride": "User",
-        "DevPersonaLabel": "Jordan Ellis — User (baked-in role override, Role Documentation only)",
+        "Persona": "juser@acmecoffee.com",
+        "SeededRole": "User (baked-in, from user-roles.json)",
+        "LoginUrl": "/login",
+        "EmailInboxUrl": "/dev/email-inbox",
+        "EmailInputSelector": "input[type='email']",
+        "SendLinkButtonLabel": "Send sign-in link",
+        "InboxRowSelector": "tbody tr.mud-table-row",
+        "InboxLinkCellSelector": "td[data-label='Link']",
         "DrawerGroup": "Admin",
         "NavEntry": "Security Dashboard"
       },
-      "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_NavVisible_RoleDocOnlyAsync",
+      "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync",
       "IsJudgmentItem": false,
       "Passes": false,
       "Feedback": ""
@@ -140,7 +180,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.OrgMasterDetails_CreateOrganization_AutoReexpandsShellAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -186,7 +226,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.Products_BackofficeUser_UnitPriceColumn_ShowsDollarSymbolAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -239,8 +279,58 @@
       },
       "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.RoleMasterGrid_FirstColumnCellClick_CollapsesShellOnFirstClickAsync",
       "IsJudgmentItem": false,
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-Role Security Nav Visibility and Tab Gating",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "How can you run the test in a manner that most emulates the user.  Can you actually login with the login screen and navigate to http://localhost:5010/dev/email-inbox?, get the top-most entry (first tr element with class = \"mud-table-row\"), get the td with data-label = \"Link\" and then follow the link to login?  That's what the human does."
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "In-Circuit Refresh + New Org Cue",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Currency Formatting",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Row-Select Collapse",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
       "Passes": false,
       "Feedback": ""
     }
-  ]
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  },
+  "DocumentDate": "4/21/2026, 4:32:37 PM"
 }

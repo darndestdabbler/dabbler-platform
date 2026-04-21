@@ -2,7 +2,7 @@
 
 > **Session Set:** `docs/session-sets/security-dashboard-uat-followup-fixes/`
 > **Completed:** 2026-04-21
-> **Sessions:** 1 of 1
+> **Sessions:** 2 of 2
 > **Purpose:** Remediate the four actionable findings from the
 > `security-dashboard-uat-remediation` UAT review (two Blocker
 > regressions against the preceding set's deliverables, plus two
@@ -13,9 +13,17 @@ This set runs between `security-dashboard-uat-remediation` and Set D
 regressions against deliverables Set D's masking rendering plugs into.
 Set D is now unblocked.
 
+Session 1 shipped all four fixes and a matching UAT checklist. Human
+UAT found 3 of 4 fixes held, but Finding #2 reopened because the
+Session 1 Playwright test used a dev-quick-signin scaffold path
+rather than the real magic-link login flow the human actually takes.
+Session 2 re-remediated Finding #2 by seeding a proper baked-in-User
+persona and writing a Playwright test that drives the real login
+sequence end-to-end.
+
 ---
 
-### Session 1 of 1: Diagnose + fix + regression tests + UAT checklist
+### Session 1 of 2: Diagnose + fix + regression tests + UAT checklist
 
 - **Summary:** Remediated all four findings in-scope, added matching
   Playwright regression tests, authored a new UAT checklist covering
@@ -119,3 +127,99 @@ Set D is now unblocked.
     for the roles-override, culture-pin timing vs. Blazor Server
     circuit start, and create-flow compatibility with the existing
     collapse-on-create flow).
+
+---
+
+### Session 2 of 2: Finding #2 re-remediation via real-login flow
+
+- **Summary:** The human UAT reviewer reported "Admin Drawer is not
+  visible" for Finding #2 even after the Session 1 fix landed.
+  Root cause: the Session 1 Playwright test signed in through a
+  dev-quick-signin scaffold (`SeededSignInAsync` with a `roles="User"`
+  override), which only exercises the roles-override code path. The
+  reviewer signed in through the REAL login screen (email →
+  magic-link → follow link), which resolves `jdoe@acmecoffee.com`
+  against the DB and finds their seeded role `BackofficeUser` —
+  correctly hiding the Admin drawer. No persona with a seeded
+  baked-in `User` role existed, so the UAT path was structurally
+  unreachable. This session plugs that gap.
+
+  **Seeded baked-in-User persona.** `SeedData.GetSecurityUsers`
+  inserts `juser@acmecoffee.com` ("Jamie Ng") at a deterministic
+  position (between `customer@acmecoffee.com` and the retail-contacts
+  loop) so juser's `AppUser.Id` lands at 11 on a fresh seed
+  regardless of the 50-customer count. `GetOrganizationMemberships`
+  gives juser an internal-org membership. Both Web and Api
+  `user-roles.json` carry `"11": ["User"]` so
+  `UserSessionContextService.BuildAsync` merges the baked-in `User`
+  role into juser's effective roles when they authenticate.
+
+  **Dev persona simplification.** The Session 1 jdoe+roles=User
+  override persona is replaced with a real-seeded "Jamie Ng — User"
+  persona that signs in via juser's email without any roles override.
+  The override path (`dev-quick-signin.js` roles parameter and
+  `DevPersona.RolesOverride`) remains in the codebase for future
+  personas that genuinely cannot be DB-seeded, but the checklist no
+  longer exercises it.
+
+  **Destructive reseed.** `docker compose -f
+  docker/docker-compose.infra.yml down -v` wiped the sqlserver
+  volume, then `up -d` + app rebuild reseeded from scratch.
+  Verified juser landed at Id=11 via direct SQL query.
+
+  **Real-login Playwright test.**
+  `SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync`
+  replaces the Session 1 shortcut test. The test clears the dev
+  inbox, navigates to `/login`, fills the email input with juser@,
+  clicks "Send sign-in link", opens `/dev/email-inbox` in a second
+  Playwright page (shared browser context — same analogue as a
+  human opening a second tab), scopes the row lookup to
+  `tbody tr.mud-table-row` (the MudTable `thead` also carries
+  `tr.mud-table-row`, so unscoped `.First` picked the header),
+  asserts the anchor's `href` matches `^https?://.+/login\?token=`,
+  follows that URL on the original page, and asserts Admin drawer
+  visible + only Role Documentation tab.
+
+  **Checklist Item #1 rewritten.** Six steps mirror the Playwright
+  test action-for-action, with `TestData` carrying the literal
+  selectors (`input[type='email']`, `tbody tr.mud-table-row`,
+  `td[data-label='Link']`) and the expected href pattern.
+
+- **Key Decisions:**
+  1. **Destructive volume wipe over an ID-keyed workaround.** The
+     alternative was to let juser land at whatever ID the running
+     backfill gave them and discover the mapping at runtime —
+     fragile, stateful, and a maintenance hazard for future Set D
+     work. Seed-determinism recovers simplicity at the cost of
+     30 seconds of reseed time.
+  2. **DB-seed persona over retaining the override-only approach.**
+     The override path is a scaffold for automated tests, not a
+     user-facing sign-in surface. The human UAT flow rightly uses
+     the real login screen. Making the baked-in User role reachable
+     through that flow requires a DB user whose JSON role
+     assignment is `User`.
+  3. **Second Playwright page for the inbox.** Mirrors a human
+     opening a second browser tab. Same browser context shares
+     cookies so the magic-link navigation on page 1 still works,
+     but the two DOM contexts don't contend for inbox rendering
+     versus login confirmation rendering.
+
+- **Verification:**
+  - Non-Playwright tests: 661/0 green (same as Session 1 final —
+    confirms the seed change doesn't break any unit/integration
+    coverage).
+  - Playwright (Docker): 127/0/1 green. The replaced test kept the
+    suite at the same total because it replaced the Session 1 test
+    rather than adding alongside it.
+  - `uat-coverage-review` gate: VERIFIED on Session-2 round 2 (Opus
+    generator, GPT-5.4 verifier). The fix for round-1 issue was to
+    swap the xUnit `Assert.False` on the href to a Playwright-native
+    `ToHaveAttributeAsync` regex match, aligning the checklist
+    verification to a genuine Playwright assertion.
+  - Session verification (Opus): PASS on all four review criteria
+    — seed determinism, real-login test fidelity, regex strictness,
+    separate-page state-leak analysis. Noted two minor observations:
+    Id=11 is a magic number duplicated in both user-roles.json
+    files (fragile to future seed insertions), and the href regex
+    requires `token` to be the first query parameter. Neither
+    blocks the fix.

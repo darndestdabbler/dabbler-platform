@@ -18,11 +18,22 @@
 
 ## Status
 
-**Stub.** Session 1 of this set is planning + diagnosis + fix. A
-second session will be added only if diagnosis reveals the two
-Blockers are unrelated problems that exceed a one-session fix budget.
-The spec fleshes out at the start of Session 1 per the
-`security-dashboard-uat-remediation` pattern.
+- **Session 1 of 2 — COMPLETE** (2026-04-21, commit `a8e7744`).
+  Shipped the dev-quick-signin roles-override path for Finding #2,
+  the auto-re-expand for Finding #11, the en-US culture pin for
+  Finding #14, and the RowClick refactor for Finding #49. UAT
+  review found 3 of 4 fixes held up end-to-end but Finding #2
+  reopened because the Playwright test used the dev-quick-signin
+  scaffold path rather than the real magic-link login flow a
+  human actually takes.
+- **Session 2 of 2 — IN PROGRESS** (Finding #2 re-remediation via
+  real-login flow). Adds a seeded `juser@acmecoffee.com` persona
+  whose DB-level identity holds the baked-in `User` role (via the
+  JSON user-role store), wipes the dev sqlserver volume for a
+  deterministic seed, writes a Playwright test that drives the
+  login-screen → `/dev/email-inbox` → magic-link-follow flow the
+  human UAT reviewer actually performs, and rewrites the
+  checklist Step 1 for Finding #2 to mirror that real-login flow.
 
 ## Scope
 

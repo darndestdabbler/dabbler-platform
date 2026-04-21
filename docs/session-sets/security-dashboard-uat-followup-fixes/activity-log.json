@@ -1,7 +1,7 @@
 {
   "sessionSetName": "security-dashboard-uat-followup-fixes",
   "createdDate": "2026-04-21T18:33:40.340294+00:00",
-  "totalSessions": 0,
+  "totalSessions": 2,
   "entries": [
     {
       "sessionNumber": 1,
@@ -133,6 +133,87 @@
           "costUsd": 0.7884
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/seed-juser",
+      "dateTime": "2026-04-21T21:00:06.726560+00:00",
+      "description": "Added juser@acmecoffee.com to SeedData at deterministic position (between customer@ and retail-contacts loop -> AppUser.Id=11 on fresh seed). Added internal-org membership. Both Web and Api user-roles.json carry \"11\": [\"User\"] so UserSessionContextService.BuildAsync merges the baked-in User role into effective roles.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/dev-persona-simplify",
+      "dateTime": "2026-04-21T21:00:06.726560+00:00",
+      "description": "Replaced the Session 1 jdoe+roles=User override persona with a real-seeded \"Jamie Ng \u2014 User\" persona that uses juser email without override. Override path remains available in dev-quick-signin.js for future personas that cannot be DB-seeded.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/db-reset",
+      "dateTime": "2026-04-21T21:00:06.726560+00:00",
+      "description": "docker compose -f docker/docker-compose.infra.yml down -v wiped sqlserver volume, then up -d + app rebuild. Verified juser at Id=11 via SELECT Id, Email FROM AppUsers WHERE Id <= 14.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/real-login-test",
+      "dateTime": "2026-04-21T21:00:06.726560+00:00",
+      "description": "Replaced Session 1 shortcut test with SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync. Drives: clear dev inbox, /login, fill email, Send sign-in link, open /dev/email-inbox in second Playwright page, scope to tbody tr.mud-table-row, assert href matches ^https?://.+/login\\?token=, follow href on original page, assert Admin drawer + only Role Documentation tab.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/checklist-rewrite",
+      "dateTime": "2026-04-21T21:00:06.726560+00:00",
+      "description": "Rewrote Item #1 of the UAT checklist as six steps that mirror the real-login test action-for-action. TestData carries literal CSS selectors + href pattern so a human tester follows identical operations.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/non-playwright-tests",
+      "dateTime": "2026-04-21T21:00:06.726560+00:00",
+      "description": "dotnet test --filter !Playwright = 661/0. juser seed does not break any unit/integration/bUnit coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/full-playwright",
+      "dateTime": "2026-04-21T21:00:06.730131+00:00",
+      "description": "Full Playwright suite: 127/0/1 green. Same count as Session 1 final because the real-login test replaced the scaffold test rather than adding alongside.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/uat-coverage-review",
+      "dateTime": "2026-04-21T21:00:06.730905+00:00",
+      "description": "route(task_type=uat-coverage-review) VERIFIED on round 2. Round 1 flagged a Major issue (xUnit Assert.False on href not a Playwright assertion). Fix added ToHaveAttributeAsync regex check. Generator: opus, total $1.32. Verifier: gpt-5-4, total $0.25.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/session-verification",
+      "dateTime": "2026-04-21T21:00:06.730905+00:00",
+      "description": "route(task_type=session-verification) PASS on all 4 review criteria: seed determinism, real-login test fidelity, regex strictness, separate-page state-leak analysis. Two minor observations noted (Id=11 magic number; regex token-first). Model: opus, $0.36.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

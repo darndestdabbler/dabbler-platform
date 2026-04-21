@@ -271,6 +271,18 @@ public static class SeedData
         // path has a named, stable persona the Playwright and UAT checklist can reference.
         users.Add(new AppUser { Email = "customer@acmecoffee.com", DisplayName = "Cameron Rhodes", CreatedAt = now });
 
+        // Baked-in User persona (security-dashboard-uat-followup-fixes Session 2).
+        // Carries no AppUserRole assignment — the baked-in User role lives as a
+        // code constant (Dabbler.Security.Authorization.BakedInRoles.User), not
+        // an AppRoles row — so the role is granted through user-roles.json
+        // (JsonFileUserRoleStore), where the key is this user's AppUser.Id.
+        // Positioned immediately after customer@ and before the retail-contacts
+        // loop so juser's AppUser.Id is deterministically 11 on a fresh seed;
+        // the 50 retail contacts that follow land at 12-61. See
+        // security-dashboard-uat-followup-fixes Session 2 change log for the
+        // rationale (real-login UAT path requires a DB-backed persona).
+        users.Add(new AppUser { Email = "juser@acmecoffee.com", DisplayName = "Jamie Ng", CreatedAt = now });
+
         // Retail-business contacts (one per current customer record, matching by email)
         foreach (var customer in customers)
         {
@@ -353,7 +365,8 @@ public static class SeedData
             "tjones@acmecoffee.com",
             "warehouse@acmecoffee.com",
             RegionalSalesRepEmail,
-            DualMembershipUserEmail
+            DualMembershipUserEmail,
+            "juser@acmecoffee.com"
         })
         {
             AddMembership(users.First(u => u.Email == email), internalOrganization, isDefault: true);

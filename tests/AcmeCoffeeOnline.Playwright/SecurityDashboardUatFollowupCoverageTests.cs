@@ -15,6 +15,7 @@ public sealed class SecurityDashboardUatFollowupCoverageTests
 {
     private const string AdminEmail     = "admin@acmecoffee.com";
     private const string JdoeEmail      = "jdoe@acmecoffee.com";
+    private const string JuserEmail     = "juser@acmecoffee.com";
 
     private readonly PlaywrightFixture _fixture;
 
@@ -23,34 +24,102 @@ public sealed class SecurityDashboardUatFollowupCoverageTests
         _fixture = fixture;
     }
 
-    // Finding #2 (Blocker): A UAT reviewer who picks the "Jordan Ellis —
-    // User (baked-in role override)" entry from the dev quick-sign-in
-    // drop-down must see the Admin drawer group and the Security Dashboard
-    // nav entry, with only the Role Documentation tab accessible inside.
-    // Before the follow-up fix the dev drop-down had no persona that
-    // signed the reviewer in under a baked-in role — every existing
-    // persona was a user-type role with a `UiRestriction(/admin/security,
-    // *, Hidden)` that kept the Admin drawer hidden. The fix adds a
-    // roles-override path to the dev-quick-signin helper so a persona can
-    // declare `RolesOverride = "User"` without requiring a DB-seeded user.
-    // This test drives the same parameters the reviewer now has available
-    // (jdoe email + roles=User override).
+    // Finding #2 (Blocker) — real-login flow (Session 2 re-remediation).
+    // Drives the sequence the human UAT reviewer actually performs: open
+    // /login, enter juser@acmecoffee.com, click "Send sign-in link",
+    // navigate to /dev/email-inbox, grab the Link cell of the most recent
+    // row, follow that href, land authenticated. Asserts the Admin drawer
+    // group is visible and the Security Dashboard shows only Role
+    // Documentation. The prior Session 1 test used SeededSignInAsync with
+    // a roles=User override, which reproduced the end state but NOT the
+    // path — so the regression against real login was invisible to
+    // automation. After Session 2's seed change, juser is a DB-backed user
+    // whose user-roles.json assignment is the baked-in User role; that
+    // identity is resolvable through the standard magic-link pipeline.
     [Fact]
-    public async Task SecurityNav_BakedInUserPersona_NavVisible_RoleDocOnlyAsync()
+    public async Task SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync()
     {
         var page = await _fixture.CreatePageAsync();
         try
         {
-            await _fixture.SeededSignInAsync(page, JdoeEmail, roles: "User");
+            // Clear the dev inbox so the "top-most" row is unambiguously
+            // our freshly-issued magic link, not a leftover from a prior
+            // test.
+            await _fixture.ClearMagicLinksAsync();
 
-            // Step 2 verification 1: the Admin drawer group is present in the
-            // left navigation. Assert explicitly before navigating so a
-            // regression that hides the drawer surfaces with a clear failure
-            // rather than bubbling up as a missing-nav-entry timeout later.
+            // Step 1: open the login screen.
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/login",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
             await Assertions
-                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Admin" }))
+                .Expect(page.GetByTestId("login-page"))
                 .ToBeVisibleAsync(new() { Timeout = 10_000 });
 
+            // Step 2: enter juser's email and request a magic link.
+            await page.Locator("input[type='email']").FillAsync(JuserEmail);
+            await page.GetByRole(AriaRole.Button, new() { Name = "Send sign-in link" }).ClickAsync();
+
+            // Step 3: the login screen confirms the code was sent (step 2 of
+            // the login state machine). This proves the send-magic-link
+            // request succeeded before we look for the email.
+            await Assertions
+                .Expect(page.GetByText($"We sent a sign-in code to"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // Step 4: open /dev/email-inbox in a fresh page. Running in the
+            // same page would lose the login state we just set up if
+            // navigation interrupts the step-2 timer; a separate page
+            // better mirrors what the human does (second browser tab).
+            var inboxPage = await _fixture.CreatePageAsync();
+            try
+            {
+                await inboxPage.GotoAsync(
+                    $"{_fixture.BaseUrl}/dev/email-inbox",
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+                // Step 5: grab the top-most DATA row's Link cell and read
+                // its href. Scope inside `tbody` so the header `<tr>` (which
+                // also carries `class="mud-table-row"` in MudBlazor's DOM)
+                // doesn't steal the `.First` match. The MudLink renders as
+                // an <a target="_blank"> — instead of clicking it (which
+                // would pop up a new tab), read the href and navigate the
+                // primary page to it, which mirrors "follow the link" with
+                // the browser's single tab.
+                var firstRow = inboxPage.Locator("tbody tr.mud-table-row").First;
+                await Assertions
+                    .Expect(firstRow)
+                    .ToBeVisibleAsync(new() { Timeout = 15_000 });
+                var linkCell = firstRow.Locator("td[data-label='Link']");
+                await Assertions
+                    .Expect(linkCell)
+                    .ToBeVisibleAsync(new() { Timeout = 5_000 });
+
+                // Step 4 / V1 Playwright-native assertion that the Link
+                // cell contains a followable link: the first <a> inside
+                // the cell has an href that points at the magic-link
+                // landing URL (http(s)://.../login?token=...).
+                var linkAnchor = linkCell.Locator("a").First;
+                await Assertions
+                    .Expect(linkAnchor)
+                    .ToHaveAttributeAsync("href", new System.Text.RegularExpressions.Regex(@"^https?://.+/login\?token="));
+
+                var magicHref = await linkAnchor.GetAttributeAsync("href");
+                await page.GotoAsync(magicHref!, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            }
+            finally
+            {
+                await _fixture.ClosePageAsync(inboxPage);
+            }
+
+            // Step 6: the human lands on an authenticated app route. The
+            // Admin drawer group must be visible for a user whose only
+            // role is the baked-in User (Role Documentation read access).
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Admin" }))
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // Step 7: navigate via the Admin drawer group to Security
+            // Dashboard and confirm only Role Documentation is visible.
             await _fixture.NavigateViaDrawerGroupAsync(
                 page, "Admin", "Security Dashboard", ".*/admin/security$");
 
