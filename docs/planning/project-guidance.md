@@ -224,6 +224,40 @@ for the procedural enforcement.
   explicitly overrides the pause.
 - Capture screenshot evidence when practical so the human can see
   styling and interaction changes evolve across sessions.
+- **A filled UAT checklist does not review itself.** Between the
+  human finishing the checklist and any downstream remediation work
+  starting, run a dedicated **UAT Review Session** (see the next
+  bullet). Skipping it is how UAT findings sit unaddressed for weeks
+  or get folded opportunistically into an unrelated set, losing the
+  human's signal.
+- **UAT Review Session (set type).** A lightweight 1-session set
+  whose single deliverable is a disposition for every finding in a
+  just-completed UAT checklist.
+  - **Input:** the filled `<set-slug>-uat-checklist.json` committed
+    at the end of the prior set's closeout.
+  - **Steps:**
+    1. Read every Review item where `Passes == false` or `Feedback`
+       is non-empty (including auto-generated "Other" rows).
+    2. Classify each finding as one of:
+       **Blocker** (ship-stopping, must remediate before any other
+       set starts), **Substantive** (real defect, becomes scope of
+       a new remediation set), **Minor** (polish or style, fold into
+       an adjacent planned set's spec), or **Out of scope** (scope
+       creep or rejected suggestion, documented with rationale).
+    3. Produce one of three outputs depending on severity: a stub
+       spec for a new remediation set, a one-commit micro-fix plan
+       if findings are small enough, or a signoff note if nothing
+       requires action.
+    4. Commit the disposition artifact alongside a short
+       review-summary commit message.
+  - **Ends with:** the next action queued — either a named next set,
+    a named next single-session fix, or an explicit "no remediation
+    needed" signoff. The human is not left holding the checklist.
+  - **Orchestrator guidance:** classification is mechanical pattern
+    matching (group + severity + suggested disposition) and fits
+    Sonnet cleanly; Opus is only needed when a finding is genuinely
+    ambiguous about whether it's Substantive or Minor, or when a
+    Blocker candidate needs architectural judgment to size.
 - **Every UAT checklist item must be proven executable by automation
   before the checklist is handed to the human.** For each Review item
   there must be a Playwright test (or equivalent browser-level test)
