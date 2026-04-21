@@ -582,6 +582,24 @@ Use this structure for new entries:
   warranted when the new user needs DB-backed relationships
   (org memberships, external-login mappings, inventory of orders,
   etc.) that a synthetic principal can't provide.
+- **Exception — real-login UAT flows require DB-seeded personas.**
+  When a UAT checklist or E2E test must exercise the real login
+  path (magic-link, SSO, Entra ID, etc.), the roles-override path
+  is unreachable from the user's perspective — a human types their
+  email into the login screen and receives a magic-link, and the
+  resulting principal is built from the DB + JSON role store, not
+  from the `/test-auth/seeded-session?roles=...` override endpoint.
+  In that case a seeded `AppUser` is required. Added 2026-04-21 in
+  `security-dashboard-uat-followup-fixes` Session 2, where the
+  Session 1 override-based fix for Finding #2 could not be
+  validated against the human's actual login flow. **Mitigate the
+  ID-shift fragility** by inserting the new seed user at a fixed
+  list position BEFORE any variable-length loops (e.g., before the
+  `foreach (var customer in customers)` retail-contacts loop in
+  `SeedData.GetSecurityUsers`). The user's `AppUser.Id` then stays
+  deterministic on fresh seeds regardless of collection sizes,
+  and the matching `user-roles.json` key can be hardcoded with
+  confidence.
 
 ## Pin Culture Explicitly In .NET Containers
 
@@ -658,6 +676,65 @@ Use this structure for new entries:
   Task Types Calibrate To Sonnet-Cost For Adequate Quality"
   lesson — applied in the prior set but NOT yet applied to the
   actual `task_type_overrides` config).
+
+## MudTable `<thead>` Rows Also Carry `tr.mud-table-row`
+
+- **Context:** Playwright locator that wanted "the first data row"
+  in a MudTable on `/dev/email-inbox`
+  (`security-dashboard-uat-followup-fixes` Session 2).
+- **Failure or friction:** The real-login test used
+  `page.Locator("tr.mud-table-row").First` to grab the top-most
+  email message. It failed with a misleading "Locator expected to
+  be visible … waiting for td[data-label='Link']" timeout because
+  MudTable renders `<tr class="mud-table-row">` in BOTH the
+  `<thead>` (the header row of `<th>` cells) and the `<tbody>`
+  (the data rows of `<td>` cells). The unscoped `.First` matched
+  the header row, which has no `td[data-label='Link']` cell — so
+  subsequent cell lookups inside `.First` failed with a confusing
+  timeout instead of a clear "no data rows" error.
+- **Lesson:** When selecting "the first data row" in a MudTable
+  (or MudDataGrid rendered as a table), scope the selector to
+  `tbody tr.mud-table-row` explicitly. The class-level selector
+  alone is ambiguous because MudBlazor attaches the same class
+  to the header row.
+- **Action for future sessions:** In any Playwright or bUnit
+  locator that targets MudTable rows by the `.mud-table-row`
+  class, default to `tbody tr.mud-table-row` (or `thead
+  tr.mud-table-row` for header-specific assertions). Treat an
+  unscoped `tr.mud-table-row` as a smell during code review —
+  ask whether the header row is a valid match or a silent
+  mismatch waiting to surface as a timeout.
+
+## A Second Playwright Page Is The Right Analogue For A Second Browser Tab
+
+- **Context:** Real-login UAT test for
+  `security-dashboard-uat-followup-fixes` Session 2. The human
+  flow has two tabs: one for the login screen, another for
+  `/dev/email-inbox` where they read the magic-link URL.
+- **Failure or friction:** None — this went well. Choosing how to
+  model the two-tab flow mattered: `page.EvaluateAsync` + DOM
+  scraping of the inbox inside the login page, a hidden iframe,
+  or cross-origin shenanigans would all have been fragile. A
+  second Playwright page inside the same `BrowserContext` turned
+  out to be the exact analogue of a second browser tab.
+- **Lesson:** `PlaywrightFixture.CreatePageAsync` opens a new
+  page within the shared `BrowserContext`, which means cookies
+  and `localStorage` are shared across pages — the same
+  invariants as two tabs under one browser profile. The DOM
+  contexts are independent, so page 1 can await a render while
+  page 2 reads a different URL, and neither blocks the other.
+  When a human UAT flow involves multiple tabs (login + dev
+  inbox, primary app + admin console, claim link + verify
+  target, etc.), the faithful reproduction in Playwright is
+  literally "open a second page" — not simulation.
+- **Action for future sessions:** When a UAT or E2E flow
+  involves a human opening a second tab, author the Playwright
+  test with two pages rather than one page plus DOM surgery.
+  Read the cross-tab data (an href, a token, an address-bar
+  URL) on the second page, then act on the first page.
+  Dispose the second page in `finally` once reads complete.
+  Don't share locators across pages — create them with each
+  page's own `page.Locator(...)`.
 
 ## Every UAT Checklist Item Must Be Pre-Tested In Playwright Before The Human Runs The Checklist
 
