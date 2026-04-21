@@ -513,6 +513,152 @@ Use this structure for new entries:
   either the aggregate is misaligned, or the column header is too
   vague and should be renamed instead of labeled twice.
 
+## MudDataGrid Row-Select: Prefer `RowClick` + `ReadOnly` Over `SelectedItemChanged`
+
+- **Context:** Master-details grids in the Security Dashboard
+  (`RoleMasterGrid`, `OrganizationMasterGrid`, `UsersMasterGrid`)
+  whose row selection must collapse the expansion shell around them.
+- **Failure or friction:**
+  `security-dashboard-uat-followup-fixes` Finding #49. The reviewer
+  reported that clicking a cell in the first column took two clicks
+  to collapse the shell instead of one. Root cause: the grids wired
+  `SelectedItemChanged="..."` + `SelectedItem="@_selected"`, and the
+  first-column `CellTemplate` wrapped its content in a `<div>` with
+  other children (MudText + MudChip or MudTextField). Clicking
+  inside that CellTemplate first set cell focus rather than firing
+  the row-select event; only a second click registered as a row
+  click. `SelectedItemChanged` also fires only when `SelectedItem`
+  actually changes, so re-clicking an already-selected row is a
+  silent no-op — compounding the "two-click" perception.
+- **Lesson:** For master grids whose row-click semantics drive a
+  side-effect (shell collapse, detail-form load, navigation),
+  `RowClick="@handler"` + `ReadOnly="true"` is more reliable than
+  `SelectedItemChanged`. `RowClick` fires on every row click
+  regardless of prior `SelectedItem` state, and `ReadOnly="true"`
+  prevents MudBlazor from interpreting the click as a cell-edit
+  intent in the first place. Custom interactive controls inside
+  `CellTemplate` (e.g., `MudTextField` for inline-editable
+  DisplayAlias) are unaffected by the grid's ReadOnly flag — they
+  stay fully interactive because `ReadOnly` gates only the grid's
+  built-in cell-editing mode.
+- **Action for future sessions:** When adding or reviewing a
+  master-grid whose click selects a row and collapses a shell or
+  loads a details form, default to `RowClick` and a `SelectedItem`
+  one-way binding (for visual highlight). Treat
+  `SelectedItemChanged` as a trap when the first column contains
+  non-trivial `CellTemplate` content, and flag it during code
+  review.
+
+## Dev-Persona Roles-Override Is Safer Than A DB-Seed Addition
+
+- **Context:** Adding a new dev-only persona so UAT reviewers can
+  exercise the baked-in `User` role path
+  (`security-dashboard-uat-followup-fixes` Finding #2).
+- **Failure or friction:** The first attempt added `juser@acmecoffee.com`
+  as a seeded `AppUser` and assigned the role via `user-roles.json`
+  with key `"8"`. But `user-roles.json` keys are integer user IDs,
+  and inserting a new user at position 8 in SeedData shifts every
+  subsequent user ID (sloane→9, casey→10, etc.). The running Docker
+  web container's DB already had users through ID 7, so the Backfill
+  path added juser at some later id — and the `"8": ["User"]`
+  mapping now pointed at sloane, not juser. Worse, when
+  `AcmeCoffeeOnline.Api.Tests` spun up its `WebApplicationFactory`
+  against the same dev SQL Server, the seed pass tried to insert
+  juser again and EF failed with a duplicate-key error on
+  `IX_AppUsers_Email`. Five API tests went red before I noticed.
+- **Lesson:** For dev-only personas (UAT, Playwright, manual
+  testing) where the only goal is "sign in under this role
+  configuration," the roles-override path through
+  `/test-auth/seeded-session?email=...&roles=...` is far safer than
+  adding a new `AppUser` to seed. Override paths don't touch the DB
+  schema, don't shift IDs, and don't run a second seed pass in
+  test-host factories. The `X-Test-Auth-Secret` gate and the
+  `appsettings.Development.json` `AllowedRoles` allow-list still
+  constrain what can be requested, so no new auth surface.
+- **Action for future sessions:** Before modifying `SeedData.cs`
+  and `user-roles.json` to introduce a persona, ask whether a
+  dev-quick-signin persona with a `RolesOverride` can satisfy the
+  need. If yes, prefer it. Seed-data persona additions are only
+  warranted when the new user needs DB-backed relationships
+  (org memberships, external-login mappings, inventory of orders,
+  etc.) that a synthetic principal can't provide.
+
+## Pin Culture Explicitly In .NET Containers
+
+- **Context:**
+  `security-dashboard-uat-followup-fixes` Finding #14. The `/products`
+  page's Unit Price column used a `C2` format string and rendered
+  with the invariant-culture `¤` symbol in Docker even though
+  local dev showed `$`.
+- **Failure or friction:** Linux container images ship with a
+  POSIX locale by default (`LANG=` and `LC_ALL=` empty; `locale`
+  reports `POSIX`). Under .NET, an empty locale causes the runtime
+  to fall back to `InvariantCulture`, whose `NumberFormatInfo`
+  uses the generic `¤` for `NumberFormatInfo.CurrencySymbol`. The
+  `C2` format therefore rendered as `¤1,234.56`. Local Windows
+  hosts use the user's OS culture, so the bug was invisible
+  outside Docker.
+- **Lesson:** For any .NET app whose UI surfaces currency,
+  localised dates, or culture-dependent number formatting, pin
+  `CultureInfo.DefaultThreadCurrentCulture` (and
+  `DefaultThreadCurrentUICulture`) at app startup — before the
+  host starts handling requests. For a Blazor Server / ASP.NET
+  Core app, the fix lands in `Program.cs` immediately after
+  `var app = builder.Build();`, paired with
+  `app.UseRequestLocalization(...)` if request-scoped formatting
+  matters. Do NOT rely on container-level `LANG`/`LC_ALL` alone:
+  base images don't always include the matching locale archives,
+  and the env-var approach fails silently.
+- **Action for future sessions:** When scaffolding a new .NET
+  service or reviewing a Dockerfile that serves currency/date
+  content, add the culture-pin as a default code pattern in
+  `Program.cs`. If a PR surfaces a "formatting looks wrong only
+  in Docker" bug, check the running container's `locale` output
+  and the app's `CultureInfo.CurrentCulture` at startup before
+  debugging further.
+
+## Align Checklist Wording To The Test's Literal Assertions Early To Avoid uat-coverage-review Round Escalation
+
+- **Context:** The `uat-coverage-review` gate in
+  `security-dashboard-uat-followup-fixes` Session 1. Only 4
+  checklist items, but the gate took 5 rounds to reach VERIFIED
+  and cost ~$3.13 total across the rounds.
+- **Failure or friction:** Most of the round-to-round churn was
+  wording drift between checklist verifications and test
+  assertions rather than functional coverage gaps. Examples the
+  verifier flagged: the checklist said a summary "reads 'New
+  organization'" but the test used `Assert.Equal` on
+  `InnerTextAsync` rather than Playwright's `ToHaveTextAsync`; the
+  checklist asserted a "column header in `.mud-table-head`" but the
+  test asserted a data cell (`td[data-label='Unit Price']`); the
+  checklist positioned an element "below the collapsed summary"
+  but the test only asserted visibility. Each mismatch escalated
+  a round because the verifier is explicitly tuned to prefer
+  false-positive `ISSUES_FOUND` over false-negative `VERIFIED`.
+- **Lesson:** When authoring a UAT checklist for a new finding,
+  write the verification text against the EXACT Playwright
+  assertion you intend to land — same locator scoping, same native
+  API (prefer `Expect(locator).ToContainTextAsync` /
+  `ToHaveTextAsync` over xUnit `Assert.Contains` on
+  `InnerTextAsync`), same positional claims (don't say "below X"
+  unless the test asserts position). Review your own checklist
+  through a "would the verifier accept this as an identical
+  match" lens before the first route call. Alternatively:
+  generate the checklist FROM the finished test rather than the
+  other way around, since the test's language is the
+  mechanically-verifiable ground truth.
+- **Action for future sessions:** Before routing
+  `uat-coverage-review`, do a two-column dry-run in your head:
+  every `Verifications[i].Text` next to the Playwright line that
+  will be paired with it. If the wording diverges, tighten it
+  now — a wording pass costs zero API dollars; a coverage-review
+  round costs ~$0.60. Also, if a task type is paired
+  (generator + gate), revisit whether the mechanical half should
+  be pinned to Sonnet rather than Opus (see the "Mechanical-Gate
+  Task Types Calibrate To Sonnet-Cost For Adequate Quality"
+  lesson — applied in the prior set but NOT yet applied to the
+  actual `task_type_overrides` config).
+
 ## Every UAT Checklist Item Must Be Pre-Tested In Playwright Before The Human Runs The Checklist
 
 - **Context:** Human UAT run for the

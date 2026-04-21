@@ -271,6 +271,29 @@ for the procedural enforcement.
   verification; sending a human to discover a null-reference
   exception or a missing nav entry wastes their time and undermines
   the checklist's purpose.
+- **E2E tests (and the UAT checklists derived from them) describe
+  what the user sees, not what is happening behind the scenes.**
+  When a role carries a `DisplayAlias`, the checklist step refers
+  to the alias — the canonical name may appear in parentheses or
+  in `TestData` for cross-reference, but the human-facing action
+  text uses the label the human will actually read. When a
+  currency column renders `$1,234.56`, the test asserts against
+  the formatted string, not the underlying decimal. When the
+  user never sees themselves "log in with role X" (because the
+  system assigns the role through organization switching, role
+  switching, or seeded impersonation that surfaces the role only
+  on a subsequent screen), the checklist's step ordering mirrors
+  the user's sensory timeline — the "role is active" verification
+  lands at the screen where the role first becomes visible, not
+  at login. This principle is the filter that catches UI-vs-model
+  drift: if the checklist says "sign in as CrossOrgUserAdmin" but
+  the user sees "Back Office Administrator" in the role switcher,
+  the checklist has drifted away from the human's experience and
+  the UAT signal loses fidelity. Before routing
+  `uat-plan-generation` or hand-authoring a checklist, walk through
+  the flow as the user will: what do they see, in what order, with
+  what labels? Write the checklist from that perspective; wire the
+  test to the same visible surface.
 
 ### Precedence
 
