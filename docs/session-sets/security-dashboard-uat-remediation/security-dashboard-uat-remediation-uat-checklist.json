@@ -47,7 +47,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -100,7 +100,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -149,7 +149,7 @@
       "E2ETestReference": "SecurityDashboardUatCoverageTests.SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "Admin Drawer is not visible"
     },
     {
       "FunctionalArea": "Users and Role Assignment",
@@ -189,7 +189,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -230,7 +230,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -287,7 +287,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_RapidRemountDoesNotCrashAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -328,7 +328,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -397,13 +397,13 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
       "FunctionalArea": "Organization Master Details",
       "Subarea": "Org-Scope Filter",
-      "ItemLabel": "CrossOrgUserAdmin sees all retail customers \u2014 CanSeeAllOrganizations grants full visibility via API",
+      "ItemLabel": "CrossOrgUserAdmin sees all retail customers — CanSeeAllOrganizations grants full visibility via API",
       "Steps": [
         {
           "StepNumber": 1,
@@ -433,7 +433,7 @@
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "Mostly correct, but the URL that works is http://localhost:5010/customers?page=1&pageSize=100"
     },
     {
       "FunctionalArea": "Organization Master Details",
@@ -458,7 +458,7 @@
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "Mostly correct, but the URL that works is http://localhost:5010/customers?page=1&pageSize=100"
     },
     {
       "FunctionalArea": "Organization Master Details",
@@ -482,7 +482,7 @@
               "VerificationMethod": "ui"
             },
             {
-              "Text": "Initial grid row count \u2265 2 (at least one internal and one retail organization)",
+              "Text": "Initial grid row count ≥ 2 (at least one internal and one retail organization)",
               "VerificationMethod": "ui"
             },
             {
@@ -496,11 +496,11 @@
           "Action": "Fill the Key filter with customer-",
           "Verifications": [
             {
-              "Text": "Internal organization row (id=1) is no longer visible \u2014 its key does not contain 'customer-'",
+              "Text": "Internal organization row (id=1) is no longer visible — its key does not contain 'customer-'",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "Filtered row count is > 0 and less than the initial count \u2014 retail orgs with 'customer-' keys remain",
+              "Text": "Filtered row count is > 0 and less than the initial count — retail orgs with 'customer-' keys remain",
               "VerificationMethod": "ui"
             }
           ]
@@ -510,7 +510,7 @@
           "Action": "Fill the Key filter with cust-",
           "Verifications": [
             {
-              "Text": "Grid shows 0 rows \u2014 'cust-' is not a substring of any seeded organization key",
+              "Text": "Grid shows 0 rows — 'cust-' is not a substring of any seeded organization key",
               "VerificationMethod": "ui"
             }
           ]
@@ -528,7 +528,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -610,7 +610,7 @@
       "E2ETestReference": "SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "The new organization is not visible in the grid."
     },
     {
       "FunctionalArea": "Organization Master Details",
@@ -660,7 +660,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -685,7 +685,7 @@
           "Action": "Click the first organization row to select it",
           "Verifications": [
             {
-              "Text": "Shell summary is visible \u2014 shell collapsed on row selection",
+              "Text": "Shell summary is visible — shell collapsed on row selection",
               "VerificationMethod": "ui"
             }
           ]
@@ -703,7 +703,7 @@
           "Action": "Click the organization-master-details-shell-header to collapse the shell",
           "Verifications": [
             {
-              "Text": "Summary text reads 'Organizations' \u2014 selection-specific summary is cleared",
+              "Text": "Summary text reads 'Organizations' — selection-specific summary is cleared",
               "VerificationMethod": "ui"
             },
             {
@@ -724,7 +724,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -763,7 +763,7 @@
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "The currency symbol is incorrect."
     },
     {
       "FunctionalArea": "Data-Bound Restriction Enforcement",
@@ -800,7 +800,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -838,7 +838,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -855,7 +855,7 @@
           "Action": "Navigate to /admin/products",
           "Verifications": [
             {
-              "Text": "The access-denied card (data-testid \"access-denied-page\") is visible \u2014 the admin route remains restricted to admin roles",
+              "Text": "The access-denied card (data-testid \"access-denied-page\") is visible — the admin route remains restricted to admin roles",
               "VerificationMethod": "ui"
             }
           ]
@@ -868,7 +868,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.AdminProducts_BackofficeUser_StillDeniedAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -893,7 +893,7 @@
               "VerificationMethod": "ui"
             },
             {
-              "Text": "No \"Unit Price\" column header exists anywhere in the grid (.mud-table-head) \u2014 RestrictedGridColumn emits nothing under the Hidden restriction",
+              "Text": "No \"Unit Price\" column header exists anywhere in the grid (.mud-table-head) — RestrictedGridColumn emits nothing under the Hidden restriction",
               "VerificationMethod": "ui"
             }
           ]
@@ -906,7 +906,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -927,7 +927,7 @@
               "VerificationMethod": "ui"
             },
             {
-              "Text": "No UnitPrice field (data-testid \"field-unit-price\") exists on the detail form \u2014 RestrictedFormField emits nothing under the Hidden restriction",
+              "Text": "No UnitPrice field (data-testid \"field-unit-price\") exists on the detail form — RestrictedFormField emits nothing under the Hidden restriction",
               "VerificationMethod": "ui"
             }
           ]
@@ -940,7 +940,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -965,7 +965,7 @@
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The UnitPrice field is disabled (cursor cannot edit the value) \u2014 ViewOnly restriction enforced through the real web \u2192 api bridge under Docker",
+              "Text": "The UnitPrice field is disabled (cursor cannot edit the value) — ViewOnly restriction enforced through the real web → api bridge under Docker",
               "VerificationMethod": "ui"
             }
           ]
@@ -979,7 +979,7 @@
       "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "Note that it isn't really possible to test the disabled state of the UnitPrice field because clicking on a row takes you to the Details form.  I suspect this will be a problem if we need to have inline editing but also want users to navigate to the details form."
     },
     {
       "FunctionalArea": "Default Masks and Column Restrictions",
@@ -1027,7 +1027,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_SafetyNetPanel_AbsentFromTabAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1082,7 +1082,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1132,7 +1132,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1191,7 +1191,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1280,7 +1280,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1346,7 +1346,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1402,7 +1402,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1449,7 +1449,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1511,7 +1511,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1578,7 +1578,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1630,7 +1630,7 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_Shell_RendersDeclaredCountSummaryAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -1693,13 +1693,13 @@
       },
       "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync",
       "IsJudgmentItem": true,
-      "Passes": false,
+      "Passes": true,
       "Feedback": "Automated checks verify element type, row count, computed font-size, and max-width constraint, but whether the wrapped text is visually readable in context and the font weight/style truly matches sibling columns requires human judgment on the live rendering."
     },
     {
       "FunctionalArea": "Accessibility and Keyboard",
       "Subarea": "Tab-Strip Arrow-Key Handler Removal",
-      "ItemLabel": "ArrowRight on tab strip does not switch tabs \u2014 custom handler removed, Role Master Details stays selected",
+      "ItemLabel": "ArrowRight on tab strip does not switch tabs — custom handler removed, Role Master Details stays selected",
       "Steps": [
         {
           "StepNumber": 1,
@@ -1726,7 +1726,7 @@
           "Action": "Focus the security-dashboard-tabstrip tab strip and press ArrowRight",
           "Verifications": [
             {
-              "Text": "Role Master Details tab remains selected \u2014 the custom @onkeydown arrow-key handler was removed in Session 7, so pressing ArrowRight has no tab-switching effect",
+              "Text": "Role Master Details tab remains selected — the custom @onkeydown arrow-key handler was removed in Session 7, so pressing ArrowRight has no tab-switching effect",
               "VerificationMethod": "ui"
             }
           ]
@@ -1744,6 +1744,216 @@
       "IsJudgmentItem": false,
       "Passes": false,
       "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-Role Security Nav Visibility and Tab Gating",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "In general, it might be helpful to have a more compact grid format for grids."
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Users tab circuit stability",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "Did I miss something here ... I didn't see where we assigned roles to a user.  Did we already test that?  This brings up an important point.  It isn't clear where we have already tested things.  It might be helpful to have an optional summary row in each section that lists/summarizes various items that have already been tested and which JSON file holds the results."
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Filter-change summary clear",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Org-Scope Filter",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Dash-in-Filter",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "In-Circuit Refresh + New Org Cue",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Shell Summary Reset on Filter Change",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Restriction-Seam Reachability",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "ViewOnly Rendering",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Hidden Rendering",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "Safety-Net Removal",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "SSN Seed Visibility",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "Singular Entity Names",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "Add Column Restriction",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Row-Select Collapse",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Re-Expand",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "It takes two clicks to collapse the grid when you click on a cell in the first column."
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Filter-Change Reset",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Default Masks Shell Variant",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "DisplayAlias Width",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Accessibility and Keyboard",
+      "Subarea": "Tab-Strip Arrow-Key Handler Removal",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
     }
-  ]
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  },
+  "DocumentDate": "4/21/2026, 1:25:15 PM"
 }
