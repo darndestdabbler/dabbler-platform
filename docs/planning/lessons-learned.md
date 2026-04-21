@@ -42,6 +42,18 @@ Use this structure for new entries:
 
 ## UAT Checklist Files Must Match The Editor Contract
 
+- **Collapsed to reference on 2026-04-21** (Step 9 reorganization review
+  for the `security-dashboard-uat-remediation-review` session set). The
+  same guidance is already captured — with equivalent specificity — in
+  `project-guidance.md` → Conventions → Human UAT And Checklist Editor:
+  *"Use the UAT checklist editor schema from
+  https://github.com/darndestdabbler/uat-checklist-editor/blob/main/checklist-schema.json
+  for checklist JSON files intended for human execution."* Applied as the
+  right call across `post-rebuild-uat`, `security-dashboard-uat`,
+  `security-dashboard-polish`, `rearchitect-role-administration-dashboard`,
+  `security-dashboard-uat-remediation`, and the UAT Review Session that
+  consumed the filled checklist inline. Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Human-executed UAT checklist preparation
 - **Failure or friction:** A custom checklist JSON shape was created even
   though the intended reviewer workflow depended on the checklist editor.
@@ -54,6 +66,19 @@ Use this structure for new entries:
 
 ## Pending Human UAT Must Be Called Out Explicitly
 
+- **Collapsed to reference on 2026-04-21** (Step 9 reorganization review
+  for the `security-dashboard-uat-remediation-review` session set). The
+  same guidance is already captured — with equivalent specificity — in
+  `project-guidance.md` → Conventions → Human UAT And Checklist Editor:
+  *"Handoff messages for pending UAT must be unmistakable: name the
+  checklist path, link the editor, say that the agent is waiting for
+  the human response, and keep any optional parallel work low-risk."*
+  Applied as the right call in every session-set closeout that has
+  generated a UAT checklist, and in this UAT Review Session's
+  `disposition.md` + stop message (which names the follow-up set
+  path and queues the next action instead of leaving the human holding
+  the checklist). Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Sessions that prepare a UAT checklist for later human review
 - **Failure or friction:** A checklist can exist in the repo without an
   unmistakable handoff, making it easy for the human to miss that the next move
