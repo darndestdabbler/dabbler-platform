@@ -3,7 +3,22 @@
 # ============================================================
 # All model info, pricing, thresholds, and behavior in one file.
 # API keys are NEVER stored here — use environment variables.
+#
+# This YAML is the single source of truth for every tunable knob.
+# The former router-tuning.json overlay was removed in Session 2 of
+# BATON v2. If you need to change a value, change it here.
 # ============================================================
+
+# --- Metadata ---
+# pricing_reviewed:      ISO date — last time a human verified the
+#                         input/output costs below against provider
+#                         pricing pages.
+# review_frequency_days: Soft threshold. If the YAML is older than
+#                         this, config.py prints a warning at load
+#                         time (does not block execution).
+metadata:
+  pricing_reviewed: "2026-04-20"
+  review_frequency_days: 30
 
 # --- Provider Configuration ---
 providers:
@@ -44,19 +59,33 @@ providers:
 # --- Model Registry ---
 # Each model has a tier (1=cheap/fast, 2=balanced, 3=powerful/expensive),
 # pricing, context limits, and a reference to its prompt template.
+#
+# Two eligibility flags control where a model can be used:
+#   is_enabled               — included in the generator pool at all.
+#                              Default: true (omit to accept default).
+#   is_enabled_as_verifier   — trusted to verify other models' output.
+#                              Default: true. Set to false when adding
+#                              a new model so it can be evaluated as a
+#                              generator first; promote by flipping to
+#                              true once calibration data supports it.
+# The two flags exist so adding a cheap new model does not silently
+# enroll it in verifier duty. See docs/planning/project-guidance.md
+# (workflow-expectations) for the promotion criterion.
 models:
   gemini-flash:
     provider: google
     model_id: gemini-2.5-flash
     tier: 1
+    is_enabled: true
+    is_enabled_as_verifier: true
     input_cost_per_1m: 0.15
     output_cost_per_1m: 0.60
     max_context_tokens: 1048576
     max_output_tokens: 65536
-    system_prompt_file: prompt-templates/google-system.md
+    system_prompt_file: prompt-templates/system-prompts.md
     notes: "Best for simple analysis, formatting, boilerplate generation"
     # Default API parameters sent with every call. Can be overridden
-    # per-task-type below, and further overridden by router-tuning.json.
+    # per-task-type under task_type_params below.
     # For Gemini 2.5 models: thinking_budget is an integer cap on
     # thinking tokens. -1 = dynamic, 0 = off, positive = hard cap.
     # For Gemini 3.x models: use thinking_level (MINIMAL|LOW|MEDIUM|HIGH).
@@ -67,11 +96,13 @@ models:
     provider: google
     model_id: gemini-2.5-pro
     tier: 2
+    is_enabled: true
+    is_enabled_as_verifier: true
     input_cost_per_1m: 1.25
     output_cost_per_1m: 10.00
     max_context_tokens: 1048576
     max_output_tokens: 65536
-    system_prompt_file: prompt-templates/google-system.md
+    system_prompt_file: prompt-templates/system-prompts.md
     notes: "Good for medium-complexity analysis, documentation, code review"
     generation_params:
       thinking_budget: -1         # dynamic; Gemini picks how deep to think
@@ -80,11 +111,13 @@ models:
     provider: anthropic
     model_id: claude-sonnet-4-6
     tier: 2
+    is_enabled: true
+    is_enabled_as_verifier: true
     input_cost_per_1m: 3.00
     output_cost_per_1m: 15.00
     max_context_tokens: 200000
     max_output_tokens: 16000
-    system_prompt_file: prompt-templates/anthropic-system.md
+    system_prompt_file: prompt-templates/system-prompts.md
     notes: "Use when Anthropic quality needed but Opus overkill"
     # Sonnet 4.6 defaults to effort=high internally if effort is unset,
     # which burns tokens on every call. Explicitly setting effort here
@@ -100,11 +133,13 @@ models:
     provider: anthropic
     model_id: claude-opus-4-6
     tier: 3
+    is_enabled: true
+    is_enabled_as_verifier: true
     input_cost_per_1m: 15.00
     output_cost_per_1m: 75.00
     max_context_tokens: 200000
     max_output_tokens: 32000
-    system_prompt_file: prompt-templates/anthropic-system.md
+    system_prompt_file: prompt-templates/system-prompts.md
     notes: "Reserved for complex architectural reasoning"
     # Opus is only invoked for tier-3 tasks (architecture, security review,
     # session verification). Adaptive thinking is on by default because
@@ -129,11 +164,13 @@ models:
     provider: openai
     model_id: gpt-5.4
     tier: 3
+    is_enabled: true
+    is_enabled_as_verifier: true
     input_cost_per_1m: 2.50
     output_cost_per_1m: 15.00
     max_context_tokens: 272000
     max_output_tokens: 32000
-    system_prompt_file: prompt-templates/openai-system.md
+    system_prompt_file: prompt-templates/system-prompts.md
     notes: "Frontier OpenAI model. Used to verify Opus output (cross-provider)
       and as a cheaper frontier alternative for session verification of
       implementation-heavy work. Opus-class quality at ~60% of Opus cost."
@@ -147,11 +184,13 @@ models:
     provider: openai
     model_id: gpt-5.4-mini
     tier: 2
+    is_enabled: true
+    is_enabled_as_verifier: true
     input_cost_per_1m: 0.75
     output_cost_per_1m: 4.50
     max_context_tokens: 400000
     max_output_tokens: 16000
-    system_prompt_file: prompt-templates/openai-system.md
+    system_prompt_file: prompt-templates/system-prompts.md
     notes: "Small OpenAI model. Used to verify Gemini Pro output
       (cross-provider). Cheaper than Sonnet ($3/$15) and Claude Haiku
       ($1/$5) with a larger context window."
@@ -176,12 +215,38 @@ routing:
     # Force Sonnet for code review -- Anthropic models are stronger at
     # careful line-by-line reasoning and catching subtle issues.
     code-review: sonnet
+    # Force Opus for architecture. Short architecture prompts can score
+    # below the Tier-3 threshold and route to Tier 2 (gemini-pro), which
+    # produced a 100% verifier rejection rate in early metrics — the
+    # task type is always high-stakes regardless of prompt length.
+    architecture: opus
+    # UAT checklist generation and its coverage audit are high-stakes
+    # governance gates; route them straight to Tier 3 rather than relying
+    # on heuristic scoring to land there indirectly.
+    uat-plan-generation: opus
+    uat-coverage-review: opus
+
+# --- Delegation ---
+# Guidance for orchestrators (Claude Code / Codex / Gemini) on which
+# task types must always go through route() rather than being handled
+# directly. The orchestrator reads this list at session start.
+delegation:
+  always_route_task_types:
+    - code-review
+    - security-review
+    - architecture
+    - planning
+    - uat-plan-generation
+    - uat-coverage-review
+    - analysis
+    - session-verification
+    - documentation
+    - test-generation
 
 # --- Per-Task-Type Generation Parameter Overrides ---
 # Structure: task_type_params.<task_type>.<model_name> = {params to override}
 # These override the model-level generation_params above. Missing entries
-# fall back to model defaults. router-tuning.json (optional overlay file)
-# can further override these at runtime.
+# fall back to model defaults.
 task_type_params:
   # Cheap, mechanical tasks: no thinking, low effort.
   formatting:
@@ -242,10 +307,18 @@ task_type_params:
     opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
     gemini-pro: { thinking_budget: -1 }
     gpt-5-4:    { reasoning_effort: high }
+  uat-plan-generation:
+    opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: high }
+  uat-coverage-review:
+    opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: high }
 
   # Verification task type used by the internal verify() path. Kept
-  # separate from 'session-verification' so the overlay won't bleed
-  # across them. Default is medium reasoning for the verifier.
+  # separate from 'session-verification' so per-task-type overrides
+  # won't bleed across them. Default is medium reasoning for the verifier.
   verification:
     sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
     opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
@@ -256,6 +329,15 @@ task_type_params:
 # --- Complexity Estimation Weights ---
 # These weights control how the complexity score is calculated.
 # Adjust based on observed results.
+#
+# DELIBERATE NON-GOAL: Do not invest further engineering in tightening
+# this heuristic (e.g., embeddings, ML-based complexity prediction).
+# The current heuristic + 2-try escalation safety net is the intended
+# stopping point. If the score misjudges a task, escalation catches it
+# and the metrics log shows the pattern. Spending effort to save a few
+# pennies on retried calls is a false economy. This decision is
+# ratified in docs/planning/lessons-learned.md under "Heuristics that
+# earn their keep".
 complexity:
   weights:
     context_length: 0.30      # longer prompts = more complex
@@ -278,6 +360,8 @@ complexity:
     analysis: 55
     test-generation: 35
     planning: 70
+    uat-plan-generation: 70
+    uat-coverage-review: 70
     formatting: 10
     summarization: 20
     architecture: 80
@@ -347,24 +431,39 @@ escalation:
 verification:
   enabled: true
 
-  # Cross-provider model pairings.
-  # When a model from provider X generates a response, verification
-  # is routed to a model from provider Y — a DIFFERENT provider — so
-  # we catch provider-specific blind spots. With three providers
-  # (Anthropic, Google, OpenAI), we rotate so every provider both
-  # generates and verifies. The router picks automatically; these
-  # mappings define the pool.
-  cross_provider_map:
-    # Anthropic → Google (unchanged)
+  # Verifier selection is RULE-BASED, not map-based. A candidate
+  # verifier must be:
+  #   1. From a different provider than the generator.
+  #   2. is_enabled (in the active model pool).
+  #   3. is_enabled_as_verifier (trusted to verify, not just to generate).
+  #   4. Same tier as the generator, or one tier higher.
+  # Among survivors, cheapest output cost wins.
+  #
+  # preferred_pairings below is an OPTIONAL tiebreaker layer — if the
+  # listed pairing survives the rules, it is used; otherwise the rules
+  # decide. This means a model can be swapped or retired by editing the
+  # models: section alone, without hunting through a pairing table.
+  #
+  # Consequence: verifier selection is cost-sensitive at runtime. If a
+  # new model enters the pool at a lower price, the rules may start
+  # preferring it over the listed pairing. The metrics log records the
+  # exact verifier used for every call (router-metrics.jsonl), so the
+  # audit trail remains complete. New models should be added with
+  # is_enabled_as_verifier: false until their reliability is
+  # demonstrated against real generation work.
+  #
+  # The legacy key name cross_provider_map is still accepted by
+  # verification.py for backward compatibility with older branches.
+  preferred_pairings:
+    # Anthropic ↔ Google
     sonnet: gemini-pro
-    # Google → OpenAI (was → sonnet; moved to distribute load)
+    # Google → OpenAI (distributes verifier load across all three providers)
     gemini-flash: gpt-5-4-mini
     gemini-pro: gpt-5-4-mini
-    # Anthropic Opus (expensive) → OpenAI frontier (cheaper than pairing
-    # two Opus-class models across providers; GPT-5.4 at high effort is
-    # ~60% the output cost of Opus)
+    # Anthropic Opus (expensive) → OpenAI frontier (rules-engine also
+    # lands here on cost; preference just documents the intent)
     opus: gpt-5-4
-    # OpenAI → Anthropic (closes the triangle; Sonnet verifies GPT work)
+    # OpenAI → Anthropic (closes the triangle)
     gpt-5-4-mini: sonnet
     gpt-5-4: opus
 
@@ -375,6 +474,8 @@ verification:
     - code-review
     - security-review
     - architecture
+    - uat-plan-generation
+    - uat-coverage-review
     - documentation           # Sonnet verifies Gemini's doc output (uses weekly Sonnet credits)
     # - test-generation       # uncomment to auto-verify test generation
     # - analysis              # uncomment to auto-verify general analysis
@@ -388,10 +489,33 @@ verification:
       - false_positives        # issues flagged by the original that aren't real
 
     # If the verifier finds issues, what happens?
+    # Global default — applies to any task type NOT listed in
+    # on_disagreement_by_task_type below.
     on_disagreement: merge     # "merge" | "flag" | "re-route"
                                 # merge:    combine original + verifier feedback into final output
                                 # flag:     return both responses, let Claude Code decide
                                 # re-route: send to a Tier 3 model as tiebreaker
+
+    # Per-task-type override of on_disagreement.
+    # Merge is sound for task types where generator and verifier outputs
+    # combine naturally (code review: "here are the bugs — here are the
+    # ones the verifier would add"). Merge is NOT sound for task types
+    # where a disagreement signals a logic divergence — synthesizing
+    # two different architectural recommendations into one produces a
+    # hallucinated compromise. For those, flag instead and force the
+    # orchestrator to adjudicate under the Step 7 human-decision
+    # procedure.
+    on_disagreement_by_task_type:
+      code-review:      merge
+      security-review:  merge
+      test-generation:  merge
+      documentation:    merge
+      formatting:       merge
+      summarization:    merge
+      analysis:         flag
+      planning:         flag
+      architecture:     flag
+      refactoring:      flag
 
     # Tier 3 tiebreaker model (used when on_disagreement = "re-route")
     tiebreaker_model: opus
@@ -403,6 +527,14 @@ verification:
 
     # Verification prompt template
     prompt_template_file: prompt-templates/verification.md
+
+# --- Metrics ---
+# Controls the append-only metrics log read by report.py (Session 4).
+# Disable if you want to stop collecting. Retention note: log is
+# append-only JSON lines; rotate manually when it gets large.
+metrics:
+  enabled: true
+  log_filename: router-metrics.jsonl
 
 # --- State Database ---
 state:

@@ -176,27 +176,67 @@ needs correction before more human testing continues.
 
 ### Human UAT Philosophy
 
-- Human UAT is where confidence and judgment live. It is not where basic
-  operability defects should first be discovered.
-- Pending human UAT blocks downstream sessions unless the human explicitly
-  overrides the pause.
-- Capture screenshot evidence when practical so the human can see styling and
-  interaction changes evolve across sessions.
-- **Every UAT checklist item must be proven executable by automation before
-  the checklist is handed to the human.** For each item in the checklist,
-  there must be a Playwright test (or equivalent browser-level test) that
-  performs the same steps, with the same parameters, as the
-  `HumanAction` field, and asserts that the described `Expectation`
-  outcomes are reached. Items whose expected outcome is a subjective
-  design or aesthetic judgment ("feels smooth", "is legible", "spacing
-  feels intentional") still require a Playwright test that executes the
-  full sequence and asserts that nothing throws, no required control is
-  missing, and the UI reaches the state the human will be evaluating —
-  the human then renders the visual or design judgment on top of a
-  known-reachable state. This is not optional. UAT is confidence and
-  judgment, not first-pass operability verification; sending a human to
-  discover a null-reference exception or a missing nav entry wastes their
-  time and undermines the checklist's purpose.
+> Human UAT reviews judgment, not correctness. Every functional claim in
+> a UAT checklist must have E2E test coverage that exercises the same
+> sequence and verifies the same outcome. Items that genuinely cannot
+> be automated must be flagged as judgment items with justification.
+
+This principle is the answer to the governance question *"what stops an
+AI agent from shipping broken code?"* The answer is **not** *"the human
+will catch it in UAT."* Human UAT is the judgment backstop; automated
+E2E tests are the correctness backstop. Handing a human a checklist
+full of untested steps inverts the testing hierarchy and makes the
+human the first automation pass — slow, frustrating, and corrosive to
+the feedback loop. See the `E2E Coverage Before UAT` section and rule
+11 of the authoritative rules list in `docs/ai-led-session-workflow.md`
+for the procedural enforcement.
+
+- **Step N in the UAT checklist corresponds to Step N in the E2E test.
+  Identical actions. Identical parameters. Identical verifications.
+  Not "equivalent" — identical.** The discipline is mechanical on
+  purpose: if "equivalent" were enough, every drift point between
+  prose and automation would re-surface as a human surprise. A
+  Playwright test that clicks a row with a different label, or
+  navigates via a different entry point, or asserts against a
+  paraphrased expectation, does not satisfy this discipline even when
+  it passes.
+- **Parameter values are shared, not parallel.** The persona email,
+  entity name, search term, URL, role name, and expected outcome the
+  human will act on are the same literal values the Playwright test
+  drove. The structured-`Steps` `TestData` object is the shared source
+  of truth; the Playwright fixture reads from the same values.
+- **E2E passes before the human is notified.** Sequencing matters: the
+  Playwright suite runs to green first, the checklist is generated
+  from the green suite, `uat-coverage-review` returns VERIFIED on the
+  pair, then the commit lands, then the human is notified. Generating
+  a checklist against a red suite and asking the human to triage is
+  the failure mode this principle exists to prevent.
+- **Judgment items still get sequence coverage.** An item flagged
+  `IsJudgmentItem: true` is exempt from the matching-step requirement
+  but not from the reachability requirement — a test must still drive
+  the UI to the state the human will be evaluating, so the human is
+  rendering judgment on a verified-live screen rather than debugging
+  an exception. A one-sentence justification accompanies every
+  judgment flag.
+- Human UAT is where confidence and judgment live. It is not where
+  basic operability defects should first be discovered.
+- Pending human UAT blocks downstream sessions unless the human
+  explicitly overrides the pause.
+- Capture screenshot evidence when practical so the human can see
+  styling and interaction changes evolve across sessions.
+- **Every UAT checklist item must be proven executable by automation
+  before the checklist is handed to the human.** For each Review item
+  there must be a Playwright test (or equivalent browser-level test)
+  that performs the same steps with the same parameters and asserts
+  that the described expectation is reached. Items whose expected
+  outcome is a subjective design or aesthetic judgment still require
+  a Playwright test that executes the full sequence and asserts that
+  nothing throws, no required control is missing, and the UI reaches
+  the state the human will be evaluating. This is not optional.
+  UAT is confidence and judgment, not first-pass operability
+  verification; sending a human to discover a null-reference
+  exception or a missing nav entry wastes their time and undermines
+  the checklist's purpose.
 
 ### Precedence
 
@@ -318,28 +358,56 @@ before proceeding.
 - Handoff messages for pending UAT must be unmistakable: name the checklist
   path, link the editor, say that the agent is waiting for the human
   response, and keep any optional parallel work low-risk.
-- **Playwright pre-testing per UAT item is mandatory.** Before committing a
-  checklist to the repo and notifying the human, each `Review` item must
-  have a corresponding Playwright test that:
-  1. Signs in as the persona named in `HumanAction` (reuse
+- **Playwright pre-testing per UAT item is mandatory.** Before
+  committing a checklist to the repo and notifying the human, each
+  functional `Review` item must have a corresponding Playwright test
+  that:
+  1. Signs in as the persona named in the step (reuse
      `PlaywrightFixture.SeededSignInAsync`).
-  2. Executes the same navigation and interaction steps the `HumanAction`
-     describes, using the same parameters (search terms, entity names,
-     role names, and identifiers the human will be told to use).
-  3. Asserts the objective portion of `Expectation` — that the expected
+  2. Executes the same navigation and interaction steps the checklist
+     describes, using the same parameter values — the ones carried in
+     the item's `TestData` object or, for legacy items, embedded in
+     the `HumanAction` text.
+  3. Asserts the objective portion of the expectation: the expected
      route was reached, the required controls are present and enabled,
-     the described persist/refresh behavior occurred, no unhandled
+     the described persist/refresh behaviour occurred, no unhandled
      exception bubbled to the circuit, and no required data is missing
      from the UI.
-  Group these tests in a `*UatCoverageTests.cs` file (or equivalent) under
-  `tests/AcmeCoffeeOnline.Playwright/` and cross-reference the UAT item
-  in a comment on each test method so future changes stay in sync with
-  the checklist. If a test is infeasible (e.g., the expectation is purely
-  aesthetic), the test must still cover the step sequence and assert
-  reachable-state so the human is rendering judgment on a verified-live
-  UI. Checklists shipped without this coverage are a session-closeout
-  defect — re-run the pre-test step before marking the session complete.
 
+  **Preferred authoring shape for items paralleling an E2E test:**
+  use the extended checklist schema's structured `Steps` array with
+  numbered steps, each step's `Verifications` list, and
+  `E2ETestReference` set to the fully-qualified test method name.
+  The step numbers, actions, parameters, and verifications in the
+  checklist are *identical* to those in the matching Playwright test —
+  see `Principles → Human UAT Philosophy` for the rationale. Legacy
+  `HumanAction`/`Expectation` items remain valid and render in the
+  editor unchanged; prefer the structured form whenever parallelism
+  with an E2E test exists.
+
+  **Authoring and verification go through the router.** Use
+  `route(task_type="uat-plan-generation")` to produce the structured
+  checklist from the session set's spec and the Playwright coverage
+  file. Before committing, call
+  `route(task_type="uat-coverage-review")` with the generated
+  checklist and the Playwright file — it returns VERIFIED only when
+  every non-judgment item has a matching E2E step with identical
+  action, parameters, and verifications. A mismatch blocks the
+  checklist handoff.
+
+  Group the Playwright tests in a `*UatCoverageTests.cs` file (or
+  equivalent) under `tests/AcmeCoffeeOnline.Playwright/` and
+  cross-reference the UAT item in a comment on each test method so
+  future changes stay in sync. If a test is infeasible because the
+  expectation is purely aesthetic, mark the checklist item
+  `IsJudgmentItem: true` with a one-sentence justification — the
+  test still covers the step sequence and asserts reachable-state so
+  the human is rendering judgment on a verified-live UI. Checklists
+  shipped without this coverage are a session-closeout defect —
+  re-run the pre-test step before marking the session complete.
+  
+---
+  
 ### Code Style
 
 - Namespaces: `AcmeCoffeeOnline.Web`, `AcmeCoffeeOnline.Api`,

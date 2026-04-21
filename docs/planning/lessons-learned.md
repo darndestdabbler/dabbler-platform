@@ -526,20 +526,8 @@ Use this structure for new entries:
   For aesthetic/judgment items, the Playwright test still exercises the
   sequence and asserts a reachable live state so the human is rendering
   judgment on a verified-live UI, not debugging exceptions.
-- **Action for future sessions:** When generating a UAT checklist,
-  in the same session also add a `*UatCoverageTests.cs` file under
-  `tests/AcmeCoffeeOnline.Playwright/` with one test per Review item.
-  Each test (a) signs in as the named persona via
-  `PlaywrightFixture.SeededSignInAsync`, (b) executes the `HumanAction`
-  steps with the exact parameters the human will use, and (c) asserts
-  the objective portion of `Expectation` — route reached, required
-  controls present/enabled, expected persist/refresh behavior observed,
-  no unhandled circuit exception. Treat a checklist shipped without
-  this coverage as a session-closeout defect. Promoted as a Principle
-  under Human UAT Philosophy and as a Convention under Human UAT And
-  Checklist Editor on 2026-04-19 (same-day promotion after a single
-  sharp context because the cost of the missing discipline is high and
-  the rule is unambiguous).
+
+---
 
 ## `route(task_type=documentation)` Wraps Content In A Code-Documentation Template
 
@@ -682,3 +670,51 @@ Use this structure for new entries:
   Also prefer a compose-level `x-common-env` anchor for shared
   config like connection strings so future drift surfaces in one
   place rather than per-service.
+
+## Heuristics That Earn Their Keep: Stop Tuning The Router Complexity Score
+
+- **Context:** AI router complexity scoring (`complexity.weights` and
+  `task_type_scores` in `router-config.yaml`). The 1-100 heuristic
+  maps every incoming task to a tier via four weighted components
+  (context length, keyword signals, task type, explicit hint).
+- **Failure or friction:** None — the heuristic works well enough.
+  The temptation is to invest engineering in tightening it
+  (embeddings, ML-based prediction, per-repo calibration) to squeeze
+  the escalation rate lower.
+- **Lesson:** The current heuristic plus the 2-try escalation safety
+  net is the intended stopping point. When the heuristic misjudges,
+  escalation catches it and the metrics log records the pattern. The
+  engineering time saved is worth more than the handful of retried
+  API calls the tighter heuristic would prevent. Do not introduce ML
+  or embeddings here; it is a false economy and a procurement-
+  complication risk (more dependencies to vendor-review).
+- **Action for future sessions:** If a review surfaces "the router
+  should predict complexity better", point at this entry and the
+  comment block above `complexity:` in `router-config.yaml`. The
+  only acceptable knob changes are adjusting the existing weights or
+  adding keywords to the high/low lists — both of which are data
+  entry, not engineering.
+
+## Verifier Selection Is Rule-Based, Not Map-Based
+
+- **Context:** Cross-provider verifier selection (`verification.py`
+  `pick_verifier_model`, `router-config.yaml` verification section).
+  Originally driven by a static `cross_provider_map`.
+- **Failure or friction:** The static map tied specific models to
+  specific verifier targets, which ran against the architecture's
+  stated vendor-agnosticism goal. Retiring or swapping a model meant
+  hunting through a pairing table in addition to the `models:`
+  section. It also created the appearance of favoritism to procurement
+  reviewers.
+- **Lesson:** Verifier eligibility is a role (different provider,
+  enabled as verifier, tier match, cheapest survivor), not a user-to-
+  user binding. The RBAC analogy holds: assign permissions to the
+  role, not to the named account. Preferred pairings become optional
+  hints that only take effect when they survive the rules.
+- **Action for future sessions:** When adding a model to
+  `router-config.yaml`, add it with `is_enabled_as_verifier: false`
+  until calibration data justifies promoting it. When retiring a
+  model, flip `is_enabled_as_verifier: false` first, confirm the
+  rules-based fallback lands on an acceptable verifier, then remove
+  the entry. Never re-introduce a map-first selection pattern — the
+  rules engine is load-bearing for the governance story.

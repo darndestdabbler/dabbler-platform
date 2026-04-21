@@ -1,7 +1,7 @@
 {
   "sessionSetName": "security-dashboard-uat-remediation",
   "createdDate": "2026-04-20T07:53:47.008342+00:00",
-  "totalSessions": 8,
+  "totalSessions": 10,
   "entries": [
     {
       "sessionNumber": 1,
@@ -669,6 +669,92 @@
           "inputTokens": 49317,
           "outputTokens": 11268,
           "costUsd": 1.584855
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 1,
+      "stepKey": "session-9/review-manual-workflow-guidance",
+      "dateTime": "2026-04-21T13:20:00+00:00",
+      "description": "Reviewed the manually completed Session 9 workflow-alignment work across docs/ai-led-session-workflow.md, docs/planning/project-guidance.md, docs/planning/lessons-learned.md, the Session 10 section of this set's spec, and the consolidated prompt-template files. Routed an analysis pass to confirm the workflow doc, guidance doc, prompt-template structure, and revised Session 10 plan tell a coherent story. Verdict: PASS with no blocker for Session 9 closeout.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 42313,
+          "outputTokens": 405,
+          "costUsd": 0.05694125
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 2,
+      "stepKey": "session-9/fix-workflow-asset-smoke-test",
+      "dateTime": "2026-04-21T13:32:00+00:00",
+      "description": "Aligned the workflow asset smoke coverage with the new consolidated prompt-template layout after validation exposed stale references to deleted provider-specific files. Updated tests/AcmeCoffeeOnline.Web.Tests/WorkflowAssetSmokeTests.cs and ai-router/router-config.yaml so the router models point at prompt-templates/system-prompts.md and the smoke test asserts the consolidated asset set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 3,
+      "stepKey": "session-9/run-validation",
+      "dateTime": "2026-04-21T13:42:00+00:00",
+      "description": "Validation results: `dotnet build Dabbler.Platform.sln` passed (0 errors, 184 warnings); `.venv\\\\Scripts\\\\python.exe -m compileall ai-router` passed. Initial `dotnet test Dabbler.Platform.sln --no-build` surfaced one in-scope stale workflow-asset smoke test plus three browser failures. The in-scope smoke-test issue was fixed in step 2, and targeted `dotnet test tests/AcmeCoffeeOnline.Web.Tests/AcmeCoffeeOnline.Web.Tests.csproj --filter FullyQualifiedName~WorkflowAssetSmokeTests` then passed 2/2. A follow-up routed analysis classified the remaining browser failures as out-of-scope for Session 9: two Magic Link waits likely tied to the unstaged local changes in src/Apps/AcmeCoffeeOnline.Web/security-config.json and src/Apps/AcmeCoffeeOnline.Web/user-roles.json, plus the documented pre-existing org-switch timing flake in PlaywrightFixture.cs.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 500,
+          "outputTokens": 252,
+          "costUsd": 0.0031450000000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 4,
+      "stepKey": "session-9/verify",
+      "dateTime": "2026-04-21T14:10:00+00:00",
+      "description": "Round-1 cross-provider verification via task_type=session-verification. Verifier: opus. Raw review saved to session-reviews/session-009.md. Round 1 found one real but non-blocking gap: the newly documented `uat-plan-generation` and `uat-coverage-review` task types were not yet wired into ai-router/router-config.yaml.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 87782,
+          "outputTokens": 6659,
+          "costUsd": 1.816155
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 5,
+      "stepKey": "session-9/fix-verifier-issue",
+      "dateTime": "2026-04-21T14:18:00+00:00",
+      "description": "Addressed the round-1 verifier finding by wiring `uat-plan-generation` and `uat-coverage-review` into ai-router/router-config.yaml across all required sections: complexity.task_type_scores (70), routing.task_type_overrides (opus), delegation.always_route_task_types, verification.auto_verify_task_types, and task_type_params (high-effort overrides). Re-ran focused validation: load_config() now resolves both task types as intended and WorkflowAssetSmokeTests still pass 2/2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 6,
+      "stepKey": "session-9/verify-round-2",
+      "dateTime": "2026-04-21T14:26:00+00:00",
+      "description": "Round-2 cross-provider verification after wiring the two UAT task types into router-config.yaml. Verifier: opus. Verdict: VERIFIED - Session 9 is complete with no remaining gaps.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 44590,
+          "outputTokens": 2254,
+          "costUsd": 0.8379
         }
       ]
     }

@@ -52,10 +52,16 @@ from .config import load_config, resolve_generation_params
 from .models import estimate_complexity, pick_model
 from .providers import call_model
 from .prompting import build_prompt
-from .rate_limiter import RateLimiter
 from .session_log import SessionLog
-from .escalation import should_escalate, get_escalation_model
-from .metrics import record_call, load_metrics, print_metrics_report
+from .utils import (
+    RateLimiter,
+    should_escalate,
+    get_escalation_model,
+)
+from .metrics import (
+    record_call, record_adjudication, load_metrics, print_metrics_report,
+    ADJUDICATION_CAUSES, ADJUDICATION_RESOLUTIONS,
+)
 from .notifications import (
     NotificationResult,
     send_pushover_notification,
@@ -63,7 +69,7 @@ from .notifications import (
 )
 from .verification import (
     pick_verifier_model, build_verification_prompt,
-    parse_verification_response
+    parse_verification_response, VerifierSelection,
 )
 
 from dataclasses import dataclass, field
@@ -171,13 +177,7 @@ def route(
         config=_config["complexity"]
     )
 
-    # 2. Apply tuning's max_tier cap (if set) — human-editable ceiling
-    #    on how expensive a model this run is allowed to use.
-    tuning_cap = _config.get("routing", {}).get("_max_tier_cap")
-    if isinstance(tuning_cap, int):
-        max_tier = min(max_tier, tuning_cap)
-
-    # 3. Pick model
+    # 2. Pick model
     model_name = pick_model(score, max_tier, task_type, _config)
     model_cfg = _config["models"][model_name]
 
@@ -313,10 +313,19 @@ def route(
             route_result.verification = verification
             route_result.total_cost_usd = cost + verification.verifier_cost_usd
 
-            # If on_disagreement == "merge" and issues were found,
-            # append verifier feedback to the content
-            on_disagree = (v_config.get("settings", {})
-                           .get("on_disagreement", "flag"))
+            # Resolve on_disagreement: per-task override wins over the
+            # global default. Merge is sound for task types whose
+            # generator and verifier outputs combine naturally (code
+            # review, documentation). For task types where a verifier
+            # disagreement signals a logic divergence (analysis,
+            # planning, architecture), we flag instead so the
+            # orchestrator adjudicates under Step 7 rather than
+            # synthesizing a hallucinated compromise.
+            settings = v_config.get("settings", {}) or {}
+            per_task = settings.get("on_disagreement_by_task_type", {}) or {}
+            on_disagree = per_task.get(
+                task_type, settings.get("on_disagreement", "flag")
+            )
             if (not verification.verified
                     and on_disagree == "merge"):
                 route_result.content = _merge_with_verification(
@@ -466,113 +475,158 @@ def _run_verification(
     session_set: Optional[str] = None,
     session_number: Optional[int] = None,
 ) -> Optional[VerificationResult]:
-    """Internal: execute a verification call."""
+    """Internal: execute a verification call.
+
+    Selects a cross-provider verifier via rule-based selection
+    (``pick_verifier_model``). If the HTTPS call to the chosen
+    verifier fails, re-picks with the failed provider excluded and
+    tries once more. Two attempts total; returns None if both fail
+    or no eligible verifier exists.
+    """
     v_config = _config.get("verification", {})
     settings = v_config.get("settings", {})
 
-    # 1. Pick verifier model (must be different provider)
-    verifier_name = pick_verifier_model(
-        generator_model=route_result.model_name,
-        config=_config
-    )
-    if verifier_name is None:
-        return None
-
-    verifier_cfg = _config["models"][verifier_name]
-    verifier_provider = verifier_cfg["provider"]
-
-    # 2. Cost guard: skip if verification would be too expensive
-    max_multiplier = settings.get("max_cost_multiplier", 3.0)
-    estimated_verify_cost = _calculate_cost(
-        route_result.input_tokens + route_result.output_tokens,
-        route_result.output_tokens // 2,  # verifier output is typically shorter
-        verifier_cfg
-    )
-    if (route_result.cost_usd > 0
-            and estimated_verify_cost > route_result.cost_usd * max_multiplier):
-        return None  # too expensive relative to original
-
-    # 3. Build verification prompt
     v_template = _config.get("_verification_template", "")
-    system_prompt = verifier_cfg.get(
-        "_system_prompt",
-        "You are an independent code verifier. Be precise and objective."
-    )
-    user_message = build_verification_prompt(
-        original_task=original_task,
-        original_response=route_result.content,
-        task_type=task_type,
-        template=v_template
-    )
+    excluded_providers: list[str] = []
+    first_attempt_provider: Optional[str] = None
 
-    # 4. Call verifier
-    _rate_limiters[verifier_provider].wait()
+    # Up to 2 attempts: initial selection, then one fallback with the
+    # failed provider excluded. Cost guard and metric recording run
+    # inside the loop so a fallback attempt gets its own verify record
+    # marked with verifier_fallback=True.
+    for attempt in range(2):
+        selection = pick_verifier_model(
+            generator_model=route_result.model_name,
+            config=_config,
+            exclude_providers=excluded_providers or None,
+        )
+        if selection is None:
+            # No eligible verifier. If the first attempt already tried
+            # and failed, the caller should still know a fallback was
+            # attempted — but with no verifier available, there's no
+            # record to write under the "verify" call_type. Return None.
+            return None
 
-    # Verifier runs against a synthetic 'verification' task type so the
-    # router-tuning.json entries for session-verification/code-review/etc.
-    # don't accidentally apply to it. Falls back to model defaults.
-    v_gen_params = resolve_generation_params(
-        verifier_name, "verification", _config
-    )
+        verifier_name = selection.model_name
+        preferred_skipped = selection.preferred_skipped
+        verifier_cfg = _config["models"][verifier_name]
+        verifier_provider = verifier_cfg["provider"]
 
-    v_start = time.time()
-    v_result = call_model(
-        provider_name=verifier_provider,
-        model_id=verifier_cfg["model_id"],
-        system_prompt=system_prompt,
-        user_message=user_message,
-        max_tokens=verifier_cfg["max_output_tokens"],
-        config=_config["providers"][verifier_provider],
-        generation_params=v_gen_params,
-    )
-    v_elapsed = time.time() - v_start
+        # Cost guard: skip if verification would be too expensive
+        # relative to the original generator call.
+        max_multiplier = settings.get("max_cost_multiplier", 3.0)
+        estimated_verify_cost = _calculate_cost(
+            route_result.input_tokens + route_result.output_tokens,
+            route_result.output_tokens // 2,  # verifier output is shorter
+            verifier_cfg,
+        )
+        if (route_result.cost_usd > 0
+                and estimated_verify_cost
+                > route_result.cost_usd * max_multiplier):
+            return None
 
-    v_cost = _calculate_cost(
-        v_result.input_tokens, v_result.output_tokens, verifier_cfg
-    )
+        # Build verification prompt
+        system_prompt = verifier_cfg.get(
+            "_system_prompt",
+            "You are an independent code verifier. Be precise and objective.",
+        )
+        user_message = build_verification_prompt(
+            original_task=original_task,
+            original_response=route_result.content,
+            task_type=task_type,
+            template=v_template,
+        )
 
-    # 5. Parse verdict
-    verdict, issues = parse_verification_response(v_result.content)
+        _rate_limiters[verifier_provider].wait()
 
-    # 5a. Record verifier-call metrics (best-effort)
-    record_call(
-        _config,
-        call_type="verify",
-        task_type=task_type,
-        model=verifier_name,
-        provider=verifier_provider,
-        tier=verifier_cfg.get("tier", 0),
-        complexity_score=None,
-        generation_params=v_gen_params,
-        input_tokens=v_result.input_tokens,
-        output_tokens=v_result.output_tokens,
-        cost_usd=v_cost,
-        elapsed_seconds=v_elapsed,
-        escalated=False,
-        stop_reason=v_result.stop_reason,
-        session_set=session_set,
-        session_number=session_number,
-        verifier_of=route_result.model_name,
-        verdict=verdict,
-        issue_count=len(issues),
-    )
+        # Verifier runs against a synthetic 'verification' task type
+        # so per-task-type overrides for session-verification /
+        # code-review / etc. don't accidentally apply to it.
+        v_gen_params = resolve_generation_params(
+            verifier_name, "verification", _config
+        )
 
-    # 6. Build and return verification result
-    generator_cfg = _config["models"][route_result.model_name]
+        v_start = time.time()
+        try:
+            v_result = call_model(
+                provider_name=verifier_provider,
+                model_id=verifier_cfg["model_id"],
+                system_prompt=system_prompt,
+                user_message=user_message,
+                max_tokens=verifier_cfg["max_output_tokens"],
+                config=_config["providers"][verifier_provider],
+                generation_params=v_gen_params,
+            )
+        except Exception as exc:
+            v_elapsed = time.time() - v_start
+            _logger.warning(
+                "Verifier call to %s (%s) failed: %s — "
+                "re-picking with provider excluded",
+                verifier_name, verifier_provider, exc,
+            )
+            if first_attempt_provider is None:
+                first_attempt_provider = verifier_provider
+            excluded_providers.append(verifier_provider)
+            # Loop: re-pick. If the second attempt also raises, the
+            # exception propagates out of this function (by design —
+            # two verifier providers in a row failing is a real
+            # outage the caller should see).
+            if attempt == 1:
+                raise
+            continue
 
-    return VerificationResult(
-        verdict=verdict,
-        verified=(verdict == "VERIFIED"),
-        issues=issues,
-        verifier_model=verifier_name,
-        verifier_provider=verifier_provider,
-        generator_model=route_result.model_name,
-        generator_provider=generator_cfg["provider"],
-        verifier_input_tokens=v_result.input_tokens,
-        verifier_output_tokens=v_result.output_tokens,
-        verifier_cost_usd=v_cost,
-        raw_response=v_result.content
-    )
+        v_elapsed = time.time() - v_start
+        v_cost = _calculate_cost(
+            v_result.input_tokens, v_result.output_tokens, verifier_cfg
+        )
+
+        verdict, issues = parse_verification_response(v_result.content)
+
+        # Record verifier-call metrics (best-effort). Mark the record
+        # as a fallback if we got here via the second attempt.
+        record_call(
+            _config,
+            call_type="verify",
+            task_type=task_type,
+            model=verifier_name,
+            provider=verifier_provider,
+            tier=verifier_cfg.get("tier", 0),
+            complexity_score=None,
+            generation_params=v_gen_params,
+            input_tokens=v_result.input_tokens,
+            output_tokens=v_result.output_tokens,
+            cost_usd=v_cost,
+            elapsed_seconds=v_elapsed,
+            escalated=False,
+            stop_reason=v_result.stop_reason,
+            session_set=session_set,
+            session_number=session_number,
+            verifier_of=route_result.model_name,
+            verdict=verdict,
+            issue_count=len(issues),
+            verifier_fallback=(attempt > 0),
+            fallback_from_provider=first_attempt_provider,
+            preferred_verifier_skipped=preferred_skipped,
+        )
+
+        # Build and return verification result
+        generator_cfg = _config["models"][route_result.model_name]
+        return VerificationResult(
+            verdict=verdict,
+            verified=(verdict == "VERIFIED"),
+            issues=issues,
+            verifier_model=verifier_name,
+            verifier_provider=verifier_provider,
+            generator_model=route_result.model_name,
+            generator_provider=generator_cfg["provider"],
+            verifier_input_tokens=v_result.input_tokens,
+            verifier_output_tokens=v_result.output_tokens,
+            verifier_cost_usd=v_cost,
+            raw_response=v_result.content,
+        )
+
+    # Unreachable: the loop either returns or raises on every path.
+    return None
 
 
 def _merge_with_verification(

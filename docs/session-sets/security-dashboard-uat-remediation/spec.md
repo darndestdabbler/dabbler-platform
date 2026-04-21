@@ -37,11 +37,14 @@ from Session 1:
    tooling for compliance-accountable classifications — was promoted
    into `docs/planning/project-guidance.md` under **Principles →
    Security And Organization Model** in the same Session 1 commit.
-2. **Eight sessions confirmed.** Session 1 (planning) stays separate
+2. **Ten sessions confirmed.** Session 1 (planning) stays separate
    from Session 2 even though it ships no code; its deliverable is
    this plan. Session 6 stays as its own session despite the reduced
    scope because the remaining Default Masks / Column Restrictions
-   work still has enough surface area to warrant the focus.
+   work still has enough surface area to warrant the focus. Sessions 8
+   and 9 are reserved for post-Session-7 remediation and then a brief
+   workflow-alignment update to the final closeout session before the
+   set ends.
 
 The findings below remain the source-of-truth mapping; each session's
 **Steps** cross-reference finding numbers.
@@ -288,13 +291,13 @@ future regression in the router between UI and grid would surface.
 
 ## Session Plan
 
-### Session 1 of 8: Planning and Scoping
+### Session 1 of 10: Planning and Scoping
 
 **Steps:**
 1. Read the prerequisite Set B UAT checklist, this stub spec, and
    `docs/planning/project-guidance.md` + `docs/planning/lessons-learned.md`.
 2. Lock in the two scope decisions captured in **Status** (safety-net
-   removal; 8-session count).
+   removal; 10-session count).
 3. Promote the "trust business + auditor backstop over auto-detection
    tooling" rule to a Principle under Security And Organization Model
    in `docs/planning/project-guidance.md`.
@@ -320,7 +323,7 @@ Session Plan, Risk notes, and Exit criteria; the new Principle is in
 `project-guidance.md`; `session-001.md` cross-provider review is
 saved raw.
 
-### Session 2 of 8: Users and Role Assignment crash fix
+### Session 2 of 10: Users and Role Assignment crash fix
 
 **Steps:**
 1. Diagnose the `InvalidOperationException` ("second operation started
@@ -365,7 +368,7 @@ saved raw.
 without circuit exceptions for every seeded persona named in the
 Users and Role Assignment UAT items; new Playwright tests pass.
 
-### Session 3 of 8: Per-role tab gating and Security nav visibility
+### Session 3 of 10: Per-role tab gating and Security nav visibility
 
 **Steps:**
 1. Make `/admin/security` reachable by all five baked-in roles. Root
@@ -408,7 +411,7 @@ Security nav entry appears for every baked-in role; tab visibility
 continues to match compiled privileges; Session 2 tests remain green
 on the broader persona set.
 
-### Session 4 of 8: Organization scope filter and mutation UX
+### Session 4 of 10: Organization scope filter and mutation UX
 
 **Steps:**
 0. **Pre-scope triage of Finding 10** (the four Docker-test-infra
@@ -460,7 +463,7 @@ on the broader persona set.
 BackofficeUser see expected orgs and customers; dash filter works;
 grid refreshes in-circuit after mutations and filter changes.
 
-### Session 5 of 8: Data-bound restriction enforcement reachability
+### Session 5 of 10: Data-bound restriction enforcement reachability
 
 **Steps:**
 1. Diagnose the "Access denied" message BackofficeUser and
@@ -508,7 +511,7 @@ adding a new seed file).
 reach the products path without access-denied; ViewOnly and Hidden
 semantics render as designed; UAT #4 items are provably executable.
 
-### Session 6 of 8: Default Masks and Column Restrictions metadata + UI fixes
+### Session 6 of 10: Default Masks and Column Restrictions metadata + UI fixes
 
 **Scope note:** This session **removes** the sensitive-name safety-net
 feature rather than remediating its in-circuit refresh bug, per the
@@ -569,7 +572,7 @@ exercise the "Add to Default Masks" flow from the safety-net panel.
 the three remaining UAT #5 findings are resolved and have Playwright
 coverage.
 
-### Session 7 of 8: Master-details UX refactor + tab-strip keyboard removal + DisplayAlias width
+### Session 7 of 10: Master-details UX refactor + tab-strip keyboard removal + DisplayAlias width
 
 Detailed implementation plan: [session-7-master-details-implementation-plan.md](C:/Users/denmi/source/repos/dabbler-platform/docs/session-sets/security-dashboard-uat-remediation/session-7-master-details-implementation-plan.md). Treat that document as the concrete source of truth for Session 7 component sequencing, state transitions, and test updates.
 
@@ -666,66 +669,222 @@ DisplayAlias readable with wrapped body typography; arrow-key
 handler and its tests are deleted; full Playwright suite green
 against the new UX.
 
-### Session 8 of 8: UAT checklist + change log + Step 9 review
+### Session 8 of 10: Session 7 remediation and completion cleanup
+
+**Purpose:** Close the known Session 7 gaps without rolling back the
+structural direction. This session repairs the master-details idiom so
+the implementation matches the agreed Session 7 contract closely
+enough to carry the set forward.
 
 **Steps:**
-1. Create `security-dashboard-uat-remediation-uat-checklist.json`
-   under this session set's folder, following the editor schema.
-   One `Review` item per UAT finding remediated (1-9 minus the
-   removed safety-net item, plus the Set B regression targets
-   listed in the Risk notes). Each item's `HumanAction` names the
-   persona and parameters matching its Playwright counterpart in
-   `SecurityDashboardUatCoverageTests.cs`; each item's `Expectation`
-   describes the observable outcome the Playwright test asserts.
-2. Verify every Review item has a corresponding passing Playwright
-   test in `SecurityDashboardUatCoverageTests.cs`. If any item does
-   not have coverage, add it before the checklist is committed —
-   this is the session-closeout gate per the promoted Human UAT
-   Philosophy principle.
-3. Run `dotnet build Dabbler.Platform.sln`, `dotnet test
-   Dabbler.Platform.sln`, and the Playwright suite one last time
-   end-to-end.
-4. Generate the change log via `route(task_type="summarization")`
-   (per the routing lesson — `documentation` wraps narrative
-   prose in a code-doc template and fails). Write
+1. Review the Session 7 commit, activity log, verification notes, and
+   the live implementation against the companion Session 7 plan.
+   Confirm exactly which items are true defects, which are accepted
+   deviations, and which are pre-existing unrelated failures.
+2. Implement the missing `filter change re-expands the panel and clears
+   the summary state` contract for the Session 7 master-details tabs.
+   This must cover the tabs where the shell currently collapses on
+   selection: Role Master Details, Organization Master Details, and
+   Users and Role Assignment. If Default Masks keeps its lighter
+   variant, document whether filter-change re-expand is meaningful
+   there or not.
+3. Finish the `DisplayAlias` readability fix so the live UI truly
+   matches the approved Session 7 direction:
+   - wrapped body-typography styling in the visible editor/cell
+   - no effective single-line truncation in the normal editing state
+   - no oversized font relative to sibling columns
+4. Tighten the shared expansion-shell layout so filters and top-row
+   actions remain visible and the scrollable viewport applies to the
+   results grid region rather than scrolling the whole management
+   surface when practical. If one tab needs a documented exception,
+   disclose it in the verification prompt.
+5. Re-run and, if needed, repair the Session 7 Playwright coverage so
+   the tests prove the fixed interaction contract rather than only the
+   current implementation shortcuts. Add or adjust tests for:
+   - filter-change re-expand + summary clear
+   - visible wrapped `DisplayAlias` behavior
+   - the shell scroll-region behavior if it changes materially
+6. Run build, non-Playwright tests, and the Docker Playwright suite.
+   Fix Session 8-caused regressions inline. If any remaining failure is
+   genuinely pre-existing and unrelated, document it clearly and pause
+   for human direction rather than silently carrying it forward.
+7. End with mandatory independent verification by another AI provider.
+   If the verifier asks for changes, either implement them in Session 8
+   or raise them to the human for a decision before closing the
+   session.
+
+**Creates:** None.
+**Touches:**
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Shared/MasterDetailExpansionShell.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Role/RoleMasterDetailsTab.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Role/RoleMasterGrid.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Organization/OrganizationMasterDetailsTab.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Users/UsersAndRoleAssignmentTab.razor`
+- `src/Libs/Dabbler.Security.Blazor/Components/Admin/Masks/DefaultMasksTab.razor`
+- `tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs`
+- Any bUnit tests needed to prove the repaired shell/state contract
+- `docs/session-sets/security-dashboard-uat-remediation/activity-log.json`
+- `docs/session-sets/security-dashboard-uat-remediation/session-reviews/session-008.md`
+
+**Progress keys:** `session-8/review-session-7-against-plan`,
+`session-8/implement-filter-change-reexpand`,
+`session-8/finish-displayalias-readability-fix`,
+`session-8/fix-shell-scroll-region-behavior`,
+`session-8/update-coverage-for-remediation`,
+`session-8/run-regression-tests`,
+`session-8/verify`.
+
+**Ends with:** The known Session 7 defects are either fixed or
+explicitly raised to the human; build + non-Playwright tests are
+green; Docker Playwright is green or blocked only by a human-approved
+pre-existing unrelated failure; the master-details implementation now
+matches the intended Session 7 contract closely enough to proceed to
+set closeout planning.
+
+---
+
+### Session 9 of 10: Revise Final Closeout For New Workflow Guidance
+
+**Purpose:** Incorporate the new AI orchestration / UAT / end-to-end
+workflow guidance that will emerge from the human's parallel work with
+Claude Code before the set performs its final checklist and closeout
+session.
+
+**Note:** This was completed manually by the human.  Please review 
+the ai-led-session-workflow.md as well as the project-guidance.md
+file, make a note in the activity log, commit, push, and close out
+the session.
+
+---
+
+### Session 10 of 10: UAT checklist + change log + Step 9 review
+
+**Note:** Session 9 revised this session to align with the schema,
+task-type, and ordering guidance that landed in
+`docs/planning/project-guidance.md` (`Human UAT Philosophy` +
+`Human UAT And Checklist Editor`) and
+`docs/ai-led-session-workflow.md` (`E2E Coverage Before UAT` +
+rule 11). The steps below reflect that alignment.
+
+**Steps:**
+
+1. **E2E-green gate.** Run the full Playwright suite end-to-end
+   (Docker baseline). The suite must be green before any checklist
+   work begins; handing the human a checklist whose underlying E2E
+   is red is the exact failure mode the promoted Human UAT
+   Philosophy exists to prevent. If a failure surfaces, stop, log
+   it, and fix before continuing — do not author the checklist on
+   top of a red suite.
+
+2. **Generate the structured UAT checklist via the router.** Call
+   `route(task_type="uat-plan-generation")` with:
+   - This spec (findings 1-9 minus the removed safety-net item,
+     plus the Set B regression targets enumerated in the Risk
+     notes) as the source of what must be reviewed.
+   - `tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs`
+     as the source of the canonical step sequences, parameters,
+     and assertions the checklist must mirror.
+
+   The output is
+   `docs/session-sets/security-dashboard-uat-remediation/security-dashboard-uat-remediation-uat-checklist.json`
+   and must conform to the extended editor schema:
+   - Every functional Review item uses the structured `Steps`
+     array. Step numbers in the checklist map 1:1 to step numbers
+     in the matching Playwright test — identical actions,
+     identical parameters, identical verifications.
+   - Parameter values (personas, entity names, role names, search
+     terms, URLs) live in each item's `TestData` object using
+     `{{VariableName}}` placeholders, and those exact same
+     `TestData` values drive the Playwright test via its fixture —
+     the human and the test read from the same source of truth.
+   - Every item has `E2ETestReference` set to the fully-qualified
+     Playwright test method (e.g.
+     `SecurityDashboardUatCoverageTests.UsersTab_LoadsForAllSeededPersonasAsync`).
+   - Database-state verifications use `VerificationMethod: "sql"`
+     with the `Query` and `ExpectedValue` inline so the human is
+     not sent to SSMS to prove a Playwright assertion that
+     already ran.
+   - Items whose expectation is genuinely aesthetic (e.g. the
+     DisplayAlias column "font matches sibling columns" nuance,
+     the master-details idiom "feels right" sub-judgment) are
+     flagged `IsJudgmentItem: true` with a one-sentence
+     justification in `Feedback` and still receive a
+     sequence-reachability Playwright test so the human is
+     rendering judgment on a verified-live UI.
+
+3. **Coverage-review gate.** Call
+   `route(task_type="uat-coverage-review")` with the generated
+   checklist and the Playwright coverage file. The call must
+   return VERIFIED before the checklist is committed. If it
+   returns any mismatch, patch the checklist or the Playwright
+   test so Step N = Step N holds, then re-run the gate. Do not
+   "explain away" a mismatch — the whole point of the gate is
+   that the discipline is mechanical.
+
+4. **Final green run.** Run `dotnet build Dabbler.Platform.sln`,
+   `dotnet test Dabbler.Platform.sln`, and the Playwright suite
+   one last time end-to-end. This is the belt-and-suspenders
+   pass that proves the checklist was generated against a
+   still-green world; a regression between step 1 and here is a
+   Session 10 defect to fix in-session.
+
+5. **Generate the change log** via
+   `route(task_type="summarization")` (per the routing lesson —
+   `documentation` wraps narrative prose in a code-doc template
+   and fails). Write
    `docs/session-sets/security-dashboard-uat-remediation/change-log.md`
    in the same commit as the checklist and its coverage file.
-5. Notify, then run the Step 9 reorganization review against
-   `docs/planning/project-guidance.md` and
+
+6. **Notify the human**, then run the Step 9 reorganization
+   review against `docs/planning/project-guidance.md` and
    `docs/planning/lessons-learned.md`. Post-notify ordering is
    mandatory so the human isn't blocked on reviewing proposals
    before the session-complete signal.
 
 **Creates:**
 - `docs/session-sets/security-dashboard-uat-remediation/security-dashboard-uat-remediation-uat-checklist.json`
+  (structured-Steps form per the extended schema)
 - `docs/session-sets/security-dashboard-uat-remediation/change-log.md`
 
 **Touches:**
 - `tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs`
-  (final gap-fill if any item lacks coverage)
+  (final gap-fill if `uat-coverage-review` surfaces any step
+  mismatch; remediate the test side rather than softening the
+  checklist wherever the Playwright assertion is the more
+  precise form of the requirement)
 - `docs/planning/project-guidance.md` /
   `docs/planning/lessons-learned.md` only if the Step 9 review
   proposes and the human accepts a move
 
-**Progress keys:** `session-8/create-uat-checklist`,
-`session-8/verify-playwright-coverage-per-item`,
-`session-8/full-suite-green-run`,
-`session-8/generate-change-log`,
-`session-8/commit-and-notify`,
-`session-8/step-9-reorganization-review`.
+**Progress keys:**
+- `session-10/e2e-green-gate`
+- `session-10/generate-structured-uat-plan`
+- `session-10/uat-coverage-review-gate`
+- `session-10/full-suite-final-green-run`
+- `session-10/generate-change-log`
+- `session-10/commit-and-notify`
+- `session-10/step-9-reorganization-review`
 
-**Ends with:** `change-log.md` exists; UAT checklist is committed
-alongside its Playwright coverage; full build + test + Playwright
-green; Set D (`sensitive-field-masking-audit`) is unblocked.
+**Ends with:** Full build + non-Playwright tests + Playwright
+suite green; the structured UAT checklist is committed alongside
+its Playwright coverage file; `uat-coverage-review` has returned
+VERIFIED on the committed pair; `change-log.md` exists; the
+human has the notification; Set D
+(`sensitive-field-masking-audit`) is unblocked.
+
+---
 
 ## Rules specific to this set
 
-- **Every session that adds or modifies a UAT-visible behaviour must,
-  in the same session, add the corresponding Playwright test that
-  drives the same steps with the same parameters.** This is the
-  on-ramp for the newly-promoted Human UAT Philosophy principle. If
-  a session would otherwise ship a behavioural change without matching
-  Playwright coverage, the session is incomplete.
+- **Every session that adds or modifies a UAT-visible behaviour must, in
+  the same session, add the corresponding Playwright test that drives
+  the same steps with the same parameters.** Step numbering, action
+  wording, and parameter values must match what the eventual structured
+  UAT checklist will carry — identical, not equivalent — so
+  `uat-coverage-review` in Session 10 has nothing to reshape. This is
+  the on-ramp for the newly-promoted Human UAT Philosophy principle.
+  If a session would otherwise ship a behavioural change without
+  matching Playwright coverage in that shape, the session is incomplete.
 - **Regression-test every prior fix on each new session.** By the end
   of the set, the dashboard Playwright suite covers every UAT item
   plus the arrow-key-nav removal.

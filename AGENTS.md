@@ -19,10 +19,13 @@ explicitly requires an import from a sibling repo.
 - `docs/ai-led-session-workflow.md` -- the authoritative session-set
   workflow. This is the single source of truth for the step-by-step
   procedure, the AI router usage, cross-provider verification, UAT checklist
-  handling, the Step 9 reorganization review (run after the Step 8 notify
-  so the human is not blocking the completion signal), **the Delegation
-  Discipline rules (when to route vs. handle directly)**, and the
-  mandatory rules list. Do not duplicate that content here.
+  handling, **the When-UAT-Is-Required and E2E-Coverage-Before-UAT rules**,
+  **the Step 7 verifier-disagreement resolution procedure (four human
+  options, disagreement logging)**, the Step 9 reorganization review (run
+  after the Step 8 notify so the human is not blocking the completion
+  signal), **the Delegation Discipline rules (when to route vs. handle
+  directly)**, and the mandatory rules list. Do not duplicate that content
+  here.
 
 When the human says **"Start the next session"**, follow the workflow in
 `docs/ai-led-session-workflow.md` exactly. What follows below is only the
@@ -79,12 +82,12 @@ directly when it is mechanical, single-file, and under ~50 lines.
 
 This is not cost paranoia; it is the design of the workflow. The router
 already picks the cheapest capable model and applies the correct reasoning
-depth from `router-config.yaml` / `router-tuning.json`. Your job is to
-pass the right `task_type` and let the router handle the rest.
+depth from `router-config.yaml`. Your job is to pass the right `task_type`
+and let the router handle the rest.
 
 See `docs/ai-led-session-workflow.md` -> **Delegation Discipline** for the
-full criteria, the human-tunable thresholds (in `ai-router/router-tuning.json`),
-and the rationale.
+full criteria, the human-tunable thresholds (in `ai-router/router-config.yaml`
+under `delegation:`), and the rationale.
 
 ## Building & Testing
 

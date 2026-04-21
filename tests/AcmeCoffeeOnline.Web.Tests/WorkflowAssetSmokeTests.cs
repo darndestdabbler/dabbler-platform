@@ -3,7 +3,7 @@ namespace AcmeCoffeeOnline.Web.Tests;
 public sealed class WorkflowAssetSmokeTests
 {
     [Fact]
-    public void AiRouterConfig_LoadsNestedPromptTemplates()
+    public void AiRouterConfig_LoadsConsolidatedPromptTemplates()
     {
         var repoRoot = GetRepoRoot();
         var configText = ReadRepoFile(repoRoot, "ai-router", "config.py");
@@ -12,7 +12,8 @@ public sealed class WorkflowAssetSmokeTests
 
         Assert.Contains("config_dir / \"prompt-templates\"", configText);
         Assert.Contains("config_dir.parent / \"prompt-templates\"", configText);
-        Assert.Contains("system_prompt_file: prompt-templates/google-system.md", routerConfig);
+        Assert.Contains("system_prompt_file: prompt-templates/system-prompts.md", routerConfig);
+        Assert.Contains("task-prompts.md", configText);
         Assert.Contains("prompt_template_file: prompt-templates/verification.md", routerConfig);
         Assert.Contains("session_verification_started", routerInit);
         Assert.Contains("session_verification_completed", routerInit);
@@ -20,11 +21,10 @@ public sealed class WorkflowAssetSmokeTests
 
         string[] requiredFiles =
         [
-            "ai-router/prompt-templates/google-system.md",
-            "ai-router/prompt-templates/anthropic-system.md",
-            "ai-router/prompt-templates/task-types/documentation.md",
+            "ai-router/prompt-templates/system-prompts.md",
+            "ai-router/prompt-templates/task-prompts.md",
             "ai-router/prompt-templates/verification.md",
-            "ai-router/utils/load_env.py",
+            "ai-router/utils.py",
         ];
 
         foreach (var requiredFile in requiredFiles)

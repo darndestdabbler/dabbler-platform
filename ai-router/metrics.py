@@ -11,7 +11,7 @@ Schema per line:
     "timestamp":        ISO8601 string (UTC)
     "session_set":      str or null
     "session_number":   int or null
-    "call_type":        "route" | "verify" | "tiebreaker"
+    "call_type":        "route" | "verify" | "tiebreaker" | "adjudication"
     "task_type":        str
     "model":            str  (the generator or verifier)
     "provider":         "anthropic" | "google" | "openai"
@@ -29,7 +29,22 @@ Schema per line:
     "verifier_of":      str or null   (the generator model this call verified)
     "verdict":          str or null   ("VERIFIED" or "ISSUES_FOUND")
     "issue_count":      int or null
+    # Verifier-selection observability (Session 9):
+    "verifier_fallback":         bool or null
+         true when the first verifier call failed at the HTTPS layer
+         and _run_verification re-picked a different provider
+    "fallback_from_provider":    str or null
+         the provider that failed, when verifier_fallback is true
+    "preferred_verifier_skipped": [str, str] or null
+         [skipped_model, reason] when preferred_pairings named a model
+         the rule-based selection rejected (e.g., not_enabled_as_verifier)
   }
+
+Adjudication records (call_type = "adjudication") are written by
+record_adjudication() when a human resolves a verifier-finding
+dispute under Step 7 of the session workflow. They share the
+timestamp/session_set/session_number fields above but use a different
+payload (see record_adjudication for the schema).
 
 Analysis is done by reading the file; no query layer is needed for the
 data volumes this workflow produces. See print_metrics_report().
@@ -46,8 +61,7 @@ _THIS_DIR = Path(__file__).parent
 
 def _log_path(config: dict) -> Path:
     """Resolve the metrics log file path."""
-    tuning = config.get("_tuning", {}) or {}
-    metrics_cfg = tuning.get("metrics", {}) or {}
+    metrics_cfg = config.get("metrics", {}) or {}
     filename = metrics_cfg.get("log_filename", "router-metrics.jsonl")
 
     override = os.environ.get("AI_ROUTER_METRICS_PATH")
@@ -58,8 +72,7 @@ def _log_path(config: dict) -> Path:
 
 
 def _metrics_enabled(config: dict) -> bool:
-    tuning = config.get("_tuning", {}) or {}
-    metrics_cfg = tuning.get("metrics", {}) or {}
+    metrics_cfg = config.get("metrics", {}) or {}
     return bool(metrics_cfg.get("enabled", True))
 
 
@@ -84,6 +97,10 @@ def record_call(
     verifier_of: Optional[str] = None,
     verdict: Optional[str] = None,
     issue_count: Optional[int] = None,
+    # Session 9 additions — verifier-selection observability.
+    verifier_fallback: Optional[bool] = None,
+    fallback_from_provider: Optional[str] = None,
+    preferred_verifier_skipped: Optional[tuple] = None,
 ) -> None:
     """Append a single record to the metrics log. Never raises — if
     writing fails (disk full, permission), we silently skip rather
@@ -133,6 +150,15 @@ def record_call(
         "verifier_of": verifier_of,
         "verdict": verdict,
         "issue_count": issue_count,
+        # Session 9 additions: verifier-selection observability.
+        # Null when the field is not applicable to this call type so
+        # historical lines without these keys remain schema-compatible.
+        "verifier_fallback": verifier_fallback,
+        "fallback_from_provider": fallback_from_provider,
+        "preferred_verifier_skipped": (
+            list(preferred_verifier_skipped)
+            if preferred_verifier_skipped else None
+        ),
     }
 
     try:
@@ -142,6 +168,114 @@ def record_call(
             f.write(json.dumps(record) + "\n")
     except Exception:
         # Metrics are best-effort. Never break a routed call.
+        pass
+
+
+# Valid values for the ``cause`` and ``resolution`` fields. Kept here
+# as lists (not enums) so the log stays plain JSON-serializable.
+ADJUDICATION_CAUSES = ("context-gap", "genuine-split", "orchestrator-error")
+ADJUDICATION_RESOLUTIONS = (
+    "accept-finding",       # human option (a)
+    "accept-dismissal",     # human option (b)
+    "reverify-reshaped",    # human option (c)
+    "second-opinion",       # human option (d)
+)
+
+
+def record_adjudication(
+    config: dict,
+    *,
+    task_type: str,
+    cause: str,
+    resolution: str,
+    session_set: Optional[str] = None,
+    session_number: Optional[int] = None,
+    generator_model: Optional[str] = None,
+    verifier_model: Optional[str] = None,
+    finding_summary: Optional[str] = None,
+    dismissal_reason: Optional[str] = None,
+) -> None:
+    """Append a single adjudication record to the metrics log.
+
+    Called from Step 7 of the session workflow when the orchestrator
+    disagrees with a verifier finding and the human picks one of the
+    four options from ai-led-session-workflow.md:
+
+        (a) accept-finding       — verifier was right, fix it
+        (b) accept-dismissal     — orchestrator was right, close it
+        (c) reverify-reshaped    — context was wrong, re-run verify
+        (d) second-opinion       — route to tiebreaker model
+
+    The resulting records are joined against the ``verify`` records
+    that preceded them (by session_set + session_number + task_type)
+    to compute the "verifier findings adopted vs. dismissed" ratio in
+    report.py.
+
+    Args:
+        task_type: Same task_type as the verify call being adjudicated.
+        cause: One of ADJUDICATION_CAUSES. Why the orchestrator
+            believes the disagreement occurred.
+        resolution: One of ADJUDICATION_RESOLUTIONS. What the human
+            chose.
+        generator_model / verifier_model: Models involved in the
+            original verified call (for joining against verify records).
+        finding_summary / dismissal_reason: Short strings preserved for
+            audit; not used in aggregate computation.
+
+    Never raises — if writing fails we silently skip, matching
+    record_call.
+    """
+    if not _metrics_enabled(config):
+        return
+
+    if cause not in ADJUDICATION_CAUSES:
+        cause = f"unknown:{cause}"
+    if resolution not in ADJUDICATION_RESOLUTIONS:
+        resolution = f"unknown:{resolution}"
+
+    record = {
+        "timestamp": datetime.datetime.now(
+            datetime.timezone.utc
+        ).isoformat(),
+        "session_set": session_set,
+        "session_number": session_number,
+        "call_type": "adjudication",
+        "task_type": task_type,
+        # These keep the schema uniform with the route/verify records
+        # so jq-style filters don't have to special-case this row.
+        "model": None,
+        "provider": None,
+        "tier": None,
+        "complexity_score": None,
+        "effort": None,
+        "thinking_on": False,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "elapsed_seconds": 0.0,
+        "escalated": False,
+        "stop_reason": None,
+        "verifier_of": None,
+        "verdict": None,
+        "issue_count": None,
+        "verifier_fallback": None,
+        "fallback_from_provider": None,
+        "preferred_verifier_skipped": None,
+        # Adjudication-specific payload:
+        "cause": cause,
+        "resolution": resolution,
+        "generator_model": generator_model,
+        "verifier_model": verifier_model,
+        "finding_summary": finding_summary,
+        "dismissal_reason": dismissal_reason,
+    }
+
+    try:
+        path = _log_path(config)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception:
         pass
 
 

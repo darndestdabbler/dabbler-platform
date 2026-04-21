@@ -238,15 +238,29 @@ routing:
     code-review: sonnet   # force Sonnet for code review tasks
 ```
 
-**Verification:** Cross-provider model pairings.
+**Verification:** Verifier selection is rule-based. For each routed
+call, `verification.py` picks a verifier that is from a different
+provider than the generator, is enabled, is enabled as a verifier,
+matches the generator's tier (or one tier higher), and — among the
+survivors — has the cheapest output price. Every model entry carries
+`is_enabled` (generator pool) and `is_enabled_as_verifier` (verifier
+pool) flags; new models join with the verifier flag off and are
+promoted only after calibration data supports it.
+
+`preferred_pairings` is an optional advisory layer: if a listed
+pairing survives the rules it is used, otherwise the rules decide. The
+legacy key name `cross_provider_map` is still accepted for backward
+compatibility with older branches.
 
 ```yaml
 verification:
-  cross_provider_map:
-    gemini-flash: sonnet
-    gemini-pro: sonnet
-    sonnet: gemini-pro
-    opus: gemini-pro
+  preferred_pairings:
+    sonnet:       gemini-pro
+    gemini-flash: gpt-5-4-mini
+    gemini-pro:   gpt-5-4-mini
+    opus:         gpt-5-4
+    gpt-5-4-mini: sonnet
+    gpt-5-4:      opus
   auto_verify_task_types:
     - code-review
     - security-review
@@ -268,15 +282,15 @@ task_type_params:
     gemini-pro:   { thinking_budget: -1 }
 ```
 
-**Optional human overlay (`router-tuning.json`):** A separate JSON file
-in `ai-router/` (beside `router-config.yaml`) that overrides the YAML
-at runtime. Edit it to experiment with a run — change `max_tier` to cap
-spend, adjust `effort_by_task_type` or `thinking_budget_by_task_type_gemini25`
-to tune depth. If the file is missing, YAML defaults apply. The router
-logs which overrides were applied when it starts.
+All tuning now lives in `router-config.yaml` as of the Session 2
+consolidation. The prior runtime overlay file (`router-tuning.json`)
+was removed; `metrics.enabled` and `delegation.always_route_task_types`
+moved into the YAML under `metrics:` and `delegation:` respectively.
+To adjust depth for a run, edit the YAML directly — there is no
+separate overlay file.
 
 Precedence (low → high): model-level `generation_params` →
-`task_type_params` override → `router-tuning.json` overlay.
+`task_type_params` override.
 
 ### 4. Set Environment Variables
 
@@ -331,6 +345,60 @@ When a session set includes a human-executed UAT checklist:
 - After a checklist is prepared and waiting on the human, do not start a new
   session that depends on or bypasses that review unless the human explicitly
   says to do so
+
+### When UAT Is Required
+
+A session set must produce a UAT checklist whenever its work changes the
+behavior of a UI surface or a service that the UI talks to directly. In
+practice, any of these triggers UAT:
+
+- Any change to a Blazor page, component, nav menu, form, grid, or dialog.
+- Any change to a shell element (app bar, drawer, theme, layout) or a
+  cross-page interaction pattern (role switcher, org switcher, sign-in flow).
+- Any change to an API endpoint the UI consumes — request shape, response
+  shape, error-status contract, or authorization rule.
+- Any change to authorization rules (role assignments, restriction types,
+  mask exemptions, loopback gates) that the UI can surface.
+- Any change to a browser-visible workflow: search, filter, sort, paging,
+  export, document generation, multi-step forms.
+
+A session set does **not** require UAT when it only touches internal-only
+surfaces — pure library refactors, build or infrastructure changes with no
+UI effect, router or prompt-template edits, test-only changes, and
+documentation. If a session is ambiguous (e.g., refactoring an API the UI
+may depend on), default to requiring UAT.
+
+When UAT is required, the checklist is built during the session set that
+makes the change — not deferred to a later "UAT session set." Deferring
+UAT across session sets breaks the traceability between a change and its
+human sign-off.
+
+### E2E Coverage Before UAT
+
+Before a UAT checklist is committed and the human is notified, every
+functional item in the checklist must have matching E2E test coverage.
+This is the procedural form of the "human UAT is not the first line of
+defense" principle in `docs/planning/project-guidance.md`.
+
+Specifically:
+
+- Every checklist item with a functional expectation (route reached,
+  control visible/enabled, data persisted, grid refreshed, error shown,
+  etc.) must have a Playwright test that drives the same steps with the
+  same parameters and asserts the same outcome.
+- Items whose expectation is purely a judgment call (aesthetic, layout
+  feel, copy quality) are flagged with `IsJudgmentItem: true` in the
+  checklist JSON and must include a one-sentence justification. These
+  are exempt from the matching-test requirement but should still have
+  a sequence-reachability test so the human is rendering judgment on a
+  verified-live UI rather than debugging exceptions.
+- The `uat-coverage-review` task type (see Task Types table) is the
+  mechanical check: given the checklist and the Playwright file, it
+  returns `VERIFIED` only when every non-judgment item has a matching
+  test. Any mismatch blocks the checklist handoff.
+
+A checklist shipped without this coverage is a session-closeout defect
+and must be rebuilt before the human is notified.
 
 ### Step 0: Verify API Keys And Read Guidance
 
@@ -456,6 +524,87 @@ dispatches to a different AI provider for independent review.
 3. Save: `log.save_issue_log(session_number=N, issues=issues)`
 4. Re-run verification (max 2 retries). Use `complexity_hint=85` if any
    issue is Major or Critical.
+
+#### Disagreement With A Verifier Finding
+
+If the orchestrator disagrees with a specific finding rather than
+accepting it, the orchestrator does **not** dismiss the finding on its
+own authority and does **not** appeal to another AI provider for a
+consensus vote. The authority model is: verifiers flag, humans
+adjudicate.
+
+Most orchestrator-vs-verifier disagreements turn out to be context
+problems rather than who-is-right problems. The common failure modes
+are:
+
+- **Context gap** — the verifier flagged something that's actually
+  handled elsewhere in code the verifier wasn't shown. Most common case.
+- **Genuine split** — the verifier and orchestrator both have the same
+  context and disagree on the call.
+- **Orchestrator error** — the orchestrator is wrong and should accept
+  the finding.
+
+When the orchestrator wants to challenge a finding it must present to
+the human:
+
+1. **The exact finding** (verbatim from the saved review file).
+2. **The dismissal reason** — why the orchestrator believes the finding
+   does not apply.
+3. **The context that went to the verifier** — the list of files and
+   excerpts included in the verification prompt.
+4. **Self-assessment of context** — whether relevant context may have
+   been missing or whether the verifier may have been distracted by
+   irrelevant material.
+
+The human then chooses one of four options:
+
+- **(a) Accept verifier finding** — treat as an issue and fix.
+- **(b) Accept orchestrator's dismissal** — close without changes.
+- **(c) Re-verify with reshaped context** — same verifier, adjusted
+  input (add missing files, trim irrelevant ones). Resolves the
+  context-gap case cleanly.
+- **(d) Second opinion from a different provider** — route the same
+  content to a tiebreaker model from a different provider than the
+  original verifier. This reuses the existing
+  `verification.settings.on_disagreement` / `tiebreaker_model`
+  configuration in `router-config.yaml`; no new code path is required.
+
+Whichever option the human picks, log the disagreement so the ratio
+is visible in the manager report over time. The router exposes
+`record_adjudication` for this — it writes one JSON line to
+`router-metrics.jsonl` alongside the route/verify records so the same
+report pass aggregates all of it:
+
+```python
+from ai_router import record_adjudication
+
+record_adjudication(
+    config,                         # already loaded router config
+    task_type="architecture",       # same task_type as the verify call
+    cause="context-gap",            # context-gap | genuine-split | orchestrator-error
+    resolution="reverify-reshaped", # accept-finding | accept-dismissal
+                                    # | reverify-reshaped | second-opinion
+    session_set=str(SESSION_SET),
+    session_number=N,
+    generator_model=route_result.model_name,
+    verifier_model=route_result.verification.verifier_model,
+    finding_summary="<one-line summary of the finding>",
+    dismissal_reason="<why the orchestrator challenged it>",
+)
+```
+
+The `resolution` values map to the four human options above
+((a)=accept-finding, (b)=accept-dismissal, (c)=reverify-reshaped,
+(d)=second-opinion). Unrecognized values are accepted but prefixed
+with `unknown:` in the log so ad-hoc strings do not silently fail
+to aggregate.
+
+The distribution matters for tuning. If most disagreements resolve via
+(c), the signal is that the orchestrator needs better context-selection
+guidance rather than more verifiers. If (d) is common, the generator
+and verifier pairing may be mismatched for this kind of work. The
+manager report (`report.py`) aggregates these by cause and resolution
+in its "Verifier findings & adjudication" section.
 
 ### Step 8: Cost Report, Change Log (Last Session), Commit, Push, And Notify
 
@@ -659,10 +808,20 @@ On Windows, use `.venv/Scripts/python.exe` to run Python.
 | `code-review` | 40 | Sonnet (if overridden) or Gemini Pro |
 | `analysis` | 55 | Gemini Pro |
 | `refactoring` | 65 | Gemini Pro |
+| `uat-plan-generation` | 70 | Opus |
+| `uat-coverage-review` | 70 | Opus |
 | `session-verification` | 70 | Opus |
 | `security-review` | 75 | Opus |
 | `architecture` | 80 | Opus |
 | `planning` | 70 | Opus |
+
+`uat-plan-generation` produces the structured UAT checklist (numbered
+steps, verifications, test data) for a session set. `uat-coverage-review`
+verifies that every functional checklist item has a matching E2E step
+with the same action, parameters, and verifications. Both are
+auto-verified cross-provider — they are the checks that prevent the
+"UAT as first line of defense" failure mode, so they get high-effort
+settings in `router-config.yaml`.
 
 ### Model Tiers and Pricing
 
@@ -682,10 +841,21 @@ router automatically escalates to the next tier (up to 2 escalations).
 
 ### Cross-Provider Verification
 
-For auto-verified task types (code-review, security-review), the router
-automatically sends the response to a model from a different provider.
-With three providers (Anthropic, Google, OpenAI) the map rotates so
-every provider acts as both generator and verifier:
+For auto-verified task types (code-review, security-review, and any
+others listed in `verification.auto_verify_task_types`), the router
+sends the initial response to a verifier from a different provider.
+Verifier selection is rule-based: a candidate must be from a different
+provider than the generator, be in the enabled model pool
+(`is_enabled: true`), be trusted for verification
+(`is_enabled_as_verifier: true`), and match the generator's tier or be
+one tier higher. Among survivors, the cheapest output price wins.
+
+With three providers (Anthropic, Google, OpenAI), this rotates so every
+provider acts as both generator and verifier. The advisory
+`verification.preferred_pairings` map in `router-config.yaml` is
+consulted as a tiebreaker against the rule-qualified candidate set: if
+the listed pairing survives, it is used; otherwise the rules decide.
+The current preferences:
 
 - Sonnet (Anthropic) output → verified by Gemini Pro (Google)
 - Gemini Flash/Pro (Google) output → verified by GPT-5.4 Mini (OpenAI)
@@ -693,8 +863,15 @@ every provider acts as both generator and verifier:
 - GPT-5.4 Mini (OpenAI) output → verified by Sonnet (Anthropic)
 - GPT-5.4 (OpenAI) output → verified by Opus (Anthropic)
 
-The pairings are set in `router-config.yaml` under
-`verification.cross_provider_map`.
+If the first-choice verifier fails at the HTTPS layer (provider
+outage, timeout), the router excludes that provider and re-picks once.
+The fallback call is recorded in the metrics log with
+`verifier_fallback: true` and the failed provider name, so the audit
+trail reflects the verifier that actually ran.
+
+Swapping or retiring a model requires editing only its entry under
+`models:` in the YAML. The rules recompute the verifier choice from
+whatever pool remains, so there is no pairing table to maintain.
 
 ### When To Use The Router
 
@@ -742,6 +919,48 @@ questions like *"which task types are escalating most?"* or *"is GPT-5.4
 a stricter or looser verifier than Opus?"* — the records carry enough
 context to answer those without additional instrumentation.
 
+### Manager Report
+
+For a governance-oriented markdown summary rather than the developer
+text dump, run `report.py`:
+
+```bash
+# Print to stdout
+python -m ai_router.report
+
+# Write to a file
+python -m ai_router.report --output docs/reports/router-2026-Q2.md
+
+# Filter by date range or session set
+python -m ai_router.report --since 2026-04-01 --until 2026-04-30
+python -m ai_router.report --session-set docs/session-sets/reports-pdf-layout
+```
+
+The report contains:
+
+- **Headline** — total calls, total spend, and the ratio of actual spend
+  to an Opus-only baseline (what the same token volume would have cost
+  if every call had gone to Opus). The savings percentage is the
+  governance-slide headline.
+- **Per-task-type summary** — primary model, average cost per call,
+  escalation rate, verifier rejection rate, retry rate, and a composite
+  unreliability rate. Rows with fewer than 5 calls are flagged as
+  too-few-to-rate rather than shown with false precision.
+- **Outliers** — top 3 most expensive individual calls and top 3 task
+  types by unreliability.
+- **Auto-generated action items** — one bullet per task type whose
+  composite unreliability exceeds 20%, naming the specific component(s)
+  driving the signal.
+
+Unreliability is the mean of three independent rates: escalation rate,
+verifier rejection rate (`ISSUES_FOUND` verdicts), and retry rate
+(tiebreaker calls divided by verify calls). Components with a zero
+denominator are omitted rather than counted as zero.
+
+The developer-oriented `print_metrics_report()` above is unchanged —
+both views coexist. Use `report.py` for reviewers and managers; use
+`print_metrics_report()` for in-session debugging.
+
 ### Threading session info
 
 When the orchestrator calls `route()`, it should pass `session_set`
@@ -761,7 +980,7 @@ without session-level grouping.
 
 ### Disabling metrics
 
-Set `metrics.enabled: false` in `router-tuning.json` to stop writing.
+Set `metrics.enabled: false` in `router-config.yaml` to stop writing.
 The log is append-only; rotate or archive manually when it gets large
 (expect ~100 bytes per call, so thousands of calls per megabyte).
 
@@ -821,13 +1040,11 @@ those is in doubt, route it.
 ### How the router already keeps itself cheap
 
 The orchestrator does not pick the model or the effort level. Those
-come from `router-config.yaml` + `router-tuning.json`:
+come from `router-config.yaml`:
 
 - The router estimates complexity and picks the cheapest capable tier
 - `task_type_params` sets per-task effort/thinking defaults (low for
   formatting, high for verification)
-- `router-tuning.json` lets the human override those per run without
-  touching YAML
 - For code-review/security-review/architecture, a second provider
   auto-verifies — independently, without the orchestrator asking
 - Escalation kicks in automatically if a tier-1 response looks
@@ -842,11 +1059,11 @@ undercuts the tuning, so this matters.
 ### Thresholds (human-tunable)
 
 The thresholds above (~50 lines, single file) live in
-`router-tuning.json` under `delegation.direct_work_max_lines` and
+`router-config.yaml` under `delegation.direct_work_max_lines` and
 `delegation.direct_work_max_files`. The human can adjust these per
-project. The `always_route_task_types` list in the same file is the
-authoritative list of task types the orchestrator must never handle
-directly.
+project. The `delegation.always_route_task_types` list in the same
+file is the authoritative list of task types the orchestrator must
+never handle directly.
 
 ---
 
@@ -876,13 +1093,19 @@ This is the authoritative rules list. Instruction files (`CLAUDE.md`,
    explicitly overrides the pause.
 10. **One UAT checklist per session set.** Name it
     `<session-set-slug>-uat-checklist.json` and keep human results inline.
-11. **Share screenshots during UI and E2E work when practical.**
-12. **Escalate durable new guidance.** If the human gives an instruction that
+11. **E2E coverage before UAT handoff.** Every functional checklist item
+    must have matching Playwright coverage and pass `uat-coverage-review`
+    before the checklist is committed and the human is notified. Judgment
+    items (`IsJudgmentItem: true`) are exempt from matching-test parity
+    but still require sequence-reachability coverage. See the `E2E
+    Coverage Before UAT` section above.
+12. **Share screenshots during UI and E2E work when practical.**
+13. **Escalate durable new guidance.** If the human gives an instruction that
     looks like a future principle or convention, ask whether it should be
     added to `docs/planning/project-guidance.md`.
-13. **Recommend lessons learned after failures.** When a failure suggests a
+14. **Recommend lessons learned after failures.** When a failure suggests a
     reusable tactic, propose an update to `docs/planning/lessons-learned.md`.
-14. **Run the Step 9 reorganization review on the last session of every
+15. **Run the Step 9 reorganization review on the last session of every
     set, after the notify.** Output "no changes recommended" if nothing
     qualifies — but do the review. Apply any accepted proposals in a
     separate follow-up commit so the session-complete notification is

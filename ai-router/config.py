@@ -1,15 +1,21 @@
-"""Load and validate router-config.yaml, and merge the optional
-router-tuning.json overlay. Also exposes a helper to resolve the
-effective generation params for a (model, task_type) pair."""
+"""Load and validate router-config.yaml, and resolve effective generation
+params for a (model, task_type) pair.
 
-import os
-import json
+The previous tuning-overlay mechanism (router-tuning.json) has been
+removed as of Session 2 of BATON v2. router-config.yaml is now the
+single source of truth for every tunable knob.
+"""
+
 import copy
+import datetime
+import os
+import sys
 import yaml
 from pathlib import Path
 
-# Default config location is router-config.yaml in the same directory as this file.
-# This keeps the default working regardless of where Python is invoked from.
+# Default config location is router-config.yaml in the same directory as
+# this file. Keeps the default working regardless of where Python is
+# invoked from.
 _THIS_DIR = Path(__file__).parent
 
 
@@ -71,28 +77,53 @@ def load_config(path: str | None = None) -> dict:
 
         return None
 
+    # System prompts live in a single consolidated file
+    # (prompt-templates/system-prompts.md) with one H2 section per
+    # provider slug ("anthropic", "google", "openai"). Each model's
+    # system_prompt_file points at that file; its provider field picks
+    # the section. Parse once per unique file path.
+    _default_system_prompt = (
+        "You are an expert software engineer. Be direct and precise."
+    )
+    _system_sections_cache: dict[Path, dict[str, str]] = {}
+
+    def _load_system_sections(path: Path) -> dict[str, str]:
+        if path not in _system_sections_cache:
+            _system_sections_cache[path] = _split_sections(
+                path.read_text(), header_level=2
+            )
+        return _system_sections_cache[path]
+
     for model_name, model_cfg in config["models"].items():
         prompt_file = model_cfg.get("system_prompt_file")
-        if prompt_file:
-            full_path = resolve_relative_path(prompt_file)
-            if full_path is not None:
-                model_cfg["_system_prompt"] = full_path.read_text().strip()
-            else:
-                model_cfg["_system_prompt"] = (
-                    "You are an expert software engineer. "
-                    "Be direct and precise."
-                )
+        if not prompt_file:
+            continue
+        full_path = resolve_relative_path(prompt_file)
+        if full_path is None:
+            model_cfg["_system_prompt"] = _default_system_prompt
+            continue
+        sections = _load_system_sections(full_path)
+        if not sections:
+            # Flat file with no H2 section headers — use whole contents.
+            model_cfg["_system_prompt"] = full_path.read_text().strip()
+            continue
+        provider_slug = str(model_cfg.get("provider", "")).strip().lower()
+        model_cfg["_system_prompt"] = sections.get(
+            provider_slug, _default_system_prompt
+        )
 
+    # Task templates live in a single consolidated file
+    # (prompt-templates/task-prompts.md) with one H1 section per
+    # task type slug. H1 is used rather than H2 because the template
+    # body contains its own H2 headers.
     config["_task_templates"] = {}
     for _pt_root in prompt_roots:
-        template_dir = _pt_root / "task-types"
-        if not template_dir.exists():
+        task_file = _pt_root / "task-prompts.md"
+        if not task_file.exists():
             continue
-
-        for f in template_dir.glob("*.md"):
-            task_type = f.stem
-            config["_task_templates"][task_type] = f.read_text().strip()
-
+        config["_task_templates"] = _split_sections(
+            task_file.read_text(), header_level=1
+        )
         if config["_task_templates"]:
             break
 
@@ -109,53 +140,46 @@ def load_config(path: str | None = None) -> dict:
     else:
         config["_verification_template"] = ""
 
-    # --- Tuning overlay (router-tuning.json) ---------------------------------
-    # Optional per-run overlay. Keys present here override the YAML.
-    tuning_path = os.environ.get("AI_ROUTER_TUNING")
-    if tuning_path is None:
-        tuning_path = str(config_dir / "router-tuning.json")
-
-    tuning: dict = {}
-    if Path(tuning_path).exists():
-        with open(tuning_path) as f:
-            try:
-                tuning = json.load(f)
-            except json.JSONDecodeError as e:
-                raise ValueError(
-                    f"router-tuning.json is not valid JSON: {e}"
-                )
-
-    config["_tuning"] = tuning
-    config["_tuning_applied"] = _summarize_tuning(tuning) if tuning else []
-
-    # Apply tuning: max_tier cap
-    if isinstance(tuning.get("max_tier"), dict):
-        cap = tuning["max_tier"].get("value")
-        if isinstance(cap, int) and 1 <= cap <= 3:
-            config["routing"]["_max_tier_cap"] = cap
+    # Pricing-staleness check — nags (does not block) if the YAML has
+    # not been reviewed inside the configured window. Missing metadata
+    # is treated as "never reviewed" and always warns.
+    _check_pricing_staleness(config)
 
     return config
 
 
-def _summarize_tuning(tuning: dict) -> list[str]:
-    """Produce a short list of 'what got overridden' strings, for logging."""
-    notes = []
-    for key in (
-        "max_tier",
-        "effort_by_task_type",
-        "adaptive_thinking_by_task_type",
-        "thinking_budget_by_task_type_gemini25",
-        "thinking_level_by_task_type_gemini3",
-        "reasoning_effort_by_task_type_openai",
-    ):
-        if key in tuning:
-            block = tuning[key]
-            if isinstance(block, dict):
-                n = sum(1 for k in block if not k.startswith("_"))
-                notes.append(f"{key}({n} entries)")
-            else:
-                notes.append(key)
-    return notes
+def _check_pricing_staleness(config: dict) -> None:
+    """Print a warning to stderr if router-config.yaml's pricing has
+    not been reviewed recently.
+
+    Controlled by two fields under the top-level `metadata` block:
+        pricing_reviewed:    ISO date string, e.g. "2026-04-20"
+        review_frequency_days: integer, default 30
+
+    Soft warning only. Does not raise.
+    """
+    metadata = config.get("metadata", {}) or {}
+    reviewed_raw = metadata.get("pricing_reviewed")
+    threshold_days = int(metadata.get("review_frequency_days", 30))
+
+    if not reviewed_raw:
+        print("WARNING: router-config.yaml has no metadata.pricing_reviewed "
+              "date — pricing has never been reviewed.", file=sys.stderr)
+        return
+
+    try:
+        reviewed = datetime.date.fromisoformat(str(reviewed_raw))
+    except ValueError:
+        print(f"WARNING: metadata.pricing_reviewed is not an ISO date: "
+              f"{reviewed_raw!r}", file=sys.stderr)
+        return
+
+    age = (datetime.date.today() - reviewed).days
+    if age > threshold_days:
+        print(f"WARNING: router-config.yaml pricing last reviewed "
+              f"{age} days ago (threshold: {threshold_days}). "
+              f"Verify model prices at the provider consoles and update "
+              f"metadata.pricing_reviewed.", file=sys.stderr)
 
 
 def resolve_generation_params(
@@ -168,10 +192,10 @@ def resolve_generation_params(
     Precedence (lowest to highest):
       1. Model-level defaults: config['models'][model_name]['generation_params']
       2. Per-task-type override: config['task_type_params'][task_type][model_name]
-      3. Tuning overlay (router-tuning.json) — applied last so the human wins.
 
-    Returns a dict with any subset of:
-      effort, thinking (dict), thinking_budget (int), thinking_level (str).
+    Returns a dict with any subset of provider-specific fields:
+      effort, thinking (dict), thinking_budget (int), thinking_level (str),
+      reasoning_effort (str).
     """
     model_cfg = config["models"].get(model_name, {})
     params = copy.deepcopy(model_cfg.get("generation_params", {}) or {})
@@ -180,48 +204,6 @@ def resolve_generation_params(
     tt_block = config.get("task_type_params", {}).get(task_type, {}) or {}
     overrides = tt_block.get(model_name, {}) or {}
     params = _deep_merge(params, overrides)
-
-    # Tuning overlay (runtime, human-editable)
-    tuning = config.get("_tuning", {}) or {}
-    provider = model_cfg.get("provider", "")
-
-    if provider == "anthropic":
-        effort_map = tuning.get("effort_by_task_type", {}) or {}
-        if task_type in effort_map:
-            params["effort"] = effort_map[task_type]
-
-        adapt_map = tuning.get("adaptive_thinking_by_task_type", {}) or {}
-        if task_type in adapt_map:
-            want = bool(adapt_map[task_type])
-            thinking = params.get("thinking", {}) or {}
-            thinking = {**thinking, "enabled": want}
-            if want and "type" not in thinking:
-                thinking["type"] = "adaptive"
-            params["thinking"] = thinking
-
-    elif provider == "google":
-        model_id = model_cfg.get("model_id", "")
-        if model_id.startswith("gemini-3"):
-            lvl_map = tuning.get(
-                "thinking_level_by_task_type_gemini3", {}
-            ) or {}
-            if task_type in lvl_map:
-                params["thinking_level"] = lvl_map[task_type]
-                # thinking_level and thinking_budget are mutually exclusive
-                params.pop("thinking_budget", None)
-        else:
-            budget_map = tuning.get(
-                "thinking_budget_by_task_type_gemini25", {}
-            ) or {}
-            if task_type in budget_map:
-                params["thinking_budget"] = budget_map[task_type]
-
-    elif provider == "openai":
-        effort_map = tuning.get(
-            "reasoning_effort_by_task_type_openai", {}
-        ) or {}
-        if task_type in effort_map:
-            params["reasoning_effort"] = effort_map[task_type]
 
     return params
 
@@ -239,3 +221,39 @@ def _deep_merge(base: dict, override: dict) -> dict:
         else:
             out[k] = copy.deepcopy(v)
     return out
+
+
+def _split_sections(text: str, header_level: int) -> dict[str, str]:
+    """Split markdown by `#`-style headers of exactly the given level.
+
+    Returns a dict mapping slugified header text (lowercased, spaces
+    and underscores converted to hyphens) to the section body that
+    follows the header, stripped of surrounding whitespace.
+
+    Content preceding the first matching header is treated as file
+    preamble and discarded. Deeper headers inside a section are left
+    untouched — the level check is exact, not minimum.
+    """
+    prefix = "#" * header_level + " "
+    sections: dict[str, str] = {}
+    current_slug: str | None = None
+    current_lines: list[str] = []
+
+    for line in text.splitlines():
+        # startswith(prefix) matches ONLY the exact level: for H1,
+        # "## foo" fails the check because position 1 is '#' not ' '.
+        if line.startswith(prefix):
+            if current_slug is not None:
+                sections[current_slug] = "\n".join(current_lines).strip()
+            header_text = line[len(prefix):].strip()
+            current_slug = (
+                header_text.lower().replace(" ", "-").replace("_", "-")
+            )
+            current_lines = []
+        elif current_slug is not None:
+            current_lines.append(line)
+
+    if current_slug is not None:
+        sections[current_slug] = "\n".join(current_lines).strip()
+
+    return sections
