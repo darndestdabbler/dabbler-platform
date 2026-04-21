@@ -13,72 +13,11 @@ public sealed class ProductAdministrationWorkflowTests
         _fixture = fixture;
     }
 
-    [Fact]
-    public async Task E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
-    {
-        const string productName = "Blonde Roast - Decaf - Espresso";
-        var page = await _fixture.CreatePageAsync();
-        string? userId = null;
-        int? productId = null;
-        bool? originalAvailability = null;
-
-        try
-        {
-            await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
-
-            var session = await _fixture.GetSessionInfoAsync(page);
-            userId = session.UserId;
-
-            Assert.False(string.IsNullOrWhiteSpace(userId));
-            Assert.Contains("SystemAdmin", session.Roles ?? []);
-
-            var beforeProduct = await _fixture.GetProductByExactNameAsync(userId!, productName);
-            productId = beforeProduct.Id;
-            originalAvailability = beforeProduct.IsAvailable;
-
-            // Navigate to admin products via the drawer nav group
-            await _fixture.NavigateToAdminProductsAsync(page);
-            var routedContent = page.GetByTestId("routed-page-content");
-
-            await routedContent.GetByPlaceholder("Search products...").FillAsync(productName);
-
-            var availabilitySwitch = routedContent.GetByTestId($"product-availability-{productId}");
-
-            await Assertions.Expect(availabilitySwitch).ToBeVisibleAsync();
-            Assert.Equal(originalAvailability.Value, await availabilitySwitch.IsCheckedAsync());
-
-            await availabilitySwitch.ClickAsync();
-
-            var expectedAvailability = !originalAvailability.Value;
-            if (expectedAvailability)
-            {
-                await Assertions.Expect(availabilitySwitch).ToBeCheckedAsync();
-            }
-            else
-            {
-                await Assertions.Expect(availabilitySwitch).Not.ToBeCheckedAsync();
-            }
-            await Assertions.Expect(page.GetByText(
-                    $"{productName} is now {(expectedAvailability ? "available" : "unavailable")}.",
-                    new PageGetByTextOptions { Exact = true }))
-                .ToBeVisibleAsync();
-
-            var afterProduct = await _fixture.GetProductByIdAsync(userId!, productId.Value);
-            Assert.Equal(expectedAvailability, afterProduct.IsAvailable);
-
-            // Verify layout and accessibility on admin page
-            await PlaywrightFixture.AssertLayoutSpacingAsync(page);
-        }
-        finally
-        {
-            if (productId.HasValue && originalAvailability.HasValue && !string.IsNullOrWhiteSpace(userId))
-            {
-                await _fixture.RestoreProductAvailabilityAsync(userId, productId.Value, originalAvailability.Value);
-            }
-
-            await _fixture.ClosePageAsync(page);
-        }
-    }
+    // E2E_WF_04 (TogglesProductAvailability...) lives in
+    // ProductAdministrationWorkflowFlakyTests.cs under FlakyPlaywrightCollection
+    // because the snackbar-toast assertion is flaky under full-suite
+    // parallelism. Keep the isolated-run invocation until the root cause is
+    // addressed in a focused session.
 
     [Fact]
     public async Task E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync()
@@ -125,7 +64,18 @@ public sealed class ProductAdministrationWorkflowTests
             await Assertions.Expect(createButton).ToBeDisabledAsync();
 
             await nameField.FillAsync(productName);
-            await unitPriceField.FillAsync("12.34");
+            // MudNumericField @bind-Value commits on the browser's `change`
+            // event, which Playwright's FillAsync + Locator.BlurAsync do NOT
+            // synthesise (FillAsync fires only `input`; BlurAsync fires only
+            // `blur`). A real Tab keypress moves focus and triggers `change`,
+            // committing the bound C# decimal. Without this, the rendered
+            // field shows "12.34" but the bound value stays at the default
+            // 0.01, so Create saves that instead.
+            await unitPriceField.ClickAsync();
+            await page.Keyboard.PressAsync("Control+A");
+            await page.Keyboard.PressAsync("Delete");
+            await unitPriceField.PressSequentiallyAsync("12.34");
+            await page.Keyboard.PressAsync("Tab");
             await descriptionField.FillAsync("Representative Playwright automation product.");
             await imageUrlField.FillAsync("https://example.com/playwright-product.png");
 

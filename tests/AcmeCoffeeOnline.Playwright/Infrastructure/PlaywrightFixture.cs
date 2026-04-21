@@ -260,7 +260,11 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
     public async Task<string> SwitchOrganizationFromShellAsync(IPage page, string organizationName)
     {
-        var activeOrganizationLabel = page.GetByTestId("active-organization-label");
+        // .First guards against transient multi-match during the shell re-
+        // render that follows an org switch. The drawer and top-bar can both
+        // briefly host an `active-organization-label` testid before the new
+        // shell settles on one.
+        var activeOrganizationLabel = page.GetByTestId("active-organization-label").First;
         var currentLabel = (await activeOrganizationLabel.TextContentAsync())?.Trim() ?? string.Empty;
         if (string.Equals(currentLabel, organizationName, StringComparison.Ordinal))
         {
@@ -277,8 +281,6 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await targetOrganization.ClickAsync();
 
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-        var switchedSession = await GetSessionInfoAsync(page);
-        Assert.Equal(organizationName, switchedSession.ActiveOrganizationName);
 
         if (page.Url.Contains("/access-denied", StringComparison.OrdinalIgnoreCase))
         {
@@ -288,7 +290,17 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             });
         }
 
-        await Assertions.Expect(activeOrganizationLabel).ToHaveTextAsync(organizationName);
+        // Wait for the shell label to reflect the switch BEFORE reading the
+        // session API. The UI re-renders from the server-side session context
+        // after the cookie has settled, so ToHaveTextAsync is the natural
+        // signal that the switch propagated. Asserting via the session API
+        // first races the cookie update.
+        await Assertions
+            .Expect(activeOrganizationLabel)
+            .ToHaveTextAsync(organizationName, new() { Timeout = 10_000 });
+
+        var switchedSession = await GetSessionInfoAsync(page);
+        Assert.Equal(organizationName, switchedSession.ActiveOrganizationName);
 
         return organizationName;
     }

@@ -1,0 +1,1749 @@
+{
+  "ProjectName": "Dabbler Platform / AcmeCoffeeOnline Security Dashboard (UAT Remediation)",
+  "ReleaseLabel": "security-dashboard-uat-remediation",
+  "Review": [
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-Role Security Nav Visibility and Tab Gating",
+      "ItemLabel": "SystemAdmin sees Security Dashboard nav entry and all five tabs",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{RoleName}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate via {{DrawerGroup}} drawer group to {{NavEntry}}",
+          "Verifications": [
+            {
+              "Text": "\"Role Master Details\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Default Masks\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Organization Master Details\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Users and Role Assignment\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Role Documentation\" tab is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "RoleName": "SystemAdmin",
+        "DrawerGroup": "Admin",
+        "NavEntry": "Security Dashboard"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-Role Security Nav Visibility and Tab Gating",
+      "ItemLabel": "CrossOrgUserAdmin sees Security Dashboard nav entry and exactly three tabs",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{RoleName}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate via {{DrawerGroup}} drawer group to {{NavEntry}}",
+          "Verifications": [
+            {
+              "Text": "Page URL matches {{DashboardUrl}}",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Organization Master Details\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Users and Role Assignment\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Role Documentation\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Role Master Details\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Default Masks\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "asmith@acmecoffee.com",
+        "RoleName": "CrossOrgUserAdmin",
+        "DrawerGroup": "Admin",
+        "NavEntry": "Security Dashboard",
+        "DashboardUrl": "/admin/security"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-Role Security Nav Visibility and Tab Gating",
+      "ItemLabel": "Baked-in User sees Security Dashboard nav entry and only Role Documentation tab",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{RoleName}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate via {{DrawerGroup}} drawer group to {{NavEntry}}",
+          "Verifications": [
+            {
+              "Text": "\"Role Documentation\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Role Master Details\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Default Masks\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Organization Master Details\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Users and Role Assignment\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "jdoe@acmecoffee.com",
+        "RoleName": "User",
+        "DrawerGroup": "Admin",
+        "NavEntry": "Security Dashboard"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Users tab circuit stability",
+      "ItemLabel": "SystemAdmin activates Users and Role Assignment tab without circuit crash",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The users-master-grid container is visible (no InvalidOperationException or ObjectDisposedException)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The user-role-assignment-details panel is visible alongside the grid",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Users and Role Assignment"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Users tab circuit stability",
+      "ItemLabel": "SystemAdmin sees at least one seeded user row in the Users grid after tab activation",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The users-master-grid container is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "At least one seeded user row with a status chip renders in the grid",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Users and Role Assignment"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Users tab circuit stability",
+      "ItemLabel": "Rapid tab switch away and back to Users tab does not crash the Blazor circuit",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The users-master-grid container is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{AlternateTabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the {{TabName}} tab again",
+          "Verifications": [
+            {
+              "Text": "The users-master-grid container is visible after remount",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The user-role-assignment-details panel is visible after remount (no ObjectDisposedException)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Users and Role Assignment",
+        "AlternateTabName": "Role Master Details"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_RapidRemountDoesNotCrashAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Users tab circuit stability",
+      "ItemLabel": "CrossOrgUserAdmin activates Users and Role Assignment tab without circuit crash",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The users-master-grid container is visible (DbContextFactory fix holds for CrossOrgUserAdmin)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The user-role-assignment-details panel is visible alongside the grid",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "asmith@acmecoffee.com",
+        "Role": "CrossOrgUserAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Users and Role Assignment"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Users and Role Assignment",
+      "Subarea": "Filter-change summary clear",
+      "ItemLabel": "Changing the Email filter clears the collapsed summary back to the default 'Users' header",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the first user row in the grid",
+          "Verifications": [
+            {
+              "Text": "The expansion shell summary is visible (panel collapsed showing selected-user summary)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the expansion shell header to re-expand the panel",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Type {{FilterValue}} in the {{FilterField}} filter textbox",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "Click the expansion shell header",
+          "Verifications": [
+            {
+              "Text": "The shell summary is visible and displays '{{ExpectedSummaryText}}' (selection-specific summary cleared)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "No nested shell header exists inside the grid scroll region",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Users and Role Assignment",
+        "FilterField": "Email",
+        "FilterValue": "admin@",
+        "ExpectedSummaryText": "Users"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Org-Scope Filter",
+      "ItemLabel": "CrossOrgUserAdmin sees all retail customers \u2014 CanSeeAllOrganizations grants full visibility via API",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Query {{CustomersApiEndpoint}} authenticated as {{CrossOrgUserAdminEmail}} and capture response.totalCount as asmithTotal",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Query {{CustomersApiEndpoint}} authenticated as {{SystemAdminEmail}} and capture response.totalCount as adminTotal",
+          "Verifications": [
+            {
+              "Text": "adminTotal > 0 (seed exposes at least one customer)",
+              "VerificationMethod": "api"
+            },
+            {
+              "Text": "adminTotal equals asmithTotal (CanSeeAllOrganizations grants CrossOrgUserAdmin identical visibility)",
+              "VerificationMethod": "api"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "CustomersApiEndpoint": "api/customers?page=1&pageSize=100",
+        "CrossOrgUserAdminEmail": "asmith@acmecoffee.com",
+        "SystemAdminEmail": "admin@acmecoffee.com"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Org-Scope Filter",
+      "ItemLabel": "BackofficeUser sees customers instead of empty set (pre-Set-C deferred scope)",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Query {{CustomersApiEndpoint}} authenticated as {{BackofficeUserEmail}} and capture response.totalCount as jdoeTotal",
+          "Verifications": [
+            {
+              "Text": "jdoeTotal > 0 (BackofficeUser falls through to full customer visibility until Set C org-scope lands)",
+              "VerificationMethod": "api"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "CustomersApiEndpoint": "api/customers?page=1&pageSize=100",
+        "BackofficeUserEmail": "jdoe@acmecoffee.com"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Dash-in-Filter",
+      "ItemLabel": "Filter Key containing a dash character narrows the grid in-circuit without mis-treating the dash",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate via drawer group {{NavGroup}} > {{NavItem}} to {{DashboardUrlPattern}}"
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "Organization master grid is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "Initial grid row count \u2265 2 (at least one internal and one retail organization)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "Internal organization row (id=1) is visible in the grid",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Fill the Key filter with {{DashFilter}}",
+          "Verifications": [
+            {
+              "Text": "Internal organization row (id=1) is no longer visible \u2014 its key does not contain '{{DashFilter}}'",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "Filtered row count is > 0 and less than the initial count \u2014 retail orgs with 'customer-' keys remain",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Fill the Key filter with {{InvalidDashFilter}}",
+          "Verifications": [
+            {
+              "Text": "Grid shows 0 rows \u2014 '{{InvalidDashFilter}}' is not a substring of any seeded organization key",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "SystemAdminEmail": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "NavGroup": "Admin",
+        "NavItem": "Security Dashboard",
+        "DashboardUrlPattern": ".*/admin/security$",
+        "TabName": "Organization Master Details",
+        "DashFilter": "customer-",
+        "InvalidDashFilter": "cust-"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "In-Circuit Refresh + New Org Cue",
+      "ItemLabel": "Create organization refreshes grid in-circuit without browser reload",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate via drawer group {{NavGroup}} > {{NavItem}} matching URL pattern {{DashboardUrlPattern}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "Organization master grid is visible"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Generate a fresh 8-character runtime marker {{RuntimeMarker}} (first 8 hex of a new Guid)",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the {{AddButtonTestId}} button",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Fill the Key field with {{NewOrgKey}} (template resolves to customer-uat-<RuntimeMarker>)",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "Fill the Name field with {{NewOrgName}} (template resolves to UAT New <RuntimeMarker>)",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "Click the {{SaveButtonTestId}} button",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "Click the {{ShellHeaderTestId}} to re-expand the results grid",
+          "Verifications": [
+            {
+              "Text": "The runtime-resolved NewOrgKey is visible in the grid without any browser refresh"
+            },
+            {
+              "Text": "The runtime-resolved NewOrgName is visible in the grid"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "SystemAdminEmail": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "NavGroup": "Admin",
+        "NavItem": "Security Dashboard",
+        "DashboardUrlPattern": ".*/admin/security$",
+        "TabName": "Organization Master Details",
+        "AddButtonTestId": "organization-grid-add-button",
+        "NewOrgKey": "customer-uat-{{RuntimeMarker}}",
+        "NewOrgName": "UAT New {{RuntimeMarker}}",
+        "SaveButtonTestId": "organization-save-button",
+        "ShellHeaderTestId": "organization-master-details-shell-header",
+        "RuntimeMarker": "<8-hex-chars-from-Guid.NewGuid.ToString-N>"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "In-Circuit Refresh + New Org Cue",
+      "ItemLabel": "New organization button collapses shell and shows 'New organization' summary cue",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}"
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "Organization master grid is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{AddButtonTestId}} button",
+          "Verifications": [
+            {
+              "Text": "Collapsed shell summary is visible and reads '{{ExpectedSummaryText}}'",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "Organization Key field is visible and empty (create mode)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "SystemAdminEmail": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Organization Master Details",
+        "AddButtonTestId": "organization-grid-add-button",
+        "ExpectedSummaryText": "New organization"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "Shell Summary Reset on Filter Change",
+      "ItemLabel": "Filter change clears collapsed summary state and resets shell to default 'Organizations' header",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}"
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab"
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the first organization row to select it",
+          "Verifications": [
+            {
+              "Text": "Shell summary is visible \u2014 shell collapsed on row selection",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the {{ShellHeaderTestId}} to re-expand the grid"
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Fill the Key filter with {{FilterValue}} within the grid container"
+        },
+        {
+          "StepNumber": 7,
+          "Action": "Click the {{ShellHeaderTestId}} to collapse the shell",
+          "Verifications": [
+            {
+              "Text": "Summary text reads '{{ExpectedResetSummary}}' \u2014 selection-specific summary is cleared",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "No nested shell header exists inside the grid scroll region",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "SystemAdminEmail": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Organization Master Details",
+        "ShellHeaderTestId": "organization-master-details-shell-header",
+        "FilterValue": "customer-",
+        "ExpectedResetSummary": "Organizations"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Restriction-Seam Reachability",
+      "ItemLabel": "BackofficeUser reaches /products without an access-denied card",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{ProductsUrl}}"
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Wait for the product grid data to load",
+          "Verifications": [
+            {
+              "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The \"Unit Price\" column header is visible in the grid (.mud-table-head)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "jdoe@acmecoffee.com",
+        "Role": "BackofficeUser",
+        "ProductsUrl": "/products"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "ViewOnly Rendering",
+      "ItemLabel": "BackofficeUser sees UnitPrice column as non-editable in product grid",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{ProductsUrl}}"
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Wait for the product grid data to load",
+          "Verifications": [
+            {
+              "Text": "The \"Unit Price\" column header is visible in the grid (.mud-table-head)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "No input element exists within the \"Unit Price\" column header (inline editor absent, proving ViewOnly not Editable)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "jdoe@acmecoffee.com",
+        "Role": "BackofficeUser",
+        "ProductsUrl": "/products"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "ViewOnly Rendering",
+      "ItemLabel": "BackofficeUser sees UnitPrice field as disabled on product detail page",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{ProductDetailUrl}}",
+          "Verifications": [
+            {
+              "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The UnitPrice field (data-testid \"field-unit-price\") is visible on the detail form",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The UnitPrice field is disabled (cursor cannot edit the value)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "jdoe@acmecoffee.com",
+        "Role": "BackofficeUser",
+        "ProductDetailUrl": "/products/<first-seeded-product-id> (resolved at runtime by GetFirstProductIdAsync)"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Restriction-Seam Reachability",
+      "ItemLabel": "BackofficeUser is still denied on /admin/products (admin route stays protected)",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{AdminProductsUrl}}",
+          "Verifications": [
+            {
+              "Text": "The access-denied card (data-testid \"access-denied-page\") is visible \u2014 the admin route remains restricted to admin roles",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "jdoe@acmecoffee.com",
+        "Role": "BackofficeUser",
+        "AdminProductsUrl": "/admin/products"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.AdminProducts_BackofficeUser_StillDeniedAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Hidden Rendering",
+      "ItemLabel": "WarehouseUser sees no UnitPrice column in the product grid",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{ProductsUrl}}"
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Wait for the product grid data to load",
+          "Verifications": [
+            {
+              "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "No \"Unit Price\" column header exists anywhere in the grid (.mud-table-head) \u2014 RestrictedGridColumn emits nothing under the Hidden restriction",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "warehouse@acmecoffee.com",
+        "Role": "WarehouseUser",
+        "ProductsUrl": "/products"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Hidden Rendering",
+      "ItemLabel": "WarehouseUser sees no UnitPrice field on the product detail page",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{ProductDetailUrl}}",
+          "Verifications": [
+            {
+              "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "No UnitPrice field (data-testid \"field-unit-price\") exists on the detail form \u2014 RestrictedFormField emits nothing under the Hidden restriction",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "warehouse@acmecoffee.com",
+        "Role": "WarehouseUser",
+        "ProductDetailUrl": "/products/<first-seeded-product-id> (resolved at runtime by GetFirstProductIdAsync)"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "ViewOnly Rendering",
+      "ItemLabel": "Customer persona sees UnitPrice field as disabled on product detail page",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{ProductDetailUrl}}",
+          "Verifications": [
+            {
+              "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The UnitPrice field (data-testid \"field-unit-price\") is visible on the detail form",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The UnitPrice field is disabled (cursor cannot edit the value) \u2014 ViewOnly restriction enforced through the real web \u2192 api bridge under Docker",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "customer@acmecoffee.com",
+        "Role": "Customer",
+        "ProductDetailUrl": "/products/<first-seeded-product-id> (resolved at runtime by GetFirstProductIdAsync)"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "Safety-Net Removal",
+      "ItemLabel": "Safety-net panel is absent from the Default Masks tab after feature removal",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The Default Masks tab content is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The sensitive-name-safety-net-container element is absent from the DOM",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The sensitive-name-safety-net-panel element is absent from the DOM",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The sensitive-name-safety-net-clear button is absent from the DOM",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Default Masks"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_SafetyNetPanel_AbsentFromTabAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "SSN Seed Visibility",
+      "ItemLabel": "Seeded Customer.SocialSecurityNumber row renders singular table name and SSN display label",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Locate the seeded {{EntityKey}}.{{ColumnKey}} row in the Default Masks grid",
+          "Verifications": [
+            {
+              "Text": "The row is visible in the grid",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The Table column displays \"{{ExpectedTableDisplay}}\" (singular), not \"{{PluralTableName}}\"",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The Column column displays \"{{ExpectedColumnDisplay}}\", not the raw key \"{{ColumnKey}}\"",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Default Masks",
+        "EntityKey": "Customer",
+        "ColumnKey": "SocialSecurityNumber",
+        "ExpectedTableDisplay": "Customer",
+        "PluralTableName": "Customers",
+        "ExpectedColumnDisplay": "SSN"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "Singular Entity Names",
+      "ItemLabel": "Default Masks Table dropdown shows singular entity names (Customer, Product, Order)",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Open the Table dropdown",
+          "Verifications": [
+            {
+              "Text": "The Customer option is visible and displays \"Customer\" (singular)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The Product option is visible and displays \"Product\" (singular)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The Order option is visible and displays \"Order\" (singular)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Default Masks"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "SSN Seed Visibility",
+      "ItemLabel": "Adding Customer.Phone as a Default Mask persists and renders in the grid without browser reload",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "No existing {{EntityKey}}.{{ColumnKey}} mask row is present in the grid",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Select {{EntityKey}} from the Table dropdown",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Select {{ColumnKey}} from the Column dropdown",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Click the Add button",
+          "Verifications": [
+            {
+              "Text": "A new {{EntityKey}}.{{ColumnKey}} row appears in the Default Masks grid in-circuit (no browser reload)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Default Masks",
+        "EntityKey": "Customer",
+        "ColumnKey": "Phone"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "Add Column Restriction",
+      "ItemLabel": "Add Column Restriction button enables for a fresh Table+Column pair and the new row persists",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{RoleName}} role row",
+          "Verifications": [
+            {
+              "Text": "The role details section is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the {{SubTabName}} sub-tab",
+          "Verifications": [
+            {
+              "Text": "The column restrictions sub-tab content is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "No existing {{EntityKey}}.{{ColumnKey}} restriction row is present",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The Add button is disabled (no table/column selected yet)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Select {{EntityKey}} from the Table dropdown",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "Select {{ColumnKey}} from the Column dropdown",
+          "Verifications": [
+            {
+              "Text": "The Add button becomes enabled",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "Click the Add button",
+          "Verifications": [
+            {
+              "Text": "A new {{EntityKey}}.{{ColumnKey}} restriction row appears in the grid",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "RoleName": "BackofficeUser",
+        "SubTabName": "Data Column Restrictions",
+        "EntityKey": "Customer",
+        "ColumnKey": "Phone"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Default Masks and Column Restrictions",
+      "Subarea": "Add Column Restriction",
+      "ItemLabel": "Already-restricted column (Product.UnitPrice on BackofficeUser) is hidden from the Column dropdown",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{RoleName}} role row",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the {{SubTabName}} sub-tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Select {{EntityKey}} from the Table dropdown",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "Open the Column dropdown",
+          "Verifications": [
+            {
+              "Text": "The {{RestrictedColumnKey}} option is not offered (already restricted for {{RoleName}})",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The {{UnrestrictedColumnKey}} option is offered (no existing restriction)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "RoleName": "BackofficeUser",
+        "SubTabName": "Data Column Restrictions",
+        "EntityKey": "Product",
+        "RestrictedColumnKey": "UnitPrice",
+        "UnrestrictedColumnKey": "Name"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Row-Select Collapse",
+      "ItemLabel": "Selecting a user-type role row collapses the shell and shows a summary without a baked-in badge",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The role master grid is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{TargetRoleRow}} row",
+          "Verifications": [
+            {
+              "Text": "The role details section is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The collapsed shell summary reads \"Role: {{TargetRoleRow}}\"",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "No baked-in badge is present in the shell summary",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "TargetRoleRow": "BackofficeUser"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Row-Select Collapse",
+      "ItemLabel": "Selecting a baked-in role row collapses the shell and preserves the baked-in badge in the summary",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{TargetRoleRow}} row",
+          "Verifications": [
+            {
+              "Text": "The collapsed shell summary reads \"Role: {{TargetRoleRow}}\"",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The baked-in badge is visible in the shell summary",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "TargetRoleRow": "SystemAdmin"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Re-Expand",
+      "ItemLabel": "Clicking the collapsed shell header re-expands the results grid while keeping the details section visible",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{TargetRoleRow}} row",
+          "Verifications": [
+            {
+              "Text": "The shell summary is visible, confirming the shell collapsed on selection",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the {{ShellHeader}} to re-expand",
+          "Verifications": [
+            {
+              "Text": "The role master grid is visible again",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The role details section remains visible below the grid",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The shell header is not nested inside the grid scroll region",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "TargetRoleRow": "BackofficeUser",
+        "ShellHeader": "role-master-details-shell-header"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Filter-Change Reset",
+      "ItemLabel": "Changing a filter after re-expanding clears the stale selection summary so re-collapse shows the generic header",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{TargetRoleRow}} row",
+          "Verifications": [
+            {
+              "Text": "The shell summary is visible, confirming the shell collapsed on selection",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the {{ShellHeader}} to re-expand the results grid",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Fill the {{FilterFieldName}} filter with {{FilterValue}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "Click the {{ShellHeader}} to collapse the shell again",
+          "Verifications": [
+            {
+              "Text": "The shell summary reads \"{{GenericSummaryText}}\" instead of the previously-selected role name",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "TargetRoleRow": "BackofficeUser",
+        "ShellHeader": "role-master-details-shell-header",
+        "FilterFieldName": "Canonical name",
+        "FilterValue": "System",
+        "GenericSummaryText": "Roles"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Default Masks Shell Variant",
+      "ItemLabel": "Default Masks shell shows a declared-count summary when collapsed instead of a per-row selection summary",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The Default Masks tab content is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Click the {{ShellHeader}} to collapse the shell",
+          "Verifications": [
+            {
+              "Text": "The shell summary is visible and starts with \"Default Masks:\"",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The shell summary contains the word \"declared\" indicating the rule count",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Default Masks",
+        "ShellHeader": "default-masks-shell-header"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.DefaultMasks_Shell_RendersDeclaredCountSummaryAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "DisplayAlias Width",
+      "ItemLabel": "DisplayAlias column renders as a wrapped body-typography editor that is readable and not clipped",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Inspect the DisplayAlias editor for the {{TargetRoleRow}} row",
+          "Verifications": [
+            {
+              "Text": "The alias field is visible and contains \"{{ExpectedAliasValue}}\"",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The editor is rendered as a TEXTAREA element (not a single-line input)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The editor exposes at least {{MinEditorRows}} visible rows for wrapped text",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The font size is {{ExpectedFontSize}} matching body typography of sibling columns",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The field width does not exceed {{MaxColumnWidth}}px, staying within the column cap",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "TargetRoleRow": "BackofficeUser",
+        "ExpectedAliasValue": "Backoffice User",
+        "MinEditorRows": 2,
+        "ExpectedFontSize": "14px",
+        "MaxColumnWidth": 240
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync",
+      "IsJudgmentItem": true,
+      "Passes": false,
+      "Feedback": "Automated checks verify element type, row count, computed font-size, and max-width constraint, but whether the wrapped text is visually readable in context and the font weight/style truly matches sibling columns requires human judgment on the live rendering."
+    },
+    {
+      "FunctionalArea": "Accessibility and Keyboard",
+      "Subarea": "Tab-Strip Arrow-Key Handler Removal",
+      "ItemLabel": "ArrowRight on tab strip does not switch tabs \u2014 custom handler removed, Role Master Details stays selected",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to {{DashboardUrl}}",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the {{TabName}} tab",
+          "Verifications": [
+            {
+              "Text": "The tab strip (data-testid=\"{{TabStripTestId}}\") is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Focus the {{TabStripTestId}} tab strip and press {{Key}}",
+          "Verifications": [
+            {
+              "Text": "{{TabName}} tab remains selected \u2014 the custom @onkeydown arrow-key handler was removed in Session 7, so pressing ArrowRight has no tab-switching effect",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "DashboardUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "TabStripTestId": "security-dashboard-tabstrip",
+        "Key": "ArrowRight"
+      },
+      "E2ETestReference": "SecurityDashboardUatCoverageTests.Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    }
+  ]
+}

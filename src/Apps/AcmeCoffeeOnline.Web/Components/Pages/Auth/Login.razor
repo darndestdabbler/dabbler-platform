@@ -2,10 +2,12 @@
 @layout AcmeCoffeeOnline.Web.Components.Layout.AuthLayout
 @attribute [AllowAnonymous]
 @using System.Net.Http.Json
+@using Microsoft.Extensions.Configuration
 @using Microsoft.Extensions.Options
 @using AcmeCoffeeOnline.Web.Configuration
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigation
+@inject IConfiguration Configuration
 @inject IOptions<AppAuthenticationOptions> AuthOptions
 @inject IJSRuntime JS
 
@@ -271,6 +273,32 @@
         }
     }
 
+    // When Blazor Server runs in a container, Navigation.BaseUri returns the
+    // browser-visible URL (e.g., http://localhost:5010), which is the host's
+    // port mapping and is NOT reachable from inside the container. Setting
+    // Services:WebSelfBaseUrl to the container-internal URL (e.g.,
+    // http://localhost:8080) lets server-side self-POSTs go directly to
+    // Kestrel while we preserve the browser's Host header so server-side
+    // handlers that read ctx.Request.Host (magic-link email construction) see
+    // the public value.
+    private async Task<HttpResponseMessage> PostSelfAsync(string path, object body)
+    {
+        var client = HttpClientFactory.CreateClient();
+        var selfBase = Configuration["Services:WebSelfBaseUrl"]?.TrimEnd('/');
+        var browserBase = Navigation.BaseUri.TrimEnd('/');
+        var targetBase = selfBase ?? browserBase;
+
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{targetBase}{path}")
+        {
+            Content = JsonContent.Create(body)
+        };
+        if (selfBase is not null)
+        {
+            request.Headers.Host = new Uri(browserBase).Authority;
+        }
+        return await client.SendAsync(request);
+    }
+
     private async Task SendMagicLinkAsync()
     {
         if (string.IsNullOrWhiteSpace(_email))
@@ -281,10 +309,8 @@
 
         try
         {
-            var client = HttpClientFactory.CreateClient();
-            var baseUri = Navigation.BaseUri.TrimEnd('/');
-            var response = await client.PostAsJsonAsync(
-                $"{baseUri}/auth/send-magic-link",
+            var response = await PostSelfAsync(
+                "/auth/send-magic-link",
                 new { email = _email.Trim() });
 
             if (response.IsSuccessStatusCode)
@@ -316,10 +342,8 @@
 
         try
         {
-            var client = HttpClientFactory.CreateClient();
-            var baseUri = Navigation.BaseUri.TrimEnd('/');
-            var response = await client.PostAsJsonAsync(
-                $"{baseUri}/auth/verify",
+            var response = await PostSelfAsync(
+                "/auth/verify",
                 new { token = (string?)null, email = _email.Trim(), code = _code.Trim() });
 
             if (response.IsSuccessStatusCode)
@@ -368,10 +392,8 @@
 
         try
         {
-            var client = HttpClientFactory.CreateClient();
-            var baseUri = Navigation.BaseUri.TrimEnd('/');
-            var response = await client.PostAsJsonAsync(
-                $"{baseUri}/auth/verify",
+            var response = await PostSelfAsync(
+                "/auth/verify",
                 new { token, email = (string?)null, code = (string?)null });
 
             if (response.IsSuccessStatusCode)
@@ -425,10 +447,8 @@
 
         try
         {
-            var client = HttpClientFactory.CreateClient();
-            var baseUri = Navigation.BaseUri.TrimEnd('/');
-            var response = await client.PostAsJsonAsync(
-                $"{baseUri}/auth/verify-mfa",
+            var response = await PostSelfAsync(
+                "/auth/verify-mfa",
                 new { userId = _mfaUserId.Value, code = _mfaCode.Trim() });
 
             if (response.IsSuccessStatusCode)

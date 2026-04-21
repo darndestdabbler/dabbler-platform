@@ -17,58 +17,11 @@ public sealed class MultiOrganizationWorkflowTests
         _fixture = fixture;
     }
 
-    [Fact]
-    public async Task E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync()
-    {
-        var page = await _fixture.CreatePageAsync();
-
-        try
-        {
-            await _fixture.SeededSignInAsync(page, DualMembershipEmail);
-
-            var initialSession = await _fixture.GetSessionInfoAsync(page);
-            Assert.Equal(DualMembershipEmail, initialSession.Email);
-            Assert.False(string.IsNullOrWhiteSpace(initialSession.UserId));
-            Assert.Equal("internal", initialSession.ActiveOrganizationKey);
-            Assert.Contains("BackofficeUser", initialSession.Roles ?? []);
-
-            var retailOrganization = initialSession.AvailableOrganizations?
-                .SingleOrDefault(organization =>
-                    !organization.IsInternal
-                    && (organization.Roles ?? []).Contains("Customer", StringComparer.Ordinal))
-                ?? throw new Xunit.Sdk.XunitException("The dual-membership user did not expose a retail organization.");
-
-            // As an internal user, navigate to customers via the drawer
-            await _fixture.NavigateViaDrawerAsync(page, "Retail Businesses", ".*/customers$");
-
-            // Switch to retail organization
-            await _fixture.SwitchOrganizationFromShellAsync(page, retailOrganization.OrganizationName);
-
-            await Assertions.Expect(page.GetByTestId("active-organization-label"))
-                .ToHaveTextAsync(retailOrganization.OrganizationName);
-
-            var switchedSession = await _fixture.GetSessionInfoAsync(page);
-            Assert.Equal(retailOrganization.OrganizationId.ToString(), switchedSession.ActiveOrganizationId);
-            Assert.Contains("Customer", switchedSession.Roles ?? []);
-            Assert.DoesNotContain("BackofficeUser", switchedSession.Roles ?? []);
-
-            // As retail customer, orders should be accessible via drawer
-            await _fixture.NavigateViaDrawerAsync(page, "Orders", ".*/orders$");
-
-            // Admin users page should be blocked
-            await page.GotoAsync($"{_fixture.BaseUrl}/admin/users", new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.NetworkIdle
-            });
-
-            await Assertions.Expect(page.GetByTestId("access-denied-page"))
-                .ToBeVisibleAsync();
-        }
-        finally
-        {
-            await _fixture.ClosePageAsync(page);
-        }
-    }
+    // E2E_WF_02 (DualMembershipUser_SwitchesShellScope...) lives in
+    // MultiOrganizationWorkflowFlakyTests.cs under FlakyPlaywrightCollection
+    // because the post-switch shell re-render is flaky under full-suite
+    // parallelism. Keep the isolated-run invocation until the root cause is
+    // addressed in a focused session.
 
     [Fact]
     public async Task E2E_WF_01_RegionalSalesRep_ManagesScopedUserAdminWithoutLeakingAcrossOrganizationsAsync()
