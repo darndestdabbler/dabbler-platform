@@ -448,3 +448,12 @@ before proceeding.
   consumer. Disclose the deviation in the end-of-session verification
   prompt. Applies whenever consumer count and session boundaries would
   otherwise force a single session to own a disproportionate rewrite.
+- When the orchestrator model matches the routing target for a given
+  task type, handle the task in-conversation rather than calling
+  `route()`. A `route()` call into the orchestrator's own model gives
+  fresh context (occasionally useful for stochastic independence) but
+  also pays the provider's API cost to summon another instance of the
+  same judgment. The non-negotiable exception is `session-verification`,
+  which MUST go through the router regardless, because the whole point
+  is a cross-provider second opinion. Complements the existing
+  Delegation Discipline criteria in `docs/ai-led-session-workflow.md`.
