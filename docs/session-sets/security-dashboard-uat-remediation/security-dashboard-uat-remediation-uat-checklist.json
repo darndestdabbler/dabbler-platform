@@ -9,12 +9,12 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{RoleName}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate via {{DrawerGroup}} drawer group to {{NavEntry}}",
+          "Action": "Navigate via Admin drawer group to Security Dashboard",
           "Verifications": [
             {
               "Text": "\"Role Master Details\" tab is visible",
@@ -57,15 +57,15 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{RoleName}}",
+          "Action": "Sign in as asmith@acmecoffee.com with role CrossOrgUserAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate via {{DrawerGroup}} drawer group to {{NavEntry}}",
+          "Action": "Navigate via Admin drawer group to Security Dashboard",
           "Verifications": [
             {
-              "Text": "Page URL matches {{DashboardUrl}}",
+              "Text": "Page URL matches /admin/security",
               "VerificationMethod": "ui"
             },
             {
@@ -110,12 +110,12 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{RoleName}}",
+          "Action": "Sign in as jdoe@acmecoffee.com with role User",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate via {{DrawerGroup}} drawer group to {{NavEntry}}",
+          "Action": "Navigate via Admin drawer group to Security Dashboard",
           "Verifications": [
             {
               "Text": "\"Role Documentation\" tab is visible",
@@ -158,17 +158,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Users and Role Assignment tab",
           "Verifications": [
             {
               "Text": "The users-master-grid container is visible (no InvalidOperationException or ObjectDisposedException)",
@@ -199,17 +199,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Users and Role Assignment tab",
           "Verifications": [
             {
               "Text": "The users-master-grid container is visible",
@@ -240,17 +240,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Users and Role Assignment tab",
           "Verifications": [
             {
               "Text": "The users-master-grid container is visible",
@@ -260,12 +260,12 @@
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{AlternateTabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": []
         },
         {
           "StepNumber": 5,
-          "Action": "Click the {{TabName}} tab again",
+          "Action": "Click the Users and Role Assignment tab again",
           "Verifications": [
             {
               "Text": "The users-master-grid container is visible after remount",
@@ -297,17 +297,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as asmith@acmecoffee.com with role CrossOrgUserAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Users and Role Assignment tab",
           "Verifications": [
             {
               "Text": "The users-master-grid container is visible (DbContextFactory fix holds for CrossOrgUserAdmin)",
@@ -338,17 +338,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Users and Role Assignment tab",
           "Verifications": []
         },
         {
@@ -368,7 +368,7 @@
         },
         {
           "StepNumber": 6,
-          "Action": "Type {{FilterValue}} in the {{FilterField}} filter textbox",
+          "Action": "Type admin@ in the Email filter textbox",
           "Verifications": []
         },
         {
@@ -376,7 +376,7 @@
           "Action": "Click the expansion shell header",
           "Verifications": [
             {
-              "Text": "The shell summary is visible and displays '{{ExpectedSummaryText}}' (selection-specific summary cleared)",
+              "Text": "The shell summary is visible and displays 'Users' (selection-specific summary cleared)",
               "VerificationMethod": "ui"
             },
             {
@@ -407,12 +407,12 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Query {{CustomersApiEndpoint}} authenticated as {{CrossOrgUserAdminEmail}} and capture response.totalCount as asmithTotal",
+          "Action": "Query api/customers?page=1&pageSize=100 authenticated as asmith@acmecoffee.com and capture response.totalCount as asmithTotal",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Query {{CustomersApiEndpoint}} authenticated as {{SystemAdminEmail}} and capture response.totalCount as adminTotal",
+          "Action": "Query api/customers?page=1&pageSize=100 authenticated as admin@acmecoffee.com and capture response.totalCount as adminTotal",
           "Verifications": [
             {
               "Text": "adminTotal > 0 (seed exposes at least one customer)",
@@ -442,7 +442,7 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Query {{CustomersApiEndpoint}} authenticated as {{BackofficeUserEmail}} and capture response.totalCount as jdoeTotal",
+          "Action": "Query api/customers?page=1&pageSize=100 authenticated as jdoe@acmecoffee.com and capture response.totalCount as jdoeTotal",
           "Verifications": [
             {
               "Text": "jdoeTotal > 0 (BackofficeUser falls through to full customer visibility until Set C org-scope lands)",
@@ -467,15 +467,15 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}"
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate via drawer group {{NavGroup}} > {{NavItem}} to {{DashboardUrlPattern}}"
+          "Action": "Navigate via drawer group Admin > Security Dashboard to .*/admin/security$"
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Organization Master Details tab",
           "Verifications": [
             {
               "Text": "Organization master grid is visible",
@@ -493,10 +493,10 @@
         },
         {
           "StepNumber": 4,
-          "Action": "Fill the Key filter with {{DashFilter}}",
+          "Action": "Fill the Key filter with customer-",
           "Verifications": [
             {
-              "Text": "Internal organization row (id=1) is no longer visible \u2014 its key does not contain '{{DashFilter}}'",
+              "Text": "Internal organization row (id=1) is no longer visible \u2014 its key does not contain 'customer-'",
               "VerificationMethod": "ui"
             },
             {
@@ -507,10 +507,10 @@
         },
         {
           "StepNumber": 5,
-          "Action": "Fill the Key filter with {{InvalidDashFilter}}",
+          "Action": "Fill the Key filter with cust-",
           "Verifications": [
             {
-              "Text": "Grid shows 0 rows \u2014 '{{InvalidDashFilter}}' is not a substring of any seeded organization key",
+              "Text": "Grid shows 0 rows \u2014 'cust-' is not a substring of any seeded organization key",
               "VerificationMethod": "ui"
             }
           ]
@@ -538,17 +538,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate via drawer group {{NavGroup}} > {{NavItem}} matching URL pattern {{DashboardUrlPattern}}",
+          "Action": "Navigate via the Admin drawer group to Security Dashboard (URL ends at /admin/security).",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Organization Master Details tab",
           "Verifications": [
             {
               "Text": "Organization master grid is visible"
@@ -557,38 +557,38 @@
         },
         {
           "StepNumber": 4,
-          "Action": "Generate a fresh 8-character runtime marker {{RuntimeMarker}} (first 8 hex of a new Guid)",
+          "Action": "Generate a fresh 8-character hex marker you will reuse in steps 6, 7, and the verifications at step 9. Any 8-hex string works; this checklist uses `a1b2c3d4` as the example. The Playwright test computes its marker via `Guid.NewGuid().ToString(\"N\").Substring(0, 8)`.",
           "Verifications": []
         },
         {
           "StepNumber": 5,
-          "Action": "Click the {{AddButtonTestId}} button",
+          "Action": "Click the organization-grid-add-button button",
           "Verifications": []
         },
         {
           "StepNumber": 6,
-          "Action": "Fill the Key field with {{NewOrgKey}} (template resolves to customer-uat-<RuntimeMarker>)",
+          "Action": "Fill the Key field with `customer-uat-a1b2c3d4` (substitute the 8-hex marker you chose in step 4).",
           "Verifications": []
         },
         {
           "StepNumber": 7,
-          "Action": "Fill the Name field with {{NewOrgName}} (template resolves to UAT New <RuntimeMarker>)",
+          "Action": "Fill the Name field with `UAT New a1b2c3d4` (substitute the same 8-hex marker you chose in step 4).",
           "Verifications": []
         },
         {
           "StepNumber": 8,
-          "Action": "Click the {{SaveButtonTestId}} button",
+          "Action": "Click the organization-save-button button",
           "Verifications": []
         },
         {
           "StepNumber": 9,
-          "Action": "Click the {{ShellHeaderTestId}} to re-expand the results grid",
+          "Action": "Click the organization-master-details-shell-header to re-expand the results grid",
           "Verifications": [
             {
-              "Text": "The runtime-resolved NewOrgKey is visible in the grid without any browser refresh"
+              "Text": "The row with key `customer-uat-a1b2c3d4` is visible in the grid without any browser refresh (using the marker you chose in step 4)."
             },
             {
-              "Text": "The runtime-resolved NewOrgName is visible in the grid"
+              "Text": "The row with name `UAT New a1b2c3d4` is visible in the grid (using the marker you chose in step 4)."
             }
           ]
         }
@@ -619,15 +619,15 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}"
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}"
+          "Action": "Navigate to /admin/security"
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Organization Master Details tab",
           "Verifications": [
             {
               "Text": "Organization master grid is visible",
@@ -637,10 +637,10 @@
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{AddButtonTestId}} button",
+          "Action": "Click the organization-grid-add-button button",
           "Verifications": [
             {
-              "Text": "Collapsed shell summary is visible and reads '{{ExpectedSummaryText}}'",
+              "Text": "Collapsed shell summary is visible and reads 'New organization'",
               "VerificationMethod": "ui"
             },
             {
@@ -670,15 +670,15 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{SystemAdminEmail}} with role {{Role}}"
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}"
+          "Action": "Navigate to /admin/security"
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab"
+          "Action": "Click the Organization Master Details tab"
         },
         {
           "StepNumber": 4,
@@ -692,18 +692,18 @@
         },
         {
           "StepNumber": 5,
-          "Action": "Click the {{ShellHeaderTestId}} to re-expand the grid"
+          "Action": "Click the organization-master-details-shell-header to re-expand the grid"
         },
         {
           "StepNumber": 6,
-          "Action": "Fill the Key filter with {{FilterValue}} within the grid container"
+          "Action": "Fill the Key filter with customer- within the grid container"
         },
         {
           "StepNumber": 7,
-          "Action": "Click the {{ShellHeaderTestId}} to collapse the shell",
+          "Action": "Click the organization-master-details-shell-header to collapse the shell",
           "Verifications": [
             {
-              "Text": "Summary text reads '{{ExpectedResetSummary}}' \u2014 selection-specific summary is cleared",
+              "Text": "Summary text reads 'Organizations' \u2014 selection-specific summary is cleared",
               "VerificationMethod": "ui"
             },
             {
@@ -734,11 +734,11 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}"
+          "Action": "Sign in as jdoe@acmecoffee.com with role BackofficeUser"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{ProductsUrl}}"
+          "Action": "Navigate to /products"
         },
         {
           "StepNumber": 3,
@@ -772,11 +772,11 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}"
+          "Action": "Sign in as jdoe@acmecoffee.com with role BackofficeUser"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{ProductsUrl}}"
+          "Action": "Navigate to /products"
         },
         {
           "StepNumber": 3,
@@ -810,11 +810,11 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}"
+          "Action": "Sign in as jdoe@acmecoffee.com with role BackofficeUser"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{ProductDetailUrl}}",
+          "Action": "Navigate to /products/<first-seeded-product-id> (resolved at runtime by GetFirstProductIdAsync)",
           "Verifications": [
             {
               "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
@@ -848,11 +848,11 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}"
+          "Action": "Sign in as jdoe@acmecoffee.com with role BackofficeUser"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{AdminProductsUrl}}",
+          "Action": "Navigate to /admin/products",
           "Verifications": [
             {
               "Text": "The access-denied card (data-testid \"access-denied-page\") is visible \u2014 the admin route remains restricted to admin roles",
@@ -878,11 +878,11 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}"
+          "Action": "Sign in as warehouse@acmecoffee.com with role WarehouseUser"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{ProductsUrl}}"
+          "Action": "Navigate to /products"
         },
         {
           "StepNumber": 3,
@@ -916,11 +916,11 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}"
+          "Action": "Sign in as warehouse@acmecoffee.com with role WarehouseUser"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{ProductDetailUrl}}",
+          "Action": "Navigate to /products/<first-seeded-product-id> (resolved at runtime by GetFirstProductIdAsync)",
           "Verifications": [
             {
               "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
@@ -950,11 +950,11 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}"
+          "Action": "Sign in as customer@acmecoffee.com with role Customer"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{ProductDetailUrl}}",
+          "Action": "Navigate to /products/<first-seeded-product-id> (resolved at runtime by GetFirstProductIdAsync)",
           "Verifications": [
             {
               "Text": "No access-denied card is displayed (data-testid \"access-denied-page\" has count 0)",
@@ -988,17 +988,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Default Masks tab",
           "Verifications": [
             {
               "Text": "The Default Masks tab content is visible",
@@ -1037,33 +1037,33 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Default Masks tab",
           "Verifications": []
         },
         {
           "StepNumber": 4,
-          "Action": "Locate the seeded {{EntityKey}}.{{ColumnKey}} row in the Default Masks grid",
+          "Action": "Locate the seeded Customer.SocialSecurityNumber row in the Default Masks grid",
           "Verifications": [
             {
               "Text": "The row is visible in the grid",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The Table column displays \"{{ExpectedTableDisplay}}\" (singular), not \"{{PluralTableName}}\"",
+              "Text": "The Table column displays \"Customer\" (singular), not \"Customers\"",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The Column column displays \"{{ExpectedColumnDisplay}}\", not the raw key \"{{ColumnKey}}\"",
+              "Text": "The Column column displays \"SSN\", not the raw key \"SocialSecurityNumber\"",
               "VerificationMethod": "ui"
             }
           ]
@@ -1092,17 +1092,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Default Masks tab",
           "Verifications": []
         },
         {
@@ -1142,32 +1142,32 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Default Masks tab",
           "Verifications": [
             {
-              "Text": "No existing {{EntityKey}}.{{ColumnKey}} mask row is present in the grid",
+              "Text": "No existing Customer.Phone mask row is present in the grid",
               "VerificationMethod": "ui"
             }
           ]
         },
         {
           "StepNumber": 4,
-          "Action": "Select {{EntityKey}} from the Table dropdown",
+          "Action": "Select Customer from the Table dropdown",
           "Verifications": []
         },
         {
           "StepNumber": 5,
-          "Action": "Select {{ColumnKey}} from the Column dropdown",
+          "Action": "Select Phone from the Column dropdown",
           "Verifications": []
         },
         {
@@ -1175,7 +1175,7 @@
           "Action": "Click the Add button",
           "Verifications": [
             {
-              "Text": "A new {{EntityKey}}.{{ColumnKey}} row appears in the Default Masks grid in-circuit (no browser reload)",
+              "Text": "A new Customer.Phone row appears in the Default Masks grid in-circuit (no browser reload)",
               "VerificationMethod": "ui"
             }
           ]
@@ -1201,22 +1201,22 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": []
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{RoleName}} role row",
+          "Action": "Click the BackofficeUser role row",
           "Verifications": [
             {
               "Text": "The role details section is visible",
@@ -1226,14 +1226,14 @@
         },
         {
           "StepNumber": 5,
-          "Action": "Click the {{SubTabName}} sub-tab",
+          "Action": "Click the Data Column Restrictions sub-tab",
           "Verifications": [
             {
               "Text": "The column restrictions sub-tab content is visible",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "No existing {{EntityKey}}.{{ColumnKey}} restriction row is present",
+              "Text": "No existing Customer.Phone restriction row is present",
               "VerificationMethod": "ui"
             },
             {
@@ -1244,12 +1244,12 @@
         },
         {
           "StepNumber": 6,
-          "Action": "Select {{EntityKey}} from the Table dropdown",
+          "Action": "Select Customer from the Table dropdown",
           "Verifications": []
         },
         {
           "StepNumber": 7,
-          "Action": "Select {{ColumnKey}} from the Column dropdown",
+          "Action": "Select Phone from the Column dropdown",
           "Verifications": [
             {
               "Text": "The Add button becomes enabled",
@@ -1262,7 +1262,7 @@
           "Action": "Click the Add button",
           "Verifications": [
             {
-              "Text": "A new {{EntityKey}}.{{ColumnKey}} restriction row appears in the grid",
+              "Text": "A new Customer.Phone restriction row appears in the grid",
               "VerificationMethod": "ui"
             }
           ]
@@ -1290,32 +1290,32 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": []
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{RoleName}} role row",
+          "Action": "Click the BackofficeUser role row",
           "Verifications": []
         },
         {
           "StepNumber": 5,
-          "Action": "Click the {{SubTabName}} sub-tab",
+          "Action": "Click the Data Column Restrictions sub-tab",
           "Verifications": []
         },
         {
           "StepNumber": 6,
-          "Action": "Select {{EntityKey}} from the Table dropdown",
+          "Action": "Select Product from the Table dropdown",
           "Verifications": []
         },
         {
@@ -1323,11 +1323,11 @@
           "Action": "Open the Column dropdown",
           "Verifications": [
             {
-              "Text": "The {{RestrictedColumnKey}} option is not offered (already restricted for {{RoleName}})",
+              "Text": "The UnitPrice option is not offered (already restricted for BackofficeUser)",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The {{UnrestrictedColumnKey}} option is offered (no existing restriction)",
+              "Text": "The Name option is offered (no existing restriction)",
               "VerificationMethod": "ui"
             }
           ]
@@ -1356,17 +1356,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Action": "Sign in as admin@acmecoffee.com with SystemAdmin role",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": [
             {
               "Text": "The role master grid is visible",
@@ -1376,14 +1376,14 @@
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{TargetRoleRow}} row",
+          "Action": "Click the BackofficeUser row",
           "Verifications": [
             {
               "Text": "The role details section is visible",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The collapsed shell summary reads \"Role: {{TargetRoleRow}}\"",
+              "Text": "The collapsed shell summary reads \"Role: BackofficeUser\"",
               "VerificationMethod": "ui"
             },
             {
@@ -1412,25 +1412,25 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Action": "Sign in as admin@acmecoffee.com with SystemAdmin role",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": []
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{TargetRoleRow}} row",
+          "Action": "Click the SystemAdmin row",
           "Verifications": [
             {
-              "Text": "The collapsed shell summary reads \"Role: {{TargetRoleRow}}\"",
+              "Text": "The collapsed shell summary reads \"Role: SystemAdmin\"",
               "VerificationMethod": "ui"
             },
             {
@@ -1459,22 +1459,22 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Action": "Sign in as admin@acmecoffee.com with SystemAdmin role",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": []
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{TargetRoleRow}} row",
+          "Action": "Click the BackofficeUser row",
           "Verifications": [
             {
               "Text": "The shell summary is visible, confirming the shell collapsed on selection",
@@ -1484,7 +1484,7 @@
         },
         {
           "StepNumber": 5,
-          "Action": "Click the {{ShellHeader}} to re-expand",
+          "Action": "Click the role-master-details-shell-header to re-expand",
           "Verifications": [
             {
               "Text": "The role master grid is visible again",
@@ -1521,22 +1521,22 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Action": "Sign in as admin@acmecoffee.com with SystemAdmin role",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": []
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{TargetRoleRow}} row",
+          "Action": "Click the BackofficeUser row",
           "Verifications": [
             {
               "Text": "The shell summary is visible, confirming the shell collapsed on selection",
@@ -1546,20 +1546,20 @@
         },
         {
           "StepNumber": 5,
-          "Action": "Click the {{ShellHeader}} to re-expand the results grid",
+          "Action": "Click the role-master-details-shell-header to re-expand the results grid",
           "Verifications": []
         },
         {
           "StepNumber": 6,
-          "Action": "Fill the {{FilterFieldName}} filter with {{FilterValue}}",
+          "Action": "Fill the Canonical name filter with System",
           "Verifications": []
         },
         {
           "StepNumber": 7,
-          "Action": "Click the {{ShellHeader}} to collapse the shell again",
+          "Action": "Click the role-master-details-shell-header to collapse the shell again",
           "Verifications": [
             {
-              "Text": "The shell summary reads \"{{GenericSummaryText}}\" instead of the previously-selected role name",
+              "Text": "The shell summary reads \"Roles\" instead of the previously-selected role name",
               "VerificationMethod": "ui"
             }
           ]
@@ -1588,17 +1588,17 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Action": "Sign in as admin@acmecoffee.com with SystemAdmin role",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Default Masks tab",
           "Verifications": [
             {
               "Text": "The Default Masks tab content is visible",
@@ -1608,7 +1608,7 @@
         },
         {
           "StepNumber": 4,
-          "Action": "Click the {{ShellHeader}} to collapse the shell",
+          "Action": "Click the default-masks-shell-header to collapse the shell",
           "Verifications": [
             {
               "Text": "The shell summary is visible and starts with \"Default Masks:\"",
@@ -1640,25 +1640,25 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with {{Role}} role",
+          "Action": "Sign in as admin@acmecoffee.com with SystemAdmin role",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": []
         },
         {
           "StepNumber": 4,
-          "Action": "Inspect the DisplayAlias editor for the {{TargetRoleRow}} row",
+          "Action": "Inspect the DisplayAlias editor for the BackofficeUser row",
           "Verifications": [
             {
-              "Text": "The alias field is visible and contains \"{{ExpectedAliasValue}}\"",
+              "Text": "The alias field is visible and contains \"Backoffice User\"",
               "VerificationMethod": "ui"
             },
             {
@@ -1666,15 +1666,15 @@
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The editor exposes at least {{MinEditorRows}} visible rows for wrapped text",
+              "Text": "The editor exposes at least 2 visible rows for wrapped text",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The font size is {{ExpectedFontSize}} matching body typography of sibling columns",
+              "Text": "The font size is 14px matching body typography of sibling columns",
               "VerificationMethod": "ui"
             },
             {
-              "Text": "The field width does not exceed {{MaxColumnWidth}}px, staying within the column cap",
+              "Text": "The field width does not exceed 240px, staying within the column cap",
               "VerificationMethod": "ui"
             }
           ]
@@ -1703,30 +1703,30 @@
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as {{Persona}} with role {{Role}}",
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
           "Verifications": []
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to {{DashboardUrl}}",
+          "Action": "Navigate to /admin/security",
           "Verifications": []
         },
         {
           "StepNumber": 3,
-          "Action": "Click the {{TabName}} tab",
+          "Action": "Click the Role Master Details tab",
           "Verifications": [
             {
-              "Text": "The tab strip (data-testid=\"{{TabStripTestId}}\") is visible",
+              "Text": "The tab strip (data-testid=\"security-dashboard-tabstrip\") is visible",
               "VerificationMethod": "ui"
             }
           ]
         },
         {
           "StepNumber": 4,
-          "Action": "Focus the {{TabStripTestId}} tab strip and press {{Key}}",
+          "Action": "Focus the security-dashboard-tabstrip tab strip and press ArrowRight",
           "Verifications": [
             {
-              "Text": "{{TabName}} tab remains selected \u2014 the custom @onkeydown arrow-key handler was removed in Session 7, so pressing ArrowRight has no tab-switching effect",
+              "Text": "Role Master Details tab remains selected \u2014 the custom @onkeydown arrow-key handler was removed in Session 7, so pressing ArrowRight has no tab-switching effect",
               "VerificationMethod": "ui"
             }
           ]
