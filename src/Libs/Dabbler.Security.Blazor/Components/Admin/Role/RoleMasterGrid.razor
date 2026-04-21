@@ -42,7 +42,8 @@
                      Hover="true"
                      Bordered="true"
                      Striped="true"
-                     SelectedItemChanged="OnSelectionChanged"
+                     ReadOnly="true"
+                     RowClick="@OnRowClickAsync"
                      SelectedItem="@_selected"
                      data-testid="role-master-grid">
             <Columns>
@@ -255,6 +256,18 @@
         {
             StateHasChanged();
         }
+    }
+
+    private async Task OnRowClickAsync(DataGridRowClickEventArgs<RoleRow> args)
+    {
+        // RowClick is the single source-of-truth for row selection in this grid.
+        // SelectedItemChanged fires only when SelectedItem *changes*, which meant a
+        // first-column cell click could silently set cell focus without reselecting
+        // the row — human saw "two clicks to collapse the shell" (finding #49).
+        // RowClick fires on every row click regardless of current selection state,
+        // and ReadOnly="true" on the grid prevents MudBlazor from interpreting the
+        // click as a cell-edit intent in the first place.
+        await OnSelectionChanged(args.Item);
     }
 
     private async Task OnSelectionChanged(RoleRow? row)

@@ -448,10 +448,13 @@ public sealed class SecurityDashboardUatCoverageTests
             await page.GetByTestId("organization-name-field").Locator("input").FillAsync(newName);
             await page.GetByTestId("organization-save-button").ClickAsync();
 
-            // Session 7: creating / saving collapses the results shell so the
-            // details form takes focus. Re-expand the shell so the grid rows
-            // become visible for the refresh assertion below.
-            await page.GetByTestId("organization-master-details-shell-header").ClickAsync();
+            // security-dashboard-uat-followup-fixes Finding #11: after a
+            // successful save the tab auto-re-expands the results shell so
+            // the refreshed grid (with the just-created row) is visible
+            // without an extra shell-header click. The human reviewer saw
+            // "new organization not visible in the grid" because the prior
+            // Session 7 flow left the shell collapsed and the re-expand
+            // click was easy to miss.
 
             // In-circuit refresh: the new key must appear in the grid without
             // a navigation or reload. No `page.ReloadAsync` anywhere below.

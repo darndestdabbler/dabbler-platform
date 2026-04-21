@@ -1,4 +1,5 @@
 using AcmeCoffeeOnline.Web.Configuration;
+using System.Globalization;
 using System.Net;
 using System.Security.Claims;
 using AcmeCoffeeOnline.Shared.DTOs;
@@ -291,6 +292,22 @@ builder.Services.AddSingleton<IEntityMetadataProvider, AcmeCoffeeMetadataProvide
 builder.Services.AddScoped<AcmeCoffeeOnline.Web.Services.DevTools.TestAuthClient>();
 
 var app = builder.Build();
+
+// Pin the request + thread culture so currency, dates, and numbers render
+// consistently across host environments. Without this, Linux containers start
+// with POSIX locale and .NET falls back to InvariantCulture, which renders
+// currency with the generic "¤" symbol instead of "$". Set per-thread AND
+// per-request so both MudDataGrid column formatting ("C2") and
+// Thread.CurrentThread.CurrentCulture reads observe en-US.
+var defaultCulture = CultureInfo.GetCultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+app.UseRequestLocalization(new Microsoft.AspNetCore.Builder.RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(defaultCulture),
+    SupportedCultures = [defaultCulture],
+    SupportedUICultures = [defaultCulture]
+});
 
 if (!app.Environment.IsDevelopment())
 {

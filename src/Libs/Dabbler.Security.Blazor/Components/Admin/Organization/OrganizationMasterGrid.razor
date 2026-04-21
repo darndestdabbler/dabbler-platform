@@ -37,7 +37,8 @@
                      Hover="true"
                      Bordered="true"
                      Striped="true"
-                     SelectedItemChanged="OnSelectionChangedAsync"
+                     ReadOnly="true"
+                     RowClick="@OnRowClickAsync"
                      SelectedItem="@_selected"
                      data-testid="organization-master-grid">
             <Columns>
@@ -265,6 +266,15 @@
         {
             StateHasChanged();
         }
+    }
+
+    private async Task OnRowClickAsync(DataGridRowClickEventArgs<OrganizationRow> args)
+    {
+        // See RoleMasterGrid.OnRowClickAsync — the finding #49 fix also applies
+        // here. Clicking a cell in the first column now collapses the shell on
+        // the first click because RowClick fires on every row click regardless
+        // of whether SelectedItem actually changed.
+        await OnSelectionChangedAsync(args.Item);
     }
 
     private async Task OnSelectionChangedAsync(OrganizationRow? row)

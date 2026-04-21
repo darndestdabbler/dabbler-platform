@@ -7,6 +7,7 @@ using Dabbler.Security.Middleware;
 using Dabbler.Security.Options;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -147,6 +148,13 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Pin culture so date/number serialization is consistent across host
+// environments; see AcmeCoffeeOnline.Web.Program.cs for the Web-side
+// counterpart that fixes the "¤" currency-symbol regression in Docker.
+var apiCulture = CultureInfo.GetCultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = apiCulture;
+CultureInfo.DefaultThreadCurrentUICulture = apiCulture;
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 

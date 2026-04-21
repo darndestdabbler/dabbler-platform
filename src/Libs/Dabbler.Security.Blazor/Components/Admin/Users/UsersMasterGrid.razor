@@ -36,7 +36,8 @@
                      Hover="true"
                      Bordered="true"
                      Striped="true"
-                     SelectedItemChanged="OnSelectionChangedAsync"
+                     ReadOnly="true"
+                     RowClick="@OnRowClickAsync"
                      SelectedItem="@_selected"
                      data-testid="users-master-grid">
             <Columns>
@@ -309,6 +310,12 @@
         {
             StateHasChanged();
         }
+    }
+
+    private async Task OnRowClickAsync(DataGridRowClickEventArgs<AdminUserRow> args)
+    {
+        // See RoleMasterGrid.OnRowClickAsync — finding #49 root cause and fix.
+        await OnSelectionChangedAsync(args.Item);
     }
 
     private async Task OnSelectionChangedAsync(AdminUserRow? row)

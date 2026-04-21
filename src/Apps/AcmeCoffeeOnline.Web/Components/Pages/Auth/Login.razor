@@ -199,7 +199,7 @@
                            AnchorOrigin="Origin.BottomCenter">
                     @foreach (var persona in _devPersonas)
                     {
-                        <MudSelectItem Value="@persona.Email">
+                        <MudSelectItem Value="@persona.Id">
                             @persona.Label
                         </MudSelectItem>
                     }
@@ -491,12 +491,13 @@
 
     private static readonly DevPersona[] _devPersonas =
     [
-        new("admin@acmecoffee.com", "Admin — SystemAdmin (full access)"),
-        new("jdoe@acmecoffee.com", "Jordan Ellis — BackofficeUser"),
-        new("kbrown@acmecoffee.com", "Kai Brown — BackofficeUserAdmin"),
-        new("james.smith@example.com", "James Smith — Customer (retail business)"),
-        new("casey.hart@acmecoffee.com", "Casey Hart — Dual membership (internal + retail)"),
-        new("sloane.reyes@acmecoffee.com", "Sloane Reyes — Regional sales rep (multi-org admin)")
+        new("admin-systemadmin",       "admin@acmecoffee.com",        "Admin — SystemAdmin (full access)",                                          null),
+        new("jdoe-backoffice",         "jdoe@acmecoffee.com",         "Jordan Ellis — BackofficeUser",                                               null),
+        new("jdoe-bakedin-user",       "jdoe@acmecoffee.com",         "Jordan Ellis — User (baked-in role override, Role Documentation only)",       "User"),
+        new("kbrown-backoffice-admin", "kbrown@acmecoffee.com",       "Kai Brown — BackofficeUserAdmin",                                              null),
+        new("james-customer",          "james.smith@example.com",     "James Smith — Customer (retail business)",                                     null),
+        new("casey-dual",              "casey.hart@acmecoffee.com",   "Casey Hart — Dual membership (internal + retail)",                             null),
+        new("sloane-regional",         "sloane.reyes@acmecoffee.com", "Sloane Reyes — Regional sales rep (multi-org admin)",                          null)
     ];
 
     private string? _selectedPersona;
@@ -509,6 +510,14 @@
         if (string.IsNullOrEmpty(_selectedPersona))
             return;
 
+        var persona = _devPersonas.FirstOrDefault(p =>
+            string.Equals(p.Id, _selectedPersona, StringComparison.Ordinal));
+        if (persona is null)
+        {
+            _devError = "Selected persona could not be resolved.";
+            return;
+        }
+
         _devSigningIn = true;
         _devError = null;
 
@@ -519,8 +528,9 @@
 
             await _devSignInModule.InvokeVoidAsync(
                 "signIn",
-                _selectedPersona,
-                AuthOptions.Value.SeededSession.SharedSecret);
+                persona.Email,
+                AuthOptions.Value.SeededSession.SharedSecret,
+                persona.RolesOverride);
         }
         catch (Exception ex)
         {
@@ -532,5 +542,5 @@
         }
     }
 
-    private record DevPersona(string Email, string Label);
+    private record DevPersona(string Id, string Email, string Label, string? RolesOverride);
 }
