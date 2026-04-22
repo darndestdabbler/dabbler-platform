@@ -779,6 +779,21 @@ Use this structure for new entries:
 
 ## `route(task_type=documentation)` Wraps Content In A Code-Documentation Template
 
+- **Collapsed to reference on 2026-04-22** (Step 9 reorganization review
+  for the `pdf-info-metadata-api` session set). The same guidance is
+  now captured — with the added Gemini-Pro-400-on-summarization
+  mitigation — in `project-guidance.md` → Conventions → Workflow
+  Expectations: *"Use `route(task_type="summarization")` for narrative
+  prose outputs ... Reserve `route(task_type="documentation")` for
+  code-doc generation ... If a `summarization` call returns Gemini 400
+  on a prompt above ~2KB, pin `max_tier=1`."* Applied as the right
+  call in two contexts: `rearchitect-role-administration-dashboard`
+  Session 8 (originating incident — documentation template produced
+  400s; fell back to direct API) and `pdf-info-metadata-api` Session 3
+  (summarization+gemini-pro 400'd on a 3.5KB prompt; `max_tier=1`
+  routed to Gemini Flash and succeeded for $0.0004). Follow the
+  convention.
+- **Original entry preserved below for context.**
 - **Context:** Session 8 of `rearchitect-role-administration-dashboard`
   generated the change-log.md through the AI router.
 - **Failure or friction:** The `documentation` prompt template at

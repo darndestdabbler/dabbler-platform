@@ -514,3 +514,30 @@ before proceeding.
   which MUST go through the router regardless, because the whole point
   is a cross-provider second opinion. Complements the existing
   Delegation Discipline criteria in `docs/ai-led-session-workflow.md`.
+- When a session set spans two repos (e.g., a library repo and a
+  consuming repo), designate one repo as authoritative for each
+  session. The consuming repo's `activity-log.json` carries **mirror
+  entries** for sessions executed in the sibling — each entry's
+  description prefixed with `[Mirror of sibling <path>]` and pointing
+  at the sibling's authoritative log — and copies the sibling's
+  `session-NNN.md` review plus `session-NNN-issues.json` into its
+  own `session-reviews/` and `issue-logs/` directories for
+  traceability. The spec's per-session step list is written once in
+  each repo's spec but describes only the work that repo owns;
+  cross-repo sessions reference the sibling instead of duplicating.
+  Promoted 2026-04-22 from the `pdf-info-metadata-api` set (Session
+  set spec trim-and-restore experience, twice-applied in this one
+  set: spec trimmed to 2 sessions then restored to 3 with mirror
+  entries when the sibling's Session 2 completed).
+- Use `route(task_type="summarization")` for narrative prose outputs
+  (change logs, session summaries, release notes). Reserve
+  `route(task_type="documentation")` for code-doc generation — its
+  prompt template wraps content in a "document this code" frame that
+  mis-fits free-form prose and produces Gemini 400s. If a
+  `summarization` call returns Gemini 400 on a prompt above ~2KB,
+  pin `max_tier=1` (forces Gemini Flash, which is more forgiving on
+  long prose). Promoted 2026-04-22 from the
+  `rearchitect-role-administration-dashboard` Session 8 incident
+  (documentation template produced 400s) and the `pdf-info-metadata-api`
+  Session 3 mitigation (summarization+gemini-pro 400'd on a 3.5KB
+  prompt; `max_tier=1` landed it on Gemini Flash cleanly).
