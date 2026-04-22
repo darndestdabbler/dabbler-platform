@@ -91,8 +91,20 @@ under `delegation:`), and the rationale.
 ```bash
 dotnet build Dabbler.Platform.sln
 dotnet test Dabbler.Platform.sln
-docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit playwright
+
+# E2E (Playwright runs from the host against the app containers):
+docker compose -f docker/docker-compose.infra.yml up -d        # sqlserver + mailhog (start once, leave up)
+docker compose -f docker/docker-compose.app.yml   up --build -d # api + web (rebuild after code changes)
+dotnet test tests/AcmeCoffeeOnline.Playwright/
 ```
+
+The compose stack is split: `docker-compose.infra.yml` holds the persistent
+dev dependencies (sqlserver, mailhog, the `dabbler-dev` network) and stays
+up across sessions. `docker-compose.app.yml` holds the rebuildable app
+services (api, web) with explicit `image:` tags so rebuilds replace tagged
+images instead of orphaning dangling layers. Playwright is intentionally
+**not** a compose service — run it from the host via `dotnet test` against
+`http://localhost:5010`.
 
 ## Solution Structure
 

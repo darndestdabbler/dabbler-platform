@@ -449,8 +449,13 @@ cross-entity user journey proof
    - Tests that create data must clean up in `finally` blocks
    - Tests must use unique names with timestamps
    - Tests that modify seeded data must restore original state
-4. Run the full Docker-backed suite:
-   `docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit playwright`
+4. Run the full Docker-backed suite (Playwright runs from the host against
+   the app containers):
+   ```bash
+   docker compose -f docker/docker-compose.infra.yml up -d        # sqlserver + mailhog
+   docker compose -f docker/docker-compose.app.yml   up --build -d # api + web
+   dotnet test tests/AcmeCoffeeOnline.Playwright/
+   ```
 5. Fix any flaky or failing tests. Stabilize retry behavior.
 6. Verify all ~76 tests pass cleanly.
 7. Generate `change-log.md` for this session set.

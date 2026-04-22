@@ -62,9 +62,12 @@ so SSO can be turned back on in Dev and Test.
   safe-fail redirect in `Program.cs` once SSO is confirmed working.
 - **Playwright coverage.** Add an end-to-end Playwright test that exercises
   the full SSO happy path from the login page through OIDC to the dashboard.
-- **Docker (if applicable).** If `docker/docker-compose.yml` runs the Web
-  and API containers in a Dev-like stack, add the DevIdp container so the
-  browser-driven flows in Docker can use SSO too.
+- **Docker (if applicable).** The compose stack is split: persistent
+  dependencies live in `docker/docker-compose.infra.yml` (sqlserver,
+  mailhog) and rebuildable app services live in
+  `docker/docker-compose.app.yml` (api, web). Add the DevIdp container as
+  a new service in `docker-compose.app.yml` (it is an app service, not
+  infra) so browser-driven flows in Docker can use SSO too.
 
 ## What This Session Set Does NOT Cover
 
@@ -119,9 +122,11 @@ so SSO can be turned back on in Dev and Test.
    - Clicks "Sign in with your organization account".
    - Completes the OIDC form on the DevIdp with a seeded dev user.
    - Lands on the dashboard as the expected user.
-6. If `docker/docker-compose.yml` exists and runs the Dev stack, add a
-   `devidp` service binding the same port so Playwright-in-Docker also gets
-   a live SSO flow.
+6. If `docker/docker-compose.app.yml` exists and runs the Dev app stack,
+   add a `devidp` service to it (binding the same port) so browser flows
+   driven against the Docker app containers also get a live SSO flow. Note
+   that Playwright itself is not a compose service — it runs from the host
+   against `http://localhost:5010`.
 7. Run `dotnet test Dabbler.Platform.sln` and the Playwright suite; confirm
    all green with the new test added.
 
@@ -129,7 +134,7 @@ so SSO can be turned back on in Dev and Test.
 **Touches:** `appsettings.Development.json`,
 `src/Apps/AcmeCoffeeOnline.Web/Program.cs`,
 `src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Auth/Login.razor`,
-possibly `docker/docker-compose.yml`
+possibly `docker/docker-compose.app.yml` (to add a `devidp` app service)
 **Ends with:** SSO works end-to-end in Dev; Playwright covers the happy path.
 **Progress keys:** `session-2/oidc-roundtrip`, `session-2/enable-sso`,
 `session-2/retire-safe-fail`, `session-2/playwright-coverage`,

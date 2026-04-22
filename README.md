@@ -48,5 +48,17 @@ The repo currently includes:
 ```bash
 dotnet build Dabbler.Platform.sln
 dotnet test Dabbler.Platform.sln
-docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit playwright
+
+# E2E (Playwright runs from the host against the app containers):
+docker compose -f docker/docker-compose.infra.yml up -d        # sqlserver + mailhog (start once, leave up)
+docker compose -f docker/docker-compose.app.yml   up --build -d # api + web (rebuild after code changes)
+dotnet test tests/AcmeCoffeeOnline.Playwright/
 ```
+
+The compose stack is split into two files. `docker-compose.infra.yml` runs
+the persistent dev dependencies (SQL Server, MailHog, and the `dabbler-dev`
+network); start it once and leave it up across sessions. `docker-compose.app.yml`
+runs the rebuildable app services (api, web) with explicit `image:` tags so
+rebuilds replace the tagged images instead of orphaning dangling layers.
+Playwright is intentionally **not** a compose service — run it from the
+host (`dotnet test` or VS Code Test Explorer) against `http://localhost:5010`.

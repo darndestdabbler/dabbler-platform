@@ -81,6 +81,51 @@
           "costUsd": 0.56001
         }
       ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/change-log",
+      "dateTime": "2026-04-21T18:19:41.077783+00:00",
+      "description": "Generated change-log.md directly (not routed) since the orchestrator is Opus and the task is a narrative summary of a 1-session UAT Review. Records classification stats, verification verdict, and cost summary.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/commit-and-push",
+      "dateTime": "2026-04-21T18:19:41.078343+00:00",
+      "description": "Committed (f6327ba) and pushed. 8 files changed, 819 insertions. Staged only the two new session-set folders + the router-metrics.jsonl updates from this session; left the human's pre-existing modified files (AGENTS.md/CLAUDE.md/GEMINI.md/README.md/docker/Dockerfile.Playwright/security-config.json/user-roles.json/etc.) untouched for their own commit flow.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/notify",
+      "dateTime": "2026-04-21T18:19:55.169471+00:00",
+      "description": "Session-complete notification sent via send_session_complete_notification (Pushover).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/step9-reorganization",
+      "dateTime": "2026-04-21T18:21:24.529066+00:00",
+      "description": "Step 9 reorganization review: proposed 2 collapse-to-reference candidates in lessons-learned.md (UAT Checklist Files Must Match The Editor Contract; Pending Human UAT Must Be Called Out Explicitly) -- both already fully captured in project-guidance Conventions + applied as the right call across 3+ session sets plus this UAT Review. Waiting on human accept/reject before applying any follow-up commit.",
+      "status": "awaiting-human",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 12,
+      "stepKey": "session-1/step9-reorganization-applied",
+      "dateTime": "2026-04-21T18:26:02.302058+00:00",
+      "description": "Human accepted both Step 9 proposals. Collapsed 'UAT Checklist Files Must Match The Editor Contract' and 'Pending Human UAT Must Be Called Out Explicitly' to reference-style entries in lessons-learned.md pointing at project-guidance.md Conventions -> Human UAT And Checklist Editor (same 2026-04-18 collapse pattern). Committed 24b415c, pushed.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }
