@@ -229,7 +229,7 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
 
         try
         {
-            var exporter = new PdfExporter(_reportDefinition);
+            var exporter = ReportPdfExporterFactory.Create(_reportDefinition);
             using var ms = new MemoryStream();
             await exporter.ExportAsync(_pages, ms);
 
