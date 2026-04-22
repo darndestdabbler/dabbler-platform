@@ -37,7 +37,10 @@ public class PdfExporter : IReportExporter
     }
 
     /// <summary>
-    /// Gets or sets the PDF document title metadata. Defaults to the report name.
+    /// Gets or sets the PDF document title metadata. Null by default; when
+    /// non-null and non-whitespace, <see cref="ExportAsync"/> forwards it
+    /// to the PDF document's <c>/Info</c> dictionary via
+    /// <c>Document.AddTitle</c>.
     /// </summary>
     public string? Title { get; set; }
 
@@ -64,6 +67,11 @@ public class PdfExporter : IReportExporter
         using var document = new Document(pageSize);
         var writer = PdfWriter.GetInstance(document, outputStream);
         document.Open();
+
+        if (!string.IsNullOrWhiteSpace(Title))
+            document.AddTitle(Title);
+        if (!string.IsNullOrWhiteSpace(Author))
+            document.AddAuthor(Author);
 
         if (pages.Count == 0)
         {

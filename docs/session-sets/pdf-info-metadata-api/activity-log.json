@@ -100,6 +100,309 @@
           "costUsd": 0.20321999999999998
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/companion-set",
+      "dateTime": "2026-04-21T22:46:19.877927+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Companion session set already imported: spec.md + activity-log.json + session-reviews/session-001.md were copied into the dabbler-pdf repo by the human, so Session 2 inherits the design context. Work executed in ../dabbler-pdf; authoritative log at ../dabbler-pdf/docs/session-sets/pdf-info-metadata-api/activity-log.json.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/pdfnames",
+      "dateTime": "2026-04-21T22:46:19.878380+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Added PdfName constants: Title, Author, Subject, Keywords, Creator, ModDate (ModDate reserved; not yet written by PdfWriter). Touched ../dabbler-pdf/src/DabblerPdf/Pdf/PdfName.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/document-api",
+      "dateTime": "2026-04-21T22:46:19.878380+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Made Document partial. Added Document.Metadata.cs with AddTitle/AddAuthor/AddSubject/AddKeywords/AddCreator (each null -> ArgumentNullException, empty/whitespace -> silent no-op returning false, last-write-wins), AddCreationDate()/AddCreationDate(DateTime)/SuppressCreationDate(), and internal GetMetadata(). Added EnsureNotClosed guard on Document so post-Close calls throw. Added internal sealed record DocumentMetadata.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/writer-close",
+      "dateTime": "2026-04-21T22:46:19.879482+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Extended PdfWriter.Close() to consume Document.GetMetadata() and put non-null Title/Author/Subject/Keywords/Creator into /Info. CreationDate logic: explicit value wins, else DateTime.UtcNow at close time, unless SuppressCreationDate() was called. Producer entry preserved.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/date-helper",
+      "dateTime": "2026-04-21T22:46:19.879482+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Added DabblerPdf.Utilities.PdfDate.Format(DateTime) implementing PDF 1.7 \u00c2\u00a77.9.4 (D:YYYYMMDDHHmmSS with Z, +HH'mm', or -HH'mm'). Utc -> Z; Local -> local UTC offset; Unspecified treated as Local. Zero-offset Local emits Z.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/tests",
+      "dateTime": "2026-04-21T22:46:19.880692+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Added tests/DabblerPdf.Tests/Utilities/PdfDateTests.cs (UTC/Local/Unspecified, regex compliance, apostrophe-separated offsets), tests/DabblerPdf.Tests/Document/DocumentMetadataTests.cs (every Add* method, null/whitespace/post-close, last-write-wins, Get/Suppress interaction), and tests/DabblerPdf.Tests/Pdf/PdfInfoDictionaryTests.cs (parses real PDF bytes and asserts /Info contents under several staging combinations, including the SuppressCreationDate() backward-compat case).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/changelog-pack",
+      "dateTime": "2026-04-21T22:46:19.880692+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Bumped src/DabblerPdf/DabblerPdf.csproj <Version> from 1.0.0 to 1.1.0; rewrote <PackageReleaseNotes>. Added 1.1.0 entry to CHANGELOG.md with Added/Changed/Behavioural notes sections. Packed ../dabbler-pdf/nupkg/DabblerPdf.1.1.0.nupkg + .snupkg via dotnet pack -c Release.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-21T22:46:19.881695+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Rounds 1 (initial) and 2 (post Issue-2 fix): dotnet build DabblerPdf.slnx \u00e2\u20ac\u201d 0 warnings 0 errors. dotnet test \u00e2\u20ac\u201d 601 passed / 0 failed / 0 skipped.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-21T22:46:19.881695+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Cross-provider verification via ai-router (round 1). Model: gemini-pro (Google), as cross-provider verifier for Anthropic-Opus orchestrator. Verdict: ISSUES_FOUND with 2 minor issues. Issue 1 (TFM dismissal) adjudicated as orchestrator-correct (option b). Issue 2 (duplicate test helper) fixed in PdfDateTests.cs. Raw verdict copied to session-reviews/session-002.md. Issue dispositions copied to issue-logs/session-002-issues.json. Re-run of dotnet test post-fix: 601 / 601 still passing.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 29423,
+          "outputTokens": 423,
+          "costUsd": 0.041
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/consumer-smoke-test",
+      "dateTime": "2026-04-21T23:42:50.747979+00:00",
+      "description": "[Mirror of sibling ../dabbler-pdf Session 2] Post-commit belt-and-suspenders consumer smoke test. Created a throwaway console project at C:\\temp\\dabblerpdf-smoke-1.1.0 with <PackageReference Include=\"DabblerPdf\" Version=\"1.1.0\" /> resolving from the local nupkg/ folder feed (NOT a project reference). Restore pulled DabblerPdf 1.1.0 (95232-byte DLL) into ~/.nuget/packages/dabblerpdf/1.1.0/. Ran 19 end-to-end checks against the consumed package: PdfDate.Format(UTC) round-trip; default (Producer+auto-CreationDate); SuppressCreationDate restores 1.0.0 shape; all five AddXxx methods produce correct /Info entries; explicit AddCreationDate round-trips byte-exact; AddTitle(null) throws ArgumentNullException; empty/whitespace returns false; post-Close throws InvalidOperationException; produced PDF starts with %PDF- and ends with %%EOF. All 19/19 passed. Smoke project deleted after verification.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-22T07:33:05.952057+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md. Key applicable items: E2E-standards memory (parse real PDF bytes, not intermediate DabblerPdf objects); 'send related files to verifier' convention (include sibling CHANGELOG excerpt for 1.1.0); 'route(task_type=documentation) wraps in code-doc template' lesson (use summarization for narrative change-log prose).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/check-sibling-publish",
+      "dateTime": "2026-04-22T07:33:05.952057+00:00",
+      "description": "Confirmed ../dabbler-pdf/docs/session-sets/pdf-info-metadata-api/activity-log.json records Session 2 as complete with a post-commit consumer smoke test (19/19 passed). ../dabbler-pdf/nupkg/ contains DabblerPdf.1.1.0.nupkg + .snupkg, and ~/.nuget/packages/dabblerpdf/1.1.0/ is populated so dotnet restore resolves without a feed edit. Also updated local spec.md to restore the 3-session plan with Session 2 described as the cross-repo mirror, and copied the sibling's session-002.md review plus session-002-issues.json into this set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/bump-package",
+      "dateTime": "2026-04-22T07:33:05.952057+00:00",
+      "description": "Bumped Directory.Packages.props: DabblerPdf 1.0.0 -> 1.1.0. dotnet restore Dabbler.Platform.sln completed cleanly across all 17 projects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/wire-exporter",
+      "dateTime": "2026-04-22T07:33:05.952057+00:00",
+      "description": "Extended src/Libs/Dabbler.Reports.Export/PdfExporter.cs ExportAsync: after document.Open(), stage document.AddTitle(Title) and document.AddAuthor(Author) when each is not null/whitespace. DabblerPdf 1.1.0 auto-stages CreationDate at Close() time, so /CreationDate appears automatically without extra exporter code. Did NOT add Subject/Keywords/Creator properties to PdfExporter; left for a future session per spec step 4.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/regression-test",
+      "dateTime": "2026-04-22T07:33:05.952057+00:00",
+      "description": "Added ExportedPdf_PopulatesInfoDictionaryWithTitleAndAuthor to PdfExportTitleRegressionTests.cs. Test exports with Title='Orders by Retail Business' and Author='AcmeCoffeeDistributors', parses trailer for /Info indirect reference, locates the object body, and asserts /Title, /Author, /CreationDate (D:, and /Producer (DabblerPdf.NET) all appear. Retained both pre-existing tests so the reports-pdf-layout visible-title fix stays covered.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-22T07:33:05.955620+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (all pre-existing; CS0618 Obsolete + CS8604 nullable, unrelated). dotnet test: 7 managed test projects = 662 passing (Dabbler.Reports.Blazor.Tests 14, Dabbler.Components.Tests 33, Dabbler.Security.Blazor.Tests 185, AcmeCoffeeOnline.Api.Tests 27, AcmeCoffeeOnline.Web.Tests 123, Dabbler.Security.Tests 280, and the new PdfExport test). AcmeCoffeeOnline.Playwright: 127/128 failed in PlaywrightFixture.InitializeAsync (WaitForServerAsync timeout) because Docker Desktop is not running in this shell; per CLAUDE.md these tests run from the host against docker-compose.{infra,app}.yml containers. The change is metadata-only and does not affect any UI, Blazor component, routing, or service contract the browser touches, so the environmental Playwright failures are orthogonal. Disclosed to the verifier in Step 8.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-22T07:34:01.256327+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md. Key applicable items: E2E-standards memory (parse real PDF bytes, not intermediate DabblerPdf objects); 'send related files to verifier' convention (include sibling CHANGELOG excerpt for 1.1.0); 'route(task_type=documentation) wraps in code-doc template' lesson (use summarization for narrative change-log prose).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/check-sibling-publish",
+      "dateTime": "2026-04-22T07:34:01.256841+00:00",
+      "description": "Confirmed ../dabbler-pdf/docs/session-sets/pdf-info-metadata-api/activity-log.json records Session 2 as complete with a post-commit consumer smoke test (19/19 passed). ../dabbler-pdf/nupkg/ contains DabblerPdf.1.1.0.nupkg + .snupkg, and ~/.nuget/packages/dabblerpdf/1.1.0/ is populated so dotnet restore resolves without a feed edit. Also updated local spec.md to restore the 3-session plan with Session 2 described as the cross-repo mirror, and copied the sibling's session-002.md review plus session-002-issues.json into this set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/bump-package",
+      "dateTime": "2026-04-22T07:34:01.257870+00:00",
+      "description": "Bumped Directory.Packages.props: DabblerPdf 1.0.0 -> 1.1.0. dotnet restore Dabbler.Platform.sln completed cleanly across all 17 projects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/wire-exporter",
+      "dateTime": "2026-04-22T07:34:01.258379+00:00",
+      "description": "Extended src/Libs/Dabbler.Reports.Export/PdfExporter.cs ExportAsync: after document.Open(), stage document.AddTitle(Title) and document.AddAuthor(Author) when each is not null/whitespace. DabblerPdf 1.1.0 auto-stages CreationDate at Close() time, so /CreationDate appears automatically without extra exporter code. Did NOT add Subject/Keywords/Creator properties to PdfExporter; left for a future session per spec step 4.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/regression-test",
+      "dateTime": "2026-04-22T07:34:01.258894+00:00",
+      "description": "Added ExportedPdf_PopulatesInfoDictionaryWithTitleAndAuthor to PdfExportTitleRegressionTests.cs. Test exports with Title='Orders by Retail Business' and Author='AcmeCoffeeDistributors', parses trailer for /Info indirect reference, locates the object body, and asserts /Title, /Author, /CreationDate (D:, and /Producer (DabblerPdf.NET) all appear. Retained both pre-existing tests so the reports-pdf-layout visible-title fix stays covered.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-22T07:34:01.259972+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (all pre-existing; CS0618 Obsolete + CS8604 nullable, unrelated). dotnet test: 7 managed test projects = 662 passing (Dabbler.Reports.Blazor.Tests 14, Dabbler.Components.Tests 33, Dabbler.Security.Blazor.Tests 185, AcmeCoffeeOnline.Api.Tests 27, AcmeCoffeeOnline.Web.Tests 123, Dabbler.Security.Tests 280, and the new PdfExport test). AcmeCoffeeOnline.Playwright: 127/128 failed in PlaywrightFixture.InitializeAsync (WaitForServerAsync timeout) because Docker Desktop is not running in this shell; per CLAUDE.md these tests run from the host against docker-compose.{infra,app}.yml containers. The change is metadata-only and does not affect any UI, Blazor component, routing, or service contract the browser touches, so the environmental Playwright failures are orthogonal. Disclosed to the verifier in Step 8.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-22T07:35:21.536780+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md. Key applicable items: E2E-standards memory (parse real PDF bytes, not intermediate DabblerPdf objects); 'send related files to verifier' convention (include sibling CHANGELOG excerpt for 1.1.0); 'route(task_type=documentation) wraps in code-doc template' lesson (use summarization for narrative change-log prose).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/check-sibling-publish",
+      "dateTime": "2026-04-22T07:35:21.538002+00:00",
+      "description": "Confirmed ../dabbler-pdf/docs/session-sets/pdf-info-metadata-api/activity-log.json records Session 2 as complete with a post-commit consumer smoke test (19/19 passed). ../dabbler-pdf/nupkg/ contains DabblerPdf.1.1.0.nupkg + .snupkg, and ~/.nuget/packages/dabblerpdf/1.1.0/ is populated so dotnet restore resolves without a feed edit. Also updated local spec.md to restore the 3-session plan with Session 2 described as the cross-repo mirror, and copied the sibling's session-002.md review plus session-002-issues.json into this set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/bump-package",
+      "dateTime": "2026-04-22T07:35:21.539010+00:00",
+      "description": "Bumped Directory.Packages.props: DabblerPdf 1.0.0 -> 1.1.0. dotnet restore Dabbler.Platform.sln completed cleanly across all 17 projects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/wire-exporter",
+      "dateTime": "2026-04-22T07:35:21.539991+00:00",
+      "description": "Extended src/Libs/Dabbler.Reports.Export/PdfExporter.cs ExportAsync: after document.Open(), stage document.AddTitle(Title) and document.AddAuthor(Author) when each is not null/whitespace. DabblerPdf 1.1.0 auto-stages CreationDate at Close() time, so /CreationDate appears automatically without extra exporter code. Did NOT add Subject/Keywords/Creator properties to PdfExporter; left for a future session per spec step 4.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/regression-test",
+      "dateTime": "2026-04-22T07:35:21.539991+00:00",
+      "description": "Added ExportedPdf_PopulatesInfoDictionaryWithTitleAndAuthor to PdfExportTitleRegressionTests.cs. Test exports with Title='Orders by Retail Business' and Author='AcmeCoffeeDistributors', parses trailer for /Info indirect reference, locates the object body, and asserts /Title, /Author, /CreationDate (D:, and /Producer (DabblerPdf.NET) all appear. Retained both pre-existing tests so the reports-pdf-layout visible-title fix stays covered.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-22T07:35:21.541005+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (all pre-existing; CS0618 Obsolete + CS8604 nullable, unrelated). dotnet test: 7 managed test projects = 662 passing (Dabbler.Reports.Blazor.Tests 14, Dabbler.Components.Tests 33, Dabbler.Security.Blazor.Tests 185, AcmeCoffeeOnline.Api.Tests 27, AcmeCoffeeOnline.Web.Tests 123, Dabbler.Security.Tests 280, and the new PdfExport test). AcmeCoffeeOnline.Playwright: 127/128 failed in PlaywrightFixture.InitializeAsync (WaitForServerAsync timeout) because Docker Desktop is not running in this shell; per CLAUDE.md these tests run from the host against docker-compose.{infra,app}.yml containers. The change is metadata-only and does not affect any UI, Blazor component, routing, or service contract the browser touches, so the environmental Playwright failures are orthogonal. Disclosed to the verifier in Step 8.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-04-22T07:35:24.169916+00:00",
+      "description": "Generated change-log.md via route(task_type=summarization). Model: gemini-flash. Tokens in/out: 1024/369. Narrative change-log format (Summary -> Sessions -> Files Changed -> Behavioural notes -> Related artifacts).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 1024,
+          "outputTokens": 369,
+          "costUsd": 0.000375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-22T07:39:33.225650+00:00",
+      "description": "Cross-provider verification via ai-router (round 1). Model: opus. Tokens in/out: 7853/3387. Prompt included spec Session 3 excerpt, the three changed files, the generated change-log.md, an out-of-scope section disclosing the sibling repo's 1.1.0 CHANGELOG and the 19/19 consumer smoke test, and the build/test summary with a Playwright environmental disclosure. Raw verdict saved to session-reviews/session-003.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 7853,
+          "outputTokens": 3387,
+          "costUsd": 0.37182000000000004
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verifier-minor-fix",
+      "dateTime": "2026-04-22T07:40:29.659010+00:00",
+      "description": "Applied verifier's one Minor finding on a documentation-accuracy basis. PdfExporter.Title XML doc previously claimed 'Defaults to the report name' but the property is null by default with no constructor assignment. Rewrote the comment to describe actual behaviour (null by default, ExportAsync forwards non-null/non-whitespace via Document.AddTitle). No runtime behaviour change; no constructor assignment added because adding one would silently populate /Title for existing callers that currently omit it. Issue disposition saved to issue-logs/session-003-issues.json. Verdict remained VERIFIED; re-verification not required per workflow Step 7 for minor doc-only fixes when the verdict was already VERIFIED.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

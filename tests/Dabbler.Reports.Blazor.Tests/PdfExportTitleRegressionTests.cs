@@ -17,6 +17,7 @@ namespace Dabbler.Reports.Blazor.Tests;
 public class PdfExportTitleRegressionTests
 {
     private const string TitleText = "Orders by Retail Business";
+    private const string AuthorText = "AcmeCoffeeDistributors";
     private const string ColumnHeaderText = "Order #";
 
     [Fact]
@@ -49,6 +50,32 @@ public class PdfExportTitleRegressionTests
             "the report title must be rendered on page 1 of the PDF export");
         combined.Should().Contain(ColumnHeaderText,
             "column headers must still be rendered on page 1");
+    }
+
+    [Fact]
+    public async Task ExportedPdf_PopulatesInfoDictionaryWithTitleAndAuthor()
+    {
+        var report = BuildReportDefinition();
+        var engine = new BandLayoutEngine();
+        var pages = engine.ComposePages(report, BuildData(rowCount: 3));
+        pages.Should().NotBeEmpty();
+
+        using var stream = new MemoryStream();
+        var exporter = new PdfExporter(report) { Title = TitleText, Author = AuthorText };
+        await exporter.ExportAsync(pages, stream);
+
+        var bytes = stream.ToArray();
+        bytes.Should().NotBeEmpty();
+
+        var infoDict = ExtractInfoDictionary(bytes);
+        infoDict.Should().Contain($"/Title ({TitleText})",
+            "the PDF /Info dictionary must expose the Title property so Adobe Reader's Document Properties dialog renders it");
+        infoDict.Should().Contain($"/Author ({AuthorText})",
+            "the PDF /Info dictionary must expose the Author property");
+        infoDict.Should().Contain("/CreationDate (D:",
+            "DabblerPdf 1.1.0 auto-stages CreationDate at Close() unless SuppressCreationDate() is called");
+        infoDict.Should().Contain("/Producer (DabblerPdf.NET)",
+            "the existing /Producer entry must remain");
     }
 
     [Fact]
@@ -153,6 +180,41 @@ public class PdfExportTitleRegressionTests
         for (int i = 0; i < rowCount; i++)
             table.Rows.Add(1000 + i);
         return table;
+    }
+
+    private static string ExtractInfoDictionary(byte[] pdfBytes)
+    {
+        var text = Encoding.Latin1.GetString(pdfBytes);
+
+        int trailerIdx = text.LastIndexOf("trailer", StringComparison.Ordinal);
+        if (trailerIdx < 0)
+            throw new InvalidDataException("PDF has no trailer section.");
+
+        int infoIdx = text.IndexOf("/Info", trailerIdx, StringComparison.Ordinal);
+        if (infoIdx < 0)
+            throw new InvalidDataException("PDF trailer does not reference an /Info dictionary.");
+
+        // Trailer /Info entry is "/Info N G R" where N and G are integers.
+        var match = System.Text.RegularExpressions.Regex.Match(
+            text.AsSpan(infoIdx, Math.Min(40, text.Length - infoIdx)).ToString(),
+            @"/Info\s+(\d+)\s+(\d+)\s+R");
+        if (!match.Success)
+            throw new InvalidDataException("Could not parse /Info indirect reference.");
+
+        string objectNumber = match.Groups[1].Value;
+        string generation = match.Groups[2].Value;
+
+        string objectHeader = $"{objectNumber} {generation} obj";
+        int objStart = text.IndexOf(objectHeader, StringComparison.Ordinal);
+        if (objStart < 0)
+            throw new InvalidDataException($"Could not locate {objectHeader} in PDF.");
+
+        int dictStart = text.IndexOf("<<", objStart, StringComparison.Ordinal);
+        int dictEnd = text.IndexOf(">>", dictStart, StringComparison.Ordinal);
+        if (dictStart < 0 || dictEnd < 0)
+            throw new InvalidDataException($"Could not locate /Info dictionary body for object {objectNumber}.");
+
+        return text.Substring(dictStart + 2, dictEnd - (dictStart + 2));
     }
 
     private static List<string> ExtractAndInflateContentStreams(byte[] pdfBytes)
