@@ -1124,3 +1124,39 @@ Use this structure for new entries:
   explicitly). The paired `uat-plan-generation`
   (synthesis → Opus) and `uat-coverage-review`
   (mechanical → Sonnet) is the canonical example.
+
+## Do Not Present An Inferred Root Cause As Fact Without Verifying It
+
+- **Context:** Any user-reported symptom whose explanation depends
+  on an assumed environmental, network, or operational condition
+  (package availability on a feed, container state, filesystem
+  reachability, which binary version a running process has loaded,
+  which URL a test is actually hitting, etc.).
+- **Failure or friction:** During follow-up debugging on the
+  `pdf-newpage-multipage-fix-consumption` session set, the
+  orchestrator confidently reported "DabblerPdf 1.1.2 is not on
+  nuget.org → the Docker build context cannot reach the sibling
+  repo's `nupkg/` folder → the container is stuck on 1.1.0,
+  therefore the title is still missing." None of those premises
+  had been verified. 1.1.2 WAS on nuget.org. The user was not
+  using Docker at all — they were running `dotnet run` host-side.
+  The user wasted time correcting a wrong theory and had to
+  debug the code themselves to find the actual answer (a stale
+  `dotnet run` process linked against an older build).
+- **Lesson:** A plausible-sounding root cause is not a verified
+  one. A reasoned inference from source control and config files
+  is not evidence. For every factual claim a root-cause theory
+  depends on — "X is/isn't available on Y," "container Z is
+  running version W," "the running process has binary V loaded,"
+  "the test is hitting URL U" — there is a specific command or
+  file check that proves or disproves it. Run that check before
+  writing the theory up, not after the user pushes back.
+- **Action for future sessions:** Before presenting a "root cause"
+  section in any plan, findings doc, or session review, list
+  every factual claim the cause depends on. For each claim, name
+  the verification command (`dotnet nuget list`, `docker exec …
+  dotnet list package`, `ls -la` on the actual path, a targeted
+  `dotnet test` run against the exact binary, inspection of a
+  `.deps.json`, etc.). Run them. Mark any un-verified claim as
+  "hypothesis, not verified" in the writing, and never let a
+  hypothesis be presented as a verified root cause.
