@@ -1,12 +1,16 @@
 using System.Text.RegularExpressions;
 using AcmeCoffeeOnline.Playwright.Infrastructure;
 using Microsoft.Playwright;
+using UglyToad.PdfPig;
 
 namespace AcmeCoffeeOnline.Playwright;
 
 [Collection(PlaywrightCollection.Name)]
 public sealed class ReportsWorkflowTests
 {
+    private const string OrdersByCustomerTitle = "Orders by Retail Business";
+    private const string MultiPageDateStart = "01/01/2024";
+    private const string MultiPageDateEnd = "12/31/2026";
     private readonly PlaywrightFixture _fixture;
 
     public ReportsWorkflowTests(PlaywrightFixture fixture)
@@ -38,10 +42,13 @@ public sealed class ReportsWorkflowTests
         await Task.Delay(300);
     }
 
-    private static async Task FillReportDatesAsync(IPage page)
+    private static async Task FillReportDatesAsync(
+        IPage page,
+        string startDate = "01/01/2025",
+        string endDate = "12/31/2025")
     {
-        await FillDatePickerAsync(page, "Start Date", "01/01/2025");
-        await FillDatePickerAsync(page, "End Date", "12/31/2025");
+        await FillDatePickerAsync(page, "Start Date", startDate);
+        await FillDatePickerAsync(page, "End Date", endDate);
     }
 
     private static async Task ClickRunReportAsync(IPage page)
@@ -56,6 +63,27 @@ public sealed class ReportsWorkflowTests
         // Wait for the empty state message to disappear, meaning the report rendered
         await Assertions.Expect(page.GetByText("Set parameters and click"))
             .ToHaveCountAsync(0, new() { Timeout = 30000 });
+    }
+
+    private static async Task<int> ReadLogicalPageCountAsync(IPage page)
+    {
+        var pageCount = page.GetByTestId("report-page-count");
+        await Assertions.Expect(pageCount).ToBeVisibleAsync();
+
+        var raw = await pageCount.GetAttributeAsync("data-page-count");
+        Assert.False(string.IsNullOrWhiteSpace(raw));
+
+        var logicalPages = int.Parse(raw!);
+        Assert.True(logicalPages > 1, "The seeded date range should produce a multi-page report for this regression test.");
+        return logicalPages;
+    }
+
+    private static async Task<byte[]> ReadDownloadBytesAsync(IDownload download)
+    {
+        await using var stream = await download.CreateReadStreamAsync();
+        using var buffer = new MemoryStream();
+        await stream.CopyToAsync(buffer);
+        return buffer.ToArray();
     }
 
     [Fact]
@@ -90,7 +118,7 @@ public sealed class ReportsWorkflowTests
     }
 
     [Fact]
-    public async Task OrdersByCustomer_PdfExport_TriggersDownloadAsync()
+    public async Task OrdersByCustomer_PdfExport_DownloadMatchesRenderedPageCountAsync()
     {
         var page = await _fixture.CreatePageAsync();
 
@@ -99,26 +127,37 @@ public sealed class ReportsWorkflowTests
             await SignInAndLoadShellAsync(page);
 
             await _fixture.NavigateViaDrawerGroupAsync(
-                page, "Reports", "Orders by Retail Business", ".*/reports/orders-by-customer$");
+                page, "Reports", OrdersByCustomerTitle, ".*/reports/orders-by-customer$");
 
             // PDF button should be disabled before report runs
             var pdfButton = page.GetByRole(AriaRole.Button, new() { Name = "Export to PDF" });
             await Assertions.Expect(pdfButton).ToBeDisabledAsync();
 
-            // Fill dates and run report
-            await FillReportDatesAsync(page);
+            // Fill a wide seeded range so the export deterministically spans multiple pages.
+            await FillReportDatesAsync(page, MultiPageDateStart, MultiPageDateEnd);
             await ClickRunReportAsync(page);
             await WaitForReportOutputAsync(page);
 
             // PDF button should now be enabled
             await Assertions.Expect(pdfButton).ToBeEnabledAsync();
+            var logicalPageCount = await ReadLogicalPageCountAsync(page);
 
-            // Click PDF export and verify download starts
+            // UAT Finding 2 coverage: the real click path must download a PDF whose
+            // physical page 1 visibly contains the report title and footer text.
             var downloadTask = page.WaitForDownloadAsync();
             await pdfButton.ClickAsync();
             var download = await downloadTask;
 
             Assert.Contains("orders-by-customer", download.SuggestedFilename, StringComparison.OrdinalIgnoreCase);
+
+            var pdfBytes = await ReadDownloadBytesAsync(download);
+            using var pdf = PdfDocument.Open(pdfBytes);
+
+            Assert.Equal(logicalPageCount, pdf.NumberOfPages);
+
+            var firstPageText = pdf.GetPage(1).Text;
+            Assert.Contains(OrdersByCustomerTitle, firstPageText, StringComparison.Ordinal);
+            Assert.Contains("Page 1 of", firstPageText, StringComparison.Ordinal);
         }
         finally
         {

@@ -83,7 +83,11 @@
             }
             @if (!string.IsNullOrEmpty(_statusText))
             {
-                <MudText Typo="Typo.body2" aria-live="polite" aria-busy="@_isLoading">
+                <MudText Typo="Typo.body2"
+                         data-testid="report-page-count"
+                         data-page-count="@_pages?.Count"
+                         aria-live="polite"
+                         aria-busy="@_isLoading">
                     @_statusText
                 </MudText>
             }

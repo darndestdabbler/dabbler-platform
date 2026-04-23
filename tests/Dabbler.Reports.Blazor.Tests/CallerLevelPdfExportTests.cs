@@ -1,10 +1,10 @@
 using System.Data;
-using System.IO.Compression;
 using System.Text;
 using Dabbler.Components;
 using Dabbler.Reports.Core.Layout;
 using Dabbler.Reports.Core.Rdf;
 using FluentAssertions;
+using UglyToad.PdfPig;
 using Xunit;
 
 namespace Dabbler.Reports.Blazor.Tests;
@@ -25,6 +25,7 @@ public class CallerLevelPdfExportTests
     private const string ExpectedAuthor = "AcmeCoffeeDistributors";
     private const string RdfRelativePath =
         "src/Apps/AcmeCoffeeOnline.Web/Reports/orders-by-customer.rdf.json";
+    private const int MultiPageRowCount = 200;
 
     [Fact]
     public async Task ProductionCaller_PopulatesInfoDictionaryFromRealRdf()
@@ -56,32 +57,33 @@ public class CallerLevelPdfExportTests
     /// missing from the rendered first page. This test loads the real RDF
     /// (which declares <c>defaultFontFamily: "Segoe UI"</c> and
     /// <c>styleName: "reportTitle"</c> on the title element — neither of
-    /// which match DabblerPdf's 14 native fonts), composes pages, inflates
-    /// the FlateDecode content streams, and looks for the literal title
-    /// text. If this passes, the human's UAT observation was a stale
-    /// runtime. If this fails, there is a real rendering regression and
-    /// the session should carve a follow-up set.
+    /// which match DabblerPdf's 14 native fonts), composes a multi-page
+    /// document, then uses PdfPig to assert the title is visibly rendered
+    /// on physical page 1 and that physical page count still matches the
+    /// composer's logical page count.
     /// </summary>
     [Fact]
     public async Task ProductionCaller_RendersTitleHeadingOnFirstPage()
     {
         var report = LoadRealRdf();
-        var pages = ComposePages(report, rowCount: 4);
-        pages.Should().NotBeEmpty();
+        var pages = ComposePages(report, rowCount: MultiPageRowCount);
+        pages.Should().HaveCountGreaterThan(1,
+            "the regression needs a multi-page document so the first NewPage() boundary is exercised");
 
         using var stream = new MemoryStream();
         var exporter = ReportPdfExporterFactory.Create(report);
         await exporter.ExportAsync(pages, stream);
 
         var bytes = stream.ToArray();
-        var decodedStreams = ExtractAndInflateContentStreams(bytes);
-        decodedStreams.Should().NotBeEmpty();
+        bytes.Should().NotBeEmpty();
 
-        var combined = string.Join("\n", decodedStreams);
-        combined.Should().Contain(ExpectedTitle,
-            "the real orders-by-customer RDF must still render its title heading on page 1 when " +
-            "exported to PDF (pdf-info-metadata UAT Finding 2 investigation — expected pass means " +
-            "the human's observation was a stale runtime, not a regression)");
+        using var pdf = PdfDocument.Open(bytes);
+        pdf.NumberOfPages.Should().Be(pages.Count,
+            "the exported PDF must produce one physical page per composed logical page");
+
+        var firstPageText = pdf.GetPage(1).Text;
+        firstPageText.Should().Contain(ExpectedTitle,
+            "Finding 2 was reopened because byte-level presence was not enough; the title must be visibly rendered on physical page 1");
     }
 
     private static ReportDefinition LoadRealRdf()
@@ -185,55 +187,5 @@ public class CallerLevelPdfExportTests
             throw new InvalidDataException($"Could not locate /Info dictionary body for object {objectNumber}.");
 
         return text.Substring(dictStart + 2, dictEnd - (dictStart + 2));
-    }
-
-    private static List<string> ExtractAndInflateContentStreams(byte[] pdfBytes)
-    {
-        var results = new List<string>();
-        var text = Encoding.Latin1.GetString(pdfBytes);
-
-        const string streamMarker = "stream";
-        const string endMarker = "endstream";
-
-        int cursor = 0;
-        while (true)
-        {
-            int startIdx = text.IndexOf(streamMarker, cursor, StringComparison.Ordinal);
-            if (startIdx < 0) break;
-
-            int dataStart = startIdx + streamMarker.Length;
-            if (dataStart < text.Length && text[dataStart] == '\r') dataStart++;
-            if (dataStart < text.Length && text[dataStart] == '\n') dataStart++;
-
-            int endIdx = text.IndexOf(endMarker, dataStart, StringComparison.Ordinal);
-            if (endIdx < 0) break;
-
-            int dataEnd = endIdx;
-            if (dataEnd > dataStart && text[dataEnd - 1] == '\n') dataEnd--;
-            if (dataEnd > dataStart && text[dataEnd - 1] == '\r') dataEnd--;
-
-            int length = dataEnd - dataStart;
-            if (length > 0)
-            {
-                var compressed = new byte[length];
-                Array.Copy(pdfBytes, dataStart, compressed, 0, length);
-
-                try
-                {
-                    using var input = new MemoryStream(compressed);
-                    using var zlib = new ZLibStream(input, CompressionMode.Decompress);
-                    using var output = new MemoryStream();
-                    zlib.CopyTo(output);
-                    results.Add(Encoding.Latin1.GetString(output.ToArray()));
-                }
-                catch
-                {
-                }
-            }
-
-            cursor = endIdx + endMarker.Length;
-        }
-
-        return results;
     }
 }
