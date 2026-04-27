@@ -9,7 +9,7 @@
       "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": "",
+      "Feedback": "For some reason, I cannot change the role of admin@acmecoffee.com to BackofficeUser.  It shows as a constant in the app bar.\n\nI don't see any masks for Social Security Number. ",
       "Steps": [
         {
           "StepNumber": 1,
@@ -48,7 +48,7 @@
       "ItemLabel": "SystemAdmin grants a mask exemption for the BackofficeUser role on Customer.SocialSecurityNumber",
       "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": "",
       "Steps": [
         {
@@ -124,7 +124,7 @@
       "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": "",
+      "Feedback": "I can't sign on as admin@acmecoffee.com with role BackofficeUser.  If I sign on with someone else who is BackofficeUser, I don't see Social Security number or the mask.",
       "Steps": [
         {
           "StepNumber": 1,
@@ -164,7 +164,7 @@
       "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": "",
+      "Feedback": "I cannot sign in as admin@acmecoffee.com with role CrossOrgMonitor.\n",
       "Steps": [
         {
           "StepNumber": 1,
@@ -232,7 +232,7 @@
       "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
       "IsJudgmentItem": true,
       "Passes": false,
-      "Feedback": "Judgment item — Whether the correlation cluster contains sibling rows depends on the Blazor circuit scope at audit-emission time. RoleSwitch and FieldUnmaskedRead share a CorrelationId only when they occur on the same page without an intervening navigation (the RenderCorrelationScope resets on LocationChanged). In the standard UAT flow they occur on separate pages, so the cluster may show \"No other rows.\" The reviewer must judge that the cluster UI renders correctly regardless of sibling count.",
+      "Feedback": "I cannot sign in as admin@acmecoffee.com with role CrossOrgMonitor.",
       "Steps": [
         {
           "StepNumber": 1,
@@ -292,7 +292,7 @@
       "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": "",
+      "Feedback": "I cannot sign in as admin@acmecoffee.com with role CrossOrgMonitor.",
       "Steps": [
         {
           "StepNumber": 1,
@@ -330,6 +330,76 @@
           ]
         }
       ]
+    },
+    {
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-1",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-2",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-3",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-4",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-5",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-6",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
     }
-  ]
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  },
+  "DocumentDate": "4/27/2026, 4:01:15 PM"
 }
