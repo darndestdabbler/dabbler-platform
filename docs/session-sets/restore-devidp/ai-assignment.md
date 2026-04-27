@@ -64,15 +64,24 @@ single pass.
 
 | Metric | Value |
 | :--- | :--- |
-| **Orchestrator** | |
-| **Final routed cost** | |
-| **Session duration** | |
-| **Session rating** | |
-| **Progress keys** | `session-2/oidc-roundtrip`, `session-2/enable-sso`, `session-2/retire-safe-fail`, `session-2/playwright-coverage`, `session-2/docker` |
+| **Orchestrator** | claude-code (Opus 4.7) @ effort=high |
+| **Final routed cost** | $1.1741 (session-verification opus $1.1708 + analysis next-set gemini-pro $0.0018 + summarization change-log gemini-flash $0.0014) |
+| **Session duration** | ~50 minutes |
+| **Session rating** | VERIFIED on round 1 (no issues) |
+| **Routed calls** | `session-verification` → opus $1.1708; `analysis` (next-set rec) → gemini-pro $0.0018; `summarization` (change-log) → gemini-flash $0.0014 |
+| **Deviations** | New SSO Playwright test landed `[Skip]` with explicit rationale. Cause: Playwright fixture defaults to Docker host-mapped ports (5010/5011), but Docker cross-container OIDC needs an issuer/metadata alignment that is intentionally deferred (canonical fix is `host.docker.internal` + OpenIddict `SetIssuer`); running locally instead requires env-var overrides plus `dotnet dev-certs https --trust` plus LocalDB. Visible feature is still covered by the existing bUnit `LoginPageOidcTests`. The verifier accepted this as environment-deferral, not silent breakage. |
+| **Notes for next-session calibration** | Session-verification cost was higher than Session 1 (~$1.17 vs. $0.69) — larger context bundle (8 files including the full PlaywrightFixture). For future sessions of similar shape, consider trimming context to the relevant slices. The `summarization` change-log call worked cleanly on Gemini Flash with `max_tier=1` (per the documentation-vs-summarization lesson) — the routed output had two factual errors about file paths that I corrected by hand-editing, which is fine for a generated artifact. |
+| **Progress keys** | `session-2/oidc-roundtrip-config`, `session-2/enable-sso`, `session-2/retire-safe-fail`, `session-2/oidc-backchannel-cert`, `session-2/playwright-coverage`, `session-2/docker`, `session-2/test`, `session-2/verification` |
 
 ---
 
 ### Next-session-set recommendation
 
-> Orchestrator: Route this section as `task_type=analysis, complexity=low` at the end of Session 2. Provide a recommendation for the next logical session set to undertake, based on the context of this work.
+**NEXT-SET:** `sensitive-field-masking-audit`
+
+**Rationale (routed via `analysis`, gemini-pro):** This resumes the main
+roadmap per the auto-memory state, which aligns with the Phase 3 platform
+plan, after the completion of the `restore-devidp` side-quest. Set D is
+the next planned step (Sets A+B+UAT-remediation+followup-fixes complete
+2026-04-21; Set C still deferred).
 ```

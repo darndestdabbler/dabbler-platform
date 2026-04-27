@@ -129,32 +129,41 @@ public static class SeedData
             clientId: "dabbler-security-sample",
             clientSecret: "sample-secret-dev-only",
             displayName: "Dabbler Security Sample",
-            redirectUri: "http://localhost:5001/signin-EntraId");
+            redirectUris: ["http://localhost:5001/signin-EntraId"]);
 
         await SeedClientAsync(applicationManager,
             clientId: "dabbler-app-dev",
             clientSecret: "app-secret-dev-only",
             displayName: "Dabbler App Dev",
-            redirectUri: "https://localhost:7001/signin-oidc");
+            redirectUris: ["https://localhost:7001/signin-oidc"]);
 
         await SeedClientAsync(applicationManager,
             clientId: "dabbler-test-client",
             clientSecret: "test-secret",
             displayName: "Dabbler Test Client",
-            redirectUri: "https://localhost:5001/signin-oidc-test");
+            redirectUris: ["https://localhost:5001/signin-oidc-test"]);
 
-        // AcmeCoffeeOnline Web app
+        // AcmeCoffeeOnline Web app — registers redirect URIs for every dev surface
+        // the Web app is reached on: dotnet-run http (5020), dotnet-run https
+        // (7020), and Docker compose (5010). The OIDC scheme name is `EntraId`,
+        // so the callback path is `/signin-EntraId` (Dabbler.Security defaults
+        // `CallbackPath` to `/signin-{scheme}` when not set).
         await SeedClientAsync(applicationManager,
             clientId: "acmecoffee-dev",
             clientSecret: "acmecoffee-secret-dev-only",
             displayName: "AcmeCoffee Online Dev",
-            redirectUri: "https://localhost:7002/signin-EntraId");
+            redirectUris:
+            [
+                "http://localhost:5020/signin-EntraId",
+                "https://localhost:7020/signin-EntraId",
+                "http://localhost:5010/signin-EntraId"
+            ]);
     }
 
     private static async Task SeedClientAsync(
         IOpenIddictApplicationManager applicationManager,
         string clientId, string clientSecret,
-        string displayName, string redirectUri)
+        string displayName, string[] redirectUris)
     {
         var descriptor = new OpenIddictApplicationDescriptor
         {
@@ -163,7 +172,6 @@ public static class SeedData
             ClientType = ClientTypes.Confidential,
             ConsentType = ConsentTypes.Implicit,
             DisplayName = displayName,
-            RedirectUris = { new Uri(redirectUri) },
             Permissions =
             {
                 Permissions.Endpoints.Authorization,
@@ -175,6 +183,11 @@ public static class SeedData
                 Permissions.Scopes.Roles,
             }
         };
+
+        foreach (var uri in redirectUris)
+        {
+            descriptor.RedirectUris.Add(new Uri(uri));
+        }
 
         var existing = await applicationManager.FindByClientIdAsync(clientId);
         if (existing is null)

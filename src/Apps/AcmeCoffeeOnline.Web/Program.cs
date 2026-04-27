@@ -216,6 +216,26 @@ builder.Services.PostConfigure<CookieAuthenticationOptions>(
             : CookieSecurePolicy.Always;
     });
 
+// In Development the DevIdp at https://localhost:5100 uses a self-signed dev
+// cert. The OIDC back-channel HttpClient validates server certificates, so
+// metadata discovery and the code-for-token exchange would fail unless the
+// dev cert is trusted (e.g., via `dotnet dev-certs https --trust`). Configure
+// the back-channel handler to accept the dev cert for localhost only, in
+// Development only — production OIDC traffic still requires a valid cert.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.PostConfigure<Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions>(
+        "EntraId",
+        options =>
+        {
+            options.BackchannelHttpHandler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (request, _, _, _) =>
+                    request?.RequestUri?.Host is "localhost" or "127.0.0.1"
+            };
+        });
+}
+
 // Exchange-token store for Blazor Server auth hand-off
 builder.Services.AddMemoryCache();
 
@@ -627,8 +647,7 @@ if ((app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
 app.MapGet("/auth/challenge/{scheme}", async (
     string scheme,
     string? returnUrl,
-    HttpContext context,
-    ILoggerFactory loggerFactory) =>
+    HttpContext context) =>
 {
     var safeReturnUrl = IsLocalUrl(returnUrl) ? returnUrl! : "/";
 
@@ -638,17 +657,7 @@ app.MapGet("/auth/challenge/{scheme}", async (
         Items = { ["scheme"] = scheme, ["provider"] = scheme }
     };
 
-    try
-    {
-        await context.ChallengeAsync(scheme, properties);
-    }
-    catch (Exception ex)
-    {
-        var logger = loggerFactory.CreateLogger("AcmeCoffeeOnline.ExternalAuth");
-        logger.LogWarning(ex, "SSO challenge for scheme {Scheme} failed; redirecting to /login?error=sso-unavailable.", scheme);
-        return Results.Redirect("/login?error=sso-unavailable");
-    }
-
+    await context.ChallengeAsync(scheme, properties);
     return Results.Empty;
 });
 

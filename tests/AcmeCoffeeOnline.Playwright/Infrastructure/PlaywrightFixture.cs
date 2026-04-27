@@ -22,8 +22,12 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     private IBrowser? _browser;
     private Process? _apiProcess;
     private Process? _webProcess;
+    private Process? _devIdpProcess;
     private readonly ConcurrentQueue<string> _apiProcessLog = new();
     private readonly ConcurrentQueue<string> _webProcessLog = new();
+    private readonly ConcurrentQueue<string> _devIdpProcessLog = new();
+    private bool _devIdpEnsured;
+    private readonly SemaphoreSlim _devIdpEnsureLock = new(1, 1);
     private readonly ConcurrentDictionary<IPage, ConcurrentQueue<string>> _pageIssues = new();
     private readonly ConcurrentDictionary<IPage, IBrowserContext> _pageContexts = new();
     private readonly ConcurrentDictionary<string, string> _seededUserIdCache = new(StringComparer.OrdinalIgnoreCase);
@@ -33,6 +37,12 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
     public string ApiBaseUrl { get; } = Environment.GetEnvironmentVariable("PLAYWRIGHT_API_BASE_URL")
         ?? "http://localhost:5011";
+
+    // DevIdp serves OIDC metadata at https://localhost:5100 by default. Override
+    // via PLAYWRIGHT_DEVIDP_BASE_URL when running against a Docker compose stack
+    // that maps DevIdp differently.
+    public string DevIdpBaseUrl { get; } = Environment.GetEnvironmentVariable("PLAYWRIGHT_DEVIDP_BASE_URL")
+        ?? "https://localhost:5100";
 
     public async Task InitializeAsync()
     {
@@ -58,12 +68,26 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
     public async Task<IPage> CreatePageAsync()
     {
+        return await CreatePageAsync(ignoreHttpsErrors: false);
+    }
+
+    /// <summary>
+    /// Creates a page whose context optionally ignores HTTPS errors. SSO flows
+    /// against the DevIdp at https://localhost:5100 use a self-signed dev cert,
+    /// so the browser context for those tests must tolerate it.
+    /// </summary>
+    public async Task<IPage> CreatePageAsync(bool ignoreHttpsErrors)
+    {
         if (_browser is null)
         {
             throw new InvalidOperationException("Playwright browser is not initialized.");
         }
 
-        var context = await _browser.NewContextAsync();
+        var contextOptions = new BrowserNewContextOptions
+        {
+            IgnoreHTTPSErrors = ignoreHttpsErrors
+        };
+        var context = await _browser.NewContextAsync(contextOptions);
         var page = await context.NewPageAsync();
         var issues = new ConcurrentQueue<string>();
         _pageIssues[page] = issues;
@@ -109,6 +133,46 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         };
 
         return page;
+    }
+
+    /// <summary>
+    /// Lazily launches the DevIdp host alongside Web/API for tests that exercise
+    /// the SSO flow. Uses the project's `https` launch profile so the metadata
+    /// is served at https://localhost:5100. Subsequent calls are no-ops.
+    /// </summary>
+    public async Task EnsureDevIdpRunningAsync()
+    {
+        if (_devIdpEnsured)
+        {
+            return;
+        }
+
+        await _devIdpEnsureLock.WaitAsync();
+        try
+        {
+            if (_devIdpEnsured)
+            {
+                return;
+            }
+
+            var metadataUrl = $"{DevIdpBaseUrl}/.well-known/openid-configuration";
+            if (!await IsReachableAsync(metadataUrl, allowSelfSignedCert: true))
+            {
+                _devIdpProcess = StartProject(
+                    "src/Libs/Dabbler.Security.DevIdp",
+                    _devIdpProcessLog,
+                    launchProfile: "https");
+            }
+
+            await WaitForServerAsync(metadataUrl, "DevIdp", _devIdpProcess, _devIdpProcessLog,
+                allowSelfSignedCert: true);
+
+            _devIdpEnsured = true;
+        }
+        finally
+        {
+            _devIdpEnsureLock.Release();
+        }
     }
 
     public async Task ClosePageAsync(IPage page)
@@ -993,9 +1057,13 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         _playwright?.Dispose();
         StopProcess(_webProcess);
         StopProcess(_apiProcess);
+        StopProcess(_devIdpProcess);
     }
 
-    private static Process StartProject(string relativeProjectPath, ConcurrentQueue<string> output)
+    private static Process StartProject(
+        string relativeProjectPath,
+        ConcurrentQueue<string> output,
+        string launchProfile = "http")
     {
         var repoRoot = GetRepoRoot();
         var projectDir = Path.Combine(repoRoot, relativeProjectPath);
@@ -1013,7 +1081,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = "run --no-build --launch-profile http",
+                Arguments = $"run --no-build --launch-profile {launchProfile}",
                 WorkingDirectory = projectDir,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -1040,15 +1108,11 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         return process;
     }
 
-    private static async Task<bool> IsReachableAsync(string url)
+    private static async Task<bool> IsReachableAsync(string url, bool allowSelfSignedCert = false)
     {
         try
         {
-            using var client = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(2)
-            };
-
+            using var client = CreateProbeClient(allowSelfSignedCert);
             using var response = await client.GetAsync(url);
             return response.IsSuccessStatusCode;
         }
@@ -1058,16 +1122,32 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         }
     }
 
+    private static HttpClient CreateProbeClient(bool allowSelfSignedCert)
+    {
+        if (!allowSelfSignedCert)
+        {
+            return new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
+        }
+
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (req, _, _, _) =>
+                req?.RequestUri?.Host is "localhost" or "127.0.0.1"
+        };
+        return new HttpClient(handler, disposeHandler: true)
+        {
+            Timeout = TimeSpan.FromSeconds(2)
+        };
+    }
+
     private static async Task WaitForServerAsync(
         string url,
         string name,
         Process? process,
-        ConcurrentQueue<string> output)
+        ConcurrentQueue<string> output,
+        bool allowSelfSignedCert = false)
     {
-        using var client = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(2)
-        };
+        using var client = CreateProbeClient(allowSelfSignedCert);
 
         var deadline = DateTime.UtcNow.AddSeconds(60);
         while (DateTime.UtcNow < deadline)

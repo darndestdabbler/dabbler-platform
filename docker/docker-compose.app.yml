@@ -17,6 +17,25 @@
 name: dabbler-app
 
 services:
+  devidp:
+    image: acmecoffee-devidp:local
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.DevIdp
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "5100:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/.well-known/openid-configuration"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    networks:
+      - dabbler-dev
+
   api:
     image: acmecoffee-api:local
     build:
