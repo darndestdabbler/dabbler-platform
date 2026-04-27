@@ -409,14 +409,12 @@ before proceeding.
 - **MANDATORY: every UAT step must be performable by both the human and
   the E2E test using only user-visible surfaces.** A three-step authoring
   discipline applies, in order, with no shortcuts:
-  1. **Write the UAT step with maximally-explicit human action.** Include
-     the full URL, the visible label of every control involved, the exact
-     text the user types, the exact label of the link or button to click,
-     and the expected resulting URL or visible-state change. Bad: "Sign
-     in as admin@acmecoffee.com." Good: "Open `http://localhost:5020/login`.
-     In the textbox labeled `Email`, enter `admin@acmecoffee.com`. Click
-     the button labeled `Send sign-in code`. Verify the page now displays
-     `We sent a sign-in code to admin@acmecoffee.com`."
+  1. **Write the UAT step using the UAT/E2E DSL** (closed verb list
+     defined below). Each step is one primitive verb parameterised by
+     visible labels and visible text only — never by testid, xpath, CSS
+     class, or DOM index. The verb list is closed and may only be
+     extended with explicit human permission committed in the same patch
+     as the new verb's first use.
   2. **Write the E2E test driving those same explicit steps with the same
      locators.** Each Playwright step maps 1:1 to a numbered checklist
      step. **Test-framework backdoors are forbidden when the step under
@@ -439,6 +437,103 @@ before proceeding.
   other user-visible surface is not yet wired up, BLOCK the UAT until
   that surface works. Surface this at spec authoring or at the start
   of the closing session, not after generating an unrunnable checklist.
+
+- **The UAT/E2E DSL — closed verb list.** Every step in a UAT
+  checklist and every `// begin STEP NNN` block in the matching E2E
+  test must express its action using exactly one of these verbs.
+  Each interaction verb may take an optional `in <scope>` qualifier;
+  `<scope>` is a labelled region (e.g. `in the dialog titled "Add
+  Mask Exemption"`, `in the Admin drawer group`, `in the expanded
+  row for "Customer 1"`, `in the "Mask Exemptions" tab`). Locators
+  inside a scope are still by visible label only.
+
+  **Lifecycle / plumbing**
+  - `NAVIGATE TO <URL>`
+  - `WAIT FOR <visible state>` — e.g. *"the page displays `X`"*,
+    *"the URL matches `<pattern>`"*, *"the snackbar shows `Y`"*
+  - `PRESS KEY <Tab|Enter|Escape|...>`
+
+  **Interaction**
+  - `CLICK BUTTON [in <scope>] with caption <caption>`
+  - `CLICK ICON BUTTON [in <scope>] with aria-label <label>`
+    *(icon-only controls — chevrons, edit pencils, close X's)*
+  - `CLICK LINK [in <scope>] with text <text>`
+  - `CLICK TAB [in <scope>] with name <name>`
+  - `CLICK MENU ITEM [in <scope>] with label <label>`
+  - `CLICK INPUT [in <scope>] with label <label> and enter <value>`
+  - `CLICK CHECKBOX [in <scope>] with label <label>`
+    *(distinct from switch — different ARIA + binary)*
+  - `CLICK SWITCH [in <scope>] with label <label>`
+  - `CLICK SWITCH [in <scope>] in column with header <header>`
+  - `OPEN DROPDOWN [in <scope>] with label <label> and select item whose text = <text>`
+  - `PICK DATE [in <scope>] with label <label> and choose <date>`
+  - `SCROLL <grid name> to row where <col header> = <value> [and <col header> = <value> ...]`
+  - `CLICK ROW in <grid name> where <col header> = <value> [and ...]`
+  - `EXPAND ROW in <grid name> where <col header> = <value> [and ...]`
+
+  **Verification**
+  - `VERIFY <user-visible property or event>` — text content, URL
+    match, control enabled/disabled, presence/absence of element-by-
+    label, snackbar text. Never verify by testid or DOM internals.
+
+  **DSL design rules:**
+  - **Locators are by visible label or visible text** — never by
+    testid, xpath, CSS class, or DOM index. The verifier rejects any
+    step whose locator is not user-visible.
+  - **Row identification is always by column-value match** — never
+    by row index ("the first row," "the third row"). Column-value
+    matches stay stable across data shuffles.
+  - **`in <scope>` is uniform across interaction verbs** — same
+    syntax in UAT prose and in `// begin STEP NNN` E2E commentary,
+    so the verifier can mechanically pair them.
+  - **Composites don't exist.** "Sign in" is 5–8 primitive steps.
+    That's the point. If the human can't follow each one in a real
+    browser, the test is inadequate.
+  - **Extending the verb list requires explicit human permission**
+    committed in the same patch as the new verb's first use, with
+    a real session-set example. No speculative verbs.
+
+- **GUID + step-number alignment between UAT and E2E.** The
+  `uat-coverage-review` gate must mechanically pair UAT steps to
+  E2E steps. The pairing scheme:
+  - **Each UAT Review item carries a stable GUID** in its `Id`
+    property (added to the `darndestdabbler/uat-checklist-editor`
+    schema in 2026-04-27 — the editor displays the field above the
+    Navigation panel). Authors generate the GUID at item-creation
+    time and never edit it after. Until any environment with a
+    cached older schema catches up, fall back to
+    `TestData._uatItemId` (the schema permits `additionalProperties`
+    there).
+  - **Each step within an item is numbered** 1, 2, 3, ... via the
+    existing `StepNumber` property.
+  - **The matching E2E test method has a header comment declaring
+    the GUID:**
+
+    ```csharp
+    /// <summary>
+    /// UAT Item Id: 8b6f4d2a-6e91-4b3f-9a4d-2e7c5d1f3b8e
+    /// </summary>
+    [Fact]
+    public async Task SomeName_DescriptiveAsync() { ... }
+    ```
+
+  - **Inside the method body, `// begin STEP NNN` comments delimit
+    each step's code**, identical numbering and order to the UAT
+    item:
+
+    ```csharp
+    // begin STEP 001
+    await page.GotoAsync("http://localhost:5020/login");
+    // begin STEP 002
+    await page.GetByLabel("Email").FillAsync("admin@acmecoffee.com");
+    ```
+
+  - **The verifier walks GUID → method match → step-block pairing**
+    and flags any DSL violation (testid locator, row index,
+    framework backdoor on a human-equivalent step) as
+    `ISSUES_FOUND`. The `uat-coverage-review` prompt template is
+    updated to drive this pairing mechanically.
+
 - **MANDATORY: validate the generated checklist against the canonical schema
   before committing.** The schema lives at
   `https://raw.githubusercontent.com/darndestdabbler/uat-checklist-editor/main/checklist-schema.json`
@@ -451,11 +546,12 @@ before proceeding.
     `Reviews` (plural) — these are not in the schema and the editor rejects
     files that contain them.
   - Each `Review[i]` item requires `FunctionalArea`, `Subarea`, `ItemLabel`.
-    The schema also accepts `HumanAction`, `Expectation`, `Steps`, `TestData`,
-    `E2ETestReference`, `IsJudgmentItem`, `Passes`, `Feedback`, `IsOtherItem`.
-    **Do NOT use** `Id`, `Title`, `JudgmentJustification` — not in the schema.
-    A short item identifier (UAT-1, UAT-2, ...) belongs in `Subarea`. A
-    judgment-item rationale belongs in `Feedback` (e.g.,
+    The schema also accepts `Id` (GUID, added 2026-04-27 to enable mechanical
+    UAT↔E2E pairing — see the GUID + step-number alignment convention),
+    `HumanAction`, `Expectation`, `Steps`, `TestData`, `E2ETestReference`,
+    `IsJudgmentItem`, `Passes`, `Feedback`, `IsOtherItem`.
+    **Do NOT use** `Title` or `JudgmentJustification` — not in the schema.
+    A judgment-item rationale belongs in `Feedback` (e.g.,
     `"Feedback": "Judgment item — <rationale>"`).
   - Each `Steps[j]` item requires `StepNumber` (integer) and `Action` (string).
     Optional `Verifications` is an array of **objects** each with a `Text`

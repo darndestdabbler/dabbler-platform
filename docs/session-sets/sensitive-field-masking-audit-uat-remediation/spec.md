@@ -78,11 +78,16 @@ these surfaces and writes up a disposition.
 - **Verify the role switcher works.** If the `UserContextBar` does not
   surface all three roles for the persona, that's a real bug to fix
   inline in Session 1 — not a test scaffold to bypass.
-- **Three-step UAT discipline** per the Convention. Every step in the
-  checklist gets the explicit-action treatment (URL, control label,
-  exact text, exact button label, expected post-state). The
-  `uat-coverage-review` call explicitly asks for per-step reachability
-  confirmation, not just structural step matching.
+- **Three-step UAT discipline + UAT/E2E DSL** per the Convention in
+  `docs/planning/project-guidance.md` → Human UAT And Checklist
+  Editor. Every step in the checklist is one primitive verb from the
+  closed DSL verb list, parameterised by visible labels and visible
+  text only. Every Review item carries an `Id` (GUID) and its E2E
+  method has a header `UAT Item Id: <guid>` comment plus
+  `// begin STEP NNN` block delimiters. The `uat-coverage-review`
+  call uses the canonical prompt template shipped in
+  `ai-router/prompt-templates/task-prompts.md` (which already
+  enforces per-step reachability + DSL conformance + GUID pairing).
 
 ---
 
@@ -110,8 +115,12 @@ role-switch flow that the human can also perform.
    bug inline (the role assignment is correct; the switcher's
    `_allowedSwitchRoles` filter or DI wiring is wrong).
 4. Rewrite `tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatCoverageTests.cs`
-   so the single `[Fact]` `SensitiveFieldMasking_FullUatScenarioAsync`
-   uses the real-login path:
+   so each [Fact] corresponds to one UAT Review item with a
+   header `<summary>` block declaring `UAT Item Id: <guid>` and
+   `// begin STEP NNN` comments delimiting each step block. Each
+   step block uses the DSL (visible-label locators only — no
+   `GetByTestId`, no row indices, no framework backdoors). The
+   real-login path is:
    - Magic-link login through `/login` → `/dev/email-inbox` →
      follow the magic-link href (the canonical pattern from
      `SecurityDashboardUatFollowupCoverageTests`), OR
