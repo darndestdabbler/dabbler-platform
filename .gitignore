@@ -12,3 +12,8 @@ test-results/
 __pycache__/
 *.pyc
 .venv/
+
+# Dev IdP runtime SQLite database (created on first run)
+src/Libs/Dabbler.Security.DevIdp/devidp.db
+src/Libs/Dabbler.Security.DevIdp/devidp.db-shm
+src/Libs/Dabbler.Security.DevIdp/devidp.db-wal
