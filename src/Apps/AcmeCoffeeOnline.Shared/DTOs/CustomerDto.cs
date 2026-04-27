@@ -35,6 +35,9 @@ public class CustomerDto
     [StringLength(10)]
     public string? ZipCode { get; set; }
 
+    [StringLength(11)]
+    public string? SocialSecurityNumber { get; set; }
+
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime ModifiedDate { get; set; }

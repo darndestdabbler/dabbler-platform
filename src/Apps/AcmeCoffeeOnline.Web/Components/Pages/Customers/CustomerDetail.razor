@@ -1,5 +1,6 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Security.Blazor.Components.Restriction
 @using MudBlazor
 @inject CustomerApiClient CustomerClient
 
@@ -125,6 +126,25 @@ else if (_record is not null)
                              Label="Active"
                              Color="Color.Primary"
                              data-testid="field-is-active" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <div data-testid="field-ssn-wrapper">
+                    <RestrictedFormField EntityKey="Customer"
+                                         ColumnKey="SocialSecurityNumber"
+                                         EntityId="@(_record.Id > 0 ? _record.Id.ToString() : null)"
+                                         Value="@_record.SocialSecurityNumber">
+                        <ChildContent Context="restriction">
+                            <MudTextField T="string"
+                                          Value="@_record.SocialSecurityNumber"
+                                          Label="Social Security Number"
+                                          Variant="Variant.Outlined"
+                                          ReadOnly="true"
+                                          Disabled="true"
+                                          data-testid="field-ssn" />
+                        </ChildContent>
+                    </RestrictedFormField>
+                </div>
             </MudItem>
         </MudGrid>
     </MudForm>

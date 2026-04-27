@@ -161,6 +161,7 @@ public class CustomerService : ICustomerService
         City = c.City,
         State = c.State,
         ZipCode = c.ZipCode,
+        SocialSecurityNumber = c.SocialSecurityNumber,
         IsActive = c.IsActive,
         CreatedDate = c.CreatedDate,
         ModifiedDate = c.ModifiedDate,
