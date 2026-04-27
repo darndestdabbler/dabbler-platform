@@ -21,6 +21,7 @@ public sealed class RestrictionBinder : IRestrictionBinder
     private readonly IRoleSwitcher _roleSwitcher;
     private readonly IBakedInRoleProvider _bakedInRoleProvider;
     private readonly ISensitiveAccessAuditor? _auditor;
+    private readonly IRenderCorrelationScope? _correlationScope;
 
     // Per-scope set of exemption keys that have already produced an
     // ExemptionExpired audit row. Resolves are cheap and high-frequency
@@ -37,26 +38,38 @@ public sealed class RestrictionBinder : IRestrictionBinder
     /// <param name="roleSwitcher">The active role switcher.</param>
     /// <param name="bakedInRoleProvider">The baked-in role provider.</param>
     /// <param name="auditor">
-    /// Optional auditor for emitting <c>ExemptionExpired</c> rows when an
-    /// otherwise-applicable exemption is past its expiry. Tests that do not
-    /// care about audit emission may omit it.
+    /// Optional auditor for emitting <c>ExemptionExpired</c> /
+    /// <c>FieldUnmaskedRead</c> rows. Tests that do not care about audit
+    /// emission may omit it.
+    /// </param>
+    /// <param name="correlationScope">
+    /// Optional correlation scope used to batch <c>FieldUnmaskedRead</c>
+    /// emissions per <c>(CorrelationId, EntityKey, EntityId, ColumnKey)</c>.
+    /// When omitted (or null), the binder falls back to a per-instance
+    /// dedup set so existing call sites keep their previous behavior.
     /// </param>
     public RestrictionBinder(
         SecurityConfigurationManager configManager,
         AuthenticationStateProvider authStateProvider,
         IRoleSwitcher roleSwitcher,
         IBakedInRoleProvider bakedInRoleProvider,
-        ISensitiveAccessAuditor? auditor = null)
+        ISensitiveAccessAuditor? auditor = null,
+        IRenderCorrelationScope? correlationScope = null)
     {
         _configManager = configManager;
         _authStateProvider = authStateProvider;
         _roleSwitcher = roleSwitcher;
         _bakedInRoleProvider = bakedInRoleProvider;
         _auditor = auditor;
+        _correlationScope = correlationScope;
     }
 
     /// <inheritdoc />
-    public async Task<RestrictionResolution> ResolveAsync(string entityKey, string columnKey)
+    public Task<RestrictionResolution> ResolveAsync(string entityKey, string columnKey)
+        => ResolveAsync(entityKey, columnKey, entityId: null);
+
+    /// <inheritdoc />
+    public async Task<RestrictionResolution> ResolveAsync(string entityKey, string columnKey, string? entityId)
     {
         await _configManager.EnsureLoadedAsync();
         var config = _configManager.Current;
@@ -72,7 +85,58 @@ public sealed class RestrictionBinder : IRestrictionBinder
 
         await EmitExpiredExemptionAuditsAsync(user, entityKey, columnKey, config, effectiveRoles, evaluatedAt);
 
-        return Resolve(entityKey, columnKey, config, effectiveRoles, evaluatedAt);
+        var resolution = Resolve(entityKey, columnKey, config, effectiveRoles, evaluatedAt);
+
+        await EmitFieldUnmaskedReadIfApplicableAsync(user, entityKey, columnKey, entityId, config, resolution);
+
+        return resolution;
+    }
+
+    private async Task EmitFieldUnmaskedReadIfApplicableAsync(
+        ClaimsPrincipal user,
+        string entityKey,
+        string columnKey,
+        string? entityId,
+        SecurityConfiguration configuration,
+        RestrictionResolution resolution)
+    {
+        if (_auditor is null) return;
+        if (string.IsNullOrEmpty(entityId)) return;
+
+        // "Exempted → unmasked": the column carries a default mask, but the
+        // user's effective roles include an active exemption, so the binder
+        // resolved IsMasked=false. A column without a default mask is not
+        // sensitive in the platform's model and produces no audit signal.
+        var hasDefaultMask = configuration.DefaultMasks.Any(m =>
+            string.Equals(m.EntityKey, entityKey, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(m.ColumnKey, columnKey, StringComparison.OrdinalIgnoreCase));
+        if (!hasDefaultMask) return;
+        if (resolution.IsMasked) return;
+
+        var batchKey = string.Create(
+            CultureInfo.InvariantCulture,
+            $"FUR|{CorrelationKey()}|{entityKey}|{entityId}|{columnKey}");
+
+        if (!TryRecordOnceForCurrentScope(batchKey)) return;
+
+        await _auditor.AuditFieldUnmaskedReadAsync(user, entityKey, entityId, columnKey);
+    }
+
+    // Scope-key helpers — when a correlation scope is registered the binder
+    // delegates dedup to it (so navigation regenerates the batch); otherwise
+    // a per-binder set keeps existing tests deterministic.
+    private readonly HashSet<string> _localUnmaskedBatch = new(StringComparer.Ordinal);
+
+    private string CorrelationKey() =>
+        _correlationScope?.Current.ToString("N") ?? "no-scope";
+
+    private bool TryRecordOnceForCurrentScope(string key)
+    {
+        if (_correlationScope is not null)
+            return _correlationScope.TryRecordOnce(key);
+
+        lock (_localUnmaskedBatch)
+            return _localUnmaskedBatch.Add(key);
     }
 
     private async Task EmitExpiredExemptionAuditsAsync(

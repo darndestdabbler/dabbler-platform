@@ -4,6 +4,7 @@ using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MudBlazor.Services;
 
 namespace Dabbler.Security.Blazor.Extensions;
@@ -25,10 +26,27 @@ public static class ServiceCollectionExtensions
         services.AddAuthorizationCore();
         services.AddCascadingAuthenticationState();
 
+        // Defensive: AddDabblerSecurity() is the canonical registration point
+        // for the per-circuit / per-request correlation scope, but a Blazor
+        // host that calls AddDabblerSecurityBlazor() in isolation (for unit
+        // tests, prototype hosts) would otherwise resolve a binder without a
+        // scope and silently fall back to a per-binder dedupe set that never
+        // resets on navigation. TryAddScoped is a no-op when the core
+        // registration is already present.
+        services.TryAddScoped<IRenderCorrelationScope, RenderCorrelationScope>();
+
         // Data-bound restriction binder consumed by RestrictedFormField /
         // RestrictedGridColumn. Scoped lifetime matches IRoleSwitcher so the
-        // binder sees role-switch state for the current circuit.
-        services.AddScoped<IRestrictionBinder, RestrictionBinder>();
+        // binder sees role-switch state for the current circuit. The binder
+        // takes its dependencies positionally so the optional auditor +
+        // correlation-scope arguments resolve through DI.
+        services.AddScoped<IRestrictionBinder>(sp => new RestrictionBinder(
+            sp.GetRequiredService<Dabbler.Security.Configuration.SecurityConfigurationManager>(),
+            sp.GetRequiredService<AuthenticationStateProvider>(),
+            sp.GetRequiredService<Dabbler.Security.Services.IRoleSwitcher>(),
+            sp.GetRequiredService<Dabbler.Security.Authorization.IBakedInRoleProvider>(),
+            sp.GetService<Dabbler.Security.Services.ISensitiveAccessAuditor>(),
+            sp.GetService<Dabbler.Security.Services.IRenderCorrelationScope>()));
 
         // Register the delegating handler to pass user headers to the API
         services.AddTransient<UserIdentityHandler>();

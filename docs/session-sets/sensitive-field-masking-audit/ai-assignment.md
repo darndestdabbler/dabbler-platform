@@ -112,3 +112,64 @@ orchestrator:
 ### Estimated Routed Cost
 
 **Moderate.** The session involves complex logic and stateful integration tests which typically incur higher token usage for both generation and verification compared to simpler CRUD or model-only tasks.
+
+---
+
+## Session 3: FieldUnmaskedRead interception with per-render `CorrelationId` batching
+
+### Recommended orchestrator
+claude-code claude-opus-4-7 @ effort=high
+
+### Rationale
+This session implements a new Blazor scoped service and integrates it into the existing security and component layers. This complex task, involving Blazor's DI lifecycle, event handling, and multi-layer modifications, benefits from a model with strong C# and Blazor expertise.
+
+### Estimated routed cost
+moderate
+
+| Step | Action | Routing Decision |
+| :--- | :--- | :--- |
+| 1 | Read planning docs. | orchestrator (direct) |
+| 2 | Implement `IRenderCorrelationScope` and `RenderCorrelationScope` as a Blazor scoped service, generating a new `Guid` on circuit start and regenerating on `NavigationManager.LocationChanged`. | orchestrator (direct) |
+| 3 | Extend the binder to emit `FieldUnmaskedRead` rows with per-correlation batching, including a new `entityId` parameter on `ResolveAsync`. | orchestrator (direct) |
+| 4 | Wire `RestrictedFormField` and `RestrictedGridColumn` to pass `EntityId` through to the binder. | orchestrator (direct) |
+| 5 | Unit tests for `RenderCorrelationScope` (new Guid per scope, regeneration on navigation/reset). | orchestrator (direct) |
+| 6 | Integration tests for FieldUnmaskedRead batching (dedupe per correlation, fresh row after scope regen, 2N rows on a grid render). | orchestrator (direct) |
+| 7 | Build + test (`dotnet build` + `dotnet test`). | orchestrator (direct) |
+| 8 | Cross-provider verification. | route(task_type="session-verification") |
+| 9 | Commit + push + notify. | orchestrator (direct) |
+
+### Actuals (filled after the session)
+- Orchestrator used: claude-code claude-opus-4-7 @ effort=high
+- Total routed cost: ~$1.31
+  - session-verification round 1: $1.1126 (opus, ISSUES_FOUND, 1 moderate + 2 low)
+  - session-verification round 2: $0.1920 (opus, VERIFIED)
+  - analysis (Session 3 ai-assignment): $0.0063 (gemini-pro)
+  - analysis (Session 4 next-session rec): $0.0043 (gemini-pro)
+- Deviations from recommendation: None — Opus 4.7 at high effort matched the recommendation routed at the end of Session 2.
+- Notable: Initial AcmeCoffeeOnline.Web.Tests had 5 failures because `RenderCorrelationScope`'s constructor unconditionally subscribed to `NavigationManager.LocationChanged`, which throws `InvalidOperationException` when the manager is resolved inside a non-Blazor HTTP request scope (test harnesses, plain MVC endpoints, prerender-disabled flows). Fixed by guarding the subscribe in a `try/catch InvalidOperationException` and falling back to a non-navigation-aware scope; the API path's `ResetForRequest()` still drives request-boundary regeneration. Round-1 verifier flagged S3-01 (DI registration) as moderate but missed that the canonical `services.AddScoped<IRenderCorrelationScope, RenderCorrelationScope>()` was already in `Dabbler.Security/Extensions/ServiceCollectionExtensions.cs` (Session 2 artifact). Added a defensive `services.TryAddScoped<...>()` in `AddDabblerSecurityBlazor()` for Blazor-only hosts. S3-02 (move impl to Blazor project) deferred with rationale captured in the file's `<remarks>`. S3-03 (split into two files) fixed.
+
+**Next-session recommendation (Session 4):**
+
+### Recommendation
+
+```yaml
+orchestrator:
+  engine: claude-code
+  model: claude-opus-4-7
+  effort: high
+```
+
+(Routed analysis suggested `claude-3-opus-20240229`; the current Anthropic-published model id is `claude-opus-4-7`, applied here verbatim per the model-id discipline in `CLAUDE.md`.)
+
+### Reasoning
+
+- The task's complexity is high, spanning a sophisticated Blazor UI (`MudDataGrid` + `ServerData` callback, cascading `FilterPanel<T>`, row-expander correlation cluster), a generic RFC 4180 CSV export service, JS interop for file downloads, and bUnit + Playwright reachability coverage.
+- Comparable in complexity to Session 3, which Opus 4.7 + high effort handled cleanly across two verification rounds.
+- The `ServerData` callback must translate filter state into performant EF `IQueryable` expressions across nullable composite columns (TargetRoleName, GranterUserId, EntityKey/ColumnKey, EventKind), which benefits from holistic context retention.
+- bUnit + Playwright authoring against the existing dashboard tab gating, drawer, and `IJSRuntime` mocks is established pattern work — a top-tier model still earns its cost on the full-set authoring without needing iterative correction.
+
+### Estimated Routed Cost
+
+**Moderate.** UI-heavy session with bUnit + Playwright authoring; expect a comparable verifier round to Session 3 (~$1–1.5 verification + a low-cost summarization for the change log if rolled in).
+
+

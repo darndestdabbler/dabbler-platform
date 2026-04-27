@@ -56,6 +56,21 @@ else
     [Parameter, EditorRequired] public string ColumnKey { get; set; } = string.Empty;
 
     /// <summary>
+    /// Optional entity instance identifier used for column-level
+    /// (non-cell-keyed) audit emission when the wrapper is rendered for a
+    /// single entity surface. The grid itself renders one column wrapper
+    /// across many rows — per-cell <c>FieldUnmaskedRead</c> emission is the
+    /// consumer's responsibility through <see cref="ChildContent"/>'s
+    /// <c>CellTemplate</c>, which knows the row's identifier and can call
+    /// <see cref="IRestrictionBinder.ResolveAsync(string, string, string?)"/>
+    /// directly. This parameter exists so callers using the wrapper for a
+    /// single entity (e.g., a key-value details view rendered as a grid)
+    /// can opt into batched audit rows symmetrically with
+    /// <see cref="RestrictedFormField"/>.
+    /// </summary>
+    [Parameter] public string? EntityId { get; set; }
+
+    /// <summary>
     /// The column template. Receives the resolved <see cref="RestrictionResolution"/>
     /// so the consumer can wire <c>IsEditable</c>, <c>CellTemplate</c>, or
     /// any other column property from the state.
@@ -72,11 +87,14 @@ else
         await ResolveAsync();
     }
 
+    private string? _lastResolvedEntityId;
+
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
         if (!string.Equals(_resolved.EntityKey, EntityKey, StringComparison.OrdinalIgnoreCase)
-            || !string.Equals(_resolved.ColumnKey, ColumnKey, StringComparison.OrdinalIgnoreCase))
+            || !string.Equals(_resolved.ColumnKey, ColumnKey, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(_lastResolvedEntityId, EntityId, StringComparison.Ordinal))
         {
             await ResolveAsync();
         }
@@ -84,7 +102,8 @@ else
 
     private async Task ResolveAsync()
     {
-        _resolved = await Binder.ResolveAsync(EntityKey, ColumnKey);
+        _resolved = await Binder.ResolveAsync(EntityKey, ColumnKey, EntityId);
+        _lastResolvedEntityId = EntityId;
     }
 
     private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)

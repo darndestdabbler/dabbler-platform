@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "sensitive-field-masking-audit",
-  "currentSession": 2,
+  "currentSession": 3,
   "totalSessions": 5,
-  "status": "complete",
-  "startedAt": "2026-04-27T11:38:40.802466-04:00",
-  "completedAt": "2026-04-27T12:01:27.552768-04:00",
-  "verificationVerdict": "VERIFIED",
+  "status": "in-progress",
+  "startedAt": "2026-04-27T12:17:36.638876-04:00",
+  "completedAt": null,
+  "verificationVerdict": null,
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",

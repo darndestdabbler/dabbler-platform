@@ -215,6 +215,117 @@
           "costUsd": 0.004316250000000001
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-27T16:20:35.514872+00:00",
+      "description": "Read project-guidance.md and lessons-learned.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/ai-assignment",
+      "dateTime": "2026-04-27T16:20:35.515875+00:00",
+      "description": "Updated ai-assignment.md with Session 3 plan",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.00633625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/correlation-scope",
+      "dateTime": "2026-04-27T16:29:43.935897+00:00",
+      "description": "Replaced placeholder RenderCorrelationScope with navigation-aware impl + dedup TryRecordOnce",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/binder-emit",
+      "dateTime": "2026-04-27T16:29:43.937890+00:00",
+      "description": "Extended IRestrictionBinder with entityId-bearing ResolveAsync; emits FieldUnmaskedRead batched per (correlation, entity, id, column)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/component-wiring",
+      "dateTime": "2026-04-27T16:29:43.937890+00:00",
+      "description": "Wired RestrictedFormField + RestrictedGridColumn to pass EntityId through and re-resolve when it changes",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/unit-tests",
+      "dateTime": "2026-04-27T16:29:43.939890+00:00",
+      "description": "Added RenderCorrelationScopeTests (7 cases: stability, reset, dedupe, navigation, dispose, no-NavigationManager)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/integration-tests",
+      "dateTime": "2026-04-27T16:29:43.940897+00:00",
+      "description": "Added RestrictionBinderUnmaskedReadAuditTests (7 cases: dedupe per correlation, navigation regen, grid 2N, no mask, no exemption, null id, distinct ids)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-27T16:29:43.940897+00:00",
+      "description": "dotnet build clean (0 errors); dotnet test green (Web 123, Security 300, Blazor 195, Api 27, Reports 16, Components ?)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-27T16:39:41.273922+00:00",
+      "description": "Cross-provider verification: round 1 ISSUES_FOUND (1 moderate + 2 low) -> fixes -> round 2 VERIFIED",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 1.1126
+        },
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.192
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0043
+        }
+      ]
     }
   ]
 }

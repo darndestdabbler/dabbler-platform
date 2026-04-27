@@ -65,6 +65,16 @@ else
     [Parameter, EditorRequired] public string ColumnKey { get; set; } = string.Empty;
 
     /// <summary>
+    /// The entity instance identifier (stringified) for the row this field
+    /// belongs to. When supplied and the resolution is "exempted → unmasked",
+    /// the binder emits a <c>FieldUnmaskedRead</c> audit row keyed on
+    /// <c>(CorrelationId, EntityKey, EntityId, ColumnKey)</c>. When omitted
+    /// the field still resolves restrictions but does not contribute an
+    /// audit row.
+    /// </summary>
+    [Parameter] public string? EntityId { get; set; }
+
+    /// <summary>
     /// The raw stored value of the field. Passed to <see cref="IFieldMaskService.RenderMasked"/>
     /// when the field is masked and no explicit <see cref="MaskedTemplate"/> is supplied.
     /// Null is valid — the mask service always produces a non-empty output.
@@ -97,13 +107,17 @@ else
         await ResolveAsync();
     }
 
+    private string? _lastResolvedEntityId;
+
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
         // Resolve when keys change (e.g., a parent rebinds the same wrapper
-        // to a different column).
+        // to a different column) or when the entity instance changes (so the
+        // batched FieldUnmaskedRead audit fires for each distinct row).
         if (!string.Equals(_resolved.EntityKey, EntityKey, StringComparison.OrdinalIgnoreCase)
-            || !string.Equals(_resolved.ColumnKey, ColumnKey, StringComparison.OrdinalIgnoreCase))
+            || !string.Equals(_resolved.ColumnKey, ColumnKey, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(_lastResolvedEntityId, EntityId, StringComparison.Ordinal))
         {
             await ResolveAsync();
         }
@@ -111,7 +125,8 @@ else
 
     private async Task ResolveAsync()
     {
-        _resolved = await Binder.ResolveAsync(EntityKey, ColumnKey);
+        _resolved = await Binder.ResolveAsync(EntityKey, ColumnKey, EntityId);
+        _lastResolvedEntityId = EntityId;
     }
 
     private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)

@@ -17,8 +17,9 @@ namespace Dabbler.Security.Blazor.Components.Restriction;
 /// through <c>IRoleSwitcher</c>. The same resolver is used by handlers and
 /// other Blazor security components, so role-switch reactivity behaves
 /// consistently — components that subscribe to
-/// <c>AuthorizationStateNotifier</c> can call <see cref="ResolveAsync"/>
-/// again on notification and re-render.
+/// <c>AuthorizationStateNotifier</c> can call
+/// <see cref="ResolveAsync(string, string)"/> again on notification and
+/// re-render.
 /// </para>
 /// <para>
 /// Multi-role aggregation is most-permissive: the column is visible if any
@@ -46,6 +47,24 @@ public interface IRestrictionBinder
     /// responsible for any additional auth gating).
     /// </returns>
     Task<RestrictionResolution> ResolveAsync(string entityKey, string columnKey);
+
+    /// <summary>
+    /// Resolves the restriction state for a specific entity instance under
+    /// the current scope's effective roles. When the resolution is
+    /// "exempted → unmasked" (the column carries a default mask AND the
+    /// user has an active mask exemption), the binder emits a
+    /// <c>FieldUnmaskedRead</c> audit row for the supplied entity instance,
+    /// batched per <c>(CorrelationId, EntityKey, EntityId, ColumnKey)</c>.
+    /// </summary>
+    /// <param name="entityKey">The entity (table) key.</param>
+    /// <param name="columnKey">The column (field) key.</param>
+    /// <param name="entityId">
+    /// The entity instance identifier (stringified). Empty / null inputs
+    /// suppress audit emission — the binder still resolves restrictions but
+    /// does not write a row, since an unmasked read without an entity
+    /// identifier cannot be reconstructed by a reviewer.
+    /// </param>
+    Task<RestrictionResolution> ResolveAsync(string entityKey, string columnKey, string? entityId);
 
     /// <summary>
     /// Pure resolver overload that takes the configuration and effective
