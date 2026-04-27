@@ -171,7 +171,15 @@
       "MaskFormat": "XXX-XX-{last4}"
     }
   ],
-  "MaskExemptions": [],
+  "MaskExemptions": [
+    {
+      "EntityKey": "Customer",
+      "ColumnKey": "SocialSecurityNumber",
+      "TargetRoleName": "BackofficeUser",
+      "GrantedBy": "admin@acmecoffee.com",
+      "GrantedAt": "2026-04-27T19:30:36.2794881+00:00"
+    }
+  ],
   "BakedInRoleAliasOverrides": {},
   "Roles": [],
   "PagePermissions": [],
