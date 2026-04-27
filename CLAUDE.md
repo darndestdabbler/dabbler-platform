@@ -15,19 +15,28 @@ explicitly requires an import from a sibling repo.
 - `docs/planning/project-guidance.md` — durable principles + conventions
 - `docs/planning/lessons-learned.md` — repo-specific failure patterns and
   tactics learned from prior sessions
+- `docs/planning/session-set-authoring-guide.md` — how to author or update a
+  session-set spec, including the Session Set Configuration block
+  (`requiresUAT` / `requiresE2E` / `uatScope`), When-UAT-Is-Required and
+  When-E2E-Is-Required heuristics, slug naming, sizing, deliverables, and
+  anti-patterns
 - `docs/ai-led-session-workflow.md` — the authoritative session-set workflow.
   This is the single source of truth for the step-by-step procedure, the AI
-  router usage, cross-provider verification, UAT checklist handling, **the
-  When-UAT-Is-Required and E2E-Coverage-Before-UAT rules**, **the Step 7
+  router usage, cross-provider verification, UAT checklist handling (now
+  conditional on the spec's `requiresUAT` flag), **the Step 7
   verifier-disagreement resolution procedure (four human options, disagreement
   logging)**, the Step 9 reorganization review (run after the Step 8 notify
   so the human is not blocking the completion signal), **the Delegation
   Discipline rules (when to route vs. handle directly)**, and the mandatory
   rules list. Do not duplicate that content here.
 
-When the human says **"Start the next session"**, follow the workflow in
-`docs/ai-led-session-workflow.md` exactly. What follows below is only the
-Claude-specific bootstrap the workflow needs.
+The human starts a session with one of the trigger phrases listed in
+`docs/ai-led-session-workflow.md` → **Trigger Phrases** (sequential,
+named-set, parallel-worktree, optional `— maxout <engine>` suffix).
+That section is the canonical list; do not re-list trigger phrases
+here.
+
+What follows below is only the Claude-specific bootstrap the workflow needs.
 
 ## Claude-specific bootstrap
 

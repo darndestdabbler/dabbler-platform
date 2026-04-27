@@ -14,8 +14,8 @@ Sections:
 The Windows helpers (sections 3 and 4) are developer-workflow conveniences,
 not production code paths. They are runnable from the command line via:
 
-    python -m ai_router.utils load-env
-    python -m ai_router.utils kill-conhost [--dry-run]
+    python -m ai-router.utils load-env
+    python -m ai-router.utils kill-conhost-processes [--dry-run]
 """
 
 from __future__ import annotations
@@ -76,6 +76,56 @@ def get_escalation_model(
         return assignments[next_tier]
 
     return None
+
+
+# ----------------------------------------------------------------------
+# Truncation detection
+#
+# `stop_reason == "max_tokens"` is the authoritative provider signal but
+# is NOT sufficient: gemini-pro has been observed to return
+# `stop_reason: "end_turn"` on responses that visibly cut off mid-string.
+# The heuristic below catches that case via syntactic-completeness
+# checks. The orchestrator (or callers of route()) can consult
+# detect_truncation() before logging a routed call as successful;
+# on truncation, halve the batch and retry or fall back in-conversation
+# rather than retrying at the same size.
+# ----------------------------------------------------------------------
+
+def detect_truncation(content: str, stop_reason: str) -> bool:
+    """Return True if *content* appears truncated.
+
+    Two complementary signals:
+
+    1. ``stop_reason == "max_tokens"`` — provider reports the output cap
+       was hit. Authoritative.
+    2. Syntactic-incompleteness heuristic — fires on any of:
+         - odd count of triple-backtick fences (one is unclosed)
+         - more ``{`` than ``}`` (open brace not closed)
+         - more ``(`` than ``)`` is intentionally NOT checked, because
+           prose containing parentheses produces too many false
+           positives. Code-output truncation is reliably caught by the
+           brace and fence checks.
+
+    The heuristic is conservative: a clean prose response with no code
+    blocks and balanced braces will not flag, even if it lacks a
+    sentence-ending period (the bare-verdict case — separately solved
+    by the structured-response-format requirement in
+    `prompt-templates/verification.md`).
+    """
+    if stop_reason == "max_tokens":
+        return True
+
+    stripped = content.rstrip()
+    if not stripped:
+        return False  # empty response is a different failure mode
+
+    if stripped.count("```") % 2 == 1:
+        return True
+
+    if stripped.count("{") > stripped.count("}"):
+        return True
+
+    return False
 
 
 # ======================================================================

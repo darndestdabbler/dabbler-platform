@@ -57,6 +57,14 @@ from .utils import (
     RateLimiter,
     should_escalate,
     get_escalation_model,
+    detect_truncation,
+    kill_conhost_processes,
+)
+from .session_state import (
+    SESSION_STATE_FILENAME,
+    register_session_start,
+    mark_session_complete,
+    read_session_state,
 )
 from .metrics import (
     record_call, record_adjudication, load_metrics, print_metrics_report,
@@ -767,6 +775,139 @@ def print_cost_report(session_set_dir: str):
             print(f"  {model:20s}  {data['calls']:3d} calls"
                   f"  ${data['cost']:.4f}")
     print("=" * 60 + "\n")
+
+
+def print_session_set_status(base_dir: str = "docs/session-sets") -> None:
+    """Print a status table of every session set under *base_dir*.
+
+    State is derived from file presence in each set's directory — same
+    rules as :func:`SessionLog.find_active_session_set`. Sets are
+    grouped in the table by state (in-progress first, then not-started,
+    then done), then sorted by most recently touched within each group.
+
+    Uses ASCII-only glyphs (`[~]`, `[ ]`, `[x]`) so Windows cp1252
+    consoles do not crash mid-line on emoji output.
+    """
+    if not os.path.isdir(base_dir):
+        print(f"(no session-sets directory at {base_dir})")
+        return
+
+    in_progress: list = []
+    not_started: list = []
+    done: list = []
+
+    for name in sorted(os.listdir(base_dir)):
+        path = os.path.join(base_dir, name)
+        if not os.path.isdir(path):
+            continue
+        spec_path = os.path.join(path, "spec.md")
+        if not os.path.isfile(spec_path):
+            continue
+
+        activity_path = os.path.join(path, "activity-log.json")
+        changelog_path = os.path.join(path, "change-log.md")
+        state_path = os.path.join(path, SESSION_STATE_FILENAME)
+
+        sessions_completed = 0
+        total_sessions = None
+        last_touched = None
+
+        if os.path.isfile(activity_path):
+            try:
+                with open(activity_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                total_sessions = data.get("totalSessions")
+                entries = data.get("entries", [])
+                if entries:
+                    last_touched = max(
+                        (e.get("dateTime", "") for e in entries),
+                        default=None,
+                    )
+                    sessions_completed = len({
+                        e["sessionNumber"] for e in entries
+                        if e.get("sessionNumber") is not None
+                    })
+            except Exception:
+                pass
+
+        # session-state.json is the earlier signal — written at Step 1
+        # before any activity-log entry exists, so a freshly-started set
+        # still shows up as in-progress here.
+        if os.path.isfile(state_path):
+            try:
+                with open(state_path, "r", encoding="utf-8") as f:
+                    state_data = json.load(f)
+                if total_sessions is None:
+                    total_sessions = state_data.get("totalSessions")
+                state_touched = state_data.get("completedAt") or state_data.get("startedAt")
+                if state_touched and (not last_touched or state_touched > last_touched):
+                    last_touched = state_touched
+            except Exception:
+                pass
+
+        if os.path.isfile(changelog_path):
+            state = "done"
+        elif os.path.isfile(activity_path) or os.path.isfile(state_path):
+            state = "in-progress"
+        else:
+            state = "not-started"
+
+        record = {
+            "name": name,
+            "completed": sessions_completed,
+            "total": total_sessions,
+            "last_touched": last_touched or "",
+            "state": state,
+        }
+
+        if state == "done":
+            done.append(record)
+        elif state == "in-progress":
+            in_progress.append(record)
+        else:
+            not_started.append(record)
+
+    in_progress.sort(key=lambda r: r["last_touched"], reverse=True)
+    done.sort(key=lambda r: r["last_touched"], reverse=True)
+    not_started.sort(key=lambda r: r["name"])
+
+    rows = (
+        [("[~]", r) for r in in_progress]
+        + [("[ ]", r) for r in not_started]
+        + [("[x]", r) for r in done]
+    )
+
+    if not rows:
+        print(f"(no session sets under {base_dir})")
+        return
+
+    name_width = max(len(r[1]["name"]) for r in rows)
+    name_width = max(name_width, len("Session Set"))
+
+    print()
+    print("=" * (name_width + 32))
+    print("SESSION-SET STATUS")
+    print("=" * (name_width + 32))
+    print(f"{'St':3}  {'Session Set':<{name_width}}  {'Progress':>10}  Touched")
+    print(f"{'-' * 3}  {'-' * name_width}  {'-' * 10}  {'-' * 10}")
+    for icon, r in rows:
+        if r["total"] not in (None, 0):
+            progress = f"{r['completed']}/{r['total']}"
+        elif r["state"] == "done" and r["completed"] > 0:
+            progress = f"{r['completed']}/{r['completed']}"
+        elif r["completed"] > 0:
+            progress = f"{r['completed']} done"
+        else:
+            progress = "-"
+        touched = r["last_touched"][:10] if r["last_touched"] else "-"
+        print(f"{icon}  {r['name']:<{name_width}}  {progress:>10}  {touched}")
+    print("=" * (name_width + 32))
+    print(
+        f"  [~] in-progress: {len(in_progress)}    "
+        f"[ ] not-started: {len(not_started)}    "
+        f"[x] done: {len(done)}"
+    )
+    print("=" * (name_width + 32) + "\n")
 
 
 def _calculate_cost(input_tokens, output_tokens, model_cfg):

@@ -1,7 +1,16 @@
 # AGENTS.md -- {{PROJECT_NAME}} (Codex)
 
-Read `README.md` for the repo layout and `docs/ai-led-session-workflow.md` for
-the session-set workflow.
+Read `README.md` for the repo layout. Required reading before every session:
+
+- `docs/planning/project-guidance.md`
+- `docs/planning/lessons-learned.md`
+- `docs/planning/session-set-authoring-guide.md` (how to author specs, the
+  Session Set Configuration block, When-UAT/When-E2E heuristics)
+- `docs/ai-led-session-workflow.md` (the authoritative workflow)
+
+The human starts a session with one of the trigger phrases listed in
+`docs/ai-led-session-workflow.md` -> **Trigger Phrases**. That section
+is the canonical list; do not re-list trigger phrases here.
 
 ## Project Rules
 
@@ -10,6 +19,8 @@ the session-set workflow.
 - log every session step with `SessionLog`
 - use `route()` for reasoning tasks and external session verification
 - complete exactly one session per conversation
+- obey the spec's Session Set Configuration block at runtime; do not
+  re-litigate `requiresUAT` / `requiresE2E` mid-session
 - keep the narrowed starter contract explicit instead of silently restoring
   broader historical platform defaults
 - do not treat `DabblerCatalogPage`, `DabblerQueryReportPage<T>`,
@@ -28,14 +39,5 @@ dotnet build
 dotnet test
 ```
 
-## Session Trigger
-
-When the human says "Start the next session":
-
-1. verify API keys
-2. identify the active session set
-3. read the current session from `spec.md`
-4. execute and log each step
-5. run build/test
-6. run mandatory external session verification
-7. print the cost report, commit, and stop
+<!-- Canonical session procedure lives in docs/ai-led-session-workflow.md.
+     Do not duplicate it here. -->

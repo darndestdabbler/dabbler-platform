@@ -8,6 +8,23 @@
 
 ---
 
+## Session Set Configuration
+
+```yaml
+requiresUAT: false
+requiresE2E: false
+uatScope: none
+```
+
+> Rationale: starter sets bootstrap workflow scaffolding and rarely ship
+> end-user behavior. Override these flags when this set's first slice
+> touches a UI surface (set `requiresUAT: true`) or changes shipping
+> behavior (set `requiresE2E: true`). See
+> `docs/planning/session-set-authoring-guide.md` for the full When-UAT
+> and When-E2E heuristics.
+
+---
+
 ## Project Overview
 
 Describe the first body of work for the new repo here.

@@ -16,23 +16,30 @@ The orchestrator can change from session to session at the human's discretion.
 All three orchestrators follow the same workflow — only the instruction file
 they read differs.
 
-Read `docs/planning/project-guidance.md` and
-`docs/planning/lessons-learned.md` before every session and before changing
-architecture, testing strategy, workflow assets, or human-UAT conventions.
+Read `docs/planning/project-guidance.md`,
+`docs/planning/lessons-learned.md`, and
+`docs/planning/session-set-authoring-guide.md` before every session and
+before changing architecture, testing strategy, workflow assets, or
+human-UAT conventions.
 
 ## Overview
 
 ```
 Human
   |
-  | "Start the next session"
+  | "Start the next session [of <slug>]"             (sequential)
+  | "Start the next parallel session of <slug>"      (worktree-isolated)
+  | "<phrase> — maxout <engine>"                     (token-window override)
   v
 Orchestrator (Claude / Codex / Gemini)
   |
   |-- reads instruction file (CLAUDE.md / AGENTS.md / GEMINI.md)
-  |-- reads project-guidance.md and lessons-learned.md
-  |-- reads spec.md in the active session set
+  |-- reads project-guidance.md, lessons-learned.md,
+  |   and session-set-authoring-guide.md
+  |-- reads spec.md (incl. Session Set Configuration block)
+  |   in the active session set
   |-- reads activity-log.json for prior progress
+  |-- writes session-state.json (in-progress) for external tooling
   |
   |  For each step in the session plan:
   |    |-- file work: creates/edits files directly
@@ -71,12 +78,14 @@ session set lives in `docs/session-sets/<name>/` and contains:
 
 | File | Purpose |
 |---|---|
-| `spec.md` | The full plan: goals, features, and per-session step lists |
+| `spec.md` | The full plan: goals, features, configuration block, and per-session step lists |
+| `session-state.json` | Live status (current session, orchestrator metadata, latest verdict). Written at Step 1; flipped to `complete` at Step 8. |
+| `ai-assignment.md` | Per-session ledger of cheapest-capable AI for each step + next-session recommendation. Authored on Session 1; appended each session. |
 | `activity-log.json` | Machine-readable log of every step across all sessions |
 | `session-reviews/session-NNN.md` | Raw verifier output for each session (never edited) |
 | `session-reviews/issues-NNN.json` | Issue log if verification found problems |
 | `change-log.md` | Generated after the final session; marks the set as complete |
-| `<name>-uat-checklist.json` | Per-set human-UAT checklist (if the set requires one) |
+| `<name>-uat-checklist.json` | Per-set human-UAT checklist (only when `requiresUAT: true`) |
 
 Human-UAT sets use one checklist per session set, named after the set, rather
 than re-running an earlier set's checklist. See
@@ -136,7 +145,11 @@ automatically by the SessionLog class on first use.
 
 ### 2. Write spec.md
 
-The spec defines the entire body of work. Structure:
+The spec defines the entire body of work. The full authoring guide
+lives at `docs/planning/session-set-authoring-guide.md` (slug naming,
+sizing, the configuration block, deliverables, anti-patterns,
+templates). Read it before authoring or modifying a spec. Required
+structure:
 
 ```markdown
 # <Feature Name> Spec
@@ -146,6 +159,18 @@ The spec defines the entire body of work. Structure:
 > **Session Set:** `docs/session-sets/<name>/`
 > **Prerequisite:** What must be done before starting
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification
+
+---
+
+## Session Set Configuration
+
+```yaml
+requiresUAT: false      # see When-UAT-Is-Required heuristic in authoring guide
+requiresE2E: false      # see When-E2E-Is-Required heuristic in authoring guide
+uatScope: none          # per-session | per-set | none
+```
+
+> Rationale: <one or two sentences justifying the flags>
 
 ---
 
@@ -325,10 +350,58 @@ the Responses API via plain HTTP.
 
 ## Executing a Session
 
-When the human says **"Start the next session"**, the orchestrator follows
-this exact procedure.
+### Trigger Phrases
+
+The human starts a session with one of these phrases:
+
+- **`Start the next session.`** — sequential, in the current working tree.
+  The orchestrator finds the active session set via
+  `find_active_session_set()` and runs the next session there.
+- **`Start the next session of <slug>.`** — sequential, in the current
+  working tree, but pinned to the named session set rather than
+  whichever set `find_active_session_set()` would have picked.
+- **`Start the next parallel session of <slug>.`** — runs the session in
+  an isolated git worktree at `../<repo>-<slug>` on a
+  `session-set/<slug>` branch. Multiple parallel sessions on different
+  sets do not contend for the working tree. The set's last session
+  merges `origin/main` back into the session-set branch (resolving
+  conflicts), then merges into main and pushes. `router-metrics.jsonl`
+  is the predictable merge-noise file — expect one reconciliation
+  commit per completed parallel set.
+
+Any of these may be suffixed with **`— maxout <engine>`** (e.g.,
+`Start the next session of role-administration. — maxout Claude`) to
+override the `ai-assignment.md` recommendations for that session and
+push routing to the named engine's frontier model. "maxout" upgrades
+the tier and removes cost-saving caps; **it never eliminates the
+cross-provider verification step or routes verification back to the
+orchestrator's own provider.** `session-verification` is always
+cross-provider — that is the one constraint that survives any maxout.
+
+### Reading the Session Set Configuration
+
+Every spec begins with a Session Set Configuration block declaring
+`requiresUAT`, `requiresE2E`, and `uatScope`. The orchestrator reads
+this block as part of Step 2 and uses it to decide which UAT/E2E
+gates apply for the rest of the workflow. **The orchestrator does not
+re-litigate these flags during a session.** If a spec declares
+`requiresUAT: false`, the workflow does not invoke
+`uat-plan-generation`, does not author a checklist, and does not
+block notification on UAT review — even if the work touches a UI
+surface. If the human believes the flags are wrong for this set, the
+correction is to update the spec (and re-run the corresponding
+Step 9 reorganization review at the end), not to override at runtime.
+
+The When-UAT-Is-Required and When-E2E-Is-Required heuristics that
+inform spec authors are documented in
+`docs/planning/session-set-authoring-guide.md`. This doc owns
+*execution-time* behavior gated by the spec; the authoring guide
+owns *which spec flags to set in the first place.*
 
 ### UAT Checklist Rule
+
+> **Applies only when the active spec declares `requiresUAT: true`.**
+> Sets with `requiresUAT: false` skip this rule entirely.
 
 When a session set includes a human-executed UAT checklist:
 
@@ -346,34 +419,38 @@ When a session set includes a human-executed UAT checklist:
   session that depends on or bypasses that review unless the human explicitly
   says to do so
 
-### When UAT Is Required
+### When UAT Is Required (authoring-time decision)
 
-A session set must produce a UAT checklist whenever its work changes the
-behavior of a UI surface or a service that the UI talks to directly. In
-practice, any of these triggers UAT:
+> The full heuristic for whether a spec should declare `requiresUAT:
+> true` lives in `docs/planning/session-set-authoring-guide.md` →
+> *When UAT is required*. **Spec authors decide; the orchestrator
+> obeys.** This section summarizes the rule for orchestrator
+> reference.
 
-- Any change to a Blazor page, component, nav menu, form, grid, or dialog.
-- Any change to a shell element (app bar, drawer, theme, layout) or a
-  cross-page interaction pattern (role switcher, org switcher, sign-in flow).
-- Any change to an API endpoint the UI consumes — request shape, response
-  shape, error-status contract, or authorization rule.
-- Any change to authorization rules (role assignments, restriction types,
-  mask exemptions, loopback gates) that the UI can surface.
-- Any change to a browser-visible workflow: search, filter, sort, paging,
-  export, document generation, multi-step forms.
+A session set should declare `requiresUAT: true` whenever its work
+changes the behavior of a UI surface or a service the UI talks to
+directly: Blazor pages/components/nav/forms/grids/dialogs, shell
+elements, cross-page interaction patterns, API endpoints the UI
+consumes, authorization rules the UI surfaces, browser-visible
+workflows. Pure refactors, internal-only library/router/test/doc
+work, and infrastructure changes typically declare `requiresUAT:
+false`.
 
-A session set does **not** require UAT when it only touches internal-only
-surfaces — pure library refactors, build or infrastructure changes with no
-UI effect, router or prompt-template edits, test-only changes, and
-documentation. If a session is ambiguous (e.g., refactoring an API the UI
-may depend on), default to requiring UAT.
+When the active spec declares `requiresUAT: true`, the checklist is
+built **during this session set** — not deferred to a later "UAT
+session set." Deferring UAT across session sets breaks the
+traceability between a change and its human sign-off.
 
-When UAT is required, the checklist is built during the session set that
-makes the change — not deferred to a later "UAT session set." Deferring
-UAT across session sets breaks the traceability between a change and its
-human sign-off.
+When the active spec declares `requiresUAT: false`, the orchestrator
+does not generate a checklist, does not invoke `uat-plan-generation`
+or `uat-coverage-review`, and Rule #9 (pending UAT blocking) does not
+apply.
 
 ### E2E Coverage Before UAT
+
+> **Applies only when the active spec declares both `requiresUAT:
+> true` AND `requiresE2E: true`.** Sets with either flag false skip
+> this gate.
 
 Before a UAT checklist is committed and the human is notified, every
 functional item in the checklist must have matching E2E test coverage.
@@ -400,38 +477,150 @@ Specifically:
 A checklist shipped without this coverage is a session-closeout defect
 and must be rebuilt before the human is notified.
 
+When the spec declares `requiresE2E: true` but `requiresUAT: false`,
+the rule degenerates to "behavioral changes ship with E2E coverage" —
+the orchestrator confirms via test discovery that the new/changed
+behavior has matching tests before notifying. No UAT checklist is
+involved.
+
 ### Step 0: Verify API Keys And Read Guidance
 
 Before doing anything else:
 
 1. Read `docs/planning/project-guidance.md`
 2. Read `docs/planning/lessons-learned.md`
-3. Then load keys from the environment and confirm both are present
+3. Read `docs/planning/session-set-authoring-guide.md`
+4. Then load keys from the environment and confirm all required keys
+   are present (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`,
+   and optionally `PUSHOVER_API_KEY` / `PUSHOVER_USER_KEY` if
+   notifications are configured)
 
 If keys are missing, stop and tell the human.
 
-### Step 1: Identify the Active Session Set
+### Step 1: Identify the Active Session Set and Register Session Start
 
 The `find_active_session_set()` function auto-detects:
 - Folder with `spec.md` + `activity-log.json` but no `change-log.md` = in-progress
 - Folder with `spec.md` only = not-started (use if no in-progress exists)
 - Folder with `change-log.md` = complete (skip)
 
+If the trigger phrase named a specific slug (e.g., "Start the next
+session of `<slug>`"), use that slug directly rather than calling
+`find_active_session_set()`. For a parallel-trigger phrase, switch
+into the `../<repo>-<slug>` worktree before proceeding.
+
 ```python
 from ai_router.session_log import find_active_session_set, SessionLog
+from ai_router import register_session_start
 
 SESSION_SET = find_active_session_set("docs/session-sets")
 log = SessionLog(SESSION_SET)
 next_session = log.get_next_session_number()
+
+# Write session-state.json BEFORE the first activity-log entry so
+# external tools (VS Code Session Set Explorer, manager dashboards)
+# see the session as in-progress immediately. Use "unknown" for
+# orchestrator fields the orchestrator cannot reliably introspect.
+register_session_start(
+    session_set=SESSION_SET,
+    current_session=next_session,
+    total_sessions=log.total_sessions,
+    orchestrator={
+        "engine": "claude-code",        # or "codex", "gemini-cli"
+        "provider": "anthropic",        # or "openai", "google"
+        "model": "claude-opus-4-7",     # specific model id
+        "effort": "high",               # low | medium | high | max | unknown
+    },
+)
 ```
 
-### Step 2: Read the Spec
+`session-state.json` is the single source of truth for in-progress
+detection by external tooling. It is flipped to `complete` at Step 8
+with the verification verdict. Do not rely on activity-log presence
+for in-progress signaling — `register_session_start()` runs first.
 
-Open `spec.md` and find the plan for the current session number.
+### Step 2: Read the Spec and the Configuration Block
+
+Open `spec.md` and find:
+
+1. **The Session Set Configuration block** — `requiresUAT`,
+   `requiresE2E`, `uatScope`. Cache these values for the rest of the
+   session. They govern which UAT/E2E gates apply at later steps.
+2. **The plan for the current session number** — the Steps, Creates,
+   Touches, Ends-with, and Progress-keys for this session.
+
+If the spec is missing the configuration block (older sets), treat
+all flags as `false` and proceed; the backfill script
+(`tools/backfill_ai_assignment.py`) is responsible for inserting a
+proposed config block on the next session start.
 
 ### Step 3: Verify Prerequisites
 
 Confirm that files listed in prior sessions' "Creates" and "Touches" exist.
+
+### Step 3.5: Author or Update `ai-assignment.md`
+
+`ai-assignment.md` lives at the root of the session-set folder
+alongside `spec.md`. It is a per-session ledger of the cheapest
+capable AI for each step, plus a forward-looking recommendation for
+the next session.
+
+**Mandatory rule: the orchestrator never self-opines on which model
+could have been cheaper.** Always route the analysis through
+`route(task_type="analysis")` so the recommendation is independent
+of the orchestrator's own model.
+
+**On Session 1 of a new set:**
+
+```python
+result = route(
+    content=spec_excerpt + "\n\n" + per_session_step_lists,
+    task_type="analysis",
+    context="Author ai-assignment.md per the schema in "
+            "docs/ai-led-session-workflow.md Step 3.5.",
+    session_set=str(SESSION_SET),
+    session_number=next_session,
+)
+# write docs/session-sets/<slug>/ai-assignment.md
+```
+
+**On Sessions 2..N:** read the existing `ai-assignment.md`, append
+the actuals for the prior session (orchestrator used, total routed
+cost, deviations from recommendation, notes for next-session
+calibration), and route a fresh recommendation for Session N+1.
+
+**Schema (each session block):**
+
+```markdown
+## Session N: <Title>
+
+### Recommended orchestrator
+<engine> <model> @ effort=<low|medium|high|max>
+
+### Rationale
+<2 sentences — why this engine for this session's mix of work>
+
+### Estimated routed cost
+<qualitative — "low" / "moderate" / "high">
+
+| Step | Action | Routing Decision |
+|------|--------|------------------|
+| ...  | ...    | ...              |
+
+### Actuals (filled after the session)
+- Orchestrator used: <engine + model + effort>
+- Total routed cost: $X.XX
+- Deviations from recommendation: <any>
+- Notes for next-session calibration: <any>
+
+**Next-session orchestrator recommendation (Session N+1):**
+<engine> <model> @ effort=<...>
+Rationale: <one sentence>
+```
+
+If the spec has the maxout suffix in play for this session, note that
+in the actuals — the human's window-budget override is the reason
+for any deviation from the recommendation.
 
 ### Step 4: Execute Each Step
 
@@ -495,7 +684,14 @@ Log the result with `log.log_step()`.
 dispatches to a different AI provider for independent review.
 
 1. Collect all files created or modified during the session.
-2. Build a verification prompt with: spec excerpt + file contents + build results.
+2. Build a verification prompt with: spec excerpt + file contents +
+   build results. **The prompt must include the structured JSON
+   response schema** (defined in
+   `ai-router/prompt-templates/verification.md`) so the verifier
+   returns `{"verdict": "VERIFIED" | "ISSUES_FOUND", "issues": [...]}`
+   rather than a bare paragraph. Bare-paragraph verdicts have caused
+   parser failures and silent ISSUES_FOUND-misclassified-as-VERIFIED
+   regressions; the schema requirement closes that hole.
 3. Execute:
    ```python
    result = route(
@@ -513,6 +709,17 @@ dispatches to a different AI provider for independent review.
    ```
 4. **Never edit the saved review file.**
 5. Log the verification step.
+
+**Two-attempt verifier fallback.** If the first-choice verifier fails
+at the HTTPS layer (provider outage, timeout, garbled response), the
+router excludes that provider and re-picks once. The fallback call is
+recorded in metrics with `verifier_fallback: true`. If the second
+attempt also fails, follow the verifier-failure escalation ladder
+(retry same provider once, fall back to remaining cross-provider
+verifier, decompose the prompt, verify against description-of-work,
+log a `Major` issue and proceed to commit). Do not skip commit just
+because verification is provider-broken — the work is preserved in
+git for human review and the next session can re-attempt.
 
 ### Step 7: Handle Verification Result
 
@@ -606,7 +813,7 @@ and verifier pairing may be mismatched for this kind of work. The
 manager report (`report.py`) aggregates these by cause and resolution
 in its "Verifier findings & adjudication" section.
 
-### Step 8: Cost Report, Change Log (Last Session), Commit, Push, And Notify
+### Step 8: Cost Report, Change Log (Last Session), Recommendations, Commit, Push, Mark Complete, And Notify
 
 Print the cost report:
 
@@ -615,14 +822,57 @@ from ai_router import print_cost_report
 print_cost_report(SESSION_SET)
 ```
 
-**Last session only — generate the change log before committing.** This
-is the former Step 10a. It must land in the same commit as the final
-session's code so the session set is marked complete in a single push.
+**Update `ai-assignment.md` actuals.** Append the actuals section for
+this session to the per-session block authored at Step 3.5.
+
+**Author the next-orchestrator recommendation (every session except
+the last).** Route the recommendation — never self-opine.
 
 ```python
-result = route(content=change_log_prompt, task_type="documentation")
+result = route(
+    content=next_session_excerpt + "\n\n" + this_session_actuals,
+    task_type="analysis",
+    context="Recommend orchestrator/effort for the next session.",
+    session_set=str(SESSION_SET),
+    session_number=next_session,
+)
+```
+
+Append the recommendation to `ai-assignment.md` and surface it in
+the printout + Pushover body.
+
+**Last session only — generate the change log before committing.** It
+must land in the same commit as the final session's code so the
+session set is marked complete in a single push. Use
+`task_type="summarization"` (not `"documentation"`) — the
+documentation prompt template wraps content in a "document this code"
+frame that mis-fits free-form prose.
+
+```python
+result = route(content=change_log_prompt, task_type="summarization", max_tier=1)
 # write docs/session-sets/<name>/change-log.md
 ```
+
+**Last session only — author the next-session-set recommendation.**
+Route this too (`task_type="analysis"`). The recommendation depends
+on whether the repo maintains a master plan:
+
+- **Plan-driven repos** (a master plan file is referenced from
+  `CLAUDE.md` / `AGENTS.md` / `GEMINI.md`, e.g.,
+  `docs/<area>-plan.md` or `docs/*-roadmap.md`): the routed
+  recommendation must (1) read the plan, (2) identify the next set
+  per the plan, (3) either confirm the planned next set or propose
+  a deviation with explicit justification. Do not pick freely from
+  backlog when a plan exists — surface deviations to the human
+  rather than silently re-prioritizing.
+- **Repos without a master plan:** recommend freely from open
+  goals / backlog and the prerequisite chain, grounded in this
+  set's actuals.
+
+Either way, surface the recommendation in the printout + Pushover
+body. The pass/deviate distinction matters most for plan-driven
+repos and is a no-op for repos that don't have a plan to validate
+against.
 
 Commit and push:
 ```bash
@@ -631,10 +881,26 @@ git commit -m "Session N of M: <description>"
 git push
 ```
 
+**Mark the session complete in `session-state.json`.** Flip status
+from `in-progress` to `complete` and record the verification verdict
+and completedAt timestamp. This signals to the VS Code Session Set
+Explorer (and any external dashboards) that the session has landed.
+
+```python
+from ai_router import mark_session_complete
+
+mark_session_complete(
+    session_set=SESSION_SET,
+    verification_verdict="VERIFIED",  # or "ISSUES_FOUND" with deferred Majors
+)
+```
+
 Then send a session-complete notification through the reusable helper in
 `ai-router/`. **Critical ordering:** notify here — before the Step 9
 reorganization review — so the human is not holding up the "session
-complete" signal while they think about proposals.
+complete" signal while they think about proposals. Include the
+next-orchestrator recommendation (and on the last session, the
+next-session-set recommendation) in the body.
 
 ```python
 from ai_router import send_session_complete_notification
@@ -646,6 +912,8 @@ try:
         total_sessions=log.total_sessions,
         verification_verdict="VERIFIED",
         summary="<short description>"
+        # body should include next-orc recommendation (every session)
+        # and next-set recommendation (last session only)
     )
 except Exception as exc:
     print(f"Session completed, but Pushover notification failed: {exc}")
@@ -734,8 +1002,8 @@ the orchestrator to follow this same workflow.
 | Agent | Instruction File | Global Config |
 |---|---|---|
 | Claude Code | `CLAUDE.md` (repo root) | `~/.claude/CLAUDE.md` |
-| Codex (OpenAI) | `AGENTS.md` (repo root) | `~/.codex/instructions.md` |
-| Gemini | `GEMINI.md` (repo root) | Varies by tool |
+| Codex (OpenAI) and GitHub Copilot | `AGENTS.md` (repo root) | `~/.codex/instructions.md` (Codex); Copilot reads project file |
+| Gemini Code Assistant | `GEMINI.md` (repo root) | Varies by tool |
 
 The human chooses which agent to use for each session. The agent reads its
 own instruction file. Each instruction file keeps only agent-specific
@@ -1075,6 +1343,9 @@ This is the authoritative rules list. Instruction files (`CLAUDE.md`,
 1. **One session only.** Never execute more than the assigned session.
 2. **Never skip verification.** Every session must be independently verified
    by a different AI provider via `route(task_type="session-verification")`.
+   `session-verification` ALWAYS routes — this is the one constraint that
+   survives any maxout suffix or orchestrator-model-matches-routing-target
+   shortcut.
 3. **Never edit session review files.** They are the verifier's raw output.
 4. **Log every step** via `log.log_step()` — including build, test, and
    verification.
@@ -1085,20 +1356,26 @@ This is the authoritative rules list. Instruction files (`CLAUDE.md`,
    only for mechanical, single-file edits under ~50 lines.
 6. **Do not commit with unresolved Critical/Major issues.** Inform the human.
 7. **The human controls orchestrator choice.** Any session can use any agent.
-8. **Before every session, read both guidance files.**
-   `docs/planning/project-guidance.md` and
-   `docs/planning/lessons-learned.md` are mandatory pre-session context.
-9. **Treat pending human UAT as blocking.** Do not start downstream sessions
+8. **Before every session, read all required-reading files.**
+   `docs/planning/project-guidance.md`,
+   `docs/planning/lessons-learned.md`, and
+   `docs/planning/session-set-authoring-guide.md` are mandatory
+   pre-session context.
+9. **Treat pending human UAT as blocking** *(applies only when the active
+   spec declares `requiresUAT: true`).* Do not start downstream sessions
    on top of a checklist the human has not yet reviewed unless the human
    explicitly overrides the pause.
-10. **One UAT checklist per session set.** Name it
+10. **One UAT checklist per session set** *(applies only when the active
+    spec declares `requiresUAT: true`).* Name it
     `<session-set-slug>-uat-checklist.json` and keep human results inline.
-11. **E2E coverage before UAT handoff.** Every functional checklist item
-    must have matching Playwright coverage and pass `uat-coverage-review`
-    before the checklist is committed and the human is notified. Judgment
-    items (`IsJudgmentItem: true`) are exempt from matching-test parity
-    but still require sequence-reachability coverage. See the `E2E
-    Coverage Before UAT` section above.
+11. **E2E coverage before UAT handoff** *(applies only when the active
+    spec declares both `requiresUAT: true` AND `requiresE2E: true`).*
+    Every functional checklist item must have matching Playwright
+    coverage and pass `uat-coverage-review` before the checklist is
+    committed and the human is notified. Judgment items
+    (`IsJudgmentItem: true`) are exempt from matching-test parity but
+    still require sequence-reachability coverage. See the `E2E Coverage
+    Before UAT` section above.
 12. **Share screenshots during UI and E2E work when practical.**
 13. **Escalate durable new guidance.** If the human gives an instruction that
     looks like a future principle or convention, ask whether it should be
@@ -1110,3 +1387,22 @@ This is the authoritative rules list. Instruction files (`CLAUDE.md`,
     qualifies — but do the review. Apply any accepted proposals in a
     separate follow-up commit so the session-complete notification is
     never held up by the human reviewing proposals.
+16. **Register session start before the first activity-log entry.** Call
+    `register_session_start()` at Step 1 so external tooling (VS Code
+    Session Set Explorer, dashboards) sees the set as in-progress
+    immediately. Flip to `complete` via `mark_session_complete()` at
+    Step 8 along with the verification verdict.
+17. **Author `ai-assignment.md` and the next-orchestrator /
+    next-session-set recommendations via routed analysis — never
+    self-opine.** The orchestrator's own opinion of which model could
+    have been cheaper is the precise thing the routed analysis is
+    designed to displace.
+18. **Obey the spec's Session Set Configuration block at runtime.** Do
+    not re-litigate `requiresUAT` / `requiresE2E` (or any future flag
+    the block grows) during a session. The When-UAT-Is-Required and
+    When-E2E-Is-Required heuristics are authoring-time decisions
+    documented in `docs/planning/session-set-authoring-guide.md`.
+    Specs that omit the block entirely are treated as all-flags-false
+    — the universal core of the workflow runs and every gated rule
+    skips silently. If a flag is wrong, correct it in the spec and
+    revisit at the Step 9 reorganization review.

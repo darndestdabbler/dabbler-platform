@@ -223,6 +223,10 @@ routing:
     # UAT checklist generation and its coverage audit are high-stakes
     # governance gates; route them straight to Tier 3 rather than relying
     # on heuristic scoring to land there indirectly.
+    # NOTE: these task types are only invoked when a session-set spec
+    # declares `requiresUAT: true`. No-UI repos (and platform sets that
+    # opt out) never reach these calls — leaving the entries defined
+    # is zero-cost.
     uat-plan-generation: opus
     uat-coverage-review: opus
 
@@ -470,6 +474,8 @@ verification:
   # Which task types are auto-verified when using route().
   # If a task type is listed here, route() automatically calls verify()
   # after getting the initial response. No extra code needed.
+  # uat-plan-generation and uat-coverage-review only run when a session-
+  # set spec declares `requiresUAT: true`; no-UI repos never reach them.
   auto_verify_task_types:
     - code-review
     - security-review

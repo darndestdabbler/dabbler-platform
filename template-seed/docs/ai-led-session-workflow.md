@@ -1,3 +1,10 @@
+<!-- Generated from live docs — see docs/ai-led-session-workflow.md for the
+     canonical version. This seed copy is intentionally trimmed: it omits
+     extended code samples and repo-specific conventions while keeping the
+     full step numbering, rules list, and structural outline aligned with
+     the live doc. When the live doc adds a section, apply the same trimming
+     here rather than a full replacement. -->
+
 # AI-Led Session-Set Workflow
 
 This document describes the orchestration pattern used to develop features in
@@ -6,96 +13,121 @@ tool) acts as the **orchestrator**, executing a predefined session plan one
 session at a time. A separate **AI Router** Python module routes reasoning
 tasks to cheaper external models and enforces cross-provider verification.
 
-The orchestrator can change from session to session at the human's discretion.
-All three orchestrators follow the same workflow -- only the instruction file
-they read differs.
+This workflow document is the single source of truth for the session-set
+workflow — procedure, rules, router usage, verification, UAT/E2E handling
+(conditional on the spec's configuration block), and session-set close.
+`CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` provide only agent-specific
+bootstrap and point here for everything else.
 
-This workflow document is intentionally orchestration-only. It does not define
-application shell, dashboard, query/report, or security defaults for the repo
-being bootstrapped; those choices belong in the repo's own README, guardrails,
-and session specs.
+Read `docs/planning/project-guidance.md`, `docs/planning/lessons-learned.md`,
+and `docs/planning/session-set-authoring-guide.md` before every session.
 
 ## Overview
 
 ```
 Human
   |
-  | "Start the next session"
+  | trigger phrase (see Trigger Phrases section below)
   v
 Orchestrator (Claude / Codex / Gemini)
   |
   |-- reads instruction file (CLAUDE.md / AGENTS.md / GEMINI.md)
-  |-- reads spec.md in the active session set
+  |-- reads project-guidance.md, lessons-learned.md,
+  |   session-set-authoring-guide.md
+  |-- reads spec.md (incl. Session Set Configuration block)
   |-- reads activity-log.json for prior progress
+  |-- writes session-state.json (in-progress) for external tooling
   |
   |  For each step in the session plan:
   |    |-- file work: creates/edits files directly
   |    |-- reasoning: calls route() via ai-router Python module
   |    |     |-- router selects cheapest capable model
-  |    |     |-- Gemini Flash (tier 1), Gemini Pro (tier 2),
-  |    |     |   Sonnet (tier 2), or Opus (tier 3)
   |    |     +-- auto-verification for code-review/security-review
   |    |-- logs every step to activity-log.json
   |
-  |-- runs dotnet build && dotnet test
+  |-- runs build and test
   |
-  |-- MANDATORY: end-of-session verification
+  |-- MANDATORY: end-of-session verification (different AI provider)
   |     |-- sends all work to a DIFFERENT AI provider
+  |     |-- requires structured JSON response (verdict + issues array)
   |     |-- saves raw verifier output (never edited)
-  |     +-- fixes issues if found (max 2 retries)
+  |     +-- fixes issues if found; max 2 retries
   |
-  |-- prints cost report
-  |-- commits and pushes
+  |-- prints cost report; generates change-log.md (last session only)
+  |-- authors next-orchestrator recommendation (every session)
+  |-- authors next-session-set recommendation (last session only)
+  |-- marks session-state.json complete
+  |-- commits and pushes; sends session-complete notification
+  |-- on last session ONLY (after notify): proposes reorganization of
+  |   project-guidance.md / lessons-learned.md, then commits separately
   +-- STOPS (one session per conversation)
 ```
+
+---
+
+## Trigger Phrases
+
+The human starts a session with one of:
+
+- `Start the next session.` — sequential, current working tree.
+- `Start the next session of <slug>.` — sequential, named set.
+- `Start the next parallel session of <slug>.` — isolated git worktree.
+
+Any phrase may be suffixed with `— maxout <engine>` (e.g.,
+`— maxout Claude`) to override `ai-assignment.md` routing
+recommendations when a token-window allotment needs burning.
+`session-verification` is always cross-provider regardless of maxout.
+
+---
 
 ## Key Concepts
 
 ### Session Set
 
-A session set is a planned body of work broken into sequential sessions. Each
-session set lives in `docs/session-sets/<name>/` and contains:
+A session set is a planned body of work broken into sequential sessions.
+Each session set lives in `docs/session-sets/<name>/` and contains:
 
 | File | Purpose |
 |---|---|
-| `spec.md` | The full plan: goals, features, and per-session step lists |
+| `spec.md` | Full plan: goals, Session Set Configuration block, per-session steps |
+| `session-state.json` | Live status written at Step 1; flipped to complete at Step 8 |
+| `ai-assignment.md` | Per-session routing ledger + next-session recommendation |
 | `activity-log.json` | Machine-readable log of every step across all sessions |
-| `session-reviews/session-NNN.md` | Raw verifier output for each session (never edited) |
+| `session-reviews/session-NNN.md` | Raw verifier output (never edited) |
 | `session-reviews/issues-NNN.json` | Issue log if verification found problems |
-| `change-log.md` | Generated after the final session; marks the set as complete |
+| `change-log.md` | Generated on the final session; marks the set as complete |
+| `<slug>-uat-checklist.json` | Human-UAT checklist (only when `requiresUAT: true`) |
+
+### Session Set Configuration block
+
+Every spec declares:
+
+```yaml
+## Session Set Configuration
+
+```yaml
+requiresUAT: false      # human UAT checklist required
+requiresE2E: false      # E2E coverage required before notifying
+uatScope: none          # per-session | per-set | none
+```
+
+Omitting the block is identical to all-flags-false. The orchestrator
+obeys the spec's flags at runtime — do not re-litigate them during a
+session. See `docs/planning/session-set-authoring-guide.md` for the
+When-UAT and When-E2E authoring heuristics.
 
 ### Session
 
-One unit of work within a session set. Sessions are numbered (Session 1 of 5,
-Session 2 of 5, etc.). Each session:
-
+One unit of work within a session set. Each session:
 - Has a defined list of steps in `spec.md`
 - Is executed by exactly one orchestrator in one conversation
-- Ends with a mandatory cross-provider verification
+- Ends with mandatory cross-provider verification
 - Produces a commit on completion
 
 ### AI Router
 
-A Python module in `ai-router/` that routes reasoning tasks to external AI
-models. The orchestrator calls `route()` instead of performing analysis,
-review, or documentation itself. The router:
-
-- Estimates task complexity (1-100 score)
-- Selects the cheapest model capable of handling the complexity
-- Escalates to a higher-tier model if the response is poor
-- Auto-verifies certain task types using a different AI provider
-- Tracks costs per session set
-
-### Cross-Provider Verification
-
-Every session ends with an independent verification step. The orchestrator
-sends its work to a model from a **different AI provider** than the one that
-did the work. This catches provider-specific biases and blind spots:
-
-- If the orchestrator is Claude and used Gemini for routing, verification
-  goes to Opus or Sonnet (Anthropic)
-- If the orchestrator is Codex/Gemini, verification goes to an Anthropic model
-- The verifier's raw output is saved and never edited
+A Python module in `ai-router/` that routes reasoning tasks to external
+AI models. The orchestrator calls `route()` for any non-mechanical work.
 
 ---
 
@@ -108,12 +140,15 @@ docs/session-sets/<name>/
   spec.md
 ```
 
-The `activity-log.json` and `session-reviews/` directory are created
-automatically by the SessionLog class on first use.
+`activity-log.json` and `session-reviews/` are created automatically
+on first use.
 
 ### 2. Write spec.md
 
-The spec defines the entire body of work. Structure:
+See `docs/planning/session-set-authoring-guide.md` for the full
+authoring guide (slug naming, sizing, the configuration block schema,
+deliverables, anti-patterns, and a copy-paste template). Minimum
+structure:
 
 ```markdown
 # <Feature Name> Spec
@@ -126,19 +161,21 @@ The spec defines the entire body of work. Structure:
 
 ---
 
+## Session Set Configuration
+
+```yaml
+requiresUAT: false
+requiresE2E: false
+uatScope: none
+```
+
+> Rationale: <why these flags>
+
+---
+
 ## Project Overview
 
 Describe the goals and deliverables.
-
-## Feature 1: <Name>
-
-### Scope
-What's included.
-
-### Standards
-Rules and conventions.
-
----
 
 ## Session Plan
 
@@ -146,295 +183,259 @@ Rules and conventions.
 
 **Steps:**
 1. Step description
-2. Step description (route documentation task)
-3. Step description
+2. Step description
 
 **Creates:** List of files created
 **Touches:** List of files modified
 **Ends with:** Success criteria
-**Progress keys:** `session-1/step-name`, `session-1/other-step`
-
----
-
-### Session 2 of N: <Title>
-...
+**Progress keys:** `session-1/step-name`
 ```
-
-Key rules for the spec:
-- Each session must be completable in one conversation
-- Steps should be specific and actionable
-- "Creates" and "Touches" sections let subsequent sessions verify prerequisites
-- Progress keys are used in `log.log_step()` for tracking
-- If the repo inherits a narrowed bootstrap contract, keep compatibility-only
-  or advanced application surfaces out of the default session plan unless a
-  concrete session deliberately opts into them
 
 ### 3. Configure the AI Router
 
-The router is configured via `ai-router/router-config.yaml`. Prompt templates
-and workflow utilities live under `ai-router/prompt-templates/` and
-`ai-router/utils/`. Key sections:
-
-**Models:** Define available models with tier, pricing, and context limits.
+The router is configured via `ai-router/router-config.yaml`. Key sections:
 
 ```yaml
 models:
-  gemini-flash:
-    provider: google
-    model_id: gemini-2.5-flash
-    tier: 1
-  gemini-pro:
-    provider: google
-    model_id: gemini-2.5-pro
-    tier: 2
-  sonnet:
-    provider: anthropic
-    model_id: claude-sonnet-4-6
-    tier: 2
-  opus:
-    provider: anthropic
-    model_id: claude-opus-4-6
-    tier: 3
-```
+  gemini-flash: { provider: google, tier: 1 }
+  gemini-pro:   { provider: google, tier: 2 }
+  sonnet:       { provider: anthropic, tier: 2 }
+  opus:         { provider: anthropic, tier: 3 }
 
-**Tier assignments:** Map complexity tiers to models.
-
-```yaml
 routing:
-  tier1_max_complexity: 30    # score <= 30 -> tier 1
-  tier2_max_complexity: 65    # score 31-65 -> tier 2
-  tier_assignments:
-    1: gemini-flash
-    2: gemini-pro      # or sonnet -- see task_type_overrides
-    3: opus
-  task_type_overrides:
-    code-review: sonnet   # force Sonnet for code review tasks
-```
+  tier_assignments: { 1: gemini-flash, 2: gemini-pro, 3: opus }
+  task_type_overrides: { code-review: sonnet }
 
-**Verification:** Cross-provider model pairings.
-
-```yaml
 verification:
-  cross_provider_map:
-    gemini-flash: sonnet
-    gemini-pro: sonnet
+  preferred_pairings:
     sonnet: gemini-pro
-    opus: gemini-pro
+    gemini-pro: sonnet
+    opus: gpt-5-4
   auto_verify_task_types:
     - code-review
     - security-review
 ```
 
+Refer to the live `ai-router/router-config.yaml` for the full
+configuration, including `delegation:`, `task_type_params:`,
+`metrics:`, and tunable thresholds.
+
 ### 4. Set Environment Variables
 
-The router requires API keys as environment variables:
-
 ```
-ANTHROPIC_API_KEY   (for Claude Sonnet/Opus)
-GEMINI_API_KEY      (for Gemini Flash/Pro)
+ANTHROPIC_API_KEY
+GEMINI_API_KEY
+OPENAI_API_KEY
+PUSHOVER_API_KEY    (optional, for notifications)
+PUSHOVER_USER_KEY   (optional, for notifications)
 ```
-
-On Windows, set these as User environment variables. The orchestrator
-instruction files include the commands to export them into the shell.
 
 ### 5. Create the Python Virtual Environment
 
 ```bash
 python -m venv .venv
-.venv/Scripts/pip install pyyaml google-genai anthropic
+.venv/Scripts/pip install pyyaml google-genai anthropic httpx
 ```
-
-The router uses `.venv/Scripts/python.exe` on Windows.
 
 ---
 
 ## Executing a Session
 
-When the human says **"Start the next session"**, the orchestrator follows
-this exact procedure:
+### Step 0: Verify API Keys And Read Guidance
 
-### Step 0: Verify API Keys
+1. Read `docs/planning/project-guidance.md`
+2. Read `docs/planning/lessons-learned.md`
+3. Read `docs/planning/session-set-authoring-guide.md`
+4. Load API keys; stop and tell the human if any are missing.
 
-Load keys from the environment and confirm both are present. If missing, stop
-and tell the human.
+### Step 1: Identify the Active Session Set and Register Session Start
 
-### Step 1: Identify the Active Session Set
-
-The `find_active_session_set()` function auto-detects:
-- Folder with `spec.md` + `activity-log.json` but no `change-log.md` = in-progress
-- Folder with `spec.md` only = not-started (use if no in-progress exists)
-- Folder with `change-log.md` = complete (skip)
+Find the active session set via `find_active_session_set()` (or use
+the slug named in the trigger phrase). Then immediately write
+`session-state.json` via `register_session_start()` — before any
+`log_step()` call — so external tooling (VS Code Session Set Explorer)
+sees the session as in-progress without waiting for the first commit.
 
 ```python
 from ai_router.session_log import find_active_session_set, SessionLog
+from ai_router import register_session_start
 
 SESSION_SET = find_active_session_set("docs/session-sets")
 log = SessionLog(SESSION_SET)
 next_session = log.get_next_session_number()
+register_session_start(
+    session_set=SESSION_SET,
+    session_number=next_session,
+    total_sessions=log.total_sessions,
+    orchestrator_engine="claude-code",   # or "codex", "gemini-cli"
+    orchestrator_model="claude-opus-4-7",
+    orchestrator_effort="high",          # or "unknown" if not introspectable
+)
 ```
 
-### Step 2: Read the Spec
+### Step 2: Read the Spec and the Configuration Block
 
-Open `spec.md` and find the plan for the current session number.
+Open `spec.md` and extract:
+1. The `## Session Set Configuration` block (`requiresUAT`, `requiresE2E`,
+   `uatScope`). Cache these — they govern which gates apply for the rest
+   of the session.
+2. The plan for the current session number.
+
+If the block is absent, treat all flags as false.
 
 ### Step 3: Verify Prerequisites
 
 Confirm that files listed in prior sessions' "Creates" and "Touches" exist.
 
+### Step 3.5: Author or Update `ai-assignment.md`
+
+On Session 1, produce a per-session routing ledger via
+`route(task_type="analysis")` — never self-opine on which model is
+cheapest. On Sessions 2..N, append the prior session's actuals and
+route a fresh recommendation for the next session. See the live
+workflow doc for the full schema.
+
 ### Step 4: Execute Each Step
 
-For each step in the session plan:
+For each step: do file work directly; route reasoning tasks.
 
-**File work** -- create or edit files directly:
 ```python
+result = route(
+    content="...",
+    task_type="code-review",
+    session_set=str(SESSION_SET),
+    session_number=next_session,
+)
 log.log_step(
-    session_number=N,
+    session_number=next_session,
     step_number=step_num,
     step_key="session-N/step-name",
     description="What was done",
     status="complete",
-    api_calls=[]
+    api_calls=[{"model": result.model_name, "costUsd": result.cost_usd, ...}]
 )
-```
-
-**Reasoning tasks** -- delegate to the router:
-```python
-from ai_router import route
-
-result = route(
-    content="<the text to analyze>",
-    task_type="code-review",       # or documentation, analysis, etc.
-    context="<optional background>",
-    complexity_hint=None           # optional 1-100 override
-)
-
-# Use result.content, then log:
-log.log_step(N, step_num, "session-N/step-name", "description", "complete", [{
-    "model": result.model_name,
-    "taskType": "code-review",
-    "inputTokens": result.input_tokens,
-    "outputTokens": result.output_tokens,
-    "costUsd": result.cost_usd
-}])
 ```
 
 ### Step 5: Build and Test
 
-```bash
-dotnet build
-dotnet test
-```
-
-Log the result with `log.log_step()`.
+Run build and test sequentially (not in parallel — file-lock contention
+on Windows obscures real results). Log the result.
 
 ### Step 6: End-of-Session Verification (MANDATORY)
 
-**The orchestrator must not verify its own work.** The `route()` function
-dispatches to a different AI provider for independent review.
+Send all session work to a **different AI provider** for independent
+review. The verification prompt must include the **structured JSON
+response schema** (from `ai-router/prompt-templates/verification.md`)
+so the verifier returns `{"verdict": ..., "issues": [...]}` rather
+than a bare paragraph.
 
-1. Collect all files created or modified during the session.
-2. Build a verification prompt with: spec excerpt + file contents + build results.
-3. Execute:
-   ```python
-   result = route(
-       content=verification_prompt,
-       task_type="session-verification",
-       complexity_hint=70
-   )
-   log.save_session_review(
-       session_number=N,
-       review_text=result.content,
-       round_number=1
-   )
-   ```
-4. **Never edit the saved review file.**
-5. Log the verification step.
+```python
+result = route(
+    content=verification_prompt,
+    task_type="session-verification",
+    complexity_hint=70,
+    session_set=str(SESSION_SET),
+    session_number=next_session,
+)
+log.save_session_review(session_number=next_session,
+                        review_text=result.content, round_number=1)
+```
+
+Never edit the saved review file. If the first-choice verifier fails at
+the HTTPS level, the router excludes that provider and re-picks once
+(two-attempt fallback).
 
 ### Step 7: Handle Verification Result
 
 **VERIFIED:** Proceed to commit.
 
 **ISSUES_FOUND:**
-1. Parse issues from the verifier's response.
-2. Fix each issue. Update status to "fixed" or "deferred".
-3. Save: `log.save_issue_log(session_number=N, issues=issues)`
-4. Re-run verification (max 2 retries). Use `complexity_hint=85` if any
-   issue is Major or Critical.
+1. Parse issues. Fix each. Save: `log.save_issue_log(...)`.
+2. Re-run verification (max 2 retries; use `complexity_hint=85` for
+   Critical/Major issues).
 
-### Step 8: Cost Report and Commit
+**If the orchestrator disagrees with a verifier finding:** present the
+finding, the dismissal reason, and the context sent to the verifier to
+the human. The human then picks one of four paths: (a) accept finding,
+(b) accept dismissal, (c) re-verify with reshaped context, or (d)
+second opinion from a different provider. Log the outcome via
+`record_adjudication()`. See the live workflow doc for the full
+disagreement procedure.
+
+### Step 8: Cost Report, Change Log (Last Session), Recommendations, Commit, Push, Mark Complete, And Notify
 
 ```python
-from ai_router import print_cost_report
+from ai_router import print_cost_report, mark_session_complete
 print_cost_report(SESSION_SET)
 ```
 
-Commit and push:
-```bash
-git add -A
-git commit -m "Session N of M: <description>"
-git push
+On the **last session**, generate `change-log.md` before committing:
+```python
+result = route(content=change_log_prompt, task_type="summarization", max_tier=1)
 ```
 
-### Step 9: Stop
+**Every session:** author next-orchestrator recommendation via
+`route(task_type="analysis")` — never self-opine. Append to
+`ai-assignment.md`.
 
-Report: session number, verification verdict, deferred issues (if any),
-cost summary, and sessions remaining.
+**Last session only:** author next-session-set recommendation via
+`route(task_type="analysis")`. If the repo has a master plan file,
+validate against it (confirm the planned next set or propose a
+deviation with justification); otherwise recommend from backlog.
+
+Commit, push, then mark the session complete:
+```python
+mark_session_complete(SESSION_SET, verification_verdict="VERIFIED")
+```
+
+Send a session-complete notification if configured:
+```python
+from ai_router import send_session_complete_notification
+send_session_complete_notification(
+    session_set=SESSION_SET,
+    session_number=next_session,
+    total_sessions=log.total_sessions,
+    verification_verdict="VERIFIED",
+    summary="<short description>",
+)
+```
+
+### Step 9: Last Session Only — Reorganization Proposals (Post-Notify)
+
+On the last session only, after notifying, review
+`docs/planning/project-guidance.md` and `docs/planning/lessons-learned.md`
+and propose reorganization candidates (lesson → convention promotions ≥2
+contexts, convention → principle, relocations). Present each to the human;
+apply accepted changes in a **separate follow-up commit**. Never delete —
+only move.
+
+### Step 10: Stop
+
+Report: session number, verification verdict, deferred issues, cost
+summary, and sessions remaining. If the session produced or refreshed a
+UAT checklist (`requiresUAT: true`), the stop message must identify the
+checklist path and state that work is waiting on human review.
 
 **Do not start the next session. Wait for the human.**
-
-### Step 10: Last Session Only
-
-Generate `change-log.md` using `route(task_type="documentation")`. This marks
-the session set as complete.
 
 ---
 
 ## Orchestrator Instruction Files
 
-Each AI coding agent reads a different instruction file. All three instruct
-the orchestrator to follow this same workflow.
+| Agent | Instruction File |
+|---|---|
+| Claude Code | `CLAUDE.md` |
+| Codex (OpenAI) and GitHub Copilot | `AGENTS.md` |
+| Gemini Code Assistant | `GEMINI.md` |
 
-| Agent | Instruction File | Global Config |
-|---|---|---|
-| Claude Code | `CLAUDE.md` (repo root) | `~/.claude/CLAUDE.md` |
-| Codex (OpenAI) | `AGENTS.md` (repo root) | `~/.codex/instructions.md` |
-| Gemini | `GEMINI.md` (repo root) | Varies by tool |
-
-The human chooses which agent to use for each session. The agent reads its own
-instruction file, which tells it how to import the AI router, follow the
-session-set workflow, and where to find the spec.
-
-### What Goes in the Instruction File
-
-Each agent-specific file should contain:
-
-1. **Project overview** -- what the repo is, package structure
-2. **Session-set workflow reference** -- pointer to this document
-3. **AI router import snippet** -- how to load the `ai-router` module
-4. **API key export commands** -- platform-specific commands to load keys
-5. **Build and test commands** -- `dotnet build`, `dotnet test`
-6. **Code style rules** -- naming conventions, patterns to follow
-7. **Mandatory rules** -- never skip verification, one session only, log every step, delegate reasoning
-
-### Switching Orchestrators Between Sessions
-
-The workflow is designed so that any orchestrator can pick up where another
-left off. The `activity-log.json` and `spec.md` provide all the state needed.
-The orchestrator:
-
-1. Reads the activity log to find the next session number
-2. Reads the spec to find that session's plan
-3. Checks prerequisites from prior sessions
-4. Executes -- regardless of which agent ran previous sessions
+Each file keeps only agent-specific bootstrap (API key export, router
+import) and points to this document for the full workflow and rules.
 
 ---
 
 ## AI Router Details
 
 ### Importing the Router
-
-The module directory is `ai-router/` (hyphenated). Python cannot import
-hyphenated package names directly, so use `importlib`:
 
 ```python
 import importlib.util, sys
@@ -452,56 +453,60 @@ ar = load_ai_router()
 route = ar.route
 ```
 
-On Windows, use `.venv/Scripts/python.exe` to run Python.
-
 ### Task Types
 
-| Task Type | Base Complexity | Typical Model |
+| Task Type | Typical Tier | Notes |
 |---|---|---|
-| `formatting` | 10 | Gemini Flash |
-| `summarization` | 20 | Gemini Flash |
-| `documentation` | 25 | Gemini Flash/Pro |
-| `test-generation` | 35 | Gemini Pro |
-| `code-review` | 40 | Sonnet (if overridden) or Gemini Pro |
-| `analysis` | 55 | Gemini Pro |
-| `refactoring` | 65 | Gemini Pro |
-| `session-verification` | 70 | Opus |
-| `security-review` | 75 | Opus |
-| `architecture` | 80 | Opus |
-| `planning` | 70 | Opus |
+| `formatting`, `summarization` | 1 | Cheap, high-volume |
+| `documentation`, `test-generation`, `code-review`, `analysis`, `refactoring` | 2 | Medium complexity |
+| `uat-plan-generation`, `uat-coverage-review` | 3 | Only when `requiresUAT: true` |
+| `session-verification`, `security-review`, `architecture`, `planning` | 3 | High stakes |
 
-### Model Tiers and Pricing
+### Delegation Discipline
 
-| Tier | Model | Provider | Input $/1M | Output $/1M | Use Case |
-|---|---|---|---|---|---|
-| 1 | Gemini Flash | Google | $0.15 | $0.60 | Simple formatting, boilerplate |
-| 2 | Gemini Pro | Google | $1.25 | $10.00 | Documentation, medium analysis |
-| 2 | Sonnet | Anthropic | $3.00 | $15.00 | Code review, when Anthropic quality matters |
-| 3 | Opus | Anthropic | $15.00 | $75.00 | Architecture, security, verification |
+The orchestrator does **directly** (no `route()` call): reading specs and
+logs, creating/editing files, running shell commands, mechanical single-file
+edits under ~50 lines.
 
-### Escalation
+The orchestrator **always routes**: code review, security review,
+architecture decisions, analysis, documentation, test generation, session
+verification, and `ai-assignment.md` / next-orc / next-set recommendations.
 
-If a model produces an empty, truncated, or suspiciously short response, the
-router automatically escalates to the next tier (up to 2 escalations).
-
-### Cross-Provider Verification
-
-For auto-verified task types (code-review, security-review), the router
-automatically sends the response to a model from a different provider:
-
-- Gemini output -> verified by Sonnet (Anthropic)
-- Sonnet output -> verified by Gemini Pro (Google)
-- Opus output -> verified by Gemini Pro (Google)
+`session-verification` MUST route regardless of whether the orchestrator's
+model matches the routing target — the cross-provider opinion is the point.
 
 ---
 
 ## Rules (Apply to All Orchestrators)
 
 1. **One session only.** Never execute more than the assigned session.
-2. **Never skip verification.** Every session must be independently verified.
+2. **Never skip verification.** `session-verification` always routes
+   cross-provider; this survives any `— maxout` suffix.
 3. **Never edit session review files.** They are the verifier's raw output.
 4. **Log every step** via `log.log_step()`.
-5. **Delegate reasoning** to `route()` -- do not perform reviews or analysis
-   yourself when the task should go through the router.
-6. **Do not commit with unresolved Critical/Major issues.** Inform the human.
+5. **Delegate reasoning** to `route()`. Do file work directly; route
+   everything else.
+6. **Do not commit with unresolved Critical/Major issues.**
 7. **The human controls orchestrator choice.** Any session can use any agent.
+8. **Before every session, read all required-reading files:**
+   `project-guidance.md`, `lessons-learned.md`, `session-set-authoring-guide.md`.
+9. **Treat pending UAT as blocking** *(when `requiresUAT: true`).* Do not
+   start downstream sessions over an unreviewed checklist without human override.
+10. **One UAT checklist per session set** *(when `requiresUAT: true`).* Name
+    it `<slug>-uat-checklist.json`; keep human results inline.
+11. **E2E coverage before UAT handoff** *(when both flags true).* Every
+    functional checklist item needs matching E2E coverage passing
+    `uat-coverage-review` before notifying.
+12. **Share screenshots during UI/E2E work when practical.**
+13. **Escalate durable guidance.** Ask whether new decisions should update
+    `docs/planning/project-guidance.md`.
+14. **Recommend lessons learned after failures.**
+15. **Run the Step 9 reorganization review on the last session, after notify.**
+16. **Register session start before the first activity-log entry.** Call
+    `register_session_start()` at Step 1; call `mark_session_complete()` at
+    Step 8.
+17. **Author `ai-assignment.md` and recommendations via routed analysis —
+    never self-opine.**
+18. **Obey the spec's Session Set Configuration block at runtime.** Specs
+    that omit the block are treated as all-flags-false. If a flag is wrong,
+    correct it in the spec and revisit at Step 9.

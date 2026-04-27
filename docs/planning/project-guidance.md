@@ -475,7 +475,12 @@ before proceeding.
 
 ### Workflow Expectations
 
-- Before every session, read this file and `docs/planning/lessons-learned.md`.
+- Before every session, read this file, `docs/planning/lessons-learned.md`,
+  and `docs/planning/session-set-authoring-guide.md`. The authoring guide
+  is the source of truth for *spec* authoring (slug naming, sizing, the
+  Session Set Configuration block, When-UAT/When-E2E heuristics);
+  `docs/ai-led-session-workflow.md` remains the source of truth for
+  *execution* mechanics (the 10-step procedure, verification, delegation).
 - Keep `README.md`, technical docs, user docs, and XML comments current enough
   to describe the validated system rather than historical assumptions.
 - Save verifier output raw and never edit session-review files after they are
@@ -486,6 +491,29 @@ before proceeding.
 - AI instruction documents (CLAUDE.md, AGENTS.md, GEMINI.md) reference this
   file and `docs/ai-led-session-workflow.md` so future agent runs inherit the
   same durable expectations.
+- **Session-state.json is the single source of truth for in-progress
+  detection.** Call `register_session_start()` at Step 1 before the first
+  `log_step()`, and `mark_session_complete()` at Step 8. External tooling
+  (VS Code Session Set Explorer, manager dashboards) flips state from
+  this file; do not infer in-progress from activity-log presence.
+- **Author `ai-assignment.md` and the next-orchestrator /
+  next-session-set recommendations via routed analysis — never
+  self-opine.** The orchestrator's own opinion of which model could have
+  been cheaper is the precise thing the routed analysis is designed to
+  displace.
+- **Obey the spec's Session Set Configuration block at runtime.** Rules
+  #9, #10, #11 in the workflow doc (pending UAT blocking, one checklist
+  per set, E2E before UAT) are conditional on the spec's `requiresUAT`
+  and `requiresE2E` flags. Do not re-litigate those flags during a
+  session — if a flag is wrong, surface it at the Step 9 reorganization
+  review.
+- **Token-window budget overrides via the `— maxout <engine>` suffix.**
+  When the human appends `— maxout Claude` (or another engine) to a
+  trigger phrase, override `ai-assignment.md` recommendations for that
+  session and push routing to the named engine's frontier model. The
+  one constraint that survives any maxout: `session-verification` is
+  always cross-provider — never routed back to the orchestrator's own
+  provider.
 - When the human gives a session instruction or decision that appears durable
   enough to guide future sessions or future projects, ask whether it should
   be incorporated into this document.
