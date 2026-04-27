@@ -173,3 +173,61 @@ orchestrator:
 **Moderate.** UI-heavy session with bUnit + Playwright authoring; expect a comparable verifier round to Session 3 (~$1–1.5 verification + a low-cost summarization for the change log if rolled in).
 
 
+## Session 4: Compliance Review viewer (6th dashboard tab) + CSV export
+
+### Recommended orchestrator
+claude-code claude-opus-4-7 @ effort=high
+
+### Rationale
+Session 4 builds a net-new feature spanning UI composition (`ComplianceReviewTab` + grid), `ServerData`-callback EF query against `AppSensitiveAccessLog`, generic RFC 4180 CSV export, JS-assisted download via the existing `dabbler-download.js` module, plus bUnit + Playwright coverage. Comparable cross-cutting complexity to Session 3, which Opus 4.7 + high effort handled cleanly. Routed analysis (gemini-pro, $0.0098) confirmed Opus + high; the routed analysis incorrectly said Step 9 verification could be direct — applied per the workflow's hard rule that `session-verification` is always cross-provider.
+
+### Estimated routed cost
+moderate
+
+| Step | Action | Routing Decision |
+| :--- | :--- | :--- |
+| 1 | Read planning docs. | orchestrator (direct) |
+| 2 | Add `ComplianceReviewTab.razor` to `DabblerSecurityDashboard.AllTabs` as 6th entry (`SystemAdmin`, `CrossOrgUserAdmin`, `CrossOrgMonitor`). | orchestrator (direct) |
+| 3 | Build viewer: `FilterPanel<AppSensitiveAccessLog>` + `MudDataGrid<>` with `ServerData` paging + composite filters; row expander shows correlation cluster. | orchestrator (direct) |
+| 4 | `ICsvExportService` + impl in `Dabbler.Components/Csv/`, RFC 4180 quoting, CRLF. | orchestrator (direct) |
+| 5 | Export button calls existing `_content/Dabbler.Components/dabbler-download.js` `downloadFile` helper (reuse instead of duplicating per spec — see deviation note in Step 9 verification). | orchestrator (direct) |
+| 6 | bUnit tests: filter apply, server-data path, expander cluster, CSV button via `JSRuntime.Loose` capture. | orchestrator (direct) |
+| 7 | Playwright smoke: SystemAdmin reaches Compliance Review tab via drawer. | orchestrator (direct) |
+| 8 | Build + test (`dotnet build` + `dotnet test`). | orchestrator (direct) |
+| 9 | Cross-provider verification. | route(task_type="session-verification") |
+| 10 | Commit + push + notify. | orchestrator (direct) |
+
+### Actuals (filled after the session)
+- Orchestrator used: claude-code claude-opus-4-7 @ effort=high
+- Total routed cost: ~$1.36
+  - analysis (Session 4 ai-assignment): $0.0098 (gemini-pro)
+  - session-verification round 1: $0.8532 (opus, CONDITIONAL_PASS — 2 medium + 2 low)
+  - session-verification round 2: $0.4963 (opus, VERIFIED — Round 1 issues all resolved or accepted-deferred)
+  - analysis (Session 5 next-session rec): $0.0051 (gemini-pro)
+- Deviations from recommendation: None — Opus 4.7 @ high matched the recommendation routed at the end of Session 3.
+- Notable: Reused the existing `_content/Dabbler.Components/dabbler-download.js` module instead of authoring a new `downloadFile.js` (spec phrasing) — disclosed as a deviation. Round-1 verifier returned the non-standard verdict `CONDITIONAL_PASS` (schema only allows VERIFIED / ISSUES_FOUND), but flagged actionable MEDIUM and LOW issues; orchestrator treated them as ISSUES_FOUND, applied fixes (anchor-excluded correlation cluster + page-scope disclosure, two new bUnit tests for filter + expander, explicit `SortBy` on TemplateColumns), and re-ran verification to VERIFIED. The non-standard verdict label is a candidate for the Session 5 Step 9 reorganization review.
+
+**Next-session recommendation (Session 5):**
+
+### Recommendation
+
+```yaml
+orchestrator:
+  engine: claude-code
+  model: claude-sonnet-4-6
+  effort: medium
+```
+
+(Routed analysis suggested `Sonnet 3.5 @ medium`; the current Anthropic-published Sonnet model id is `claude-sonnet-4-6`, applied here verbatim per the model-id discipline in `CLAUDE.md`.)
+
+### Reasoning
+
+- Session 5 is a closeout: most reasoning happens inside routed calls (`uat-plan-generation` → Opus; `uat-coverage-review` → Sonnet via mechanical-gate calibration; `summarization` → Gemini Flash via `max_tier=1`). The orchestrator's only novel synthesis is translating the generated checklist's structured Steps into matching Playwright test bodies — well-defined, spec-driven code generation that Sonnet handles cleanly.
+- Aligns with the "Mechanical-Gate Task Types Calibrate To Sonnet-Cost For Adequate Quality" lesson — running an Opus orchestrator over what is mostly closeout finalization pays for capability that is not exercised.
+- The high-leverage cognitive cost lives in the routed `uat-plan-generation` call regardless of orchestrator choice; downgrading the orchestrator does not affect that.
+- Risk: the Step 9 reorganization review at end-of-set is the only step that benefits from architectural reasoning, but the candidate reorganizations are mechanical (Lesson → Convention promotion, etc.) and follow the workflow's well-defined procedure.
+
+### Estimated Routed Cost
+
+**Moderate.** The session's biggest costs are routed regardless of orchestrator: `uat-plan-generation` (~$1–2 Opus) and Docker Playwright run (no API cost but build/test time). Verification round expected to be one round (VERIFIED) given closeout scope.
+

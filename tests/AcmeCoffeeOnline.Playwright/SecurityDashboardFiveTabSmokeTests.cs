@@ -4,10 +4,13 @@ using Microsoft.Playwright;
 namespace AcmeCoffeeOnline.Playwright;
 
 /// <summary>
-/// Browser-level smoke coverage for the five-tab Security Dashboard stubbed in
-/// Session 2 of the <c>rearchitect-role-administration-dashboard</c> session set.
-/// Confirms that SystemAdmin sees every tab header and that a narrower baked-in
-/// role (UserAdmin) only sees the tabs its compiled privileges permit.
+/// Browser-level smoke coverage for the Security Dashboard. Originally
+/// authored for the five-tab layout stubbed in Session 2 of
+/// <c>rearchitect-role-administration-dashboard</c>; expanded in Session 4
+/// of <c>sensitive-field-masking-audit</c> to assert the appended sixth tab
+/// (Compliance Review). Confirms that SystemAdmin sees every tab header and
+/// that a narrower baked-in role (UserAdmin) only sees the tabs its compiled
+/// privileges permit.
 /// </summary>
 [Collection(PlaywrightCollection.Name)]
 public sealed class SecurityDashboardFiveTabSmokeTests
@@ -21,6 +24,7 @@ public sealed class SecurityDashboardFiveTabSmokeTests
         "Organization Master Details",
         "Users and Role Assignment",
         "Role Documentation",
+        "Compliance Review",
     ];
 
     private static readonly string[] UserAdminVisibleTabs =
@@ -34,6 +38,7 @@ public sealed class SecurityDashboardFiveTabSmokeTests
         "Role Master Details",
         "Default Masks",
         "Organization Master Details",
+        "Compliance Review",
     ];
 
     private readonly PlaywrightFixture _fixture;
@@ -44,7 +49,7 @@ public sealed class SecurityDashboardFiveTabSmokeTests
     }
 
     [Fact]
-    public async Task SystemAdmin_SeesAllFiveTabsAsync()
+    public async Task SystemAdmin_SeesAllSixTabsAsync()
     {
         var page = await _fixture.CreatePageAsync();
         try

@@ -1,4 +1,5 @@
 @using System.Security.Claims
+@using Dabbler.Security.Blazor.Components.Admin.ComplianceReview
 @using Dabbler.Security.Blazor.Components.Admin.Documentation
 @using Dabbler.Security.Blazor.Components.Admin.Organization
 @using Dabbler.Security.Blazor.Components.Admin.Users
@@ -42,6 +43,10 @@
                 {
                     <RoleDocumentationTab />
                 }
+                else if (tab.Key == TabKey.ComplianceReview)
+                {
+                    <ComplianceReviewTab />
+                }
                 else
                 {
                     <MudText Typo="Typo.body2" data-testid="@tab.StubTestId">@tab.StubMessage</MudText>
@@ -53,8 +58,11 @@
 
 @code {
     /// <summary>
-    /// The five canonical tab keys for the restriction-based security dashboard.
-    /// Ordering matches the architecture doc's recommended UI layout.
+    /// The six canonical tab keys for the restriction-based security dashboard.
+    /// Ordering matches the architecture doc's recommended UI layout. The
+    /// <see cref="ComplianceReview"/> tab was appended in Session 4 of the
+    /// <c>sensitive-field-masking-audit</c> set so existing UAT tab-position
+    /// expectations for tabs 1–5 do not shift.
     /// </summary>
     internal enum TabKey
     {
@@ -63,6 +71,7 @@
         OrganizationMasterDetails,
         UsersAndRoleAssignment,
         RoleDocumentation,
+        ComplianceReview,
     }
 
     internal sealed record TabDescriptor(
@@ -100,6 +109,11 @@
             "Role Documentation — wired in Session 8 of rearchitect-role-administration-dashboard.",
             [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.CrossOrgMonitor,
              BakedInRoles.UserAdmin, BakedInRoles.User]),
+        new(TabKey.ComplianceReview,
+            "Compliance Review",
+            "compliance-review-stub",
+            "Compliance Review — wired in Session 4 of sensitive-field-masking-audit.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.CrossOrgMonitor]),
     ];
 
     private int _activePanelIndex;

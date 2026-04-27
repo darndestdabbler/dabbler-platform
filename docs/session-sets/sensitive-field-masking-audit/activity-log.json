@@ -326,6 +326,145 @@
           "costUsd": 0.0043
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-04-27T16:46:45.476342+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, and the spec.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/ai-assignment",
+      "dateTime": "2026-04-27T16:46:45.476342+00:00",
+      "description": "Authored Session 4 ai-assignment.md block via routed analysis (gemini-pro, $0.0098).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.009766249999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/csv-service",
+      "dateTime": "2026-04-27T16:55:47.154460+00:00",
+      "description": "Created ICsvExportService + CsvExportService in Dabbler.Components/Csv/ (RFC 4180, CRLF, invariant culture). Registered TryAddSingleton in AddDabblerSecurityBlazor.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/tab-wiring",
+      "dateTime": "2026-04-27T16:55:47.155446+00:00",
+      "description": "Added ComplianceReview TabKey + AllTabs entry (allowed roles: SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor) and renderer dispatch in DabblerSecurityDashboard.razor. Tab appended last so existing 1-5 tab positions are unchanged.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/viewer-ui",
+      "dateTime": "2026-04-27T16:55:47.156445+00:00",
+      "description": "ComplianceReviewTab.razor: FilterPanel + ServerData MudDataGrid + correlation-cluster ChildRowContent + Export CSV button. ServerData applies in-DB Where/OrderBy + paging; sorts on Timestamp/EventKind/UserId/RoleName.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/export-button",
+      "dateTime": "2026-04-27T16:55:47.157461+00:00",
+      "description": "Export CSV reuses existing _content/Dabbler.Components/dabbler-download.js downloadFile module (deviation from spec phrasing \"downloadFile.js (one small invoker)\" \u2014 instead reused proven module to avoid duplication).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/dashboard-tests",
+      "dateTime": "2026-04-27T16:55:47.158450+00:00",
+      "description": "Updated existing DabblerSecurityDashboardTests + Playwright SecurityDashboardFiveTabSmokeTests + SecurityDashboardFullSweepTests for the 6th tab (SystemAdmin sees 6, CrossOrgUserAdmin 4, CrossOrgMonitor 2).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/bunit-tests",
+      "dateTime": "2026-04-27T16:55:47.159445+00:00",
+      "description": "Authored ComplianceReviewTabTests (3 facts: header renders, grid renders seeded rows with chips + count, Export button drives JS interop) and CsvExportServiceTests (10 facts covering header/quoting/escape/CRLF/null/datetime/UTF-8 no-BOM).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/smoke-test",
+      "dateTime": "2026-04-27T16:55:47.159445+00:00",
+      "description": "Authored ComplianceReviewSmokeTests with two facts: SystemAdmin reaches Compliance Review via drawer + grid renders; CrossOrgMonitor sees the Compliance Review tab.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-27T16:55:47.160445+00:00",
+      "description": "dotnet build: 0 errors. dotnet test (excl Playwright): 707 passed. Components.Tests 33->43 (+10 CSV), Security.Blazor.Tests 195->198 (+3 ComplianceReviewTab).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 11,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-27T17:05:39.133683+00:00",
+      "description": "Cross-provider verification: round 1 CONDITIONAL_PASS (2 medium + 2 low) -> fixes -> round 2 VERIFIED",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.853215
+        },
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.496275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 12,
+      "stepKey": "session-4/next-session-rec",
+      "dateTime": "2026-04-27T17:06:21.535636+00:00",
+      "description": "Routed Session 5 orchestrator recommendation. Model=gemini-pro. Cost=$0.0051",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.00509125
+        }
+      ]
     }
   ]
 }

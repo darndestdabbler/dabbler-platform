@@ -33,15 +33,16 @@ public sealed class SecurityDashboardFullSweepTests
         ["SystemAdmin", new[]
         {
             "Role Master Details", "Default Masks", "Organization Master Details",
-            "Users and Role Assignment", "Role Documentation",
+            "Users and Role Assignment", "Role Documentation", "Compliance Review",
         }],
         ["CrossOrgUserAdmin", new[]
         {
-            "Organization Master Details", "Users and Role Assignment", "Role Documentation",
+            "Organization Master Details", "Users and Role Assignment",
+            "Role Documentation", "Compliance Review",
         }],
         ["CrossOrgMonitor", new[]
         {
-            "Role Documentation",
+            "Role Documentation", "Compliance Review",
         }],
         ["UserAdmin", new[]
         {
@@ -62,7 +63,7 @@ public sealed class SecurityDashboardFullSweepTests
         var allLabels = new[]
         {
             "Role Master Details", "Default Masks", "Organization Master Details",
-            "Users and Role Assignment", "Role Documentation",
+            "Users and Role Assignment", "Role Documentation", "Compliance Review",
         };
 
         var page = await _fixture.CreatePageAsync();

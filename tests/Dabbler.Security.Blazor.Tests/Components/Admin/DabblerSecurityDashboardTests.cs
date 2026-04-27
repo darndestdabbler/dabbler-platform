@@ -69,7 +69,7 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_SystemAdmin_RendersAllFiveTabs()
+    public void Dashboard_SystemAdmin_RendersAllSixTabs()
     {
         using var ctx = new TestContext();
         ctx.SetupForDabbler(
@@ -83,7 +83,8 @@ public class DabblerSecurityDashboardTests
         cut.Markup.Should().Contain("Organization Master Details");
         cut.Markup.Should().Contain("Users and Role Assignment");
         cut.Markup.Should().Contain("Role Documentation");
-        cut.Instance.TabCount.Should().Be(5);
+        cut.Markup.Should().Contain("Compliance Review");
+        cut.Instance.TabCount.Should().Be(6);
     }
 
     [Fact]
@@ -102,7 +103,7 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_CrossOrgUserAdmin_SeesThreeTabs()
+    public void Dashboard_CrossOrgUserAdmin_SeesFourTabs()
     {
         using var ctx = new TestContext();
         ctx.SetupForDabbler(
@@ -112,8 +113,9 @@ public class DabblerSecurityDashboardTests
         var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
 
         cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo(
-            "Organization Master Details", "Users and Role Assignment", "Role Documentation");
-        cut.Instance.TabCount.Should().Be(3);
+            "Organization Master Details", "Users and Role Assignment",
+            "Role Documentation", "Compliance Review");
+        cut.Instance.TabCount.Should().Be(4);
     }
 
     [Fact]
@@ -131,7 +133,7 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_CrossOrgMonitor_SeesOnlyRoleDocumentation()
+    public void Dashboard_CrossOrgMonitor_SeesRoleDocumentationAndComplianceReview()
     {
         using var ctx = new TestContext();
         ctx.SetupForDabbler(
@@ -140,8 +142,9 @@ public class DabblerSecurityDashboardTests
 
         var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
 
-        cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo("Role Documentation");
-        cut.Instance.TabCount.Should().Be(1);
+        cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo(
+            "Role Documentation", "Compliance Review");
+        cut.Instance.TabCount.Should().Be(2);
     }
 
 }

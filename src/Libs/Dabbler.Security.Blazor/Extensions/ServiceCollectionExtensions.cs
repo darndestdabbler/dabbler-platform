@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dabbler.Components.Csv;
 using Dabbler.Security.Blazor.Components.Restriction;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -47,6 +48,10 @@ public static class ServiceCollectionExtensions
             sp.GetRequiredService<Dabbler.Security.Authorization.IBakedInRoleProvider>(),
             sp.GetService<Dabbler.Security.Services.ISensitiveAccessAuditor>(),
             sp.GetService<Dabbler.Security.Services.IRenderCorrelationScope>()));
+
+        // CSV export service consumed by the Compliance Review tab (Session 4
+        // of sensitive-field-masking-audit). Stateless, RFC 4180-compliant.
+        services.TryAddSingleton<ICsvExportService, CsvExportService>();
 
         // Register the delegating handler to pass user headers to the API
         services.AddTransient<UserIdentityHandler>();

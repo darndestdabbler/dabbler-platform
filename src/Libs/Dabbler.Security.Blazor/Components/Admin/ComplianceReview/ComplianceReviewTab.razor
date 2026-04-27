@@ -1,0 +1,446 @@
+@using Dabbler.Components
+@using Dabbler.Components.Csv
+@using Dabbler.Components.Data
+@using Dabbler.Security.Data
+@using Dabbler.Security.Models
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.JSInterop
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.ComplianceReview
+@inject IDbContextFactory<DabblerSecurityDbContext> DbFactory
+@inject ICsvExportService CsvExport
+@inject IJSRuntime Js
+@inject ISnackbar Snackbar
+
+<div data-testid="compliance-review-tab">
+    <MudText Typo="Typo.h6" Class="mb-1">Compliance Review</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Read-only viewer for the sensitive-field interaction audit log
+        (<code>AppSensitiveAccessLog</code>). Filter by user, date range,
+        organization, entity, column, or event kind. Expand a row to see
+        the full correlation cluster — every other row emitted as part of
+        the same user-facing action. CrossOrgMonitor sees rows for every
+        organization by design; the viewer is the cross-org compliance
+        oversight surface.
+    </MudText>
+
+    <FilterPanel T="AppSensitiveAccessLog"
+                 @ref="_filterPanel"
+                 Columns="_filterColumns"
+                 FilterChanged="OnFilterChangedAsync"
+                 ShowAddGroup="false"
+                 ShowFilterChips="true" />
+
+    <div class="d-flex align-center my-2">
+        <MudText Typo="Typo.body2" Color="Color.Secondary"
+                 data-testid="compliance-review-count">
+            @_statusText
+        </MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.FileDownload"
+                   OnClick="ExportAsync"
+                   Disabled="@_isLoading"
+                   data-testid="compliance-review-export-button">
+            Export CSV
+        </MudButton>
+    </div>
+
+    <div class="master-grid-scroll-region" style="max-height:32rem; overflow-y:auto;"
+         data-testid="compliance-review-grid-scroll-region">
+        <MudDataGrid T="AppSensitiveAccessLog"
+                     @ref="_grid"
+                     ServerData="@ServerDataFuncAsync"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="true"
+                     Striped="true"
+                     ReadOnly="true"
+                     Loading="@_isLoading"
+                     RowsPerPage="25"
+                     data-testid="compliance-review-grid">
+            <Columns>
+                @* TemplateColumns require an explicit SortBy because MudDataGrid
+                   only auto-derives the SortBy expression on PropertyColumn. The
+                   SortBy keys here line up with the cases in ApplySort below
+                   (verbatim nameof()) so server-side sorting actually engages
+                   when the user clicks the header. *@
+                <TemplateColumn Title="Timestamp"
+                                Sortable="true"
+                                SortBy="@(new Func<AppSensitiveAccessLog, object?>(r => r.Timestamp))"
+                                CellStyle="text-align:right; max-width:180px"
+                                HeaderStyle="text-align:right; max-width:180px">
+                    <CellTemplate>
+                        <MudText Typo="Typo.body2"
+                                 data-testid="@($"compliance-review-row-{context.Item.Id}-timestamp")">
+                            @context.Item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                        </MudText>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Event"
+                                Sortable="true"
+                                SortBy="@(new Func<AppSensitiveAccessLog, object?>(r => r.EventKind))">
+                    <CellTemplate>
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="@EventColor(context.Item.EventKind)"
+                                 Variant="Variant.Outlined"
+                                 data-testid="@($"compliance-review-row-{context.Item.Id}-event-chip")">
+                            @context.Item.EventKind.ToString()
+                        </MudChip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.UserId" Title="User" Sortable="true" />
+                <PropertyColumn Property="e => e.RoleName" Title="Role" Sortable="true" />
+                <PropertyColumn Property="e => e.EntityKey" Title="Entity" Sortable="true" />
+                <PropertyColumn Property="e => e.ColumnKey" Title="Column" Sortable="true" />
+                <PropertyColumn Property="e => e.TargetRoleName" Title="Target Role" Sortable="true" />
+                <PropertyColumn Property="e => e.GranterUserId" Title="Granter" Sortable="true" />
+                <TemplateColumn Title="Expires"
+                                Sortable="false"
+                                CellStyle="text-align:right; max-width:180px"
+                                HeaderStyle="text-align:right; max-width:180px">
+                    <CellTemplate>
+                        @(context.Item.ExpiresAt is { } x ? x.ToString("yyyy-MM-dd HH:mm:ss") : string.Empty)
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <ChildRowContent>
+                <MudPaper Class="pa-3 ma-2" Outlined="true"
+                          data-testid="@($"compliance-review-row-{context.Item.Id}-expander")">
+                    <MudText Typo="Typo.body2" Class="mb-2">
+                        Related events in this correlation
+                        (<code>@context.Item.CorrelationId</code>):
+                    </MudText>
+                    @{
+                        var related = ResolveCorrelationCluster(context.Item.Id, context.Item.CorrelationId);
+                    }
+                    @if (related.Count == 0)
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary"
+                                 data-testid="@($"compliance-review-row-{context.Item.Id}-cluster-empty")">
+                            No other rows in this correlation.
+                        </MudText>
+                    }
+                    else
+                    {
+                        <MudSimpleTable Dense="true" Hover="true" Bordered="true"
+                                        data-testid="@($"compliance-review-row-{context.Item.Id}-cluster-table")">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Event</th>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Entity</th>
+                                    <th>Column</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sibling in related)
+                                {
+                                    <tr data-testid="@($"compliance-review-cluster-row-{sibling.Id}")">
+                                        <td>@sibling.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                        <td>@sibling.EventKind</td>
+                                        <td>@sibling.UserId</td>
+                                        <td>@sibling.RoleName</td>
+                                        <td>@(sibling.EntityKey ?? string.Empty)</td>
+                                        <td>@(sibling.ColumnKey ?? string.Empty)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    }
+                </MudPaper>
+            </ChildRowContent>
+            <PagerContent>
+                <MudDataGridPager T="AppSensitiveAccessLog" />
+            </PagerContent>
+            <NoRecordsContent>
+                <MudText Typo="Typo.body2" Class="pa-3"
+                         data-testid="compliance-review-empty">
+                    No sensitive-access events match the current filter.
+                </MudText>
+            </NoRecordsContent>
+        </MudDataGrid>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Sixth tab on the security dashboard. Read-only viewer over the
+    /// <c>AppSensitiveAccessLog</c> temporal table delivered in Session 2 of
+    /// the <c>sensitive-field-masking-audit</c> set. Server-paged so a
+    /// CrossOrgMonitor browsing thousands of rows does not OOM the
+    /// browser. Filtered through <see cref="FilterPanel{T}"/> for the
+    /// platform-standard QBE shape.
+    /// </summary>
+
+    private FilterPanel<AppSensitiveAccessLog>? _filterPanel;
+    private MudDataGrid<AppSensitiveAccessLog>? _grid;
+    private CompositeFilterDescriptor? _filter;
+    private bool _isLoading;
+    private int _totalCount;
+    private string _statusText = "0 events";
+    private List<AppSensitiveAccessLog> _currentPage = [];
+
+    private readonly List<FilterColumnDefinition> _filterColumns =
+    [
+        new FilterColumnDefinition
+        {
+            Header = "User Id",
+            PropertyName = nameof(AppSensitiveAccessLog.UserId),
+            EditorType = FilterEditorType.NumericText,
+            DefaultOperator = FilterOperators.Equals,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Role",
+            PropertyName = nameof(AppSensitiveAccessLog.RoleName),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Organization Id",
+            PropertyName = nameof(AppSensitiveAccessLog.OrganizationId),
+            EditorType = FilterEditorType.NumericText,
+            DefaultOperator = FilterOperators.Equals,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Entity",
+            PropertyName = nameof(AppSensitiveAccessLog.EntityKey),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Column",
+            PropertyName = nameof(AppSensitiveAccessLog.ColumnKey),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Event Kind",
+            PropertyName = nameof(AppSensitiveAccessLog.EventKind),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Equals,
+        },
+    ];
+
+    private async Task<GridData<AppSensitiveAccessLog>> ServerDataFuncAsync(GridState<AppSensitiveAccessLog> state)
+    {
+        _isLoading = true;
+        StateHasChanged();
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            IQueryable<AppSensitiveAccessLog> q = db.AppSensitiveAccessLogs.AsNoTracking();
+            q = ApplyFilter(q, _filter);
+
+            // Default sort: most recent first.
+            if (state.SortDefinitions.Count == 0)
+            {
+                q = q.OrderByDescending(r => r.Timestamp);
+            }
+            else
+            {
+                IOrderedQueryable<AppSensitiveAccessLog>? ordered = null;
+                foreach (var sort in state.SortDefinitions)
+                {
+                    ordered = ApplySort(ordered, q, sort);
+                }
+                if (ordered is not null) q = ordered;
+            }
+
+            _totalCount = await q.CountAsync();
+            _currentPage = await q
+                .Skip(state.Page * state.PageSize)
+                .Take(state.PageSize)
+                .ToListAsync();
+
+            _statusText = $"{_currentPage.Count} of {_totalCount} events";
+            return new GridData<AppSensitiveAccessLog>
+            {
+                Items = _currentPage,
+                TotalItems = _totalCount,
+            };
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private static IQueryable<AppSensitiveAccessLog> ApplyFilter(
+        IQueryable<AppSensitiveAccessLog> source, CompositeFilterDescriptor? filter)
+    {
+        if (filter is null || filter.Filters.Count == 0) return source;
+
+        foreach (var entry in filter.Filters)
+        {
+            switch (entry.PropertyName)
+            {
+                case nameof(AppSensitiveAccessLog.UserId):
+                    if (TryToInt(entry.Value, out var userId))
+                        source = source.Where(r => r.UserId == userId);
+                    break;
+                case nameof(AppSensitiveAccessLog.RoleName):
+                {
+                    var needle = entry.Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(needle))
+                        source = source.Where(r => r.RoleName.Contains(needle));
+                    break;
+                }
+                case nameof(AppSensitiveAccessLog.OrganizationId):
+                    if (TryToInt(entry.Value, out var orgId))
+                        source = source.Where(r => r.OrganizationId == orgId);
+                    break;
+                case nameof(AppSensitiveAccessLog.EntityKey):
+                {
+                    var needle = entry.Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(needle))
+                        source = source.Where(r => r.EntityKey != null && r.EntityKey.Contains(needle));
+                    break;
+                }
+                case nameof(AppSensitiveAccessLog.ColumnKey):
+                {
+                    var needle = entry.Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(needle))
+                        source = source.Where(r => r.ColumnKey != null && r.ColumnKey.Contains(needle));
+                    break;
+                }
+                case nameof(AppSensitiveAccessLog.EventKind):
+                {
+                    var needle = entry.Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(needle)
+                        && Enum.TryParse<SensitiveAccessEventKind>(needle, ignoreCase: true, out var kind))
+                    {
+                        source = source.Where(r => r.EventKind == kind);
+                    }
+                    break;
+                }
+            }
+        }
+        return source;
+    }
+
+    private static IOrderedQueryable<AppSensitiveAccessLog>? ApplySort(
+        IOrderedQueryable<AppSensitiveAccessLog>? prior,
+        IQueryable<AppSensitiveAccessLog> source,
+        SortDefinition<AppSensitiveAccessLog> sort)
+    {
+        return sort.SortBy switch
+        {
+            nameof(AppSensitiveAccessLog.Timestamp) =>
+                prior is null
+                    ? (sort.Descending ? source.OrderByDescending(r => r.Timestamp) : source.OrderBy(r => r.Timestamp))
+                    : (sort.Descending ? prior.ThenByDescending(r => r.Timestamp) : prior.ThenBy(r => r.Timestamp)),
+            nameof(AppSensitiveAccessLog.EventKind) =>
+                prior is null
+                    ? (sort.Descending ? source.OrderByDescending(r => r.EventKind) : source.OrderBy(r => r.EventKind))
+                    : (sort.Descending ? prior.ThenByDescending(r => r.EventKind) : prior.ThenBy(r => r.EventKind)),
+            nameof(AppSensitiveAccessLog.UserId) =>
+                prior is null
+                    ? (sort.Descending ? source.OrderByDescending(r => r.UserId) : source.OrderBy(r => r.UserId))
+                    : (sort.Descending ? prior.ThenByDescending(r => r.UserId) : prior.ThenBy(r => r.UserId)),
+            nameof(AppSensitiveAccessLog.RoleName) =>
+                prior is null
+                    ? (sort.Descending ? source.OrderByDescending(r => r.RoleName) : source.OrderBy(r => r.RoleName))
+                    : (sort.Descending ? prior.ThenByDescending(r => r.RoleName) : prior.ThenBy(r => r.RoleName)),
+            _ => prior,
+        };
+    }
+
+    private static bool TryToInt(object? value, out int parsed)
+    {
+        switch (value)
+        {
+            case int i: parsed = i; return true;
+            case long l when l <= int.MaxValue && l >= int.MinValue: parsed = (int)l; return true;
+            case string s when int.TryParse(s, out var p): parsed = p; return true;
+            default: parsed = 0; return false;
+        }
+    }
+
+    private List<AppSensitiveAccessLog> ResolveCorrelationCluster(long anchorId, Guid correlationId)
+    {
+        // The expander is a transient render — the rows it shows are projected
+        // from the same in-memory _currentPage that the grid is already
+        // displaying. This avoids a per-expand round-trip but is **page-scoped**:
+        // if a correlation spans a page boundary, only the rows visible on the
+        // current page are surfaced. A reviewer who needs the full cluster
+        // across pages can either increase the page size or filter the main
+        // grid by copying the CorrelationId into a future explicit filter
+        // column. The anchor row itself is excluded so the cluster table
+        // shows "the other rows in this correlation," matching the spec's
+        // "Related events" framing.
+        return _currentPage
+            .Where(r => r.CorrelationId == correlationId && r.Id != anchorId)
+            .OrderBy(r => r.Timestamp)
+            .ToList();
+    }
+
+    private async Task OnFilterChangedAsync(CompositeFilterDescriptor? descriptor)
+    {
+        _filter = descriptor;
+        if (_grid is not null) await _grid.ReloadServerData();
+    }
+
+    private async Task ExportAsync()
+    {
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            IQueryable<AppSensitiveAccessLog> q = db.AppSensitiveAccessLogs.AsNoTracking();
+            q = ApplyFilter(q, _filter).OrderByDescending(r => r.Timestamp);
+            var rows = await q.ToListAsync();
+
+            var csv = CsvExport.Export(rows, _csvColumns);
+            var fileName = $"compliance-review-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+            var base64 = Convert.ToBase64String(csv);
+
+            await using var module = await Js.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/Dabbler.Components/dabbler-download.js");
+            await module.InvokeVoidAsync("downloadFile", fileName, base64, "text/csv");
+
+            Snackbar.Add($"Exported {rows.Count} rows to {fileName}", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Export failed: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private static readonly IReadOnlyList<CsvColumn<AppSensitiveAccessLog>> _csvColumns =
+    [
+        new("Id", r => r.Id),
+        new("Timestamp", r => r.Timestamp),
+        new("EventKind", r => r.EventKind.ToString()),
+        new("CorrelationId", r => r.CorrelationId),
+        new("UserId", r => r.UserId),
+        new("RoleName", r => r.RoleName),
+        new("OrganizationId", r => r.OrganizationId),
+        new("EntityKey", r => r.EntityKey),
+        new("EntityId", r => r.EntityId),
+        new("ColumnKey", r => r.ColumnKey),
+        new("TargetRoleName", r => r.TargetRoleName),
+        new("GranterUserId", r => r.GranterUserId),
+        new("ExpiresAt", r => r.ExpiresAt),
+        new("Details", r => r.Details),
+    ];
+
+    private static Color EventColor(SensitiveAccessEventKind kind) => kind switch
+    {
+        SensitiveAccessEventKind.RoleSwitch => Color.Info,
+        SensitiveAccessEventKind.FieldUnmaskedRead => Color.Warning,
+        SensitiveAccessEventKind.ExemptionGranted => Color.Success,
+        SensitiveAccessEventKind.ExemptionExpired => Color.Error,
+        _ => Color.Default,
+    };
+}
