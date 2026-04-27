@@ -78,6 +78,14 @@ rejects each (see `docs/ai-led-session-workflow.md` Step 9, post-notify).
   duties). Masks render even when the stored value is null, so presence
   or absence of a sensitive field never leaks through an empty-looking
   unmasked control.
+- **Baked-in roles bypass DefaultMask enforcement.** The `RestrictionBinder`
+  always returns `IsMasked = false` for baked-in roles (SystemAdmin,
+  CrossOrgUserAdmin, CrossOrgMonitor, UserAdmin, User) — they see clear
+  values regardless of any DefaultMask rule. Only user-type roles (those
+  defined in `security-config.json` `UserTypeRoles`) are subject to
+  DefaultMask rules and mask exemption checks. This distinction affects
+  E2E test design: tests verifying masking behaviour must use a user-type
+  role (e.g., BackofficeUser), not a baked-in role.
 - **For compliance-accountable classifications the business already
   owns — masking targets, retention classes, PII flags, and similar —
   trust the business operator to populate them and rely on the internal

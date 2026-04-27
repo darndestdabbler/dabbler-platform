@@ -1329,3 +1329,45 @@ Use this structure for new entries:
   executing a session, trust the spec — if a flag is wrong,
   surface it to the human at the Step 9 reorganization review,
   not at Step 6 verification.
+
+## ICsvExportService Is A Convention Candidate After A Second Admin-Page Reuse
+
+- **Context:** `sensitive-field-masking-audit` Session 4 introduced
+  `ICsvExportService` + `CsvExportService` in `Dabbler.Components/Csv/`
+  for the Compliance Review tab's Export CSV feature.
+- **Failure or friction:** None — this went well. One usage is
+  insufficient for promotion to Convention; capturing it here so the
+  second use triggers the review.
+- **Lesson:** `ICsvExportService` (generic `Export<T>(rows, columns)`
+  → `byte[]`, RFC 4180, CRLF, invariant culture, UTF-8 no-BOM) is a
+  reusable export service for admin pages. Register via `TryAddSingleton`
+  in `AddDabblerComponents`. It pairs with the existing
+  `dabbler-download.js` `downloadFile` module for browser-side delivery.
+- **Action for future sessions:** When the second admin page reuses
+  `ICsvExportService`, promote it to `project-guidance.md` → Conventions
+  as a platform export pattern. Current first use: Compliance Review tab
+  (`sensitive-field-masking-audit` Session 4).
+
+## Masking-Auditor Pattern Is A Platform Auditing Convention Candidate
+
+- **Context:** `sensitive-field-masking-audit` introduced the full
+  masking-audit stack: write-once `AppSensitiveAccessLog` temporal rows,
+  `IRenderCorrelationScope` (per-Blazor-circuit/request Guid, resets on
+  `NavigationManager.LocationChanged`), and `TryRecordOnce` dedup per
+  `(CorrelationId, EntityKey, EntityId, ColumnKey)`.
+- **Failure or friction:** None — the pattern worked. One session-set
+  application is insufficient for Convention promotion.
+- **Lesson:** The masking-auditor pattern is a candidate platform
+  convention for any future auditable feature that needs:
+  - Append-only temporal audit rows (`AppSensitiveAccessLog` shape or similar)
+  - Per-render dedup to avoid audit log inflation on repeated renders
+  - Correlation-scoped grouping of related events across one user action
+  Key invariants to preserve: `SecurityConfigurationManager` is a
+  Singleton — in-memory only; direct file edits without calling
+  `SaveAsync` are NOT picked up by running circuits. `RenderCorrelationScope`
+  is Scoped (per Blazor circuit); the `IsMasked` check and FieldUnmaskedRead
+  dedup happen at the binder layer, not the component layer.
+- **Action for future sessions:** When a second auditable feature needs
+  sensitive-field or action-audit coverage, evaluate applying this pattern
+  and, if applied, promote it to `project-guidance.md` → Conventions.
+  Current first use: `sensitive-field-masking-audit` Sessions 2–3.
