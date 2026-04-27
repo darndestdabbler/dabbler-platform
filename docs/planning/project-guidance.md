@@ -406,6 +406,39 @@ before proceeding.
   for checklist JSON files intended for human execution.
 - Open and run those files through
   `https://darndestdabbler.github.io/uat-checklist-editor/`.
+- **MANDATORY: every UAT step must be performable by both the human and
+  the E2E test using only user-visible surfaces.** A three-step authoring
+  discipline applies, in order, with no shortcuts:
+  1. **Write the UAT step with maximally-explicit human action.** Include
+     the full URL, the visible label of every control involved, the exact
+     text the user types, the exact label of the link or button to click,
+     and the expected resulting URL or visible-state change. Bad: "Sign
+     in as admin@acmecoffee.com." Good: "Open `http://localhost:5020/login`.
+     In the textbox labeled `Email`, enter `admin@acmecoffee.com`. Click
+     the button labeled `Send sign-in code`. Verify the page now displays
+     `We sent a sign-in code to admin@acmecoffee.com`."
+  2. **Write the E2E test driving those same explicit steps with the same
+     locators.** Each Playwright step maps 1:1 to a numbered checklist
+     step. **Test-framework backdoors are forbidden when the step under
+     test is something a human is also expected to perform.** That
+     includes: `SeededSignInAsync(roles=)` overrides for sign-in steps,
+     `/test-auth/*` shortcuts for navigation steps, direct
+     `security-config.json` edits for permission-grant steps, EF API
+     pokes for things the user is supposed to do through the UI. Such
+     shortcuts are acceptable ONLY for test setup of state that is
+     out-of-scope of the UAT (e.g., pre-seeding inventory the human
+     accepts as given).
+  3. **Cross-verify every step is reachable by both sides.** For every
+     numbered step, confirm the human can perform it in a real browser
+     and the E2E test can perform it through user-visible locators.
+     If either side cannot, the step is inadequate — fix the UI gap
+     (e.g., assign the persona the missing role, add the missing
+     button, restore the missing page) or remove the step. Do NOT
+     paper over a UI gap with a developer shortcut.
+  When a session set has UAT but the supported sign-in path or any
+  other user-visible surface is not yet wired up, BLOCK the UAT until
+  that surface works. Surface this at spec authoring or at the start
+  of the closing session, not after generating an unrunnable checklist.
 - **MANDATORY: validate the generated checklist against the canonical schema
   before committing.** The schema lives at
   `https://raw.githubusercontent.com/darndestdabbler/uat-checklist-editor/main/checklist-schema.json`
@@ -487,8 +520,13 @@ before proceeding.
   `route(task_type="uat-coverage-review")` with the generated
   checklist and the Playwright file — it returns VERIFIED only when
   every non-judgment item has a matching E2E step with identical
-  action, parameters, and verifications. A mismatch blocks the
-  checklist handoff.
+  action, parameters, and verifications, **AND** every step in the
+  checklist passes per-step reachability: a real human in a browser
+  can perform the step using only user-visible surfaces. The
+  `uat-coverage-review` prompt must explicitly request this
+  reachability check; ISSUES_FOUND on any developer-shortcut
+  dependency (test-only sign-in overrides, direct config edits for
+  steps the human is supposed to perform, etc.) blocks the handoff.
 
   Group the Playwright tests in a `*UatCoverageTests.cs` file (or
   equivalent) under `tests/AcmeCoffeeOnline.Playwright/` and

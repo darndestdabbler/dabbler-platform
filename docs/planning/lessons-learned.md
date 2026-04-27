@@ -1330,6 +1330,58 @@ Use this structure for new entries:
   surface it to the human at the Step 9 reorganization review,
   not at Step 6 verification.
 
+## Three-Step UAT Authoring Discipline — Explicit Steps + Step-Level E2E Map + Per-Step Reachability
+
+- **Promoted to:** `project-guidance.md` → Conventions → Human UAT And
+  Checklist Editor on 2026-04-27 (immediately, after the human flagged
+  that the masking-audit UAT relied on `SeededSignInAsync(roles=)` —
+  a test-only shortcut no human can perform in a browser). Three
+  contexts: `rearchitect-role-administration-dashboard` Session 8 (Other
+  items revealed E2E coverage was not exercising real surfaces),
+  `security-dashboard-uat-followup-fixes` Session 2 (real-login
+  Finding #2 invisible until Session 2 re-test;
+  `Dev-Persona Roles-Override` lesson Exception added), and
+  `sensitive-field-masking-audit` Session 5 (entire UAT was unrunnable
+  because every persona depended on a roles-override that has no
+  human equivalent). Follow the convention.
+- **Original entry preserved below for context.**
+- **Context:** Three separate UATs across the role-rearchitecture
+  roadmap shipped checklists that the human could not run, despite
+  passing `uat-coverage-review`. Each time the orchestrator's E2E
+  used a test framework backdoor (`SeededSignInAsync(roles=...)`,
+  `/test-auth/seeded-session?roles=...`, direct
+  `security-config.json` edits) for a step the human was expected
+  to also perform.
+- **Failure or friction:** The "step-by-step parity" discipline
+  checked structural matching (same step count, same testid
+  references, same expected text) but did not check that a real
+  human, using only what's exposed in a browser, could actually
+  perform each step. Test framework can take any shortcut available
+  to the test framework; the human cannot. The current
+  `uat-coverage-review` prompt does not enforce per-step reachability.
+- **Lesson:** UAT authoring is a three-step process, with the third
+  step being the missing one:
+  1. Write the UAT step with maximally-explicit human action — full
+     URL, exact control labels, exact text typed, exact link/button
+     labels, expected resulting URL or visible state.
+  2. Write the E2E test driving the SAME explicit steps via the
+     same user-visible locators. No test-framework backdoors on
+     steps a human is also expected to perform.
+  3. Cross-verify per step that BOTH the human AND the E2E can
+     complete it using only user-visible surfaces. If either side
+     can't, the step is inadequate — fix the UI gap or remove the
+     step. Don't paper over a UI gap with a developer shortcut.
+- **Action for future sessions:** Apply the convention from
+  `project-guidance.md` → Conventions → Human UAT And Checklist
+  Editor at every UAT-bearing session set. The
+  `route(task_type="uat-coverage-review")` prompt must explicitly
+  request per-step reachability confirmation (a non-trivial change
+  to the prompt — orchestrators must carry this addition forward).
+  When the supported sign-in path is not yet wired up
+  (e.g., DevIdp restore deferred), block the UAT and surface this
+  to the human at spec authoring, not after generating an
+  unrunnable checklist.
+
 ## UAT Checklist Must Be Validated Against The Canonical Schema Before Commit
 
 - **Promoted to:** `project-guidance.md` → Conventions → Human UAT And
