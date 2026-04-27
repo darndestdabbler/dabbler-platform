@@ -1330,6 +1330,48 @@ Use this structure for new entries:
   surface it to the human at the Step 9 reorganization review,
   not at Step 6 verification.
 
+## UAT Checklist Must Be Validated Against The Canonical Schema Before Commit
+
+- **Promoted to:** `project-guidance.md` → Conventions → Human UAT And
+  Checklist Editor on 2026-04-27 (Step 9 follow-up after the human flagged
+  a non-loadable checklist for the *second* time). Two contexts:
+  `rearchitect-role-administration-dashboard` Session 8 (original
+  custom-shape incident) and `sensitive-field-masking-audit` Session 5
+  (regenerated via `route(uat-plan-generation)` against the wrong shape;
+  Opus produced JSON with `SessionSetSlug`/`Title`/`Reviews`/`Id` that the
+  editor rejected). Follow the convention.
+- **Original entry preserved below for context.**
+- **Context:** Two separate session sets shipped UAT checklist JSON that
+  did not load in the editor at
+  `https://darndestdabbler.github.io/uat-checklist-editor/`.
+- **Failure or friction:** Both incidents stemmed from the orchestrator
+  generating fields the schema does not allow. The canonical schema
+  requires `ProjectName` + `Review` at the root and
+  `FunctionalArea`/`Subarea`/`ItemLabel` per Review item; each step's
+  action lives in `Action` (not `HumanAction`); verifications are objects
+  with `Text` (not plain strings); `additionalProperties: false` is set
+  at every nesting level. Even when the orchestrator believes it has
+  "the right schema," the editor's schema is the only ground truth.
+- **Lesson:** The orchestrator must run an actual JSON-Schema validation
+  pass against the canonical schema URL before committing the checklist
+  AND before notifying the human. A "looks reasonable" eyeball check is
+  insufficient — the failure modes (extra root fields, plural `Reviews`
+  vs singular `Review`, string verifications vs object verifications)
+  are exactly the kind of structural mistakes that pass eyeball review
+  but fail editor parsing.
+- **Action for future sessions:** When generating a UAT checklist
+  (Step 5.2 in the workflow):
+  1. Fetch the schema:
+     `https://raw.githubusercontent.com/darndestdabbler/uat-checklist-editor/main/checklist-schema.json`
+  2. Validate the generated checklist with `jsonschema` (Python) or an
+     equivalent validator. Any validation error blocks the commit.
+  3. Eyeball-confirm the field names against the schema's
+     `properties` — don't trust the routed `uat-plan-generation`
+     output's shape; the prompt template has occasionally produced
+     non-schema fields.
+  4. If a routed call produces non-schema fields, transform the output
+     to the schema rather than re-prompting (cheaper, deterministic).
+
 ## ICsvExportService Is A Convention Candidate After A Second Admin-Page Reuse
 
 - **Context:** `sensitive-field-masking-audit` Session 4 introduced

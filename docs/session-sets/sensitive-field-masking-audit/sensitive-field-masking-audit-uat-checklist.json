@@ -1,315 +1,335 @@
 {
-  "SessionSetSlug": "sensitive-field-masking-audit",
-  "Title": "Sensitive-Field Masking and Audit UAT",
-  "Description": "Human review of mask rendering, audit trail, and Compliance Review viewer.",
-  "CreatedDate": "2026-04-27",
-  "Version": "1.0",
-  "Reviews": [
+  "ProjectName": "AcmeCoffeeOnline — Sensitive-Field Masking and Audit",
+  "ReleaseLabel": "Set D — sensitive-field-masking-audit (Sessions 1–5)",
+  "Review": [
     {
-      "Id": "UAT-1",
-      "Title": "SSN renders masked for a user-type role with no exemption",
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-1",
+      "ItemLabel": "SSN renders masked for a user-type role with no exemption",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": "",
       "Steps": [
         {
           "StepNumber": 1,
-          "HumanAction": "Sign in as admin@acmecoffee.com with role BackofficeUser.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Sign in as admin@acmecoffee.com with role BackofficeUser."
         },
         {
           "StepNumber": 2,
-          "HumanAction": "Navigate to the customer detail page for the first customer (URL: /customers/{id}, where id is the first customer by DB ID — the one seeded with SocialSecurityNumber \"123-45-6789\").",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Navigate to the customer detail page for the first customer (URL: /customers/{id}, where id is the first customer by DB ID — the one seeded with SocialSecurityNumber \"123-45-6789\")."
         },
         {
           "StepNumber": 3,
-          "HumanAction": "Verify the SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible on the customer detail page.",
+          "Action": "Verify the SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible on the customer detail page.",
           "Verifications": [
-            "The SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 4,
-          "HumanAction": "Verify the masked span (data-testid=\"restricted-field-masked-Customer-SocialSecurityNumber\") is visible and its text starts with \"XXX-XX-\" (the configured mask format).",
+          "Action": "Verify the masked span (data-testid=\"restricted-field-masked-Customer-SocialSecurityNumber\") is visible and its text starts with \"XXX-XX-\" (the configured mask format).",
           "Verifications": [
-            "The masked span (data-testid=\"restricted-field-masked-Customer-SocialSecurityNumber\") is visible.",
-            "The masked span text contains \"XXX-XX-\" (the mask format prefix from the DefaultMaskRule \"XXX-XX-{last4}\")."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The masked span (data-testid=\"restricted-field-masked-Customer-SocialSecurityNumber\") is visible."
+            },
+            {
+              "Text": "The masked span text contains \"XXX-XX-\" (the mask format prefix from the DefaultMaskRule \"XXX-XX-{last4}\")."
+            }
+          ]
         }
-      ],
-      "IsJudgmentItem": false
+      ]
     },
     {
-      "Id": "UAT-2",
-      "Title": "SystemAdmin grants a mask exemption for the BackofficeUser role on Customer.SocialSecurityNumber",
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-2",
+      "ItemLabel": "SystemAdmin grants a mask exemption for the BackofficeUser role on Customer.SocialSecurityNumber",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": "",
       "Steps": [
         {
           "StepNumber": 1,
-          "HumanAction": "Sign in as admin@acmecoffee.com with role SystemAdmin.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin."
         },
         {
           "StepNumber": 2,
-          "HumanAction": "Navigate to the Security Dashboard (URL: /admin/security).",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Navigate to the Security Dashboard (URL: /admin/security)."
         },
         {
           "StepNumber": 3,
-          "HumanAction": "Click the \"Role Master Details\" tab.",
+          "Action": "Click the \"Role Master Details\" tab.",
           "Verifications": [
-            "The role master grid (data-testid=\"role-master-grid\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The role master grid (data-testid=\"role-master-grid\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 4,
-          "HumanAction": "Click the row for the \"BackofficeUser\" role in the role master grid.",
+          "Action": "Click the row for the \"BackofficeUser\" role in the role master grid.",
           "Verifications": [
-            "The role row (data-testid=\"role-row-BackofficeUser\") is visible.",
-            "The role details section (data-testid=\"role-details-section\") is visible after clicking."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The role row (data-testid=\"role-row-BackofficeUser\") is visible."
+            },
+            {
+              "Text": "The role details section (data-testid=\"role-details-section\") is visible after clicking."
+            }
+          ]
         },
         {
           "StepNumber": 5,
-          "HumanAction": "Click the \"Mask Exemptions\" sub-tab in the role details section.",
+          "Action": "Click the \"Mask Exemptions\" sub-tab in the role details section.",
           "Verifications": [
-            "The mask exemptions sub-tab container (data-testid=\"mask-exemptions-subtab\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The mask exemptions sub-tab container (data-testid=\"mask-exemptions-subtab\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 6,
-          "HumanAction": "Click the Table dropdown (data-testid=\"mask-exemption-new-table\") and select \"Customer\".",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Click the Table dropdown (data-testid=\"mask-exemption-new-table\") and select \"Customer\"."
         },
         {
           "StepNumber": 7,
-          "HumanAction": "Wait for the Column dropdown (data-testid=\"mask-exemption-new-column\") to become enabled, then click it and select \"SocialSecurityNumber\".",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Wait for the Column dropdown (data-testid=\"mask-exemption-new-column\") to become enabled, then click it and select \"SocialSecurityNumber\"."
         },
         {
           "StepNumber": 8,
-          "HumanAction": "Click the \"Add\" button (data-testid=\"mask-exemption-add-button\").",
+          "Action": "Click the \"Add\" button (data-testid=\"mask-exemption-add-button\").",
           "Verifications": [
-            "The Add button is enabled before clicking."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The Add button is enabled before clicking."
+            }
+          ]
         },
         {
           "StepNumber": 9,
-          "HumanAction": "Verify the active-status badge (data-testid=\"mask-exemption-status-active-Customer-SocialSecurityNumber\") is visible after the add operation completes.",
+          "Action": "Verify the active-status badge (data-testid=\"mask-exemption-status-active-Customer-SocialSecurityNumber\") is visible after the add operation completes.",
           "Verifications": [
-            "The active-status badge (data-testid=\"mask-exemption-status-active-Customer-SocialSecurityNumber\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The active-status badge (data-testid=\"mask-exemption-status-active-Customer-SocialSecurityNumber\") is visible."
+            }
+          ]
         }
-      ],
-      "IsJudgmentItem": false
+      ]
     },
     {
-      "Id": "UAT-3",
-      "Title": "BackofficeUser with active exemption sees SSN unmasked",
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-3",
+      "ItemLabel": "BackofficeUser with active exemption sees SSN unmasked",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": "",
       "Steps": [
         {
           "StepNumber": 1,
-          "HumanAction": "Sign in as admin@acmecoffee.com with role BackofficeUser.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Sign in as admin@acmecoffee.com with role BackofficeUser."
         },
         {
           "StepNumber": 2,
-          "HumanAction": "Navigate to the customer detail page for the first customer (URL: /customers/{id}, the customer seeded with SocialSecurityNumber \"123-45-6789\").",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Navigate to the customer detail page for the first customer (URL: /customers/{id}, the customer seeded with SocialSecurityNumber \"123-45-6789\")."
         },
         {
           "StepNumber": 3,
-          "HumanAction": "Verify the SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible on the customer detail page.",
+          "Action": "Verify the SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible on the customer detail page.",
           "Verifications": [
-            "The SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 4,
-          "HumanAction": "Verify the unmasked text field (data-testid=\"field-ssn\") is visible.",
+          "Action": "Verify the unmasked text field (data-testid=\"field-ssn\") is visible.",
           "Verifications": [
-            "The unmasked text field (data-testid=\"field-ssn\") is visible.",
-            "Its presence proves the RestrictedFormField rendered ChildContent (exemption honored, mask bypassed)."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The unmasked text field (data-testid=\"field-ssn\") is visible."
+            },
+            {
+              "Text": "Its presence proves the RestrictedFormField rendered ChildContent (exemption honored, mask bypassed)."
+            }
+          ]
         }
-      ],
-      "IsJudgmentItem": false
+      ]
     },
     {
-      "Id": "UAT-4",
-      "Title": "CrossOrgMonitor sees ExemptionGranted and FieldUnmaskedRead events in Compliance Review",
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-4",
+      "ItemLabel": "CrossOrgMonitor sees ExemptionGranted and FieldUnmaskedRead events in Compliance Review",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": "",
       "Steps": [
         {
           "StepNumber": 1,
-          "HumanAction": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor."
         },
         {
           "StepNumber": 2,
-          "HumanAction": "Navigate to the Security Dashboard (URL: /admin/security).",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Navigate to the Security Dashboard (URL: /admin/security)."
         },
         {
           "StepNumber": 3,
-          "HumanAction": "Click the \"Compliance Review\" tab.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Click the \"Compliance Review\" tab."
         },
         {
           "StepNumber": 4,
-          "HumanAction": "Verify the compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible.",
+          "Action": "Verify the compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible.",
           "Verifications": [
-            "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 5,
-          "HumanAction": "Verify the grid scroll region (data-testid=\"compliance-review-grid-scroll-region\") is visible.",
+          "Action": "Verify the grid scroll region (data-testid=\"compliance-review-grid-scroll-region\") is visible.",
           "Verifications": [
-            "The grid scroll region (data-testid=\"compliance-review-grid-scroll-region\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The grid scroll region (data-testid=\"compliance-review-grid-scroll-region\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 6,
-          "HumanAction": "Verify the Entity filter field (labeled \"Entity\") is visible, then type \"Customer\" in it to scope the grid results.",
+          "Action": "Verify the Entity filter field (labeled \"Entity\") is visible, then type \"Customer\" in it to scope the grid results.",
           "Verifications": [
-            "The Entity filter field (label \"Entity\") is visible before filling."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The Entity filter field (label \"Entity\") is visible before filling."
+            }
+          ]
         },
         {
           "StepNumber": 7,
-          "HumanAction": "Scan the grid rows for an ExemptionGranted event chip.",
+          "Action": "Scan the grid rows for an ExemptionGranted event chip.",
           "Verifications": [
-            "At least one event chip (data-testid contains \"event-chip\") with text \"ExemptionGranted\" is visible in the grid."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "At least one event chip (data-testid contains \"event-chip\") with text \"ExemptionGranted\" is visible in the grid."
+            }
+          ]
         },
         {
           "StepNumber": 8,
-          "HumanAction": "Scan the grid rows for a FieldUnmaskedRead event chip.",
+          "Action": "Scan the grid rows for a FieldUnmaskedRead event chip.",
           "Verifications": [
-            "At least one event chip (data-testid contains \"event-chip\") with text \"FieldUnmaskedRead\" is visible in the grid."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "At least one event chip (data-testid contains \"event-chip\") with text \"FieldUnmaskedRead\" is visible in the grid."
+            }
+          ]
         }
-      ],
-      "IsJudgmentItem": false
+      ]
     },
     {
-      "Id": "UAT-5",
-      "Title": "Row expander renders the correlation cluster section",
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-5",
+      "ItemLabel": "Row expander renders the correlation cluster section",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
+      "IsJudgmentItem": true,
+      "Passes": false,
+      "Feedback": "Judgment item — Whether the correlation cluster contains sibling rows depends on the Blazor circuit scope at audit-emission time. RoleSwitch and FieldUnmaskedRead share a CorrelationId only when they occur on the same page without an intervening navigation (the RenderCorrelationScope resets on LocationChanged). In the standard UAT flow they occur on separate pages, so the cluster may show \"No other rows.\" The reviewer must judge that the cluster UI renders correctly regardless of sibling count.",
       "Steps": [
         {
           "StepNumber": 1,
-          "HumanAction": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor."
         },
         {
           "StepNumber": 2,
-          "HumanAction": "Navigate to /admin/security and click the \"Compliance Review\" tab.",
+          "Action": "Navigate to /admin/security and click the \"Compliance Review\" tab.",
           "Verifications": [
-            "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 3,
-          "HumanAction": "Wait for the grid to populate with audit event rows.",
+          "Action": "Wait for the grid to populate with audit event rows.",
           "Verifications": [
-            "At least one event chip (data-testid contains \"event-chip\") is visible in the grid."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "At least one event chip (data-testid contains \"event-chip\") is visible in the grid."
+            }
+          ]
         },
         {
           "StepNumber": 4,
-          "HumanAction": "Click the first table cell (td) of the first data row — the expand-toggle cell in MudDataGrid.",
+          "Action": "Click the first table cell (td) of the first data row — the expand-toggle cell in MudDataGrid.",
           "Verifications": [
-            "The expand icon button on the first data row is visible before clicking."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The expand icon button on the first data row is visible before clicking."
+            }
+          ]
         },
         {
           "StepNumber": 5,
-          "HumanAction": "Verify the expander container (data-testid matching \"compliance-review-row-*-expander\") is visible below the first row.",
+          "Action": "Verify the expander container (data-testid matching \"compliance-review-row-*-expander\") is visible below the first row.",
           "Verifications": [
-            "The expander container (data-testid matching \"compliance-review-row-*-expander\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The expander container (data-testid matching \"compliance-review-row-*-expander\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 6,
-          "HumanAction": "Verify that either a cluster table (data-testid contains \"-cluster-table\") or a 'No other rows' caption (data-testid contains \"-cluster-empty\") is present inside the expander.",
+          "Action": "Verify that either a cluster table (data-testid contains \"-cluster-table\") or a 'No other rows' caption (data-testid contains \"-cluster-empty\") is present inside the expander.",
           "Verifications": [
-            "Either a cluster table (data-testid contains \"-cluster-table\") is present, or a \"No other rows\" caption (data-testid contains \"-cluster-empty\") is present. At least one of the two must render."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "Either a cluster table (data-testid contains \"-cluster-table\") is present, or a \"No other rows\" caption (data-testid contains \"-cluster-empty\") is present. At least one of the two must render."
+            }
+          ]
         }
-      ],
-      "IsJudgmentItem": true,
-      "JudgmentJustification": "Whether the correlation cluster contains sibling rows depends on the Blazor circuit scope at audit-emission time. RoleSwitch and FieldUnmaskedRead share a CorrelationId only when they occur on the same page without an intervening navigation (the RenderCorrelationScope resets on LocationChanged). In the standard UAT flow they occur on separate pages, so the cluster may show \"No other rows.\" The reviewer must judge that the cluster UI renders correctly regardless of sibling count."
+      ]
     },
     {
-      "Id": "UAT-6",
-      "Title": "Export CSV button triggers export and shows a success snackbar",
+      "FunctionalArea": "Sensitive-Field Masking and Audit",
+      "Subarea": "UAT-6",
+      "ItemLabel": "Export CSV button triggers export and shows a success snackbar",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": "",
       "Steps": [
         {
           "StepNumber": 1,
-          "HumanAction": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor."
         },
         {
           "StepNumber": 2,
-          "HumanAction": "Navigate to /admin/security and click the \"Compliance Review\" tab.",
+          "Action": "Navigate to /admin/security and click the \"Compliance Review\" tab.",
           "Verifications": [
-            "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
+            }
+          ]
         },
         {
           "StepNumber": 3,
-          "HumanAction": "Verify the Export CSV button (data-testid=\"compliance-review-export-button\") is enabled.",
+          "Action": "Verify the Export CSV button (data-testid=\"compliance-review-export-button\") is enabled.",
           "Verifications": [
-            "The Export CSV button (data-testid=\"compliance-review-export-button\") is enabled."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "The Export CSV button (data-testid=\"compliance-review-export-button\") is enabled."
+            }
+          ]
         },
         {
           "StepNumber": 4,
-          "HumanAction": "Click the Export CSV button.",
-          "Verifications": [],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+          "Action": "Click the Export CSV button."
         },
         {
           "StepNumber": 5,
-          "HumanAction": "Verify a snackbar containing the text \"Exported\" appears.",
+          "Action": "Verify a snackbar containing the text \"Exported\" appears.",
           "Verifications": [
-            "A snackbar containing the text \"Exported\" is visible."
-          ],
-          "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync"
+            {
+              "Text": "A snackbar containing the text \"Exported\" is visible."
+            }
+          ]
         }
-      ],
-      "IsJudgmentItem": false
+      ]
     }
   ]
 }

@@ -406,6 +406,36 @@ before proceeding.
   for checklist JSON files intended for human execution.
 - Open and run those files through
   `https://darndestdabbler.github.io/uat-checklist-editor/`.
+- **MANDATORY: validate the generated checklist against the canonical schema
+  before committing.** The schema lives at
+  `https://raw.githubusercontent.com/darndestdabbler/uat-checklist-editor/main/checklist-schema.json`
+  — fetch it, run a JSON-Schema validation pass against the checklist file,
+  and fix any validation errors before the orchestrator notifies the human.
+  Required field shapes that have caused two prior incidents:
+  - Root object: `ProjectName` (string, required), `Review` (array, required).
+    `ReleaseLabel`, `DocumentDate`, `Configuration` are optional. **Do NOT use**
+    `SessionSetSlug`, `Title`, `Description`, `CreatedDate`, `Version`, or
+    `Reviews` (plural) — these are not in the schema and the editor rejects
+    files that contain them.
+  - Each `Review[i]` item requires `FunctionalArea`, `Subarea`, `ItemLabel`.
+    The schema also accepts `HumanAction`, `Expectation`, `Steps`, `TestData`,
+    `E2ETestReference`, `IsJudgmentItem`, `Passes`, `Feedback`, `IsOtherItem`.
+    **Do NOT use** `Id`, `Title`, `JudgmentJustification` — not in the schema.
+    A short item identifier (UAT-1, UAT-2, ...) belongs in `Subarea`. A
+    judgment-item rationale belongs in `Feedback` (e.g.,
+    `"Feedback": "Judgment item — <rationale>"`).
+  - Each `Steps[j]` item requires `StepNumber` (integer) and `Action` (string).
+    Optional `Verifications` is an array of **objects** each with a `Text`
+    property — **NOT** an array of plain strings, and **NOT** containing
+    `HumanAction` (the step's action goes in `Action`, not `HumanAction`).
+    `E2ETestReference` belongs at the Review level, not on individual steps.
+  - Verifications support `Text` (required), optional `VerificationMethod`
+    (`"ui"` | `"api"` | `"sql"`), `Query`, and `ExpectedValue`.
+  - `additionalProperties` is `false` at the root, on each Review item, on
+    each Step, and on each Verification — extra fields cause validation
+    failures.
+  After fixing structural shape, the editor still requires the checklist to
+  be browsable end-to-end — open it locally before notifying the human.
 - Save human review results inline in the checklist JSON itself. Do not
   create a separate empty `*-findings.json` scaffold for pending review.
 - **Generate a new UAT checklist per session set.** Name the file
