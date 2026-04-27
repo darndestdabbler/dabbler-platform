@@ -2,6 +2,7 @@
 @namespace Dabbler.Security.Blazor.Components.Restriction
 @inject IRestrictionBinder Binder
 @inject AuthorizationStateNotifier Notifier
+@inject IFieldMaskService FieldMaskService
 @implements IDisposable
 
 @if (_resolved.Visibility == ColumnVisibility.Hidden)
@@ -21,7 +22,7 @@ else if (_resolved.IsMasked)
               data-mask-column="@_resolved.ColumnKey"
               data-mask-format="@_resolved.MaskFormat"
               data-testid="@($"restricted-field-masked-{_resolved.EntityKey}-{_resolved.ColumnKey}")">
-            ********
+            @FieldMaskService.RenderMasked(_resolved.MaskFormat, Value)
         </span>
     }
 }
@@ -62,6 +63,13 @@ else
 
     /// <summary>The column (field) key the wrapped field binds to. Required.</summary>
     [Parameter, EditorRequired] public string ColumnKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The raw stored value of the field. Passed to <see cref="IFieldMaskService.RenderMasked"/>
+    /// when the field is masked and no explicit <see cref="MaskedTemplate"/> is supplied.
+    /// Null is valid — the mask service always produces a non-empty output.
+    /// </summary>
+    [Parameter] public string? Value { get; set; }
 
     /// <summary>
     /// The field template. Receives the resolved <see cref="RestrictionResolution"/>

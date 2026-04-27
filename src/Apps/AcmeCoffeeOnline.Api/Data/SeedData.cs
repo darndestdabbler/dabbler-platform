@@ -134,7 +134,9 @@ public static class SeedData
                 ModifiedDate = i < 5
                     ? now.AddHours(-random.Next(1, 24))
                     : createdDate.AddDays(random.Next(0, 30)),
-                ModifiedBy = i < 8 ? NoteAuthors[random.Next(1, NoteAuthors.Length)] : null
+                ModifiedBy = i < 8 ? NoteAuthors[random.Next(1, NoteAuthors.Length)] : null,
+                // Well-known test SSN for mask rendering exercises (customer 0 only)
+                SocialSecurityNumber = i == 0 ? "123-45-6789" : null,
             });
         }
 

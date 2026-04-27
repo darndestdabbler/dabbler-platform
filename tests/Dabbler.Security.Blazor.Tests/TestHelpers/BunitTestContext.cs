@@ -44,6 +44,7 @@ public static class BunitContextExtensions
         // ── 3. Default library services required by Dabbler components ───────────────
         ctx.Services.AddScoped<IRoleSwitcher, SessionRoleSwitcher>();
         ctx.Services.AddSingleton<AuthorizationStateNotifier>();
+        ctx.Services.AddSingleton<IFieldMaskService, FieldMaskService>();
         ctx.Services.Configure<DabblerSecurityOptions>(_ => { });
 
         // ── 4. Caller-specific services (mocks, DbContext, HttpClient …) ─────────────

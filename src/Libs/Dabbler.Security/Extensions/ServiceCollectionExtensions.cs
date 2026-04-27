@@ -137,6 +137,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthorizationHandler, EndpointAuthorizationHandler>();
         services.AddScoped<IAuthorizationHandler, ControlAuthorizationHandler>();
 
+        services.AddSingleton<IFieldMaskService, FieldMaskService>();
+
         // IRoleSwitcher is scoped: per-request in Web API, per-circuit in Blazor Server.
         services.AddScoped<IRoleSwitcher, SessionRoleSwitcher>();
         services.AddScoped<IUserSessionContextService, UserSessionContextService>();

@@ -2,6 +2,9 @@
 @namespace Dabbler.Security.Blazor.Components.Restriction
 @inject IRestrictionBinder Binder
 @inject AuthorizationStateNotifier Notifier
+@* IFieldMaskService injected here so grid-column consumers can render masked cell values
+   without needing a separate @inject in each consumer. Session Set D wires the CellTemplate. *@
+@inject IFieldMaskService FieldMaskService
 @implements IDisposable
 
 @if (_resolved.Visibility == ColumnVisibility.Hidden)

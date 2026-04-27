@@ -16,6 +16,7 @@ public static class DatabaseInitializer
         var securityOptions = scope.ServiceProvider.GetRequiredService<IOptions<DabblerSecurityOptions>>().Value;
 
         await context.Database.EnsureCreatedAsync();
+        await EnsureAcmeCoffeeSchemaAsync(context);
         await securityContext.Database.MigrateAsync();
 
         if (!await context.Products.AnyAsync())
@@ -81,6 +82,21 @@ public static class DatabaseInitializer
 
         // Phase 7: Runtime security configuration (roles, permissions, row filters)
         await SecuritySeedData.SeedAsync(services);
+    }
+
+    // Applies schema changes that EnsureCreated misses on existing databases.
+    // Each block is idempotent and guarded by a column-existence check.
+    private static async Task EnsureAcmeCoffeeSchemaAsync(AcmeCoffeeDbContext context)
+    {
+        await context.Database.ExecuteSqlRawAsync(@"
+            IF NOT EXISTS (
+                SELECT 1 FROM sys.columns
+                WHERE object_id = OBJECT_ID(N'[dbo].[Customers]')
+                  AND name = N'SocialSecurityNumber')
+            BEGIN
+                ALTER TABLE [dbo].[Customers]
+                    ADD [SocialSecurityNumber] nvarchar(11) NULL;
+            END");
     }
 
     private static async Task BackfillSecuritySeedDataAsync(

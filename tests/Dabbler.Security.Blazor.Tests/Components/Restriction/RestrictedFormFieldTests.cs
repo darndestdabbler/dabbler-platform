@@ -187,7 +187,8 @@ public class RestrictedFormFieldTests
         var maskedNode = cut.Find($"[data-testid='restricted-field-masked-Customer-SocialSecurityNumber']");
         maskedNode.GetAttribute("data-masked").Should().Be("true");
         maskedNode.GetAttribute("data-mask-format").Should().Be("XXX-XX-{last4}");
-        maskedNode.TextContent.Should().Contain("********");
+        // No Value supplied → null → FieldMaskService renders {last4} as ****
+        maskedNode.TextContent.Trim().Should().Be("XXX-XX-****");
 
         cut.FindAll("[data-testid='probe']").Should().BeEmpty();
     }
@@ -223,6 +224,35 @@ public class RestrictedFormFieldTests
         custom1.GetAttribute("data-fmt").Should().Be("XXX-XX-{last4}");
         cut.FindAll("[data-testid='probe']").Should().BeEmpty();
         cut.FindAll("[data-testid='restricted-field-masked-Customer-SocialSecurityNumber']").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DefaultMask_WithStoredValue_RendersTokenSubstitutedMask()
+    {
+        // Spec §Session 1 step 6: Customer.SocialSecurityNumber = "123-45-6789" +
+        // default mask "XXX-XX-{last4}" → renders as "XXX-XX-6789".
+        var config = new SecurityConfiguration
+        {
+            UserTypeRoles = [new RoleDefinition { RoleName = "Customer" }],
+            DefaultMasks =
+            [
+                new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" }
+            ],
+        };
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(
+            roles: ["Customer"],
+            configureServices: svc => Register(svc, config));
+
+        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+            .Add(c => c.EntityKey, "Customer")
+            .Add(c => c.ColumnKey, "SocialSecurityNumber")
+            .Add(c => c.Value, "123-45-6789")
+            .Add(c => c.ChildContent, StateProbe()));
+
+        var maskedNode = cut.Find($"[data-testid='restricted-field-masked-Customer-SocialSecurityNumber']");
+        maskedNode.TextContent.Trim().Should().Be("XXX-XX-6789");
+        cut.FindAll("[data-testid='probe']").Should().BeEmpty();
     }
 
     [Fact]

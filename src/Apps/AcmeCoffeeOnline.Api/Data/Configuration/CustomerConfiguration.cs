@@ -53,6 +53,9 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.ModifiedBy)
             .HasMaxLength(100);
 
+        builder.Property(c => c.SocialSecurityNumber)
+            .HasMaxLength(11);
+
         builder.HasMany(c => c.Orders)
             .WithOne(o => o.Customer)
             .HasForeignKey(o => o.CustomerId)
