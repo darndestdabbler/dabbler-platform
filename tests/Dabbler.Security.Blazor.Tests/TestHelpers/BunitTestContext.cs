@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Bunit;
 using Bunit.TestDoubles;
+using Dabbler.Security.Models;
 using Dabbler.Security.Options;
 using Dabbler.Security.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +47,14 @@ public static class BunitContextExtensions
         ctx.Services.AddScoped<IRoleSwitcher, SessionRoleSwitcher>();
         ctx.Services.AddSingleton<AuthorizationStateNotifier>();
         ctx.Services.AddSingleton<IFieldMaskService, FieldMaskService>();
+
+        // Sensitive-field audit pipeline: bUnit components that render
+        // MaskExemptionsSubTab inject ISensitiveAccessAuditor. Most tests
+        // care only about render shape, so a no-op auditor is the right
+        // default. Tests that need to assert audit behaviour can override
+        // via configureServices.
+        ctx.Services.AddSingleton<ISensitiveAccessAuditor, NullSensitiveAccessAuditor>();
+
         ctx.Services.Configure<DabblerSecurityOptions>(_ => { });
 
         // ── 4. Caller-specific services (mocks, DbContext, HttpClient …) ─────────────
@@ -61,4 +71,22 @@ public static class BunitContextExtensions
 
         return ctx;
     }
+}
+
+internal sealed class NullSensitiveAccessAuditor : ISensitiveAccessAuditor
+{
+    public Task AuditRoleSwitchAsync(ClaimsPrincipal user, string roleName, string? details = null, CancellationToken ct = default)
+        => Task.CompletedTask;
+
+    public Task AuditExemptionGrantedAsync(ClaimsPrincipal user, string entityKey, string columnKey, string targetRoleName, int? granterUserId, DateTimeOffset? expiresAt, string? details = null, CancellationToken ct = default)
+        => Task.CompletedTask;
+
+    public Task AuditExemptionExpiredAsync(ClaimsPrincipal user, string entityKey, string columnKey, string targetRoleName, DateTimeOffset expiresAt, CancellationToken ct = default)
+        => Task.CompletedTask;
+
+    public Task AuditFieldUnmaskedReadAsync(ClaimsPrincipal user, string entityKey, string entityId, string columnKey, CancellationToken ct = default)
+        => Task.CompletedTask;
+
+    public Task AuditAsync(AppSensitiveAccessLog row, CancellationToken ct = default)
+        => Task.CompletedTask;
 }

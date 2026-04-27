@@ -140,7 +140,22 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IFieldMaskService, FieldMaskService>();
 
         // IRoleSwitcher is scoped: per-request in Web API, per-circuit in Blazor Server.
-        services.AddScoped<IRoleSwitcher, SessionRoleSwitcher>();
+        // The decorator wraps the SessionRoleSwitcher so every SwitchToRole / ClearSwitch
+        // call emits a RoleSwitch audit row; both inner and outer share the same
+        // scope so the decorated instance is the one that gets injected everywhere
+        // IRoleSwitcher is consumed.
+        services.AddScoped<SessionRoleSwitcher>();
+        services.AddScoped<IRoleSwitcher>(sp => new AuditingRoleSwitcher(
+            sp.GetRequiredService<SessionRoleSwitcher>(),
+            sp.GetRequiredService<ISensitiveAccessAuditor>(),
+            sp));
+
+        // Per-circuit / per-request correlation scope. Session 2 ships a
+        // single-Guid placeholder; Session 3 swaps in the navigation-aware
+        // implementation without changing this DI line.
+        services.AddScoped<IRenderCorrelationScope, RenderCorrelationScope>();
+        services.AddScoped<ISensitiveAccessAuditor, SensitiveAccessAuditor>();
+
         services.AddScoped<IUserSessionContextService, UserSessionContextService>();
 
         services.AddScoped<IHashingService, HashingService>();

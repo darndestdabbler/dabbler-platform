@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "sensitive-field-masking-audit",
-  "currentSession": 1,
+  "currentSession": 2,
   "totalSessions": 5,
   "status": "complete",
-  "startedAt": "2026-04-27T11:15:24.158164-04:00",
-  "completedAt": "2026-04-27T11:32:51.827723-04:00",
+  "startedAt": "2026-04-27T11:38:40.802466-04:00",
+  "completedAt": "2026-04-27T12:01:27.552768-04:00",
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
+    "model": "claude-opus-4-7",
     "effort": "high"
   }
 }

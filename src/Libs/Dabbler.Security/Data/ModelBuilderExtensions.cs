@@ -1,4 +1,5 @@
 using Dabbler.Security.Entities;
+using Dabbler.Security.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dabbler.Security.Data;
@@ -25,6 +26,7 @@ public static class ModelBuilderExtensions
         ConfigureAppUserMfa(modelBuilder);
         ConfigureAppUserRoleAssignment(modelBuilder);
         ConfigureAppExternalLogin(modelBuilder);
+        ConfigureAppSensitiveAccessLog(modelBuilder);
     }
 
     private static void ConfigureAppUser(ModelBuilder modelBuilder)
@@ -259,6 +261,59 @@ public static class ModelBuilderExtensions
             e.HasIndex(x => new { x.Provider, x.ProviderSubjectId }).IsUnique();
             e.HasIndex(x => x.UserId);
             e.HasOne(x => x.User).WithMany(x => x.ExternalLogins).HasForeignKey(x => x.UserId);
+        });
+    }
+
+    private static void ConfigureAppSensitiveAccessLog(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AppSensitiveAccessLog>(e =>
+        {
+            // Temporal infrastructure exists for out-of-band corrections; the
+            // application code itself only ever INSERTs (write-once at the app
+            // layer). History lands in a dedicated `history` schema per the
+            // platform principle in project-guidance.md → Architecture.
+            e.ToTable("AppSensitiveAccessLog", b => b.IsTemporal(t =>
+            {
+                t.HasPeriodStart("ValidFrom");
+                t.HasPeriodEnd("ValidTo");
+                t.UseHistoryTable("AppSensitiveAccessLogHistory", "history");
+            }));
+
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Id).ValueGeneratedOnAdd();
+
+            e.Property(x => x.EventKind)
+                .HasConversion<int>()
+                .IsRequired();
+
+            e.Property(x => x.Timestamp)
+                .HasColumnType("datetime2")
+                .IsRequired();
+
+            e.Property(x => x.CorrelationId).IsRequired();
+
+            e.Property(x => x.UserId).IsRequired();
+
+            e.Property(x => x.RoleName)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            e.Property(x => x.EntityKey).HasMaxLength(200);
+            e.Property(x => x.EntityId).HasMaxLength(200);
+            e.Property(x => x.ColumnKey).HasMaxLength(200);
+            e.Property(x => x.TargetRoleName).HasMaxLength(100);
+            e.Property(x => x.Details).HasMaxLength(1024);
+
+            e.HasIndex(x => new { x.UserId, x.Timestamp })
+                .HasDatabaseName("IX_AppSensitiveAccessLog_UserId_Timestamp")
+                .IsDescending(false, true);
+
+            e.HasIndex(x => new { x.EntityKey, x.ColumnKey, x.Timestamp })
+                .HasDatabaseName("IX_AppSensitiveAccessLog_EntityKey_ColumnKey_Timestamp")
+                .IsDescending(false, false, true);
+
+            e.HasIndex(x => x.CorrelationId)
+                .HasDatabaseName("IX_AppSensitiveAccessLog_CorrelationId");
         });
     }
 

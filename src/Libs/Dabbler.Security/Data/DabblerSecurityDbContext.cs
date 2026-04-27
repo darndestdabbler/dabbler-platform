@@ -1,4 +1,5 @@
 using Dabbler.Security.Entities;
+using Dabbler.Security.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dabbler.Security.Data;
@@ -39,6 +40,8 @@ public class DabblerSecurityDbContext(DbContextOptions<DabblerSecurityDbContext>
     public DbSet<AppUserRoleAssignment> AppUserRoleAssignments => Set<AppUserRoleAssignment>();
     /// <summary>Gets or sets the <see cref="DbSet{AppExternalLogin}"/> for linking user accounts to external identity providers.</summary>
     public DbSet<AppExternalLogin> AppExternalLogins => Set<AppExternalLogin>();
+    /// <summary>Gets or sets the <see cref="DbSet{AppSensitiveAccessLog}"/> for the append-only sensitive-field interaction audit log.</summary>
+    public DbSet<AppSensitiveAccessLog> AppSensitiveAccessLogs => Set<AppSensitiveAccessLog>();
 
     /// <summary>
     /// Configures the model for this context.

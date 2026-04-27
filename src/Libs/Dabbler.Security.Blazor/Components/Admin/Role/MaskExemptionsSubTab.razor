@@ -11,6 +11,7 @@
 @inject IBakedInRoleProvider BakedInRoleProvider
 @inject AuthorizationStateNotifier Notifier
 @inject ISnackbar Snackbar
+@inject ISensitiveAccessAuditor SensitiveAccessAuditor
 @implements IDisposable
 
 <div data-testid="mask-exemptions-subtab">
@@ -179,6 +180,8 @@
     private string _granterRoleName = string.Empty;
     private string _granterUserId = string.Empty;
     private string _granterDisplayIdentifier = string.Empty;
+    private ClaimsPrincipal _granterPrincipal = new();
+    private int? _granterUserIdNumeric;
 
     private IReadOnlyList<string> _tableKeys = [];
 
@@ -229,11 +232,16 @@
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+        _granterPrincipal = user;
 
         var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
                      ?? user.FindFirst(ClaimTypes.Email)?.Value
                      ?? string.Empty;
         _granterUserId = userId;
+        _granterUserIdNumeric =
+            int.TryParse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var numericId)
+                ? numericId
+                : null;
         _granterDisplayIdentifier =
             user.FindFirst(ClaimTypes.Email)?.Value
             ?? user.Identity?.Name
@@ -295,7 +303,7 @@
 
         _authorityError = null;
 
-        ConfigManager.Current.MaskExemptions.Add(new MaskExemption
+        var newExemption = new MaskExemption
         {
             EntityKey = _newTableKey!,
             ColumnKey = _newColumnKey!,
@@ -303,9 +311,18 @@
             GrantedBy = _granterDisplayIdentifier,
             GrantedAt = DateTimeOffset.UtcNow,
             ExpiresAt = expiresAt,
-        });
+        };
+        ConfigManager.Current.MaskExemptions.Add(newExemption);
 
         await PersistAsync("Mask exemption granted.");
+        await SensitiveAccessAuditor.AuditExemptionGrantedAsync(
+            _granterPrincipal,
+            newExemption.EntityKey,
+            newExemption.ColumnKey,
+            newExemption.TargetRoleName,
+            _granterUserIdNumeric,
+            newExemption.ExpiresAt,
+            details: "grant");
 
         _newTableKey = null;
         _newColumnKey = null;
@@ -342,6 +359,14 @@
         row.GrantedBy = _granterDisplayIdentifier;
         row.GrantedAt = DateTimeOffset.UtcNow;
         await PersistAsync("Mask exemption renewed for 30 days.");
+        await SensitiveAccessAuditor.AuditExemptionGrantedAsync(
+            _granterPrincipal,
+            row.EntityKey,
+            row.ColumnKey,
+            row.TargetRoleName,
+            _granterUserIdNumeric,
+            row.ExpiresAt,
+            details: "renew");
     }
 
     private static bool IsExpired(MaskExemption exemption) =>

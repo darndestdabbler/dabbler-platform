@@ -91,6 +91,130 @@
       "description": "Fixed Minor: changed RenderMasked signature to string? maskFormat in IFieldMaskService and FieldMaskService. Added explanatory comment to RestrictedGridColumn.razor inject. Build + tests rerun: all pass.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-27T15:55:01.796230+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, and ai-led-session-workflow.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/audit-entity",
+      "dateTime": "2026-04-27T15:55:01.796230+00:00",
+      "description": "Created AppSensitiveAccessLog entity + SensitiveAccessEventKind enum in src/Libs/Dabbler.Security/Models/AppSensitiveAccessLog.cs (per spec). ValidFrom/ValidTo are shadow properties (EF requirement).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/ef-config-migration",
+      "dateTime": "2026-04-27T15:55:01.796230+00:00",
+      "description": "Added ConfigureAppSensitiveAccessLog to ModelBuilderExtensions.cs (followed existing convention rather than creating Configuration/AppSensitiveAccessLogConfiguration.cs because the Configuration/ folder is DTO-only). Generated migration 20260427154324_AddAppSensitiveAccessLog with temporal table syntax: history schema=history, history table=AppSensitiveAccessLogHistory. Indexes: (UserId, Timestamp desc), (EntityKey, ColumnKey, Timestamp desc), (CorrelationId).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/auditor-service",
+      "dateTime": "2026-04-27T15:55:01.797708+00:00",
+      "description": "Created IRenderCorrelationScope (Session 2 placeholder; full impl in Session 3) + RenderCorrelationScope. Created ISensitiveAccessAuditor with five methods: AuditRoleSwitchAsync, AuditExemptionGrantedAsync, AuditExemptionExpiredAsync, AuditFieldUnmaskedReadAsync, AuditAsync. SensitiveAccessAuditor uses IDbContextFactory for safe concurrent calls. Audit failures are logged but never bubble (best-effort per spec Risk Notes).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/role-switch-decorator",
+      "dateTime": "2026-04-27T15:55:01.797708+00:00",
+      "description": "Created AuditingRoleSwitcher wrapping SessionRoleSwitcher; DI now registers SessionRoleSwitcher concrete + AuditingRoleSwitcher as IRoleSwitcher. SwitchToRole emits switch event; ClearSwitch captures pre-clear role then emits revert event. Both emissions are fire-and-forget so calling components do not pay an EF round-trip.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/exemption-granted-hook",
+      "dateTime": "2026-04-27T15:55:01.798885+00:00",
+      "description": "Hooked ExemptionGranted in MaskExemptionsSubTab.AddAsync (details=grant) and RenewAsync (details=renew). Granter principal captured at OnInitializedAsync; granter user id parsed to int when claim is numeric.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/exemption-expired-detection",
+      "dateTime": "2026-04-27T15:55:01.799884+00:00",
+      "description": "RestrictionBinder ResolveAsync now scans configuration.MaskExemptions for matching expired rows and emits ExemptionExpired audit via injected ISensitiveAccessAuditor. Per-scope HashSet of (entity|column|target|grantedTicks|expiryTicks) ensures emission once per exemption per circuit.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/integration-tests",
+      "dateTime": "2026-04-27T15:55:01.799884+00:00",
+      "description": "Added SensitiveAccessAuditIntegrationTests in Dabbler.Security.Tests/Integration covering RoleSwitch (auditor + decorator), ExemptionGranted, ExemptionExpired (auditor direct). Added RestrictionBinderExpiredAuditTests in Dabbler.Security.Blazor.Tests/Components/Restriction covering binder per-scope dedupe and active-exemption negative case. NOTE: Spec named tests/Dabbler.Security.IntegrationTests/ \u2014 placed in existing tests/Dabbler.Security.Tests/Integration/ folder per established convention.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-27T15:55:01.799884+00:00",
+      "description": "dotnet build: 0 errors. dotnet test (excl Playwright): all green. Dabbler.Components.Tests 33, Dabbler.Reports.Blazor.Tests 16, Dabbler.Security.Blazor.Tests 188 (added 2 binder tests; updated BunitTestContext.cs to register NullSensitiveAccessAuditor since MaskExemptionsSubTab now injects ISensitiveAccessAuditor), AcmeCoffeeOnline.Api.Tests 27, Dabbler.Security.Tests 293 (added 4 integration tests), AcmeCoffeeOnline.Web.Tests 123. Total 680 passed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-27T15:59:27.636643+00:00",
+      "description": "Cross-provider verification via session-verification. Model=opus. Cost=$1.0377",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 32396,
+          "outputTokens": 7357,
+          "costUsd": 1.037715
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 11,
+      "stepKey": "session-2/fix-minor",
+      "dateTime": "2026-04-27T16:00:16.371622+00:00",
+      "description": "Verifier returned VERIFIED with 2 Minor + 1 Nitpick. Fixed Minor 1 (clarified RoleName XML doc to cover both switch and revert sub-cases). Fixed Minor 2 (added explanatory comment on the EffectiveRoles probe in AuditingRoleSwitcher.ClearSwitch documenting the SessionRoleSwitcher contract dependency). Nitpick (Models/ vs Entities/ placement) deferred \u2014 disclosed deviation per spec phrasing. Build re-run: 0 errors.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 12,
+      "stepKey": "session-2/next-session-rec",
+      "dateTime": "2026-04-27T16:01:27.550257+00:00",
+      "description": "Routed Session 3 orchestrator recommendation. Model=gemini-pro. Cost=$0.0043",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1269,
+          "outputTokens": 273,
+          "costUsd": 0.004316250000000001
+        }
+      ]
     }
   ]
 }

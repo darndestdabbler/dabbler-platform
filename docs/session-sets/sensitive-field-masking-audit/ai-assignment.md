@@ -79,3 +79,36 @@ sessions:
 3.  **Cross-Cutting Concerns:** The work involves a cross-cutting concern (auditing) implemented via a decorator pattern. This requires precise code generation for not only the decorator itself but also the DI registration. A less capable model might fail to connect these pieces correctly, leading to a non-functional implementation that is difficult to debug.
 
 4.  **Integration Testing Nuance:** Writing effective integration tests for this scenario is non-trivial. It involves setting up the database, triggering multiple distinct business events (role switch, exemption grant, exemption expiry), and asserting against the state of a temporal table over time. This complex sequence of operations benefits from the advanced reasoning and planning capabilities of a model like Opus.
+
+---
+
+## Session 2 Actuals
+
+- Orchestrator used: claude-code claude-opus-4-7 @ effort=high
+- Total routed cost (this session): $1.0420
+  - session-verification: $1.0377 (opus, VERIFIED, 2 Minor + 1 Nitpick — 2 Minors fixed inline, 1 Nitpick deferred)
+  - next-session analysis: $0.0043 (gemini-pro)
+- Deviations from recommendation: None — Opus 4.7 at high effort matched the prior session's "critical effort" recommendation
+- Notable: EF tooling required temporal period columns to be shadow properties; initial entity declared them as real properties and the migration generation failed clearly. Removed and re-ran successfully. Migration shape matches spec (history schema + indexes correct).
+
+**Next-session recommendation (Session 3):**
+
+### Recommendation
+
+```yaml
+orchestrator:
+  engine: claude-code
+  model: claude-opus-4-7
+  effort: high
+```
+
+### Reasoning
+
+-   **Blazor Lifecycle Nuance:** The core task involves a Blazor scoped service (`IRenderCorrelationScope`) tied to the circuit start and navigation events, a state management pattern that benefits from a model with a deep understanding of the framework's lifecycle.
+-   **Complex Integration Testing:** Session 3 requires non-trivial, state-dependent integration tests to verify the batching logic across renders and navigations, a task where this model proved highly effective in the prior session.
+-   **Cross-Cutting Implementation:** The work spans and modifies multiple existing layers (components, service interfaces, DI), requiring the holistic context retention and reasoning capabilities of a top-tier model to ensure consistency.
+-   **Proven Track Record:** The chosen orchestrator delivered high-quality, nearly-correct output for the comparable complexity of Session 2, indicating it is the lowest-risk, highest-probability-of-success option for this session.
+
+### Estimated Routed Cost
+
+**Moderate.** The session involves complex logic and stateful integration tests which typically incur higher token usage for both generation and verification compared to simpler CRUD or model-only tasks.

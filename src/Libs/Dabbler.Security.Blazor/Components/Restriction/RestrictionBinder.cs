@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using Dabbler.Security.Authorization;
 using Dabbler.Security.Configuration;
@@ -19,20 +20,39 @@ public sealed class RestrictionBinder : IRestrictionBinder
     private readonly AuthenticationStateProvider _authStateProvider;
     private readonly IRoleSwitcher _roleSwitcher;
     private readonly IBakedInRoleProvider _bakedInRoleProvider;
+    private readonly ISensitiveAccessAuditor? _auditor;
+
+    // Per-scope set of exemption keys that have already produced an
+    // ExemptionExpired audit row. Resolves are cheap and high-frequency
+    // (a 50-row grid with 3 sensitive columns invokes them 150x per render);
+    // this set caps emission at one row per (entity, column, role, expiry)
+    // per scope, per the spec's "once per exemption" rule.
+    private readonly HashSet<string> _emittedExpiredExemptionKeys = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Initializes a new <see cref="RestrictionBinder"/>.
     /// </summary>
+    /// <param name="configManager">The security configuration manager.</param>
+    /// <param name="authStateProvider">The authentication state provider.</param>
+    /// <param name="roleSwitcher">The active role switcher.</param>
+    /// <param name="bakedInRoleProvider">The baked-in role provider.</param>
+    /// <param name="auditor">
+    /// Optional auditor for emitting <c>ExemptionExpired</c> rows when an
+    /// otherwise-applicable exemption is past its expiry. Tests that do not
+    /// care about audit emission may omit it.
+    /// </param>
     public RestrictionBinder(
         SecurityConfigurationManager configManager,
         AuthenticationStateProvider authStateProvider,
         IRoleSwitcher roleSwitcher,
-        IBakedInRoleProvider bakedInRoleProvider)
+        IBakedInRoleProvider bakedInRoleProvider,
+        ISensitiveAccessAuditor? auditor = null)
     {
         _configManager = configManager;
         _authStateProvider = authStateProvider;
         _roleSwitcher = roleSwitcher;
         _bakedInRoleProvider = bakedInRoleProvider;
+        _auditor = auditor;
     }
 
     /// <inheritdoc />
@@ -48,7 +68,51 @@ public sealed class RestrictionBinder : IRestrictionBinder
             return RestrictionResolution.Unrestricted(entityKey, columnKey);
 
         var effectiveRoles = _roleSwitcher.EffectiveRoles(user).ToList();
-        return Resolve(entityKey, columnKey, config, effectiveRoles);
+        var evaluatedAt = DateTimeOffset.UtcNow;
+
+        await EmitExpiredExemptionAuditsAsync(user, entityKey, columnKey, config, effectiveRoles, evaluatedAt);
+
+        return Resolve(entityKey, columnKey, config, effectiveRoles, evaluatedAt);
+    }
+
+    private async Task EmitExpiredExemptionAuditsAsync(
+        ClaimsPrincipal user,
+        string entityKey,
+        string columnKey,
+        SecurityConfiguration configuration,
+        IReadOnlyList<string> effectiveRoles,
+        DateTimeOffset evaluatedAt)
+    {
+        if (_auditor is null) return;
+        if (effectiveRoles.Count == 0) return;
+
+        foreach (var roleName in effectiveRoles)
+        {
+            foreach (var exemption in configuration.MaskExemptions)
+            {
+                if (!string.Equals(exemption.EntityKey, entityKey, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (!string.Equals(exemption.ColumnKey, columnKey, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (!string.Equals(exemption.TargetRoleName, roleName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (exemption.ExpiresAt is not { } expiry || expiry > evaluatedAt)
+                    continue;
+
+                var key = string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"{exemption.EntityKey}|{exemption.ColumnKey}|{exemption.TargetRoleName}|{exemption.GrantedAt.UtcTicks}|{expiry.UtcTicks}");
+                if (!_emittedExpiredExemptionKeys.Add(key))
+                    continue;
+
+                await _auditor.AuditExemptionExpiredAsync(
+                    user,
+                    exemption.EntityKey,
+                    exemption.ColumnKey,
+                    exemption.TargetRoleName,
+                    expiry);
+            }
+        }
     }
 
     /// <inheritdoc />
