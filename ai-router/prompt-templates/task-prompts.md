@@ -131,10 +131,12 @@ and follows the UAT/E2E DSL convention defined in
 
 1. **Schema conformance** — root must use `ProjectName` and `Review` (singular, array).
    Each Review item requires `FunctionalArea`, `Subarea`, `ItemLabel`. Each item also
-   carries an `Id` (GUID, required for E2E pairing — generate with `uuid.uuid4()`).
-   Each step uses `StepNumber` (integer) and `Action` (string). Verifications are
-   objects with `Text` (not plain strings). `additionalProperties: false` at every
-   nesting level — no extra fields.
+   sets `E2ETestReference` (form: `Class.Method` or `Namespace.Class.Method`) — this
+   is the pairing mechanism between the UAT item and its Playwright test method.
+   Each step uses `StepNumber` (integer, sequential 1..N) and `Action` (string).
+   Verifications are objects with `Text` (not plain strings). `additionalProperties:
+   false` at every nesting level — no extra fields. Do NOT include `Id` (not in the
+   schema).
 
 2. **DSL conformance for every step `Action`.** Use exactly one verb from this
    closed list (parameters in `<...>`, optional scope in `[in <scope>]`):
@@ -183,33 +185,30 @@ Output ONLY valid JSON. No markdown fences. No explanatory prose before or after
 
 ## UAT Coverage Review Task
 
-Pair every UAT checklist Review item to its E2E test method using the GUID +
-step-number convention defined in `docs/planning/project-guidance.md` → Conventions
-→ Human UAT And Checklist Editor. Return VERIFIED only when every check below passes.
+Pair every UAT checklist Review item to its E2E test method using the
+`E2ETestReference` + `// begin STEP NNN` convention defined in
+`docs/planning/project-guidance.md` → Conventions → Human UAT And Checklist
+Editor. Return VERIFIED only when every check below passes.
 
 ### Pairing protocol
 
-1. **GUID match.** Each Review item has an `Id` (GUID) — fall back to
-   `TestData._uatItemId` if `Id` is absent. The matching E2E test method's
-   header `<summary>` comment contains a line `UAT Item Id: <guid>` whose
-   value equals the Review item's `Id`. Reject any Review item with no
-   matching method.
+1. **Method existence.** The Review item's `E2ETestReference` value
+   (form: `Class.Method` or `Namespace.Class.Method`) resolves to an actual
+   `[Fact]` or `[Theory]` method in the Playwright test file shown in
+   `{context}`. Reject any non-judgment Review item with no method match.
 
-2. **Method existence.** The `E2ETestReference` value (form: `Class.Method`)
-   resolves to an actual `[Fact]` or `[Theory]` method in the Playwright test
-   file shown in `{context}`.
+2. **Step-block walk.** Inside the matching method body, `// begin STEP NNN`
+   comments (zero-padded to three digits) delimit step blocks. The step
+   numbers and order match the Review item's `Steps[].StepNumber`. Each
+   numbered UAT step pairs to exactly one E2E step block. Mismatched count
+   or out-of-order numbering is a failure.
 
-3. **Step-block walk.** Inside the matching method body, `// begin STEP NNN`
-   comments delimit step blocks. The step numbers and order match the Review
-   item's `Steps[].StepNumber`. Each numbered UAT step pairs to exactly one
-   E2E step block.
-
-4. **DSL conformance check (UAT side).** Every Review step's `Action` text
+3. **DSL conformance check (UAT side).** Every Review step's `Action` text
    must parse as exactly one verb from the DSL closed list. Reject steps
    that use locators by testid/xpath/index, refer to row index instead of
    column-value match, or compose multiple actions into one step.
 
-5. **DSL conformance check (E2E side).** The Playwright code inside each
+4. **DSL conformance check (E2E side).** The Playwright code inside each
    `// begin STEP NNN` block must be implementable through user-visible
    locators (`page.GetByLabel`, `page.GetByRole`, `page.GetByText`, etc.).
    Reject any block that uses `page.GetByTestId`, raw selectors, framework
@@ -217,15 +216,16 @@ step-number convention defined in `docs/planning/project-guidance.md` → Conven
    file edits) when the step is something a human is also expected to
    perform.
 
-6. **Per-step reachability cross-verify.** For every numbered step, confirm
+5. **Per-step reachability cross-verify.** For every numbered step, confirm
    both (a) a real human in a browser can perform the step using only the
    visible surfaces named in the DSL, and (b) the E2E code in the matching
    step block performs the same action through the same visible surfaces.
    If either side cannot, return ISSUES_FOUND.
 
-7. **Judgment items.** Items with `IsJudgmentItem: true` are exempt from the
+6. **Judgment items.** Items with `IsJudgmentItem: true` are exempt from the
    step-by-step DSL match but still require a populated `Feedback` line
-   ("Judgment item — <rationale>") and a valid GUID-paired method.
+   ("Judgment item — <rationale>") and a valid `E2ETestReference` resolving
+   to a method that drives the UI to the state the human will judge.
 
 ### Bias
 
@@ -251,8 +251,8 @@ OR
 
   ISSUES_FOUND
 
-  - Item `<UAT Id or Subarea>` step `<N>`: `<specific failure>`
+  - Item `<Subarea / ItemLabel>` step `<N>`: `<specific failure>`
   - ...
 
 with one bullet per failed step or pairing, and the specific protocol number
-(1–7) the failure violates.
+(1–6) the failure violates.

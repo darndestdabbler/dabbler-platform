@@ -82,12 +82,15 @@ these surfaces and writes up a disposition.
   `docs/planning/project-guidance.md` → Human UAT And Checklist
   Editor. Every step in the checklist is one primitive verb from the
   closed DSL verb list, parameterised by visible labels and visible
-  text only. Every Review item carries an `Id` (GUID) and its E2E
-  method has a header `UAT Item Id: <guid>` comment plus
-  `// begin STEP NNN` block delimiters. The `uat-coverage-review`
+  text only. Every Review item names its E2E test method via
+  `E2ETestReference` (form: `Class.Method` or
+  `Namespace.Class.Method`); the matching method body uses
+  `// begin STEP NNN` comments (zero-padded to three digits) to
+  delimit each step's code, with identical numbering and order to
+  the UAT item's `Steps[].StepNumber`. The `uat-coverage-review`
   call uses the canonical prompt template shipped in
-  `ai-router/prompt-templates/task-prompts.md` (which already
-  enforces per-step reachability + DSL conformance + GUID pairing).
+  `ai-router/prompt-templates/task-prompts.md` (which enforces
+  per-step reachability + DSL conformance + step-block pairing).
 
 ---
 
@@ -115,12 +118,13 @@ role-switch flow that the human can also perform.
    bug inline (the role assignment is correct; the switcher's
    `_allowedSwitchRoles` filter or DI wiring is wrong).
 4. Rewrite `tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatCoverageTests.cs`
-   so each [Fact] corresponds to one UAT Review item with a
-   header `<summary>` block declaring `UAT Item Id: <guid>` and
-   `// begin STEP NNN` comments delimiting each step block. Each
-   step block uses the DSL (visible-label locators only — no
-   `GetByTestId`, no row indices, no framework backdoors). The
-   real-login path is:
+   so each [Fact] corresponds to one UAT Review item. The matching
+   Review item names the method via `E2ETestReference`. The method
+   body uses `// begin STEP NNN` comments (zero-padded to three
+   digits) to delimit each step block, with identical numbering and
+   order to the UAT item's `Steps[].StepNumber`. Each step block
+   uses the DSL (visible-label locators only — no `GetByTestId`, no
+   row indices, no framework backdoors). The real-login path is:
    - Magic-link login through `/login` → `/dev/email-inbox` →
      follow the magic-link href (the canonical pattern from
      `SecurityDashboardUatFollowupCoverageTests`), OR

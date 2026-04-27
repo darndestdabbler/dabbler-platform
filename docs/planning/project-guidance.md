@@ -493,46 +493,47 @@ before proceeding.
     committed in the same patch as the new verb's first use, with
     a real session-set example. No speculative verbs.
 
-- **GUID + step-number alignment between UAT and E2E.** The
+- **Step-block alignment between UAT and E2E.** The
   `uat-coverage-review` gate must mechanically pair UAT steps to
   E2E steps. The pairing scheme:
-  - **Each UAT Review item carries a stable GUID** in its `Id`
-    property (added to the `darndestdabbler/uat-checklist-editor`
-    schema in 2026-04-27 — the editor displays the field above the
-    Navigation panel). Authors generate the GUID at item-creation
-    time and never edit it after. Until any environment with a
-    cached older schema catches up, fall back to
-    `TestData._uatItemId` (the schema permits `additionalProperties`
-    there).
+  - **Each UAT Review item names its E2E test method** in the
+    existing `E2ETestReference` property (form: `Class.Method` or
+    fully-qualified `Namespace.Class.Method`). The verifier resolves
+    that reference to a real `[Fact]` (or `[Theory]`) method in the
+    Playwright source. Reject any non-judgment Review item with no
+    method match.
   - **Each step within an item is numbered** 1, 2, 3, ... via the
-    existing `StepNumber` property.
-  - **The matching E2E test method has a header comment declaring
-    the GUID:**
-
-    ```csharp
-    /// <summary>
-    /// UAT Item Id: 8b6f4d2a-6e91-4b3f-9a4d-2e7c5d1f3b8e
-    /// </summary>
-    [Fact]
-    public async Task SomeName_DescriptiveAsync() { ... }
-    ```
-
+    existing `StepNumber` property. Step numbers are zero-padded to
+    three digits when referenced from E2E code (`STEP 001`,
+    `STEP 002`, ..., `STEP 042`).
   - **Inside the method body, `// begin STEP NNN` comments delimit
-    each step's code**, identical numbering and order to the UAT
-    item:
+    each step's code**, with identical numbering and order to the
+    UAT item's `Steps[].StepNumber`. The comment is the alignment
+    marker — the verifier walks both files and pairs comment-to-step
+    on N. Mismatched count or out-of-order numbering is `ISSUES_FOUND`.
 
     ```csharp
-    // begin STEP 001
-    await page.GotoAsync("http://localhost:5020/login");
-    // begin STEP 002
-    await page.GetByLabel("Email").FillAsync("admin@acmecoffee.com");
+    [Fact]
+    public async Task SomeName_DescriptiveAsync()
+    {
+        // begin STEP 001
+        await page.GotoAsync("http://localhost:5020/login");
+
+        // begin STEP 002
+        await page.GetByLabel("Email").FillAsync("admin@acmecoffee.com");
+
+        // begin STEP 003
+        await page.GetByRole(AriaRole.Button,
+            new() { Name = "Send sign-in code" }).ClickAsync();
+        // ...
+    }
     ```
 
-  - **The verifier walks GUID → method match → step-block pairing**
-    and flags any DSL violation (testid locator, row index,
-    framework backdoor on a human-equivalent step) as
-    `ISSUES_FOUND`. The `uat-coverage-review` prompt template is
-    updated to drive this pairing mechanically.
+  - **The verifier walks `E2ETestReference` → method match →
+    step-block pairing** and flags any DSL violation (testid locator,
+    row index, framework backdoor on a human-equivalent step) as
+    `ISSUES_FOUND`. The `uat-coverage-review` prompt template drives
+    this pairing mechanically.
 
 - **MANDATORY: validate the generated checklist against the canonical schema
   before committing.** The schema lives at
@@ -546,12 +547,13 @@ before proceeding.
     `Reviews` (plural) — these are not in the schema and the editor rejects
     files that contain them.
   - Each `Review[i]` item requires `FunctionalArea`, `Subarea`, `ItemLabel`.
-    The schema also accepts `Id` (GUID, added 2026-04-27 to enable mechanical
-    UAT↔E2E pairing — see the GUID + step-number alignment convention),
-    `HumanAction`, `Expectation`, `Steps`, `TestData`, `E2ETestReference`,
-    `IsJudgmentItem`, `Passes`, `Feedback`, `IsOtherItem`.
-    **Do NOT use** `Title` or `JudgmentJustification` — not in the schema.
-    A judgment-item rationale belongs in `Feedback` (e.g.,
+    The schema also accepts `HumanAction`, `Expectation`, `Steps`, `TestData`,
+    `E2ETestReference`, `IsJudgmentItem`, `Passes`, `Feedback`, `IsOtherItem`.
+    **Do NOT use** `Id`, `Title`, or `JudgmentJustification` — not in the
+    schema. UAT↔E2E pairing uses `E2ETestReference` (resolves to the
+    matching `[Fact]` method) plus `// begin STEP NNN` comment markers in
+    the method body — see the Step-block alignment convention. A
+    judgment-item rationale belongs in `Feedback` (e.g.,
     `"Feedback": "Judgment item — <rationale>"`).
   - Each `Steps[j]` item requires `StepNumber` (integer) and `Action` (string).
     Optional `Verifications` is an array of **objects** each with a `Text`
