@@ -254,6 +254,110 @@
       "description": "Committed sibling repo session work at ff5646a297985f176da98c71656f7137b907a9cc; platform repo commit will capture workflow artifacts and ledger updates.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-28T09:33:41.073702+00:00",
+      "description": "Read project-guidance, lessons-learned, session-set-authoring-guide; skim Session 2 review for AST shape",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/schema",
+      "dateTime": "2026-04-28T09:33:41.074219+00:00",
+      "description": "Authored schema/component-catalog.json (Draft 2020-12) covering required entries, optional generatedAt/appName/schemaVersion, element record with routePath/role/elementRole closed enum/userVisibleLabel/ariaLabel/testId/htmlTag/scope and anyOf userVisibleLabel-or-ariaLabel constraint via routed architecture",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "architecture",
+          "inputTokens": 870,
+          "outputTokens": 3007,
+          "costUsd": 0.2386
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/catalog-adapter",
+      "dateTime": "2026-04-28T09:39:29.218465+00:00",
+      "description": "Implemented Catalog/CatalogEntry record, ICatalogAdapter interface, JsonCatalogAdapter with Lazy<>-loaded index, FromJson factory, '*' any-role wildcard support, Lookup + EntriesFor",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/validator",
+      "dateTime": "2026-04-28T09:39:29.234368+00:00",
+      "description": "Implemented Validation/ValidationError record + ValidationErrorKind enum (UnknownRoute, UnknownLabel, ElementTypeMismatch, AmbiguousLabel, MissingRouteContext); SemanticValidator that walks AST, tracks currentRoute via NavigateStep, probes (route,role,elementRole,label) per verb, reports ElementTypeMismatch when label exists with different role, returns UnknownLabel with Levenshtein-based near-match suggestions",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/validator-tests",
+      "dateTime": "2026-04-28T09:39:29.234368+00:00",
+      "description": "Authored SemanticValidatorTests.cs: 5 JsonCatalogAdapter tests + 8 SemanticValidator scenarios (valid pass, near-match suggestion, element-type drift, route inference happy + failure with correct StepIndex, missing route context, unknown route, null active role defaults to '*' wildcard) via routed test-generation; cleaned markdown fences and adjusted parser API call",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 7616,
+          "outputTokens": 2623,
+          "costUsd": 0.0358
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/test-pass",
+      "dateTime": "2026-04-28T09:39:29.234368+00:00",
+      "description": "dotnet build clean (0 warn 0 err); dotnet test 136 passed / 0 failed (123 prior + 13 new)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-28T09:42:18.687312+00:00",
+      "description": "Cross-provider session-verification routed to opus; review saved",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 15159,
+          "outputTokens": 6880,
+          "costUsd": 0.743385
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification-round2",
+      "dateTime": "2026-04-28T09:46:39.672468+00:00",
+      "description": "Round-2 cross-provider session-verification (post-fix); review saved",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 15177,
+          "outputTokens": 4234,
+          "costUsd": 0.5452049999999999
+        }
+      ]
     }
   ]
 }

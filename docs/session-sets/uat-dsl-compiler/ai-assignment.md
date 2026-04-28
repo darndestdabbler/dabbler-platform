@@ -97,21 +97,27 @@ High
 | 6 | Commits | Direct |
 
 ### Actuals (filled after the session)
-- Orchestrator used: <pending>
-- Total routed cost: <pending>
-- Deviations from recommendation: <pending>
-- Notes for next-session calibration: <pending>
+- Orchestrator used: claude-code (Claude Opus 4.7 1M, effort=high) — matched recommendation
+- Total routed cost: $1.5630 (architecture $0.2386 + test-generation $0.0358 + session-verification round 1 $0.7434 + session-verification round 2 $0.5452)
+- Deviations from recommendation: none on engine. Verification needed two rounds: round 1 returned ISSUES_FOUND with two Minor items (dead `labelIndex` in `JsonCatalogAdapter.BuildIndex`; `SemanticValidator` referenced concrete `JsonCatalogAdapter.AnyRole`). Both fixed mechanically — labelIndex removed, `CatalogRoles.AnyRole` const introduced in `ICatalogAdapter.cs` and referenced from both adapter and validator. Round 2 returned VERIFIED with no new issues.
+- Notes for next-session calibration:
+  - Session-verification routed to Opus (Anthropic) on both rounds, even though the orchestrator was also Anthropic (Claude). The lesson "Cross-Provider Verification Must Exclude The Orchestrator's Provider, Not Just The Generator's" (lessons-learned.md ~L1513) is not yet enforced when GPT-5.4 (the cross-provider preference) is unavailable. Carry forward as a router-config follow-up: when OpenAI is the only different-provider option and is rate-limited, the router should escalate-and-retry rather than fall back to the orchestrator's own provider, OR document an accepted exception. For Session 4 with Codex (OpenAI) as orchestrator, the verifier should land on Anthropic naturally and avoid this issue.
+  - Test-generation output came back wrapped in ```csharp ... ``` fences and used a non-existent `.Steps` accessor on `UatChecklistParser.Parse`. Both fixed mechanically before build. The "no markdown fences" wording in the test-generation prompt template is worth tightening, and the prompt should pass the parser facade signature rather than relying on the generator's prior knowledge.
+  - Architecture-routed schema generation returned a minified single-line JSON document; pretty-printed in-place after writing. Future architecture calls that produce JSON should ask for indented output explicitly.
+  - The two Minor verification fixes were code-level mechanical edits; both rounds of session-verification together cost more than the entire implementation, which is the expected shape for a one-or-two-Minor-issues pass.
 
-**Next-session orchestrator recommendation (Session 4): authored at end of Session 3.**
+**Next-session orchestrator recommendation (Session 4):**
+codex GPT-5 @ effort=medium
+Rationale: The session's most complex work (PlaywrightCSharpEmitter implementation) is a direct, mechanical mapping from AST nodes to Playwright C# call shapes — well-suited to Codex's C# strength. Routing the verification to a non-OpenAI provider (e.g. Anthropic Opus) keeps the cross-provider check honest. Routed analysis (gemini-pro, $0.0023) returned the same engine + effort recommendation; model-id substituted to GPT-5 to match this repo's Codex orchestrator target.
 
 ---
 ## Session 4: Playwright C# emitter
 
 ### Recommended orchestrator
-Claude Code @ effort=high
+Codex GPT-5 @ effort=medium  *(superseded the Session-1 placeholder of "Claude Code @ effort=high"; updated end of Session 3 via routed analysis)*
 
 ### Rationale
-Code generation is a reasoning-intensive task requiring deep understanding of both the source AST and the target Playwright C# API. Ensuring the output is valid and correct necessitates a frontier model.
+Per Session-3-end routed analysis: the emitter implementation is a mechanical AST-to-Playwright-call mapping that fits Codex's C# strength; the routed `architecture` call for the fixture interface and the routed `test-generation` call for emitter tests both use cheaper tier-2 models, so a frontier orchestrator is overkill. Cross-provider verification will land on an Anthropic model naturally, avoiding the verifier-on-same-provider snag observed in Session 3.
 
 ### Estimated routed cost
 High

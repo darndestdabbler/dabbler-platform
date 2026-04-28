@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "uat-dsl-compiler",
-  "currentSession": 2,
+  "currentSession": 3,
   "totalSessions": 5,
   "status": "complete",
-  "startedAt": "2026-04-28T04:30:49.935765-04:00",
-  "completedAt": "2026-04-28T04:44:09.369952-04:00",
+  "startedAt": "2026-04-28T05:31:31.105216-04:00",
+  "completedAt": "2026-04-28T05:49:14.471061-04:00",
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
-    "engine": "codex",
-    "provider": "openai",
-    "model": "gpt-5",
-    "effort": "medium"
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-opus-4-7",
+    "effort": "high"
   }
 }
