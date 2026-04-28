@@ -132,12 +132,14 @@ High
 | 6 | Commits | Direct |
 
 ### Actuals (filled after the session)
-- Orchestrator used: <pending>
-- Total routed cost: <pending>
-- Deviations from recommendation: <pending>
-- Notes for next-session calibration: <pending>
+- Orchestrator used: claude-code (Claude Sonnet 4.6, effort=high) — human ran Claude again (recommendation was Codex GPT-5 @ effort=medium)
+- Total routed cost: $0.086 (test-generation $0.049 + session-verification round 1 $0.022 + round 2 $0.015)
+- Deviations from recommendation: orchestrator was Sonnet, not Codex. Two Major issues found in round-1 verification and fixed before round-2 VERIFIED: (1) VerifyTextMatchesStep emitted ToMatchAriaSnapshotAsync instead of ToHaveTextAsync(new Regex(...)); (2) the matching test asserted the wrong call. Row-filter fix also applied (removed Regex.Escape, Playwright Name= does substring not regex).
+- Notes for next-session calibration: Verification cost was very low ($0.037 total across both rounds) because Gemini Pro was selected — the session had no same-provider fallback issue this time. Test-generation output was clean with one runtime fix needed (Regex.Escape) caught at dotnet test rather than verification.
 
-**Next-session orchestrator recommendation (Session 5): authored at end of Session 4.**
+**Next-session orchestrator recommendation (Session 5):**
+`claude-code` `claude-haiku-4-5` @ effort=`high`
+Rationale (routed via gemini-pro analysis): Session 5 tasks are primarily mechanical boilerplate, packaging, and documentation, making a fast and cost-effective model the optimal choice to minimize expense on this final integration session.
 
 ---
 ## Session 5: CLI, packaging, dabbler-platform integration, change log, Step 9 reorg

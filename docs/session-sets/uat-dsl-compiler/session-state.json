@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "uat-dsl-compiler",
-  "currentSession": 3,
+  "currentSession": 4,
   "totalSessions": 5,
   "status": "complete",
-  "startedAt": "2026-04-28T05:31:31.105216-04:00",
-  "completedAt": "2026-04-28T05:49:14.471061-04:00",
+  "startedAt": "2026-04-28T05:54:00.561640-04:00",
+  "completedAt": "2026-04-28T06:02:38.786825-04:00",
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-opus-4-7",
+    "model": "claude-sonnet-4-6",
     "effort": "high"
   }
 }

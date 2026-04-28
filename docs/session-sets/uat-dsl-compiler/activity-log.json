@@ -358,6 +358,120 @@
           "costUsd": 0.5452049999999999
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, workflow doc, spec/state, session-3 review",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/emitter-project",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Created Dabbler.Uat.Dsl.Emitters.Playwright.CSharp class library + xUnit test project; added both to DabblerUatDsl.slnx; added Microsoft.Playwright 1.51.0 and Core project refs; added Microsoft.CodeAnalysis.CSharp 4.13.0 + emitter project ref to test project",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/fixture-interface",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Defined IPlaywrightUatFixture in emitter project: WaitForQuietAsync, WaitForReadyAsync, SeededSignInAsync",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/emitter-interface",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Defined IUatChecklistEmitter<TOutput> + EmitOptions record in Dabbler.Uat.Dsl.Core/Emitters/",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/emitter-impl",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Implemented PlaywrightCSharpEmitter: 28 AST node types mapped to Playwright C# calls; WatermarkWaits toggle appends fixture.WaitForQuietAsync after state-changing verbs; VerifyFreeFormStep emits // PENDING comment; BuildRowFilter joins visible values with space",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/verb-tests",
+      "dateTime": "2026-04-28T09:59:11.989706+00:00",
+      "description": "Routed test-generation to Gemini Pro (0.048 USD); produced EmitterTests.cs with 33 tests covering all 28+ AST node types; watermark toggle; scoped-button; Roslyn compile gate. Fixed 4 row-filter tests by removing Regex.Escape from BuildRowFilter.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 6500,
+          "outputTokens": 3800,
+          "costUsd": 0.048545
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/roslyn-compile-test",
+      "dateTime": "2026-04-28T09:59:11.989706+00:00",
+      "description": "Roslyn compile gate included in EmitterTests.cs: Emitter_Output_IsRoslynParseable parses emitted C# and asserts zero diagnostic errors",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/test-pass",
+      "dateTime": "2026-04-28T09:59:11.989706+00:00",
+      "description": "dotnet test green: 169 passed (136 prior Core tests + 33 new emitter tests), 0 failed",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-28T10:00:09.395270+00:00",
+      "description": "Cross-provider session-verification routed; review saved. Model: gemini-pro",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 8530,
+          "outputTokens": 1126,
+          "costUsd": 0.021922499999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/verification-round2",
+      "dateTime": "2026-04-28T10:01:08.862863+00:00",
+      "description": "Round-2 cross-provider verification post-fix. Model: gemini-pro",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 8083,
+          "outputTokens": 533,
+          "costUsd": 0.01543375
+        }
+      ]
     }
   ]
 }
