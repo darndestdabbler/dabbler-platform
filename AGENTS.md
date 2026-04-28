@@ -130,3 +130,13 @@ images instead of orphaning dangling layers. Playwright is intentionally
 
 Code style conventions (namespaces, casing, nullable, `Async` suffix) live in
 `docs/planning/project-guidance.md` -> Conventions -> Code Style.
+
+If a file-system operation (typically `mv`, `rm -rf`, or `git worktree
+remove`) fails with a Windows file-lock error, run `python -m
+ai_router.utils cleanup-dev-orphans` first -- it shuts down dotnet
+build servers, kills stale Claude Code background polling loops, and
+clears orphan `conhost.exe`. Pass `--match-path dabbler-platform` to
+scope the polling-loop kill to this repo only. Each category is also
+runnable on its own (`kill-dotnet-build-servers`,
+`kill-stale-claude-polls`, `kill-conhost`). Source lives at
+`ai-router/utils.py` Section 5.
