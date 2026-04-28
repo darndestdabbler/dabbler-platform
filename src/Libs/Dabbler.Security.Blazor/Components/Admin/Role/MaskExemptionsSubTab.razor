@@ -248,6 +248,32 @@
             ?? userId;
 
         var effectiveRoles = RoleSwitcher.EffectiveRoles(user).ToList();
+
+        // Prefer the highest-privilege baked-in role the user holds, since
+        // MaskExemptionAuthority gates by role and a user may carry several
+        // baked-in roles simultaneously. Without this precedence, a user
+        // who carries SystemAdmin + CrossOrgMonitor could resolve to
+        // CrossOrgMonitor first and be denied authority for grants they
+        // are actually allowed to make under SystemAdmin.
+        var precedence = new[]
+        {
+            BakedInRoles.SystemAdmin,
+            BakedInRoles.CrossOrgUserAdmin,
+            BakedInRoles.CrossOrgMonitor,
+            BakedInRoles.UserAdmin,
+            BakedInRoles.User,
+        };
+        foreach (var preferred in precedence)
+        {
+            if (effectiveRoles.Any(r => string.Equals(r, preferred, StringComparison.OrdinalIgnoreCase)))
+            {
+                _granterRoleName = preferred;
+                return;
+            }
+        }
+
+        // Fallback: any baked-in role registered by the host that isn't in the
+        // platform precedence list above.
         foreach (var roleName in effectiveRoles)
         {
             var bakedIn = BakedInRoleProvider.TryGetBakedInRole(roleName);

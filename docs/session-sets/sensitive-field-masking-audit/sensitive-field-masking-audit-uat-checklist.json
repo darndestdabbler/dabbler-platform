@@ -1,405 +1,483 @@
 {
-  "ProjectName": "AcmeCoffeeOnline — Sensitive-Field Masking and Audit",
-  "ReleaseLabel": "Set D — sensitive-field-masking-audit (Sessions 1–5)",
+  "ProjectName": "Sensitive Field Masking and Audit (Remediated UAT)",
   "Review": [
     {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-1",
-      "ItemLabel": "SSN renders masked for a user-type role with no exemption",
-      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
-      "IsJudgmentItem": false,
-      "Passes": false,
-      "Feedback": "For some reason, I cannot change the role of admin@acmecoffee.com to BackofficeUser.  It shows as a constant in the app bar.\n\nI don't see any masks for Social Security Number. ",
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Default Mask Rendering",
+      "ItemLabel": "UAT-1: BackofficeUser sees the SSN masked when no exemption is active",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv1_BackofficeUserSeesMaskedSsnAsync",
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as admin@acmecoffee.com with role BackofficeUser."
+          "Action": "NAVIGATE TO http://localhost:5010/login",
+          "Verifications": [ { "Text": "VERIFY the login page is visible" } ]
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to the customer detail page for the first customer (URL: /customers/{id}, where id is the first customer by DB ID — the one seeded with SocialSecurityNumber \"123-45-6789\")."
+          "Action": "CLICK INPUT with label \"Email\" and enter \"admin@acmecoffee.com\""
         },
         {
           "StepNumber": 3,
-          "Action": "Verify the SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible on the customer detail page.",
-          "Verifications": [
-            {
-              "Text": "The SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible."
-            }
-          ]
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
         },
         {
           "StepNumber": 4,
-          "Action": "Verify the masked span (data-testid=\"restricted-field-masked-Customer-SocialSecurityNumber\") is visible and its text starts with \"XXX-XX-\" (the configured mask format).",
-          "Verifications": [
-            {
-              "Text": "The masked span (data-testid=\"restricted-field-masked-Customer-SocialSecurityNumber\") is visible."
-            },
-            {
-              "Text": "The masked span text contains \"XXX-XX-\" (the mask format prefix from the DefaultMaskRule \"XXX-XX-{last4}\")."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-2",
-      "ItemLabel": "SystemAdmin grants a mask exemption for the BackofficeUser role on Customer.SocialSecurityNumber",
-      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
-      "IsJudgmentItem": false,
-      "Passes": true,
-      "Feedback": "",
-      "Steps": [
-        {
-          "StepNumber": 1,
-          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin."
-        },
-        {
-          "StepNumber": 2,
-          "Action": "Navigate to the Security Dashboard (URL: /admin/security)."
-        },
-        {
-          "StepNumber": 3,
-          "Action": "Click the \"Role Master Details\" tab.",
-          "Verifications": [
-            {
-              "Text": "The role master grid (data-testid=\"role-master-grid\") is visible."
-            }
-          ]
-        },
-        {
-          "StepNumber": 4,
-          "Action": "Click the row for the \"BackofficeUser\" role in the role master grid.",
-          "Verifications": [
-            {
-              "Text": "The role row (data-testid=\"role-row-BackofficeUser\") is visible."
-            },
-            {
-              "Text": "The role details section (data-testid=\"role-details-section\") is visible after clicking."
-            }
-          ]
+          "Action": "WAIT FOR the page to display the text \"We sent a sign-in code to\""
         },
         {
           "StepNumber": 5,
-          "Action": "Click the \"Mask Exemptions\" sub-tab in the role details section.",
-          "Verifications": [
-            {
-              "Text": "The mask exemptions sub-tab container (data-testid=\"mask-exemptions-subtab\") is visible."
-            }
-          ]
+          "Action": "NAVIGATE TO http://localhost:5010/dev/email-inbox in a second browser tab"
         },
         {
           "StepNumber": 6,
-          "Action": "Click the Table dropdown (data-testid=\"mask-exemption-new-table\") and select \"Customer\"."
+          "Action": "WAIT FOR the most-recent email row's Link cell to contain an anchor whose href matches /login?token="
         },
         {
           "StepNumber": 7,
-          "Action": "Wait for the Column dropdown (data-testid=\"mask-exemption-new-column\") to become enabled, then click it and select \"SocialSecurityNumber\"."
+          "Action": "NAVIGATE TO the magic-link href on the original browser tab"
         },
         {
           "StepNumber": 8,
-          "Action": "Click the \"Add\" button (data-testid=\"mask-exemption-add-button\").",
-          "Verifications": [
-            {
-              "Text": "The Add button is enabled before clicking."
-            }
-          ]
+          "Action": "WAIT FOR the navigation drawer to display a button with caption \"Admin\""
         },
         {
           "StepNumber": 9,
-          "Action": "Verify the active-status badge (data-testid=\"mask-exemption-status-active-Customer-SocialSecurityNumber\") is visible after the add operation completes.",
+          "Action": "CLICK BUTTON with aria-label \"System Admin, switch role\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK MENU ITEM with label \"Backoffice User\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "WAIT FOR the snackbar to show the text \"Now viewing as 'Backoffice User'.\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK LINK in the navigation drawer with text \"Retail Businesses\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK ROW in Retail Businesses grid where Account Email = \"james.smith@example.com\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "WAIT FOR the URL to match /customers/{id}"
+        },
+        {
+          "StepNumber": 15,
+          "Action": "VERIFY text matching \"XXX-XX-\" is visible on the customer detail page",
           "Verifications": [
-            {
-              "Text": "The active-status badge (data-testid=\"mask-exemption-status-active-Customer-SocialSecurityNumber\") is visible."
-            }
+            { "Text": "VERIFY the SSN field renders as a masked value beginning with \"XXX-XX-\"" }
+          ]
+        },
+        {
+          "StepNumber": 16,
+          "Action": "VERIFY the input with label \"Social Security Number\" is NOT visible",
+          "Verifications": [
+            { "Text": "VERIFY the editable Social Security Number input is not rendered, confirming the field is masked" }
           ]
         }
       ]
     },
     {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-3",
-      "ItemLabel": "BackofficeUser with active exemption sees SSN unmasked",
-      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
-      "IsJudgmentItem": false,
-      "Passes": false,
-      "Feedback": "I can't sign on as admin@acmecoffee.com with role BackofficeUser.  If I sign on with someone else who is BackofficeUser, I don't see Social Security number or the mask.",
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Grant",
+      "ItemLabel": "UAT-2: SystemAdmin grants a Customer.SocialSecurityNumber mask exemption to BackofficeUser",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync",
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as admin@acmecoffee.com with role BackofficeUser."
+          "Action": "NAVIGATE TO http://localhost:5010/login"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to the customer detail page for the first customer (URL: /customers/{id}, the customer seeded with SocialSecurityNumber \"123-45-6789\")."
+          "Action": "CLICK INPUT with label \"Email\" and enter \"admin@acmecoffee.com\""
         },
         {
           "StepNumber": 3,
-          "Action": "Verify the SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible on the customer detail page.",
-          "Verifications": [
-            {
-              "Text": "The SSN field wrapper element (data-testid=\"field-ssn-wrapper\") is visible."
-            }
-          ]
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
         },
         {
           "StepNumber": 4,
-          "Action": "Verify the unmasked text field (data-testid=\"field-ssn\") is visible.",
-          "Verifications": [
-            {
-              "Text": "The unmasked text field (data-testid=\"field-ssn\") is visible."
-            },
-            {
-              "Text": "Its presence proves the RestrictedFormField rendered ChildContent (exemption honored, mask bypassed)."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-4",
-      "ItemLabel": "CrossOrgMonitor sees ExemptionGranted and FieldUnmaskedRead events in Compliance Review",
-      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
-      "IsJudgmentItem": false,
-      "Passes": false,
-      "Feedback": "I cannot sign in as admin@acmecoffee.com with role CrossOrgMonitor.\n",
-      "Steps": [
-        {
-          "StepNumber": 1,
-          "Action": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor."
-        },
-        {
-          "StepNumber": 2,
-          "Action": "Navigate to the Security Dashboard (URL: /admin/security)."
-        },
-        {
-          "StepNumber": 3,
-          "Action": "Click the \"Compliance Review\" tab."
-        },
-        {
-          "StepNumber": 4,
-          "Action": "Verify the compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible.",
-          "Verifications": [
-            {
-              "Text": "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
-            }
-          ]
+          "Action": "WAIT FOR the page to display the text \"We sent a sign-in code to\""
         },
         {
           "StepNumber": 5,
-          "Action": "Verify the grid scroll region (data-testid=\"compliance-review-grid-scroll-region\") is visible.",
-          "Verifications": [
-            {
-              "Text": "The grid scroll region (data-testid=\"compliance-review-grid-scroll-region\") is visible."
-            }
-          ]
+          "Action": "NAVIGATE TO http://localhost:5010/dev/email-inbox in a second browser tab"
         },
         {
           "StepNumber": 6,
-          "Action": "Verify the Entity filter field (labeled \"Entity\") is visible, then type \"Customer\" in it to scope the grid results.",
-          "Verifications": [
-            {
-              "Text": "The Entity filter field (label \"Entity\") is visible before filling."
-            }
-          ]
+          "Action": "WAIT FOR the most-recent email row's Link cell to contain an anchor whose href matches /login?token="
         },
         {
           "StepNumber": 7,
-          "Action": "Scan the grid rows for an ExemptionGranted event chip.",
-          "Verifications": [
-            {
-              "Text": "At least one event chip (data-testid contains \"event-chip\") with text \"ExemptionGranted\" is visible in the grid."
-            }
-          ]
+          "Action": "NAVIGATE TO the magic-link href on the original browser tab"
         },
         {
           "StepNumber": 8,
-          "Action": "Scan the grid rows for a FieldUnmaskedRead event chip.",
+          "Action": "WAIT FOR the navigation drawer to display a button with caption \"Admin\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK LINK in the navigation drawer Admin group with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK TAB with name \"Role Master Details\"",
+          "Verifications": [ { "Text": "VERIFY text \"Backoffice User\" is visible in the role grid" } ]
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK ROW in Role Master Details grid where Name contains \"Backoffice User\"",
+          "Verifications": [ { "Text": "VERIFY the role details panel exposes a tab named \"Mask Exemptions\"" } ]
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK TAB with name \"Mask Exemptions\"",
+          "Verifications": [ { "Text": "VERIFY the dropdown labeled \"Table\" is visible" } ]
+        },
+        {
+          "StepNumber": 13,
+          "Action": "OPEN DROPDOWN with label \"Table\" and select item whose text = \"Customer\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "OPEN DROPDOWN with label \"Column\" and select item whose text = \"SocialSecurityNumber\""
+        },
+        {
+          "StepNumber": 15,
+          "Action": "CLICK BUTTON with caption \"Add\""
+        },
+        {
+          "StepNumber": 16,
+          "Action": "VERIFY the new exemption row is visible with text \"SocialSecurityNumber\" and status \"Active\"",
           "Verifications": [
-            {
-              "Text": "At least one event chip (data-testid contains \"event-chip\") with text \"FieldUnmaskedRead\" is visible in the grid."
-            }
+            { "Text": "VERIFY text \"SocialSecurityNumber\" appears in the exemptions list" },
+            { "Text": "VERIFY text \"Active\" appears in the exemptions list" }
           ]
         }
       ]
     },
     {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-5",
-      "ItemLabel": "Row expander renders the correlation cluster section",
-      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
-      "IsJudgmentItem": true,
-      "Passes": false,
-      "Feedback": "I cannot sign in as admin@acmecoffee.com with role CrossOrgMonitor.",
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Effect",
+      "ItemLabel": "UAT-3: BackofficeUser with an active exemption sees the SSN unmasked",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync",
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor."
+          "Action": "NAVIGATE TO http://localhost:5010/login"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to /admin/security and click the \"Compliance Review\" tab.",
-          "Verifications": [
-            {
-              "Text": "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
-            }
-          ]
+          "Action": "CLICK INPUT with label \"Email\" and enter \"admin@acmecoffee.com\""
         },
         {
           "StepNumber": 3,
-          "Action": "Wait for the grid to populate with audit event rows.",
-          "Verifications": [
-            {
-              "Text": "At least one event chip (data-testid contains \"event-chip\") is visible in the grid."
-            }
-          ]
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
         },
         {
           "StepNumber": 4,
-          "Action": "Click the first table cell (td) of the first data row — the expand-toggle cell in MudDataGrid.",
-          "Verifications": [
-            {
-              "Text": "The expand icon button on the first data row is visible before clicking."
-            }
-          ]
+          "Action": "WAIT FOR the page to display the text \"We sent a sign-in code to\""
         },
         {
           "StepNumber": 5,
-          "Action": "Verify the expander container (data-testid matching \"compliance-review-row-*-expander\") is visible below the first row.",
-          "Verifications": [
-            {
-              "Text": "The expander container (data-testid matching \"compliance-review-row-*-expander\") is visible."
-            }
-          ]
+          "Action": "NAVIGATE TO http://localhost:5010/dev/email-inbox in a second browser tab"
         },
         {
           "StepNumber": 6,
-          "Action": "Verify that either a cluster table (data-testid contains \"-cluster-table\") or a 'No other rows' caption (data-testid contains \"-cluster-empty\") is present inside the expander.",
+          "Action": "WAIT FOR the most-recent email row's Link cell to contain an anchor whose href matches /login?token="
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO the magic-link href on the original browser tab"
+        },
+        {
+          "StepNumber": 8,
+          "Action": "WAIT FOR the navigation drawer to display a button with caption \"Admin\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with aria-label \"System Admin, switch role\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK MENU ITEM with label \"Backoffice User\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "WAIT FOR the snackbar to show the text \"Now viewing as 'Backoffice User'.\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK LINK in the navigation drawer with text \"Retail Businesses\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK ROW in Retail Businesses grid where Account Email = \"james.smith@example.com\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "WAIT FOR the URL to match /customers/{id}"
+        },
+        {
+          "StepNumber": 15,
+          "Action": "VERIFY the input with label \"Social Security Number\" is visible",
           "Verifications": [
-            {
-              "Text": "Either a cluster table (data-testid contains \"-cluster-table\") is present, or a \"No other rows\" caption (data-testid contains \"-cluster-empty\") is present. At least one of the two must render."
-            }
+            { "Text": "VERIFY the editable Social Security Number input is rendered (no mask)" }
+          ]
+        },
+        {
+          "StepNumber": 16,
+          "Action": "VERIFY text matching \"XXX-XX-\" is NOT visible",
+          "Verifications": [
+            { "Text": "VERIFY the masked text \"XXX-XX-\" is not present, confirming the SSN is unmasked" }
           ]
         }
       ]
     },
     {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-6",
-      "ItemLabel": "Export CSV button triggers export and shows a success snackbar",
-      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync",
-      "IsJudgmentItem": false,
-      "Passes": false,
-      "Feedback": "I cannot sign in as admin@acmecoffee.com with role CrossOrgMonitor.",
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Audit Event Visibility",
+      "ItemLabel": "UAT-4: CrossOrgMonitor sees ExemptionGranted and FieldUnmaskedRead events for Customer",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv4_CrossOrgMonitorSeesComplianceEventsAsync",
       "Steps": [
         {
           "StepNumber": 1,
-          "Action": "Sign in as admin@acmecoffee.com with role CrossOrgMonitor."
+          "Action": "NAVIGATE TO http://localhost:5010/login"
         },
         {
           "StepNumber": 2,
-          "Action": "Navigate to /admin/security and click the \"Compliance Review\" tab.",
-          "Verifications": [
-            {
-              "Text": "The compliance-review-tab container (data-testid=\"compliance-review-tab\") is visible."
-            }
-          ]
+          "Action": "CLICK INPUT with label \"Email\" and enter \"admin@acmecoffee.com\""
         },
         {
           "StepNumber": 3,
-          "Action": "Verify the Export CSV button (data-testid=\"compliance-review-export-button\") is enabled.",
-          "Verifications": [
-            {
-              "Text": "The Export CSV button (data-testid=\"compliance-review-export-button\") is enabled."
-            }
-          ]
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
         },
         {
           "StepNumber": 4,
-          "Action": "Click the Export CSV button."
+          "Action": "WAIT FOR the page to display the text \"We sent a sign-in code to\""
         },
         {
           "StepNumber": 5,
-          "Action": "Verify a snackbar containing the text \"Exported\" appears.",
+          "Action": "NAVIGATE TO http://localhost:5010/dev/email-inbox in a second browser tab"
+        },
+        {
+          "StepNumber": 6,
+          "Action": "WAIT FOR the most-recent email row's Link cell to contain an anchor whose href matches /login?token="
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO the magic-link href on the original browser tab"
+        },
+        {
+          "StepNumber": 8,
+          "Action": "WAIT FOR the navigation drawer to display a button with caption \"Admin\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with aria-label \"System Admin, switch role\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK MENU ITEM with label \"Cross Org Monitor\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "WAIT FOR the snackbar to show the text \"Now viewing as 'Cross Org Monitor'.\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK LINK in the navigation drawer Admin group with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK TAB with name \"Compliance Review\"",
+          "Verifications": [ { "Text": "VERIFY the Compliance Review heading is visible" } ]
+        },
+        {
+          "StepNumber": 14,
+          "Action": "WAIT FOR the column header \"Entity\" to be visible in the compliance review grid"
+        },
+        {
+          "StepNumber": 15,
+          "Action": "CLICK INPUT with label \"Entity\" and enter \"Customer\""
+        },
+        {
+          "StepNumber": 16,
+          "Action": "VERIFY at least one event chip with text \"ExemptionGranted\" is visible",
           "Verifications": [
-            {
-              "Text": "A snackbar containing the text \"Exported\" is visible."
-            }
+            { "Text": "VERIFY text \"ExemptionGranted\" is visible in the compliance review grid" }
+          ]
+        },
+        {
+          "StepNumber": 17,
+          "Action": "VERIFY at least one event chip with text \"FieldUnmaskedRead\" is visible",
+          "Verifications": [
+            { "Text": "VERIFY text \"FieldUnmaskedRead\" is visible in the compliance review grid" }
           ]
         }
       ]
     },
     {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-1",
-      "ItemLabel": "Other",
-      "IsOtherItem": true,
-      "HumanAction": "",
-      "Expectation": "",
-      "Passes": false,
-      "Feedback": ""
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Correlation Cluster Layout",
+      "ItemLabel": "UAT-5: Row expander renders the correlation cluster section (judgment)",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv5_RowExpanderRendersCorrelationClusterAsync",
+      "IsJudgmentItem": true,
+      "Feedback": "Judgment item — visual layout, grouping, and readability of the correlation cluster section cannot be fully automated. The Playwright test verifies the expander panel renders content (cluster table or 'No other rows' message); the human judges whether the layout reads clearly.",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO http://localhost:5010/login"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "WAIT FOR the page to display the text \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO http://localhost:5010/dev/email-inbox in a second browser tab"
+        },
+        {
+          "StepNumber": 6,
+          "Action": "WAIT FOR the most-recent email row's Link cell to contain an anchor whose href matches /login?token="
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO the magic-link href on the original browser tab"
+        },
+        {
+          "StepNumber": 8,
+          "Action": "WAIT FOR the navigation drawer to display a button with caption \"Admin\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with aria-label \"System Admin, switch role\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK MENU ITEM with label \"Cross Org Monitor\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "WAIT FOR the snackbar to show the text \"Now viewing as 'Cross Org Monitor'.\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK LINK in the navigation drawer Admin group with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK TAB with name \"Compliance Review\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "WAIT FOR at least one event chip text (\"ExemptionGranted\" or \"FieldUnmaskedRead\") to be visible"
+        },
+        {
+          "StepNumber": 15,
+          "Action": "EXPAND ROW in Compliance Review grid where Event = first visible event"
+        },
+        {
+          "StepNumber": 16,
+          "Action": "WAIT FOR the row expander panel to be visible"
+        },
+        {
+          "StepNumber": 17,
+          "Action": "VERIFY the expander panel renders either a correlation-cluster table OR the message \"No other rows in this correlation.\"",
+          "Verifications": [
+            { "Text": "JUDGMENT: the cluster section reads clearly and groups the related audit rows in a way the reviewer can scan at a glance" }
+          ]
+        }
+      ]
     },
     {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-2",
-      "ItemLabel": "Other",
-      "IsOtherItem": true,
-      "HumanAction": "",
-      "Expectation": "",
-      "Passes": false,
-      "Feedback": ""
-    },
-    {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-3",
-      "ItemLabel": "Other",
-      "IsOtherItem": true,
-      "HumanAction": "",
-      "Expectation": "",
-      "Passes": false,
-      "Feedback": ""
-    },
-    {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-4",
-      "ItemLabel": "Other",
-      "IsOtherItem": true,
-      "HumanAction": "",
-      "Expectation": "",
-      "Passes": false,
-      "Feedback": ""
-    },
-    {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-5",
-      "ItemLabel": "Other",
-      "IsOtherItem": true,
-      "HumanAction": "",
-      "Expectation": "",
-      "Passes": false,
-      "Feedback": ""
-    },
-    {
-      "FunctionalArea": "Sensitive-Field Masking and Audit",
-      "Subarea": "UAT-6",
-      "ItemLabel": "Other",
-      "IsOtherItem": true,
-      "HumanAction": "",
-      "Expectation": "",
-      "Passes": false,
-      "Feedback": ""
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Export CSV",
+      "ItemLabel": "UAT-6: Export CSV button triggers a download and shows a success snackbar",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO http://localhost:5010/login"
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "WAIT FOR the page to display the text \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO http://localhost:5010/dev/email-inbox in a second browser tab"
+        },
+        {
+          "StepNumber": 6,
+          "Action": "WAIT FOR the most-recent email row's Link cell to contain an anchor whose href matches /login?token="
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO the magic-link href on the original browser tab"
+        },
+        {
+          "StepNumber": 8,
+          "Action": "WAIT FOR the navigation drawer to display a button with caption \"Admin\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with aria-label \"System Admin, switch role\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK MENU ITEM with label \"Cross Org Monitor\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "WAIT FOR the snackbar to show the text \"Now viewing as 'Cross Org Monitor'.\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK LINK in the navigation drawer Admin group with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK TAB with name \"Compliance Review\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "VERIFY the button with caption \"Export CSV\" is enabled",
+          "Verifications": [
+            { "Text": "VERIFY the button labeled \"Export CSV\" is enabled" }
+          ]
+        },
+        {
+          "StepNumber": 15,
+          "Action": "CLICK BUTTON with caption \"Export CSV\""
+        },
+        {
+          "StepNumber": 16,
+          "Action": "VERIFY a snackbar containing the text \"Exported\" appears",
+          "Verifications": [
+            { "Text": "VERIFY a snackbar with text containing \"Exported\" is visible" }
+          ]
+        }
+      ]
     }
-  ],
-  "Configuration": {
-    "reviewWidths": [
-      "6%",
-      "14%",
-      "36%",
-      "8%",
-      "36%"
-    ]
-  },
-  "DocumentDate": "4/27/2026, 4:01:15 PM"
+  ]
 }

@@ -1,0 +1,121 @@
+{
+  "sessionSetName": "sensitive-field-masking-audit-uat-remediation",
+  "createdDate": "2026-04-27T23:42:49.125436+00:00",
+  "totalSessions": 2,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-28T00:01:31.685319+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, and ai-led-session-workflow.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/devidp-prereq",
+      "dateTime": "2026-04-28T00:01:31.685319+00:00",
+      "description": "Confirmed restore-devidp is complete (change-log.md present). SSO button is wired.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/multi-role-persona",
+      "dateTime": "2026-04-28T00:01:31.686325+00:00",
+      "description": "Added SystemAdmin, BackofficeUser, CrossOrgMonitor to admin@acmecoffee.com in user-roles.json (API + Web). Updated security-config.json RoleSwitching.AllowedRoles. Fixed UserContextBar to filter switch menu to user own roles.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/role-switcher-verify",
+      "dateTime": "2026-04-28T00:09:59.798586+00:00",
+      "description": "Fixed UserContextBar.razor.cs to filter switch menu to user own roles. RoleSwitching.AllowedRoles set to [SystemAdmin, BackofficeUser, CrossOrgMonitor] in security-config.json. admin@acmecoffee.com has all 3 roles in user-roles.json.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/playwright-rewrite",
+      "dateTime": "2026-04-28T00:09:59.798586+00:00",
+      "description": "Rewrote SensitiveFieldMaskingUatCoverageTests.cs: 6 separate [Fact] methods (UAT-1 through UAT-6), real magic-link login per test, role switching via UserContextBar, in-circuit Blazor navigation, // begin STEP NNN markers, visible-label locators in step blocks.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/full-test-run",
+      "dateTime": "2026-04-28T00:15:07.177210+00:00",
+      "description": "dotnet build: 0 errors, 184 warnings (all pre-existing). dotnet test (non-Playwright): 666 passed, 0 failed, 0 skipped.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/coverage-review",
+      "dateTime": "2026-04-28T00:37:21.512614+00:00",
+      "description": "Routed uat-coverage-review via opus ($1.0549).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "uat-coverage-review",
+          "inputTokens": 21440,
+          "outputTokens": 9777,
+          "costUsd": 1.054875
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-28T00:58:03.448835+00:00",
+      "description": "Routed session-verification via opus ($0.9161) with full disclosure of red Playwright suite.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 26554,
+          "outputTokens": 6904,
+          "costUsd": 0.91611
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/full-test-run-green",
+      "dateTime": "2026-04-28T05:16:20.280073+00:00",
+      "description": "Playwright suite passes 6/6 twice in a row (idempotent). Total non-Playwright + Playwright tests: 666 + 6 = 672 passing. Fixes: granter-precedence in MaskExemptionsSubTab, role-switcher activator testid, popover-text for menu items, first-row click for customer.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/verification-r2",
+      "dateTime": "2026-04-28T05:20:49.234485+00:00",
+      "description": "Round 2 verification via opus ($1.0927) after Playwright suite turned green.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 27403,
+          "outputTokens": 9089,
+          "costUsd": 1.09272
+        }
+      ]
+    }
+  ]
+}

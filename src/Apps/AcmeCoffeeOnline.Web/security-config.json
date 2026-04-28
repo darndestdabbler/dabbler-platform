@@ -177,7 +177,7 @@
       "ColumnKey": "SocialSecurityNumber",
       "TargetRoleName": "BackofficeUser",
       "GrantedBy": "admin@acmecoffee.com",
-      "GrantedAt": "2026-04-27T19:30:36.2794881+00:00"
+      "GrantedAt": "2026-04-28T05:16:07.0754318+00:00"
     }
   ],
   "BakedInRoleAliasOverrides": {},
@@ -189,6 +189,10 @@
   "ControlPermissions": [],
   "RowFilters": [],
   "RoleSwitching": {
-    "AllowedRoles": []
+    "AllowedRoles": [
+      "SystemAdmin",
+      "BackofficeUser",
+      "CrossOrgMonitor"
+    ]
   }
 }

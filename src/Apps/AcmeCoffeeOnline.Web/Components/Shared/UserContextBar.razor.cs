@@ -98,9 +98,13 @@ public partial class UserContextBar : ComponentBase, IDisposable
             ? string.Empty
             : ActiveOrganizationName!;
 
-        _allowedSwitchRoles = ConfigManager.Current.RoleSwitching?.AllowedRoles ?? [];
+        var configuredRoles = ConfigManager.Current.RoleSwitching?.AllowedRoles ?? [];
         var rolesSet = new HashSet<string>(UserRoles, StringComparer.OrdinalIgnoreCase);
-        _canSwitchRole = _allowedSwitchRoles.Any(rolesSet.Contains);
+        // Show only the roles the user actually holds that appear in AllowedRoles.
+        // This prevents the menu from offering roles the user doesn't have.
+        _allowedSwitchRoles = configuredRoles.Where(rolesSet.Contains).ToList();
+        // Can switch if the user holds any role in AllowedRoles (preserves original gate semantics).
+        _canSwitchRole = configuredRoles.Any(rolesSet.Contains);
         _canSwitchOrg = OrganizationOptions.Count >= 2;
     }
 

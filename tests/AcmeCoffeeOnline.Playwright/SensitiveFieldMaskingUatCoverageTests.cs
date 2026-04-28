@@ -1,103 +1,190 @@
 using AcmeCoffeeOnline.Playwright.Infrastructure;
 using Microsoft.Playwright;
+using System.Text.RegularExpressions;
 
 namespace AcmeCoffeeOnline.Playwright;
 
 /// <summary>
 /// 1:1 Playwright coverage for the
-/// <c>sensitive-field-masking-audit-uat-checklist.json</c> UAT checklist.
-/// All six UAT items are exercised in a single [Fact] to guarantee sequential
-/// execution and prevent ordering-related state issues.
+/// <c>sensitive-field-masking-audit-uat-checklist.json</c> UAT checklist
+/// (remediated version — real magic-link login + UserContextBar role switching;
+/// no <c>SeededSignInAsync(roles=)</c> overrides for human-equivalent steps).
 ///
-/// Six items (covered in sequence):
+/// Six items, one [Fact] each:
 ///   UAT-1  SSN renders masked for a user-type role with no exemption
 ///   UAT-2  SystemAdmin grants a mask exemption for the BackofficeUser role
 ///   UAT-3  BackofficeUser with active exemption sees SSN unmasked
 ///   UAT-4  CrossOrgMonitor sees ExemptionGranted + FieldUnmaskedRead in Compliance Review
-///   UAT-5  Row expander renders the correlation cluster section
+///   UAT-5  Row expander renders the correlation cluster section (judgment item)
 ///   UAT-6  Export CSV button triggers a download
 ///
-/// Design notes:
-/// - Baked-in roles (SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor) bypass DefaultMasks;
-///   UAT-1/3 use BackofficeUser (a user-type role that CAN access /customers and IS
-///   subject to DefaultMask rules).
-/// - Only SystemAdmin sees the Role Master Details tab (where mask exemptions are managed);
-///   CrossOrgUserAdmin does NOT — confirmed by SecurityDashboardFullSweepTests.
-/// - The E2ETestReference for all checklist items points to
-///   SensitiveFieldMasking_FullUatScenarioAsync (single method, all items).
-/// - Cleanup at the end removes the BackofficeUser exemption so the suite is idempotent.
+/// Each method:
+/// - Uses real magic-link login through /login → /dev/email-inbox → magic-link follow
+/// - Uses the UserContextBar role switcher for role changes (visible-surface only)
+/// - Uses in-circuit Blazor navigation after login (drawer clicks, grid row clicks)
+/// - Contains // begin STEP NNN markers aligned to the checklist item's Steps[].StepNumber
+///
+/// Pre-test setup (not human-equivalent) uses SeededSignInAsync + UI flow where
+/// needed, per the "Pre-test cleanup... must use the same UI flow" rule.
 /// </summary>
 [Collection(PlaywrightCollection.Name)]
 public sealed class SensitiveFieldMaskingUatCoverageTests
 {
-    private const string AdminEmail        = "admin@acmecoffee.com";
-
-    // Shared test-data values matching the checklist parameters.
-    private const string EntityKey         = "Customer";
-    private const string ColumnKey         = "SocialSecurityNumber";
-    // BackofficeUser: user-type role with /customers access, subject to DefaultMasks.
-    private const string BackofficeUserRole = "BackofficeUser";
+    private const string AdminEmail          = "admin@acmecoffee.com";
+    private const string EntityKey           = "Customer";
+    private const string ColumnKey           = "SocialSecurityNumber";
+    private const string BackofficeUserRole  = "BackofficeUser";
+    // Seeded customer i=0: James Smith, james.smith@example.com, SSN="123-45-6789"
+    private const string SsnCustomerEmail    = "james.smith@example.com";
 
     private readonly PlaywrightFixture _fixture;
 
     public SensitiveFieldMaskingUatCoverageTests(PlaywrightFixture fixture)
+        => _fixture = fixture;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Pre-test setup helpers (test setup, not human-equivalent UAT steps).
+    // These use SeededSignInAsync for convenience and the UI flow for the
+    // actual config mutation (no direct security-config.json edits or bypass
+    // endpoints for the config change itself).
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private async Task EnsureNoBackofficeUserExemptionAsync()
     {
-        _fixture = fixture;
-    }
-
-    /// <summary>
-    /// Directly clears any BackofficeUser mask exemption from the web app's
-    /// security-config.json so each test run starts from a known clean state.
-    /// More reliable than UI-based cleanup; the web server reloads the config on
-    /// the next SecurityConfigurationManager.EnsureLoadedAsync() call.
-    /// </summary>
-    private static void ClearBackofficeUserExemptionFromFile()
-    {
-        // Locate the web project's security-config.json relative to the repo root.
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !dir.EnumerateFiles("Dabbler.Platform.sln").Any())
-            dir = dir.Parent;
-
-        if (dir is null) return;
-        var configPath = Path.Combine(
-            dir.FullName,
-            "src", "Apps", "AcmeCoffeeOnline.Web", "security-config.json");
-        if (!File.Exists(configPath)) return;
-
-        var json = File.ReadAllText(configPath);
-        var doc = System.Text.Json.JsonDocument.Parse(json);
-        using var ms = new System.IO.MemoryStream();
-        using var writer = new System.Text.Json.Utf8JsonWriter(
-            ms, new System.Text.Json.JsonWriterOptions { Indented = true });
-
-        writer.WriteStartObject();
-        foreach (var prop in doc.RootElement.EnumerateObject())
+        var setupPage = await _fixture.CreatePageAsync();
+        try
         {
-            if (prop.Name == "MaskExemptions")
+            await _fixture.SeededSignInAsync(setupPage, AdminEmail);
+            await setupPage.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await setupPage
+                .GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" })
+                .ClickAsync();
+            await Assertions
+                .Expect(setupPage.GetByTestId("role-master-grid"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await setupPage.GetByTestId($"role-row-{BackofficeUserRole}").ClickAsync();
+            await Assertions
+                .Expect(setupPage.GetByTestId("role-details-section"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await setupPage
+                .GetByRole(AriaRole.Tab, new() { Name = "Mask Exemptions" })
+                .ClickAsync();
+            await Assertions
+                .Expect(setupPage.GetByTestId("mask-exemptions-subtab"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions
+                .Expect(setupPage
+                    .GetByTestId("mask-exemption-grid")
+                    .Or(setupPage.GetByTestId("mask-exemption-empty")))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            var removeButton = setupPage.GetByTestId(
+                $"mask-exemption-remove-{EntityKey}-{ColumnKey}");
+            if (await removeButton.CountAsync() > 0)
             {
-                writer.WriteStartArray("MaskExemptions");
-                foreach (var ex in prop.Value.EnumerateArray())
-                {
-                    if (ex.TryGetProperty("TargetRoleName", out var tn)
-                        && string.Equals(tn.GetString(), BackofficeUserRole,
-                            StringComparison.OrdinalIgnoreCase))
-                        continue; // skip BackofficeUser exemption
-                    ex.WriteTo(writer);
-                }
-                writer.WriteEndArray();
-            }
-            else
-            {
-                prop.WriteTo(writer);
+                await removeButton.ClickAsync();
+                await setupPage.WaitForLoadStateAsync(LoadState.NetworkIdle);
             }
         }
-        writer.WriteEndObject();
-        writer.Flush();
-
-        File.WriteAllBytes(configPath, ms.ToArray());
+        finally
+        {
+            await _fixture.ClosePageAsync(setupPage);
+        }
     }
 
-    /// <summary>Returns the ID of the first customer — the one seeded with SSN "123-45-6789".</summary>
+    private async Task EnsureBackofficeUserExemptionExistsAsync()
+    {
+        await EnsureNoBackofficeUserExemptionAsync();
+        var setupPage = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(setupPage, AdminEmail);
+            await setupPage.GotoAsync(
+                $"{_fixture.BaseUrl}/admin/security",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await setupPage
+                .GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" })
+                .ClickAsync();
+            await Assertions
+                .Expect(setupPage.GetByTestId("role-master-grid"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await setupPage.GetByTestId($"role-row-{BackofficeUserRole}").ClickAsync();
+            await Assertions
+                .Expect(setupPage.GetByTestId("role-details-section"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await setupPage
+                .GetByRole(AriaRole.Tab, new() { Name = "Mask Exemptions" })
+                .ClickAsync();
+            await Assertions
+                .Expect(setupPage.GetByTestId("mask-exemptions-subtab"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await setupPage.GetByTestId("mask-exemption-new-table").ClickAsync();
+            var tableOption = setupPage.Locator(".mud-popover-open")
+                .GetByText(EntityKey, new() { Exact = true }).First;
+            await Assertions.Expect(tableOption).ToBeVisibleAsync();
+            await tableOption.ClickAsync();
+            await Task.Delay(300);
+            await Assertions
+                .Expect(setupPage.GetByTestId("mask-exemption-new-column"))
+                .ToBeEnabledAsync(new() { Timeout = 5_000 });
+            await setupPage.GetByTestId("mask-exemption-new-column").ClickAsync();
+            var columnOption = setupPage.Locator(".mud-popover-open")
+                .GetByText(ColumnKey, new() { Exact = true }).First;
+            await Assertions.Expect(columnOption).ToBeVisibleAsync();
+            await columnOption.ClickAsync();
+            await Task.Delay(300);
+            var addButton = setupPage.GetByTestId("mask-exemption-add-button");
+            await Assertions.Expect(addButton).ToBeEnabledAsync(new() { Timeout = 5_000 });
+            await addButton.ClickAsync();
+            await setupPage.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Task.Delay(500);
+            // Surface a denied-authority error if Add was rejected, so the
+            // resulting test failure points at the real cause rather than at
+            // a missing badge.
+            var authorityError = setupPage.GetByTestId("mask-exemption-authority-error");
+            if (await authorityError.CountAsync() > 0)
+            {
+                var errText = await authorityError.InnerTextAsync();
+                throw new Xunit.Sdk.XunitException(
+                    $"Mask exemption Add was rejected by authority check: {errText}");
+            }
+            await Assertions
+                .Expect(setupPage.GetByTestId(
+                    $"mask-exemption-status-active-{EntityKey}-{ColumnKey}"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(setupPage);
+        }
+    }
+
+    private async Task EnsureComplianceAuditEventsExistAsync()
+    {
+        await EnsureBackofficeUserExemptionExistsAsync();
+        // Sign in as BackofficeUser and view the SSN customer to create a FieldUnmaskedRead event.
+        var auditPage = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.SeededSignInAsync(auditPage, AdminEmail, roles: BackofficeUserRole);
+            var customerId = await GetSsnCustomerIdAsync();
+            await auditPage.GotoAsync(
+                $"{_fixture.BaseUrl}/customers/{customerId}",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            // Wait for the SSN field to render — its initial resolution writes
+            // the FieldUnmaskedRead audit row when the exemption is active.
+            await Assertions
+                .Expect(auditPage.GetByLabel("Social Security Number"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Task.Delay(800); // allow the audit write to propagate
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(auditPage);
+        }
+    }
+
     private async Task<int> GetSsnCustomerIdAsync()
     {
         var adminId = await _fixture.GetSeededUserIdAsync(AdminEmail);
@@ -105,377 +192,778 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
         return customers.First().Id;
     }
 
-    /// <summary>
-    /// Full end-to-end UAT scenario for the sensitive-field-masking-audit session set.
-    /// Covers checklist items UAT-1 through UAT-6 in sequential order.
-    /// E2ETestReference for all checklist Review items:
-    /// AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.SensitiveFieldMasking_FullUatScenarioAsync
-    /// </summary>
+    // ─────────────────────────────────────────────────────────────────────────
+    // Real magic-link login helpers.
+    // Steps 001-008 are inlined into each [Fact] so the coverage-review gate
+    // can walk the step markers directly inside the method body.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UAT-1: SSN renders masked for BackofficeUser with no active exemption.
+    //
+    // E2ETestReference:
+    //   AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests
+    //   .Uatv1_BackofficeUserSeesMaskedSsnAsync
+    // ─────────────────────────────────────────────────────────────────────────
     [Fact]
-    public async Task SensitiveFieldMasking_FullUatScenarioAsync()
+    public async Task Uatv1_BackofficeUserSeesMaskedSsnAsync()
     {
-        var customerId = await GetSsnCustomerIdAsync();
+        // Pre-test setup: ensure no BackofficeUser exemption exists.
+        await EnsureNoBackofficeUserExemptionAsync();
 
-        // ── Pre-test cleanup: remove any leftover BackofficeUser exemption from prior runs ─
-        {
-            var setupPage = await _fixture.CreatePageAsync();
-            try
-            {
-                await _fixture.SeededSignInAsync(setupPage, AdminEmail, roles: "SystemAdmin");
-                await setupPage.GotoAsync(
-                    $"{_fixture.BaseUrl}/admin/security",
-                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-                await setupPage
-                    .GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" })
-                    .ClickAsync();
-                await Assertions
-                    .Expect(setupPage.GetByTestId("role-master-grid"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-                var priorRow = setupPage
-                    .GetByTestId($"role-row-{BackofficeUserRole}")
-                    .Locator("xpath=ancestor::tr[1]");
-                await Assertions.Expect(priorRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
-                await priorRow.ClickAsync();
-                await setupPage
-                    .GetByRole(AriaRole.Tab, new() { Name = "Mask Exemptions" })
-                    .ClickAsync();
-                await Assertions
-                    .Expect(setupPage.GetByTestId("mask-exemptions-subtab"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-                // Wait for EITHER the exemption grid (if exemptions exist) or the "no exemptions"
-                // empty message to render. Blazor Server renders asynchronously via SignalR so
-                // a simple delay is insufficient; polling on the expected elements is required.
-                await Assertions
-                    .Expect(
-                        setupPage.GetByTestId("mask-exemption-grid")
-                            .Or(setupPage.GetByTestId("mask-exemption-empty")))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-                var priorRemove = setupPage.GetByTestId(
-                    $"mask-exemption-remove-{EntityKey}-{ColumnKey}");
-                if (await priorRemove.CountAsync() > 0)
-                {
-                    await priorRemove.ClickAsync();
-                    await setupPage.WaitForLoadStateAsync(LoadState.NetworkIdle);
-                }
-            }
-            finally
-            {
-                await _fixture.ClosePageAsync(setupPage);
-            }
-        }
-
-        // ── UAT-1: SSN renders masked for a user-type role with no exemption ──────────────
-        // Step 1: Sign in as admin@acmecoffee.com with role BackofficeUser.
-        // Step 2: Navigate to the customer detail page for the first customer.
-        // Step 3: Verify the SSN field wrapper (data-testid="field-ssn-wrapper") is visible.
-        // Step 4: Verify the masked span (data-testid="restricted-field-masked-Customer-SocialSecurityNumber")
-        //         is visible and its text starts with "XXX-XX-" (the configured mask format).
-        {
-            var page = await _fixture.CreatePageAsync();
-            try
-            {
-                await _fixture.SeededSignInAsync(page, AdminEmail, roles: BackofficeUserRole);
-                await page.GotoAsync(
-                    $"{_fixture.BaseUrl}/customers/{customerId}",
-                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-
-                await Assertions
-                    .Expect(page.GetByTestId("field-ssn-wrapper"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                var maskedSpan = page.GetByTestId(
-                    $"restricted-field-masked-{EntityKey}-{ColumnKey}");
-                await Assertions.Expect(maskedSpan).ToBeVisibleAsync(new() { Timeout = 10_000 });
-                await Assertions.Expect(maskedSpan).ToContainTextAsync("XXX-XX-");
-            }
-            finally
-            {
-                await _fixture.ClosePageAsync(page);
-            }
-        }
-
-        // ── UAT-2: SystemAdmin grants a mask exemption for the BackofficeUser role ─────────
-        // Step 1: Sign in as admin@acmecoffee.com with role SystemAdmin.
-        // Step 2: Navigate to the Security Dashboard (/admin/security).
-        // Step 3: Click the "Role Master Details" tab.
-        // Step 4: Click the row for the "BackofficeUser" role.
-        // Step 5: Click the "Mask Exemptions" sub-tab.
-        // Step 6: Select "Customer" in the Table dropdown.
-        // Step 7: Wait for Column dropdown to be enabled, then select "SocialSecurityNumber".
-        // Step 8: Click the Add button.
-        // Step 9: Verify the active-status badge is visible.
-        {
-            var page = await _fixture.CreatePageAsync();
-            try
-            {
-                await _fixture.SeededSignInAsync(page, AdminEmail, roles: "SystemAdmin");
-                await page.GotoAsync(
-                    $"{_fixture.BaseUrl}/admin/security",
-                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-
-                await page.GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" }).ClickAsync();
-                await Assertions
-                    .Expect(page.GetByTestId("role-master-grid"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                var roleRow = page
-                    .GetByTestId($"role-row-{BackofficeUserRole}")
-                    .Locator("xpath=ancestor::tr[1]");
-                await Assertions.Expect(roleRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
-                await roleRow.ClickAsync();
-                await Assertions
-                    .Expect(page.GetByTestId("role-details-section"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                await page.GetByRole(AriaRole.Tab, new() { Name = "Mask Exemptions" }).ClickAsync();
-                await Assertions
-                    .Expect(page.GetByTestId("mask-exemptions-subtab"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                await page.GetByTestId("mask-exemption-new-table").ClickAsync();
-                var tableOption = page.Locator(".mud-popover-open")
-                    .GetByText(EntityKey, new() { Exact = true }).First;
-                await Assertions.Expect(tableOption).ToBeVisibleAsync();
-                await tableOption.ClickAsync();
-                await Task.Delay(300);
-
-                await Assertions
-                    .Expect(page.GetByTestId("mask-exemption-new-column"))
-                    .ToBeEnabledAsync(new() { Timeout = 5_000 });
-                await page.GetByTestId("mask-exemption-new-column").ClickAsync();
-                var columnOption = page.Locator(".mud-popover-open")
-                    .GetByText(ColumnKey, new() { Exact = true }).First;
-                await Assertions.Expect(columnOption).ToBeVisibleAsync();
-                await columnOption.ClickAsync();
-                await Task.Delay(300);
-
-                var addButton = page.GetByTestId("mask-exemption-add-button");
-                await Assertions.Expect(addButton).ToBeEnabledAsync(new() { Timeout = 5_000 });
-                await addButton.ClickAsync();
-                await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-
-                await Assertions
-                    .Expect(page.GetByTestId(
-                        $"mask-exemption-status-active-{EntityKey}-{ColumnKey}"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-            }
-            finally
-            {
-                await _fixture.ClosePageAsync(page);
-            }
-        }
-
-        // ── UAT-3: BackofficeUser with active exemption sees SSN unmasked ─────────────────
-        // Step 1: Sign in as admin@acmecoffee.com with role BackofficeUser.
-        // Step 2: Navigate to the customer detail page for the first customer.
-        // Step 3: Verify the SSN field wrapper (data-testid="field-ssn-wrapper") is visible.
-        // Step 4: Verify the unmasked text field (data-testid="field-ssn") is visible.
-        {
-            var page = await _fixture.CreatePageAsync();
-            try
-            {
-                await _fixture.SeededSignInAsync(page, AdminEmail, roles: BackofficeUserRole);
-                await page.GotoAsync(
-                    $"{_fixture.BaseUrl}/customers/{customerId}",
-                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-
-                await Assertions
-                    .Expect(page.GetByTestId("field-ssn-wrapper"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                await Assertions
-                    .Expect(page.GetByTestId("field-ssn"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-            }
-            finally
-            {
-                await _fixture.ClosePageAsync(page);
-            }
-        }
-
-        // ── UAT-4: CrossOrgMonitor sees ExemptionGranted + FieldUnmaskedRead events ────────
-        // Step 1: Sign in as admin@acmecoffee.com with role CrossOrgMonitor.
-        // Step 2: Navigate to the Security Dashboard (/admin/security).
-        // Step 3: Click the "Compliance Review" tab.
-        // Step 4: Verify the compliance-review-tab container is visible.
-        // Step 5: Verify the grid scroll region is visible.
-        // Step 6: Type "Customer" in the Entity filter field to scope results.
-        // Step 7: Verify at least one ExemptionGranted event chip is visible.
-        // Step 8: Verify at least one FieldUnmaskedRead event chip is visible.
-        {
-            var page = await _fixture.CreatePageAsync();
-            try
-            {
-                await _fixture.SeededSignInAsync(page, AdminEmail, roles: "CrossOrgMonitor");
-                await page.GotoAsync(
-                    $"{_fixture.BaseUrl}/admin/security",
-                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-
-                await page.GetByRole(AriaRole.Tab, new() { Name = "Compliance Review" }).ClickAsync();
-                await Assertions
-                    .Expect(page.GetByTestId("compliance-review-tab"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-                await Assertions
-                    .Expect(page.GetByTestId("compliance-review-grid-scroll-region"))
-                    .ToBeVisibleAsync();
-
-                var entityFilter = page.GetByLabel("Entity").First;
-                await Assertions.Expect(entityFilter).ToBeVisibleAsync(new() { Timeout = 5_000 });
-                await entityFilter.FillAsync(EntityKey);
-                await Task.Delay(1500);
-                await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-
-                await Assertions
-                    .Expect(page.Locator("[data-testid*='event-chip']")
-                        .Filter(new() { HasText = "ExemptionGranted" })
-                        .First)
-                    .ToBeVisibleAsync(new() { Timeout = 15_000 });
-
-                await Assertions
-                    .Expect(page.Locator("[data-testid*='event-chip']")
-                        .Filter(new() { HasText = "FieldUnmaskedRead" })
-                        .First)
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-            }
-            finally
-            {
-                await _fixture.ClosePageAsync(page);
-            }
-        }
-
-        // ── UAT-5: Row expander renders the correlation cluster section (judgment item) ────
-        // Step 1: Sign in as admin@acmecoffee.com with role CrossOrgMonitor.
-        // Step 2: Navigate to /admin/security and click the "Compliance Review" tab.
-        // Step 3: Wait for at least one event chip to appear in the grid.
-        // Step 4: Click the expand icon button on the first data row.
-        // Step 5: Verify the expander container is visible.
-        // Step 6: Verify either a cluster table or "No other rows" message renders.
-        {
-            var page = await _fixture.CreatePageAsync();
-            try
-            {
-                await _fixture.SeededSignInAsync(page, AdminEmail, roles: "CrossOrgMonitor");
-                await page.GotoAsync(
-                    $"{_fixture.BaseUrl}/admin/security",
-                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-                await page.GetByRole(AriaRole.Tab, new() { Name = "Compliance Review" }).ClickAsync();
-                await Assertions
-                    .Expect(page.GetByTestId("compliance-review-tab"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                await Assertions
-                    .Expect(page.Locator("[data-testid*='event-chip']").First)
-                    .ToBeVisibleAsync(new() { Timeout = 15_000 });
-
-                // MudDataGrid's expand toggle is in the first cell of each data row.
-                // Click the first cell (the toggle/expand cell) to open ChildRowContent.
-                var firstDataRow = page.Locator(".mud-table-body tr.mud-table-row").First;
-                await Assertions.Expect(firstDataRow).ToBeVisibleAsync(new() { Timeout = 5_000 });
-                // Click the first table cell in the row (which is the expand-toggle cell).
-                var expandCell = firstDataRow.Locator("td").First;
-                await Assertions.Expect(expandCell).ToBeVisibleAsync();
-                await expandCell.ClickAsync();
-                await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-
-                var expanderContainer = page
-                    .Locator("[data-testid*='compliance-review-row-'][data-testid$='-expander']")
-                    .First;
-                await Assertions
-                    .Expect(expanderContainer)
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                var hasClusterTable  = await expanderContainer
-                    .Locator("[data-testid*='-cluster-table']").CountAsync() > 0;
-                var hasEmptyMessage  = await expanderContainer
-                    .Locator("[data-testid*='-cluster-empty']").CountAsync() > 0;
-                Assert.True(
-                    hasClusterTable || hasEmptyMessage,
-                    "The expander must render either a cluster table or a 'No other rows' message.");
-            }
-            finally
-            {
-                await _fixture.ClosePageAsync(page);
-            }
-        }
-
-        // ── UAT-6: Export CSV button triggers a download and shows a success snackbar ──────
-        // Step 1: Sign in as admin@acmecoffee.com with role CrossOrgMonitor.
-        // Step 2: Navigate to /admin/security and click the "Compliance Review" tab.
-        // Step 3: Verify the Export CSV button (data-testid="compliance-review-export-button") is enabled.
-        // Step 4: Click the Export CSV button.
-        // Step 5: Verify a snackbar containing "Exported" appears.
-        //
-        // Cleanup: remove the BackofficeUser exemption so subsequent runs are idempotent.
-        {
-            var page = await _fixture.CreatePageAsync();
-            try
-            {
-                await _fixture.SeededSignInAsync(page, AdminEmail, roles: "CrossOrgMonitor");
-                await page.GotoAsync(
-                    $"{_fixture.BaseUrl}/admin/security",
-                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-                await page.GetByRole(AriaRole.Tab, new() { Name = "Compliance Review" }).ClickAsync();
-                await Assertions
-                    .Expect(page.GetByTestId("compliance-review-tab"))
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-
-                var exportButton = page.GetByTestId("compliance-review-export-button");
-                await Assertions.Expect(exportButton).ToBeEnabledAsync();
-                await exportButton.ClickAsync();
-                await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-
-                await Assertions
-                    .Expect(page.Locator(".mud-snackbar")
-                        .Filter(new() { HasText = "Exported" })
-                        .First)
-                    .ToBeVisibleAsync(new() { Timeout = 10_000 });
-            }
-            finally
-            {
-                await _fixture.ClosePageAsync(page);
-            }
-        }
-
-        // ── Cleanup: remove BackofficeUser exemption ──────────────────────────────────────
-        var cleanupPage = await _fixture.CreatePageAsync();
+        var page = await _fixture.CreatePageAsync();
         try
         {
-            await _fixture.SeededSignInAsync(cleanupPage, AdminEmail, roles: "SystemAdmin");
-            await cleanupPage.GotoAsync(
-                $"{_fixture.BaseUrl}/admin/security",
+            await _fixture.ClearMagicLinksAsync();
+
+            // begin STEP 001
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/login",
                 new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-            await cleanupPage
-                .GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" })
-                .ClickAsync();
             await Assertions
-                .Expect(cleanupPage.GetByTestId("role-master-grid"))
+                .Expect(page.GetByLabel("Email"))
                 .ToBeVisibleAsync(new() { Timeout = 10_000 });
 
-            var roleRow = cleanupPage
-                .GetByTestId($"role-row-{BackofficeUserRole}")
-                .Locator("xpath=ancestor::tr[1]");
-            if (await roleRow.CountAsync() > 0)
+            // begin STEP 002
+            await page.GetByLabel("Email").FillAsync(AdminEmail);
+
+            // begin STEP 003
+            await page
+                .GetByRole(AriaRole.Button, new() { Name = "Send sign-in link" })
+                .ClickAsync();
+
+            // begin STEP 004
+            await Assertions
+                .Expect(page.GetByText("We sent a sign-in code to"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 005
+            var inboxPage = await _fixture.CreatePageAsync();
+            try
             {
-                await roleRow.ClickAsync();
-                await cleanupPage
-                    .GetByRole(AriaRole.Tab, new() { Name = "Mask Exemptions" })
-                    .ClickAsync();
-                var removeButton = cleanupPage.GetByTestId(
-                    $"mask-exemption-remove-{EntityKey}-{ColumnKey}");
-                if (await removeButton.CountAsync() > 0)
-                {
-                    await removeButton.ClickAsync();
-                    await cleanupPage.WaitForLoadStateAsync(LoadState.NetworkIdle);
-                }
+                await inboxPage.GotoAsync(
+                    $"{_fixture.BaseUrl}/dev/email-inbox",
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+                // begin STEP 006
+                var firstRow = inboxPage.Locator("tbody tr.mud-table-row").First;
+                await Assertions.Expect(firstRow).ToBeVisibleAsync(new() { Timeout = 15_000 });
+                var linkAnchor = firstRow.Locator("td[data-label='Link'] a").First;
+                await Assertions.Expect(linkAnchor)
+                    .ToHaveAttributeAsync("href",
+                        new Regex(@"^https?://.+/login\?token="));
+
+                // begin STEP 007
+                var magicHref = await linkAnchor.GetAttributeAsync("href");
+                await page.GotoAsync(magicHref!,
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
             }
-        }
-        catch
-        {
-            // Best-effort cleanup.
+            finally
+            {
+                await _fixture.ClosePageAsync(inboxPage);
+            }
+
+            // begin STEP 008
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Toggle Admin" }))
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 009
+            // Click the role-switcher activator. The MudMenu wraps the inner
+            // MudLink in an activator div, so two elements share the same
+            // aria-label; targeting the inner link by data-testid is the
+            // reliable way to fire the menu-open click.
+            await page.GetByTestId("user-context-role").ClickAsync();
+
+            // begin STEP 010
+            // MudMenuItem renders as a list item; clicking by visible text inside
+            // the open popover is the most stable cross-MudBlazor-version locator.
+            await page.Locator(".mud-popover-open")
+                .GetByText("Backoffice User", new() { Exact = true })
+                .First
+                .ClickAsync();
+
+            // begin STEP 011
+            await Assertions
+                .Expect(page.GetByText("Now viewing as 'Backoffice User'."))
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+
+            // begin STEP 012
+            await _fixture.NavigateViaDrawerAsync(page, "Retail Businesses", ".*/customers$");
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            // begin STEP 013
+            // The masked-SSN render is "XXX-XX-{last4}" which falls back to
+            // "XXX-XX-****" when the underlying value is null, so the assertion
+            // works for any customer in the grid; clicking the first visible
+            // row keeps the test stable across pagination/sort changes.
+            var customerRow = page.Locator("tbody tr.mud-table-row").First;
+            await Assertions.Expect(customerRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await customerRow.ClickAsync();
+
+            // begin STEP 014
+            await Assertions
+                .Expect(page)
+                .ToHaveURLAsync(new Regex(@".*/customers/\d+$"), new() { Timeout = 10_000 });
+
+            // begin STEP 015
+            await Assertions
+                .Expect(page.GetByText(new Regex(@"XXX-XX-")))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 016
+            await Assertions
+                .Expect(
+                    page.GetByLabel("Social Security Number"))
+                .Not.ToBeVisibleAsync(new() { Timeout = 2_000 });
         }
         finally
         {
-            await _fixture.ClosePageAsync(cleanupPage);
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UAT-2: SystemAdmin grants a mask exemption for BackofficeUser role.
+    //
+    // E2ETestReference:
+    //   AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests
+    //   .Uatv2_SystemAdminGrantsMaskExemptionAsync
+    // ─────────────────────────────────────────────────────────────────────────
+    [Fact]
+    public async Task Uatv2_SystemAdminGrantsMaskExemptionAsync()
+    {
+        // Pre-test setup: ensure no BackofficeUser exemption exists.
+        await EnsureNoBackofficeUserExemptionAsync();
+
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.ClearMagicLinksAsync();
+
+            // begin STEP 001
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/login",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions
+                .Expect(page.GetByLabel("Email"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 002
+            await page.GetByLabel("Email").FillAsync(AdminEmail);
+
+            // begin STEP 003
+            await page
+                .GetByRole(AriaRole.Button, new() { Name = "Send sign-in link" })
+                .ClickAsync();
+
+            // begin STEP 004
+            await Assertions
+                .Expect(page.GetByText("We sent a sign-in code to"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 005
+            var inboxPage = await _fixture.CreatePageAsync();
+            try
+            {
+                await inboxPage.GotoAsync(
+                    $"{_fixture.BaseUrl}/dev/email-inbox",
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+                // begin STEP 006
+                var firstRow = inboxPage.Locator("tbody tr.mud-table-row").First;
+                await Assertions.Expect(firstRow).ToBeVisibleAsync(new() { Timeout = 15_000 });
+                var linkAnchor = firstRow.Locator("td[data-label='Link'] a").First;
+                await Assertions.Expect(linkAnchor)
+                    .ToHaveAttributeAsync("href",
+                        new Regex(@"^https?://.+/login\?token="));
+
+                // begin STEP 007
+                var magicHref = await linkAnchor.GetAttributeAsync("href");
+                await page.GotoAsync(magicHref!,
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            }
+            finally
+            {
+                await _fixture.ClosePageAsync(inboxPage);
+            }
+
+            // begin STEP 008
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Toggle Admin" }))
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 009
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            // begin STEP 010
+            await page
+                .GetByRole(AriaRole.Tab, new() { Name = "Role Master Details" })
+                .ClickAsync();
+            // Wait for role list to render by checking for "Backoffice User" text.
+            await Assertions
+                .Expect(page.GetByText("Backoffice User").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 011
+            var backofficeRow = page.Locator("tbody tr.mud-table-row")
+                .Filter(new() { HasText = "Backoffice User" });
+            await Assertions.Expect(backofficeRow).ToBeVisibleAsync(new() { Timeout = 5_000 });
+            await backofficeRow.ClickAsync();
+            // Verify details panel opened — check for "Mask Exemptions" tab text.
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Tab, new() { Name = "Mask Exemptions" }))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 012
+            await page
+                .GetByRole(AriaRole.Tab, new() { Name = "Mask Exemptions" })
+                .ClickAsync();
+            // Verify subtab rendered — look for the exact "Table" dropdown label.
+            await Assertions
+                .Expect(page.GetByLabel("Table", new() { Exact = true }).First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 013
+            await page.GetByLabel("Table", new() { Exact = true }).First.ClickAsync();
+            var tableOption = page.Locator(".mud-popover-open")
+                .GetByText(EntityKey, new() { Exact = true }).First;
+            await Assertions.Expect(tableOption).ToBeVisibleAsync(new() { Timeout = 5_000 });
+            await tableOption.ClickAsync();
+            await Task.Delay(300);
+
+            // begin STEP 014
+            await Assertions
+                .Expect(page.GetByLabel("Column", new() { Exact = true }).First)
+                .ToBeEnabledAsync(new() { Timeout = 5_000 });
+            await page.GetByLabel("Column", new() { Exact = true }).First.ClickAsync();
+            var columnOption = page.Locator(".mud-popover-open")
+                .GetByText(ColumnKey, new() { Exact = true }).First;
+            await Assertions.Expect(columnOption).ToBeVisibleAsync(new() { Timeout = 5_000 });
+            await columnOption.ClickAsync();
+            await Task.Delay(300);
+
+            // begin STEP 015
+            var addButton = page.GetByRole(AriaRole.Button, new() { Name = "Add" });
+            await Assertions.Expect(addButton).ToBeEnabledAsync(new() { Timeout = 5_000 });
+            await addButton.ClickAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            // begin STEP 016
+            // Verify the new exemption row is visible: column name appears, status is Active.
+            await Assertions
+                .Expect(page.GetByText(ColumnKey, new() { Exact = true }).First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await Assertions
+                .Expect(page.GetByText("Active", new() { Exact = true }).First)
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UAT-3: BackofficeUser with active exemption sees SSN unmasked.
+    //
+    // E2ETestReference:
+    //   AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests
+    //   .Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync
+    // ─────────────────────────────────────────────────────────────────────────
+    [Fact]
+    public async Task Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync()
+    {
+        // Pre-test setup: ensure BackofficeUser exemption exists.
+        await EnsureBackofficeUserExemptionExistsAsync();
+
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.ClearMagicLinksAsync();
+
+            // begin STEP 001
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/login",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions
+                .Expect(page.GetByLabel("Email"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 002
+            await page.GetByLabel("Email").FillAsync(AdminEmail);
+
+            // begin STEP 003
+            await page
+                .GetByRole(AriaRole.Button, new() { Name = "Send sign-in link" })
+                .ClickAsync();
+
+            // begin STEP 004
+            await Assertions
+                .Expect(page.GetByText("We sent a sign-in code to"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 005
+            var inboxPage = await _fixture.CreatePageAsync();
+            try
+            {
+                await inboxPage.GotoAsync(
+                    $"{_fixture.BaseUrl}/dev/email-inbox",
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+                // begin STEP 006
+                var firstRow = inboxPage.Locator("tbody tr.mud-table-row").First;
+                await Assertions.Expect(firstRow).ToBeVisibleAsync(new() { Timeout = 15_000 });
+                var linkAnchor = firstRow.Locator("td[data-label='Link'] a").First;
+                await Assertions.Expect(linkAnchor)
+                    .ToHaveAttributeAsync("href",
+                        new Regex(@"^https?://.+/login\?token="));
+
+                // begin STEP 007
+                var magicHref = await linkAnchor.GetAttributeAsync("href");
+                await page.GotoAsync(magicHref!,
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            }
+            finally
+            {
+                await _fixture.ClosePageAsync(inboxPage);
+            }
+
+            // begin STEP 008
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Toggle Admin" }))
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 009
+            // Click the role-switcher activator. The MudMenu wraps the inner
+            // MudLink in an activator div, so two elements share the same
+            // aria-label; targeting the inner link by data-testid is the
+            // reliable way to fire the menu-open click.
+            await page.GetByTestId("user-context-role").ClickAsync();
+
+            // begin STEP 010
+            await page.Locator(".mud-popover-open")
+                .GetByText("Backoffice User", new() { Exact = true })
+                .First
+                .ClickAsync();
+
+            // begin STEP 011
+            await Assertions
+                .Expect(page.GetByText("Now viewing as 'Backoffice User'."))
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+
+            // begin STEP 012
+            await _fixture.NavigateViaDrawerAsync(page, "Retail Businesses", ".*/customers$");
+            await PlaywrightFixture.WaitForGridDataAsync(page);
+
+            // begin STEP 013
+            var customerRow = page.Locator("tbody tr.mud-table-row").First;
+            await Assertions.Expect(customerRow).ToBeVisibleAsync(new() { Timeout = 10_000 });
+            await customerRow.ClickAsync();
+
+            // begin STEP 014
+            await Assertions
+                .Expect(page)
+                .ToHaveURLAsync(new Regex(@".*/customers/\d+$"), new() { Timeout = 10_000 });
+
+            // begin STEP 015
+            await Assertions
+                .Expect(page.GetByLabel("Social Security Number"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 016
+            await Assertions
+                .Expect(page.GetByText(new Regex(@"XXX-XX-")))
+                .Not.ToBeVisibleAsync(new() { Timeout = 2_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UAT-4: CrossOrgMonitor sees ExemptionGranted + FieldUnmaskedRead events.
+    //
+    // E2ETestReference:
+    //   AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests
+    //   .Uatv4_CrossOrgMonitorSeesComplianceEventsAsync
+    // ─────────────────────────────────────────────────────────────────────────
+    [Fact]
+    public async Task Uatv4_CrossOrgMonitorSeesComplianceEventsAsync()
+    {
+        // Pre-test setup: ensure exemption and audit events exist.
+        await EnsureComplianceAuditEventsExistAsync();
+
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.ClearMagicLinksAsync();
+
+            // begin STEP 001
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/login",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions
+                .Expect(page.GetByLabel("Email"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 002
+            await page.GetByLabel("Email").FillAsync(AdminEmail);
+
+            // begin STEP 003
+            await page
+                .GetByRole(AriaRole.Button, new() { Name = "Send sign-in link" })
+                .ClickAsync();
+
+            // begin STEP 004
+            await Assertions
+                .Expect(page.GetByText("We sent a sign-in code to"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 005
+            var inboxPage = await _fixture.CreatePageAsync();
+            try
+            {
+                await inboxPage.GotoAsync(
+                    $"{_fixture.BaseUrl}/dev/email-inbox",
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+                // begin STEP 006
+                var firstRow = inboxPage.Locator("tbody tr.mud-table-row").First;
+                await Assertions.Expect(firstRow).ToBeVisibleAsync(new() { Timeout = 15_000 });
+                var linkAnchor = firstRow.Locator("td[data-label='Link'] a").First;
+                await Assertions.Expect(linkAnchor)
+                    .ToHaveAttributeAsync("href",
+                        new Regex(@"^https?://.+/login\?token="));
+
+                // begin STEP 007
+                var magicHref = await linkAnchor.GetAttributeAsync("href");
+                await page.GotoAsync(magicHref!,
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            }
+            finally
+            {
+                await _fixture.ClosePageAsync(inboxPage);
+            }
+
+            // begin STEP 008
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Toggle Admin" }))
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 009
+            // Click the role-switcher activator. The MudMenu wraps the inner
+            // MudLink in an activator div, so two elements share the same
+            // aria-label; targeting the inner link by data-testid is the
+            // reliable way to fire the menu-open click.
+            await page.GetByTestId("user-context-role").ClickAsync();
+
+            // begin STEP 010
+            await page.Locator(".mud-popover-open")
+                .GetByText("Cross Org Monitor", new() { Exact = true })
+                .First
+                .ClickAsync();
+
+            // begin STEP 011
+            await Assertions
+                .Expect(page.GetByText("Now viewing as 'Cross Org Monitor'."))
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+
+            // begin STEP 012
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            // begin STEP 013
+            await page
+                .GetByRole(AriaRole.Tab, new() { Name = "Compliance Review" })
+                .ClickAsync();
+            // Wait for Compliance Review content heading to appear.
+            await Assertions
+                .Expect(page.GetByText("Compliance Review").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 014
+            // Verify the Entity filter input is visible — confirms grid + filters rendered.
+            await Assertions
+                .Expect(page.GetByLabel("Entity").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 015
+            await page.GetByLabel("Entity").First.FillAsync(EntityKey);
+            await Task.Delay(1500);
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            // begin STEP 016
+            await Assertions
+                .Expect(page.GetByText("ExemptionGranted").First)
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 017
+            await Assertions
+                .Expect(page.GetByText("FieldUnmaskedRead").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UAT-5: Row expander renders the correlation cluster section (judgment item).
+    //
+    // E2ETestReference:
+    //   AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests
+    //   .Uatv5_RowExpanderRendersCorrelationClusterAsync
+    // ─────────────────────────────────────────────────────────────────────────
+    [Fact]
+    public async Task Uatv5_RowExpanderRendersCorrelationClusterAsync()
+    {
+        // Pre-test setup: ensure exemption and audit events exist.
+        await EnsureComplianceAuditEventsExistAsync();
+
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.ClearMagicLinksAsync();
+
+            // begin STEP 001
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/login",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions
+                .Expect(page.GetByLabel("Email"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 002
+            await page.GetByLabel("Email").FillAsync(AdminEmail);
+
+            // begin STEP 003
+            await page
+                .GetByRole(AriaRole.Button, new() { Name = "Send sign-in link" })
+                .ClickAsync();
+
+            // begin STEP 004
+            await Assertions
+                .Expect(page.GetByText("We sent a sign-in code to"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 005
+            var inboxPage = await _fixture.CreatePageAsync();
+            try
+            {
+                await inboxPage.GotoAsync(
+                    $"{_fixture.BaseUrl}/dev/email-inbox",
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+                // begin STEP 006
+                var firstRow = inboxPage.Locator("tbody tr.mud-table-row").First;
+                await Assertions.Expect(firstRow).ToBeVisibleAsync(new() { Timeout = 15_000 });
+                var linkAnchor = firstRow.Locator("td[data-label='Link'] a").First;
+                await Assertions.Expect(linkAnchor)
+                    .ToHaveAttributeAsync("href",
+                        new Regex(@"^https?://.+/login\?token="));
+
+                // begin STEP 007
+                var magicHref = await linkAnchor.GetAttributeAsync("href");
+                await page.GotoAsync(magicHref!,
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            }
+            finally
+            {
+                await _fixture.ClosePageAsync(inboxPage);
+            }
+
+            // begin STEP 008
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Toggle Admin" }))
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 009
+            // Click the role-switcher activator. The MudMenu wraps the inner
+            // MudLink in an activator div, so two elements share the same
+            // aria-label; targeting the inner link by data-testid is the
+            // reliable way to fire the menu-open click.
+            await page.GetByTestId("user-context-role").ClickAsync();
+
+            // begin STEP 010
+            await page.Locator(".mud-popover-open")
+                .GetByText("Cross Org Monitor", new() { Exact = true })
+                .First
+                .ClickAsync();
+
+            // begin STEP 011
+            await Assertions
+                .Expect(page.GetByText("Now viewing as 'Cross Org Monitor'."))
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+
+            // begin STEP 012
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            // begin STEP 013
+            await page
+                .GetByRole(AriaRole.Tab, new() { Name = "Compliance Review" })
+                .ClickAsync();
+            await Assertions
+                .Expect(page.GetByText("Compliance Review").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 014
+            // Verify at least one audit event chip is visible before expanding.
+            await Assertions
+                .Expect(page.GetByText("ExemptionGranted").Or(page.GetByText("FieldUnmaskedRead")).First)
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 015
+            var firstDataRow = page.Locator(".mud-table-body tr.mud-table-row").First;
+            await Assertions.Expect(firstDataRow).ToBeVisibleAsync(new() { Timeout = 5_000 });
+            var expandCell = firstDataRow.Locator("td").First;
+            await Assertions.Expect(expandCell).ToBeVisibleAsync();
+            await expandCell.ClickAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            // begin STEP 016
+            var expanderContainer = page
+                .Locator("[data-testid*='compliance-review-row-'][data-testid$='-expander']")
+                .First;
+            await Assertions
+                .Expect(expanderContainer)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 017
+            var hasClusterTable = await expanderContainer
+                .Locator("[data-testid*='-cluster-table']").CountAsync() > 0;
+            var hasEmptyMessage = await expanderContainer
+                .Locator("[data-testid*='-cluster-empty']").CountAsync() > 0;
+            Assert.True(
+                hasClusterTable || hasEmptyMessage,
+                "The expander must render either a cluster table or a 'No other rows' message.");
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UAT-6: Export CSV button triggers a download and shows a success snackbar.
+    //
+    // E2ETestReference:
+    //   AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests
+    //   .Uatv6_ExportCsvButtonTriggersDownloadAsync
+    // ─────────────────────────────────────────────────────────────────────────
+    [Fact]
+    public async Task Uatv6_ExportCsvButtonTriggersDownloadAsync()
+    {
+        // Pre-test setup: ensure exemption and audit events exist.
+        await EnsureComplianceAuditEventsExistAsync();
+
+        var page = await _fixture.CreatePageAsync();
+        try
+        {
+            await _fixture.ClearMagicLinksAsync();
+
+            // begin STEP 001
+            await page.GotoAsync(
+                $"{_fixture.BaseUrl}/login",
+                new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions
+                .Expect(page.GetByLabel("Email"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 002
+            await page.GetByLabel("Email").FillAsync(AdminEmail);
+
+            // begin STEP 003
+            await page
+                .GetByRole(AriaRole.Button, new() { Name = "Send sign-in link" })
+                .ClickAsync();
+
+            // begin STEP 004
+            await Assertions
+                .Expect(page.GetByText("We sent a sign-in code to"))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 005
+            var inboxPage = await _fixture.CreatePageAsync();
+            try
+            {
+                await inboxPage.GotoAsync(
+                    $"{_fixture.BaseUrl}/dev/email-inbox",
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+                // begin STEP 006
+                var firstRow = inboxPage.Locator("tbody tr.mud-table-row").First;
+                await Assertions.Expect(firstRow).ToBeVisibleAsync(new() { Timeout = 15_000 });
+                var linkAnchor = firstRow.Locator("td[data-label='Link'] a").First;
+                await Assertions.Expect(linkAnchor)
+                    .ToHaveAttributeAsync("href",
+                        new Regex(@"^https?://.+/login\?token="));
+
+                // begin STEP 007
+                var magicHref = await linkAnchor.GetAttributeAsync("href");
+                await page.GotoAsync(magicHref!,
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            }
+            finally
+            {
+                await _fixture.ClosePageAsync(inboxPage);
+            }
+
+            // begin STEP 008
+            await Assertions
+                .Expect(page.GetByRole(AriaRole.Button, new() { Name = "Toggle Admin" }))
+                .ToBeVisibleAsync(new() { Timeout = 15_000 });
+
+            // begin STEP 009
+            // Click the role-switcher activator. The MudMenu wraps the inner
+            // MudLink in an activator div, so two elements share the same
+            // aria-label; targeting the inner link by data-testid is the
+            // reliable way to fire the menu-open click.
+            await page.GetByTestId("user-context-role").ClickAsync();
+
+            // begin STEP 010
+            await page.Locator(".mud-popover-open")
+                .GetByText("Cross Org Monitor", new() { Exact = true })
+                .First
+                .ClickAsync();
+
+            // begin STEP 011
+            await Assertions
+                .Expect(page.GetByText("Now viewing as 'Cross Org Monitor'."))
+                .ToBeVisibleAsync(new() { Timeout = 5_000 });
+
+            // begin STEP 012
+            await _fixture.NavigateViaDrawerGroupAsync(
+                page, "Admin", "Security Dashboard", ".*/admin/security$");
+
+            // begin STEP 013
+            await page
+                .GetByRole(AriaRole.Tab, new() { Name = "Compliance Review" })
+                .ClickAsync();
+            await Assertions
+                .Expect(page.GetByText("Compliance Review").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
+            // begin STEP 014
+            var exportButton = page.GetByRole(AriaRole.Button, new() { Name = "Export CSV" });
+            await Assertions.Expect(exportButton).ToBeEnabledAsync(new() { Timeout = 5_000 });
+
+            // begin STEP 015
+            await exportButton.ClickAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            // begin STEP 016
+            await Assertions
+                .Expect(page.GetByText("Exported").First)
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
+        }
+        finally
+        {
+            await _fixture.ClosePageAsync(page);
         }
     }
 }

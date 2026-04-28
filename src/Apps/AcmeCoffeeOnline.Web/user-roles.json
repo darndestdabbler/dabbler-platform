@@ -1,6 +1,8 @@
 {
   "1": [
-    "SystemAdmin"
+    "SystemAdmin",
+    "BackofficeUser",
+    "CrossOrgMonitor"
   ],
   "3": [
     "CrossOrgUserAdmin"
