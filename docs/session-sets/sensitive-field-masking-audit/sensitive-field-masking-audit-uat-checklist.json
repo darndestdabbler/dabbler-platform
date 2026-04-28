@@ -10,7 +10,11 @@
         {
           "StepNumber": 1,
           "Action": "NAVIGATE TO http://localhost:5010/login",
-          "Verifications": [ { "Text": "VERIFY the login page is visible" } ]
+          "Verifications": [
+            {
+              "Text": "VERIFY the login page is visible"
+            }
+          ]
         },
         {
           "StepNumber": 2,
@@ -68,17 +72,22 @@
           "StepNumber": 15,
           "Action": "VERIFY text matching \"XXX-XX-\" is visible on the customer detail page",
           "Verifications": [
-            { "Text": "VERIFY the SSN field renders as a masked value beginning with \"XXX-XX-\"" }
+            {
+              "Text": "VERIFY the SSN field renders as a masked value beginning with \"XXX-XX-\""
+            }
           ]
         },
         {
           "StepNumber": 16,
           "Action": "VERIFY the input with label \"Social Security Number\" is NOT visible",
           "Verifications": [
-            { "Text": "VERIFY the editable Social Security Number input is not rendered, confirming the field is masked" }
+            {
+              "Text": "VERIFY the editable Social Security Number input is not rendered, confirming the field is masked"
+            }
           ]
         }
-      ]
+      ],
+      "Feedback": "15. There is no Mask\n16. The input with the label \"Social Security Number\" IS visible."
     },
     {
       "FunctionalArea": "Sensitive Field Masking",
@@ -125,17 +134,29 @@
         {
           "StepNumber": 10,
           "Action": "CLICK TAB with name \"Role Master Details\"",
-          "Verifications": [ { "Text": "VERIFY text \"Backoffice User\" is visible in the role grid" } ]
+          "Verifications": [
+            {
+              "Text": "VERIFY text \"Backoffice User\" is visible in the role grid"
+            }
+          ]
         },
         {
           "StepNumber": 11,
           "Action": "CLICK ROW in Role Master Details grid where Name contains \"Backoffice User\"",
-          "Verifications": [ { "Text": "VERIFY the role details panel exposes a tab named \"Mask Exemptions\"" } ]
+          "Verifications": [
+            {
+              "Text": "VERIFY the role details panel exposes a tab named \"Mask Exemptions\""
+            }
+          ]
         },
         {
           "StepNumber": 12,
           "Action": "CLICK TAB with name \"Mask Exemptions\"",
-          "Verifications": [ { "Text": "VERIFY the dropdown labeled \"Table\" is visible" } ]
+          "Verifications": [
+            {
+              "Text": "VERIFY the dropdown labeled \"Table\" is visible"
+            }
+          ]
         },
         {
           "StepNumber": 13,
@@ -153,8 +174,12 @@
           "StepNumber": 16,
           "Action": "VERIFY the new exemption row is visible with text \"SocialSecurityNumber\" and status \"Active\"",
           "Verifications": [
-            { "Text": "VERIFY text \"SocialSecurityNumber\" appears in the exemptions list" },
-            { "Text": "VERIFY text \"Active\" appears in the exemptions list" }
+            {
+              "Text": "VERIFY text \"SocialSecurityNumber\" appears in the exemptions list"
+            },
+            {
+              "Text": "VERIFY text \"Active\" appears in the exemptions list"
+            }
           ]
         }
       ]
@@ -225,14 +250,18 @@
           "StepNumber": 15,
           "Action": "VERIFY the input with label \"Social Security Number\" is visible",
           "Verifications": [
-            { "Text": "VERIFY the editable Social Security Number input is rendered (no mask)" }
+            {
+              "Text": "VERIFY the editable Social Security Number input is rendered (no mask)"
+            }
           ]
         },
         {
           "StepNumber": 16,
           "Action": "VERIFY text matching \"XXX-XX-\" is NOT visible",
           "Verifications": [
-            { "Text": "VERIFY the masked text \"XXX-XX-\" is not present, confirming the SSN is unmasked" }
+            {
+              "Text": "VERIFY the masked text \"XXX-XX-\" is not present, confirming the SSN is unmasked"
+            }
           ]
         }
       ]
@@ -294,7 +323,11 @@
         {
           "StepNumber": 13,
           "Action": "CLICK TAB with name \"Compliance Review\"",
-          "Verifications": [ { "Text": "VERIFY the Compliance Review heading is visible" } ]
+          "Verifications": [
+            {
+              "Text": "VERIFY the Compliance Review heading is visible"
+            }
+          ]
         },
         {
           "StepNumber": 14,
@@ -308,14 +341,18 @@
           "StepNumber": 16,
           "Action": "VERIFY at least one event chip with text \"ExemptionGranted\" is visible",
           "Verifications": [
-            { "Text": "VERIFY text \"ExemptionGranted\" is visible in the compliance review grid" }
+            {
+              "Text": "VERIFY text \"ExemptionGranted\" is visible in the compliance review grid"
+            }
           ]
         },
         {
           "StepNumber": 17,
           "Action": "VERIFY at least one event chip with text \"FieldUnmaskedRead\" is visible",
           "Verifications": [
-            { "Text": "VERIFY text \"FieldUnmaskedRead\" is visible in the compliance review grid" }
+            {
+              "Text": "VERIFY text \"FieldUnmaskedRead\" is visible in the compliance review grid"
+            }
           ]
         }
       ]
@@ -396,7 +433,9 @@
           "StepNumber": 17,
           "Action": "VERIFY the expander panel renders either a correlation-cluster table OR the message \"No other rows in this correlation.\"",
           "Verifications": [
-            { "Text": "JUDGMENT: the cluster section reads clearly and groups the related audit rows in a way the reviewer can scan at a glance" }
+            {
+              "Text": "JUDGMENT: the cluster section reads clearly and groups the related audit rows in a way the reviewer can scan at a glance"
+            }
           ]
         }
       ]
@@ -463,7 +502,9 @@
           "StepNumber": 14,
           "Action": "VERIFY the button with caption \"Export CSV\" is enabled",
           "Verifications": [
-            { "Text": "VERIFY the button labeled \"Export CSV\" is enabled" }
+            {
+              "Text": "VERIFY the button labeled \"Export CSV\" is enabled"
+            }
           ]
         },
         {
@@ -474,10 +515,82 @@
           "StepNumber": 16,
           "Action": "VERIFY a snackbar containing the text \"Exported\" appears",
           "Verifications": [
-            { "Text": "VERIFY a snackbar with text containing \"Exported\" is visible" }
+            {
+              "Text": "VERIFY a snackbar with text containing \"Exported\" is visible"
+            }
           ]
         }
       ]
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Default Mask Rendering",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "Step 2. The label is actually \"Email address\".  Is there a way to make sure that you specify the correct labels for components?  It seems like you are just guessing.  Why can't you look it up?  Perhaps we need a scanning process that builds a table of PageName|ComponentType|ComponentLabel/Caption that you can reference in your tests so that you aren't guessing.  Guesses like this reduce my confidence that you have a handle on things.\n\nStep 9.  The button is actually rendered as a link.  The user sees it as a link.  It should be described the way the user sees it.  I can't see aria-labels.  A more accurate description for the user would be \"Click on the 'System Admin' link in the top right of the screen between 'Internal Platform Admin as' and 'Internal Operations' \n\nStep 13. The filter grid is not working at all.  I tried email address and last name.\n"
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Grant",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Effect",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Audit Event Visibility",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Correlation Cluster Layout",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Export CSV",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
     }
-  ]
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  },
+  "DocumentDate": "4/28/2026, 1:50:54 AM"
 }
