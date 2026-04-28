@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "uat-runner-and-triage-feedback",
-  "currentSession": 2,
+  "currentSession": 3,
   "totalSessions": 4,
-  "status": "complete",
-  "startedAt": "2026-04-28T09:46:34.387835-04:00",
-  "completedAt": "2026-04-28T10:12:08.048716-04:00",
+  "status": "in-progress",
+  "startedAt": "2026-04-28T11:15:00.000000-04:00",
+  "completedAt": null,
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "medium"
+    "model": "claude-haiku-4-5-20251001",
+    "effort": "low"
   }
 }

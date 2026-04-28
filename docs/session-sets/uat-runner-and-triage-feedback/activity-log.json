@@ -222,6 +222,60 @@
       "description": "Logged actuals in ai-assignment.md; S3 recommendation (Haiku, low effort) from routed analysis. Committing.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-28T15:00:00.000000+00:00",
+      "description": "Read project-guidance.md and lessons-learned.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/remediations",
+      "dateTime": "2026-04-28T15:05:00.000000+00:00",
+      "description": "Created remediations/{__init__,catalog_stale,app_functional_bug,seed_data_gap,ambiguous_locator}.py with issue-filing and auto-recovery stubs",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/dispatch-wire",
+      "dateTime": "2026-04-28T15:10:00.000000+00:00",
+      "description": "Added apply_remediation() dispatch in triage.py; wired remediations into _run_triage() and _append_activity_log() in runner.py",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/e2e-test",
+      "dateTime": "2026-04-28T15:20:00.000000+00:00",
+      "description": "End-to-end test: 4/4 synthetic failure cases pass; issue files created for APP_FUNCTIONAL_BUG/SEED_DATA_GAP/AMBIGUOUS_LOCATOR; CATALOG_STALE returns auto-recovery outcome",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-28T15:30:00.000000+00:00",
+      "description": "Session 3 verification: All remediations dispatching correctly, issue files generated with proper structure, activity-log integration verified",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/commit",
+      "dateTime": "2026-04-28T15:35:00.000000+00:00",
+      "description": "Commit: Add remediations + dispatch logic. 4/4 synthetic test cases pass.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }
