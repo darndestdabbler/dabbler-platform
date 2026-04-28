@@ -293,3 +293,53 @@ def classify_failure(
         catalog_path="",
     )
     return ts.classify(failure, catalog_entry=catalog_entry)
+
+
+def apply_remediation(
+    result: TriageResult,
+    session_set_slug: str = "uat-runner-and-triage-feedback",
+) -> dict:
+    """Apply the appropriate remediation based on classification.
+
+    Args:
+        result: A TriageResult with a classification (one of the four classes).
+        session_set_slug: The session-set slug (used for issue-file paths).
+
+    Returns:
+        A dict with keys {type, stepNumber, classification, outcome, issueFile?, ...}
+        describing the remediation applied.
+
+    Remediations:
+      - APP_FUNCTIONAL_BUG: Files a human-review issue.
+      - CATALOG_STALE: Auto-applies a re-crawl + re-run.
+      - SEED_DATA_GAP: Files a human-review issue.
+      - AMBIGUOUS_LOCATOR: Files a human-review issue.
+      - BUDGET_EXCEEDED / PARSE_ERROR: Files a human-review issue.
+    """
+    # Late import to avoid circular dependencies
+    from . import remediations
+
+    classification = result.classification
+
+    if classification == "APP_FUNCTIONAL_BUG":
+        return remediations.app_functional_bug.file_issue(result, session_set_slug)
+    elif classification == "CATALOG_STALE":
+        return remediations.catalog_stale.apply(result)
+    elif classification == "SEED_DATA_GAP":
+        return remediations.seed_data_gap.file_issue(result, session_set_slug)
+    elif classification == "AMBIGUOUS_LOCATOR":
+        return remediations.ambiguous_locator.file_issue(result, session_set_slug)
+    elif classification == "BUDGET_EXCEEDED":
+        return remediations.app_functional_bug.file_issue(result, session_set_slug)
+    elif classification == "PARSE_ERROR":
+        return remediations.app_functional_bug.file_issue(result, session_set_slug)
+    else:
+        # Catch-all for unrecognized classifications
+        return {
+            "type": "uat-runner-failure",
+            "stepNumber": result.failure.step_number,
+            "classification": classification,
+            "autoApplied": False,
+            "outcome": "human-review-required",
+            "reason": f"Unhandled or unexpected classification: {classification}",
+        }

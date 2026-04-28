@@ -363,13 +363,22 @@ def _run_triage(
     session_set: str = "",
     session_number: int | None = None,
 ) -> None:
-    """Run each StepFailure through TriageSession and attach results to report."""
-    from .triage import FailureRecord, TriageSession
+    """Run each StepFailure through TriageSession, apply remediations, and log outcomes."""
+    from datetime import datetime
+    from .triage import FailureRecord, TriageSession, apply_remediation
 
     ts = TriageSession(
         session_set=session_set or "docs/session-sets/uat-runner-and-triage-feedback",
         session_number=session_number,
     )
+
+    # Extract session-set slug from the full session_set path
+    session_set_slug = Path(session_set or "docs/session-sets/uat-runner-and-triage-feedback").name
+
+    activity_log_path = (
+        REPO_ROOT / "docs/session-sets" / session_set_slug / "activity-log.json"
+    )
+
     for sf in report.failed:
         # Build a FailureRecord from StepFailure. Step number is inferred
         # from the test name (which encodes the step via the xUnit wrapper).
@@ -384,7 +393,64 @@ def _run_triage(
         result = ts.classify(fr)
         report.triage_results.append(result)
 
+        # Apply the appropriate remediation based on classification
+        remediation_outcome = apply_remediation(result, session_set_slug)
+
+        # Log the remediation outcome to activity-log.json
+        _append_activity_log(activity_log_path, remediation_outcome, session_number)
+
     report.triage_total_cost_usd = ts.total_cost_usd
+
+
+def _append_activity_log(
+    activity_log_path: Path,
+    remediation_outcome: dict,
+    session_number: int | None = None,
+) -> None:
+    """Append a remediation outcome record to the session-set activity-log.json.
+
+    Creates the log if it doesn't exist. The log structure is defined in
+    the uat-runner-and-triage-feedback spec.
+    """
+    from datetime import datetime
+
+    if not activity_log_path.parent.exists():
+        activity_log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Load existing log or create a new one
+    if activity_log_path.exists():
+        with open(activity_log_path, "r", encoding="utf-8") as f:
+            log = json.load(f)
+    else:
+        log = {
+            "sessionSetName": activity_log_path.parent.name,
+            "createdDate": datetime.utcnow().isoformat() + "+00:00",
+            "totalSessions": 4,
+            "entries": [],
+        }
+
+    # Build the activity entry
+    entry = {
+        "sessionNumber": session_number or 3,
+        "type": remediation_outcome.get("type", "uat-runner-failure"),
+        "stepNumber": remediation_outcome.get("stepNumber", 0),
+        "classification": remediation_outcome.get("classification", "UNKNOWN"),
+        "autoApplied": remediation_outcome.get("autoApplied", False),
+        "outcome": remediation_outcome.get("outcome", "unknown"),
+        "dateTime": datetime.utcnow().isoformat() + "+00:00",
+    }
+
+    if "issueFile" in remediation_outcome:
+        entry["issueFile"] = remediation_outcome["issueFile"]
+
+    if "reason" in remediation_outcome:
+        entry["reason"] = remediation_outcome["reason"]
+
+    log["entries"].append(entry)
+
+    # Write back
+    with open(activity_log_path, "w", encoding="utf-8") as f:
+        json.dump(log, f, indent=2, ensure_ascii=False)
 
 
 def _parse_step_number(test_name: str) -> int:
