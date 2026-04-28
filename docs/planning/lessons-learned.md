@@ -1442,6 +1442,50 @@ Use this structure for new entries:
   as a platform export pattern. Current first use: Compliance Review tab
   (`sensitive-field-masking-audit` Session 4).
 
+## A Green Playwright Suite Is Not Sufficient Evidence That The Human Sees What The Test Claims
+
+- **Context:** `sensitive-field-masking-audit-uat-remediation` Session 1
+  (committed 2026-04-28, sha 4d61525). The Playwright suite went green twice
+  consecutively (6/6 passing), cross-provider session-verification returned
+  VERIFIED, the suite was committed and the UAT checklist handed to the human.
+  The human then ran UAT-1 in a real browser and recorded inline feedback:
+  *"15. There is no Mask. 16. The input with the label 'Social Security
+  Number' IS visible."* — the OPPOSITE of what UAT-1's verifications claimed.
+- **Failure or friction:** The Playwright test for UAT-1 step 15 used
+  `Expect(page.GetByText(new Regex(@"XXX-XX-"))).ToBeVisibleAsync(...)` to
+  prove the SSN field rendered as masked text. `GetByText` matched
+  *somewhere* on the page (likely a mask-format hint string in another
+  panel or a tooltip), so the assertion passed even though the actual SSN
+  input rendered unmasked. Step 16 used `GetByLabel("Social Security
+  Number").Not.ToBeVisibleAsync(...)` with a 2-second timeout — when the
+  field rendered as an editable input under "Social Security Number"
+  it should have failed but did not, suggesting either the label-association
+  isn't the way `MudTextField` actually exposes its label, or the field
+  was visible after the 2-second window. Either way, the test pair lied
+  about the rendered state.
+- **Lesson:** Visible-label `GetByText`/`GetByLabel` assertions on Blazor +
+  MudBlazor surfaces are easy to write in a way that *passes* against an
+  incorrect render. When the test claim is a structural property of a
+  specific control (this exact field renders as a masked span vs an
+  editable input), the assertion has to be scoped to that control's
+  container — not to the entire page — and the masked-vs-unmasked
+  distinction has to be a positive structural claim on both sides
+  (mask span exists with masked text, AND the input does not exist), not a
+  free-text regex that any tooltip/help text could satisfy.
+  Playwright-green ≠ UI-correct.
+- **Action for future sessions:** A separate session set is being authored
+  in a parallel Claude conversation to make fundamental changes to how E2E
+  is conducted, with the goal of reducing this kind of misalignment
+  systemically. When that set lands, follow whatever conventions it
+  establishes. Until then, when authoring E2E for a UAT item:
+  scope every assertion to the specific control's container (e.g.,
+  `page.GetByTestId("field-ssn-wrapper")` for the SSN slot) before
+  applying the visible-label/text check inside it; treat a passing
+  assertion outside the scoped container as a false positive; and
+  cross-check both halves of a render-mode claim (masked → mask span
+  visible AND input not present; unmasked → input present AND mask span
+  not present) so a single weak assertion cannot let a broken UI through.
+
 ## Masking-Auditor Pattern Is A Platform Auditing Convention Candidate
 
 - **Context:** `sensitive-field-masking-audit` introduced the full
