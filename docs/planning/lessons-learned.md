@@ -1509,3 +1509,112 @@ Use this structure for new entries:
   sensitive-field or action-audit coverage, evaluate applying this pattern
   and, if applied, promote it to `project-guidance.md` → Conventions.
   Current first use: `sensitive-field-masking-audit` Sessions 2–3.
+
+## Cross-Provider Verification Must Exclude The Orchestrator's Provider, Not Just The Generator's
+
+- **Context:** `uat-dsl-compiler` Session 1 — Claude orchestrator routed
+  grammar authoring to Opus (Anthropic) and tests to Gemini Pro
+  (Google). The `session-verification` task should have run on a
+  non-Anthropic model per Rule 2 (cross-provider verification).
+- **Failure or friction:** The router's preferred verifier (GPT-5.4,
+  OpenAI) returned 429 rate-limited. The fallback selection in
+  `verification.py` excludes the failed provider but does NOT consider
+  the orchestrator's provider, so it picked Opus (Anthropic) — the same
+  provider as the orchestrator. The cross-provider guarantee was
+  silently broken; the verification still ran and returned a verdict,
+  but it was not actually independent of the orchestrator's pool.
+- **Lesson:** The cross-provider rule is anchored to the *orchestrator*,
+  not the *generator of the work being verified*. Verifier candidates
+  must exclude the orchestrator's provider in addition to (or instead
+  of) the generator's provider, especially on `session-verification`
+  where the routed call IS the verification step. With three providers
+  and the orchestrator's provider excluded, the rate-limit fallback
+  still has one valid choice; with two providers excluded the call
+  should hard-fail with a clear "no valid cross-provider verifier"
+  error rather than silently fall back to the orchestrator's pool.
+- **Action for future sessions:**
+  1. Pass the orchestrator's provider into `route()` (e.g., via a
+     `register_session_start()` side-effect or a `route(...,
+     orchestrator_provider=...)` parameter) and have
+     `verification.py` exclude it from the verifier candidate pool
+     for `session-verification` task type.
+  2. Until that lands, the orchestrator should sanity-check the
+     verifier model name against its own provider after every routed
+     verification call and log a `Major` issue if they match — even
+     if the verdict is VERIFIED.
+  3. Surface the same-provider fallback in the manager report
+     (`report.py`) so the rate at which the cross-provider guarantee
+     is actually upheld is observable over time.
+
+## Use The Verification Prompt Template — Don't Hand-Roll The Verifier Prompt
+
+- **Context:** `uat-dsl-compiler` Session 1 — built a custom
+  verification prompt with a "What to verify" checklist and inlined
+  file contents, but did NOT include the structured JSON response
+  schema from `ai-router/prompt-templates/verification.md`.
+- **Failure or friction:** The verifier returned a markdown report
+  ("Verdict: PASS — All session deliverables met. No blocking issues.")
+  with a markdown table breakdown, NOT the
+  `{"verdict": ..., "issues": [...]}` JSON block the workflow expects
+  for mechanical parsing. The verdict was unambiguous and the saved
+  review file was useful, but a downstream tool that parses
+  `session-NNN.md` for routing decisions would have failed or
+  misclassified the result. The workflow doc explicitly calls this out
+  ("bare-paragraph verdicts have caused parser failures and
+  ISSUES_FOUND-misclassified-as-VERIFIED regressions") — exactly the
+  failure mode that nearly happened here.
+- **Lesson:** The structured-JSON requirement at Step 6 is non-
+  negotiable, and the existing template at
+  `ai-router/prompt-templates/verification.md` already enforces it.
+  Hand-rolling the verification prompt to be "more specific" loses the
+  schema enforcement and is the wrong trade.
+- **Action for future sessions:**
+  1. For `session-verification`, build the prompt by reading
+     `ai-router/prompt-templates/verification.md` and substituting
+     `{original_task}`, `{task_type}`, and `{original_response}` with
+     the session's spec excerpt and file contents — do not hand-roll.
+  2. If the prompt has session-specific framing (lists of what to
+     verify, file context), add it as additional content under the
+     template's `Your Instructions` section rather than replacing
+     the response-format block.
+  3. The router could also auto-prepend the JSON schema block when
+     `task_type="session-verification"` regardless of what the caller
+     passes — that's a more robust fix than relying on caller
+     discipline.
+
+## Anthropic Effort Levels Are `low|medium|high|max` — `xhigh` Is Not Valid
+
+- **Context:** `uat-dsl-compiler` Session 1 — first time the
+  `architecture` task type was actually exercised end-to-end against
+  Anthropic. The router-config had `effort: xhigh` for Opus on the
+  architecture task, and `ai-router/providers.py` listed `xhigh` as a
+  valid Anthropic effort level in its docstring.
+- **Failure or friction:** Every architecture-routed call to Opus
+  failed with `400 Bad Request: This model does not support effort
+  level 'xhigh'. Supported levels: high, low, max, medium.` The
+  router has no concept of param-validity per provider, so the call
+  retried 3 times and then raised — costing time and grinding the
+  session to a halt until the cause was diagnosed by direct API call.
+  The bug had been latent in `router-config.yaml` since the
+  architecture task type was added; it never surfaced because no prior
+  session had actually routed an architecture call (sets that needed
+  architecture either skipped routing or used a different task type).
+- **Lesson:** The valid Anthropic effort enum is
+  `{low, medium, high, max}` — `xhigh` is OpenAI-specific
+  (`reasoning_effort: xhigh` is valid for GPT-5.x) and was apparently
+  copy-pasted across providers in both the YAML and the providers.py
+  docstring. Cross-provider param normalization is a real gap in the
+  router.
+- **Action for future sessions:**
+  1. The fix has been applied: `router-config.yaml` line 307 now
+     reads `effort: max` for Opus on the architecture task. The
+     `providers.py` docstring should also be corrected to remove
+     `xhigh` from the Anthropic effort enum (still pending).
+  2. New per-task-type param entries in `router-config.yaml` should
+     be validated against the providers.py docstring (or a future
+     schema check) before merging.
+  3. Consider adding a startup-time validator in the router that
+     loads the YAML and calls each provider's parameter-shape
+     normalizer, surfacing invalid combinations as a clear error
+     message instead of waiting for the first 400 from the API mid-
+     session.
