@@ -1,0 +1,2929 @@
+{
+  "appName": "AcmeCoffeeOnline",
+  "generatedAt": "2026-04-28T11:26:12Z",
+  "schemaVersion": "1.0",
+  "entries": [
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "AcmeCoffeeDistributors Dashboard",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Reports",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Orders",
+      "testId": "search-orders",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Products",
+      "testId": "search-products",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "User Administration",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Internal Operations",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Add filter",
+      "ariaLabel": "Add filter",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Email",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Active",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roles In Scope",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Other Organizations",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Actions",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "GRANT USERADMIN",
+      "testId": "grant-useradmin-3",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "REMOVE USERADMIN",
+      "testId": "revoke-useradmin-5",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Counter",
+      "htmlTag": "h1"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Snackbar",
+      "userVisibleLabel": "Current count: 0",
+      "htmlTag": "p"
+    },
+    {
+      "routePath": "/counter",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "Click me",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Element",
+      "userVisibleLabel": "Filter panel",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Last Name",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Email",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "City",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "State",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Primary Contact First Name",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Primary Contact Last Name",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Account Email",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Phone",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "City",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "State",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Active",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to retail businesses",
+      "ariaLabel": "Back to retail businesses",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Business #42",
+      "testId": "customer-detail-title",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "First Name",
+      "testId": "field-first-name",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Last Name",
+      "testId": "field-last-name",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Email",
+      "testId": "field-email",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Phone",
+      "testId": "field-phone",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Address",
+      "testId": "field-address",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "City",
+      "testId": "field-city",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "State",
+      "testId": "field-state",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Zip Code",
+      "testId": "field-zip-code",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Social Security Number",
+      "testId": "field-ssn",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "AcmeCoffeeDistributors Dashboard",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Reports",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Orders",
+      "testId": "search-orders",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Products",
+      "testId": "search-products",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/not-found",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Not Found",
+      "htmlTag": "h3"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Element",
+      "userVisibleLabel": "Filter panel",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Status",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Retail Business",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date From",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date To",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Total",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Total",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Order #",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Retail Business Contact",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Order Date",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Status",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Total",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Ship Date",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "355",
+      "testId": "order-detail-link-355",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "16",
+      "testId": "order-detail-link-16",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "17",
+      "testId": "order-detail-link-17",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "18",
+      "testId": "order-detail-link-18",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "19",
+      "testId": "order-detail-link-19",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "20",
+      "testId": "order-detail-link-20",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "21",
+      "testId": "order-detail-link-21",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "22",
+      "testId": "order-detail-link-22",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "23",
+      "testId": "order-detail-link-23",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "24",
+      "testId": "order-detail-link-24",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "25",
+      "testId": "order-detail-link-25",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "26",
+      "testId": "order-detail-link-26",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "27",
+      "testId": "order-detail-link-27",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "28",
+      "testId": "order-detail-link-28",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "29",
+      "testId": "order-detail-link-29",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "30",
+      "testId": "order-detail-link-30",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "31",
+      "testId": "order-detail-link-31",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "32",
+      "testId": "order-detail-link-32",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "33",
+      "testId": "order-detail-link-33",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "34",
+      "testId": "order-detail-link-34",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "35",
+      "testId": "order-detail-link-35",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "36",
+      "testId": "order-detail-link-36",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "37",
+      "testId": "order-detail-link-37",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "38",
+      "testId": "order-detail-link-38",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "39",
+      "testId": "order-detail-link-39",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to orders",
+      "ariaLabel": "Back to orders",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Order #355",
+      "testId": "order-detail-title",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "SHIPPED",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "CANCELLED",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Customer",
+      "testId": "field-customer-name",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date",
+      "testId": "field-order-date",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Ship Date",
+      "testId": "field-ship-date",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Total",
+      "testId": "field-total",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Notes",
+      "testId": "field-notes",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Tab",
+      "userVisibleLabel": "ITEMS (1)",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Tab",
+      "userVisibleLabel": "NOTES (1)",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Element",
+      "userVisibleLabel": "ITEMS (1)",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "ADD PRODUCT",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Product",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Qty",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Discount %",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Line Total",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Element",
+      "userVisibleLabel": "Filter panel",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Price",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Price",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "ADD PRODUCT",
+      "testId": "add-product-button",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Element",
+      "userVisibleLabel": "Filter panel",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Price",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Price",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "ADD PRODUCT",
+      "testId": "add-product-button",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to products",
+      "ariaLabel": "Back to products",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Product #21",
+      "testId": "product-detail-title",
+      "htmlTag": "h4"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "ACTIVATE",
+      "testId": "toggle-availability-button",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Name",
+      "testId": "field-name",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Unit Price",
+      "testId": "field-unit-price",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Description",
+      "testId": "field-description",
+      "htmlTag": "textarea"
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Image URL",
+      "testId": "field-image-url",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Element",
+      "userVisibleLabel": "Orders by Retail Business",
+      "ariaLabel": "Orders by Retail Business",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Report Parameters",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Start Date",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "End Date",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Status",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Filter Summary",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "RUN REPORT",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom out",
+      "ariaLabel": "Zoom out",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom in",
+      "ariaLabel": "Zoom in",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Export to PDF",
+      "ariaLabel": "Export to PDF",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Print",
+      "ariaLabel": "Print",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Element",
+      "userVisibleLabel": "Sales by Product",
+      "ariaLabel": "Sales by Product",
+      "htmlTag": "div"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Report Parameters",
+      "htmlTag": "h6"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Start Date",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "End Date",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Input",
+      "userVisibleLabel": "Filter Summary",
+      "htmlTag": "input"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "Button",
+      "userVisibleLabel": "RUN REPORT",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom out",
+      "ariaLabel": "Zoom out",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom in",
+      "ariaLabel": "Zoom in",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Export to PDF",
+      "ariaLabel": "Export to PDF",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Print",
+      "ariaLabel": "Print",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Backoffice User, switch role",
+      "ariaLabel": "Backoffice User, switch role",
+      "testId": "user-context-role",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Internal Operations, switch organization",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a"
+    },
+    {
+      "routePath": "/weather",
+      "role": "BackofficeUser",
+      "elementRole": "Text",
+      "userVisibleLabel": "Weather",
+      "htmlTag": "h1"
+    }
+  ]
+}
