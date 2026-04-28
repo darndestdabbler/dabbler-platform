@@ -1,7 +1,7 @@
 {
   "sessionSetName": "uat-dsl-compiler",
   "createdDate": "2026-04-28T07:13:48.771963+00:00",
-  "totalSessions": 0,
+  "totalSessions": 5,
   "entries": [
     {
       "sessionNumber": 1,
@@ -142,6 +142,118 @@
           "costUsd": 1.093395
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-28T08:30:49.936344+00:00",
+      "description": "Read README.md, project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, ai-led-session-workflow.md, and uat-dsl-compiler spec/state; verified required API keys.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/ast-records",
+      "dateTime": "2026-04-28T08:38:53.448651+00:00",
+      "description": "Added typed AST records under src/Dabbler.Uat.Dsl.Core/Ast/ covering all DSL verb forms plus canonical text rendering and where-condition value objects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/visitor",
+      "dateTime": "2026-04-28T08:38:53.449707+00:00",
+      "description": "Implemented UatDslVisitor to map ANTLR parse-tree nodes to typed AST records with line/column metadata.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/parser-facade",
+      "dateTime": "2026-04-28T08:38:53.449707+00:00",
+      "description": "Implemented UatChecklistParser and UatDslParseException, including checklist JSON extraction for Review[].Steps[].Action and legacy Description compatibility.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/ast-tests",
+      "dateTime": "2026-04-28T08:38:53.450229+00:00",
+      "description": "Added AstTests.cs via routed test-generation: per-verb AST shape assertions, checklist parsing coverage, and parse error coverage.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 13302,
+          "outputTokens": 4686,
+          "costUsd": 0.063488
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/round-trip",
+      "dateTime": "2026-04-28T08:38:53.451274+00:00",
+      "description": "Added canonical round-trip coverage proving parse -> ToCanonicalText -> reparse preserves the canonical step sequence.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/test-pass",
+      "dateTime": "2026-04-28T08:38:53.451825+00:00",
+      "description": "dotnet test DabblerUatDsl.slnx green: 123 passed, 0 failed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-28T08:44:09.369952+00:00",
+      "description": "Cross-provider verification via routed session-verification (model: opus, provider: anthropic). Verdict: VERIFIED.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 23986,
+          "outputTokens": 11497,
+          "costUsd": 1.222065
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/ai-assignment",
+      "dateTime": "2026-04-28T08:44:09.369952+00:00",
+      "description": "Updated ai-assignment.md via routed analysis with Session 2 actuals and the Session 3 orchestrator recommendation.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.0069275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/commit",
+      "dateTime": "2026-04-28T08:45:16.718414+00:00",
+      "description": "Committed sibling repo session work at ff5646a297985f176da98c71656f7137b907a9cc; platform repo commit will capture workflow artifacts and ledger updates.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

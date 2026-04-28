@@ -66,12 +66,14 @@ Moderate
 | 6 | Commits | Direct |
 
 ### Actuals (filled after the session)
-- Orchestrator used: <pending>
-- Total routed cost: <pending>
-- Deviations from recommendation: <pending>
-- Notes for next-session calibration: <pending>
+- Orchestrator used: Codex / GPT-5 (OpenAI), effort=medium — matched recommendation
+- Total routed cost: $1.285553 (test-generation $0.063488 + session-verification $1.222065)
+- Deviations from recommendation: none
+- Notes for next-session calibration:
+  - The implementation was mechanical enough for Codex, confirming the recommendation. Verification remained the dominant cost line.
 
-**Next-session orchestrator recommendation (Session 3): authored at end of Session 2.**
+**Next-session orchestrator recommendation (Session 3):** Claude Code @ effort=high
+Rationale: The semantic validator requires complex reasoning, state tracking while walking an AST, and implementing fuzzy-matching logic. This warrants the most capable orchestrator for correctness and quality.
 
 ---
 ## Session 3: Catalog adapter, semantic validation, schema
