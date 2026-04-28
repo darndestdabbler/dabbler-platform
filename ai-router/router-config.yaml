@@ -235,6 +235,11 @@ routing:
     # delegated to the dabbler-uat-dsl compiler (CLI) rather than to a
     # cross-provider AI verifier — see auto_verify_task_types below.
     uat-script-author: sonnet
+    # UAT failure triage: Sonnet at medium effort. Mechanical pattern-matching
+    # against four well-defined classes; cost-capped in triage.py (3 calls /
+    # $0.20 per runner execution). Not auto-verified — the ground truth is the
+    # human-review pipeline, not a cross-provider AI second-opinion.
+    uat-failure-triage: sonnet
 
 # --- Delegation ---
 # Guidance for orchestrators (Claude Code / Codex / Gemini) on which
@@ -331,6 +336,13 @@ task_type_params:
     opus:       { effort: medium, thinking: { enabled: true, type: adaptive } }
     gemini-pro: { thinking_budget: -1 }
     gpt-5-4:    { reasoning_effort: medium }
+  # UAT failure triage: medium effort. Four-class pattern-matching is well-defined
+  # and not ambiguous enough to warrant high reasoning depth. Cost-capped by
+  # TriageSession in uat_runner/triage.py (3 calls / $0.20 per runner execution).
+  uat-failure-triage:
+    sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4-mini: { reasoning_effort: medium }
 
   # Verification task type used by the internal verify() path. Kept
   # separate from 'session-verification' so per-task-type overrides
@@ -379,6 +391,7 @@ complexity:
     uat-plan-generation: 70
     uat-coverage-review: 70
     uat-script-author: 60
+    uat-failure-triage: 45
     formatting: 10
     summarization: 20
     architecture: 80

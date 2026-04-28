@@ -1,10 +1,8 @@
 """UAT runner: compile a checklist via W0, run via `dotnet test`, parse .trx.
 
-Session 1 scaffolding for the `uat-runner-and-triage-feedback` set. The
-public entry point is :func:`run_checklist`. Triage classification and
-remediation dispatch are wired in Sessions 2 and 3; for now the runner
-returns a :class:`RunReport` and the caller decides what to do with
-failures.
+Public entry point is :func:`run_checklist`. Triage is wired in Session 2
+via :class:`ai_router.uat_runner.triage.TriageSession`; remediation dispatch
+lands in Session 3.
 
 End-to-end pipeline:
 
@@ -17,6 +15,9 @@ End-to-end pipeline:
    a ``.trx`` logger output.
 4. Parse the ``.trx`` to collect pass/fail outcomes and produce a
    :class:`RunReport`.
+5. If failures exist, run each through :class:`TriageSession` (up to
+   ``MAX_TRIAGE_CALLS`` calls / ``MAX_TRIAGE_COST_USD``) and attach
+   ``TriageResult`` objects to the report.
 """
 
 from __future__ import annotations
@@ -30,7 +31,7 @@ import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 GENERATED_DIR_RELATIVE = Path("tests/AcmeCoffeeOnline.Playwright/Generated")
@@ -42,11 +43,7 @@ W0_CLI_PROJECT = REPO_ROOT.parent / "dabbler-uat-dsl/src/Dabbler.Uat.Dsl.Cli"
 
 @dataclass
 class StepFailure:
-    """A single failed test outcome lifted from a `.trx` UnitTestResult.
-
-    Session 2 promotes this into a richer ``failure_record`` that
-    triage consumes; for Session 1 we just preserve the raw signal.
-    """
+    """A single failed test outcome lifted from a `.trx` UnitTestResult."""
 
     test_name: str
     outcome: str
@@ -70,6 +67,8 @@ class RunReport:
     passed: list[str] = field(default_factory=list)
     failed: list[StepFailure] = field(default_factory=list)
     runner_message: str = ""
+    triage_results: list[Any] = field(default_factory=list)  # list[TriageResult]
+    triage_total_cost_usd: float = 0.0
 
     @property
     def has_failures(self) -> bool:
@@ -102,6 +101,20 @@ class RunReport:
                 }
                 for f in self.failed
             ],
+            "triageResults": [
+                {
+                    "stepNumber": tr.failure.step_number,
+                    "stepText": tr.failure.step_text,
+                    "classification": tr.classification,
+                    "confidence": tr.confidence,
+                    "evidence": tr.evidence,
+                    "proposedFix": tr.proposed_fix,
+                    "triageCostUsd": tr.triage_cost_usd,
+                    "skippedReason": tr.skipped_reason,
+                }
+                for tr in self.triage_results
+            ],
+            "triageTotalCostUsd": self.triage_total_cost_usd,
             "runnerMessage": self.runner_message,
         }
 
@@ -251,14 +264,18 @@ def run_checklist(
     base_url: str = "http://localhost:5010",
     auth_email: str = "admin@acmecoffee.com",
     skip_dotnet_test: bool = False,
+    skip_triage: bool = False,
+    session_set: str = "",
+    session_number: int | None = None,
 ) -> RunReport:
     """Compile, run, and parse a UAT checklist.
 
-    ``base_url`` and ``auth_email`` are accepted for forward compatibility
-    with Sessions 2/3 (they will flow into the failure record sent to
-    triage); Session 1 does not yet read them. Pass ``skip_dotnet_test=True``
-    to stop after compile — useful when proving the plumbing without
-    needing the app stack up.
+    ``base_url`` and ``auth_email`` flow into the failure record sent to
+    triage. Pass ``skip_dotnet_test=True`` to stop after compile.
+    Pass ``skip_triage=True`` to skip triage even when failures exist (useful
+    when testing the plumbing without incurring AI costs).
+    ``session_set`` / ``session_number`` are threaded through to the triage
+    router calls for metrics grouping.
     """
     checklist = Path(checklist_path).resolve()
     catalog = Path(catalog_path).resolve()
@@ -313,11 +330,24 @@ def run_checklist(
     passed, failed = _parse_trx(trx_path)
     report.passed = passed
     report.failed = failed
+
+    if failed and not skip_triage:
+        _run_triage(report, session_set=session_set, session_number=session_number)
+
     if failed:
-        report.runner_message = (
-            f"{len(failed)} test failure(s) reported via .trx; "
-            "triage wiring lands in Session 2."
-        )
+        if report.triage_results:
+            classified = ", ".join(
+                f"{tr.classification}(step={tr.failure.step_number})"
+                for tr in report.triage_results
+            )
+            report.runner_message = (
+                f"{len(failed)} failure(s): {classified}. "
+                f"Triage cost: ${report.triage_total_cost_usd:.4f}."
+            )
+        else:
+            report.runner_message = (
+                f"{len(failed)} test failure(s) reported via .trx."
+            )
     elif passed:
         report.runner_message = f"All {len(passed)} test(s) passed."
     else:
@@ -326,6 +356,43 @@ def run_checklist(
             "were found in the .trx — see test output."
         )
     return report
+
+
+def _run_triage(
+    report: "RunReport",
+    session_set: str = "",
+    session_number: int | None = None,
+) -> None:
+    """Run each StepFailure through TriageSession and attach results to report."""
+    from .triage import FailureRecord, TriageSession
+
+    ts = TriageSession(
+        session_set=session_set or "docs/session-sets/uat-runner-and-triage-feedback",
+        session_number=session_number,
+    )
+    for sf in report.failed:
+        # Build a FailureRecord from StepFailure. Step number is inferred
+        # from the test name (which encodes the step via the xUnit wrapper).
+        # For Session 2, step_number is a best-effort parse; Session 3 will
+        # carry explicit step metadata through the .trx.
+        fr = FailureRecord(
+            step_number=_parse_step_number(sf.test_name),
+            step_text=sf.test_name,
+            playwright_error=sf.error_message,
+            current_url="",
+        )
+        result = ts.classify(fr)
+        report.triage_results.append(result)
+
+    report.triage_total_cost_usd = ts.total_cost_usd
+
+
+def _parse_step_number(test_name: str) -> int:
+    """Extract a step number from a generated test name, or return 0."""
+    m = re.search(r"Step(\d+)|step_(\d+)|_(\d+)$", test_name, re.IGNORECASE)
+    if m:
+        return int(next(g for g in m.groups() if g is not None))
+    return 0
 
 
 def _format_report_for_console(report: RunReport) -> str:
@@ -358,6 +425,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--base-url", default="http://localhost:5010")
     parser.add_argument("--auth-email", default="admin@acmecoffee.com")
     parser.add_argument("--skip-dotnet-test", action="store_true")
+    parser.add_argument("--skip-triage", action="store_true",
+                        help="Skip triage even when failures exist.")
+    parser.add_argument("--session-number", type=int, default=None,
+                        dest="session_number",
+                        help="Session number for metrics grouping.")
     parser.add_argument("--json", action="store_true", help="Print RunReport as JSON.")
     args = parser.parse_args(list(argv) if argv is not None else None)
 
@@ -368,6 +440,9 @@ def main(argv: Iterable[str] | None = None) -> int:
         base_url=args.base_url,
         auth_email=args.auth_email,
         skip_dotnet_test=args.skip_dotnet_test,
+        skip_triage=args.skip_triage,
+        session_set=args.session_set,
+        session_number=args.session_number,
     )
 
     if args.json:

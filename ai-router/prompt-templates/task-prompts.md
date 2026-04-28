@@ -370,3 +370,70 @@ catalog gap blocks a step, emit a `Feedback` note on the affected Review
 item beginning with `CATALOG GAP:` and continue with what coverage is
 possible — the orchestrator will triage the gap and decide whether to
 re-crawl or revise scope.
+
+# uat-failure-triage
+
+## UAT Failure Triage Task
+
+Classify the following UAT runner failure into exactly one of four runtime
+failure classes. The W0 compiler has already eliminated translation errors,
+label-drift errors, and element-type-drift errors at compile time; these four
+classes are the only ones that can appear at runtime.
+
+### Failure taxonomy
+
+| Class | Auto-applied? | Description |
+|---|---|---|
+| `APP_FUNCTIONAL_BUG` | Never | A `VERIFY` step's user-visible expectation did not match the observed state. The system under test has a bug. **This is the default when uncertain.** |
+| `CATALOG_STALE` | Yes — re-crawl | A locator compiled successfully but now finds nothing in the live app because the app changed after the catalog was generated. |
+| `SEED_DATA_GAP` | No — human review | A step references test data that was not seeded (e.g., `CLICK ROW in "Customers" where "Name" = "Acme Corp"` but "Acme Corp" does not exist in the DB). |
+| `AMBIGUOUS_LOCATOR` | No — human review | A locator matched more than one element; a `data-testid` discriminator is needed. |
+
+### Decision rules
+
+1. If a `VERIFY` step's assertion describes a **visible value or visible state**
+   (text content, URL, element visibility, control enabled/disabled state) and
+   the observed value differs from the expected value, classify as
+   `APP_FUNCTIONAL_BUG` regardless of whether locators are also suspect.
+   **Preserving the bug-detection signal is more important than self-healing
+   speed.**
+
+2. Classify as `CATALOG_STALE` only when the error is clearly a
+   **"element not found"** failure on an *interaction* verb (CLICK, OPEN
+   DROPDOWN, NAVIGATE TO) and the failing locator was valid at catalog-crawl
+   time but the app has likely changed since. Do NOT classify a missing-element
+   error on a VERIFY as CATALOG_STALE — a VERIFY that asserts presence and
+   finds absence is `APP_FUNCTIONAL_BUG`.
+
+3. Classify as `SEED_DATA_GAP` when the error message references a specific
+   named entity (customer name, order ID, email address) that is not present in
+   the database, and the step was trying to select or navigate to that entity.
+
+4. Classify as `AMBIGUOUS_LOCATOR` only when the error message explicitly
+   states that multiple elements matched the given locator (e.g.,
+   "strict mode violation: locator … resolved to N elements").
+
+5. **When uncertain between `APP_FUNCTIONAL_BUG` and any other class, always
+   default to `APP_FUNCTIONAL_BUG`.** A false positive (filing a non-bug as a
+   bug) is far less harmful than a false negative (auto-fixing a real bug away).
+
+### Failure record (JSON)
+
+{content}
+
+### Supporting context (catalog entry, if available)
+
+{context}
+
+### Output
+
+Return ONLY a JSON object with these four fields. No markdown fences. No prose.
+
+```
+{
+  "classification": "<one of the four class names above>",
+  "confidence": <float 0.0–1.0>,
+  "evidence": "<one or two sentences quoting specific observed vs. expected values>",
+  "proposed_fix": "<optional short suggestion for CATALOG_STALE/SEED_DATA_GAP/AMBIGUOUS_LOCATOR; empty string for APP_FUNCTIONAL_BUG>"
+}
+```

@@ -135,6 +135,93 @@
           "costUsd": 0.001435
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-28T13:52:01.484695+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/triage",
+      "dateTime": "2026-04-28T13:52:01.486206+00:00",
+      "description": "Created ai-router/uat_runner/triage.py: TriageSession + FailureRecord + TriageResult + _parse_triage_response; MAX_TRIAGE_CALLS=3, MAX_TRIAGE_COST_USD=0.20",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/prompt",
+      "dateTime": "2026-04-28T13:52:01.486882+00:00",
+      "description": "Added uat-failure-triage section to ai-router/prompt-templates/task-prompts.md with 5-rule decision logic, APP_FUNCTIONAL_BUG-as-default, and JSON output schema",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/router-config",
+      "dateTime": "2026-04-28T13:52:01.486882+00:00",
+      "description": "Added uat-failure-triage to router-config.yaml: task_type_overrides (sonnet), task_type_params (effort:medium), task_type_scores (45)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/runner-wire",
+      "dateTime": "2026-04-28T13:52:01.487885+00:00",
+      "description": "Wired triage into runner.py: _run_triage() called after .trx parse when failures exist; TriageResult list + triage_total_cost_usd added to RunReport; to_dict() updated",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/test-cases",
+      "dateTime": "2026-04-28T13:52:52.096392+00:00",
+      "description": "Synthetic failure cases: 4/4 PASS (APP_FUNCTIONAL_BUG@0.99, CATALOG_STALE@0.87, SEED_DATA_GAP@0.87, AMBIGUOUS_LOCATOR@0.97)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-28T14:10:42.102341+00:00",
+      "description": "Round 1: ISSUES_FOUND (opus $0.6390) - Major: budget cap bug (calls not incremented on exception), context gap (prompt-template + router-config not in verification prompt). Round 2: VERIFIED (opus $0.6135) after fixes.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.639
+        },
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.6135
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/commit",
+      "dateTime": "2026-04-28T14:12:08.047717+00:00",
+      "description": "Logged actuals in ai-assignment.md; S3 recommendation (Haiku, low effort) from routed analysis. Committing.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

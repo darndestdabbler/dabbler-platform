@@ -71,6 +71,34 @@ Orchestration is mechanical (router-config additions, prompt-template
 authoring, synthetic-case scripting). The complex classification work
 is delegated to Sonnet via the new `uat-failure-triage` task type.
 
+| Step | Action | Routing Decision |
+|------|--------|------------------|
+| 1 | Read planning docs | Orchestrator (mechanical reads) |
+| 2 | Create triage.py (TriageSession, FailureRecord, TriageResult) | Orchestrator (< 50 lines of structured code) |
+| 3 | Add uat-failure-triage to task-prompts.md | Orchestrator (prompt template authoring) |
+| 4 | Add uat-failure-triage to router-config.yaml | Orchestrator (config additions) |
+| 5 | Wire triage into runner.py | Orchestrator (mechanical integration) |
+| 6 | Build + run synthetic failure test cases | Orchestrator (scripted test execution) |
+| 7 | Cross-provider session-verification | **Routed** — `route(task_type="session-verification")` (Rule 2) |
+| 8 | Commit | Orchestrator (git command) |
+
+### Actuals (filled after the session)
+- Orchestrator used: claude-code claude-sonnet-4-6 @ effort=medium
+- Total routed cost: ~$1.89 (R1 session-verification opus $0.64 + R2 session-verification
+  opus $0.61 + 8x synthetic triage calls ~$0.05 each = ~$0.40 + S3 analysis recommendation $0.01)
+- Deviations: Used Sonnet instead of Haiku (active Claude Code instance). One Round-1
+  Major defect (budget cap not incremented on exception) fixed; R1 also had a context
+  gap (task-prompts.md + router-config.yaml not included in verif prompt), resolved in R2.
+  4 Minors fixed inline. 4/4 synthetic failure cases passed at first attempt.
+- Notes: APP_FUNCTIONAL_BUG-as-default strategy confirmed correct at 0.99 confidence.
+  Decision rules in prompt template are well-calibrated. R2 returned VERIFIED.
+
+**Next-session orchestrator recommendation (Session 3):**
+claude-code claude-haiku-4-5 @ effort=low
+Rationale (routed analysis): Session 3 is highly procedural — four ~30-line Python modules
+following explicit templates, plus a dispatch-table wire-up and end-to-end test. No novel
+design reasoning required; Haiku handles well-specified code generation tasks cheaply.
+
 ---
 
 ## Session 3: Remediation modules
