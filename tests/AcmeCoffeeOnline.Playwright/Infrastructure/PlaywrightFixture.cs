@@ -221,6 +221,8 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         {
             WaitUntil = WaitUntilState.NetworkIdle
         });
+
+        await WaitForReadyAsync(page);
     }
 
     public async Task SignOutAsync(IPage page)
@@ -377,6 +379,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await Assertions.Expect(navLink).ToBeVisibleAsync();
         await navLink.ClickAsync();
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        await WaitForReadyAsync(page);
 
         await Assertions.Expect(page).ToHaveURLAsync(new Regex(expectedUrlPattern));
         await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
@@ -398,6 +401,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await Assertions.Expect(navLink).ToBeVisibleAsync();
         await navLink.ClickAsync();
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        await WaitForReadyAsync(page);
 
         await Assertions.Expect(page).ToHaveURLAsync(new Regex(expectedUrlPattern));
         await Assertions.Expect(page.GetByTestId("access-denied-page")).ToHaveCountAsync(0);
@@ -409,6 +413,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         await Assertions.Expect(card).ToBeVisibleAsync();
         await card.ClickAsync();
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        await WaitForReadyAsync(page);
         await Assertions.Expect(page).ToHaveURLAsync(new Regex(expectedUrlPattern));
     }
 
@@ -1045,6 +1050,33 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
         await using var stream = await response.Content.ReadAsStreamAsync();
         return await JsonDocument.ParseAsync(stream);
+    }
+
+    /// <summary>
+    /// Waits for all tracked actions in the component to settle (data-actions-in-flight attribute = "[]").
+    /// Used after clicking handlers that are wrapped with TrackedComponentBase.TrackAction().
+    /// </summary>
+    public async Task WaitForQuietAsync(IPage page)
+    {
+        await Assertions.Expect(page.Locator("html"))
+            .ToHaveAttributeAsync("data-actions-in-flight", "[]");
+    }
+
+    /// <summary>
+    /// Waits for initial Blazor readiness after navigation (data-blazor-ready attribute = "true").
+    /// Skips the wait for pages outside the base URL domain (e.g., DevIdp login).
+    /// </summary>
+    public async Task WaitForReadyAsync(IPage page)
+    {
+        var baseUri = new Uri(BaseUrl);
+        var currentUri = new Uri(page.Url);
+
+        // Only wait for readiness on pages within our base URL domain
+        if (currentUri.Host == baseUri.Host && currentUri.Port == baseUri.Port)
+        {
+            await Assertions.Expect(page.Locator("html"))
+                .ToHaveAttributeAsync("data-blazor-ready", "true");
+        }
     }
 
     public async Task DisposeAsync()

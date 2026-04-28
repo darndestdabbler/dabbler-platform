@@ -4,6 +4,7 @@
 @using AcmeCoffeeOnline.Web.Components.Shared
 @using AcmeCoffeeOnline.Web.Components.Shared.DevTools
 @using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Testing.Blazor.Components
 @inject NavigationManager NavigationManager
 @inject ShellSessionStateLoader ShellSessionStateLoader
 
@@ -11,6 +12,8 @@
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
+
+<TestReadinessProbe />
 
 <MudLayout data-testid="main-shell">
     @* ── App bar ────────────────────────────────────────────────────── *@

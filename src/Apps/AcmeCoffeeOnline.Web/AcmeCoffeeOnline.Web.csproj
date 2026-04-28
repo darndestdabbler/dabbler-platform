@@ -20,6 +20,7 @@
     <ProjectReference Include="..\..\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Reports.Blazor\Dabbler.Reports.Blazor.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Security.Blazor\Dabbler.Security.Blazor.csproj" />
+    <ProjectReference Include="..\..\Libs\Dabbler.Testing.Blazor\Dabbler.Testing.Blazor.csproj" />
   </ItemGroup>
 
 </Project>

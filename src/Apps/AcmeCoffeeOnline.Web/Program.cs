@@ -16,6 +16,7 @@ using Dabbler.Security.Data;
 using Dabbler.Security.Extensions;
 using Dabbler.Security.Options;
 using Dabbler.Security.Services;
+using Dabbler.Testing.Blazor.Hosting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -238,6 +239,8 @@ if (builder.Environment.IsDevelopment())
 
 // Exchange-token store for Blazor Server auth hand-off
 builder.Services.AddMemoryCache();
+
+builder.Services.AddTrackedActions(builder.Configuration);
 
 builder.Services.AddDabblerSecurityBlazor();
 

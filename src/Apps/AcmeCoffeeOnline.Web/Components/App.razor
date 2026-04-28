@@ -1,4 +1,6 @@
 @using AcmeCoffeeOnline.Web.Components.Layout
+@using Dabbler.Testing.Blazor.Configuration
+@using Microsoft.Extensions.Options
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,6 +41,17 @@
 
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    @if (TrackedActionsEnabled)
+    {
+        <script src="_content/Dabbler.Testing.Blazor/dabbler-tracked-actions.js"></script>
+    }
 </body>
 
 </html>
+
+@code {
+    [Inject]
+    private IOptions<TrackedActionsOptions> Options { get; set; } = null!;
+
+    private bool TrackedActionsEnabled => Options.Value.Enabled;
+}
