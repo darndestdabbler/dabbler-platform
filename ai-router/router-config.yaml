@@ -304,7 +304,7 @@ task_type_params:
     gemini-pro: { thinking_budget: -1 }
     gpt-5-4:    { reasoning_effort: high }
   architecture:
-    opus:       { effort: xhigh, thinking: { enabled: true, type: adaptive } }
+    opus:       { effort: max,   thinking: { enabled: true, type: adaptive } }
     gemini-pro: { thinking_budget: -1 }
     gpt-5-4:    { reasoning_effort: xhigh }
   planning:
