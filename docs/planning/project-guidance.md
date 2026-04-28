@@ -471,10 +471,44 @@ before proceeding.
   - `CLICK ROW in <grid name> where <col header> = <value> [and ...]`
   - `EXPAND ROW in <grid name> where <col header> = <value> [and ...]`
 
-  **Verification**
+  **Verification** (see "Structured VERIFY Forms" below for formal syntax)
   - `VERIFY <user-visible property or event>` — text content, URL
     match, control enabled/disabled, presence/absence of element-by-
     label, snackbar text. Never verify by testid or DOM internals.
+
+  **String Values Must Be Double-Quoted**
+  - All user-visible labels, captions, text values, and scope
+    descriptors must be double-quoted string literals in checklist and
+    E2E DSL steps. Keywords like `with`, `in`, `and`, `where`, etc.
+    appear bare. Examples:
+    - ✓ `CLICK BUTTON in "Add Mask Exemption" dialog with caption "Save"`
+    - ✗ `CLICK BUTTON in Add Mask Exemption dialog with caption Save`
+  - This makes the grammar unambiguous: keywords inside quoted values
+    are never tokenized as structural keywords.
+
+  **Structured VERIFY Forms** (Formal, Executable)
+  - Structured VERIFY steps compile to deterministic Playwright
+    assertions. Free-form VERIFY statements (see below) remain
+    supported for backward compatibility but emit `// PENDING` comments
+    in generated test code (human-only, not automatically asserted).
+  - Structured forms and their Playwright mappings:
+    - `VERIFY ELEMENT [in <scope>] with label <label> is visible`
+    - `VERIFY ELEMENT [in <scope>] with label <label> is not visible`
+    - `VERIFY ELEMENT [in <scope>] with label <label> is enabled`
+    - `VERIFY ELEMENT [in <scope>] with label <label> is disabled`
+    - `VERIFY TEXT [in <scope>] equals <expected>`
+    - `VERIFY TEXT [in <scope>] contains <expected>`
+    - `VERIFY TEXT [in <scope>] matches <regex>`
+    - `VERIFY URL matches <pattern>`
+    - `VERIFY SNACKBAR shows <text>`
+    - `VERIFY ROW in <grid name> where <col> = <value> exists`
+    - `VERIFY ROW in <grid name> where <col> = <value> does not exist`
+  - Legacy free-form `VERIFY <text>` continues to be accepted and
+    emits a `// PENDING: <text>` comment pointing to the structured
+    alternative. New checklists should prefer structured forms.
+  - The canonical ANTLR grammar and latest structural forms are
+    published at:
+    https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/grammar/DabblerUatDsl.g4
 
   **DSL design rules:**
   - **Locators are by visible label or visible text** — never by
