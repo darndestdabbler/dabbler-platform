@@ -4,13 +4,13 @@
   "currentSession": 4,
   "totalSessions": 4,
   "status": "complete",
-  "startedAt": "2026-04-28T11:15:00.000000-04:00",
-  "completedAt": "2026-04-28T17:30:00.000000-04:00",
-  "verificationVerdict": "VERIFIED",
+  "startedAt": "2026-04-28T19:27:31.058175-04:00",
+  "completedAt": "2026-04-28T19:55:41.147389-04:00",
+  "verificationVerdict": "VERIFIED (after redo)",
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-haiku-4-5-20251001",
-    "effort": "low"
+    "model": "claude-opus-4-7",
+    "effort": "high"
   }
 }

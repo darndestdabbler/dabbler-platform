@@ -1,6 +1,6 @@
 {
   "$schema": "https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/schema/uat-suppressions.json",
-  "comment": "Suppressions for `dabbler-uat-dsl validate` errors that the catalog cannot fix without re-crawling new routes or extending the W0 validator. Each entry pairs a route x error-kind to a rationale. NOTE: the W0 CLI does not yet expose `--suppressions <path>`; this file is the documentation surface today and will become machine-consumed when W0 ships the flag (planned in `uat-runner-and-triage-feedback`).",
+  "comment": "Suppressions for `dabbler-uat-dsl validate` errors that the catalog cannot fix without re-crawling new routes or extending the W0 validator. Each entry pairs a route x error-kind to a rationale. The W2 runner (`ai-router/uat_runner/runner.py`) reads this file at compile time and treats W0 errors that match a suppression entry as warnings. The W0 CLI itself still does NOT expose `--suppressions <path>` — when W0 ships that flag, the runner can pass through suppression matches at compile time so the emitted .cs is produced and `dotnet test` can run; until then, a fully-suppressed compile is a 'passed with warnings, no test invoked' run. Tracked in this file's `comment`. Planned in `uat-runner-and-triage-feedback` Session 4 (runner-side filter — DONE) plus a follow-up dabbler-uat-dsl session for the W0 CLI flag.",
   "suppressions": [
     {
       "checklists": [

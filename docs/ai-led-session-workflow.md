@@ -678,7 +678,12 @@ UAT runner to validate the checklist against the live app before notifying
 the human:
 
 ```bash
-python -m ai_router.uat_runner.cli \
+# The package directory uses a hyphen (`ai-router`), so `python -m
+# ai_router.uat_runner.cli` does not resolve. Invoke the CLI as a script
+# instead — it bootstraps `ai_router` via importlib at startup. A repo-wide
+# rename to `ai_router/` is the long-term fix and is tracked as its own
+# session set.
+python ai-router/uat_runner/cli.py \
   --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \
   --catalog docs/component-catalog/index.json \
   --session-set {slug}

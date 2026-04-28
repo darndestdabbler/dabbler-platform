@@ -79,7 +79,10 @@ def main() -> None:
         ("AMBIGUOUS_LOCATOR", dict(
             step_number=11,
             step_text='CLICK BUTTON with caption "Save"',
-            playwright_error="strict mode violation: getByRole('button', {name: 'Save'}) resolved to 3 elements",
+            playwright_error=(
+                "strict mode violation: getByRole('button', {name: 'Save'}) "
+                "resolved to 3 elements. Expected: 1."
+            ),
             current_url="/admin/security/roles/5",
         )),
     ]
@@ -90,33 +93,60 @@ def main() -> None:
     for expected_class, kwargs in test_cases:
         fr = FailureRecord(**kwargs)
         result = ts.classify(fr)
-        outcome = apply_remediation(result, test_session_slug)
+        # skip_real_crawl=True so CATALOG_STALE doesn't invoke the
+        # multi-minute full ComponentCatalogCrawler subprocess just to
+        # smoke-test dispatch. The auto-recovery path is exercised by
+        # the Session 4 backfill against a real checklist.
+        outcome = apply_remediation(result, test_session_slug, skip_real_crawl=True)
 
         print(f"[{expected_class}] Step {outcome['stepNumber']}")
         print(f"  Classification: {outcome['classification']}")
         print(f"  Outcome: {outcome['outcome']}")
 
-        # Check outcome based on class
-        if expected_class == "CATALOG_STALE":
-            ok = outcome.get("autoApplied") == True and outcome.get("outcome") == "auto-recovery-available"
-            print(f"  Status: {'PASS' if ok else 'FAIL'} (auto-recovery)")
-            results.append(ok)
-        else:
-            # APP_FUNCTIONAL_BUG, SEED_DATA_GAP, AMBIGUOUS_LOCATOR should file issues
-            if "issueFile" in outcome:
-                issue_relative = outcome["issueFile"]
-                # Construct the absolute path
-                issue_path = Path(_REPO_ROOT) / issue_relative
-                if issue_path.exists():
-                    print(f"  Issue file: {issue_path.name} (CREATED)")
-                    results.append(True)
-                else:
-                    print(f"  Issue file: {issue_path.name} (NOT FOUND at {issue_path})")
-                    results.append(False)
-            else:
-                print(f"  WARNING: No issueFile in outcome")
-                results.append(False)
+        # Pass criteria — classification MUST match expected. Earlier versions
+        # of this test only checked "an issue file was created", which masked
+        # a real misclassification bug (AMBIGUOUS_LOCATOR being classified as
+        # APP_FUNCTIONAL_BUG and routed to the wrong issue file). The redo
+        # asserts classification first, then the dispatch outcome.
+        classification_ok = outcome["classification"] == expected_class
 
+        if expected_class == "CATALOG_STALE":
+            dispatch_ok = (
+                outcome.get("autoApplied") is True
+                and outcome.get("outcome") == "auto-recovery-deferred"
+            )
+            label = "auto-recovery (deferred — skip_real_crawl=True)"
+        else:
+            # APP_FUNCTIONAL_BUG, SEED_DATA_GAP, AMBIGUOUS_LOCATOR should file
+            # issues at predictable per-class filenames.
+            expected_filename_suffix = {
+                "APP_FUNCTIONAL_BUG": "-functional-bug.md",
+                "SEED_DATA_GAP": "-seed-gap.md",
+                "AMBIGUOUS_LOCATOR": "-ambiguous-locator.md",
+            }[expected_class]
+            issue_relative = outcome.get("issueFile", "")
+            issue_path = Path(_REPO_ROOT) / issue_relative if issue_relative else None
+            dispatch_ok = (
+                bool(issue_relative)
+                and issue_path is not None
+                and issue_path.exists()
+                and issue_path.name.endswith(expected_filename_suffix)
+            )
+            label = (
+                f"issue file {issue_path.name if issue_path else '<missing>'} "
+                f"(suffix={expected_filename_suffix})"
+            )
+
+        ok = classification_ok and dispatch_ok
+        if classification_ok:
+            cls_msg = "classification OK"
+        else:
+            cls_msg = (
+                f"classification MISMATCH: expected={expected_class}, "
+                f"got={outcome['classification']}"
+            )
+        print(f"  Status: {'PASS' if ok else 'FAIL'} ({label}; {cls_msg})")
+        results.append(ok)
         print()
 
     # Clean up test directory

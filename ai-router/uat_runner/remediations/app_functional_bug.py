@@ -61,6 +61,55 @@ def file_issue(
     }
 
 
+def _extract_expected_observed(playwright_error: str) -> tuple[str, str]:
+    """Best-effort extraction of an expected value and an observed/found
+    value from a Playwright assertion error. Returns ``("", "")`` if either
+    side is not present so the caller can elide those fields cleanly.
+
+    Recognised patterns (Playwright's actual assertion message shapes):
+        Expected text to equal 'X' but found 'Y'
+        Expected: X       Received: Y
+        Expected to be 'X' but got 'Y'
+    """
+    import re
+
+    if not playwright_error:
+        return "", ""
+
+    # Quoted expected: e.g. "Expected text to equal 'X'", "Expected to be 'X'"
+    m = re.search(
+        r"[Ee]xpected (?:text )?(?:to (?:equal|be|contain) )?'([^']+)'",
+        playwright_error,
+    )
+    if m:
+        expected = m.group(1).strip()
+    else:
+        # Bare "Expected: X" colon form (no quotes; stop at newline / "but" / comma / period)
+        m = re.search(
+            r"[Ee]xpected:\s+(.+?)(?=\n|\s+but\b|[.,]|$)",
+            playwright_error,
+        )
+        expected = m.group(1).strip() if m else ""
+
+    # "but found 'Y'" / "but got 'Y'" / "Received: Y" / "observed 'Y'"
+    m = re.search(
+        r"(?:but )?(?:found|got|received|observed)\s*:?\s*'([^']+)'",
+        playwright_error,
+        re.IGNORECASE,
+    )
+    if m:
+        observed = m.group(1).strip()
+    else:
+        m = re.search(
+            r"(?:but )?(?:found|got|received|observed):\s+([^\n.,]+?)(?:\s*[,.]|$)",
+            playwright_error,
+            re.IGNORECASE,
+        )
+        observed = m.group(1).strip() if m else ""
+
+    return expected, observed
+
+
 def _generate_issue_content(triage_result: object, failure: object) -> str:
     """Generate markdown issue content from triage result and failure record."""
     f = failure  # type: ignore
@@ -125,12 +174,25 @@ def _generate_issue_content(triage_result: object, failure: object) -> str:
         f"**Triage evidence:**",
         f"> {tr.evidence}",
         "",
+    ]
+
+    expected, observed = _extract_expected_observed(f.playwright_error)
+    if expected or observed:
+        lines.append("**Expected vs. Observed:**")
+        lines.append("")
+        if expected:
+            lines.append(f"- **Expected:** `{expected}`")
+        if observed:
+            lines.append(f"- **Observed:** `{observed}`")
+        lines.append("")
+
+    lines.extend([
         f"**Playwright error:**",
         f"```",
         f.playwright_error,
         f"```",
         "",
-    ]
+    ])
 
     if f.current_url:
         lines.extend([

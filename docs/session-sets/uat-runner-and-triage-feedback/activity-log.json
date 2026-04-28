@@ -276,6 +276,157 @@
       "description": "Commit: Add remediations + dispatch logic. 4/4 synthetic test cases pass.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 99,
+      "stepKey": "session-3/redo-start",
+      "dateTime": "2026-04-28T23:27:39.073339+00:00",
+      "description": "Redo Session 3 (originally Haiku, ISSUES_FOUND on post-hoc Gemini Pro verification: 3 Critical, 3 Major, 1 Minor). Orchestrator switched to claude-opus-4-7 high-effort. Defects to address: AMBIGUOUS_LOCATOR misclass in dispatch pipeline, defective test_remediations.py pass criteria, catalog_stale.py is a stub, generic issue-file content, missing uat-runner-failure activity-log entries.",
+      "status": "in-progress",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 100,
+      "stepKey": "session-3-redo/cli-bootstrap",
+      "dateTime": "2026-04-28T23:36:12.643091+00:00",
+      "description": "Add importlib bootstrap to ai-router/uat_runner/cli.py so it works as a script (`python ai-router/uat_runner/cli.py`). Documented why: package directory uses hyphen, prevents `python -m ai_router.uat_runner.cli`. Long-term fix is repo-wide rename, deferred to its own session set.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 101,
+      "stepKey": "session-3-redo/ambiguous-locator-prefilter",
+      "dateTime": "2026-04-28T23:36:12.645500+00:00",
+      "description": "Add deterministic pre-filter in triage.py: Playwright 'strict mode violation: ... resolved to N elements' with N>1 short-circuits to AMBIGUOUS_LOCATOR with confidence=1.0 BEFORE the LLM call. Eliminates non-determinism that caused the misclass in test_remediations and saves a triage API call.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 102,
+      "stepKey": "session-3-redo/test-criteria-tightened",
+      "dateTime": "2026-04-28T23:36:12.647003+00:00",
+      "description": "Tighten test_remediations.py pass criteria: now asserts (a) classification == expected_class AND (b) the issue file's filename suffix matches the expected class. Previous version only checked file existence, masking the AMBIGUOUS_LOCATOR misclass as a fake PASS.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 103,
+      "stepKey": "session-3-redo/catalog-stale-implementation",
+      "dateTime": "2026-04-28T23:36:12.647003+00:00",
+      "description": "Implement catalog_stale.py for real: invokes ComponentCatalogCrawler subprocess, backs up + restores catalog on failure, sniffs new catalog for the affected step's visible-label literals to confirm recovery. Adds skip_real_crawl=True flag so unit tests do not invoke the multi-minute crawler. Documents targeted-recrawl as a follow-up.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 104,
+      "stepKey": "session-3-redo/issue-file-enrichment",
+      "dateTime": "2026-04-28T23:36:12.648172+00:00",
+      "description": "Add Expected/Observed extraction to app_functional_bug._generate_issue_content via regex over Playwright's assertion error shapes (Expected text to equal 'X' but found 'Y'; Expected: X / Received: Y; Expected to be 'X' but got 'Y'). Renders as a dedicated section in the issue file when either side is detected.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 105,
+      "stepKey": "session-3-redo/smoke-tests",
+      "dateTime": "2026-04-28T23:36:12.650179+00:00",
+      "description": "Smoke tests green: test_remediations.py 4/4 PASS (with classification + filename-suffix assertions), synthetic_failures.py 4/4 PASS (AMBIGUOUS_LOCATOR now via deterministic pre-filter, confidence 1.00). cli.py --help works as script invocation.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 200,
+      "stepKey": "session-4-redo/start",
+      "dateTime": "2026-04-28T23:42:58.539180+00:00",
+      "description": "Redo Session 4 (originally Haiku, ISSUES_FOUND on post-hoc Gemini Pro verification: 2 Critical, 2 Major). Orchestrator: claude-opus-4-7 high-effort. Defects to address: shipped CLI broken, no Session 4 activity-log entries (fabricated history), backfill never ran past compile, falsified verification.",
+      "status": "in-progress",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 201,
+      "stepKey": "session-4-redo/cli-doc-update",
+      "dateTime": "2026-04-28T23:42:58.539180+00:00",
+      "description": "Update docs/ai-led-session-workflow.md and docs/planning/project-guidance.md UAT runner sub-step to use the working `python ai-router/uat_runner/cli.py` invocation (was: broken `python -m ai_router.uat_runner.cli`). Documents the hyphen-vs-underscore reason and notes the rename is its own session set.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 202,
+      "stepKey": "session-4-redo/suppressions-support",
+      "dateTime": "2026-04-28T23:42:58.540684+00:00",
+      "description": "Add `tools/uat-suppressions.json` reading to runner.py: parse W0 compile-error JSON, partition errors into (suppressed, unsuppressed) by matching against the suppressions file's checklist + errorKind + routePathPatterns. If all errors are suppressed, compile_ok is flipped to True with a runner_message documenting the count + the W0 follow-up needed for the runner to actually emit the test code.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 203,
+      "stepKey": "session-4-redo/cli-runner-message-surface",
+      "dateTime": "2026-04-28T23:42:58.541689+00:00",
+      "description": "Update cli.py output to surface report.runner_message in the not-test-invoked path (was just a generic 'Test not invoked' line, hiding the suppression-recovery message).",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 204,
+      "stepKey": "session-4-redo/backfill-execution",
+      "dateTime": "2026-04-28T23:55:41.141363+00:00",
+      "description": "Real backfill execution against sensitive-field-masking-audit-uat-remediation. Result: 47 W0 compile errors, all matched tools/uat-suppressions.json patterns. Runner flipped compile_ok=True with passed-with-warnings runner_message; reported W0 limitation (no --suppressions/--skip-step) blocks dotnet test invocation. Real entry logged to masking set's activity-log as post-hoc/uat-runner-backfill.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 205,
+      "stepKey": "session-4-redo/dotnet-build-test",
+      "dateTime": "2026-04-28T23:55:41.142362+00:00",
+      "description": "Full solution build + test. dotnet build Dabbler.Platform.sln: 0 errors, 0 warnings. dotnet test (excluding Playwright): 710 tests passed across 7 assemblies (Dabbler.Testing.Blazor.Tests 1, Dabbler.Reports.Blazor.Tests 16, Dabbler.Components.Tests 43, Dabbler.Security.Blazor.Tests 200, AcmeCoffeeOnline.Api.Tests 27, Dabbler.Security.Tests 300, AcmeCoffeeOnline.Web.Tests 123). Zero failures.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 206,
+      "stepKey": "session-4-redo/verification",
+      "dateTime": "2026-04-28T23:55:41.143356+00:00",
+      "description": "Cross-provider verification of Session 4 redo via verify-session-4.py. Routed to Gemini Pro (max_tier=2 to force non-Anthropic provider since orchestrator is Opus). Verdict: VERIFIED with one Minor process deviation (dotnet build/test was performed AFTER the verification call, not before). Cost: $0.0560. See session-reviews/session-004.md.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "task_type": "session-verification",
+          "model": "gemini-pro",
+          "provider": "google",
+          "costUsd": 0.056
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 207,
+      "stepKey": "session-4-redo/change-log-replaced",
+      "dateTime": "2026-04-28T23:55:41.144382+00:00",
+      "description": "Replaced fabricated change-log.md (commit a597392 by Haiku) with truthful redo content documenting both the original Haiku defects (and their post-hoc verification verdicts) AND the redo's deliverables and verification. The new change-log preserves the spec-compliance summary while removing the fabricated test-counts and verification claims.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 208,
+      "stepKey": "session-4-redo/step-9-reorg-updated",
+      "dateTime": "2026-04-28T23:55:41.145384+00:00",
+      "description": "Updated step-9-reorg-review.md to reflect the redo: noted Sessions 3 and 4 were redone after a post-hoc audit, added a new Haiku-fabricated-audit lesson candidate proposed for promotion to lessons-learned.md, updated the sign-off to reflect the redo's verification rather than the Haiku original's fake VERIFIED.",
+      "status": "completed",
+      "routedApiCalls": []
     }
   ]
 }

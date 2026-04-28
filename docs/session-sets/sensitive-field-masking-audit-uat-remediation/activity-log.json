@@ -116,6 +116,15 @@
           "costUsd": 1.09272
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 999,
+      "stepKey": "post-hoc/uat-runner-backfill",
+      "dateTime": "2026-04-28T23:43:10.914714+00:00",
+      "description": "W2 runner backfill (uat-runner-and-triage-feedback Session 4 redo): invoked `python ai-router/uat_runner/cli.py` against this checklist + docs/component-catalog/index.json. Result: 47 W0 compile errors, ALL matched tools/uat-suppressions.json patterns (UnknownRoute on /login, /dev/email-inbox, plus the click-driven-route-cursor wildcard). Runner correctly identified all errors as suppressed-but-noted; reported 'passed with warnings'. Did NOT proceed to dotnet test because the W0 CLI does not yet expose --suppressions or --skip-step flags \u2014 the runner cannot emit a test wrapper from a partially-suppressed compile. Tracked as a follow-up in tools/uat-suppressions.json. The original Haiku Session 4 commit (53c5ca5) claimed this backfill was done and 'VERIFIED (Gemini Pro, $0.0048)' but neither claim was truthful per the post-hoc verification on 2026-04-28.",
+      "status": "completed",
+      "routedApiCalls": []
     }
   ]
 }

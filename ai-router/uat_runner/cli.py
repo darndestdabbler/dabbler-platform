@@ -1,7 +1,9 @@
 """CLI entry point for the UAT runner.
 
-Usage:
-    python -m ai_router.uat_runner.cli \\
+Usage (script form, preferred — works because the package directory has a
+hyphen which prevents `python -m ai_router.uat_runner.cli`):
+
+    python ai-router/uat_runner/cli.py \\
       --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \\
       --catalog docs/component-catalog/index.json \\
       --session-set {slug} \\
@@ -15,10 +17,43 @@ Exits 1 if any human-review issues filed.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import sys
 from pathlib import Path
 
-from . import runner
+
+def _bootstrap_imports() -> None:
+    """Make ``ai_router.uat_runner.runner`` importable when this file is
+    invoked as a script (``python ai-router/uat_runner/cli.py``).
+
+    The on-disk package directory uses a hyphen (``ai-router``), which is not
+    a valid Python identifier — so ``python -m ai_router.uat_runner.cli``
+    never works on a fresh shell. The test scripts under ``test_cases/``
+    use the same bootstrap. A repo-wide rename to ``ai_router/`` is the
+    long-term fix; this bootstrap removes the practical CLI breakage.
+    """
+    ai_router_root = Path(__file__).resolve().parents[1]
+    if "ai_router" in sys.modules:
+        return
+    spec = importlib.util.spec_from_file_location(
+        "ai_router",
+        str(ai_router_root / "__init__.py"),
+        submodule_search_locations=[str(ai_router_root)],
+    )
+    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+    sys.modules["ai_router"] = mod
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+
+
+# Module is invoked either as a script (`python cli.py`) or imported as
+# `ai_router.uat_runner.cli` after a caller has already bootstrapped
+# `ai_router`. In the script case, we have no parent package, so the
+# relative `from . import runner` would fail. Detect and bootstrap first.
+if __package__ in (None, ""):
+    _bootstrap_imports()
+    from ai_router.uat_runner import runner  # type: ignore[import-not-found]
+else:
+    from . import runner
 
 
 def main() -> int:
@@ -87,10 +122,15 @@ def main() -> int:
 
     if not report.compile_ok:
         print(f"Compilation failed:\n{report.compile_output}", file=sys.stderr)
+        if report.runner_message:
+            print(f"\nRunner: {report.runner_message}", file=sys.stderr)
         return 1
 
     if not report.test_invoked:
-        print("Test not invoked (compile OK, but no test run).")
+        if report.runner_message:
+            print(f"Test not invoked. {report.runner_message}")
+        else:
+            print("Test not invoked (compile OK, but no test run).")
         return 0
 
     passed_count = len(report.passed)

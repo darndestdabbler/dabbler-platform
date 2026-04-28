@@ -716,7 +716,11 @@ The runner:
 The runner is invoked via:
 
 ```bash
-python -m ai_router.uat_runner.cli \
+# Invoked as a script — the package directory uses a hyphen
+# (`ai-router/`), which prevents the `-m ai_router.uat_runner.cli` form.
+# `cli.py` bootstraps `ai_router` via importlib at startup. A repo-wide
+# rename is tracked as its own session set.
+python ai-router/uat_runner/cli.py \
   --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \
   --catalog docs/component-catalog/index.json \
   --session-set {slug}

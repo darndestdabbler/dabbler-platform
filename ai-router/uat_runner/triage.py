@@ -29,8 +29,39 @@ Design invariants:
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Literal
+
+
+# Matches Playwright's strict-mode-violation message when a locator
+# resolved to N>1 elements. Captures N. Tolerant of trailing content
+# (test runners sometimes append the page state or selector).
+_AMBIGUOUS_LOCATOR_RE = re.compile(
+    r"strict mode violation:.*?resolved to (\d+) elements?",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _detect_ambiguous_locator(playwright_error: str) -> int | None:
+    """Return the matched element count if the error is a strict-mode
+    violation with N>1 elements, otherwise None.
+
+    The strict-mode-violation pattern with N>1 is a deterministic
+    AMBIGUOUS_LOCATOR signal — the live app has multiple elements with
+    the same visible label and a data-testid discriminator is needed.
+    No LLM judgement required.
+    """
+    if not playwright_error:
+        return None
+    match = _AMBIGUOUS_LOCATOR_RE.search(playwright_error)
+    if not match:
+        return None
+    try:
+        count = int(match.group(1))
+    except (TypeError, ValueError):
+        return None
+    return count if count > 1 else None
 
 SESSION_SET = "docs/session-sets/uat-runner-and-triage-feedback"
 
@@ -127,6 +158,27 @@ class TriageSession:
         route × role in which the failure occurred. Pass it when available;
         the model uses it to detect CATALOG_STALE drift.
         """
+        # Deterministic short-circuit — Playwright's "strict mode violation
+        # ... resolved to N elements. Expected: 1." with N > 1 is a literal
+        # AMBIGUOUS_LOCATOR signal. The LLM classifies this correctly most
+        # of the time but is non-deterministic at low confidence; a regex
+        # short-circuit removes the variance for free and saves an API call.
+        ambiguous = _detect_ambiguous_locator(failure.playwright_error)
+        if ambiguous is not None:
+            return TriageResult(
+                failure=failure,
+                classification="AMBIGUOUS_LOCATOR",
+                confidence=1.0,
+                evidence=(
+                    f"Playwright strict-mode-violation pattern: locator "
+                    f"resolved to {ambiguous} elements (>1). "
+                    "A data-testid discriminator is needed."
+                ),
+                proposed_fix="Add a data-testid attribute to disambiguate the locator.",
+                triage_cost_usd=0.0,
+                skipped_reason="deterministic_pre_filter",
+            )
+
         if not self._budget_ok():
             return TriageResult(
                 failure=failure,
@@ -298,12 +350,20 @@ def classify_failure(
 def apply_remediation(
     result: TriageResult,
     session_set_slug: str = "uat-runner-and-triage-feedback",
+    skip_real_crawl: bool = False,
+    base_url: str = "http://localhost:5010",
 ) -> dict:
     """Apply the appropriate remediation based on classification.
 
     Args:
         result: A TriageResult with a classification (one of the four classes).
         session_set_slug: The session-set slug (used for issue-file paths).
+        skip_real_crawl: When True, CATALOG_STALE remediations return a
+            "deferred" outcome instead of invoking the multi-minute
+            full-catalog re-crawl. Used by unit tests and synthetic
+            failure suites.
+        base_url: Web app base URL used by CATALOG_STALE precondition
+            check. Ignored unless skip_real_crawl is False.
 
     Returns:
         A dict with keys {type, stepNumber, classification, outcome, issueFile?, ...}
@@ -311,7 +371,9 @@ def apply_remediation(
 
     Remediations:
       - APP_FUNCTIONAL_BUG: Files a human-review issue.
-      - CATALOG_STALE: Auto-applies a re-crawl + re-run.
+      - CATALOG_STALE: Auto-applies a full catalog re-crawl + locator
+        sniff (deferred when skip_real_crawl=True or preconditions
+        unmet).
       - SEED_DATA_GAP: Files a human-review issue.
       - AMBIGUOUS_LOCATOR: Files a human-review issue.
       - BUDGET_EXCEEDED / PARSE_ERROR: Files a human-review issue.
@@ -324,7 +386,9 @@ def apply_remediation(
     if classification == "APP_FUNCTIONAL_BUG":
         return remediations.app_functional_bug.file_issue(result, session_set_slug)
     elif classification == "CATALOG_STALE":
-        return remediations.catalog_stale.apply(result)
+        return remediations.catalog_stale.apply(
+            result, base_url=base_url, skip_real_crawl=skip_real_crawl
+        )
     elif classification == "SEED_DATA_GAP":
         return remediations.seed_data_gap.file_issue(result, session_set_slug)
     elif classification == "AMBIGUOUS_LOCATOR":
