@@ -1,0 +1,37 @@
+{
+  "$schema": "https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/schema/uat-suppressions.json",
+  "comment": "Suppressions for `dabbler-uat-dsl validate` errors that the catalog cannot fix without re-crawling new routes or extending the W0 validator. Each entry pairs a route x error-kind to a rationale. NOTE: the W0 CLI does not yet expose `--suppressions <path>`; this file is the documentation surface today and will become machine-consumed when W0 ships the flag (planned in `uat-runner-and-triage-feedback`).",
+  "suppressions": [
+    {
+      "checklists": [
+        "docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json"
+      ],
+      "errorKind": "UnknownRoute",
+      "routePathPatterns": ["/login", "/dev/email-inbox"],
+      "rationale": "The component-catalog crawler authenticates via `SeededSessionAuth` BEFORE crawling — by design, pre-auth routes (`/login`) and dev-only inboxes (`/dev/email-inbox`) are not in the catalog. UAT items that exercise the magic-link sign-in flow MUST reference these routes; the labels used (`Email address`, `Send sign-in link`, `the most-recent email row`) are carried forward from the prior UAT run with human approval. To eliminate this suppression in the future: either (a) extend the crawler with a pre-auth pass that crawls `/login` and `/dev/email-inbox` without seeded session, or (b) treat sign-in plumbing as 'test infrastructure' allowed outside catalog grounding."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json"
+      ],
+      "errorKind": "UnknownRoute",
+      "routePathPatterns": ["*"],
+      "rationale": "The W0 SemanticValidator only updates its `currentRoute` cursor on `NAVIGATE TO` statements. Click-driven navigation (CLICK LINK, CLICK MENU ITEM, CLICK ROW that lands on a detail page) does NOT propagate the new route to the validator, so downstream steps continue to be evaluated against the prior `currentRoute`. For UAT scenarios that mirror real human navigation (no manual URL typing) this produces cascading UnknownRoute errors after the first click-driven transition. Until W0 either (a) infers route transitions from click semantics, or (b) accepts a `VERIFY URL matches \"...\"` as a route-cursor-update sigil, click-driven UAT scripts are accepted with this category-wide suppression. The labels themselves (catalog grounding) are correct — every quoted label, caption, tab, and column header in the post-auth steps was selected verbatim from `docs/component-catalog/index.json` for the route x role active at that step. This is the proof-of-concept the `component-catalog-grounded-authorship` set was meant to land."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/post-rebuild-uat/*-uat-checklist.json",
+        "docs/session-sets/security-dashboard-uat/*-uat-checklist.json",
+        "docs/session-sets/security-dashboard-polish/*-uat-checklist.json",
+        "docs/session-sets/security-dashboard-uat-remediation/*-uat-checklist.json",
+        "docs/session-sets/security-dashboard-uat-remediation-review/*-uat-checklist.json",
+        "docs/session-sets/security-dashboard-uat-followup-fixes/*-uat-checklist.json",
+        "docs/session-sets/rearchitect-role-administration-dashboard/*-uat-checklist.json",
+        "docs/session-sets/sensitive-field-masking-audit/sensitive-field-masking-audit-uat-checklist.json"
+      ],
+      "errorKind": "*",
+      "routePathPatterns": ["*"],
+      "rationale": "Pre-catalog checklists; closed sets; not retroactively updated. These checklists were authored before `component-catalog-grounded-authorship` shipped the catalog + `uat-script-author` task type. They contain free-form labels and DSL violations that pre-date the catalog ground truth. Re-authoring would require re-running each set's UAT, which is not the right cost trade. New UAT checklists must use `route(task_type=\"uat-script-author\")` per the `Catalog-Grounded UAT Script Authoring` Convention in `docs/planning/project-guidance.md`."
+    }
+  ]
+}

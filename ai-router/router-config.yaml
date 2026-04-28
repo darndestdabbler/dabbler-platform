@@ -229,6 +229,12 @@ routing:
     # is zero-cost.
     uat-plan-generation: opus
     uat-coverage-review: opus
+    # Catalog-grounded authoring of UAT checklists. Sonnet is strong at
+    # careful, label-faithful authoring against a closed grammar; Opus is
+    # overkill, Gemini is weaker at literal-string fidelity. Validation is
+    # delegated to the dabbler-uat-dsl compiler (CLI) rather than to a
+    # cross-provider AI verifier — see auto_verify_task_types below.
+    uat-script-author: sonnet
 
 # --- Delegation ---
 # Guidance for orchestrators (Claude Code / Codex / Gemini) on which
@@ -242,6 +248,7 @@ delegation:
     - planning
     - uat-plan-generation
     - uat-coverage-review
+    - uat-script-author
     - analysis
     - session-verification
     - documentation
@@ -319,6 +326,11 @@ task_type_params:
     opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
     gemini-pro: { thinking_budget: -1 }
     gpt-5-4:    { reasoning_effort: high }
+  uat-script-author:
+    sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
+    opus:       { effort: medium, thinking: { enabled: true, type: adaptive } }
+    gemini-pro: { thinking_budget: -1 }
+    gpt-5-4:    { reasoning_effort: medium }
 
   # Verification task type used by the internal verify() path. Kept
   # separate from 'session-verification' so per-task-type overrides
@@ -366,6 +378,7 @@ complexity:
     planning: 70
     uat-plan-generation: 70
     uat-coverage-review: 70
+    uat-script-author: 60
     formatting: 10
     summarization: 20
     architecture: 80

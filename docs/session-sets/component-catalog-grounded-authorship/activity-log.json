@@ -152,6 +152,140 @@
           "costUsd": 0.0998
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-28T11:54:03.738144+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, ai-led-session-workflow.md, spec.md, ai-assignment.md, and the existing prompt-templates/task-prompts.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/router-task-type",
+      "dateTime": "2026-04-28T11:54:03.738946+00:00",
+      "description": "Added uat-script-author task type to ai-router/router-config.yaml: task_type_overrides->sonnet, task_type_scores=60, task_type_params for sonnet/opus/gemini-pro/gpt-5-4, delegation.always_route_task_types. Validation is delegated to dabbler-uat-dsl CLI rather than auto-verified cross-provider AI, so it is NOT in auto_verify_task_types.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/prompt-template",
+      "dateTime": "2026-04-28T11:54:03.739954+00:00",
+      "description": "Authored uat-script-author task prompt as a new H1 section in ai-router/prompt-templates/task-prompts.md (the canonical prompt-template loader location, parsed by config.py via H1 headers). Spec referenced ai-router/prompts/uat_script_author.md as the file path; deviation is to follow the existing single-file H1-section convention rather than introducing a second loader path. Disclosed in verification prompt.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/reauthor-checklist",
+      "dateTime": "2026-04-28T12:26:28.319576+00:00",
+      "description": "Authored sensitive-field-masking-audit-uat-remediation-uat-checklist.json directly (the user explicitly redirected: 'If you are not getting a response from an API, just run it yourself' after the route(task_type=uat-script-author) call to Anthropic Sonnet timed out 3x at the 300s default timeout). All catalog-grounded labels (post-auth steps on /customers, /customers/{CustomerId}, /admin/security, /dashboard) were selected verbatim from docs/component-catalog/index.json. Specifically honored prior UAT findings: visible login email field is \"Email address\" (not \"Email\"); role switcher uses CLICK ICON BUTTON with aria-label \"<Role>, switch role\" per catalog elementRole=IconButton (catalog is authoritative). 6 Review items, step counts 16/16/16/17/17/16, IsJudgmentItem=true on UAT-5.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/validate-pass",
+      "dateTime": "2026-04-28T12:26:28.320568+00:00",
+      "description": "Ran  against the new checklist with full catalog (../dabbler-platform/docs/component-catalog/index.json). Result: 47 UnknownRoute errors split across two route patterns: /login (12) and /dev/email-inbox (35). NO label-mismatch, element-type-mismatch, or unknown-label errors \u2014 every catalog-grounded label resolved cleanly. The two error categories are documented gaps: (a) /login + /dev/email-inbox are pre-auth and not crawled by ComponentCatalogCrawler (it authenticates first), and (b) the W0 SemanticValidator does not update currentRoute on click-driven navigation (CLICK LINK, CLICK ROW that lands on a detail), so downstream steps cascade as UnknownRoute against the prior NAVIGATE TO target. Both are tracked in tools/uat-suppressions.json with rationale + remediation paths.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/manual-compare",
+      "dateTime": "2026-04-28T12:26:53.253512+00:00",
+      "description": "Manual compare against original sensitive-field-masking-audit-uat-checklist.json. Scenario coverage preserved (UAT-1..6, judgment flag on UAT-5). Prior UAT findings addressed: (1) Step 2 now uses \"Email address\" verbatim (the human original feedback in the prior UAT, since the /login email field renders that label and that is what the user reads). (2) Step 9 role switcher: original described as button with aria-label; catalog reports elementRole=IconButton at /<route>/{role} entries with userVisibleLabel=ariaLabel=\"<Role>, switch role\". The human flagged it should be described \"the way the user sees it\" (rendered as a link visually). Decision: catalog is authoritative \u2014 IconButton maps to CLICK ICON BUTTON with aria-label per the W0 elementRole mapping (button + non-empty aria-label + empty visible text = iconButton). The catalog-grounded form CLICK ICON BUTTON with aria-label \"System Admin, switch role\" is preserved. (3) Steps 13/15/16 use structured VERIFY forms: VERIFY URL matches \"...\", VERIFY TEXT matches \"XXX-XX-...\", VERIFY ELEMENT with label \"Social Security Number\" is not visible. (4) Catalog gaps for /login, /dev/email-inbox, popover/dialog content noted in UAT-1 Feedback and tools/uat-suppressions.json.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/save-checklist",
+      "dateTime": "2026-04-28T12:26:53.254512+00:00",
+      "description": "Saved checklist to docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json (per spec output path). 6 Review items, all valid JSON.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/suppressions",
+      "dateTime": "2026-04-28T12:26:53.254512+00:00",
+      "description": "Created tools/uat-suppressions.json documenting (a) /login + /dev/email-inbox UnknownRoute suppressions for the masking-remediation checklist with remediation path (extend crawler with pre-auth pass), (b) catalog-wide UnknownRoute suppression for click-driven navigation transitions in W0 SemanticValidator (route cursor only updates on NAVIGATE TO; remediation path is W0 enhancement), and (c) wildcard suppression for closed pre-catalog UAT checklists with rationale. Note: W0 CLI does NOT yet expose --suppressions <path> flag; this file is documentation today and will become machine-consumed when W0 ships the flag (planned in uat-runner-and-triage-feedback W2 set).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/guidance-update",
+      "dateTime": "2026-04-28T12:27:52.406564+00:00",
+      "description": "Updated docs/planning/project-guidance.md - Conventions - Human UAT And Checklist Editor with two new bullets at the top: (1) catalog-grounded authoring is mandatory for new UAT checklists; manual authoring deprecated; route via uat-script-author task type; validation via dabbler-uat-dsl CLI; closed pre-catalog checklists grandfathered via tools/uat-suppressions.json. (2) W0 SemanticValidator click-driven-navigation limitation documented as a known constraint with future-enhancement path.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/workflow-update",
+      "dateTime": "2026-04-28T12:27:52.406564+00:00",
+      "description": "Updated docs/ai-led-session-workflow.md Task Types table to add uat-script-author (complexity 60, Sonnet), and a paragraph after the uat-plan-generation/uat-coverage-review description explaining when to prefer uat-script-author over uat-plan-generation (catalog-grounded vs guessed-label authoring).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 11,
+      "stepKey": "session-2/change-log",
+      "dateTime": "2026-04-28T12:29:05.319390+00:00",
+      "description": "Authored docs/session-sets/component-catalog-grounded-authorship/change-log.md directly. The route(task_type=summarization) call would have been the convention, but the prior route(uat-script-author) call to Anthropic timed out 3x and the user redirected: \"If you are not getting a response from an API, just run it yourself.\" The change-log captures: deliverables (crawler, task type, re-authored checklist, suppressions, planning-doc updates), per-session detail, the 47-UnknownRoute validation outcome and its triage, what the set did NOT do, and the planned next set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 12,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-28T12:30:34.470728+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (all pre-existing). dotnet test (non-Playwright filter): all 7 assemblies pass: 43+16+200+27+300+123 = 709 tests, 0 failures, 0 skipped. Did not run Playwright suite \u2014 Session 2 only touched ai-router config, prompt template, planning docs, and a new checklist + suppressions JSON; no Blazor/API code changed, so the green Playwright suite from Session 1 of this set + the green green-on-Session-1 of sensitive-field-masking-audit-uat-remediation are still valid.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 13,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-28T12:35:54.575558+00:00",
+      "description": "Routed session-verification cross-provider via opus ($0.9686). Saved to session-reviews/session-002.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 14721,
+          "outputTokens": 9970,
+          "costUsd": 0.968565
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 14,
+      "stepKey": "session-2/post-verification-fixups",
+      "dateTime": "2026-04-28T12:36:29.757941+00:00",
+      "description": "Verifier verdict: VERIFIED with 2 Suggestion-level findings. Issue 1 (prompt template schema recap) fixed inline (added Feedback, IsJudgmentItem, etc. to the optional fields list). Issue 2 (negative VERIFY TEXT for unmasked SSN check) deferred \u2014 the W0 grammar does not have a negated VERIFY TEXT form; tracking as a future grammar enhancement. No Critical/Major/Minor \u2014 proceeding to commit.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

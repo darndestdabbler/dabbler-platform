@@ -142,10 +142,73 @@ calls and the iterate-on-validation-failure loop)
 | 15 | Step 9 reorg review (last session of set, post-notify) | ROUTE `task_type=analysis` for candidate identification; direct for human-loop adjudication |
 
 ### Actuals (filled after the session)
-- Orchestrator used: TBD
-- Total routed cost: TBD
-- Deviations from recommendation: TBD
-- Notes for next-session calibration: TBD
+- Orchestrator used: claude-code anthropic `claude-opus-4-7` (1M context) @ effort=high.
+  Deviation from recommendation (sonnet @ medium): the human invoked Opus at session
+  start.
+- Total routed cost: $0.97 (one routed call: session-verification via Opus, $0.9686).
+- Deviations from recommendation:
+  - **Step 4 (route uat-script-author) timed out 3x at the 300s default Anthropic
+    timeout.** Per the human's redirect ("If you are not getting a response from an
+    API, just run it yourself"), the orchestrator authored the checklist directly,
+    using the catalog as the literal label source. The recommendation assumed the
+    routed call would land within timeout — for prompts ~30K tokens with adaptive
+    thinking enabled, that assumption did not hold. Future calibration: either
+    (a) bump the Anthropic timeout to 600s for `uat-script-author` calls, (b) drop
+    adaptive thinking for this task type (it's mechanical re-author, not deep
+    reasoning), or (c) split large catalogs into per-route shards and call once per
+    shard. Suggested fix: add `timeout_seconds_override: 600` per-task-type in
+    router-config.yaml.
+  - **Step 11 (route summarization for change-log) was authored directly** for
+    consistency with the API-timeout redirect — the change-log was small enough that
+    a direct write was fast and the user was already in a "just do it" mode. Future
+    calibration: change-log is short prose, well-suited for direct authoring; routing
+    via summarization is conventional but not load-bearing.
+  - **Step 13 (session-verification) routed normally via Opus** — no deviation. Cost
+    $0.9686 (input 14,721, output 9,970 tokens). Verdict: VERIFIED with 2
+    Suggestion-level findings (one fixed inline, one deferred to W0 grammar
+    enhancement).
+- Notes for next-session calibration:
+  - The router timeout was the dominant friction point. Either lengthen the Anthropic
+    timeout for catalog-grounded calls (the prompts are inherently large because the
+    catalog is part of the context) OR pre-filter the catalog more aggressively
+    before each `uat-script-author` call.
+  - The catalog-grounded approach is sound: zero label-mismatch errors out of 98
+    validated steps. The 47 `UnknownRoute` errors are documented W0 limitations, not
+    catalog gaps in the authoring sense.
+  - The prompt template is in `ai-router/prompt-templates/task-prompts.md` (existing
+    convention, parsed by `config.py`'s `_split_sections`), not at
+    `ai-router/prompts/uat_script_author.md` as the spec implied. No second loader
+    path needed.
 
 **Next-session-set recommendation (post-Session 2):**
-TBD — author at end of Session 2 via routed analysis per workflow Step 8 (last-session branch). Per the W1→W2→W3 pipeline memo, the planned next set is `naive-uat-runner-with-feedback` (W2). Confirm or surface a deviation at Session 2 close.
+
+Per `project_uat_truthful_pipeline.md` (W1→W2→W3), the planned next set is
+**`uat-runner-and-triage-feedback`** (W2). The plan stands:
+
+- W0 (`uat-dsl-compiler`) is complete; W1 (this set) is complete; W2 builds the Python
+  orchestrator that invokes the W0 CLI to compile the catalog-grounded checklist into
+  runnable Playwright code, executes via `dotnet test`, captures `.trx` results, and
+  routes failure triage through a 4-class taxonomy with auto-apply only for
+  `CATALOG_STALE`.
+- W2 will benefit from two W0/W1 enhancements that this session surfaced:
+  1. **`--suppressions <path>` flag in the W0 CLI.** `tools/uat-suppressions.json`
+     is the documentation surface today; W2 should consume it to filter out the
+     pre-auth + click-driven-cursor errors before the validate-pass gate.
+  2. **W0 click-navigation cursor inference** (or accept `VERIFY URL matches "..."`
+     as a route-cursor sigil). Without this, every click-driven UAT flow generates
+     cascading `UnknownRoute` errors.
+- A small W0 grammar enhancement is also queued: add `VERIFY TEXT does not contain
+  "..."` and `does not match "..."` forms (issue session-2/issue-2 from the
+  verification log). The `negation-by-free-form` workaround is functional but
+  emits `// PENDING` in compiled Playwright.
+
+No deviation from the W1→W2→W3 plan. Recommend starting `uat-runner-and-triage-feedback`
+next.
+
+**Recommended orchestrator for the next set's Session 1:** `claude-code` (anthropic)
+`claude-sonnet-4-6` @ effort=medium for the spec-reading + Python-scaffolding parts;
+the heavy reasoning (triage taxonomy, retry/auto-apply policy) routes via
+`route(task_type="planning")` + `route(task_type="architecture")` and is independent
+of the orchestrator model. If Anthropic credits are still constrained, fall back to
+`codex` (openai) `gpt-5.4` @ effort=medium with `session-verification` routing
+cross-provider to whichever Anthropic model is available.

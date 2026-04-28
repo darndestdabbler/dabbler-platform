@@ -256,3 +256,117 @@ OR
 
 with one bullet per failed step or pairing, and the specific protocol number
 (1–6) the failure violates.
+
+# uat-script-author
+
+## Catalog-Grounded UAT Checklist Authoring Task
+
+Author a UAT checklist JSON file whose every label, caption, text value, tab
+name, and scope descriptor matches a verbatim entry in the supplied component
+catalog for the active route × role. Validation is performed by the
+`dabbler-uat-dsl validate` CLI from the `dabbler-uat-dsl` library — the
+companion grammar at
+`https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/grammar/DabblerUatDsl.g4`
+is the authoritative source for syntax. The catalog is owned by this repo and
+produced by `tools/ComponentCatalogCrawler/` (see
+`docs/component-catalog/index.json`).
+
+### Hard requirements
+
+1. **Schema conformance.** Use the canonical UAT-checklist-editor schema at
+   `https://raw.githubusercontent.com/darndestdabbler/uat-checklist-editor/main/checklist-schema.json`.
+   Root: `ProjectName` (string, required), `Review` (array, required).
+   Each Review item — required: `FunctionalArea`, `Subarea`, `ItemLabel`,
+   `E2ETestReference`, `Steps`. Optional on Review items: `Feedback`
+   (string — used for catalog-gap notes and judgment-item rationale),
+   `IsJudgmentItem` (bool), `IsOtherItem` (bool), `Passes` (bool — written
+   inline by the human after review), `HumanAction` and `Expectation`
+   (legacy free-form pair). Each step: `StepNumber` (1..N), `Action`
+   (string), optional `Verifications` (array of `{ Text, ... }` objects).
+   `additionalProperties: false` at every nesting level. **Do NOT include**
+   `Id`, `Title`, `Description`, `JudgmentJustification`, `Reviews`
+   (plural), or `SessionSetSlug` — these are not in the schema.
+
+2. **DSL conformance.** Every `Action` and verification clause must use exactly
+   one verb from the closed list defined in
+   `docs/planning/project-guidance.md` → Conventions → Human UAT And Checklist
+   Editor (and codified by the dabbler-uat-dsl ANTLR grammar). Locators are by
+   visible label or visible text only — never by testid, xpath, CSS class, or
+   DOM index. Row identification is always by column-value match. Composites
+   do not exist; "sign in" is 5–8 primitive steps.
+
+3. **Quoted-string requirement.** All user-visible labels, captions, text
+   values, and scope descriptors must be **double-quoted string literals**
+   inside the `Action` text. Keywords (`with`, `in`, `and`, `where`, `to`,
+   `enter`, `caption`, `label`, `text`, `name`, `aria-label`, etc.) appear
+   bare. Examples:
+   - ✓ `CLICK BUTTON in "Add Mask Exemption" dialog with caption "Save"`
+   - ✗ `CLICK BUTTON in Add Mask Exemption dialog with caption Save`
+   This makes the grammar unambiguous: keywords inside quoted values are never
+   tokenized as structural keywords.
+
+4. **Catalog grounding (the rule that makes this task type distinct).** Every
+   double-quoted label, caption, text, tab name, column header, and scope
+   value must match a `userVisibleLabel` or `ariaLabel` entry in the supplied
+   catalog **for the current route × role**. The catalog has columns
+   `routePath`, `role`, `elementRole`, `userVisibleLabel`, `ariaLabel`,
+   `pageTitle`, etc.
+   - For an interaction step on route `R` performed by role `Q`, every
+     quoted value in that step's `Action` must appear as the
+     `userVisibleLabel` of a catalog row where `routePath == R` and
+     `role == Q`.
+   - The DSL verb's element type must match the catalog `elementRole`. A
+     row whose `elementRole` is `link` is `CLICK LINK`, not `CLICK BUTTON`.
+     A row whose `elementRole` is `tab` is `CLICK TAB`. A row whose
+     `elementRole` is `iconButton` (button + non-empty `ariaLabel` + empty
+     visible text) is `CLICK ICON BUTTON with aria-label "<ariaLabel>"`.
+   - Scope descriptors (`in "Add Mask Exemption" dialog`, `in the "Mask
+     Exemptions" tab`, `in "Customers" grid`) must reference a catalog
+     entry that names that scope (a `dialog`, `tab`, `grid`, or named
+     landmark `Element`).
+
+5. **FORBIDDEN: inventing a label.** If a step needs to name a control or
+   text that is NOT in the catalog for the current route × role, **STOP and
+   report the gap** as a `// CATALOG GAP:` JSON-comment-style note in your
+   output preamble (or in a `Feedback` note on the affected Review item).
+   Do NOT emit a step that references a label the catalog does not contain.
+   The remediation for a real gap is a targeted re-crawl of that
+   route × role, not a guessed label.
+
+6. **Prefer structured VERIFY forms.** The structured forms (defined in
+   project-guidance and the grammar) compile to deterministic Playwright
+   assertions:
+   - `VERIFY ELEMENT [in <scope>] with label "<label>" is visible | not
+     visible | enabled | disabled`
+   - `VERIFY TEXT [in <scope>] equals "<expected>"` /
+     `contains "<expected>"` / `matches "<regex>"`
+   - `VERIFY URL matches "<pattern>"`
+   - `VERIFY SNACKBAR shows "<text>"`
+   - `VERIFY ROW in "<grid>" where "<col>" = "<value>" exists | does not exist`
+
+   Free-form `VERIFY <text>` is allowed (legacy compatibility) but emits
+   `// PENDING` in generated test code. Prefer structured forms.
+
+7. **Per-step reachability.** Every step must be performable by a real human
+   in a browser AND by a Playwright test using only user-visible surfaces.
+   Reject any step that depends on a test framework backdoor
+   (`SeededSignInAsync(roles=)`, `/test-auth/*` shortcuts, direct
+   `security-config.json` edits, EF API pokes, etc.) when the step is
+   something a human is also expected to perform.
+
+### Spec, reference checklist, and intended scenario coverage
+
+{content}
+
+### Component catalog and grammar reference
+
+{context}
+
+### Output
+
+Output ONLY valid JSON conforming to the UAT-checklist-editor schema. No
+markdown fences. No explanatory prose before or after the JSON. If a real
+catalog gap blocks a step, emit a `Feedback` note on the affected Review
+item beginning with `CATALOG GAP:` and continue with what coverage is
+possible — the orchestrator will triage the gap and decide whether to
+re-crawl or revise scope.

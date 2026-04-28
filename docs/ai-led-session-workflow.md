@@ -1078,6 +1078,7 @@ On Windows, use `.venv/Scripts/python.exe` to run Python.
 | `refactoring` | 65 | Gemini Pro |
 | `uat-plan-generation` | 70 | Opus |
 | `uat-coverage-review` | 70 | Opus |
+| `uat-script-author` | 60 | Sonnet |
 | `session-verification` | 70 | Opus |
 | `security-review` | 75 | Opus |
 | `architecture` | 80 | Opus |
@@ -1090,6 +1091,20 @@ with the same action, parameters, and verifications. Both are
 auto-verified cross-provider — they are the checks that prevent the
 "UAT as first line of defense" failure mode, so they get high-effort
 settings in `router-config.yaml`.
+
+`uat-script-author` is the catalog-grounded authoring task type. Given a
+session set's spec, the `docs/component-catalog/index.json` catalog
+manifest, and (optionally) a reference checklist for scenario coverage,
+it emits a UAT checklist whose every quoted label is verbatim from the
+catalog for the active route × role. Sonnet is the default — it is
+strong at literal-string fidelity against a closed grammar, and the
+W0 `dabbler-uat-dsl validate` CLI catches grammar/label errors that
+would otherwise need a cross-provider AI verifier. This task type is
+NOT in `auto_verify_task_types`; validation is the W0 CLI. When a spec
+declares `requiresUAT: true` and the orchestrator is generating the
+checklist, prefer `uat-script-author` over `uat-plan-generation` —
+catalog grounding eliminates the label-guessing failure mode that
+prompted the catalog work in the first place.
 
 ### Model Tiers and Pricing
 

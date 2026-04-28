@@ -401,6 +401,33 @@ before proceeding.
 
 ### Human UAT And Checklist Editor
 
+- **Catalog-grounded authoring is mandatory for new UAT checklists.** Every
+  user-visible label, caption, text, tab name, scope descriptor, and column
+  header in a new UAT checklist must come from the component catalog at
+  `docs/component-catalog/index.json` for the route × role active in that
+  step. The catalog is produced by `tools/ComponentCatalogCrawler/` (a .NET
+  console app that crawls the running compose stack as each role and
+  scrapes accessibility-tree labels). Re-crawl on demand before authoring a
+  new checklist; commit the diff so UI changes are visible in PR review.
+  Authoring goes through `route(task_type="uat-script-author")` — that task
+  type's prompt template (in `ai-router/prompt-templates/task-prompts.md`)
+  forbids label invention and routes the call to Sonnet by default. Manual
+  hand-authoring of UAT checklists is deprecated; if the orchestrator
+  authors directly (e.g., when the API call times out), it must still
+  select every label verbatim from the catalog. Validation is delegated to
+  the `dabbler-uat-dsl validate <checklist> --catalog <path>` CLI from the
+  sibling `dabbler-uat-dsl` repo (W0). Closed pre-catalog checklists are
+  grandfathered via `tools/uat-suppressions.json`.
+- The W0 SemanticValidator currently updates its `currentRoute` cursor only
+  on `NAVIGATE TO` statements; click-driven navigation (CLICK LINK,
+  CLICK ROW that lands on a detail page) does NOT propagate the new route.
+  Click-driven UAT scripts therefore produce cascading `UnknownRoute`
+  errors after the first click-driven transition. This is a known W0
+  limitation; mitigations are documented in `tools/uat-suppressions.json`
+  and a future W0 enhancement (route-transition inference from click
+  semantics, or a `VERIFY URL matches "..."` route-cursor sigil) will
+  remove the suppression. Until then, validate output should be triaged
+  with the suppressions file.
 - Use the UAT checklist editor schema from
   `https://github.com/darndestdabbler/uat-checklist-editor/blob/main/checklist-schema.json`
   for checklist JSON files intended for human execution.
