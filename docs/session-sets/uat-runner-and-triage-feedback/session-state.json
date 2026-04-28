@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "uat-runner-and-triage-feedback",
-  "currentSession": 3,
+  "currentSession": 4,
   "totalSessions": 4,
-  "status": "in-progress",
+  "status": "complete",
   "startedAt": "2026-04-28T11:15:00.000000-04:00",
-  "completedAt": null,
+  "completedAt": "2026-04-28T17:30:00.000000-04:00",
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
     "engine": "claude-code",
