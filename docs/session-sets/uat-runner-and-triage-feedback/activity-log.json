@@ -1,0 +1,140 @@
+{
+  "sessionSetName": "uat-runner-and-triage-feedback",
+  "createdDate": "2026-04-28T13:11:19.063437+00:00",
+  "totalSessions": 4,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-28T13:13:12.908580+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/prereq-check",
+      "dateTime": "2026-04-28T13:13:12.909129+00:00",
+      "description": "Confirmed: ../dabbler-uat-dsl/ CLI runs (validate/compile subcommands present); docs/component-catalog/index.json present",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/fixture-adapter",
+      "dateTime": "2026-04-28T13:15:03.159986+00:00",
+      "description": "Created PlaywrightFixtureUatAdapter.cs (28 lines) implementing IPlaywrightUatFixture; WaitForQuiet/WaitForReady stubbed to Task.CompletedTask until W3",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/package-references",
+      "dateTime": "2026-04-28T13:15:03.160993+00:00",
+      "description": "Added Dabbler.Uat.Dsl.Core + Dabbler.Uat.Dsl.Emitters.Playwright.CSharp PackageReferences in Playwright csproj; Directory.Packages.props version pin; nuget.config local feed at ../dabbler-uat-dsl/pack-output (packed both projects)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/runner",
+      "dateTime": "2026-04-28T13:19:44.103880+00:00",
+      "description": "Created ai-router/uat_runner/{__init__.py, runner.py} with run_checklist() entry, RunReport/StepFailure dataclasses, slug-to-PascalCase class-name converter",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/compile-step",
+      "dateTime": "2026-04-28T13:19:44.103880+00:00",
+      "description": "Wired W0 CLI compile invocation (subprocess; uses dotnet run --project ../dabbler-uat-dsl/...) writing emitted Playwright C# to tests/AcmeCoffeeOnline.Playwright/Generated/<ClassName>.cs",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/test-invocation",
+      "dateTime": "2026-04-28T13:19:44.103880+00:00",
+      "description": "Wired dotnet test --filter FullyQualifiedName~AcmeCoffeeOnline.Playwright.Generated.<ClassName>Tests --logger trx --results-directory <Generated>; emits a small xUnit wrapper file Generated/<ClassName>Tests.cs that calls the static W0 helper RunAsync via PlaywrightFixtureUatAdapter",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/trx-parsing",
+      "dateTime": "2026-04-28T13:19:44.103880+00:00",
+      "description": "Wired ElementTree parsing of UnitTestResult elements in the .trx file; collects passed/failed step names + error message + stack trace into RunReport",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/happy-path",
+      "dateTime": "2026-04-28T13:19:44.105383+00:00",
+      "description": "End-to-end smoke run: ai-router/uat_runner/test_cases/smoke-checklist.json compiled cleanly via W0, wrapper test ran via dotnet test, .trx parsed, 1 passed / 0 failed. Also exercised compile-failure path against masking checklist (UnknownRoute errors as documented in W1) \u2014 runner correctly reports compile failed and exits without invoking dotnet test.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-28T13:21:50.826265+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (pre-existing CS0618 obsolete + null-ref warnings unrelated to this set). dotnet test (excluding Playwright): 446/449 passed; 3 RowRestrictionIntegrationTests failed under parallel suite run but PASS when run in isolation \u2014 known flaky-under-parallel pattern (lessons-learned: Isolate Flaky-Under-Parallel Tests). No tests touched by this set. Playwright smoke run via runner passed (1/1).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-28T13:25:02.021961+00:00",
+      "description": "session-verification routed to opus (cost $0.5515)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 7742,
+          "outputTokens": 5805,
+          "costUsd": 0.551505
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 12,
+      "stepKey": "session-1/issue-fix",
+      "dateTime": "2026-04-28T13:26:16.368334+00:00",
+      "description": "Applied verifier-flagged fix to RunReport.has_failures (now also true when test_invoked and exit_code != 0). Re-ran smoke happy-path: still passes (exit 0).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 13,
+      "stepKey": "session-1/verification-r2",
+      "dateTime": "2026-04-28T13:26:26.601144+00:00",
+      "description": "Round 2 routed to gemini-pro (cost $0.0014)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 412,
+          "outputTokens": 92,
+          "costUsd": 0.001435
+        }
+      ]
+    }
+  ]
+}

@@ -11,6 +11,13 @@
     <PackageReference Include="PdfPig" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
+    <!-- W0 (dabbler-uat-dsl) packages. The runner emits Playwright C# code
+         via the W0 compiler; the emitted code references IPlaywrightUatFixture
+         from the Emitters.Playwright.CSharp package. Core is brought in
+         transitively but listed explicitly for clarity. Local feed is
+         configured in the repo-root nuget.config. -->
+    <PackageReference Include="Dabbler.Uat.Dsl.Core" />
+    <PackageReference Include="Dabbler.Uat.Dsl.Emitters.Playwright.CSharp" />
   </ItemGroup>
 
   <ItemGroup>
