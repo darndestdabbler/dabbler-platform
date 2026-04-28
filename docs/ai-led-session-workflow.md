@@ -669,6 +669,46 @@ During execution:
 - if a failure or avoidable friction suggests a reusable tactic, recommend an
   update to `docs/planning/lessons-learned.md`
 
+#### Sub-step: UAT Runner (for `requiresUAT: true` sets)
+
+> **Applies only when the active spec declares `requiresUAT: true`.**
+
+After generating a catalog-grounded UAT checklist (W1 output), invoke the
+UAT runner to validate the checklist against the live app before notifying
+the human:
+
+```bash
+python -m ai_router.uat_runner.cli \
+  --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \
+  --catalog docs/component-catalog/index.json \
+  --session-set {slug}
+```
+
+The runner:
+
+1. Compiles the checklist via the W0 compiler (`dabbler-uat-dsl compile`).
+2. Runs the compiled test via `dotnet test`.
+3. On failure, classifies each failure via the triage stage (four-class
+   taxonomy: `APP_FUNCTIONAL_BUG`, `CATALOG_STALE`, `SEED_DATA_GAP`,
+   `AMBIGUOUS_LOCATOR`).
+4. Auto-applies `CATALOG_STALE` remediations (re-crawl + re-run).
+5. Files human-review issues for the other three classes under
+   `docs/session-sets/{slug}/issues/`.
+
+**Exit codes:**
+
+- `0` = All steps passed OR only auto-recovered `CATALOG_STALE` failures.
+- `1` = Compilation failed OR human-review issues filed.
+
+If the runner exits 1, **resolve filed issues before proceeding to Step 5 and
+notifying the human.** Issues may require:
+
+- Code fixes for `APP_FUNCTIONAL_BUG` (fix the bug, re-run the runner)
+- Catalog re-crawl for `CATALOG_STALE` (run the runner again; auto-applies)
+- Seed data additions for `SEED_DATA_GAP` (update fixtures, re-run)
+- Component markup changes for `AMBIGUOUS_LOCATOR` (add `data-testid`, re-crawl,
+  re-run)
+
 ### Step 5: Build and Test
 
 ```bash

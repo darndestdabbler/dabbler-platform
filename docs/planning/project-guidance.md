@@ -699,7 +699,40 @@ before proceeding.
   re-run the pre-test step before marking the session complete.
   
 ---
-  
+
+### UAT Runner (W2)
+
+When a session set declares `requiresUAT: true`, the orchestrator invokes
+the UAT runner before proceeding to build/test and notifying the human.
+The runner:
+
+- Compiles the catalog-grounded checklist via the W0 compiler.
+- Runs the compiled test via `dotnet test`.
+- Classifies failures via a four-class taxonomy (APP_FUNCTIONAL_BUG,
+  CATALOG_STALE, SEED_DATA_GAP, AMBIGUOUS_LOCATOR).
+- Auto-applies CATALOG_STALE remediations and re-runs.
+- Files human-review issues for the other three classes.
+
+The runner is invoked via:
+
+```bash
+python -m ai_router.uat_runner.cli \
+  --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \
+  --catalog docs/component-catalog/index.json \
+  --session-set {slug}
+```
+
+Exit codes:
+
+- `0` = Pass OR auto-recovered CATALOG_STALE failures only.
+- `1` = Compilation failed OR human-review issues filed.
+
+If the runner exits 1, resolve filed issues before build/test and human
+notification. See `docs/ai-led-session-workflow.md` → **Sub-step: UAT
+Runner** for the remediation procedure for each class.
+
+---
+
 ### Code Style
 
 - Namespaces: `AcmeCoffeeOnline.Web`, `AcmeCoffeeOnline.Api`,
