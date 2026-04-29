@@ -313,6 +313,62 @@ what the instrumentation shows.
     Stop DevIdp via `docker compose stop devidp` and re-run; if pass
     rate changes, it's relevant.
 
+### Stack-comparison diagnostics (high value-per-effort)
+
+These were raised by the user at Session 1 close. Each isolates a different
+layer of the stack and could pinpoint where the flake actually lives without
+needing per-circuit instrumentation.
+
+15. **Replace Playwright with Selenium or pure-JS for the same scenario.**
+    Playwright uses Chrome DevTools Protocol (CDP); Selenium uses WebDriver
+    protocol; a pure-JS test runs in-page with no driver at all. Decision
+    matrix:
+    - Selenium 20/20 PASS → Playwright's CDP path is at fault.
+    - Selenium also flaky → driver layer is innocent; bug is in Blazor / SignalR.
+    - Pure-JS test (a `<script>` that does `document.querySelector(...).click()`
+      followed by `setInterval` polling on `dataset.actionsInFlight`) is
+      cheapest to write (~30 LOC). If THAT flakes, no driver is involved at
+      all and the bug is unambiguously server-side.
+
+    **Recommended order:** pure-JS variant first (cheapest), then Selenium
+    only if pure-JS already isolates the layer.
+
+16. **Bump target framework to `.NET 11`.** Solution currently targets
+    `net10.0` while building under `dotnet/sdk:11.0.100-preview.2`. The
+    runtime is on .NET 10. Newer .NET runtimes have shipped real fixes in
+    Blazor Server JS interop / circuit lifecycle / render batching, and a
+    preview-to-preview bump may have already-fixed bugs we're hitting.
+    Procedure: change `<TargetFramework>net10.0</TargetFramework>` →
+    `net11.0` in `Directory.Build.props` (and any project that overrides
+    it), restore, build, run the 20-iteration stress. If 20/20 passes,
+    the platform itself was the issue. **Caveat:** also surfaces unrelated
+    runtime / package compatibility risk; do this on a throwaway branch
+    rather than main.
+
+17. **Per-page `@rendermode InteractiveServer` instead of Routes-level
+    inheritance.** Currently `App.razor` declares
+    `<Routes @rendermode="InteractiveServer" />`, so all pages inherit the
+    interactive-server mode. `ProductManagement.razor` has no explicit
+    `@rendermode` directive of its own. The newer .NET 8+ pattern is to
+    declare `@rendermode InteractiveServer` at the **page level** — each
+    component opts in independently and Blazor establishes the circuit
+    per-component-tree, with potentially different lifetime, boundary, and
+    JS-interop dispatch semantics than the global-interactive pattern.
+
+    **Cheapest test in the entire menu.** Add one line to the top of
+    `ProductManagement.razor`:
+    ```razor
+    @page "/admin/products"
+    @rendermode InteractiveServer
+    @attribute [DabblerPageAuthorize("/admin/products")]
+    @inherits Dabbler.Testing.Blazor.Components.TrackedComponentBase
+    ```
+    Rebuild Web, run 20-iteration stress. If 20/20 passes, the circuit
+    lifetime under the global-interactive mode was contributing to the
+    accumulation we observed. If still flaky, the rendermode wasn't the
+    cause and the change can be reverted (or kept on its own merits as
+    the more idiomatic .NET 8+ pattern).
+
 ### Things deliberately NOT recommended
 
 - **Stateful Reconnect** (Blazor Server feature): documented in the doc
