@@ -51,6 +51,14 @@ public sealed class ProductAdministrationWorkflowTests
 
             await routedContent.GetByPlaceholder("Search products...").FillAsync(productName);
 
+            // The search uses a 300ms-debounced TextChanged wired to OnSearchAsync, which
+            // is wrapped in TrackAction("search-products") so the watermark fires for the
+            // search-induced render. Wait for the search to settle before locating +
+            // clicking the switch — otherwise the click can land mid-rerender and SignalR
+            // delivers it to a stale handler-id, silently dropping ValueChanged. See
+            // cumulative-flake-investigation.md (Session 5 root cause).
+            await _fixture.WaitForQuietAsync(page);
+
             var availabilitySwitch = routedContent.GetByTestId($"product-availability-{productId}");
 
             await Assertions.Expect(availabilitySwitch).ToBeVisibleAsync();

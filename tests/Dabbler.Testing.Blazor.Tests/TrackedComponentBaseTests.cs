@@ -95,6 +95,39 @@ public sealed class TrackedComponentBaseDirectTests
         Assert.Single(js.Calls, c => c.StartsWith("dabbler.endAction"));
     }
 
+    // ── JS-not-ready resilience ─────────────────────────────────────
+
+    [Fact]
+    public async Task TrackAction_WhenEnabled_JsInteropThrowsInvalidOperation_SilentlyDegradesAndRunsWork()
+    {
+        // Session 5 hardening: when JS interop throws InvalidOperationException
+        // (e.g. during prerender or before the SignalR circuit is dispatchable),
+        // TrackAction must still run work() and must not bubble the exception.
+        // This prevents an early-fire of a TrackAction-wrapped event handler from
+        // turning into an HTTP 500 — the failure mode that broke /admin/products
+        // for non-SystemAdmin roles when wrapping ProductManagement.OnSearchAsync.
+        // The watermark silently no-ops in that frame; the user-visible work
+        // proceeds.
+        var js = new ThrowingJSRuntime();
+        var opts = Options.Create(new TrackedActionsOptions { Enabled = true });
+        var harness = new DirectHarness(js, opts);
+
+        var ranWork = false;
+        await harness.RunAsync("save", () =>
+        {
+            ranWork = true;
+            return Task.CompletedTask;
+        });
+
+        Assert.True(ranWork);
+        Assert.Equal(1, js.AttemptedCalls);
+
+        // Because the begin call failed, no completion is enqueued and
+        // OnAfterRenderAsync drains nothing — i.e. no endAction either.
+        await harness.FlushAsync();
+        Assert.Equal(1, js.AttemptedCalls);
+    }
+
     // ── Concurrent in-flight IDs ─────────────────────────────────────
 
     [Fact]
@@ -150,6 +183,25 @@ public sealed class TrackedComponentBaseDirectTests
         {
             Calls.Add($"{identifier}({args?[0]})");
             return ValueTask.FromResult(default(TValue)!);
+        }
+    }
+
+    private sealed class ThrowingJSRuntime : IJSRuntime
+    {
+        public int AttemptedCalls { get; private set; }
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+        {
+            AttemptedCalls++;
+            throw new InvalidOperationException(
+                "JavaScript interop calls cannot be issued at this time. (simulated)");
+        }
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+        {
+            AttemptedCalls++;
+            throw new InvalidOperationException(
+                "JavaScript interop calls cannot be issued at this time. (simulated)");
         }
     }
 }

@@ -29,6 +29,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     private bool _devIdpEnsured;
     private readonly SemaphoreSlim _devIdpEnsureLock = new(1, 1);
     private readonly ConcurrentDictionary<IPage, ConcurrentQueue<string>> _pageIssues = new();
+    private readonly ConcurrentDictionary<IPage, ConcurrentQueue<string>> _pageConsole = new();
     private readonly ConcurrentDictionary<IPage, IBrowserContext> _pageContexts = new();
     private readonly ConcurrentDictionary<string, string> _seededUserIdCache = new(StringComparer.OrdinalIgnoreCase);
 
@@ -90,11 +91,21 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         var context = await _browser.NewContextAsync(contextOptions);
         var page = await context.NewPageAsync();
         var issues = new ConcurrentQueue<string>();
+        var console = new ConcurrentQueue<string>();
         _pageIssues[page] = issues;
+        _pageConsole[page] = console;
         _pageContexts[page] = context;
 
         page.Console += (_, message) =>
         {
+            // Diagnostic capture: keep all log/warn/info/error messages so a
+            // WaitForQuietAsync timeout can dump them. This is what tells us
+            // whether dabbler.beginAction / dabbler.endAction actually fired.
+            console.Enqueue($"[{message.Type}] {message.Text}");
+            while (console.Count > 200 && console.TryDequeue(out string? _))
+            {
+            }
+
             if (message.Type == "error")
             {
                 issues.Enqueue($"Console error: {message.Text}");
@@ -129,6 +140,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
         page.Close += (_, _) =>
         {
             _pageIssues.TryRemove(page, out _);
+            _pageConsole.TryRemove(page, out _);
             _pageContexts.TryRemove(page, out _);
         };
 
@@ -1056,11 +1068,62 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     /// <summary>
     /// Waits for all tracked actions in the component to settle (data-actions-in-flight attribute = "[]").
     /// Used after clicking handlers that are wrapped with TrackedComponentBase.TrackAction().
+    /// On failure, dumps DOM watermark state, browser console history, and page state so the
+    /// cumulative-flake investigation can pinpoint which layer failed (SignalR / handler / shim / attribute).
     /// </summary>
     public async Task WaitForQuietAsync(IPage page)
     {
-        await Assertions.Expect(page.Locator("html"))
-            .ToHaveAttributeAsync("data-actions-in-flight", "[]");
+        try
+        {
+            await Assertions.Expect(page.Locator("html"))
+                .ToHaveAttributeAsync("data-actions-in-flight", "[]");
+        }
+        catch (PlaywrightException)
+        {
+            await DumpQuietDiagnosticsAsync(page);
+            throw;
+        }
+    }
+
+    private async Task DumpQuietDiagnosticsAsync(IPage page)
+    {
+        var diagnostics = new List<string> { "=== WaitForQuietAsync diagnostic dump ===" };
+
+        try
+        {
+            var attrs = await page.EvaluateAsync<Dictionary<string, string?>>(@"() => ({
+                actionsInFlight: document.documentElement.getAttribute('data-actions-in-flight'),
+                lastAction:      document.documentElement.getAttribute('data-last-action'),
+                blazorReady:     document.documentElement.getAttribute('data-blazor-ready'),
+                testMode:        document.documentElement.getAttribute('data-test-mode'),
+                title:           document.title,
+                url:             window.location.href
+            })");
+
+            foreach (var kv in attrs)
+            {
+                diagnostics.Add($"  attr.{kv.Key} = {kv.Value ?? "(null)"}");
+            }
+        }
+        catch (Exception ex)
+        {
+            diagnostics.Add($"  attr-eval-failed: {ex.Message}");
+        }
+
+        if (_pageConsole.TryGetValue(page, out var console))
+        {
+            diagnostics.Add($"  console messages captured: {console.Count}");
+            foreach (var line in console.ToArray())
+            {
+                diagnostics.Add($"    {line}");
+            }
+        }
+        else
+        {
+            diagnostics.Add("  console capture unavailable (page not registered)");
+        }
+
+        Console.WriteLine(string.Join(Environment.NewLine, diagnostics));
     }
 
     /// <summary>

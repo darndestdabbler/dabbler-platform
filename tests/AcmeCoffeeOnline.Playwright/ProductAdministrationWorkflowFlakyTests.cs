@@ -20,15 +20,33 @@ public sealed class ProductAdministrationWorkflowFlakyTests
         _fixture = fixture;
     }
 
-    // TODO(drain-flaky): pass-alone-fail-in-suite cumulative-state flake.
-    // Discovered in Session 2 of playwright-sync-watermark-and-playbook (full
-    // suite run: TabUntilFocusedFieldAsync expected "Name", got "Grind Type"
-    // after ~120 prior tests; isolated re-run after fresh Web container:
-    // 5/5 PASS). Same failure class as the data-actions-in-flight=null issue
-    // captured in cumulative-flake-investigation.md — confirms the cumulative
-    // flake is platform-wide, not specific to the watermarked component
-    // (E2E_WF_04). Tracked for Session 5's FlakyPlaywrightCollection drain;
-    // do not investigate piecemeal.
+    // TODO(drain-flaky): pass-alone-fail-in-suite Tab-focus race (NOT the same
+    // root cause as E2E_WF_04's was).
+    //
+    // Session 2 observation: TabUntilFocusedFieldAsync expected "Name", got
+    // "Grind Type" after ~120 prior tests; isolated re-run after fresh Web
+    // container: 5/5 PASS.
+    //
+    // Session 5 (2026-04-29) update: investigated and ruled out as a member of
+    // the E2E_WF_04 family. The diagnostic-first stress run on E2E_WF_04 found
+    // its root cause was a click-during-search-rerender race — fixed by
+    // wrapping ProductManagement.OnSearchAsync in TrackAction("search-products")
+    // and adding WaitForQuietAsync after the test's search FillAsync (the same
+    // watermark mechanism used after the toggle click). After that fix:
+    // 59/60 PASS for E2E_WF_04 across three 20-iteration batches.
+    //
+    // E2E_WF_05 doesn't exercise the search before the failing Tab loop — it
+    // clicks "Add Product" to open the dialog and then tabs. The race here is
+    // between the dialog-open render (driven by ShowNewProductDialogAsync,
+    // which is NOT TrackAction-wrapped) and the first Keyboard.Press("Tab")
+    // call. The next-session candidate fix is to wrap the dialog-open click
+    // path in TrackAction and have the test WaitForQuietAsync before tabbing.
+    // That would extend iteration 2's pattern to the dialog-open transition.
+    //
+    // Held in FlakyPlaywrightCollection because the failure mode is real but
+    // unreproducible in isolation — drain in a follow-up set after the
+    // dialog-open watermark fix lands and the full suite stays clean.
+    // Do not investigate piecemeal in another session set.
     [Fact]
     public async Task E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync()
     {

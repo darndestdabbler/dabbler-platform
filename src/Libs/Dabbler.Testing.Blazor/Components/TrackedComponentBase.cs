@@ -40,7 +40,7 @@ public class TrackedComponentBase : ComponentBase
         }
 
         var correlationId = $"{name}-{Guid.NewGuid():N}";
-        await JS.InvokeVoidAsync("dabbler.beginAction", correlationId);
+        var begun = await TryInvokeJsAsync("dabbler.beginAction", correlationId);
 
         try
         {
@@ -48,8 +48,35 @@ public class TrackedComponentBase : ComponentBase
         }
         finally
         {
-            _pendingCompletions.Enqueue(correlationId);
-            RequestRender();
+            if (begun)
+            {
+                _pendingCompletions.Enqueue(correlationId);
+                RequestRender();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Calls <see cref="IJSRuntime"/> and returns false when JS interop is
+    /// not yet dispatchable (e.g. during server prerender, or at component
+    /// lifecycle boundaries before the SignalR circuit is fully active).
+    /// Without this guard, an early-fire of a TrackAction-wrapped event handler
+    /// would throw <see cref="InvalidOperationException"/> from JS.InvokeVoidAsync
+    /// and bubble out as an HTTP 500 on the page render — observed in Session 5
+    /// when wrapping ProductManagement.OnSearchAsync broke /admin/products for
+    /// non-SystemAdmin roles. The watermark is a test-time signal; a missed
+    /// TrackAction silently degrades to "no signal" rather than failing the page.
+    /// </summary>
+    private async Task<bool> TryInvokeJsAsync(string identifier, params object?[] args)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync(identifier, args);
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
         }
     }
 
@@ -71,7 +98,7 @@ public class TrackedComponentBase : ComponentBase
 
         while (_pendingCompletions.TryDequeue(out var completionId))
         {
-            await JS.InvokeVoidAsync("dabbler.endAction", completionId);
+            await TryInvokeJsAsync("dabbler.endAction", completionId);
         }
     }
 }

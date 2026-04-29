@@ -179,12 +179,13 @@
         }
     }
 
-    private async Task OnSearchAsync(string searchTerm)
-    {
-        _searchTerm = searchTerm;
-        _currentPage = 1;
-        await LoadProductsAsync();
-    }
+    private Task OnSearchAsync(string searchTerm) =>
+        TrackAction("search-products", () =>
+        {
+            _searchTerm = searchTerm;
+            _currentPage = 1;
+            return LoadProductsAsync();
+        });
 
     private async Task OnPageChangedAsync(int page)
     {
