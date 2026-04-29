@@ -396,7 +396,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
 
         var group = drawer.GetByText(groupTitle, new() { Exact = true }).First;
         await group.ClickAsync();
-        await Task.Delay(200);
+        await Task.Delay(200); // Animation delay: MudBlazor drawer group expand CSS transition.
 
         var navLink = drawer.GetByText(linkText, new() { Exact = true }).First;
         await Assertions.Expect(navLink).ToBeVisibleAsync();
@@ -512,7 +512,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             .GetByText(optionText, new() { Exact = true }).First;
         await Assertions.Expect(option).ToBeVisibleAsync();
         await option.ClickAsync();
-        await Task.Delay(200);
+        await Task.Delay(200); // Animation delay: MudBlazor dropdown close CSS transition.
     }
 
     public static async Task SelectDropdownByLabelAsync(IPage page, string label, string optionText)
@@ -522,7 +522,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             .GetByText(optionText, new() { Exact = true }).First;
         await Assertions.Expect(option).ToBeVisibleAsync();
         await option.ClickAsync();
-        await Task.Delay(200);
+        await Task.Delay(200); // Animation delay: MudBlazor dropdown close CSS transition.
     }
 
     public static async Task ClickSaveAsync(IPage page)

@@ -224,9 +224,6 @@ public sealed class ProductsWorkflowTests
             await Assertions.Expect(toggleButton).ToContainTextAsync(expectedLabel);
 
             await toggleButton.ClickAsync();
-            // Wait for the Blazor Server round-trip to complete
-            await Task.Delay(1000);
-            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
             // Verify the button label changed to reflect the new state
             var newExpectedLabel = before.IsAvailable ? "Activate" : "Deactivate";
@@ -299,7 +296,7 @@ public sealed class ProductsWorkflowTests
             await Assertions.Expect(option).ToBeVisibleAsync();
             await option.ClickAsync();
 
-            // Wait for debounce + grid reload
+            // Debounce delay: filter select triggers component debounce + grid reload, not render-correlated.
             await Task.Delay(500);
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
@@ -334,7 +331,7 @@ public sealed class ProductsWorkflowTests
             var maxPriceInput = filterPanel.GetByPlaceholder("Max $");
             await maxPriceInput.FillAsync("25");
 
-            // Wait for debounce (300ms MudNumericField + 200ms page debounce) + grid reload
+            // Debounce delay: 300ms MudNumericField + 200ms page debounce + grid reload, not render-correlated.
             await Task.Delay(800);
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 

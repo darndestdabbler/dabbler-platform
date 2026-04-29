@@ -124,7 +124,6 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
                 .GetByText(EntityKey, new() { Exact = true }).First;
             await Assertions.Expect(tableOption).ToBeVisibleAsync();
             await tableOption.ClickAsync();
-            await Task.Delay(300);
             await Assertions
                 .Expect(setupPage.GetByTestId("mask-exemption-new-column"))
                 .ToBeEnabledAsync(new() { Timeout = 5_000 });
@@ -133,12 +132,11 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
                 .GetByText(ColumnKey, new() { Exact = true }).First;
             await Assertions.Expect(columnOption).ToBeVisibleAsync();
             await columnOption.ClickAsync();
-            await Task.Delay(300);
             var addButton = setupPage.GetByTestId("mask-exemption-add-button");
             await Assertions.Expect(addButton).ToBeEnabledAsync(new() { Timeout = 5_000 });
             await addButton.ClickAsync();
             await setupPage.WaitForLoadStateAsync(LoadState.NetworkIdle);
-            await Task.Delay(500);
+            await Task.Delay(500); // Propagation guard: extra buffer after NetworkIdle for server-side state consistency.
             // Surface a denied-authority error if Add was rejected, so the
             // resulting test failure points at the real cause rather than at
             // a missing badge.
@@ -177,7 +175,7 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
             await Assertions
                 .Expect(auditPage.GetByLabel("Social Security Number"))
                 .ToBeVisibleAsync(new() { Timeout = 10_000 });
-            await Task.Delay(800); // allow the audit write to propagate
+            await Task.Delay(800); // DB propagation: allows audit write to commit before test reads it back.
         }
         finally
         {
@@ -431,7 +429,6 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
                 .GetByText(EntityKey, new() { Exact = true }).First;
             await Assertions.Expect(tableOption).ToBeVisibleAsync(new() { Timeout = 5_000 });
             await tableOption.ClickAsync();
-            await Task.Delay(300);
 
             // begin STEP 014
             await Assertions
@@ -442,7 +439,6 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
                 .GetByText(ColumnKey, new() { Exact = true }).First;
             await Assertions.Expect(columnOption).ToBeVisibleAsync(new() { Timeout = 5_000 });
             await columnOption.ClickAsync();
-            await Task.Delay(300);
 
             // begin STEP 015
             var addButton = page.GetByRole(AriaRole.Button, new() { Name = "Add" });
@@ -692,7 +688,7 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
 
             // begin STEP 015
             await page.GetByLabel("Entity").First.FillAsync(EntityKey);
-            await Task.Delay(1500);
+            await Task.Delay(1500); // Debounce delay: audit grid entity filter has a long debounce, not render-correlated.
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
             // begin STEP 016

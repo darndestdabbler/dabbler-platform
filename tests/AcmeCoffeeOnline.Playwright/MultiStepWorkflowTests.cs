@@ -250,7 +250,7 @@ public sealed class MultiStepWorkflowTests
             await Assertions.Expect(option).ToBeVisibleAsync();
             await option.ClickAsync();
 
-            // Wait for debounce + grid reload
+            // Debounce delay: filter select triggers component debounce + grid reload, not render-correlated.
             await Task.Delay(500);
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 

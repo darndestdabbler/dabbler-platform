@@ -138,7 +138,6 @@ public sealed class ProductAdministrationWorkflowTests
             var currentName = await nameField.InputValueAsync();
             await nameField.FillAsync(currentName + " ");
             await nameField.FillAsync(currentName);
-            await Task.Delay(300);
 
             // Modify the description
             var editedDescription = $"Edited by Playwright {DateTime.UtcNow:yyyyMMddHHmmssfff}";
@@ -191,7 +190,7 @@ public sealed class ProductAdministrationWorkflowTests
             var searchField = routedContent.GetByPlaceholder("Search products...");
             await searchField.FillAsync("Espresso");
 
-            // Wait for debounce (300ms) + grid reload
+            // Debounce delay: 300ms search debounce + grid reload, not render-correlated.
             await Task.Delay(500);
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
             await PlaywrightFixture.WaitForGridDataAsync(page);
@@ -202,7 +201,7 @@ public sealed class ProductAdministrationWorkflowTests
 
             // Clear search to restore
             await searchField.FillAsync("");
-            await Task.Delay(500);
+            await Task.Delay(500); // Debounce delay: 300ms search debounce + grid reload, not render-correlated.
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         }
         finally

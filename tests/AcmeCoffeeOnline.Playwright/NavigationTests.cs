@@ -200,7 +200,7 @@ public sealed class NavigationTests
 
             // Click hamburger to toggle
             await hamburger.ClickAsync();
-            await Task.Delay(500);
+            await Task.Delay(500); // Animation delay: MudBlazor drawer CSS transition, not render-correlated.
 
             // Drawer state should change
             var toggledClasses = await drawer.GetAttributeAsync("class") ?? "";
@@ -208,7 +208,7 @@ public sealed class NavigationTests
 
             // Click hamburger again to restore
             await hamburger.ClickAsync();
-            await Task.Delay(500);
+            await Task.Delay(500); // Animation delay: MudBlazor drawer CSS transition, not render-correlated.
 
             // Drawer should return to open state
             var restoredClasses = await drawer.GetAttributeAsync("class") ?? "";

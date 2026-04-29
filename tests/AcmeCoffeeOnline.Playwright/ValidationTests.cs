@@ -62,7 +62,6 @@ public sealed class ValidationTests
 
             // Attempt to save — validation should prevent it
             await page.GetByTestId("save-button").ClickAsync();
-            await Task.Delay(500);
 
             // Verify the required-field error message is visible
             await Assertions.Expect(page.GetByText("Product name is required"))
@@ -98,7 +97,6 @@ public sealed class ValidationTests
 
             // Click save
             await page.GetByTestId("save-button").ClickAsync();
-            await Task.Delay(500);
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
             // Verify the saved price respects the minimum boundary
@@ -132,7 +130,6 @@ public sealed class ValidationTests
 
             // Attempt to save
             await page.GetByTestId("save-button").ClickAsync();
-            await Task.Delay(500);
 
             // Verify the required-field error message is visible
             await Assertions.Expect(page.GetByText("First name is required"))
@@ -159,7 +156,6 @@ public sealed class ValidationTests
 
             // Attempt to save
             await page.GetByTestId("save-button").ClickAsync();
-            await Task.Delay(500);
 
             await Assertions.Expect(page.GetByText("Last name is required"))
                 .ToBeVisibleAsync(new() { Timeout = 3000 });
@@ -185,7 +181,6 @@ public sealed class ValidationTests
 
             // Attempt to save
             await page.GetByTestId("save-button").ClickAsync();
-            await Task.Delay(500);
 
             await Assertions.Expect(page.GetByText("Email is required"))
                 .ToBeVisibleAsync(new() { Timeout = 3000 });

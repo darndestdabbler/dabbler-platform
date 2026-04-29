@@ -223,6 +223,59 @@
           "costUsd": 0.009245
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-29T09:00:00.000000+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, ai-led-session-workflow.md, spec.md, activity-log.json. Confirmed Session 2 complete. Session 3 is Task.Delay callsite audit and classification.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/callsite-audit",
+      "dateTime": "2026-04-29T09:10:00.000000+00:00",
+      "description": "Grepped all Task.Delay calls in tests/AcmeCoffeeOnline.Playwright/. Found 30 callsites across 8 test files + PlaywrightFixture.cs. Classified: (1) 14 removals -- redundant with web-first assertions (ToBeVisibleAsync/ToBeEnabledAsync/ContainTextAsync with 3-5s timeouts immediately following); (2) 13 annotations -- debounce waits (300-1500ms component search/filter debounce) and MudBlazor CSS animation waits (drawer, dropdown transitions); (3) 3 left as-is -- polling loops in PlaywrightFixture (magic link retry loop, health check loop) and FlakyPlaywrightCollection helper (WaitForProductByExactNameAsync API retry).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/test-rewrites",
+      "dateTime": "2026-04-29T09:20:00.000000+00:00",
+      "description": "Removed 14 redundant Task.Delay calls and annotated 13 time-bound delays. No WaitForQuietAsync replacements needed -- all render-wait delays were already covered by subsequent web-first assertions; removing the delay (not replacing) is the correct and simpler outcome. Key removals: ProductAdministrationWorkflowTests.cs (form touch before ToBeEnabledAsync), ValidationTests.cs (5x save-click before ToBeVisibleAsync(3000)), OrdersWorkflowTests.cs (2x tab-switch before ToBeVisibleAsync), SensitiveFieldMaskingUatCoverageTests.cs (4x dropdown selection before ToBeEnabledAsync), ProductsWorkflowTests.cs (1000ms toggle + NetworkIdle before ContainTextAsync(5000)), ReportsWorkflowTests.cs (FillDatePickerAsync 300ms; ClickRunReportAsync gate covers it). Animation annotations applied to: NavigationTests.cs (2 drawer transitions), ProductAdministrationWorkflowTests.cs (2 search debounce), MultiStepWorkflowTests.cs (1 filter debounce), ProductsWorkflowTests.cs (2 filter debounce), SensitiveFieldMaskingUatCoverageTests.cs (propagation guard + DB audit write + entity filter debounce), PlaywrightFixture.cs (drawer-group expand + 2 dropdown close).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-29T09:30:00.000000+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors (184 pre-existing CS0618 warnings). dotnet test (excluding Playwright): 715 passed / 0 failed -- Dabbler.Testing.Blazor.Tests 3, Dabbler.Components.Tests 43, Dabbler.Reports.Blazor.Tests 16, Dabbler.Security.Blazor.Tests 200, AcmeCoffeeOnline.Api.Tests 27, Dabbler.Security.Tests 300, AcmeCoffeeOnline.Web.Tests 123.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-29T09:35:00.000000+00:00",
+      "description": "Cross-provider session-verification routed to Gemini Flash (Google, tier 1, $0.000444). Two prior attempts escalated to Opus (Anthropic, same-provider) due to router auto-escalation; third attempt with max_tier=1 forced Gemini Flash. Verdict: PASS. All deviations approved: removals approved, annotations approved, no-WaitForQuietAsync-replacement approved (web-first assertions are superior), ReportsWorkflowTests removal approved, FlakyPlaywrightCollection polling-loop left as-is approved. Saved to session-reviews/session-003.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.000444
+        }
+      ]
     }
   ]
 }

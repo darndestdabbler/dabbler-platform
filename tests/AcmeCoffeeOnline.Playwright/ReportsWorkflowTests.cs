@@ -39,7 +39,6 @@ public sealed class ReportsWorkflowTests
         await input.EvaluateAsync("el => el.readOnly = false");
         await input.FillAsync(dateText);
         await input.EvaluateAsync("el => el.dispatchEvent(new Event('change', { bubbles: true }))");
-        await Task.Delay(300);
     }
 
     private static async Task FillReportDatesAsync(

@@ -388,7 +388,6 @@ public sealed class OrdersWorkflowTests
             var notesTabHeader = page.GetByText(new Regex(@"Notes\s*\(\d+\)"));
             await Assertions.Expect(notesTabHeader).ToBeVisibleAsync();
             await notesTabHeader.ClickAsync();
-            await Task.Delay(500); // Wait for tab panel to render
 
             // Verify notes grid columns are visible
             // After switching tabs, the notes grid should appear
@@ -472,7 +471,6 @@ public sealed class OrdersWorkflowTests
             // Switch to Notes tab.
             var notesTabHeader = page.GetByText(new Regex(@"Notes\s*\(\d+\)"));
             await notesTabHeader.ClickAsync();
-            await Task.Delay(500);
 
             // "Add Note" button is visible on the Notes tab.
             var addNoteButton = page.GetByRole(AriaRole.Button, new() { Name = "Add Note" });
