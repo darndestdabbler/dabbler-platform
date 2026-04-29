@@ -74,4 +74,10 @@ Rationale: Per routed analysis (gemini-pro, $0.0023) — Session 3's mix (precis
 `claude-code` / `claude-opus-4-7` @ effort=high
 
 ### Actuals (filled after session)
-TBD
+- Orchestrator used: claude-code / claude-opus-4-7[1m] @ effort=high (matched recommendation)
+- Total routed cost: ~$0.74 (uat-script-author $0.066 sonnet, summarization $0.0006 gemini-flash, session-verification round 1 opus $0.496, round 2 opus $0.188 — both rounds same-provider opus because GPT-5.4 cross-provider fell through to fallback ladder per known router behavior)
+- Deviations from recommendation: None structural. Round-1 verifier returned ISSUES_FOUND (1 Major + 3 Minors); round-2 returned VERIFIED after applying Minor fixes and documenting the Major as deferred-accept (gap is pre-existing W0 infrastructure limitation, not a regression).
+- Notes: Smoke quality bar "5/5 PASS" not met because the W0 SemanticValidator defaults activeRole to "*" while catalog entries store concrete role names, AND the W0 CLI does not yet expose --suppressions. Documented in smoke/smoke-result.md with proposed follow-up set "w0-cli-suppressions-and-role-pinning". Compile-only smoke proves the verb-emit chain end-to-end; the LLM-authored checklist proves the prompt-template change works. Set is otherwise complete.
+
+**Next-session-set recommendation:**
+`w0-cli-suppressions-and-role-pinning` (sibling repo `dabbler-uat-dsl` + this repo). Add `--suppressions <path>` to the W0 CLI compile/validate modes so suppressed compiles can emit code, and either an `AS ROLE "<name>"` script directive OR runner-side persona detection so catalog-grounded checklists validate against concrete roles. Exit criterion: the 5x dotnet-test runner-driven proof that this set could not deliver. Recommendation routed via summarization in spirit but authored directly here since the analysis is already grounded in this set's actuals.

@@ -354,6 +354,52 @@ produced by `tools/ComponentCatalogCrawler/` (see
    `security-config.json` edits, EF API pokes, etc.) when the step is
    something a human is also expected to perform.
 
+8. **Watermark synchronization (`IsWatermarked` routes).** Each catalog
+   route entry carries an `IsWatermarked: bool` field, true iff the page
+   component inherits from `Dabbler.Testing.Blazor.Components.TrackedComponentBase`
+   and is therefore instrumented to advertise outstanding async work via
+   `data-actions-in-flight`. For steps on a route whose catalog entry has
+   `IsWatermarked: true`:
+
+   - Emit a `WAIT FOR ACTIONS QUIET` step **immediately after each
+     interaction verb** (`CLICK BUTTON`, `CLICK ICON BUTTON`, `CLICK LINK`,
+     `CLICK TAB`, `CLICK MENU ITEM`, `CLICK INPUT`, `CLICK CHECKBOX`,
+     `CLICK SWITCH`, `OPEN DROPDOWN`, `PICK DATE`, `EXPAND ROW`,
+     `CLICK ROW`, `PRESS KEY` when the keypress drives a re-render).
+   - Do NOT emit `WAIT FOR ACTIONS QUIET` after pure navigation
+     (`NAVIGATE TO`), pure verification (`VERIFY ...`), `WAIT FOR ...`
+     state polls, or on routes whose catalog entry has
+     `IsWatermarked: false` (or where the field is absent — defaults to
+     not-watermarked).
+   - The verb has no parameters and no scope. It compiles to
+     `await fixture.WaitForQuietAsync(page);`.
+
+   **Positive example** (route `/admin/products`, catalog
+   `IsWatermarked: true`):
+   ```
+   CLICK SWITCH in column with header "Available"
+   WAIT FOR ACTIONS QUIET
+   VERIFY SNACKBAR shows "Saved"
+   ```
+
+   **Negative example** (route `/dashboard`, catalog
+   `IsWatermarked: false`):
+   ```
+   CLICK BUTTON with caption "Refresh"
+   VERIFY ELEMENT with label "Sales today" is visible
+   ```
+   (no `WAIT FOR ACTIONS QUIET` — the route is not watermarked. Rely on
+   Playwright's built-in auto-wait inside the `VERIFY` assertion, or add
+   a free-form `WAIT FOR "<visible state>"` step only if an explicit
+   settle period is needed. Do not invent a substitute wait verb.)
+
+   The watermark integration closes the click-during-async-rerender race
+   that legacy UAT checklists hit on watermarked pages. Hand-authored
+   checklists may still skip the verb when the author knows an
+   interaction does not produce an async re-render (e.g., a no-op
+   acknowledgement); for AI-authored checklists, the safe default is
+   "every interaction on a watermarked route gets the wait."
+
 ### Spec, reference checklist, and intended scenario coverage
 
 {content}

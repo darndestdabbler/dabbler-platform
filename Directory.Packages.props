@@ -23,8 +23,8 @@
     <!-- W0 dabbler-uat-dsl. Consumed via local NuGet feed in nuget.config
          (../dabbler-uat-dsl/pack-output). Re-pack the sibling repo after
          pulling its changes (`dotnet pack <project> -o pack-output`). -->
-    <PackageVersion Include="Dabbler.Uat.Dsl.Core" Version="1.0.0" />
-    <PackageVersion Include="Dabbler.Uat.Dsl.Emitters.Playwright.CSharp" Version="1.0.0" />
+    <PackageVersion Include="Dabbler.Uat.Dsl.Core" Version="1.1.0" />
+    <PackageVersion Include="Dabbler.Uat.Dsl.Emitters.Playwright.CSharp" Version="1.1.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="DabblerPdf" Version="1.1.2" />
     <PackageVersion Include="MudBlazor" Version="8.15.0" />
