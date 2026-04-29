@@ -39,6 +39,9 @@ public sealed class CrawlerOrchestrator
         var auth = new SeededSessionAuth(_opts.BaseUrl, _opts.TestAuthSecret);
         var scraper = new AccessibilityTreeScraper();
 
+        var watermarkedRoutes = WatermarkDetector.ScanWatermarkedRoutes(_opts.PagesDirectory);
+        Console.WriteLine($"[orchestrator] Watermarked routes detected: {string.Join(", ", watermarkedRoutes.OrderBy(r => r))}");
+
         // Resolve route parameters via the system-admin user so the API
         // returns rows from every organization. Per-role authentication
         // happens during the actual crawl below.
@@ -97,12 +100,16 @@ public sealed class CrawlerOrchestrator
                     var shell = page.GetByTestId("main-shell");
                     await Assertions.Expect(shell).ToBeVisibleAsync(new() { Timeout = 5000 });
 
+                    var normalizedPath = RouteEnumerator.NormalizeTemplatePath(route.TemplatePath);
+                    var isWatermarked = watermarkedRoutes.Contains(normalizedPath);
                     var pageElements = await scraper.ScrapeAsync(
                         page,
-                        RouteEnumerator.NormalizeTemplatePath(route.TemplatePath),
-                        role);
+                        normalizedPath,
+                        role,
+                        isWatermarked);
                     roleElements.AddRange(pageElements);
-                    Console.WriteLine($"[orchestrator] {role} {route.TemplatePath} -> {pageElements.Count} elements");
+                    var watermarkLabel = isWatermarked ? " [watermarked]" : "";
+                    Console.WriteLine($"[orchestrator] {role} {route.TemplatePath}{watermarkLabel} -> {pageElements.Count} elements");
                 }
                 catch (Exception ex)
                 {
@@ -129,7 +136,7 @@ public sealed class CrawlerOrchestrator
         var manifest = new CatalogManifest(
             AppName: _opts.AppName,
             GeneratedAt: DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"),
-            SchemaVersion: "1.0",
+            SchemaVersion: "1.1",
             Entries: elements);
 
         File.WriteAllText(path, JsonSerializer.Serialize(manifest, ManifestJsonOptions));

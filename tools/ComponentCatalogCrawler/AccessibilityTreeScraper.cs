@@ -181,7 +181,7 @@ public sealed class AccessibilityTreeScraper
         "region", "form", "search", "dialog", "alertdialog", "tabpanel",
     };
 
-    public async Task<IReadOnlyList<CatalogElement>> ScrapeAsync(IPage page, string routePath, string role)
+    public async Task<IReadOnlyList<CatalogElement>> ScrapeAsync(IPage page, string routePath, string role, bool isWatermarked = false)
     {
         // Playwright .NET's EvaluateAsync<T> serializer-roundtrips through
         // System.Text.Json with options that don't always cooperate with
@@ -245,7 +245,8 @@ public sealed class AccessibilityTreeScraper
                 AriaLabel: hasAria ? ariaLabel : null,
                 TestId: string.IsNullOrWhiteSpace(testId) ? null : testId,
                 HtmlTag: string.IsNullOrWhiteSpace(htmlTag) ? null : htmlTag,
-                Scope: string.IsNullOrWhiteSpace(scope) ? null : scope));
+                Scope: string.IsNullOrWhiteSpace(scope) ? null : scope,
+                IsWatermarked: isWatermarked));
         }
 
         // Deduplicate by (routePath, role, elementRole, userVisibleLabel, scope).

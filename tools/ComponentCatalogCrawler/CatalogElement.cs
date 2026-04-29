@@ -15,7 +15,8 @@ public sealed record CatalogElement(
     string? AriaLabel,
     string? TestId,
     string? HtmlTag,
-    string? Scope);
+    string? Scope,
+    bool IsWatermarked = false);
 
 public sealed record CatalogManifest(
     string AppName,

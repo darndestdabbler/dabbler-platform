@@ -57,9 +57,33 @@ The crawler:
 5. Maps DOM/ARIA roles to the W0 `elementRole` enum
    (Button, IconButton, Link, Tab, MenuItem, Input, Checkbox, Switch,
    Dropdown, Grid, Row, Column, Snackbar, Element, Text).
-6. Writes one manifest per role at
+6. Before crawling, scans every `.razor` file in the pages directory for
+   `@page` + `@inherits TrackedComponentBase`. Routes whose page component
+   directly inherits `TrackedComponentBase` receive `isWatermarked: true`
+   on every element entry. Non-watermarked routes receive `isWatermarked: false`.
+7. Writes one manifest per role at
    `docs/component-catalog/{role}.json` and a merged
    `docs/component-catalog/index.json`.
+
+## Catalog schema (schemaVersion 1.1)
+
+Each element entry in `index.json` / `{role}.json`:
+
+| Field | Type | Description |
+|---|---|---|
+| `routePath` | string | Normalized route template (e.g. `/admin/products`, `/customers/{CustomerId}`) |
+| `role` | string | Role under which this element was crawled (e.g. `SystemAdmin`) |
+| `elementRole` | string | W0 element-role enum value |
+| `userVisibleLabel` | string | Accessible name visible to the user |
+| `ariaLabel` | string? | `aria-label` attribute if present |
+| `testId` | string? | `data-testid` attribute if present |
+| `htmlTag` | string? | HTML tag (lowercase) |
+| `scope` | string? | Nearest dialog/region label, if any |
+| `isWatermarked` | bool | `true` iff the page component for this route directly inherits `TrackedComponentBase`. When `true`, UAT checklist steps targeting this route should emit `WAIT FOR ACTIONS QUIET` after each interaction verb. |
+
+**schemaVersion history:**
+- `1.0` — initial schema
+- `1.1` — added `isWatermarked` field (`uat-dsl-watermark-integration` Session 1)
 
 ## Why DOM-walk and not `IAccessibility.SnapshotAsync`?
 
