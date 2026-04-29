@@ -13,11 +13,81 @@ public sealed class ProductAdministrationWorkflowTests
         _fixture = fixture;
     }
 
-    // E2E_WF_04 (TogglesProductAvailability...) lives in
-    // ProductAdministrationWorkflowFlakyTests.cs under FlakyPlaywrightCollection
-    // because the snackbar-toast assertion is flaky under full-suite
-    // parallelism. Keep the isolated-run invocation until the root cause is
-    // addressed in a focused session.
+    // E2E_WF_04 was previously parked in ProductAdministrationWorkflowFlakyTests.cs
+    // under FlakyPlaywrightCollection because the snackbar-toast assertion missed
+    // its visibility window under full-suite parallelism. The driving component
+    // (ProductManagement.razor) now inherits Dabbler.Testing.Blazor's
+    // TrackedComponentBase and ToggleAvailabilityAsync is wrapped with
+    // TrackAction("toggle-availability", ...). The test waits on the
+    // data-actions-in-flight watermark via _fixture.WaitForQuietAsync(page)
+    // before asserting the snackbar text, which makes the wait deterministic
+    // (the SignalR render-then-interop ordering guarantees the snackbar DOM
+    // has settled by the time the watermark returns to "[]").
+    [Fact]
+    public async Task E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+    {
+        const string productName = "Blonde Roast - Decaf - Espresso";
+        var page = await _fixture.CreatePageAsync();
+        string? userId = null;
+        int? productId = null;
+        bool? originalAvailability = null;
+
+        try
+        {
+            await _fixture.SeededSignInAsync(page, "admin@acmecoffee.com");
+
+            var session = await _fixture.GetSessionInfoAsync(page);
+            userId = session.UserId;
+
+            Assert.False(string.IsNullOrWhiteSpace(userId));
+            Assert.Contains("SystemAdmin", session.Roles ?? []);
+
+            var beforeProduct = await _fixture.GetProductByExactNameAsync(userId!, productName);
+            productId = beforeProduct.Id;
+            originalAvailability = beforeProduct.IsAvailable;
+
+            await _fixture.NavigateToAdminProductsAsync(page);
+            var routedContent = page.GetByTestId("routed-page-content");
+
+            await routedContent.GetByPlaceholder("Search products...").FillAsync(productName);
+
+            var availabilitySwitch = routedContent.GetByTestId($"product-availability-{productId}");
+
+            await Assertions.Expect(availabilitySwitch).ToBeVisibleAsync();
+            Assert.Equal(originalAvailability.Value, await availabilitySwitch.IsCheckedAsync());
+
+            await availabilitySwitch.ClickAsync();
+            await _fixture.WaitForQuietAsync(page);
+
+            var expectedAvailability = !originalAvailability.Value;
+            if (expectedAvailability)
+            {
+                await Assertions.Expect(availabilitySwitch).ToBeCheckedAsync();
+            }
+            else
+            {
+                await Assertions.Expect(availabilitySwitch).Not.ToBeCheckedAsync();
+            }
+            await Assertions.Expect(page.GetByText(
+                    $"{productName} is now {(expectedAvailability ? "available" : "unavailable")}.",
+                    new PageGetByTextOptions { Exact = true }))
+                .ToBeVisibleAsync();
+
+            var afterProduct = await _fixture.GetProductByIdAsync(userId!, productId.Value);
+            Assert.Equal(expectedAvailability, afterProduct.IsAvailable);
+
+            await PlaywrightFixture.AssertLayoutSpacingAsync(page);
+        }
+        finally
+        {
+            if (productId.HasValue && originalAvailability.HasValue && !string.IsNullOrWhiteSpace(userId))
+            {
+                await _fixture.RestoreProductAvailabilityAsync(userId, productId.Value, originalAvailability.Value);
+            }
+
+            await _fixture.ClosePageAsync(page);
+        }
+    }
 
     [Fact]
     public async Task E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync()

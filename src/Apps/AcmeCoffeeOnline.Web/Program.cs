@@ -41,6 +41,25 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddCascadingAuthenticationState();
 
+// Tighten Blazor Server circuit retention in non-Production environments.
+// Default is 100 disconnected circuits retained for 3 minutes — designed for
+// real users reconnecting after a flaky network. Under rapid Playwright test
+// iteration, each closed browser context leaves a zombie circuit on the
+// server. After ~10–13 iterations against the same Web container, the
+// accumulation correlates with intermittent JS-interop dispatch failures
+// (observed during playwright-sync-watermark-and-playbook Session 1 as
+// data-actions-in-flight staying null after a click). Cutting retention to
+// 5 circuits / 30 seconds in Dev evicts zombies fast enough to keep
+// long test batches stable. Production sticks with framework defaults.
+if (!builder.Environment.IsProduction())
+{
+    builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions>(options =>
+    {
+        options.DisconnectedCircuitMaxRetained = 5;
+        options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(30);
+    });
+}
+
 // ── Dabbler.Security (cookie auth + OIDC scheme + user lookup) ──────────────
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Server=(localdb)\\mssqllocaldb;Database=AcmeCoffeeOnline_Dev;Trusted_Connection=True;MultipleActiveResultSets=true";

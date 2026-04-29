@@ -1,5 +1,6 @@
 @page "/admin/products"
 @attribute [DabblerPageAuthorize("/admin/products")]
+@inherits Dabbler.Testing.Blazor.Components.TrackedComponentBase
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Shared.Enums
 @using AcmeCoffeeOnline.Web.Services
@@ -8,7 +9,6 @@
 @inject ProductApiClient ProductClient
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject IJSRuntime JS
 
 <PageTitle>Product Administration — AcmeCoffeeDistributors</PageTitle>
 
@@ -192,19 +192,20 @@
         await LoadProductsAsync();
     }
 
-    private async Task ToggleAvailabilityAsync(ProductDto product)
-    {
-        try
+    private Task ToggleAvailabilityAsync(ProductDto product) =>
+        TrackAction("toggle-availability", async () =>
         {
-            await ProductClient.ToggleAvailabilityAsync(product.Id);
-            product.IsAvailable = !product.IsAvailable;
-            Snackbar.Add($"{product.Name} is now {(product.IsAvailable ? "available" : "unavailable")}.", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Failed to update availability: {ex.Message}", Severity.Error);
-        }
-    }
+            try
+            {
+                await ProductClient.ToggleAvailabilityAsync(product.Id);
+                product.IsAvailable = !product.IsAvailable;
+                Snackbar.Add($"{product.Name} is now {(product.IsAvailable ? "available" : "unavailable")}.", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Failed to update availability: {ex.Message}", Severity.Error);
+            }
+        });
 
     private async Task RemoveProductAsync(ProductDto product)
     {

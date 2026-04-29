@@ -386,42 +386,88 @@ in a follow-up set.
 
 ### Session 5 of 5: Drain `FlakyPlaywrightCollection`, change log, Step 9 reorg
 
+> **MANDATORY first read**: `cumulative-flake-investigation.md` in this
+> folder. Session 1 met its spec criterion (5/5 × 2 from a fresh Web
+> container) but discovered a separate cumulative-state flake under
+> sustained use (~10+ runs against the same warm Web container). The
+> investigation doc enumerates the hypotheses tried + dropped, the
+> hypotheses NOT tried (a prioritized menu for Session 5), and the
+> user's "appears to grow even when we rebuild" observation that points
+> at a cross-rebuild-persistent layer. Session 5 inherits the
+> investigation; do not re-derive it. **Do not skip the diagnostic
+> instrumentation step (#2 below) — Session 1's lesson is that
+> guess-and-patch without diagnostics burned hours and produced no fix.**
+
 **Steps:**
 
-1. Read planning docs.
-2. For each test currently in `FlakyPlaywrightCollection`
-   (`MultiOrganizationWorkflowFlakyTests.cs`,
-   `ProductAdministrationWorkflowFlakyTests.cs`, and any others):
-   - Identify the root cause of the flake per the TODO comment that must
-     exist (per project convention).
-   - If the root cause is render-timing (and the watermark is now in place
-     for the relevant component), move the test to `PlaywrightCollection`
-     and run it 5x under full parallelism to confirm.
-   - If the root cause is a genuine intermittent app bug, file a stub spec
-     or open issue; add `[Skip("root cause: ...")]` with a note.
+1. Read planning docs + `cumulative-flake-investigation.md`.
+2. **Add diagnostic capture FIRST** — before any other code change:
+   - Extend `PlaywrightFixture.cs:96-101` to capture all browser console
+     messages (not just errors).
+   - Instrument the JS shim
+     (`src/Libs/Dabbler.Testing.Blazor/wwwroot/dabbler-tracked-actions.js`)
+     to `console.log` each `beginAction` / `endAction` invocation.
+   - Wrap `WaitForQuietAsync` calls in the proof test with a try/catch
+     that dumps page state on failure (watermark value, switch checked
+     state, snackbar presence, captured console).
+3. Run the 20-iteration stress test once with diagnostic capture
+   enabled. Use the captured output to pinpoint the failure layer:
+   - If `beginAction` logs are absent at failure time → SignalR / circuit
+     dispatch issue.
+   - If `beginAction` logs are present but `endAction` is missing →
+     post-finally render or `OnAfterRenderAsync` issue.
+   - If both are present but the attribute is `null` → JS shim or
+     attribute-set timing issue.
+4. Pick exactly ONE targeted fix from the `cumulative-flake-investigation.md`
+   "What We Did NOT Try" menu, based on what the diagnostic revealed.
+   Re-run stress test. Repeat at most twice. If still flaky, route the
+   diagnostic output to `route(task_type="analysis")` for a second
+   opinion before continuing.
+5. Target: 20/20 over 3 consecutive batches (60/60) for `E2E_WF_04`
+   alone before proceeding to the FlakyPlaywrightCollection drain.
+6. For each remaining test in `FlakyPlaywrightCollection`
+   (currently `MultiOrganizationWorkflowFlakyTests.cs` is `[Skip]`'d
+   for a non-watermark reason; verify if any others arrived):
+   - Identify the root cause of the flake per the TODO comment that
+     must exist (per project convention).
+   - If the root cause is render-timing (and the watermark is now in
+     place for the relevant component), move the test to
+     `PlaywrightCollection` and run it 5x under full parallelism to
+     confirm.
+   - If the root cause is a genuine intermittent app bug, file a stub
+     spec or open issue; add `[Skip("root cause: ...")]` with a note.
    - If the root cause is still investigation-needed, add a
      `// TODO(drain-flaky): <current hypothesis>` comment and leave in
      `FlakyPlaywrightCollection` — do not pretend to have fixed it.
-3. Run the entire Playwright suite 5 consecutive times. Flake count from
-   previously-converted tests must be zero.
-4. Generate `docs/session-sets/playwright-sync-watermark-and-playbook/change-log.md`
+7. Run the entire Playwright suite 5 consecutive times. Flake count
+   from previously-converted tests must be zero.
+8. Generate `docs/session-sets/playwright-sync-watermark-and-playbook/change-log.md`
    via `route(task_type="summarization")`.
-5. `dotnet build && dotnet test`.
-6. Cross-provider verification.
-7. Commit all remaining changes. Commit message:
-   `Drain FlakyPlaywrightCollection; watermark and playbook set complete`.
-8. Send `send_session_complete_notification()`. Then Step 9 reorg review:
-   - `Dabbler.Testing.Blazor` is already a shared Dabbler lib — no promotion
-     needed. Confirm it is listed in the solution index / README.
-   - The Playwright playbook (no `Task.Delay`, web-first assertions, readiness
-     gate, reconnect suppression) is a strong candidate for a
-     `docs/planning/playwright-blazor-server.md` reference doc, and for
-     promotion to `../dabbler-ai-orchestration` as a portable guide.
-     Propose adding `playwright-blazor-server.md` in Step 9; propose
-     promotion to orchestration repo after W2 close.
-   - Lessons-learned candidate: the SignalR ordering invariant (render diff →
-     JS interop call guarantees DOM settled before watermark fires) — worth
-     documenting so future sessions don't re-derive it.
+9. `dotnet build && dotnet test`.
+10. Cross-provider verification.
+11. Commit all remaining changes. Commit message:
+    `Drain FlakyPlaywrightCollection; watermark and playbook set complete`.
+12. Send `send_session_complete_notification()`. Then Step 9 reorg review:
+    - `Dabbler.Testing.Blazor` is already a shared Dabbler lib — no
+      promotion needed. Confirm it is listed in the solution index / README.
+    - The Playwright playbook (no `Task.Delay`, web-first assertions,
+      readiness gate, reconnect suppression) is a strong candidate for a
+      `docs/planning/playwright-blazor-server.md` reference doc, and for
+      promotion to `../dabbler-ai-orchestration` as a portable guide.
+      Propose adding `playwright-blazor-server.md` in Step 9; propose
+      promotion to orchestration repo after W2 close.
+    - Lessons-learned candidate: the SignalR ordering invariant (render
+      diff → JS interop call guarantees DOM settled before watermark fires)
+      — worth documenting so future sessions don't re-derive it.
+    - If the cumulative-flake root cause is identified and fixed in this
+      session, propose a lessons-learned entry capturing the diagnosis
+      pattern: *"Diagnostic instrumentation BEFORE code changes when the
+      failure mode is non-obvious — Session 1 of this set burned hours
+      patching speculatively when 30 minutes of console-log instrumentation
+      would have pinpointed the layer."*
+    - If `CircuitOptions` tightening (added in Session 1 redo at
+      `Program.cs`) becomes redundant after the real fix lands, decide
+      whether to keep it (defensible on its own merits) or revert it.
 
 **Creates:** `change-log.md`, possibly `docs/planning/playwright-blazor-server.md` (if Step 9 accepts).
 **Touches:** `FlakyPlaywrightCollection` test files, `docs/planning/lessons-learned.md` (if Step 9 accepts).
