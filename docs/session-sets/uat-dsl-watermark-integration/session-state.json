@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "uat-dsl-watermark-integration",
-  "currentSession": 1,
+  "currentSession": 2,
   "totalSessions": 3,
   "status": "complete",
-  "startedAt": "2026-04-29T11:23:40.698604-04:00",
-  "completedAt": "2026-04-29T11:33:46.467323-04:00",
+  "startedAt": "2026-04-29T11:38:12.804068-04:00",
+  "completedAt": "2026-04-29T11:45:20.245029-04:00",
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
+    "model": "claude-opus-4-7",
     "effort": "high"
   }
 }

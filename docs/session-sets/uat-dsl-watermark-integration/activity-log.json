@@ -91,6 +91,95 @@
       "description": "Committed Session 1 changes: WatermarkDetector, CatalogElement IsWatermarked, CrawlerOrchestrator+AccessibilityTreeScraper wiring, test project, README, ai-assignment.md",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-29T15:43:20.289150+00:00",
+      "description": "Read planning docs (project-guidance, lessons-learned, authoring-guide), spec, sibling repo CLAUDE.md, dabbler-uat-dsl grammar/AST/visitor/emitter/tests",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/grammar-extend",
+      "dateTime": "2026-04-29T15:43:20.289150+00:00",
+      "description": "Extended DabblerUatDsl.g4: added waitForActionsQuietStep rule (WAIT FOR ACTIONS QUIET), inserted before waitForStep in step alternatives; added ACTIONS and QUIET keyword tokens; updated header comment with the new verb",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/parser-ast",
+      "dateTime": "2026-04-29T15:43:20.290144+00:00",
+      "description": "Added WaitForActionsQuietStep record to Ast/Nodes.cs; added VisitWaitForActionsQuietStep override to UatDslVisitor.cs; semantic validator unchanged (the verb has no labels so DescribeProbe falls through cleanly)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/emitter",
+      "dateTime": "2026-04-29T15:43:20.290144+00:00",
+      "description": "Added WaitForActionsQuietStep case to PlaywrightCSharpEmitter.EmitStep emitting exactly: await fixture.WaitForQuietAsync(page);",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/grammar-tests",
+      "dateTime": "2026-04-29T15:43:20.291143+00:00",
+      "description": "Added 4 grammar tests (basic parse, lowercase, missing QUIET fails, distinct-from-quoted-WAIT-FOR), 1 AST test (node construction + ToCanonicalText), 2 emitter tests (emits exact line; emits regardless of EmitWatermarkWaits flag)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/pack",
+      "dateTime": "2026-04-29T15:43:20.291143+00:00",
+      "description": "Bumped Dabbler.Uat.Dsl.Core and Dabbler.Uat.Dsl.Emitters.Playwright.CSharp to 1.1.0; produced pack-output/Dabbler.Uat.Dsl.Core.1.1.0.nupkg and pack-output/Dabbler.Uat.Dsl.Emitters.Playwright.CSharp.1.1.0.nupkg",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-29T15:43:20.291143+00:00",
+      "description": "dotnet build DabblerUatDsl.slnx: 0 errors, 0 warnings; dotnet test: 141 passed (Core.Tests) + 35 passed (Emitter.Tests) = 176/176, 0 failed",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-29T15:43:20.292953+00:00",
+      "description": "Cross-provider session verification via opus (verdict PASS); see session-reviews/session-002.md. Verifier flagged EmitWatermarkWaits coexistence as transitional debt for Session 3 \u2014 out of Session 2 scope per spec.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.29442
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/commit",
+      "dateTime": "2026-04-29T15:45:13.577075+00:00",
+      "description": "Committed Session 2 in sibling repo dabbler-uat-dsl @ 620238fa98de63c246af6be0dbb7fa27a7ab7de7 (grammar+AST+visitor+emitter+tests+pack-output 1.1.0). Orchestration commit follows in dabbler-platform.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

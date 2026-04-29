@@ -57,17 +57,21 @@ Low-moderate (code-review of grammar changes; session-verification).
 | 10 | Commit | Direct |
 
 ### Actuals (filled after session)
-TBD
+- Orchestrator used: claude-code / claude-opus-4-7[1m] @ effort=high (recommendation was effort=medium; opus-4-7 ran at effort=high per the harness default)
+- Total routed cost: $0.30 (one session-verification call to opus, cross-provider unavailable for tier-2 anthropic so same-provider opus was used per the existing fallback ladder; consistent with feedback_self_verify_when_no_cross_provider but the router still routed)
+- Deviations from recommendation: Effort drift (high vs medium). Pack version bumped 1.0.0 → 1.1.0 to signal grammar addition (not in spec but hygienic).
+- Notes: Verifier flagged EmitWatermarkWaits coexistence as transitional debt for Session 3 — the existing implicit-emission flag stays in place this session; Session 3's prompt-template change should adopt the explicit verb and the implicit flag's removal can land then. No structural code changes required.
 
 **Next-session orchestrator recommendation (Session 3):**
-TBD
+`claude-code` / `claude-opus-4-7` @ effort=high
+Rationale: Per routed analysis (gemini-pro, $0.0023) — Session 3's mix (precise prompt-template editing, conditional UAT-author rule, diagnostic-first triage if the smoke flakes, end-of-set reorganization review) benefits from high-capability reasoning. Expected routed cost low-to-moderate; primary spend is the delegated calls (uat-script-author, summarization, session-verification) not the orchestrator itself.
 
 ---
 
 ## Session 3: Prompt update + end-to-end smoke + close
 
 ### Recommended orchestrator
-TBD (filled after Session 2)
+`claude-code` / `claude-opus-4-7` @ effort=high
 
 ### Actuals (filled after session)
 TBD
