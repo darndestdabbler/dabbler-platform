@@ -398,6 +398,16 @@ before proceeding.
 - Docker-backed execution is the preferred baseline for true E2E.
 - When practical during UI and E2E work, provide screenshots to the human so
   they can see visual state and interaction progress.
+- **Components with async user-action handlers that are exercised by Playwright
+  tests should inherit `TrackedComponentBase` and wrap handlers with
+  `TrackAction`.** `TrackedComponentBase` lives in
+  `src/Libs/Dabbler.Testing.Blazor/Components/` and is registered via
+  `builder.Services.AddTrackedActions(builder.Configuration)`. Action tracking
+  is controlled by `Testing:ActionTracking:Enabled` in `appsettings.json`; it
+  is `false` by default (no production overhead) and `true` in
+  `appsettings.Development.json`. Note: `Dabbler.Security.Blazor` does not
+  reference `Dabbler.Testing.Blazor` — migration scope for that library is
+  deferred until a spec explicitly adds the dependency.
 
 ### Human UAT And Checklist Editor
 

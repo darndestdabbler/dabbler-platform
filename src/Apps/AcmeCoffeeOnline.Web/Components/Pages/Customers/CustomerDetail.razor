@@ -1,3 +1,4 @@
+@inherits Dabbler.Testing.Blazor.Components.TrackedComponentBase
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
 @using Dabbler.Security.Blazor.Components.Restriction
@@ -217,7 +218,7 @@ else
 
     private void OnFieldChanged(string _) => UpdateDirtyState();
 
-    private async Task HandleSaveAsync()
+    private Task HandleSaveAsync() => TrackAction("save", async () =>
     {
         if (_form is not null)
         {
@@ -254,7 +255,7 @@ else
         {
             _saving = false;
         }
-    }
+    });
 
     private void HandleUndo()
     {

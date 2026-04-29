@@ -49,9 +49,15 @@ public class TrackedComponentBase : ComponentBase
         finally
         {
             _pendingCompletions.Enqueue(correlationId);
-            StateHasChanged();
+            RequestRender();
         }
     }
+
+    /// <summary>
+    /// Requests a re-render so <see cref="OnAfterRenderAsync"/> can drain pending completions.
+    /// Virtual so test harnesses that run outside a rendering context can override with a no-op.
+    /// </summary>
+    protected virtual void RequestRender() => StateHasChanged();
 
     /// <summary>
     /// Flushes pending action completions to the JS watermark after each render.

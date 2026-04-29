@@ -276,6 +276,77 @@
           "costUsd": 0.000444
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-04-29T09:36:14.984609+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, spec.md, activity-log.json. Confirmed sessions 1-3 complete. Session 4 is component coverage sweep and bUnit edge cases. Confirmed Dabbler.Security.Blazor does NOT reference Dabbler.Testing.Blazor -- those components are excluded from scope (adding test lib dependency to production lib is wrong). Scope: AcmeCoffeeOnline.Web components only.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/coverage-audit",
+      "dateTime": "2026-04-29T09:36:14.985199+00:00",
+      "description": "Coverage audit complete. Candidates: (1) ProductDetail.razor -- HandleSaveAsync, HandleToggleAvailabilityAsync -- both user-action buttons with data-testid; (2) OrderDetail.razor -- HandleSaveAsync, UpdateStatusAsync, AddItemAsync, RemoveItemAsync, DeleteNoteAsync -- multiple user-action handlers; (3) CustomerDetail.razor -- HandleSaveAsync. Excluded: OrderList.razor, ProductList.razor (ServerDataFunc + SearchAsync -- data-loading callbacks, not user-action handlers), Dabbler.Security.Blazor components (no Dabbler.Testing.Blazor reference -- adding cross-dependency from production lib to test lib is not appropriate without spec authorization), Auth components (Login.razor etc -- no meaningful async user-action handlers for UI test watermarking).",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/component-migrations",
+      "dateTime": "2026-04-29T09:47:05.130162+00:00",
+      "description": "Migrated 3 components to TrackedComponentBase: (1) ProductDetail.razor -- added @inherits, wrapped HandleSaveAsync and HandleToggleAvailabilityAsync in TrackAction; (2) CustomerDetail.razor -- added @inherits, wrapped HandleSaveAsync; (3) OrderDetail.razor -- added @inherits, wrapped HandleSaveAsync, UpdateStatusAsync, AddItemAsync, RemoveItemAsync, DeleteNoteAsync, OnNoteSavedAsync. Also added virtual RequestRender() seam to TrackedComponentBase (calls StateHasChanged by default; overridable by test harnesses that run outside a rendering context). Build: 0 errors.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/bunit-edge-cases",
+      "dateTime": "2026-04-29T09:47:05.130162+00:00",
+      "description": "Expanded test coverage in Dabbler.Testing.Blazor.Tests. Split TrackedComponentBaseTests into two classes: TrackedComponentBaseBunitTests (bUnit, disabled-path only -- enabled-path deadlocks bUnit InvokeAsync as documented in Session 1) and TrackedComponentBaseDirectTests (plain xUnit, uses RecordingJSRuntime mock). New tests: (1) TrackAction_WhenEnabled_WorkThrows_StillCallsEndAction -- verifies finally block enqueues completion even when work() throws; (2) TrackAction_WhenEnabled_ConcurrentCalls_TracksBothInFlightIds -- verifies two concurrent TrackAction calls track two distinct IDs. DirectHarness overrides RequestRender() (no-op outside render context). All 5 tests pass.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/guidance-update",
+      "dateTime": "2026-04-29T09:47:05.130162+00:00",
+      "description": "Added TrackedComponentBase convention to project-guidance.md under Testing Conventions. Entry: \"Components with async user-action handlers that are exercised by Playwright tests should inherit TrackedComponentBase and wrap handlers with TrackAction.\" Includes lib path, config flag, and note that Dabbler.Security.Blazor is out of scope (no dependency on Dabbler.Testing.Blazor).",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-29T09:47:05.130162+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors (158 pre-existing CS0618 warnings). dotnet test (excluding Playwright): 719 passed / 0 failed -- Dabbler.Testing.Blazor.Tests 5 (was 3, +2 new direct tests), Dabbler.Components.Tests 43, Dabbler.Reports.Blazor.Tests 16, Dabbler.Security.Blazor.Tests 200, AcmeCoffeeOnline.Api.Tests 27, Dabbler.Security.Tests 300, AcmeCoffeeOnline.Web.Tests 123.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-29T09:49:47.430129+00:00",
+      "description": "Cross-provider session-verification: routed to gemini-pro (Google, tier 2, $0.003913). Orchestrator is Anthropic (Claude Sonnet 4.6), verifier is Google (Gemini 2.5 Pro) -- cross-provider confirmed. Verdict: VERIFIED (high confidence). Verifier endorsed: Dabbler.Security.Blazor exclusion, virtual RequestRender() seam, bUnit disabled-path + direct xUnit edge-case split, project-guidance.md entry. Saved to session-reviews/session-004.md.",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "task_type": "session-verification",
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.003913
+        }
+      ]
     }
   ]
 }
