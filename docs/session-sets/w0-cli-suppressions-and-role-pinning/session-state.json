@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "sessionSetName": "w0-cli-suppressions-and-role-pinning",
+  "currentSession": 1,
+  "totalSessions": 3,
+  "status": "complete",
+  "startedAt": "2026-04-29T12:48:22.627834-04:00",
+  "completedAt": "2026-04-29T12:59:24.750386-04:00",
+  "verificationVerdict": "VERIFIED",
+  "orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-opus-4-7",
+    "effort": "high"
+  }
+}
