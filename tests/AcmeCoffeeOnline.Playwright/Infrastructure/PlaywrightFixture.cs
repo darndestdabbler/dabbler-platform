@@ -354,6 +354,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             {
                 WaitUntil = WaitUntilState.NetworkIdle
             });
+            await WaitForReadyAsync(page);
         }
 
         // Wait for the shell label to reflect the switch BEFORE reading the

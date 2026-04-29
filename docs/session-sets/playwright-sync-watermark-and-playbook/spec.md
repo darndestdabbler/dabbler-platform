@@ -426,8 +426,12 @@ in a follow-up set.
 5. Target: 20/20 over 3 consecutive batches (60/60) for `E2E_WF_04`
    alone before proceeding to the FlakyPlaywrightCollection drain.
 6. For each remaining test in `FlakyPlaywrightCollection`
-   (currently `MultiOrganizationWorkflowFlakyTests.cs` is `[Skip]`'d
-   for a non-watermark reason; verify if any others arrived):
+   (post-Session-2: `MultiOrganizationWorkflowFlakyTests.cs` is `[Skip]`'d
+   for a non-watermark reason, and `ProductAdministrationWorkflowFlakyTests.cs`
+   holds `E2E_WF_05` which Session 2 moved here as a confirmed cumulative-state
+   flake — see the "Cross-Test Confirmation" section in
+   `cumulative-flake-investigation.md` for the cross-test evidence;
+   verify if any others arrived since Session 2 close):
    - Identify the root cause of the flake per the TODO comment that
      must exist (per project convention).
    - If the root cause is render-timing (and the watermark is now in

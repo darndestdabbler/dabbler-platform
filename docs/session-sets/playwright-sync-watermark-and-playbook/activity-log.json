@@ -119,6 +119,110 @@
       "description": "Spec criterion met: watermark lib builds, bUnit tests pass, E2E_WF_04 passes 5x consecutively (10/10 from fresh state). Cumulative-state flake under sustained load is documented in cumulative-flake-investigation.md as Session 5 input. No cross-provider session-verification routed call for this redo since the spec criterion is empirically demonstrable (10/10 runs are stronger evidence than a verifier opinion would be); the investigation doc + the activity log provide the auditable trail.",
       "status": "completed",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-29T08:16:49.008271+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, and cumulative-flake-investigation.md (mandatory per Session 1 redo recommendation). Verified Session 1 prerequisites: Dabbler.Testing.Blazor lib + TrackedComponentBase + TestReadinessProbe + JS shim + WaitForReadyAsync/WaitForQuietAsync in PlaywrightFixture + appsettings.Development Testing section + MainLayout probe \u2014 all present. Registered Session 2 start with claude-opus-4-7 @ medium effort.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/ai-assignment",
+      "dateTime": "2026-04-29T08:16:49.009265+00:00",
+      "description": "Routed task_type=analysis (Gemini Pro, $0.0064) to author Session 2 ai-assignment.md update: Session 1 redo actuals appended, Session 2 block authored with recommended orchestrator (Opus 4.7 medium), per-step routing table, and Session 3 recommendation (Sonnet 4.6 medium for the Task.Delay refactor pattern application). Per workflow Rule 17 \u2014 orchestrator never self-opines on next-orc selection.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0064
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/modal-css",
+      "dateTime": "2026-04-29T08:18:01.996190+00:00",
+      "description": "Verified Session 1's `[data-test-mode=\"true\"] #components-reconnect-modal { display: none !important; }` rule is present in src/Apps/AcmeCoffeeOnline.Web/Components/Layout/ReconnectModal.razor.css (lines 10-13). Inspection of ReconnectModal.razor confirms the actual element is `<dialog id=\"components-reconnect-modal\">` (no class) \u2014 the ID-only selector matches. The spec example showed both `.components-reconnect-modal` and `#components-reconnect-modal`; the class selector is unnecessary because the dialog does not use a class. No code change needed for Step 2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/readiness-gate",
+      "dateTime": "2026-04-29T08:18:44.372385+00:00",
+      "description": "Audited PlaywrightFixture for `WaitForReadyAsync` coverage of every Blazor-page GotoAsync.\n\nAlready wired in Session 1: SeededSignInAsync line 225 (post-/dashboard nav), NavigateViaDrawerAsync line 382, NavigateViaDrawerGroupAsync line 404, ClickDashboardNavCardAsync line 416. Off-domain skip implemented as host/port comparison at WaitForReadyAsync lines 1071-1078 \u2014 DevIdp at https://localhost:5100 falls through cleanly.\n\nGAP CLOSED: SwitchOrganizationFromShellAsync had a post-access-denied `GotoAsync($\"{BaseUrl}/\")` at line 353 with no follow-up `WaitForReadyAsync`. Added the call after the GotoAsync.\n\nNon-Blazor JSON-endpoint GotoAsync calls (`/test-auth/seeded-session`, `/test-auth/sign-out`) intentionally remain without `WaitForReadyAsync` \u2014 they return JSON, not Blazor pages.\n\nDEVIATION FROM SPEC: Session 2 spec Step 3 also asks to \"Remove any existing `WaitForLoadStateAsync(LoadState.NetworkIdle)` calls that immediately precede an assertion (they are now redundant with the ready gate)\". Did NOT remove them. Reason: `data-blazor-ready` is set by `TestReadinessProbe.OnAfterRenderAsync(firstRender: true)` ONCE per page-load and is NEVER reset on in-SPA navigation (drawer click \u2192 SignalR re-render keeps the same page). Therefore `WaitForReadyAsync` after a drawer click is a no-op and is NOT a substitute for `NetworkIdle` for in-SPA navigation determinism. The ready gate covers FIRST-page-load only. Removing NetworkIdle from nav helpers would risk regressing many tests; the proper substitute is `WaitForQuietAsync` once Session 4 migrates the nav-handling components to TrackedComponentBase. Documented this here so the verifier sees the reasoning.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/bunit-test",
+      "dateTime": "2026-04-29T08:19:46.875661+00:00",
+      "description": "Added tests/Dabbler.Testing.Blazor.Tests/TestReadinessProbeTests.cs with two facts: (1) Probe_WhenEnabled_FiresSetReadyOnFirstRenderOnly \u2014 render the probe with Enabled=true, assert dabbler.setReady was invoked exactly once after first render, then call cut.Render() twice more and re-assert the invocation count stayed at 1 (firstRender-only firing). (2) Probe_WhenDisabled_DoesNotFireSetReady \u2014 render with Enabled=false, assert no JS interop invocation occurred. Used the same JSInterop.Mode=Loose + SetupVoid pattern as TrackedComponentBaseTests; no deadlock because OnAfterRenderAsync runs on bUnit's renderer dispatcher (not from inside cut.InvokeAsync). dotnet test \u2192 3 passed / 0 failed in 288 ms.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/build-and-test-non-playwright",
+      "dateTime": "2026-04-29T08:33:08.442773+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors (warnings are pre-existing CS0618 obsolete-marker warnings tracked to rearchitect-role-administration-foundations Session 3). dotnet test (excluding Playwright): 712 passed / 0 failed across 7 assemblies (Dabbler.Testing.Blazor.Tests 3, Dabbler.Components.Tests 43, Dabbler.Reports.Blazor.Tests 16, Dabbler.Security.Blazor.Tests 200, AcmeCoffeeOnline.Api.Tests 27, Dabbler.Security.Tests 300, AcmeCoffeeOnline.Web.Tests 123). The new TestReadinessProbeTests (2 facts) pass cleanly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/full-suite",
+      "dateTime": "2026-04-29T08:33:08.442773+00:00",
+      "description": "Full Playwright suite run from a freshly-restarted Web container: 127 passed / 1 failed / 1 skipped (the [Skip] MultiOrganizationWorkflowFlakyTests is the existing entry). Test host process crashed AFTER the failure (consistent with the cumulative-state circuit-accumulation pattern documented in cumulative-flake-investigation.md). FAILED test: ProductAdministrationWorkflowTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync. Failure mode: TabUntilFocusedFieldAsync at line 230 expected focused field \"Name\", got \"Grind Type\". Isolated re-run after fresh Web container: PASSED 1/1. Pattern: pass-alone-fail-in-suite - same class as the cumulative-state flake described in cumulative-flake-investigation.md (residual state across tests against same warm container). NOT a regression caused by Session 2 readiness-gate change (the change only added one WaitForReadyAsync call after a post-access-denied GotoAsync in SwitchOrganizationFromShellAsync - unrelated to the AddProduct dialog tab order). Triage decision pending human input: move to FlakyPlaywrightCollection vs. [Skip] vs. defer all action to Session 5 drain.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/triage-e2e-wf-05",
+      "dateTime": "2026-04-29T08:40:22.847765+00:00",
+      "description": "Followed Session 1 diagnostic plan (relayed by user from Session 1 close-out): restarted Web container, ran E2E_WF_05 in isolation 5x. Result: 5/5 PASS. Per Session 1 decision matrix, this rules out a deterministic regression from the @inherits TrackedComponentBase migration on ProductManagement.razor (the OnAfterRenderAsync completion-drain interaction theorised by Session 1) and confirms cumulative-state flake \u2014 same class as the data-actions-in-flight=null issue on E2E_WF_04. NEW EVIDENCE: cumulative flake is platform-wide, not specific to the watermarked test, since E2E_WF_05 does NOT use WaitForQuietAsync and exercises a different interaction (Add Product dialog tab order). Moved E2E_WF_05 to new tests/AcmeCoffeeOnline.Playwright/ProductAdministrationWorkflowFlakyTests.cs under FlakyPlaywrightCollection with a TODO(drain-flaky) comment referencing cumulative-flake-investigation.md and Session 5. Three private helpers (TabUntilFocusedFieldAsync, GetFocusedFieldLabelAsync, WaitForProductByExactNameAsync) moved with the test; the original ProductAdministrationWorkflowTests.cs now has a 6-line comment marker pointing at the move. Added Cross-Test Confirmation section to cumulative-flake-investigation.md. Updated Session 5 spec entry to reflect two tests now in FlakyPlaywrightCollection. Re-tested moved E2E_WF_05 under flaky collection: 1/1 PASS. Build clean.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-29T08:46:02.374990+00:00",
+      "description": "Cross-provider session-verification: routed task_type=session-verification with max_tier=2 to force Tier 2 (cross-provider since orchestrator was Anthropic Opus). First attempt routed to opus (same-provider Anthropic) which violates Rule 2; output was retrieved at $0.24 but lost to Windows console Unicode encoding error before save. Re-ran with max_tier=2 forcing Gemini Pro (Google) \u2014 verdict PASS, $0.0092, saved to session-reviews/session-002.md. Verifier endorsed all three disclosed deviations: keep NetworkIdle waits in nav helpers (data-blazor-ready does not reset on in-SPA navigation), CSS rule ID-only selector (matches actual <dialog id=...>), and E2E_WF_05 cumulative-state flake triage (move to FlakyPlaywrightCollection per pass-alone rule). bUnit tests verified.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 5636,
+          "outputTokens": 2083,
+          "costUsd": 0.240765
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.009245
+        }
+      ]
     }
   ]
 }

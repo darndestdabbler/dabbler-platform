@@ -64,4 +64,46 @@ The session was rolled back to in-progress and redone on Opus 4.7 high-effort.
 - **Rationale:** Session 2 involves systematic navigation fixture updates and full-suite test validation. The task is mostly mechanical, but Session 1's lesson is that this session set's tests interact with timing-sensitive Blazor Server / SignalR behaviour where speculation has a high false-positive rate. Routing `code-review` for the fixture changes is also worth considering. Sonnet medium balances cost and verification discipline.
 - **Critical input:** before any code change in Session 2, read `cumulative-flake-investigation.md`. The same readiness-gate work that's about to land in Session 2 may be affected by the cumulative-state flake; if Session 2 surfaces unexpected behaviour, route to `analysis` rather than guess-and-patch.
 
+### Actuals (Session 1 redo, filled at Session 2 start)
+
+- Orchestrator used: Claude Opus 4.7 (claude-code) @ effort=high
+- Total routed cost: $0.00 (spec criterion empirically demonstrable: 10/10 consecutive Playwright passes from fresh state — stronger evidence than any verifier opinion)
+- Deviations from recommendation: None (Opus high was the redo escalation precisely because the original Haiku-shipped Session 1 had skipped verification + missed the proof execution)
+- Notes for next-session calibration: Opus 4.7 high-effort proved effective for the complex initial migration + unanticipated cumulative-flake investigation. Session 2's verification-heavy mix can step down to medium effort.
+
+---
+
+## Session 2 of 5: Reconnect-modal suppression and readiness-gate rollout
+
+### Recommended orchestrator
+Claude Opus 4.7 (claude-code) @ effort=medium
+
+### Rationale
+Session 2 is largely VERIFICATION + small additions on top of Session 1's redo deliverables (modal CSS rule, `WaitForReadyAsync`, off-domain skip already in place). A medium-effort model provides sufficient reasoning for code analysis and one new bUnit test without the overhead of high-effort needed for novel implementation.
+
+### Estimated routed cost
+low
+
+| Step | Action | Routing Decision |
+|------|--------|------------------|
+| 1 | Read planning docs + `cumulative-flake-investigation.md` | direct |
+| 2 | Verify ReconnectModal.razor.css `[data-test-mode]` rule (Session 1 already shipped) | direct (file inspection) |
+| 3 | Audit PlaywrightFixture nav helpers + close any `WaitForReadyAsync` gap (e.g., `SwitchOrganizationFromShellAsync` post-access-denied `GotoAsync`) | direct (mechanical, single-file under ~50 lines) |
+| 4 | Run full Playwright suite; document any non-Blazor-Server-page fallouts | direct (test execution + log) |
+| 5 | bUnit test asserting `TestReadinessProbe` fires `dabbler.setReady` only on `firstRender=true` | direct (single-file, mechanical with bUnit `JSInterop.SetupVoid`) |
+| 6 | dotnet build && dotnet test | direct |
+| 7 | Cross-provider session-verification | `route(task_type="session-verification")` (mandatory cross-provider; only routed call this session) |
+| 8 | Commit + mark complete + notify | direct |
+
+### Actuals (filled after the session)
+- Orchestrator used: Claude Opus 4.7 (claude-code) @ effort=medium
+- Total routed cost: $0.2564 ($0.0064 ai-assignment analysis on Gemini Pro + $0.2408 on Opus session-verification first attempt that violated cross-provider mandate + $0.0092 successful Gemini Pro session-verification with max_tier=2)
+- Deviations from recommendation: (a) routed `task_type=session-verification` initially picked Opus (same-provider as orchestrator) violating Rule 2; the call ran to completion and was paid, but the output was lost to a Windows console Unicode-encoding error before save. Re-ran with `max_tier=2` forcing Gemini Pro (Google), verdict VERIFIED. Lesson for the routing config: session-verification at complexity ~70 lands on tier-3 Opus by default — when the orchestrator is also Anthropic, this is same-provider. Either the router needs cross-provider enforcement for session-verification (likely the right fix) or orchestrators must always pass `max_tier=2` when they themselves are tier-3 Anthropic. (b) Did NOT remove pre-existing `WaitForLoadStateAsync(NetworkIdle)` calls in nav helpers per spec step 3 — disclosed in verification prompt and endorsed by verifier (data-blazor-ready does not reset on in-SPA navigation, so the gate cannot replace NetworkIdle there). (c) Discovered + triaged a NEW cumulative-state flake (E2E_WF_05) during the spec-mandated full-suite run; moved to FlakyPlaywrightCollection per pass-alone-fail-in-suite rule with cross-test-confirmation note added to cumulative-flake-investigation.md.
+- Notes for next-session calibration: Opus 4.7 medium was the right size for verification + small additions + triage. The session-verification routing-config lesson should be captured in lessons-learned.md or fixed in router-config.yaml. Session 3's mostly-mechanical Task.Delay refactor on Sonnet 4.6 medium remains the right call.
+
+**Next-session orchestrator recommendation (Session 3 — `Task.Delay` replacement across ~9 test files):**
+
+Claude Sonnet 4.6 (claude-code) @ effort=medium
+Rationale: Session 3 is well-defined repetitive refactoring (grep+classify Task.Delay callsites, migrate components to TrackedComponentBase, swap to WaitForQuietAsync), well-suited to a cost-effective medium-effort model that applies a consistent pattern across many files. Opus 4.7 medium remains a fine fallback if Anthropic rate-limit pressure picks Sonnet a different way.
+
 ---

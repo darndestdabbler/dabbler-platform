@@ -382,6 +382,44 @@ needing per-circuit instrumentation.
 
 ---
 
+## Cross-Test Confirmation (Session 2, 2026-04-29)
+
+Session 2's full-suite Playwright run surfaced a **second** test on
+`ProductManagement.razor` exhibiting the same cumulative-state pattern:
+
+- **Test:** `ProductAdministrationWorkflowTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync`
+- **Failure mode:** `TabUntilFocusedFieldAsync` expected focused label `Name`,
+  got `Grind Type`. The test host process crashed shortly after the failure
+  (consistent with circuit accumulation).
+- **Pass-alone:** 5/5 PASS after `docker compose restart web`. Same
+  pass-alone-fail-in-suite pattern as the original `data-actions-in-flight=null`
+  failure on E2E_WF_04.
+- **Per Session 1 diagnostic matrix:** 5/5 PASS rules out a deterministic
+  regression from Session 1's `@inherits TrackedComponentBase` migration on
+  `ProductManagement.razor`. The completion-drain in
+  `TrackedComponentBase.OnAfterRenderAsync` (added by Session 1) is NOT the
+  cause of E2E_WF_05's tab-order failure — the cumulative-state issue is.
+
+**What this confirms:** the cumulative flake is **platform-wide, not
+test-specific or watermark-specific.** A test that does NOT use
+`WaitForQuietAsync` and exercises a different interaction (Add Product
+dialog open + keyboard tab) on the same migrated component fails the same
+way under suite load. That points at the failure-mode living below the
+watermark layer — circuit lifetime, JS-interop dispatcher, or something
+similar in the cross-rebuild-persistent layer the user flagged at Session 1
+close.
+
+**Session 2 disposition:** moved E2E_WF_05 to a new
+`ProductAdministrationWorkflowFlakyTests.cs` under
+`FlakyPlaywrightCollection` with a `TODO(drain-flaky)` comment pointing
+at this investigation. Session 5's drain now covers two distinct tests on
+the same component, which should be **easier** to root-cause than a single
+test in isolation: a fix that re-greens E2E_WF_04 should also re-green
+E2E_WF_05, and vice versa. If a fix re-greens one but not the other, the
+diagnostic narrows on which layer is at fault.
+
+---
+
 ## Concrete Recommendation for Session 5
 
 Session 5 should start its FlakyPlaywrightCollection drain with this
