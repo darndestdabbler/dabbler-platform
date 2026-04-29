@@ -398,16 +398,29 @@ before proceeding.
 - Docker-backed execution is the preferred baseline for true E2E.
 - When practical during UI and E2E work, provide screenshots to the human so
   they can see visual state and interaction progress.
-- **Components with async user-action handlers that are exercised by Playwright
-  tests should inherit `TrackedComponentBase` and wrap handlers with
-  `TrackAction`.** `TrackedComponentBase` lives in
-  `src/Libs/Dabbler.Testing.Blazor/Components/` and is registered via
-  `builder.Services.AddTrackedActions(builder.Configuration)`. Action tracking
-  is controlled by `Testing:ActionTracking:Enabled` in `appsettings.json`; it
-  is `false` by default (no production overhead) and `true` in
-  `appsettings.Development.json`. Note: `Dabbler.Security.Blazor` does not
-  reference `Dabbler.Testing.Blazor` — migration scope for that library is
-  deferred until a spec explicitly adds the dependency.
+- **Components with async handlers that drive a Blazor render that a Playwright
+  test must wait through should inherit `TrackedComponentBase` and wrap those
+  handlers with `TrackAction`.** This includes async user-action handlers
+  (clicks, switches, dialog opens) AND async data-loading callbacks (search
+  debouncers, paging callbacks, filter changes) — anywhere a Blazor render is
+  driven by an async handler that the test needs to synchronize against.
+  Promoted 2026-04-29 from playwright-sync-watermark-and-playbook Session 5,
+  which extended the watermark from `ToggleAvailabilityAsync` (user action) to
+  `OnSearchAsync` (data-loading callback) to close a click-during-search-rerender
+  race. `TrackedComponentBase` lives in `src/Libs/Dabbler.Testing.Blazor/Components/`
+  and is registered via `builder.Services.AddTrackedActions(builder.Configuration)`.
+  Action tracking is controlled by `Testing:ActionTracking:Enabled` in
+  `appsettings.json`; it is `false` by default (no production overhead) and
+  `true` in `appsettings.Development.json`. **Important: `TrackAction`'s JS-interop
+  calls go through `TryInvokeJsAsync` and silently no-op if `IJSRuntime` is not
+  yet dispatchable** (prerender boundary, intermediate render passes). This is a
+  test-time signal; missing the watermark in those frames degrades to "no signal"
+  rather than failing the page render. Without this guard, an early-fire of a
+  TrackAction-wrapped event handler turns into an HTTP 500 — observed in
+  Session 5 when the un-hardened wrap broke `/admin/products` for non-SystemAdmin
+  roles. Note: `Dabbler.Security.Blazor` does not reference `Dabbler.Testing.Blazor`
+  — migration scope for that library is deferred until a spec explicitly adds
+  the dependency.
 
 ### Human UAT And Checklist Editor
 
@@ -851,3 +864,41 @@ Runner** for the remediation procedure for each class.
   (documentation template produced 400s) and the `pdf-info-metadata-api`
   Session 3 mitigation (summarization+gemini-pro 400'd on a 3.5KB
   prompt; `max_tier=1` landed it on Gemini Flash cleanly).
+- **Diagnostic instrumentation BEFORE speculative fixes when the failure
+  mode is non-obvious.** When a flaky or intermittent failure has a
+  non-obvious cause, add observable instrumentation FIRST (browser console
+  capture, server logs, structured per-step diagnostics, on-failure dumps)
+  and run a single observation pass before changing any code under test.
+  Then make exactly ONE targeted change based on what the instrumentation
+  reveals. Promoted 2026-04-29 from playwright-sync-watermark-and-playbook
+  Sessions 1 and 5 — the same failure (cumulative-flake-investigation.md
+  `data-actions-in-flight=null`) was guess-and-patched for hours in Session 1
+  by a Claude instance and again at the start of Session 5 by another Claude
+  instance until the diagnostic-first discipline was applied. ~30 minutes of
+  console-log + dump instrumentation pinpointed the layer; the routed
+  second-opinion analysis ($0.0145) used the captured trace to converge on
+  the correct fix. The instrumentation cost was small and worth keeping in
+  the repo afterward (the JS-shim console logs and the `DumpQuietDiagnosticsAsync`
+  helper remain). Applies to any platform behavior that misbehaves under load
+  or non-deterministically — observability before iteration.
+- **Cross-provider session-verification needs a fallback ladder, not
+  same-provider escalation.** When the preferred cross-provider verifier
+  fails (HTTP 503, timeout, garbled response) and the only remaining
+  capability-matched option is from the orchestrator's own provider, the
+  router should prefer (a) a tier-2 cross-provider verifier (e.g., GPT-5.4
+  Mini) over (b) a tier-3 same-provider verifier (e.g., Opus when the
+  orchestrator is also Anthropic). If neither cross-provider option is
+  available, the router should surface "no cross-provider available;
+  orchestrator should self-verify" rather than silently same-provider
+  escalating. Promoted 2026-04-29 — same issue hit twice in
+  `playwright-sync-watermark-and-playbook`: Session 2 actuals flagged that
+  session-verification at complexity ~70 lands on tier-3 Opus by default
+  (same-provider when orchestrator is Anthropic, $0.24 wasted), and
+  Session 5 close hit it again when Gemini Pro 503'd and the router
+  escalated to Opus ($1.07 same-provider penalty). Per
+  `feedback_self_verify_when_no_cross_provider.md` the human-preferred
+  fallback is self-verification when no cross-provider option exists.
+  **Note (2026-04-29):** the human is actively working on routing-config
+  fixes for this and related issues; the convention captures the desired
+  end-state behavior so future orchestrators can plan around it while the
+  config-side fix lands.

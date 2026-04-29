@@ -1618,3 +1618,17 @@ Use this structure for new entries:
      normalizer, surfacing invalid combinations as a clear error
      message instead of waiting for the first 400 from the API mid-
      session.
+
+## Test Infrastructure Must Degrade Silently When JS-Interop Is Not Dispatchable
+
+- **Context:** Wrapping `OnSearchAsync` in `TrackedComponentBase.TrackAction("search-products", ...)` to fix a click-during-search-rerender race in `ProductManagement.razor` (playwright-sync-watermark-and-playbook Session 5).
+- **Failure or friction:** The wrap closed the watermark race in isolation (59/60 isolated stress) but caused a deterministic HTTP 500 on `/admin/products` for `BackofficeUserAdmin` in the full suite. Root cause: `TrackAction` calls `JS.InvokeVoidAsync` first, and somewhere in the BackofficeUserAdmin render pipeline that call fired before the SignalR dispatcher was ready. `JS.InvokeVoidAsync` threw `InvalidOperationException`, which bubbled out as the 500.
+- **Lesson:** Anything that calls `IJSRuntime` from a base class or a shared event handler — especially test-time plumbing — should treat "JS not yet dispatchable" as expected and silently no-op its side effect. The watermark is a test-time signal; missing it in a frame should degrade to "no signal" rather than failing the user-visible page.
+- **Action for future sessions:** When adding test-time JS interop to a base class or cross-cutting handler, wrap the `JS.InvokeVoidAsync` call in a `try/catch (InvalidOperationException)` (the `TryInvokeJsAsync` pattern in `TrackedComponentBase.cs` is the canonical example). Add a bUnit / xUnit test for the silent-degrade path. Verify the change against at least one test that exercises a non-SystemAdmin authorization path before declaring victory — the prerender / pre-circuit-dispatchable boundary often differs by role.
+
+## Single-Session Spec Sizing Has A Practical Ceiling
+
+- **Context:** Authoring or executing the closing session of a session set, where the closing session combines investigation + drain + full-suite × 5 + change-log + cross-provider verification + Step 9 reorganization review.
+- **Failure or friction:** playwright-sync-watermark-and-playbook Session 5 was authored as one session containing all of the above. In practice the cumulative-flake investigation alone took 4 fix iterations and a routed second-opinion analysis. Mid-session the human floated a Session 6 to bound scope, then relaxed it once iteration 2 hit 20/20, then accepted that iteration 4 was the right landing. Final session length: ~2.5 hours, with several scope-clarification interrupts.
+- **Lesson:** A closing session that includes both an open investigation AND drain + full-suite × 5 + change-log + reorg risks blowing past any reasonable session boundary. Spec authors should consider splitting the investigation from the close: a "diagnostic + first-fix" session, and a separate "validation + drain + close + reorg" session. The early-bound option also gives the human a natural decision point if the diagnostic reveals a worse-than-expected hypothesis.
+- **Action for future sessions:** When authoring a session-set spec whose final session includes an investigation (cumulative-flake hunt, performance regression, etc.), default to splitting it: investigation gets its own session; drain + close gets the next. The session-set-authoring-guide may be the better long-term home for this guidance once it has been applied in a second context.
