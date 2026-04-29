@@ -400,7 +400,11 @@ before proceeding.
   they can see visual state and interaction progress.
 - **Components with async handlers that drive a Blazor render that a Playwright
   test must wait through should inherit `TrackedComponentBase` and wrap those
-  handlers with `TrackAction`.** This includes async user-action handlers
+  handlers with `TrackAction`.** Test-side synchronization with the
+  watermark goes through the DSL `WAIT FOR ACTIONS QUIET` verb (see the
+  closed verb list under *Human UAT And Checklist Editor*) — emit it
+  after every interaction on a route whose catalog entry has
+  `IsWatermarked: true`. This includes async user-action handlers
   (clicks, switches, dialog opens) AND async data-loading callbacks (search
   debouncers, paging callbacks, filter changes) — anywhere a Blazor render is
   driven by an async handler that the test needs to synchronize against.
@@ -501,6 +505,16 @@ before proceeding.
   - `NAVIGATE TO <URL>`
   - `WAIT FOR <visible state>` — e.g. *"the page displays `X`"*,
     *"the URL matches `<pattern>`"*, *"the snackbar shows `Y`"*
+  - `WAIT FOR ACTIONS QUIET` — no parameters; compiles to
+    `await fixture.WaitForQuietAsync(page)`. **Required after every
+    interaction verb on routes whose catalog entry has
+    `IsWatermarked: true`** (the page component inherits from
+    `Dabbler.Testing.Blazor.Components.TrackedComponentBase`; see the
+    Testing Conventions entry on `TrackedComponentBase`). Do not emit
+    after pure navigation, pure verification, or on routes whose
+    catalog entry has `IsWatermarked: false`. The
+    `uat-script-author` prompt template enforces this rule
+    automatically; hand-authored checklists must follow it manually.
   - `PRESS KEY <Tab|Enter|Escape|...>`
 
   **Interaction**
