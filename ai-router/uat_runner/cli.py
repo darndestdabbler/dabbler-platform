@@ -94,6 +94,18 @@ def main() -> int:
         help="Email for seeded sign-in (default: %(default)s).",
     )
     parser.add_argument(
+        "--active-role",
+        type=str,
+        default=None,
+        help=(
+            "Override the active role passed to the W0 CLI. When omitted, "
+            "the runner infers the role from the checklist's first sign-in "
+            "step via personas.json. Pass an explicit role here to bypass "
+            "inference (e.g., for ad-hoc smoke tests under a non-default "
+            "persona)."
+        ),
+    )
+    parser.add_argument(
         "--skip-triage",
         action="store_true",
         help="Skip triage even when failures exist (useful for testing).",
@@ -115,6 +127,7 @@ def main() -> int:
             auth_email=args.auth_email,
             skip_triage=args.skip_triage,
             skip_dotnet_test=args.skip_dotnet_test,
+            active_role=args.active_role,
         )
     except (FileNotFoundError, RuntimeError) as e:
         print(f"Error: {e}", file=sys.stderr)

@@ -61,14 +61,14 @@ moderate
 | 9 | Commit changes | Direct |
 
 ### Actuals (filled after the session)
-- Orchestrator used: TBD
-- Total routed cost: TBD
-- Deviations from recommendation: TBD
-- Notes for next-session calibration: TBD
+- Orchestrator used: claude-code / claude-opus-4-7[1m] @ effort=high
+- Total routed cost: ~$0.806 (analysis $0.013 gemini-pro for Session 3 recommendation; session-verification $0.793 — opus, same-provider, same router-config issue Session 1 hit)
+- Deviations from recommendation: Session-verification routed to **same-provider opus** despite `complexity_hint=70` and the cross-provider preference; the routing-config fix for `feedback_self_verify_when_no_cross_provider.md` is still pending. The verifier returned "Pass with one cleanup" — all 8 acceptance criteria PASS with two non-blocking issues. Issue 1 was a **false positive** (verifier claimed `_invoke_w0_compile` was duplicated; `grep -c "^def _invoke_w0_compile"` returned 1 — the prompt sliced `runner.py` non-contiguously and the verifier reasoned about my excerpt order rather than the file). Issue 2 was Informational (auth_email vs persona-inference design-debt note, no incorrect behavior). Human chose option (b) accept-dismissal per the Step 7 four-option procedure; `record_adjudication(cause="context-gap", resolution="accept-dismissal")` logged.
+- Notes for next-session calibration: (a) When sending source excerpts to the verifier, preserve file order — non-contiguous regex slices that show a function before its surrounding helpers tempt the verifier into reasoning about the prompt rather than the file. Better: send the full module text or contiguous start-to-end ranges. (b) Audit-driven design choice (Step 2 + Step 3) collapsed cleanly to persona-inference — every catalog-grounded checklist (5/5 audited) already had the email pattern, so the directive path would have been migration-heavy for no gain. (c) `--active-role` flag wired through the W0 CLI flowed cleanly because `SemanticValidator.Validate(steps, catalog, activeRole)` already accepted the parameter from a prior session; no validator API change needed.
 
 **Next-session orchestrator recommendation (Session 3):**
 `claude-code` / `claude-opus-4-7` @ effort=high
-Rationale: Session 3 coordinates a NuGet bump, recrawl, routed authoring, runner loop, possible flake investigation, change-log generation, and an end-of-set reorg review — high-stakes orchestration that benefits from Opus-class judgment if the smoke flakes mid-loop.
+Rationale: Session 3 coordinates a NuGet bump, recrawl, routed authoring, runner loop, possible flake investigation, change-log generation, and an end-of-set reorg review — high-stakes orchestration that benefits from Opus-class judgment if the smoke flakes mid-loop. Routed analysis (gemini-pro, $0.0116) confirms the Session 1 recommendation: the 5/5 PASS quality bar against the live compose stack and the conditional flake-investigation step both reward Opus's reasoning depth over a cheaper model. Per-step routing matrix (steps 4 → uat-script-author/sonnet, 7 → analysis if flake, 8 → summarization/max_tier=1, 10 → session-verification/max_tier=2) is unchanged from Session 1's authored block.
 
 ---
 

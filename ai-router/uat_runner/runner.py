@@ -135,10 +135,44 @@ def _generated_dir() -> Path:
     return d
 
 
+def _resolve_active_role(
+    checklist_path: Path,
+    explicit_role: str | None,
+) -> tuple[str | None, str]:
+    """Decide the active role to pin during W0 compile.
+
+    Returns ``(role, message)``:
+
+    - ``role`` is the value to pass to ``--active-role``, or ``None`` to
+      let the validator default to the AnyRole wildcard.
+    - ``message`` is a human-readable note appended to the runner output;
+      it is non-empty when persona inference matched (informational) or
+      when the checklist's email is missing from the persona map (fatal,
+      which is signalled to the caller by ``role`` being ``None`` while
+      ``message`` describes the failure).
+
+    An explicit ``explicit_role`` skips inference entirely.
+    """
+    if explicit_role:
+        return explicit_role, f"Active role pinned via override: {explicit_role}"
+
+    from . import personas as _personas  # local import keeps the module side-effect free
+
+    result = _personas.infer_active_role(checklist_path)
+    if result.role is not None:
+        return result.role, (
+            f"Active role inferred from sign-in step ({result.email} -> {result.role})."
+        )
+    if result.error is not None:
+        return None, f"Persona inference error: {result.error}"
+    return None, ""
+
+
 def _invoke_w0_compile(
     checklist_path: Path,
     catalog_path: Path,
     output_path: Path,
+    active_role: str | None = None,
 ) -> tuple[bool, str]:
     cmd = [
         "dotnet",
@@ -155,6 +189,8 @@ def _invoke_w0_compile(
         "--output",
         str(output_path),
     ]
+    if active_role:
+        cmd.extend(["--active-role", active_role])
     proc = subprocess.run(
         cmd,
         cwd=REPO_ROOT,
@@ -267,6 +303,7 @@ def run_checklist(
     skip_triage: bool = False,
     session_set: str = "",
     session_number: int | None = None,
+    active_role: str | None = None,
 ) -> RunReport:
     """Compile, run, and parse a UAT checklist.
 
@@ -276,6 +313,12 @@ def run_checklist(
     when testing the plumbing without incurring AI costs).
     ``session_set`` / ``session_number`` are threaded through to the triage
     router calls for metrics grouping.
+
+    ``active_role`` overrides the role passed to the W0 CLI's
+    ``--active-role`` flag. When ``None``, the runner infers the role
+    from the checklist's first sign-in step via :mod:`personas`; if the
+    persona map has no entry for the inferred email the run fails before
+    compile rather than silently falling back to the AnyRole wildcard.
     """
     checklist = Path(checklist_path).resolve()
     catalog = Path(catalog_path).resolve()
@@ -293,7 +336,27 @@ def run_checklist(
     class_name = _slug_to_class_name(session_set_slug)
     emitted_path = _generated_dir() / f"{class_name}.cs"
 
-    compile_ok, compile_output = _invoke_w0_compile(checklist, catalog, emitted_path)
+    resolved_role, role_message = _resolve_active_role(checklist, active_role)
+    if role_message and not resolved_role:
+        return RunReport(
+            checklist_path=str(checklist),
+            catalog_path=str(catalog),
+            class_name=class_name,
+            emitted_path=str(emitted_path),
+            wrapper_path="",
+            compile_ok=False,
+            compile_output="",
+            test_invoked=False,
+            test_exit_code=None,
+            trx_path=None,
+            runner_message=role_message,
+        )
+
+    compile_ok, compile_output = _invoke_w0_compile(
+        checklist, catalog, emitted_path, active_role=resolved_role
+    )
+    if role_message:
+        compile_output = f"{role_message}\n{compile_output}"
 
     report = RunReport(
         checklist_path=str(checklist),
