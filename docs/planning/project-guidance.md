@@ -444,7 +444,21 @@ before proceeding.
   select every label verbatim from the catalog. Validation is delegated to
   the `dabbler-uat-dsl validate <checklist> --catalog <path>` CLI from the
   sibling `dabbler-uat-dsl` repo (W0). Closed pre-catalog checklists are
-  grandfathered via `tools/uat-suppressions.json`.
+  grandfathered via `tools/uat-suppressions.json`. **Always invoke
+  `validate` and `compile` with `--suppressions tools/uat-suppressions.json`
+  and `--active-role <name>`** (W0 1.2.0 + 1.2.1). The `--suppressions` flag
+  honors the existing schema natively (matching errors downgrade to warnings;
+  `compile` emits `.cs` and exits 0 when no unsuppressed errors remain). The
+  `--active-role` flag pins the role context so post-auth label probes hit
+  the concrete-role catalog slice rather than the AnyRole `*` wildcard
+  (which silently returns zero hits and surfaces as cascading `UnknownRoute`
+  on the route the script just navigated to). The W2 runner
+  (`ai-router/uat_runner/cli.py`) wires both flags automatically: it
+  passes `--suppressions tools/uat-suppressions.json` on every compile, and
+  it infers the active role from the checklist's first sign-in step via
+  `ai-router/uat_runner/personas.json` (email → role; explicit override
+  available via `--active-role <name>` for ad-hoc smoke runs under a
+  non-default persona).
 - The W0 SemanticValidator currently updates its `currentRoute` cursor only
   on `NAVIGATE TO` statements; click-driven navigation (CLICK LINK,
   CLICK ROW that lands on a detail page) does NOT propagate the new route.

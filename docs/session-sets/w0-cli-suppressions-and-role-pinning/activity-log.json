@@ -275,6 +275,24 @@
           "costUsd": 0.0135
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 10,
+      "stepKey": "session-3/commit-push-notify",
+      "dateTime": "2026-04-30T02:13:47.495970+00:00",
+      "description": "Committed (fdf6489) Session 3 changes \u2014 19 files, 425+/-49. Local-only commit; push deferred to human (project convention is to keep push as a separate confirm-needed step). Notification sent via send_session_complete_notification.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 11,
+      "stepKey": "session-3/step-9-reorg",
+      "dateTime": "2026-04-30T09:26:03.178261+00:00",
+      "description": "Reorganization review: human accepted A, B, C; deferred D (one-context). Applied: (A) lessons-learned entry SemanticValidator Default activeRole=* Silently Degrades Catalog-Grounded Checklists; (B) extended project-guidance.md Catalog-Grounded UAT authoring Convention to mandate --suppressions and --active-role on every W0 invocation, with reference to runner-side personas.json plumbing; (C) lessons-learned entry Smoke Proofs That Have Never Run Surface Their Own Infrastructure Gaps (two-context promotion: uat-dsl-watermark-integration + this set).",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }
