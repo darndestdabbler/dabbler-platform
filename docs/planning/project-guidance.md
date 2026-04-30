@@ -441,34 +441,42 @@ before proceeding.
   forbids label invention and routes the call to Sonnet by default. Manual
   hand-authoring of UAT checklists is deprecated; if the orchestrator
   authors directly (e.g., when the API call times out), it must still
-  select every label verbatim from the catalog. Validation is delegated to
-  the `dabbler-uat-dsl validate <checklist> --catalog <path>` CLI from the
-  sibling `dabbler-uat-dsl` repo (W0). Closed pre-catalog checklists are
-  grandfathered via `tools/uat-suppressions.json`. **Always invoke
-  `validate` and `compile` with `--suppressions tools/uat-suppressions.json`
-  and `--active-role <name>`** (W0 1.2.0 + 1.2.1). The `--suppressions` flag
-  honors the existing schema natively (matching errors downgrade to warnings;
-  `compile` emits `.cs` and exits 0 when no unsuppressed errors remain). The
-  `--active-role` flag pins the role context so post-auth label probes hit
-  the concrete-role catalog slice rather than the AnyRole `*` wildcard
-  (which silently returns zero hits and surfaces as cascading `UnknownRoute`
-  on the route the script just navigated to). The W2 runner
-  (`ai-router/uat_runner/cli.py`) wires both flags automatically: it
-  passes `--suppressions tools/uat-suppressions.json` on every compile, and
-  it infers the active role from the checklist's first sign-in step via
-  `ai-router/uat_runner/personas.json` (email → role; explicit override
-  available via `--active-role <name>` for ad-hoc smoke runs under a
-  non-default persona).
-- The W0 SemanticValidator currently updates its `currentRoute` cursor only
-  on `NAVIGATE TO` statements; click-driven navigation (CLICK LINK,
-  CLICK ROW that lands on a detail page) does NOT propagate the new route.
-  Click-driven UAT scripts therefore produce cascading `UnknownRoute`
-  errors after the first click-driven transition. This is a known W0
-  limitation; mitigations are documented in `tools/uat-suppressions.json`
-  and a future W0 enhancement (route-transition inference from click
-  semantics, or a `VERIFY URL matches "..."` route-cursor sigil) will
-  remove the suppression. Until then, validate output should be triaged
-  with the suppressions file.
+  select every label verbatim from the catalog.
+
+  **W0 toolchain integration.** Validation and compilation are delegated to
+  the `dabbler-uat-dsl` CLI (W0) from the sibling repo. The DSL syntax,
+  CLI flags, JSON output shapes, exit codes, and the catalog +
+  suppressions data contracts are documented in the sibling repo —
+  do not restate them here. See:
+  - [dabbler-uat-dsl/docs/cli-reference.md](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/cli-reference.md) — `validate` / `compile`, every flag (`--catalog`, `--suppressions`, `--active-role`, `--emitter`, `--output`), JSON output shapes, exit codes.
+  - [dabbler-uat-dsl/docs/data-contracts.md](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/data-contracts.md) — component-catalog schema (1.0 / 1.1 with `isWatermarked`) and suppressions schema.
+  - [docs/COMPATIBILITY.md](../COMPATIBILITY.md) — the supported W0 Core / Cli / Emitter / catalog-schema combination.
+
+  Integration rules that live here (not in the sibling docs):
+  - **Always invoke `validate` and `compile` with
+    `--suppressions tools/uat-suppressions.json` and
+    `--active-role <name>`.** The active-role flag is what makes
+    post-auth label probes hit the concrete-role catalog slice rather
+    than the AnyRole `*` wildcard (which silently returns zero hits and
+    surfaces as cascading `UnknownRoute` on the route the script just
+    navigated to). Closed pre-catalog checklists are grandfathered via
+    `tools/uat-suppressions.json`.
+  - **The W2 runner (`ai-router/uat_runner/cli.py`) wires both flags
+    automatically.** It passes `--suppressions tools/uat-suppressions.json`
+    on every compile, and infers the active role from the checklist's
+    first sign-in step via `ai-router/uat_runner/personas.json`
+    (email → role; explicit override available via `--active-role <name>`
+    for ad-hoc smoke runs under a non-default persona).
+- **Click-driven navigation does not advance W0's route cursor.** Until
+  W0 ships route-transition inference (or a `VERIFY URL matches "..."`
+  route-cursor sigil), click-driven UAT scripts produce cascading
+  `UnknownRoute` errors after the first click-driven transition.
+  Mitigations are recorded per-checklist in `tools/uat-suppressions.json`
+  with a `rationale` per entry; the underlying limitation and the
+  glob-match rules are documented at
+  [dabbler-uat-dsl/docs/cli-reference.md → Known limitations](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/cli-reference.md#known-limitations)
+  and
+  [dabbler-uat-dsl/docs/data-contracts.md → Suppressions](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/data-contracts.md#suppressions).
 - Use the UAT checklist editor schema from
   `https://github.com/darndestdabbler/uat-checklist-editor/blob/main/checklist-schema.json`
   for checklist JSON files intended for human execution.
@@ -506,104 +514,42 @@ before proceeding.
   that surface works. Surface this at spec authoring or at the start
   of the closing session, not after generating an unrunnable checklist.
 
-- **The UAT/E2E DSL — closed verb list.** Every step in a UAT
+- **The UAT/E2E DSL — sibling-repo references.** Every step in a UAT
   checklist and every `// begin STEP NNN` block in the matching E2E
-  test must express its action using exactly one of these verbs.
-  Each interaction verb may take an optional `in <scope>` qualifier;
-  `<scope>` is a labelled region (e.g. `in the dialog titled "Add
-  Mask Exemption"`, `in the Admin drawer group`, `in the expanded
-  row for "Customer 1"`, `in the "Mask Exemptions" tab`). Locators
-  inside a scope are still by visible label only.
+  test must express its action using a verb from the closed DSL.
+  The verb list, structured `VERIFY` forms, scope (`in <scope>`)
+  syntax, the quoted-string requirement, the locator-discipline rules
+  (no `data-testid` / xpath / DOM-index, row identification by
+  column-value match, no composites), and the closed-list extension
+  policy live in the sibling repo:
+  - [dabbler-uat-dsl/docs/language-reference.md](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/language-reference.md) — verb list, structured `VERIFY` forms, scopes, locator rules.
+  - [dabbler-uat-dsl/grammar/DabblerUatDsl.g4](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/grammar/DabblerUatDsl.g4) — canonical ANTLR4 grammar (the parser is authoritative when this and the prose disagree).
 
-  **Lifecycle / plumbing**
-  - `NAVIGATE TO <URL>`
-  - `WAIT FOR <visible state>` — e.g. *"the page displays `X`"*,
-    *"the URL matches `<pattern>`"*, *"the snackbar shows `Y`"*
-  - `WAIT FOR ACTIONS QUIET` — no parameters; compiles to
-    `await fixture.WaitForQuietAsync(page)`. **Required after every
-    interaction verb on routes whose catalog entry has
-    `IsWatermarked: true`** (the page component inherits from
-    `Dabbler.Testing.Blazor.Components.TrackedComponentBase`; see the
-    Testing Conventions entry on `TrackedComponentBase`). Do not emit
-    after pure navigation, pure verification, or on routes whose
-    catalog entry has `IsWatermarked: false`. The
-    `uat-script-author` prompt template enforces this rule
-    automatically; hand-authored checklists must follow it manually.
-  - `PRESS KEY <Tab|Enter|Escape|...>`
+  Do not restate the verb list, structured forms, or design rules
+  here. The integration rules that DO belong in dabbler-platform are:
 
-  **Interaction**
-  - `CLICK BUTTON [in <scope>] with caption <caption>`
-  - `CLICK ICON BUTTON [in <scope>] with aria-label <label>`
-    *(icon-only controls — chevrons, edit pencils, close X's)*
-  - `CLICK LINK [in <scope>] with text <text>`
-  - `CLICK TAB [in <scope>] with name <name>`
-  - `CLICK MENU ITEM [in <scope>] with label <label>`
-  - `CLICK INPUT [in <scope>] with label <label> and enter <value>`
-  - `CLICK CHECKBOX [in <scope>] with label <label>`
-    *(distinct from switch — different ARIA + binary)*
-  - `CLICK SWITCH [in <scope>] with label <label>`
-  - `CLICK SWITCH [in <scope>] in column with header <header>`
-  - `OPEN DROPDOWN [in <scope>] with label <label> and select item whose text = <text>`
-  - `PICK DATE [in <scope>] with label <label> and choose <date>`
-  - `SCROLL <grid name> to row where <col header> = <value> [and <col header> = <value> ...]`
-  - `CLICK ROW in <grid name> where <col header> = <value> [and ...]`
-  - `EXPAND ROW in <grid name> where <col header> = <value> [and ...]`
+  **Watermark pairing rule.** `WAIT FOR ACTIONS QUIET` is **required
+  after every interaction verb on routes whose catalog entry has
+  `isWatermarked: true`** (the page component inherits from
+  `Dabbler.Testing.Blazor.Components.TrackedComponentBase`; see the
+  Testing Conventions entry on `TrackedComponentBase`). Do NOT emit
+  after pure navigation, pure verification, or on routes whose catalog
+  entry has `isWatermarked: false`. The `uat-script-author` prompt
+  template enforces this rule automatically; hand-authored checklists
+  must follow it manually. The watermark mechanism, the
+  `TrackedComponentBase` base class, and `WaitForQuietAsync` itself are
+  application-side instrumentation that lives in
+  `src/Libs/Dabbler.Testing.Blazor/`; the `isWatermarked` flag is
+  produced by `tools/ComponentCatalogCrawler/` per route × role and
+  consumed by the `uat-script-author` prompt template plus the W2
+  runner.
 
-  **Verification** (see "Structured VERIFY Forms" below for formal syntax)
-  - `VERIFY <user-visible property or event>` — text content, URL
-    match, control enabled/disabled, presence/absence of element-by-
-    label, snackbar text. Never verify by testid or DOM internals.
-
-  **String Values Must Be Double-Quoted**
-  - All user-visible labels, captions, text values, and scope
-    descriptors must be double-quoted string literals in checklist and
-    E2E DSL steps. Keywords like `with`, `in`, `and`, `where`, etc.
-    appear bare. Examples:
-    - ✓ `CLICK BUTTON in "Add Mask Exemption" dialog with caption "Save"`
-    - ✗ `CLICK BUTTON in Add Mask Exemption dialog with caption Save`
-  - This makes the grammar unambiguous: keywords inside quoted values
-    are never tokenized as structural keywords.
-
-  **Structured VERIFY Forms** (Formal, Executable)
-  - Structured VERIFY steps compile to deterministic Playwright
-    assertions. Free-form VERIFY statements (see below) remain
-    supported for backward compatibility but emit `// PENDING` comments
-    in generated test code (human-only, not automatically asserted).
-  - Structured forms and their Playwright mappings:
-    - `VERIFY ELEMENT [in <scope>] with label <label> is visible`
-    - `VERIFY ELEMENT [in <scope>] with label <label> is not visible`
-    - `VERIFY ELEMENT [in <scope>] with label <label> is enabled`
-    - `VERIFY ELEMENT [in <scope>] with label <label> is disabled`
-    - `VERIFY TEXT [in <scope>] equals <expected>`
-    - `VERIFY TEXT [in <scope>] contains <expected>`
-    - `VERIFY TEXT [in <scope>] matches <regex>`
-    - `VERIFY URL matches <pattern>`
-    - `VERIFY SNACKBAR shows <text>`
-    - `VERIFY ROW in <grid name> where <col> = <value> exists`
-    - `VERIFY ROW in <grid name> where <col> = <value> does not exist`
-  - Legacy free-form `VERIFY <text>` continues to be accepted and
-    emits a `// PENDING: <text>` comment pointing to the structured
-    alternative. New checklists should prefer structured forms.
-  - The canonical ANTLR grammar and latest structural forms are
-    published at:
-    https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/grammar/DabblerUatDsl.g4
-
-  **DSL design rules:**
-  - **Locators are by visible label or visible text** — never by
-    testid, xpath, CSS class, or DOM index. The verifier rejects any
-    step whose locator is not user-visible.
-  - **Row identification is always by column-value match** — never
-    by row index ("the first row," "the third row"). Column-value
-    matches stay stable across data shuffles.
-  - **`in <scope>` is uniform across interaction verbs** — same
-    syntax in UAT prose and in `// begin STEP NNN` E2E commentary,
-    so the verifier can mechanically pair them.
-  - **Composites don't exist.** "Sign in" is 5–8 primitive steps.
-    That's the point. If the human can't follow each one in a real
-    browser, the test is inadequate.
-  - **Extending the verb list requires explicit human permission**
-    committed in the same patch as the new verb's first use, with
-    a real session-set example. No speculative verbs.
+  **Verb-list extensions go through dabbler-uat-dsl, not here.** When a
+  new verb is needed, propose the change in the sibling repo per its
+  closed-list extension policy ([language-reference.md → Closed-list
+  extension policy](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/language-reference.md#closed-list-extension-policy));
+  the consumer-side adoption (catalog crawler updates, prompt-template
+  updates, smoke proof) lands as its own dabbler-platform session set.
 
 - **Step-block alignment between UAT and E2E.** The
   `uat-coverage-review` gate must mechanically pair UAT steps to
