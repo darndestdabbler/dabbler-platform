@@ -196,6 +196,15 @@
       "description": "Authored change-log.md directly per human direction (no routing). Captured per-session deliverables (sibling-repo docs from Session 1; workflow rail edits + uat-coverage-review retirement from Session 2; two open-spec migrations; intentionally-preserved historical artifacts). Next-set recommendation authored directly (also per human direction): sensitive-field-masking-audit-uat-remediation as the natural first consumer of the newly-aligned rails, with transactional-system-columns gated on its UAT.",
       "status": "completed",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 11,
+      "stepKey": "session-2/step-9-reorg",
+      "dateTime": "2026-04-30T11:38:11.449611+00:00",
+      "description": "Step 9 reorganization review (post-notify): No reorganization commit needed. Candidate A (cross-repo doc-placement lesson) does not meet the two-context promotion threshold yet (one application context \u2014 Session 1 of this set). Candidates B (uat-coverage-review Convention bullets) and C (Three-Step UAT Authoring Discipline collapse) are reorg-review confirmation only \u2014 already covered by Session 2 Steps 4-6 in the main commit.",
+      "status": "completed",
+      "routedApiCalls": []
     }
   ]
 }
