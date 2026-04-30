@@ -170,6 +170,111 @@
           "costUsd": 0.7931
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-30T01:39:37.549742+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md (grep-indexed for w0/playwright-sync/persona/TrackedComponent context), spec.md, ai-assignment.md, Sessions 1-2 reviews + activity log. Persona-inference path won S2 (admin@acmecoffee.com -> SystemAdmin via personas.json); CLI 1.2.1 packed; Core 1.2.0 packed; Directory.Packages.props still pins 1.1.0 (this session bumps).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/nuget-bump",
+      "dateTime": "2026-04-30T01:44:36.495135+00:00",
+      "description": "Bumped Directory.Packages.props Dabbler.Uat.Dsl.Core 1.1.0 -> 1.2.0 (CLI is consumed via dotnet run --project from sibling source, no NuGet pin needed; Emitters unchanged at 1.1.0).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/recrawl",
+      "dateTime": "2026-04-30T01:44:36.495667+00:00",
+      "description": "Re-crawled docs/component-catalog/index.json against running compose stack (web @ :5010, api @ :5011). 2267 elements written across 5 role manifests + index.json. /admin/products [watermarked] confirmed for all 5 roles. Diff stat: 6 files changed, 6 insertions, 6 deletions (timestamp-only churn). SystemAdmin x /admin/products: 32 entries.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/smoke-author",
+      "dateTime": "2026-04-30T02:08:51.604027+00:00",
+      "description": "Routed uat-script-author (sonnet, $0.0636) to author smoke checklist; manually simplified to /admin/products-only flow after discovering 3 W0/DSL gaps in the magic-link sign-in path: (a) free-form WAIT FOR mis-emits to WaitForSelectorAsync (replaced with structured VERIFY TEXT contains), (b) /dev/email-inbox link text is Open not Sign in, (c) the OTP-code paste flow has no DSL primitive. Sign-in moved to runner-emitted test wrapper via PlaywrightFixture.SeededSignInAsync (test setup, out-of-scope of the smoke).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "sonnet",
+          "taskType": "uat-script-author",
+          "inputTokens": 5957,
+          "outputTokens": 3051,
+          "costUsd": 0.0636
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/smoke-compile",
+      "dateTime": "2026-04-30T02:08:51.605083+00:00",
+      "description": "W0 1.2.0 validate clean (valid:true, 0 warnings) and compile success with --active-role SystemAdmin --suppressions tools/uat-suppressions.json. Emitted .cs at docs/session-sets/.../smoke/compiled/W0SuppressionsAndRolePinningSmoke.cs contains await fixture.WaitForQuietAsync(page) at lines 18 and 19 \u2014 double emission (implicit EmitWatermarkWaits + explicit WAIT FOR ACTIONS QUIET) is the acceptable transitional debt per spec.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/smoke-run",
+      "dateTime": "2026-04-30T02:08:51.605601+00:00",
+      "description": "5/5 PASS deterministic via docs/session-sets/.../smoke/run-5x-smoke.py. Per-iteration: 10.0s, 9.6s, 9.6s, 9.8s, 9.5s. Driver wipes Mailhog + dev email inbox before each iteration (test infra). Runner test wrapper template extended to call PlaywrightFixture.SeededSignInAsync(page, auth_email) for sign-in setup; runner.py _invoke_w0_compile now passes --suppressions tools/uat-suppressions.json natively (replaces the legacy post-compile suppression-matching block which is now dead). Spec quality bar met.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-04-30T02:09:51.482922+00:00",
+      "description": "Routed summarization (gemini-flash, $0.0008) wrote change-log.md (3406 bytes).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0008
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-30T02:11:19.941759+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 pre-existing obsolete warnings (RoleSwitchingPermission, scheduled removal in rearchitect-role-administration-foundations Session 3 \u2014 unrelated to this set). dotnet test --filter !~Playwright: 715/715 pass across Dabbler.Testing.Blazor.Tests (6), Dabbler.Components.Tests (43), Dabbler.Reports.Blazor.Tests (16), Dabbler.Security.Blazor.Tests (200), AcmeCoffeeOnline.Api.Tests (27), Dabbler.Security.Tests (300), AcmeCoffeeOnline.Web.Tests (123).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-30T02:13:02.778478+00:00",
+      "description": "Cross-provider session-verification: routed to gemini-pro (tier 2 cross-provider, max_tier=2 enforced \u2014 finally landed on cross-provider per the lessons-learned fallback ladder discipline). Cost: $0.0135. Verdict: PASS, all 8 acceptance criteria met. No issues raised. Verifier flagged the smoke simplification + ClickSwitchInColumnStep deferral as acceptable.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 7252,
+          "outputTokens": 444,
+          "costUsd": 0.0135
+        }
+      ]
     }
   ]
 }

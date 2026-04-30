@@ -1,7 +1,15 @@
 {
   "$schema": "https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/schema/uat-suppressions.json",
-  "comment": "Suppressions for `dabbler-uat-dsl validate` errors that the catalog cannot fix without re-crawling new routes or extending the W0 validator. Each entry pairs a route x error-kind to a rationale. The W2 runner (`ai-router/uat_runner/runner.py`) reads this file at compile time and treats W0 errors that match a suppression entry as warnings. The W0 CLI itself still does NOT expose `--suppressions <path>` — when W0 ships that flag, the runner can pass through suppression matches at compile time so the emitted .cs is produced and `dotnet test` can run; until then, a fully-suppressed compile is a 'passed with warnings, no test invoked' run. Tracked in this file's `comment`. Planned in `uat-runner-and-triage-feedback` Session 4 (runner-side filter — DONE) plus a follow-up dabbler-uat-dsl session for the W0 CLI flag.",
+  "comment": "Suppressions for `dabbler-uat-dsl validate` errors that the catalog cannot fix without re-crawling new routes or extending the W0 validator. Each entry pairs a route x error-kind to a rationale. The W0 CLI honors this file natively via the `--suppressions <path>` flag (shipped in W0 1.2.0, `w0-cli-suppressions-and-role-pinning` Session 1); matched errors are downgraded from `errors` to `warnings` in the JSON output and `compile` proceeds to emit code when every remaining error is matched. The W2 runner (`ai-router/uat_runner/runner.py`) passes `--suppressions tools/uat-suppressions.json` to W0 on every compile call so emitted .cs is produced and `dotnet test` runs end-to-end.",
   "suppressions": [
+    {
+      "checklists": [
+        "docs/session-sets/w0-cli-suppressions-and-role-pinning/smoke/w0-cli-suppressions-and-role-pinning-uat-checklist.json"
+      ],
+      "errorKind": "ElementTypeMismatch",
+      "routePathPatterns": ["/admin/products"],
+      "rationale": "The smoke's final step verifies `\"Available\"` is visible after the watermark exercises. The `\"Available\"` label exists in the /admin/products × SystemAdmin catalog as a `Column` elementRole (the grid column header). The W0 validator flags `VERIFY ELEMENT with label \"Available\"` because `Element` ≠ `Column` in the type taxonomy, but a column header IS a user-visible element on the page. Using the structured-VERIFY form keeps the assertion deterministic in the emitted Playwright `.cs`; suppressing the type mismatch is narrower than weakening the validator's element-role taxonomy."
+    },
     {
       "checklists": [
         "docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json"

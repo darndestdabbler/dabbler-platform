@@ -173,6 +173,7 @@ def _invoke_w0_compile(
     catalog_path: Path,
     output_path: Path,
     active_role: str | None = None,
+    suppressions_path: Path | None = None,
 ) -> tuple[bool, str]:
     cmd = [
         "dotnet",
@@ -191,6 +192,8 @@ def _invoke_w0_compile(
     ]
     if active_role:
         cmd.extend(["--active-role", active_role])
+    if suppressions_path and suppressions_path.is_file():
+        cmd.extend(["--suppressions", str(suppressions_path)])
     proc = subprocess.run(
         cmd,
         cwd=REPO_ROOT,
@@ -221,17 +224,30 @@ public sealed class {class_name}Tests
     public async Task RunChecklistAsync()
     {{
         var page = await _fixture.CreatePageAsync();
-        var adapter = new PlaywrightFixtureUatAdapter(_fixture);
+{seeded_signin_block}        var adapter = new PlaywrightFixtureUatAdapter(_fixture);
         await {class_name}.RunAsync(adapter, page);
     }}
 }}
 """
 
 
-def _write_test_wrapper(class_name: str) -> Path:
+def _write_test_wrapper(class_name: str, auth_email: str = "") -> Path:
+    # The DSL has no primitives for the magic-link OTP-code paste flow used by
+    # the Web app's real /login page. When the caller wires an `auth_email`,
+    # seed the persona via the established test backdoor so the checklist's
+    # actions start from a signed-in state — sign-in is test setup, the SUT
+    # is the post-auth route the checklist exercises.
+    seeded_signin_block = ""
+    if auth_email:
+        seeded_signin_block = (
+            f'        await _fixture.SeededSignInAsync(page, "{auth_email}");\n'
+        )
     wrapper_path = _generated_dir() / f"{class_name}Tests.cs"
     wrapper_path.write_text(
-        _TEST_WRAPPER_TEMPLATE.format(class_name=class_name),
+        _TEST_WRAPPER_TEMPLATE.format(
+            class_name=class_name,
+            seeded_signin_block=seeded_signin_block,
+        ),
         encoding="utf-8",
     )
     return wrapper_path
@@ -352,8 +368,13 @@ def run_checklist(
             runner_message=role_message,
         )
 
+    suppressions_path = REPO_ROOT / "tools/uat-suppressions.json"
     compile_ok, compile_output = _invoke_w0_compile(
-        checklist, catalog, emitted_path, active_role=resolved_role
+        checklist,
+        catalog,
+        emitted_path,
+        active_role=resolved_role,
+        suppressions_path=suppressions_path,
     )
     if role_message:
         compile_output = f"{role_message}\n{compile_output}"
@@ -371,44 +392,19 @@ def run_checklist(
         trx_path=None,
     )
     if not compile_ok:
-        # Check tools/uat-suppressions.json for accepted W0 errors
-        # (e.g., the documented click-driven-route-cursor limitation).
-        # If every error matches a suppression for this checklist, the
-        # compile is treated as suppressed-but-OK and the runner proceeds
-        # to dotnet test. Suppression entries that match are surfaced as
-        # warnings in the runner_message.
-        suppressed, unsuppressed = _split_compile_errors_by_suppressions(
-            compile_output, str(checklist)
-        )
-        if not unsuppressed and suppressed:
-            report.runner_message = (
-                f"Compile produced {len(suppressed)} suppressed W0 error(s) "
-                f"per tools/uat-suppressions.json — proceeding to test."
-            )
-            report.compile_ok = True
-            # Re-attempt compile WITHOUT the failing steps to actually
-            # produce emitted .cs. Today's W0 CLI has no --skip-step
-            # flag, so we cannot proceed past compile when there are
-            # suppressed errors — the test wrapper has nothing to run.
-            # Stop with a clear runner_message so the caller knows.
-            report.runner_message += (
-                " However, the W0 CLI does not yet expose --skip-step or "
-                "--suppressions, so emitted test cannot be invoked. "
-                "Treating this run as passed-with-warnings until W0 "
-                "ships those flags. Fix tracked in tools/uat-suppressions.json."
-            )
-            return report
+        # W0 1.2.0 honors --suppressions natively: matching errors are
+        # downgraded to warnings server-side and the .cs is emitted when
+        # all remaining errors are zero. Reaching this branch means W0
+        # itself returned a non-zero exit, which implies one or more
+        # unsuppressed real errors. Report directly without re-matching.
         report.runner_message = (
-            "Compile failed — checklist did not pass W0 validation."
+            "Compile failed — checklist did not pass W0 validation "
+            "(W0 ran with --suppressions tools/uat-suppressions.json; "
+            "any remaining errors are unsuppressed and real)."
         )
-        if suppressed:
-            report.runner_message += (
-                f" ({len(suppressed)} of {len(suppressed) + len(unsuppressed)} "
-                "errors matched suppressions; the rest are real.)"
-            )
         return report
 
-    wrapper_path = _write_test_wrapper(class_name)
+    wrapper_path = _write_test_wrapper(class_name, auth_email=auth_email)
     report.wrapper_path = str(wrapper_path)
 
     if skip_dotnet_test:

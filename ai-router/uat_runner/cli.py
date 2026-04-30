@@ -21,6 +21,11 @@ import importlib.util
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 def _bootstrap_imports() -> None:
     """Make ``ai_router.uat_runner.runner`` importable when this file is
