@@ -23,8 +23,16 @@
 - E2E tests: `tests/AcmeCoffeeOnline.Playwright/` — Playwright-driven
   through Docker compose stacks (`docker/docker-compose.infra.yml` for
   persistent dev infra, `docker/docker-compose.app.yml` for the app
-  services). E2E test references in UAT checklists use the
-  fully-qualified test method name in this project.
+  services). For new `requiresE2E: true` sets, the Playwright `.cs`
+  test is the W0-compiled output of the DSL checklist (one
+  `*UatTests.cs` per session set's checklist), not a hand-authored
+  pairing file. Closed sets retain their existing
+  `*UatCoverageTests.cs` files unchanged.
+- W0 toolchain (DSL syntax, CLI flags, data contracts): the sibling
+  [`dabbler-uat-dsl`](https://github.com/darndestdabbler/dabbler-uat-dsl)
+  repo's `docs/` folder is the canonical reference. The supported
+  W0 / catalog-schema / runner combination is pinned in
+  `docs/COMPATIBILITY.md` at the root of this repo.
 - UAT checklist editor schema:
   https://github.com/darndestdabbler/uat-checklist-editor
 
@@ -51,7 +59,11 @@ Default to `true` for any set that changes shipping Blazor pages,
 components, or API endpoints the UI consumes. The E2E suite in
 `tests/AcmeCoffeeOnline.Playwright/` exercises the real UI through the
 Docker compose stack — this is the project's lowest-friction
-regression net.
+regression net. New `requiresE2E: true` sets author their checklist
+in DSL and compile to Playwright via W0 (see
+`docs/ai-led-session-workflow.md` → *UAT/E2E pipeline*); they do not
+hand-author a pairing `*UatCoverageTests.cs` file or call
+`route(task_type="uat-coverage-review")` (retired).
 
 `requiresE2E: false` is appropriate for:
 

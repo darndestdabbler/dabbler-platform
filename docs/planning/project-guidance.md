@@ -201,23 +201,23 @@ for the procedural enforcement.
 
 - **Step N in the UAT checklist corresponds to Step N in the E2E test.
   Identical actions. Identical parameters. Identical verifications.
-  Not "equivalent" — identical.** The discipline is mechanical on
-  purpose: if "equivalent" were enough, every drift point between
-  prose and automation would re-surface as a human surprise. A
-  Playwright test that clicks a row with a different label, or
-  navigates via a different entry point, or asserts against a
-  paraphrased expectation, does not satisfy this discipline even when
-  it passes.
+  Not "equivalent" — identical.** Under the DSL-driven pipeline this
+  is structural: the checklist is the W0 compiler input, the
+  Playwright `.cs` is the compiler output, and a single DSL step
+  produces exactly one Playwright step. Drift is a compiler bug, not
+  a discipline failure. Closed pre-DSL sets achieved the same
+  guarantee mechanically via `// begin STEP NNN` comment pairing
+  reviewed by the (now retired) `uat-coverage-review` gate.
 - **Parameter values are shared, not parallel.** The persona email,
   entity name, search term, URL, role name, and expected outcome the
   human will act on are the same literal values the Playwright test
-  drove. The structured-`Steps` `TestData` object is the shared source
-  of truth; the Playwright fixture reads from the same values.
-- **E2E passes before the human is notified.** Sequencing matters: the
-  Playwright suite runs to green first, the checklist is generated
-  from the green suite, `uat-coverage-review` returns VERIFIED on the
-  pair, then the commit lands, then the human is notified. Generating
-  a checklist against a red suite and asking the human to triage is
+  will drive — because the Playwright test was compiled from the same
+  DSL checklist. The structured-`Steps` `TestData` object travels
+  with the checklist into the compiled output.
+- **The compiled test passes before the human is notified.**
+  Sequencing matters: author the DSL checklist, compile via W0, run
+  the compiled `.cs` via the W2 runner to a green deterministic pass,
+  commit, then notify the human. Notifying against a red W2 run is
   the failure mode this principle exists to prevent.
 - **Judgment items still get sequence coverage.** An item flagged
   `IsJudgmentItem: true` is exempt from the matching-step requirement
@@ -482,44 +482,38 @@ before proceeding.
   for checklist JSON files intended for human execution.
 - Open and run those files through
   `https://darndestdabbler.github.io/uat-checklist-editor/`.
-- **MANDATORY: every UAT step must be performable by both the human and
-  the E2E test using only user-visible surfaces.** A three-step authoring
-  discipline applies, in order, with no shortcuts:
-  1. **Write the UAT step using the UAT/E2E DSL** (closed verb list
-     defined below). Each step is one primitive verb parameterised by
-     visible labels and visible text only — never by testid, xpath, CSS
-     class, or DOM index. The verb list is closed and may only be
-     extended with explicit human permission committed in the same patch
-     as the new verb's first use.
-  2. **Write the E2E test driving those same explicit steps with the same
-     locators.** Each Playwright step maps 1:1 to a numbered checklist
-     step. **Test-framework backdoors are forbidden when the step under
-     test is something a human is also expected to perform.** That
-     includes: `SeededSignInAsync(roles=)` overrides for sign-in steps,
-     `/test-auth/*` shortcuts for navigation steps, direct
-     `security-config.json` edits for permission-grant steps, EF API
-     pokes for things the user is supposed to do through the UI. Such
-     shortcuts are acceptable ONLY for test setup of state that is
-     out-of-scope of the UAT (e.g., pre-seeding inventory the human
-     accepts as given).
-  3. **Cross-verify every step is reachable by both sides.** For every
-     numbered step, confirm the human can perform it in a real browser
-     and the E2E test can perform it through user-visible locators.
-     If either side cannot, the step is inadequate — fix the UI gap
-     (e.g., assign the persona the missing role, add the missing
-     button, restore the missing page) or remove the step. Do NOT
-     paper over a UI gap with a developer shortcut.
+- **MANDATORY: every UAT step must be performable by the human using
+  only user-visible surfaces, and the matching Playwright step is the
+  W0-compiled output of that DSL step.** Under the DSL-driven
+  pipeline (see
+  `docs/ai-led-session-workflow.md` → *UAT/E2E pipeline*), the
+  three-step authoring discipline that previously demanded
+  hand-authoring the checklist, hand-authoring the E2E test, and
+  cross-verifying parity is now structural: the checklist is authored
+  in DSL via `route(task_type="uat-script-author")`, W0 compiles it
+  into the Playwright `.cs` test, and the W2 runner's deterministic
+  pass is the parity proof. Test-framework backdoors
+  (`SeededSignInAsync(roles=)` for sign-in steps, `/test-auth/*`
+  shortcuts for navigation, direct `security-config.json` edits for
+  permission-grant steps, EF API pokes for things the user performs
+  through the UI) remain forbidden for any step that the human is
+  also expected to perform; they are acceptable only for test setup
+  of state that is out-of-scope of the UAT.
+
   When a session set has UAT but the supported sign-in path or any
   other user-visible surface is not yet wired up, BLOCK the UAT until
   that surface works. Surface this at spec authoring or at the start
-  of the closing session, not after generating an unrunnable checklist.
+  of the closing session, not after generating an unrunnable
+  checklist.
 
 - **The UAT/E2E DSL — sibling-repo references.** Every step in a UAT
-  checklist and every `// begin STEP NNN` block in the matching E2E
-  test must express its action using a verb from the closed DSL.
-  The verb list, structured `VERIFY` forms, scope (`in <scope>`)
-  syntax, the quoted-string requirement, the locator-discipline rules
-  (no `data-testid` / xpath / DOM-index, row identification by
+  checklist must express its action using a verb from the closed DSL
+  (the W0 compiler reads the DSL and emits the matching Playwright
+  step; closed sets that retain hand-authored
+  `// begin STEP NNN` blocks expressed the same DSL inline). The
+  verb list, structured `VERIFY` forms, scope (`in <scope>`) syntax,
+  the quoted-string requirement, the locator-discipline rules (no
+  `data-testid` / xpath / DOM-index, row identification by
   column-value match, no composites), and the closed-list extension
   policy live in the sibling repo:
   - [dabbler-uat-dsl/docs/language-reference.md](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/language-reference.md) — verb list, structured `VERIFY` forms, scopes, locator rules.
@@ -551,47 +545,22 @@ before proceeding.
   the consumer-side adoption (catalog crawler updates, prompt-template
   updates, smoke proof) lands as its own dabbler-platform session set.
 
-- **Step-block alignment between UAT and E2E.** The
-  `uat-coverage-review` gate must mechanically pair UAT steps to
-  E2E steps. The pairing scheme:
-  - **Each UAT Review item names its E2E test method** in the
-    existing `E2ETestReference` property (form: `Class.Method` or
-    fully-qualified `Namespace.Class.Method`). The verifier resolves
-    that reference to a real `[Fact]` (or `[Theory]`) method in the
-    Playwright source. Reject any non-judgment Review item with no
-    method match.
-  - **Each step within an item is numbered** 1, 2, 3, ... via the
-    existing `StepNumber` property. Step numbers are zero-padded to
-    three digits when referenced from E2E code (`STEP 001`,
-    `STEP 002`, ..., `STEP 042`).
-  - **Inside the method body, `// begin STEP NNN` comments delimit
-    each step's code**, with identical numbering and order to the
-    UAT item's `Steps[].StepNumber`. The comment is the alignment
-    marker — the verifier walks both files and pairs comment-to-step
-    on N. Mismatched count or out-of-order numbering is `ISSUES_FOUND`.
+- **UAT↔E2E pairing under the DSL pipeline.** New `requiresE2E:
+  true` sets do not author a separate `*UatCoverageTests.cs` paired
+  to the checklist by `// begin STEP NNN` comments. The DSL
+  checklist is the single source: W0 compiles it directly into the
+  Playwright `.cs` test, so the parity that the retired
+  `uat-coverage-review` gate verified is now structural. The W2
+  runner's deterministic pass is the coverage proof. See
+  `docs/ai-led-session-workflow.md` → *UAT/E2E pipeline* and
+  *Migration: from manual `*UatCoverageTests.cs` pairing to the DSL pipeline*.
 
-    ```csharp
-    [Fact]
-    public async Task SomeName_DescriptiveAsync()
-    {
-        // begin STEP 001
-        await page.GotoAsync("http://localhost:5020/login");
-
-        // begin STEP 002
-        await page.GetByLabel("Email").FillAsync("admin@acmecoffee.com");
-
-        // begin STEP 003
-        await page.GetByRole(AriaRole.Button,
-            new() { Name = "Send sign-in code" }).ClickAsync();
-        // ...
-    }
-    ```
-
-  - **The verifier walks `E2ETestReference` → method match →
-    step-block pairing** and flags any DSL violation (testid locator,
-    row index, framework backdoor on a human-equivalent step) as
-    `ISSUES_FOUND`. The `uat-coverage-review` prompt template drives
-    this pairing mechanically.
+  *Legacy pattern (closed sets only):* sets closed before
+  2026-04-30 used a hand-authored `*UatCoverageTests.cs` whose
+  methods were named by `E2ETestReference` and whose bodies were
+  delimited by zero-padded `// begin STEP NNN` comments paired
+  1:1 to the checklist's `Steps[].StepNumber`. Those files
+  remain in place unchanged; do not retroactively rewrite them.
 
 - **MANDATORY: validate the generated checklist against the canonical schema
   before committing.** The schema lives at
@@ -608,10 +577,11 @@ before proceeding.
     The schema also accepts `HumanAction`, `Expectation`, `Steps`, `TestData`,
     `E2ETestReference`, `IsJudgmentItem`, `Passes`, `Feedback`, `IsOtherItem`.
     **Do NOT use** `Id`, `Title`, or `JudgmentJustification` — not in the
-    schema. UAT↔E2E pairing uses `E2ETestReference` (resolves to the
-    matching `[Fact]` method) plus `// begin STEP NNN` comment markers in
-    the method body — see the Step-block alignment convention. A
-    judgment-item rationale belongs in `Feedback` (e.g.,
+    schema. Under the DSL pipeline the checklist is its own source of
+    truth (W0 compiles it directly into the `.cs` test); the
+    `E2ETestReference` field is optional and may name the
+    W0-compiled method when a backwards-compatible cross-reference is
+    desired. A judgment-item rationale belongs in `Feedback` (e.g.,
     `"Feedback": "Judgment item — <rationale>"`).
   - Each `Steps[j]` item requires `StepNumber` (integer) and `Action` (string).
     Optional `Verifications` is an array of **objects** each with a `Text`
@@ -642,58 +612,31 @@ before proceeding.
 - Handoff messages for pending UAT must be unmistakable: name the checklist
   path, link the editor, say that the agent is waiting for the human
   response, and keep any optional parallel work low-risk.
-- **Playwright pre-testing per UAT item is mandatory.** Before
-  committing a checklist to the repo and notifying the human, each
-  functional `Review` item must have a corresponding Playwright test
-  that:
-  1. Signs in as the persona named in the step (reuse
-     `PlaywrightFixture.SeededSignInAsync`).
-  2. Executes the same navigation and interaction steps the checklist
-     describes, using the same parameter values — the ones carried in
-     the item's `TestData` object or, for legacy items, embedded in
-     the `HumanAction` text.
-  3. Asserts the objective portion of the expectation: the expected
-     route was reached, the required controls are present and enabled,
-     the described persist/refresh behaviour occurred, no unhandled
-     exception bubbled to the circuit, and no required data is missing
-     from the UI.
+- **Compiled-test proof per UAT item is mandatory.** Before
+  committing a checklist to the repo and notifying the human, the
+  W0-compiled Playwright test (output of
+  `dabbler-uat-dsl compile`) must run green via the W2 runner
+  (`python ai-router/uat_runner/cli.py`). The W2 runner's pass is
+  the coverage proof for every functional `Review` item; the runner
+  classifies failures via its four-class taxonomy
+  (`APP_FUNCTIONAL_BUG`, `CATALOG_STALE`, `SEED_DATA_GAP`,
+  `AMBIGUOUS_LOCATOR`) and files human-review issues for the three
+  non-auto-recoverable classes. Items flagged
+  `IsJudgmentItem: true` with a one-sentence justification still
+  require sequence-reachability — the compiled test must drive the
+  UI to the state the human will judge. Checklists whose compiled
+  W2 run does not pass are a session-closeout defect — re-run the
+  pipeline before marking the session complete.
 
-  **Preferred authoring shape for items paralleling an E2E test:**
-  use the extended checklist schema's structured `Steps` array with
-  numbered steps, each step's `Verifications` list, and
-  `E2ETestReference` set to the fully-qualified test method name.
-  The step numbers, actions, parameters, and verifications in the
-  checklist are *identical* to those in the matching Playwright test —
-  see `Principles → Human UAT Philosophy` for the rationale. Legacy
-  `HumanAction`/`Expectation` items remain valid and render in the
-  editor unchanged; prefer the structured form whenever parallelism
-  with an E2E test exists.
-
-  **Authoring and verification go through the router.** Use
-  `route(task_type="uat-plan-generation")` to produce the structured
-  checklist from the session set's spec and the Playwright coverage
-  file. Before committing, call
-  `route(task_type="uat-coverage-review")` with the generated
-  checklist and the Playwright file — it returns VERIFIED only when
-  every non-judgment item has a matching E2E step with identical
-  action, parameters, and verifications, **AND** every step in the
-  checklist passes per-step reachability: a real human in a browser
-  can perform the step using only user-visible surfaces. The
-  `uat-coverage-review` prompt must explicitly request this
-  reachability check; ISSUES_FOUND on any developer-shortcut
-  dependency (test-only sign-in overrides, direct config edits for
-  steps the human is supposed to perform, etc.) blocks the handoff.
-
-  Group the Playwright tests in a `*UatCoverageTests.cs` file (or
-  equivalent) under `tests/AcmeCoffeeOnline.Playwright/` and
-  cross-reference the UAT item in a comment on each test method so
-  future changes stay in sync. If a test is infeasible because the
-  expectation is purely aesthetic, mark the checklist item
-  `IsJudgmentItem: true` with a one-sentence justification — the
-  test still covers the step sequence and asserts reachable-state so
-  the human is rendering judgment on a verified-live UI. Checklists
-  shipped without this coverage are a session-closeout defect —
-  re-run the pre-test step before marking the session complete.
+  **Authoring goes through the router.** Use
+  `route(task_type="uat-script-author")` to produce the
+  catalog-grounded DSL checklist from the session set's spec, the
+  component catalog, and (optionally) a reference checklist for
+  scenario coverage. The Playwright `.cs` is then a build artifact
+  of `dabbler-uat-dsl compile`; do not hand-author it. The retired
+  `uat-coverage-review` task type and the hand-authored
+  `*UatCoverageTests.cs` pattern survive only in closed session
+  sets.
   
 ---
 

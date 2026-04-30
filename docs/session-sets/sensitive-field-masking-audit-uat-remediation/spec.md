@@ -78,19 +78,17 @@ these surfaces and writes up a disposition.
 - **Verify the role switcher works.** If the `UserContextBar` does not
   surface all three roles for the persona, that's a real bug to fix
   inline in Session 1 — not a test scaffold to bypass.
-- **Three-step UAT discipline + UAT/E2E DSL** per the Convention in
-  `docs/planning/project-guidance.md` → Human UAT And Checklist
-  Editor. Every step in the checklist is one primitive verb from the
-  closed DSL verb list, parameterised by visible labels and visible
-  text only. Every Review item names its E2E test method via
-  `E2ETestReference` (form: `Class.Method` or
-  `Namespace.Class.Method`); the matching method body uses
-  `// begin STEP NNN` comments (zero-padded to three digits) to
-  delimit each step's code, with identical numbering and order to
-  the UAT item's `Steps[].StepNumber`. The `uat-coverage-review`
-  call uses the canonical prompt template shipped in
-  `ai-router/prompt-templates/task-prompts.md` (which enforces
-  per-step reachability + DSL conformance + step-block pairing).
+- **DSL-driven UAT pipeline** per
+  `docs/ai-led-session-workflow.md` → *UAT/E2E pipeline*. Author the
+  checklist in DSL via `route(task_type="uat-script-author")` against
+  the component catalog for the active route × role; W0
+  (`dabbler-uat-dsl compile`) emits the Playwright `.cs` test from
+  the checklist; the W2 runner (`python ai-router/uat_runner/cli.py`)
+  runs the compiled test deterministically. The W2 pass is the
+  coverage proof. The retired `uat-coverage-review` task type is
+  not used. *(This spec was authored before the
+  uat-workflow-dsl-alignment retirement landed; the pipeline shape
+  here reflects the post-retirement workflow.)*
 
 ---
 
@@ -104,8 +102,9 @@ role-switch flow that the human can also perform.
 
 **Steps:**
 
-1. Read `docs/planning/project-guidance.md` (especially the new
-   three-step UAT discipline) and `docs/planning/lessons-learned.md`.
+1. Read `docs/planning/project-guidance.md` (especially Human UAT And
+   Checklist Editor), `docs/planning/lessons-learned.md`, and
+   `docs/ai-led-session-workflow.md` → *UAT/E2E pipeline*.
 2. Confirm `restore-devidp` is complete (`docs/session-sets/restore-devidp/change-log.md`
    exists; SSO button works on `/login`). If not complete, block this
    session and surface the dependency.
@@ -117,14 +116,10 @@ role-switch flow that the human can also perform.
    fresh sign-in. If the switcher omits any role, fix the surfacing
    bug inline (the role assignment is correct; the switcher's
    `_allowedSwitchRoles` filter or DI wiring is wrong).
-4. Rewrite `tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatCoverageTests.cs`
-   so each [Fact] corresponds to one UAT Review item. The matching
-   Review item names the method via `E2ETestReference`. The method
-   body uses `// begin STEP NNN` comments (zero-padded to three
-   digits) to delimit each step block, with identical numbering and
-   order to the UAT item's `Steps[].StepNumber`. Each step block
-   uses the DSL (visible-label locators only — no `GetByTestId`, no
-   row indices, no framework backdoors). The real-login path is:
+4. Author the DSL checklist via
+   `route(task_type="uat-script-author")` against
+   `docs/component-catalog/index.json` for the active route × role.
+   The real-login flow the checklist must encode is:
    - Magic-link login through `/login` → `/dev/email-inbox` →
      follow the magic-link href (the canonical pattern from
      `SecurityDashboardUatFollowupCoverageTests`), OR
@@ -137,18 +132,27 @@ role-switch flow that the human can also perform.
      it must use the **same UI flow** the UAT exemption-grant
      step uses — not a direct `security-config.json` edit, not a
      bypass endpoint.
-5. Regenerate the UAT checklist via `route(task_type="uat-plan-generation")`
-   from the rewritten test, with the prompt explicitly requesting
-   the maximally-explicit human-action shape per the Convention.
    Validate the output against the canonical schema URL before
    committing.
-6. Cross-verify with `route(task_type="uat-coverage-review")` —
-   prompt MUST request per-step reachability confirmation in
-   addition to the existing 1:1 step-match check. ISSUES_FOUND on
-   any human-unreachable step blocks the handoff.
+5. Compile the checklist via W0:
+   `dabbler-uat-dsl compile --catalog docs/component-catalog/index.json
+   --suppressions tools/uat-suppressions.json --active-role <role>
+   --emitter playwright-csharp --output
+   tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatTests.cs`.
+   The compiled `.cs` replaces the legacy hand-authored
+   `SensitiveFieldMaskingUatCoverageTests.cs` (which can be deleted
+   once the compiled output is green).
+6. Run the compiled test via the W2 runner
+   (`python ai-router/uat_runner/cli.py --checklist
+   docs/session-sets/sensitive-field-masking-audit/sensitive-field-masking-audit-uat-checklist.json
+   --catalog docs/component-catalog/index.json --session-set
+   sensitive-field-masking-audit-uat-remediation`). Target a
+   deterministic pass; resolve any human-review issues filed by the
+   triage classifier before proceeding.
 7. Run the Playwright suite (Docker preferred,
    `docker-compose.app.yml` + `docker-compose.infra.yml`). Confirm
-   the rewritten test is green. Run twice for idempotency.
+   the W0-compiled test is green end-to-end alongside the rest of the
+   suite. Run twice for idempotency.
 8. Run the full non-Playwright suite (`dotnet test
    Dabbler.Platform.sln --filter "FullyQualifiedName!~Playwright"`).
 9. Cross-provider session-verification.
@@ -157,12 +161,15 @@ role-switch flow that the human can also perform.
 **Creates:** Possibly nothing new — primarily edits.
 **Touches:** `user-roles.json`, possibly `SeedData.cs` (deterministic
 IDs), possibly `UserContextBar.razor[.cs]` (role-switcher fix if
-needed), `SensitiveFieldMaskingUatCoverageTests.cs` (full rewrite),
+needed), `SensitiveFieldMaskingUatCoverageTests.cs` (deleted in
+favour of the W0-compiled `SensitiveFieldMaskingUatTests.cs`),
 `sensitive-field-masking-audit-uat-checklist.json` (full rewrite — the
 file lives in the **prior** set's folder per the
 "Generate a new UAT checklist per session set" convention; this
 remediation set updates it in place because the masking UAT itself is
 not a fresh set).
+**Creates:** W0-compiled
+`tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatTests.cs`.
 **Ends with:** A human can sign in once, switch through three roles,
 and execute every checklist step in a real browser — and the
 Playwright suite drives the same path through the same locators.

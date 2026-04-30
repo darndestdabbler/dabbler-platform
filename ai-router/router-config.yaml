@@ -220,15 +220,15 @@ routing:
     # produced a 100% verifier rejection rate in early metrics — the
     # task type is always high-stakes regardless of prompt length.
     architecture: opus
-    # UAT checklist generation and its coverage audit are high-stakes
-    # governance gates; route them straight to Tier 3 rather than relying
-    # on heuristic scoring to land there indirectly.
-    # NOTE: these task types are only invoked when a session-set spec
-    # declares `requiresUAT: true`. No-UI repos (and platform sets that
-    # opt out) never reach these calls — leaving the entries defined
-    # is zero-cost.
+    # UAT checklist generation is a high-stakes governance gate; route
+    # straight to Tier 3 rather than relying on heuristic scoring to land
+    # there indirectly. Only invoked when a session-set spec declares
+    # `requiresUAT: true`. No-UI repos (and platform sets that opt out)
+    # never reach this call — leaving the entry defined is zero-cost.
+    # The companion `uat-coverage-review` task type was retired
+    # 2026-04-30 with the uat-workflow-dsl-alignment session set: the
+    # parity it verified is now structural under the W0 compile step.
     uat-plan-generation: opus
-    uat-coverage-review: opus
     # Catalog-grounded authoring of UAT checklists. Sonnet is strong at
     # careful, label-faithful authoring against a closed grammar; Opus is
     # overkill, Gemini is weaker at literal-string fidelity. Validation is
@@ -252,7 +252,6 @@ delegation:
     - architecture
     - planning
     - uat-plan-generation
-    - uat-coverage-review
     - uat-script-author
     - analysis
     - session-verification
@@ -327,10 +326,6 @@ task_type_params:
     opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
     gemini-pro: { thinking_budget: -1 }
     gpt-5-4:    { reasoning_effort: high }
-  uat-coverage-review:
-    opus:       { effort: high, thinking: { enabled: true, type: adaptive } }
-    gemini-pro: { thinking_budget: -1 }
-    gpt-5-4:    { reasoning_effort: high }
   uat-script-author:
     sonnet:     { effort: medium, thinking: { enabled: true, type: adaptive } }
     opus:       { effort: medium, thinking: { enabled: true, type: adaptive } }
@@ -389,7 +384,6 @@ complexity:
     test-generation: 35
     planning: 70
     uat-plan-generation: 70
-    uat-coverage-review: 70
     uat-script-author: 60
     uat-failure-triage: 45
     formatting: 10
@@ -500,14 +494,13 @@ verification:
   # Which task types are auto-verified when using route().
   # If a task type is listed here, route() automatically calls verify()
   # after getting the initial response. No extra code needed.
-  # uat-plan-generation and uat-coverage-review only run when a session-
-  # set spec declares `requiresUAT: true`; no-UI repos never reach them.
+  # uat-plan-generation only runs when a session-set spec declares
+  # `requiresUAT: true`; no-UI repos never reach it.
   auto_verify_task_types:
     - code-review
     - security-review
     - architecture
     - uat-plan-generation
-    - uat-coverage-review
     - documentation           # Sonnet verifies Gemini's doc output (uses weekly Sonnet credits)
     # - test-generation       # uncomment to auto-verify test generation
     # - analysis              # uncomment to auto-verify general analysis

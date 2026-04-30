@@ -442,8 +442,8 @@ session set." Deferring UAT across session sets breaks the
 traceability between a change and its human sign-off.
 
 When the active spec declares `requiresUAT: false`, the orchestrator
-does not generate a checklist, does not invoke `uat-plan-generation`
-or `uat-coverage-review`, and Rule #9 (pending UAT blocking) does not
+does not generate a checklist, does not invoke `uat-script-author`
+or `uat-plan-generation`, and Rule #9 (pending UAT blocking) does not
 apply.
 
 ### E2E Coverage Before UAT
@@ -457,31 +457,111 @@ functional item in the checklist must have matching E2E test coverage.
 This is the procedural form of the "human UAT is not the first line of
 defense" principle in `docs/planning/project-guidance.md`.
 
+Under the DSL-driven pipeline (see *UAT/E2E pipeline* below), this
+gate is enforced **structurally** rather than by a separate AI review
+call. The DSL checklist is the single source: W0 (`dabbler-uat-dsl`)
+compiles it directly into the Playwright `.cs` test, and the W2
+runner executes that compiled test. Coverage parity is therefore a
+property of the toolchain — every functional checklist step *is* a
+Playwright step because it was compiled from one. The W2 runner's
+≥5/5 deterministic pass is the coverage proof; a separate
+`uat-coverage-review` AI call is no longer required and the task
+type has been retired (see *Migration: from manual `*UatCoverageTests.cs` pairing to the DSL pipeline* below).
+
 Specifically:
 
 - Every checklist item with a functional expectation (route reached,
   control visible/enabled, data persisted, grid refreshed, error shown,
-  etc.) must have a Playwright test that drives the same steps with the
-  same parameters and asserts the same outcome.
+  etc.) is expressed as DSL verbs that compile into matching
+  Playwright steps via W0.
 - Items whose expectation is purely a judgment call (aesthetic, layout
   feel, copy quality) are flagged with `IsJudgmentItem: true` in the
   checklist JSON and must include a one-sentence justification. These
-  are exempt from the matching-test requirement but should still have
-  a sequence-reachability test so the human is rendering judgment on a
+  are exempt from the matching-step requirement but should still have
+  a sequence-reachability path so the human is rendering judgment on a
   verified-live UI rather than debugging exceptions.
-- The `uat-coverage-review` task type (see Task Types table) is the
-  mechanical check: given the checklist and the Playwright file, it
-  returns `VERIFIED` only when every non-judgment item has a matching
-  test. Any mismatch blocks the checklist handoff.
+- A W2 runner pass (target ≥5/5 deterministic when the spec demands
+  quality-bar proof) blocks the checklist handoff if any compiled
+  step fails.
 
-A checklist shipped without this coverage is a session-closeout defect
-and must be rebuilt before the human is notified.
+A checklist whose compiled W2 run does not pass is a session-closeout
+defect and must be rebuilt before the human is notified.
 
 When the spec declares `requiresE2E: true` but `requiresUAT: false`,
 the rule degenerates to "behavioral changes ship with E2E coverage" —
 the orchestrator confirms via test discovery that the new/changed
 behavior has matching tests before notifying. No UAT checklist is
 involved.
+
+### UAT/E2E pipeline (the DSL-driven path)
+
+> **Applies to every set that declares `requiresUAT: true`** (and to
+> every set that declares `requiresE2E: true` and uses the DSL to
+> author its E2E coverage). Replaces the deprecated manual
+> `*UatCoverageTests.cs` authoring + `// begin STEP NNN` pairing +
+> `uat-coverage-review` gate; see *Migration* below.
+
+The pipeline has four stages, in order:
+
+1. **Author the checklist in the DSL.** Use
+   `route(task_type="uat-script-author")` against
+   `docs/component-catalog/index.json` for the active route × role.
+   Every label, caption, and column header is verbatim from the
+   catalog; every step is one primitive verb from the closed DSL.
+   The DSL syntax, verb list, and structured `VERIFY` forms are
+   documented in
+   [`dabbler-uat-dsl/docs/language-reference.md`](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/language-reference.md).
+2. **Compile via W0.** The `dabbler-uat-dsl` CLI emits a Playwright
+   `.cs` test from the checklist:
+
+   ```bash
+   dabbler-uat-dsl compile \
+     --catalog docs/component-catalog/index.json \
+     --suppressions tools/uat-suppressions.json \
+     --active-role <role-name> \
+     --emitter playwright-csharp \
+     --output tests/AcmeCoffeeOnline.Playwright/<Name>UatTests.cs
+   ```
+
+   The `--suppressions` and `--active-role` flags are mandatory —
+   omitting them produces cascading `UnknownRoute` errors after the
+   first click-driven transition. CLI flags, JSON output shapes,
+   exit codes, and the data contracts the compiler consumes live in
+   [`dabbler-uat-dsl/docs/cli-reference.md`](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/cli-reference.md)
+   and
+   [`dabbler-uat-dsl/docs/data-contracts.md`](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/data-contracts.md).
+3. **Run via the W2 runner.** Use
+   `python ai-router/uat_runner/cli.py` (described in the next
+   sub-step). The runner wires `--suppressions` and infers
+   `--active-role` from the persona named in the checklist's first
+   sign-in step. Target ≥5/5 deterministic when the spec demands
+   quality-bar proof; the runner's pass is the coverage proof that
+   replaces the retired `uat-coverage-review` gate.
+4. **Hand the checklist to the human for UAT.** The same DSL
+   checklist the human runs through the
+   [checklist editor](https://darndestdabbler.github.io/uat-checklist-editor/)
+   was the source for the `.cs` test, so human steps and Playwright
+   steps cannot drift.
+
+#### Migration: from manual `*UatCoverageTests.cs` pairing to the DSL pipeline
+
+Sets closed before 2026-04-30 used a manual pattern: a hand-authored
+`*UatCoverageTests.cs` paired to the checklist by `E2ETestReference`
++ `// begin STEP NNN` comments, with a
+`route(task_type="uat-coverage-review")` call as the parity gate.
+That pattern is retired for new work. The migration policy:
+
+- **Closed sets keep what they have.** Existing `*UatCoverageTests.cs`
+  files and `// begin STEP NNN` markers remain in place; no
+  retroactive rewrite. The historical `lessons-learned.md` entries
+  that document why the manual pattern existed remain unchanged.
+- **New sets use the DSL pipeline.** Author in DSL → compile via W0
+  → run via W2 → hand to human. The W2 pass is the coverage proof;
+  there is no separate `uat-coverage-review` call.
+- **The task type is retired.** `uat-coverage-review` has been
+  removed from `ai-router/router-config.yaml` and the prompt
+  template file. Any new spec that references it is invalid; surface
+  it at spec authoring time.
 
 ### Step 0: Verify API Keys And Read Guidance
 
@@ -1122,7 +1202,6 @@ On Windows, use `.venv/Scripts/python.exe` to run Python.
 | `analysis` | 55 | Gemini Pro |
 | `refactoring` | 65 | Gemini Pro |
 | `uat-plan-generation` | 70 | Opus |
-| `uat-coverage-review` | 70 | Opus |
 | `uat-script-author` | 60 | Sonnet |
 | `session-verification` | 70 | Opus |
 | `security-review` | 75 | Opus |
@@ -1130,12 +1209,21 @@ On Windows, use `.venv/Scripts/python.exe` to run Python.
 | `planning` | 70 | Opus |
 
 `uat-plan-generation` produces the structured UAT checklist (numbered
-steps, verifications, test data) for a session set. `uat-coverage-review`
-verifies that every functional checklist item has a matching E2E step
-with the same action, parameters, and verifications. Both are
-auto-verified cross-provider — they are the checks that prevent the
-"UAT as first line of defense" failure mode, so they get high-effort
-settings in `router-config.yaml`.
+steps, verifications, test data) for a session set. It is the legacy
+free-form authoring task type; new sets prefer `uat-script-author`
+(catalog-grounded DSL authoring), which compiles directly to
+Playwright via the W0 toolchain and therefore does not need a
+separate `uat-coverage-review` parity gate. `uat-plan-generation` is
+auto-verified cross-provider as a hedge for sets that do not yet use
+the DSL pipeline; it gets high-effort settings in
+`router-config.yaml`.
+
+The retired `uat-coverage-review` task type previously verified that
+every functional checklist item had a matching E2E step. That parity
+is now structural under the DSL pipeline (W0 compiles the checklist
+into the `.cs`), so the gate is no longer required. See
+*Migration: from manual `*UatCoverageTests.cs` pairing to the DSL pipeline*
+above.
 
 `uat-script-author` is the catalog-grounded authoring task type. Given a
 session set's spec, the `docs/component-catalog/index.json` catalog
@@ -1430,12 +1518,14 @@ This is the authoritative rules list. Instruction files (`CLAUDE.md`,
     `<session-set-slug>-uat-checklist.json` and keep human results inline.
 11. **E2E coverage before UAT handoff** *(applies only when the active
     spec declares both `requiresUAT: true` AND `requiresE2E: true`).*
-    Every functional checklist item must have matching Playwright
-    coverage and pass `uat-coverage-review` before the checklist is
-    committed and the human is notified. Judgment items
-    (`IsJudgmentItem: true`) are exempt from matching-test parity but
+    Under the DSL pipeline, every functional checklist step compiles
+    via W0 into the Playwright `.cs` test, and the W2 runner's
+    deterministic pass is the coverage proof — there is no separate
+    `uat-coverage-review` AI call. Judgment items
+    (`IsJudgmentItem: true`) are exempt from matching-step parity but
     still require sequence-reachability coverage. See the `E2E Coverage
-    Before UAT` section above.
+    Before UAT` section above and *Migration: from manual
+    `*UatCoverageTests.cs` pairing to the DSL pipeline*.
 12. **Share screenshots during UI and E2E work when practical.**
 13. **Escalate durable new guidance.** If the human gives an instruction that
     looks like a future principle or convention, ask whether it should be

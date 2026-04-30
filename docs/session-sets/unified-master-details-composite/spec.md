@@ -72,8 +72,9 @@ the cases that render inside a parent form's modal.
    the shell are migrated to the new slot pattern without behavior
    regression.
 8. Every functional UAT checklist item has matching Playwright
-   coverage; `uat-coverage-review` returns `VERIFIED` before the
-   checklist is committed.
+   coverage via the W0 compile step (under the DSL pipeline; the
+   retired `uat-coverage-review` AI gate is no longer used). The
+   W2 runner pass is the coverage proof.
 9. Human UAT proves each of the four scenarios works end-to-end
    before the set closes.
 
@@ -454,14 +455,17 @@ proven for each mode combination.
    Items whose expectation is purely aesthetic (e.g., "Link Data
    heading is visually prominent above the target card") are marked
    `IsJudgmentItem: true` with a one-sentence justification.
-3. **Run `uat-coverage-review`** via `route(task_type="uat-coverage-review")`
-   passing the checklist and the Playwright test files from Sessions
-   2, 3, and 4. The result must be `VERIFIED` — every non-judgment
-   item has a matching Playwright step with identical action,
-   parameters, and verifications. If the response is not `VERIFIED`,
-   treat each mismatch as a blocker: fix either the test or the
-   checklist item to bring them into parity and re-run. Do not
-   commit the checklist until `VERIFIED`.
+3. **Run the W2 runner** via
+   `python ai-router/uat_runner/cli.py --checklist
+   docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json
+   --catalog docs/component-catalog/index.json --session-set
+   unified-master-details-composite`. The runner compiles the DSL
+   checklist via W0, executes the compiled `.cs` via `dotnet test`,
+   and classifies failures via the four-class triage taxonomy. The
+   runner pass is the coverage proof — it replaces the retired
+   `route(task_type="uat-coverage-review")` AI gate. Resolve any
+   human-review issues filed by the triage classifier before
+   committing.
 4. **Build and test (full suite).**
    ```bash
    dotnet build Dabbler.Platform.sln
@@ -476,8 +480,8 @@ proven for each mode combination.
    silently carry a broken test forward.
 5. **Cross-provider verification** via
    `route(task_type="session-verification")`. Include the checklist,
-   the `uat-coverage-review` verdict output, build/test logs, and
-   pointers to the Playwright tests.
+   the W2 runner output, build/test logs, and pointers to the
+   W0-compiled Playwright tests.
 6. **Generate `change-log.md`** via `route(task_type="summarization")`.
    Summarize across all five sessions — do not re-narrate each one.
 7. **Cost report** via `print_cost_report(SESSION_SET)`.
@@ -510,7 +514,7 @@ in a separate commit).
 with full E2E parity; change log documents the set; notification
 fires; reorganization review completes.
 **Progress keys:** `session-5/read-planning`,
-`session-5/uat-checklist`, `session-5/uat-coverage-review`,
+`session-5/uat-checklist`, `session-5/uat-runner`,
 `session-5/build-and-test`, `session-5/verification`,
 `session-5/change-log`, `session-5/cost-report`,
 `session-5/commit-push-notify`, `session-5/reorganization`.
@@ -522,7 +526,8 @@ fires; reorganization review completes.
 - Build green on `Dabbler.Platform.sln`.
 - All unit, bUnit, and Playwright tests pass (or are documented in
   `FlakyPlaywrightCollection` with rationale).
-- `uat-coverage-review` returned `VERIFIED` on the checklist.
+- The W2 runner returned a deterministic pass on the W0-compiled
+  Playwright test (replacing the retired `uat-coverage-review` gate).
 - `MasterDetailExpansionShell` is generic and drives all four
   scenarios; `RoleMasterDetailsTab` and any other migrated tabs
   behave identically to pre-migration.
@@ -555,12 +560,15 @@ fires; reorganization review completes.
   before interacting with dialog content. If a test proves unstable,
   root-cause — do not silently tolerate. Follow the "Fix broken
   tests; do not carry them forward" discipline.
-- **UAT coverage parity is mechanical, not approximate.** If the
-  `uat-coverage-review` result is not `VERIFIED`, Session 5 cannot
-  commit the checklist. Treat parity mismatches as either a test
-  gap (add the test) or a checklist-copy mismatch (align the copy
-  to the test's actual behavior). Do not ship a checklist with
-  implicit "the test is close enough" handwaves.
+- **UAT coverage parity is mechanical, not approximate.** Under the
+  DSL pipeline parity is a property of the W0 compile step (the
+  Playwright `.cs` is the compiled output of the DSL checklist, so
+  drift cannot occur). If the W2 runner reports any failure outside
+  the auto-recovered `CATALOG_STALE` class, Session 5 cannot commit
+  the checklist. Resolve filed `APP_FUNCTIONAL_BUG`,
+  `SEED_DATA_GAP`, or `AMBIGUOUS_LOCATOR` issues before handoff —
+  do not ship a checklist with implicit "the test is close enough"
+  handwaves.
 - **Keyboard scope creep.** The Add-Only scenario has a genuine
   usability gap around Enter-moves-next keyboard navigation. It is
   intentionally deferred. If a reviewer flags it during UAT, log it

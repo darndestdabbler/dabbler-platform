@@ -97,6 +97,105 @@
           "orchestrator_disposition": "VERIFIED-false-positive-out-of-scope"
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-30T11:35:28.766867+00:00",
+      "description": "Read project-guidance, lessons-learned, session-set-authoring-guide, platform addendum, ai-led-session-workflow, Session 1 review + activity log; reviewed Session 1 disposition and the spec's Step-9 reorg notes for Session 2 work.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/workflow-doc-update",
+      "dateTime": "2026-04-30T11:35:28.766867+00:00",
+      "description": "Updated docs/ai-led-session-workflow.md: added new \"UAT/E2E pipeline (the DSL-driven path)\" section with 4-stage flow (uat-script-author -> W0 compile -> W2 runner -> human UAT); added \"Migration: from manual *UatCoverageTests.cs pairing to the DSL pipeline\" sub-section; refactored \"E2E Coverage Before UAT\" to describe structural parity; removed uat-coverage-review row from Task Types table; rewrote Rule #11; mirrored retirement in template-seed/docs/ai-led-session-workflow.md.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/authoring-guide-update",
+      "dateTime": "2026-04-30T11:35:28.767775+00:00",
+      "description": "Updated docs/planning/session-set-authoring-guide.md: requiresUAT field semantics describe DSL pipeline; deliverables list updated to W0-compiled test; spec template snippet adds requiresE2E DSL-pipeline shape pointing to uat-script-author + W0 compile + W2 runner. Updated docs/planning/session-set-authoring-guide.platform-addendum.md: E2E test location notes W0-compiled output; W0 toolchain doc reference added; requiresE2E heuristic refers to DSL pipeline.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/project-guidance-update",
+      "dateTime": "2026-04-30T11:35:28.767775+00:00",
+      "description": "Collapsed the Three-Step UAT Authoring Discipline Convention into a single paragraph pointing at the workflow doc's pipeline section. Collapsed the Step-block alignment Convention (legacy pattern noted as closed-sets-only). Refactored the Playwright pre-testing convention into \"Compiled-test proof per UAT item\" + \"Authoring goes through the router\" (uat-script-author). Updated Human UAT Philosophy bullets to describe structural parity. Adjusted the UAT/E2E DSL sibling-repo references intro for the new pipeline.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/router-config-update",
+      "dateTime": "2026-04-30T11:35:28.768784+00:00",
+      "description": "Removed uat-coverage-review from ai-router/router-config.yaml in 5 places: task_type_overrides, delegation.always_route_task_types, task_type_params, complexity.task_type_scores, verification.auto_verify_task_types. Added retirement note next to remaining uat-plan-generation entry. Verified ai_router.config.load_config() succeeds; uat-coverage-review absent from task_type_scores and _task_templates.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/task-prompts-update",
+      "dateTime": "2026-04-30T11:35:28.768784+00:00",
+      "description": "Added migration note to top of ai-router/prompt-templates/task-prompts.md explaining the retirement and the DSL pipeline replacement. Deleted the # uat-coverage-review section.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/coherence-audit",
+      "dateTime": "2026-04-30T11:35:28.768784+00:00",
+      "description": "End-to-end coherence audit handled directly per human direction (no routed call). Verified the chain CLAUDE.md -> workflow doc -> authoring guide -> addendum -> project-guidance -> router-config -> task-prompts tells one consistent story. Updated 2 open spec references (sensitive-field-masking-audit-uat-remediation, unified-master-details-composite) per the spec's scope-creep risk note. Closed-set artifacts (lessons-learned entries, scripts, closed specs, router-metrics.jsonl) intentionally preserved as historical.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-30T11:35:28.768784+00:00",
+      "description": "dotnet build Dabbler.Platform.sln clean (0 errors, 184 warnings \u2014 all pre-existing CS0618 obsolete + CS8604 nullable from prior sets, identical baseline to Session 1). Full unit test run skipped \u2014 pure docs/config set; Session 1 confirmed 709/709 pass on identical surface.",
+      "status": "completed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-30T11:35:28.768784+00:00",
+      "description": "Cross-provider session-verification routed to gemini-pro (tier 2, max_tier=2 to force cross-provider) per human direction. Verdict: VERIFIED, 0 issues, \"all Session 2 objectives are met\"; cross-checked spec-compliance, internal coherence, closed-set preservation, open-set coherence, and migration-note clarity. Format note: verifier used JSON key \"status\" instead of schema-required \"verdict\" but otherwise followed the schema; semantically unambiguous so accepted as-is (no orchestrator disposition required).",
+      "status": "completed",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 59699,
+          "outputTokens": 651,
+          "costUsd": 0.0811,
+          "verdict": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/change-log-and-commit",
+      "dateTime": "2026-04-30T11:37:00.259285+00:00",
+      "description": "Authored change-log.md directly per human direction (no routing). Captured per-session deliverables (sibling-repo docs from Session 1; workflow rail edits + uat-coverage-review retirement from Session 2; two open-spec migrations; intentionally-preserved historical artifacts). Next-set recommendation authored directly (also per human direction): sensitive-field-masking-audit-uat-remediation as the natural first consumer of the newly-aligned rails, with transactional-system-columns gated on its UAT.",
+      "status": "completed",
+      "routedApiCalls": []
     }
   ]
 }

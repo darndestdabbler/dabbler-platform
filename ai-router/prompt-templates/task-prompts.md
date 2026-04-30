@@ -7,6 +7,20 @@ slug of each header becomes the key in `config["_task_templates"]` that
 content itself begins with H2 headers that would otherwise collide with
 the section-boundary parser.
 
+> **Migration note (2026-04-30, `uat-workflow-dsl-alignment`).** The
+> `uat-coverage-review` task type has been retired. Its job — verifying
+> step-by-step parity between a UAT checklist and a hand-authored
+> `*UatCoverageTests.cs` — became unnecessary once the DSL-driven
+> pipeline (`uat-script-author` → W0 compile → W2 runner) made the
+> checklist the compiler input and the Playwright `.cs` the compiler
+> output. Parity is now structural; the W2 runner's deterministic pass
+> is the coverage proof. The retired prompt section has been removed
+> from this file along with the matching entries in
+> `router-config.yaml`. Closed session sets that committed
+> `*UatCoverageTests.cs` files retain them; new sets use the DSL
+> pipeline. See `docs/ai-led-session-workflow.md` → *UAT/E2E pipeline*
+> and *Migration: from manual `*UatCoverageTests.cs` pairing to the DSL pipeline*.
+
 Placeholder contract — every template uses these two tokens and only
 these two:
 
@@ -180,82 +194,6 @@ and follows the UAT/E2E DSL convention defined in
 ### Output
 
 Output ONLY valid JSON. No markdown fences. No explanatory prose before or after.
-
-# uat-coverage-review
-
-## UAT Coverage Review Task
-
-Pair every UAT checklist Review item to its E2E test method using the
-`E2ETestReference` + `// begin STEP NNN` convention defined in
-`docs/planning/project-guidance.md` → Conventions → Human UAT And Checklist
-Editor. Return VERIFIED only when every check below passes.
-
-### Pairing protocol
-
-1. **Method existence.** The Review item's `E2ETestReference` value
-   (form: `Class.Method` or `Namespace.Class.Method`) resolves to an actual
-   `[Fact]` or `[Theory]` method in the Playwright test file shown in
-   `{context}`. Reject any non-judgment Review item with no method match.
-
-2. **Step-block walk.** Inside the matching method body, `// begin STEP NNN`
-   comments (zero-padded to three digits) delimit step blocks. The step
-   numbers and order match the Review item's `Steps[].StepNumber`. Each
-   numbered UAT step pairs to exactly one E2E step block. Mismatched count
-   or out-of-order numbering is a failure.
-
-3. **DSL conformance check (UAT side).** Every Review step's `Action` text
-   must parse as exactly one verb from the DSL closed list. Reject steps
-   that use locators by testid/xpath/index, refer to row index instead of
-   column-value match, or compose multiple actions into one step.
-
-4. **DSL conformance check (E2E side).** The Playwright code inside each
-   `// begin STEP NNN` block must be implementable through user-visible
-   locators (`page.GetByLabel`, `page.GetByRole`, `page.GetByText`, etc.).
-   Reject any block that uses `page.GetByTestId`, raw selectors, framework
-   backdoors (`SeededSignInAsync(roles=)`, `/test-auth/*` calls, direct
-   file edits) when the step is something a human is also expected to
-   perform.
-
-5. **Per-step reachability cross-verify.** For every numbered step, confirm
-   both (a) a real human in a browser can perform the step using only the
-   visible surfaces named in the DSL, and (b) the E2E code in the matching
-   step block performs the same action through the same visible surfaces.
-   If either side cannot, return ISSUES_FOUND.
-
-6. **Judgment items.** Items with `IsJudgmentItem: true` are exempt from the
-   step-by-step DSL match but still require a populated `Feedback` line
-   ("Judgment item — <rationale>") and a valid `E2ETestReference` resolving
-   to a method that drives the UI to the state the human will judge.
-
-### Bias
-
-Prefer false-positive `ISSUES_FOUND` over false-negative `VERIFIED`. The cost
-of one extra remediation round is far lower than the cost of an unrunnable
-checklist reaching the human.
-
-### Inputs
-
-{content}
-
-### Reference material
-
-{context}
-
-### Output
-
-Return either:
-
-  VERIFIED
-
-OR
-
-  ISSUES_FOUND
-
-  - Item `<Subarea / ItemLabel>` step `<N>`: `<specific failure>`
-  - ...
-
-with one bullet per failed step or pairing, and the specific protocol number
-(1–6) the failure violates.
 
 # uat-script-author
 

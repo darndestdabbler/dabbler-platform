@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "sessionSetName": "uat-workflow-dsl-alignment",
-  "currentSession": 1,
+  "currentSession": 2,
   "totalSessions": 2,
   "status": "complete",
-  "startedAt": "2026-04-30T06:54:05.144150-04:00",
-  "completedAt": "2026-04-30T07:12:01.070603-04:00",
+  "startedAt": "2026-04-30T07:30:58.490353-04:00",
+  "completedAt": "2026-04-30T07:37:18.992344-04:00",
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "opus-4.7",
-    "effort": "unknown"
+    "model": "claude-opus-4-7",
+    "effort": "high"
   }
 }

@@ -459,7 +459,7 @@ route = ar.route
 |---|---|---|
 | `formatting`, `summarization` | 1 | Cheap, high-volume |
 | `documentation`, `test-generation`, `code-review`, `analysis`, `refactoring` | 2 | Medium complexity |
-| `uat-plan-generation`, `uat-coverage-review` | 3 | Only when `requiresUAT: true` |
+| `uat-plan-generation`, `uat-script-author` | 3 / 2 | Only when `requiresUAT: true`; prefer `uat-script-author` (catalog-grounded DSL) for new sets |
 | `session-verification`, `security-review`, `architecture`, `planning` | 3 | High stakes |
 
 ### Delegation Discipline
@@ -494,9 +494,10 @@ model matches the routing target — the cross-provider opinion is the point.
    start downstream sessions over an unreviewed checklist without human override.
 10. **One UAT checklist per session set** *(when `requiresUAT: true`).* Name
     it `<slug>-uat-checklist.json`; keep human results inline.
-11. **E2E coverage before UAT handoff** *(when both flags true).* Every
-    functional checklist item needs matching E2E coverage passing
-    `uat-coverage-review` before notifying.
+11. **E2E coverage before UAT handoff** *(when both flags true).* Under
+    the DSL pipeline, every functional checklist step compiles via W0
+    into the Playwright `.cs` test and the W2 runner pass is the
+    coverage proof — there is no separate `uat-coverage-review` AI call.
 12. **Share screenshots during UI/E2E work when practical.**
 13. **Escalate durable guidance.** Ask whether new decisions should update
     `docs/planning/project-guidance.md`.

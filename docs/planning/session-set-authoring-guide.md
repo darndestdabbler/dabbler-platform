@@ -147,11 +147,17 @@ uatScope: per-session    # per-session | per-set | none (only meaningful when re
 
 - **`requiresUAT: true`** — the set must produce a
   `<slug>-uat-checklist.json` and human-UAT review is a precondition
-  for marking the set complete. The orchestrator will invoke
-  `route(task_type="uat-plan-generation")` and
-  `route(task_type="uat-coverage-review")` at the appropriate steps.
-  Pending UAT blocks downstream sets unless the human explicitly
-  overrides.
+  for marking the set complete. The orchestrator drives the
+  DSL-based pipeline at the appropriate steps: route
+  `uat-script-author` to generate the catalog-grounded DSL
+  checklist, compile it via W0 (`dabbler-uat-dsl compile`) into a
+  Playwright `.cs` test, and run it via the W2 runner
+  (`python ai-router/uat_runner/cli.py`). The W2 deterministic pass
+  is the coverage proof; no separate `uat-coverage-review` call is
+  required. Pending UAT blocks downstream sets unless the human
+  explicitly overrides. (See
+  `docs/ai-led-session-workflow.md` → *UAT/E2E pipeline* for
+  per-step mechanics.)
 
 - **`requiresUAT: false`** — no UAT artifacts are produced; UAT-related
   workflow gates are skipped silently. The set's quality bar is build
@@ -278,17 +284,22 @@ shipping code paths.
 **Conditional on the configuration block:**
 
 - `<slug>-uat-checklist.json` — required when `requiresUAT: true`.
-  Schema follows the checklist-editor contract; per-session items
-  reference `E2ETestReference` (qualified test method name) when
-  `requiresE2E: true`. Items whose verification is purely judgmental
-  (aesthetics, copy, layout feel) are flagged `IsJudgmentItem: true`
-  with a one-sentence justification — those are exempt from the
-  matching-test requirement but still need a sequence-reachability
-  test so the human renders judgment on a working UI.
-- E2E test references — required when `requiresE2E: true`. Tests live
-  in the project's standard E2E test location (see Platform-specific
-  addendum) and use real UI entry points (no direct route navigation
-  as a shortcut).
+  Authored via `route(task_type="uat-script-author")` against
+  `docs/component-catalog/index.json` (catalog-grounded DSL
+  authoring), schema follows the checklist-editor contract. Items
+  whose verification is purely judgmental (aesthetics, copy, layout
+  feel) are flagged `IsJudgmentItem: true` with a one-sentence
+  justification — those are exempt from the matching-step
+  requirement but still need a sequence-reachability path so the
+  human renders judgment on a working UI.
+- W0-compiled Playwright test — required when `requiresE2E: true`.
+  The DSL checklist is compiled by the `dabbler-uat-dsl` CLI into a
+  `.cs` test in the project's standard E2E test location (see
+  Platform-specific addendum). Authoring or maintaining a separate
+  hand-written `*UatCoverageTests.cs` paired by `// begin STEP NNN`
+  comments is the deprecated pattern; new sets do not do this. The
+  W2 runner runs the compiled test and its deterministic pass is the
+  coverage proof.
 
 ---
 
@@ -355,6 +366,28 @@ uatScope: none
 
 ...
 ````
+
+> **Snippet for `requiresE2E: true` sets.** When the set declares
+> `requiresE2E: true` (typically alongside `requiresUAT: true`), the
+> session that produces the checklist should include these step
+> shapes — adapt to the set's specifics:
+>
+> 1. **Author the DSL checklist** via
+>    `route(task_type="uat-script-author")` against
+>    `docs/component-catalog/index.json` for the active route × role.
+> 2. **Compile via W0** with `--suppressions tools/uat-suppressions.json`
+>    and `--active-role <name>` to emit the Playwright `.cs` test.
+> 3. **Run via the W2 runner** (`python ai-router/uat_runner/cli.py`)
+>    and target ≥5/5 deterministic when the spec demands quality-bar
+>    proof. The runner's pass is the coverage proof.
+> 4. **Hand the checklist to the human** for UAT through the
+>    [checklist editor](https://darndestdabbler.github.io/uat-checklist-editor/).
+>
+> Do not include a `route(task_type="uat-coverage-review")` step —
+> that task type has been retired (the parity it verified is now a
+> property of the W0 compilation step, not a separate AI pass). See
+> `docs/ai-led-session-workflow.md` → *UAT/E2E pipeline* for the
+> authoritative description.
 
 ---
 
