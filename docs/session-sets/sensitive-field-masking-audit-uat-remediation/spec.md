@@ -17,6 +17,23 @@
 > Users-and-Role-Assignment, output is a disposition doc that may spawn a
 > follow-up session set.
 
+> **Reset note (2026-04-30):** Session 1 was previously executed on
+> 2026-04-28 under the manual `*UatCoverageTests.cs` +
+> `uat-coverage-review` pattern that the `uat-workflow-dsl-alignment`
+> session set retired. The prior attempt's activity log,
+> session-state, ai-assignment ledger, hand-authored UAT checklist,
+> `uat-coverage-review` raw output, and saved session-001 verification
+> review have been moved to `.session1-prior-attempt/` (see
+> `.session1-prior-attempt/README.md`). The next "Start the next
+> session of `sensitive-field-masking-audit-uat-remediation`" run
+> begins Session 1 from scratch under the DSL pipeline described
+> below. The hand-authored
+> `tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatCoverageTests.cs`
+> remains in the Playwright project until the redo's W0-compiled
+> output (`SensitiveFieldMaskingUatTests.cs`) is green; the same
+> commit that lands the compiled output deletes the hand-authored
+> file.
+
 ## Session Set Configuration
 
 ```yaml
@@ -86,9 +103,7 @@ these surfaces and writes up a disposition.
   the checklist; the W2 runner (`python ai-router/uat_runner/cli.py`)
   runs the compiled test deterministically. The W2 pass is the
   coverage proof. The retired `uat-coverage-review` task type is
-  not used. *(This spec was authored before the
-  uat-workflow-dsl-alignment retirement landed; the pipeline shape
-  here reflects the post-retirement workflow.)*
+  not used.
 
 ---
 
@@ -134,50 +149,98 @@ role-switch flow that the human can also perform.
      bypass endpoint.
    Validate the output against the canonical schema URL before
    committing.
-5. Compile the checklist via W0:
+5. **Compile the DSL checklist into a Playwright `.cs` via W0:**
    `dabbler-uat-dsl compile --catalog docs/component-catalog/index.json
    --suppressions tools/uat-suppressions.json --active-role <role>
    --emitter playwright-csharp --output
    tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatTests.cs`.
-   The compiled `.cs` replaces the legacy hand-authored
-   `SensitiveFieldMaskingUatCoverageTests.cs` (which can be deleted
-   once the compiled output is green).
-6. Run the compiled test via the W2 runner
-   (`python ai-router/uat_runner/cli.py --checklist
-   docs/session-sets/sensitive-field-masking-audit/sensitive-field-masking-audit-uat-checklist.json
-   --catalog docs/component-catalog/index.json --session-set
-   sensitive-field-masking-audit-uat-remediation`). Target a
-   deterministic pass; resolve any human-review issues filed by the
-   triage classifier before proceeding.
-7. Run the Playwright suite (Docker preferred,
-   `docker-compose.app.yml` + `docker-compose.infra.yml`). Confirm
-   the W0-compiled test is green end-to-end alongside the rest of the
-   suite. Run twice for idempotency.
-8. Run the full non-Playwright suite (`dotnet test
-   Dabbler.Platform.sln --filter "FullyQualifiedName!~Playwright"`).
-9. Cross-provider session-verification.
-10. Commit + push + send notification.
+   Then run `dotnet build Dabbler.Platform.sln` and confirm the
+   compiled `.cs` builds cleanly (any `.cs` that does not compile
+   under dotnet is a W0 emitter bug — file an issue against W0 and
+   stop; do not hand-edit the emitter output).
+6. **Execute the W0-compiled test via the W2 runner and iterate
+   until green:**
+   ```bash
+   python ai-router/uat_runner/cli.py \
+     --checklist docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json \
+     --catalog docs/component-catalog/index.json \
+     --session-set sensitive-field-masking-audit-uat-remediation
+   ```
+   The runner compiles, runs (`dotnet test`), and on failure
+   classifies each via the four-class triage taxonomy
+   (`APP_FUNCTIONAL_BUG`, `CATALOG_STALE`, `SEED_DATA_GAP`,
+   `AMBIGUOUS_LOCATOR`). `CATALOG_STALE` auto-recovers; the other
+   three classes file human-review issues under
+   `docs/session-sets/{slug}/issues/`. **Loop:** read the filed
+   issue, apply the targeted fix (app code for
+   `APP_FUNCTIONAL_BUG`, fixture seed for `SEED_DATA_GAP`,
+   `data-testid` + re-crawl + re-compile for `AMBIGUOUS_LOCATOR`),
+   re-run the runner. Repeat until exit code 0. Do not advance to
+   Step 7 until the runner reports a clean deterministic pass; do
+   not silently `[Skip]` failing items.
+7. **Run the full Playwright suite alongside the W0-compiled test**
+   (Docker preferred, `docker-compose.app.yml` +
+   `docker-compose.infra.yml`). Confirm no regression in any other
+   `*UatCoverageTests.cs` from prior closed sets. Run the masking
+   test twice for idempotency.
+8. **Delete the legacy hand-authored
+   `SensitiveFieldMaskingUatCoverageTests.cs`** now that
+   `SensitiveFieldMaskingUatTests.cs` (W0-compiled) is the
+   authoritative coverage. Confirm the build is still clean with the
+   legacy file removed.
+9. **Run the full non-Playwright suite** (`dotnet test
+   Dabbler.Platform.sln --filter "FullyQualifiedName!~Playwright"`)
+   and confirm green.
+10. **Cross-provider session-verification** via
+    `route(task_type="session-verification")`. Include the DSL
+    checklist, the W2 runner output (last clean run), the
+    `dotnet build`/`dotnet test` results, and pointers to the
+    W0-compiled test file. The verifier should confirm: (a)
+    catalog-grounded label discipline, (b) runner-pass coverage proof,
+    (c) deletion of the legacy hand-authored file, (d) no
+    framework-backdoor sign-in for any human-equivalent step.
+11. **Commit, push, and send the human-UAT handoff notification.**
+    The notification body MUST name:
+    - the path to the DSL checklist
+      (`docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json`),
+    - the checklist editor URL
+      (`https://darndestdabbler.github.io/uat-checklist-editor/`),
+    - the explicit message that work is paused on the human's
+      review and downstream sets are blocked unless the human
+      explicitly overrides.
+    Per Rule #9, the next session of any downstream set
+    (notably `transactional-system-columns`) does not start until
+    the human completes the masking-audit UAT review.
 
-**Creates:** Possibly nothing new — primarily edits.
+**Creates:**
+- `docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json`
+  (DSL-authored, freshly generated by `uat-script-author`).
+- `tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatTests.cs`
+  (W0-compiled output of the DSL checklist).
+
 **Touches:** `user-roles.json`, possibly `SeedData.cs` (deterministic
 IDs), possibly `UserContextBar.razor[.cs]` (role-switcher fix if
-needed), `SensitiveFieldMaskingUatCoverageTests.cs` (deleted in
-favour of the W0-compiled `SensitiveFieldMaskingUatTests.cs`),
-`sensitive-field-masking-audit-uat-checklist.json` (full rewrite — the
-file lives in the **prior** set's folder per the
-"Generate a new UAT checklist per session set" convention; this
-remediation set updates it in place because the masking UAT itself is
-not a fresh set).
-**Creates:** W0-compiled
-`tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatTests.cs`.
+needed). The hand-authored
+`tests/AcmeCoffeeOnline.Playwright/SensitiveFieldMaskingUatCoverageTests.cs`
+is **deleted** in Step 8 once the W0-compiled output is green.
+
 **Ends with:** A human can sign in once, switch through three roles,
-and execute every checklist step in a real browser — and the
-Playwright suite drives the same path through the same locators.
-**Progress keys:** `session-1/read-planning`, `session-1/devidp-prereq`,
-`session-1/multi-role-persona`, `session-1/role-switcher-verify`,
-`session-1/playwright-rewrite`, `session-1/regenerate-checklist`,
-`session-1/coverage-review`, `session-1/full-test-run`,
-`session-1/verification`, `session-1/commit-push-notify`.
+and execute every checklist step in a real browser. The W0-compiled
+Playwright suite drives the same path through the same locators (it
+*was* the DSL checklist before W0 compiled it). The legacy
+hand-authored coverage file is gone; the W2 runner reports a
+deterministic pass; the human is notified with the checklist path
+and editor URL.
+
+**Progress keys:** `session-1/read-planning`,
+`session-1/devidp-prereq`, `session-1/multi-role-persona`,
+`session-1/role-switcher-verify`,
+`session-1/dsl-checklist-author`, `session-1/w0-compile`,
+`session-1/w2-runner-iterate-to-green`,
+`session-1/full-playwright-suite`,
+`session-1/delete-legacy-coverage-file`,
+`session-1/full-non-playwright-suite`, `session-1/verification`,
+`session-1/commit-push-uat-handoff`.
 
 ---
 
