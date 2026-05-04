@@ -96,5 +96,85 @@ session-verification (Gemini Pro per the override).
 
 ## Session 2 of 2: User Administration vs. Users-and-Role-Assignment audit
 
-To be authored at end of Session 1 via routed analysis (per Rule #17),
-unless the override-no-routing window extends to that session as well.
+### Recommended orchestrator
+
+`claude-code claude-opus-4-7 @ effort=high` (1M context).
+
+### Rationale
+
+Session 2 is a discovery/audit session producing one disposition doc. It
+needs (a) thorough Razor source review across two surfaces (page +
+component tree), (b) cross-provider sanity-checking of the disposition
+against architectural concerns the Razor-only review can't surface
+(security implications of consolidation, org-context handoff, auth-gating
+correctness), and (c) careful synthesis of the per-task availability
+matrix. The 1M context window is the lever that keeps the catalogue,
+both surfaces' code, and the disposition draft all resident at once
+through R1 → R2 verification cycles.
+
+### Estimated routed cost
+
+Low. Documentation routing (Sonnet/Gemini-Pro by default) for the draft
+sanity-check (~$0.01). Two cross-provider session-verification rounds
+(gpt-5-4 by default) at ~$0.08 each. Total ~$0.17.
+
+| Step | Action | Routing Decision |
+|------|--------|------------------|
+| 1 | Read planning + spec | Direct |
+| 2 | Catalogue both surfaces | Direct (file reads via Explore subagents — internal context budget management, not external routing) |
+| 3 | Per-task gap analysis | Direct |
+| 4 | Author disposition doc | Direct (mechanical synthesis from cataloguing) |
+| 5 | Routed sanity-review of disposition | **Routed → documentation** (Gemini Pro per default verifier rules) |
+| 6 | Step 9 reorg review (last session of set) | Direct |
+| 7 | Cross-provider session-verification | **Routed → session-verification** |
+| 8 | Author change-log.md (last session) | Direct |
+| 9 | Commit + push + notify | Direct |
+
+### Actuals (filled after the session)
+
+- Orchestrator used: claude-code claude-opus-4-7 @ effort=high (1M context)
+- Total routed cost: $0.1648 ($0.0114 disposition draft sanity-review +
+  $0.0840 R1 verification + $0.0694 R2 verification)
+- Deviations from recommendation: None. The override-no-routing window
+  from Session 1 was scoped to that session (the override said "do not
+  route to an external provider, except for the cross-provider
+  verification" — which already permitted what Session 2 required).
+- Key surprises: R1 verification surfaced three substantive concerns
+  about Option 1 (org-context handoff for cross-org workflows,
+  shared-library impact understated, auth-gating oversimplified). All
+  three were valid and folded into the disposition; R2 verified clean.
+  The disposition is materially stronger after R1's pushback than
+  before.
+- Notes for next-session calibration: cross-provider review of
+  documentation/disposition outputs is high-value at low cost. Routing
+  via `task_type="documentation"` (Gemini Pro per the verifier-selection
+  rules) was a good fit — Gemini caught a substantive structural issue
+  (functional duplication of UserAdmin grant) that strengthened the
+  recommendation. Pattern: route documentation drafts that propose UX
+  decisions for cross-provider review BEFORE Step 10 verification, not
+  just after.
+
+**Next-session recommendation:**
+
+This is the closing session of the set. There is no Session 3.
+
+For follow-on session sets opened by this set's findings:
+
+- **`admin-users-cross-links`** — implements Option 1 components 1-5
+  from the disposition. Recommended orchestrator: `claude-code
+  claude-sonnet-4-6 @ effort=medium`. Mechanical Razor edits +
+  authorization-correct cross-link gating. Estimated ~1 session.
+- **`admin-user-creation-flow`** — implements Option 1 component 6.
+  Recommended orchestrator: `claude-code claude-opus-4-7 @ effort=high`.
+  Higher-complexity feature work spanning new API + new Razor surface
+  + role/org-membership assignment in same workflow. Estimated 2-3
+  sessions.
+- **`uat-dsl-verify-input-value`** (sibling-repo) — closes the
+  remaining W2 popover-timeout flake and adds the `VERIFY INPUT … has
+  value matching` verb. Recommended orchestrator: `claude-code
+  claude-sonnet-4-6 @ effort=medium`. Estimated 1 session.
+
+The human should pick which (if any) to schedule next based on
+priority. None are blockers for downstream session-sets like
+`transactional-system-columns` (the masking UAT itself is unblocked
+now).
