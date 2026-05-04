@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "sessionSetName": "uat-dsl-verify-input-value",
+  "currentSession": null,
+  "totalSessions": null,
+  "status": "not-started",
+  "lifecycleState": null,
+  "startedAt": null,
+  "completedAt": null,
+  "verificationVerdict": null,
+  "orchestrator": null
+}

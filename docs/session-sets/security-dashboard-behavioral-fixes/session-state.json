@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "sessionSetName": "security-dashboard-behavioral-fixes",
+  "currentSession": null,
+  "totalSessions": null,
+  "status": "complete",
+  "lifecycleState": "closed",
+  "startedAt": null,
+  "completedAt": "2026-04-17T19:58:49.894Z",
+  "verificationVerdict": null,
+  "orchestrator": null
+}

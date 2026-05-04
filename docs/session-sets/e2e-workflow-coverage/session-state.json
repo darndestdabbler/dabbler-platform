@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "sessionSetName": "e2e-workflow-coverage",
+  "currentSession": null,
+  "totalSessions": null,
+  "status": "complete",
+  "lifecycleState": "closed",
+  "startedAt": null,
+  "completedAt": "2026-04-16T22:02:17.999Z",
+  "verificationVerdict": null,
+  "orchestrator": null
+}

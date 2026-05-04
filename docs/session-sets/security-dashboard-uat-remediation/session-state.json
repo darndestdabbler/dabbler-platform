@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "sessionSetName": "security-dashboard-uat-remediation",
+  "currentSession": null,
+  "totalSessions": null,
+  "status": "complete",
+  "lifecycleState": "closed",
+  "startedAt": null,
+  "completedAt": "2026-04-21T12:56:31.260Z",
+  "verificationVerdict": null,
+  "orchestrator": null
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "sessionSetName": "post-rebuild-uat",
+  "currentSession": null,
+  "totalSessions": null,
+  "status": "complete",
+  "lifecycleState": "closed",
+  "startedAt": null,
+  "completedAt": "2026-04-17T01:13:22.536Z",
+  "verificationVerdict": null,
+  "orchestrator": null
+}
