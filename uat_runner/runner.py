@@ -1,7 +1,7 @@
 """UAT runner: compile a checklist via W0, run via `dotnet test`, parse .trx.
 
 Public entry point is :func:`run_checklist`. Triage is wired in Session 2
-via :class:`ai_router.uat_runner.triage.TriageSession`; remediation dispatch
+via :class:`uat_runner.triage.TriageSession`; remediation dispatch
 lands in Session 3.
 
 End-to-end pipeline:
@@ -693,7 +693,7 @@ def _format_report_for_console(report: RunReport) -> str:
 def main(argv: Iterable[str] | None = None) -> int:
     import argparse
 
-    parser = argparse.ArgumentParser(prog="ai_router.uat_runner.runner")
+    parser = argparse.ArgumentParser(prog="uat_runner.runner")
     parser.add_argument("--checklist", required=True)
     parser.add_argument("--catalog", required=True)
     parser.add_argument("--session-set", required=True, dest="session_set")

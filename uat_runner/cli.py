@@ -1,9 +1,8 @@
 """CLI entry point for the UAT runner.
 
-Usage (script form, preferred — works because the package directory has a
-hyphen which prevents `python -m ai_router.uat_runner.cli`):
+Usage::
 
-    python ai-router/uat_runner/cli.py \\
+    python -m uat_runner.cli \\
       --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \\
       --catalog docs/component-catalog/index.json \\
       --session-set {slug} \\
@@ -17,7 +16,6 @@ Exits 1 if any human-review issues filed.
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import subprocess
 import sys
 import time
@@ -28,37 +26,16 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-
-def _bootstrap_imports() -> None:
-    """Make ``ai_router.uat_runner.runner`` importable when this file is
-    invoked as a script (``python ai-router/uat_runner/cli.py``).
-
-    The on-disk package directory uses a hyphen (``ai-router``), which is not
-    a valid Python identifier — so ``python -m ai_router.uat_runner.cli``
-    never works on a fresh shell. The test scripts under ``test_cases/``
-    use the same bootstrap. A repo-wide rename to ``ai_router/`` is the
-    long-term fix; this bootstrap removes the practical CLI breakage.
-    """
-    ai_router_root = Path(__file__).resolve().parents[1]
-    if "ai_router" in sys.modules:
-        return
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        str(ai_router_root / "__init__.py"),
-        submodule_search_locations=[str(ai_router_root)],
-    )
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
-
-
-# Module is invoked either as a script (`python cli.py`) or imported as
-# `ai_router.uat_runner.cli` after a caller has already bootstrapped
-# `ai_router`. In the script case, we have no parent package, so the
-# relative `from . import runner` would fail. Detect and bootstrap first.
+# Module is invoked either as a script (``python uat_runner/cli.py``) or
+# imported as ``uat_runner.cli`` after a caller has already imported
+# ``uat_runner``. The script invocation has no parent package, so a relative
+# ``from . import runner`` would fail. The historical bootstrap that loaded
+# the dashed ``ai-router`` package via importlib is no longer needed — the
+# router is on PyPI as ``dabbler-ai-router``, ``ai_router`` imports natively,
+# and ``uat_runner`` lives at the workspace root as its own package.
 if __package__ in (None, ""):
-    _bootstrap_imports()
-    from ai_router.uat_runner import runner  # type: ignore[import-not-found]
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from uat_runner import runner
 else:
     from . import runner
 

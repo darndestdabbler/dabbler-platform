@@ -2,7 +2,7 @@
 
 Run from the repo root::
 
-    .venv/Scripts/python.exe -m ai_router.uat_runner.test_cases.synthetic_failures
+    .venv/Scripts/python.exe -m uat_runner.test_cases.synthetic_failures
 
 Each case constructs a FailureRecord that is characteristic of one of the
 four runtime failure classes, calls TriageSession.classify(), and asserts
@@ -18,24 +18,12 @@ from __future__ import annotations
 import sys
 import os
 
-# Allow running as a module from the repo root.
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+# Allow running as a script as well as a module: put the repo root on
+# sys.path so ``from uat_runner.triage import ...`` resolves regardless
+# of cwd.
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
-
-
-def _load_router() -> object:
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        os.path.join(_REPO_ROOT, "ai-router", "__init__.py"),
-        submodule_search_locations=[os.path.join(_REPO_ROOT, "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
-    return mod
 
 
 def _assert_classification(
@@ -44,7 +32,7 @@ def _assert_classification(
     failure_record_kwargs: dict,
     catalog_entry: str = "",
 ) -> bool:
-    from ai_router.uat_runner.triage import FailureRecord, TriageSession
+    from uat_runner.triage import FailureRecord, TriageSession
 
     fr = FailureRecord(**failure_record_kwargs)
     ts = TriageSession(
@@ -106,8 +94,6 @@ AMBIGUOUS_LOCATOR_CASE = dict(
 
 
 def main() -> None:
-    _load_router()
-
     results = []
     results.append(
         _assert_classification(

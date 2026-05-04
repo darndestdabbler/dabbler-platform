@@ -2,7 +2,7 @@
 
 Run from the repo root::
 
-    .venv/Scripts/python.exe ai-router/uat_runner/test_cases/test_remediations.py
+    .venv/Scripts/python.exe uat_runner/test_cases/test_remediations.py
 
 Validates that:
   1. Each failure class is correctly triaged via TriageSession.
@@ -19,30 +19,16 @@ import tempfile
 import shutil
 from pathlib import Path
 
-# Allow running as a module from the repo root.
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+# Allow running as a script as well as a module: put the repo root on
+# sys.path so ``from uat_runner.triage import ...`` resolves regardless
+# of cwd.
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 
-def _load_router() -> object:
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        os.path.join(_REPO_ROOT, "ai-router", "__init__.py"),
-        submodule_search_locations=[os.path.join(_REPO_ROOT, "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
-    return mod
-
-
 def main() -> None:
-    _load_router()
-
-    from ai_router.uat_runner.triage import FailureRecord, TriageSession, apply_remediation
+    from uat_runner.triage import FailureRecord, TriageSession, apply_remediation
 
     # Create a temporary issues directory for testing
     test_session_slug = "test-remediation-session"

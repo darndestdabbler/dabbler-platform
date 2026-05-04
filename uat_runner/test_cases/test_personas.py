@@ -2,7 +2,7 @@
 
 Run from the repo root::
 
-    .venv/Scripts/python.exe ai-router/uat_runner/test_cases/test_personas.py
+    .venv/Scripts/python.exe uat_runner/test_cases/test_personas.py
 
 Validates:
 
@@ -26,24 +26,12 @@ import sys
 import tempfile
 from pathlib import Path
 
-# Allow running as a module from the repo root.
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+# Allow running as a script as well as a module: put the repo root on
+# sys.path so ``from uat_runner import personas`` resolves regardless
+# of cwd.
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
-
-
-def _load_router() -> object:
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        os.path.join(_REPO_ROOT, "ai-router", "__init__.py"),
-        submodule_search_locations=[os.path.join(_REPO_ROOT, "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
-    return mod
 
 
 def _write_checklist(tmpdir: Path, steps: list[str]) -> Path:
@@ -67,8 +55,7 @@ def _write_checklist(tmpdir: Path, steps: list[str]) -> Path:
 
 
 def test_happy_path_admin_signin_resolves_to_systemadmin() -> None:
-    _load_router()
-    from ai_router.uat_runner import personas
+    from uat_runner import personas
 
     with tempfile.TemporaryDirectory() as tmp:
         path = _write_checklist(
@@ -88,8 +75,7 @@ def test_happy_path_admin_signin_resolves_to_systemadmin() -> None:
 
 
 def test_no_signin_step_returns_no_role_and_no_error() -> None:
-    _load_router()
-    from ai_router.uat_runner import personas
+    from uat_runner import personas
 
     with tempfile.TemporaryDirectory() as tmp:
         path = _write_checklist(
@@ -114,8 +100,7 @@ def test_signin_lookahead_window_skips_late_email_step() -> None:
     should treat that as no-signin (fall back to AnyRole) rather than
     misattribute a mid-flow form input as the active persona.
     """
-    _load_router()
-    from ai_router.uat_runner import personas
+    from uat_runner import personas
 
     with tempfile.TemporaryDirectory() as tmp:
         path = _write_checklist(
@@ -138,8 +123,7 @@ def test_signin_lookahead_window_skips_late_email_step() -> None:
 
 
 def test_email_not_in_personas_returns_explicit_error() -> None:
-    _load_router()
-    from ai_router.uat_runner import personas
+    from uat_runner import personas
 
     with tempfile.TemporaryDirectory() as tmp:
         path = _write_checklist(
@@ -161,8 +145,7 @@ def test_email_not_in_personas_returns_explicit_error() -> None:
 
 
 def test_persona_map_includes_canonical_seeded_personas() -> None:
-    _load_router()
-    from ai_router.uat_runner import personas
+    from uat_runner import personas
 
     pmap = personas.load_persona_map()
     assert pmap.get("admin@acmecoffee.com") == "SystemAdmin", pmap

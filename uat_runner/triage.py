@@ -192,22 +192,7 @@ class TriageSession:
             )
 
         # Late import to avoid circular dependency with the router module.
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        if "ai_router" not in sys.modules:
-            ai_router_root = Path(__file__).resolve().parents[1]
-            spec = importlib.util.spec_from_file_location(
-                "ai_router",
-                str(ai_router_root / "__init__.py"),
-                submodule_search_locations=[str(ai_router_root)],
-            )
-            mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-            sys.modules["ai_router"] = mod
-            spec.loader.exec_module(mod)  # type: ignore[union-attr]
-
-        ar = sys.modules["ai_router"]
+        import ai_router as ar
 
         failure_json = json.dumps(
             {
