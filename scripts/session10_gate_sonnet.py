@@ -16,7 +16,6 @@ cheaper + faster than calling into Opus again.
 Scratch-quality; archived with the Session 10 commit.
 """
 
-import importlib.util
 import json
 import os
 import re
@@ -24,6 +23,8 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+
+from ai_router import query
 
 REPO = Path(__file__).resolve().parents[1]
 SESSION_SET = REPO / "docs" / "session-sets" / "security-dashboard-uat-remediation"
@@ -34,18 +35,6 @@ REVIEWS_DIR = SESSION_SET / "session-reviews"
 
 # Match the FA-bucket / method-extraction helpers in session10_orchestrator.py
 # without importing that module (it auto-runs main()).
-
-
-def load_ai_router():
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        str(REPO / "ai-router" / "__init__.py"),
-        submodule_search_locations=[str(REPO / "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)
-    return mod
 
 
 def extract_method_blocks(src: str) -> dict[str, str]:
@@ -208,9 +197,6 @@ def verify_one(query, item: dict, idx: int, total: int, blocks: dict[str, str]) 
 
 
 def main():
-    ar = load_ai_router()
-    query = ar.query
-
     if not CHECKLIST_FILE.exists():
         raise SystemExit(
             f"[session10-gate] checklist not found at {CHECKLIST_FILE}. "

@@ -18,25 +18,14 @@ Run from repo root:
 
 from __future__ import annotations
 
-import importlib.util
 import os
 import subprocess
 import sys
 from pathlib import Path
 
+from ai_router import route
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def load_router() -> object:
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        str(REPO_ROOT / "ai-router" / "__init__.py"),
-        submodule_search_locations=[str(REPO_ROOT / "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
-    return mod
 
 
 def read_text(path: Path) -> str:
@@ -60,7 +49,7 @@ def working_tree_diff() -> str:
     """
     result = subprocess.run(
         ["git", "diff", "d74fdbc", "--no-color", "--",
-         "ai-router/uat_runner/", "docs/session-sets/uat-runner-and-triage-feedback/"],
+         "uat_runner/", "docs/session-sets/uat-runner-and-triage-feedback/"],
         cwd=REPO_ROOT,
         capture_output=True,
         check=True,
@@ -69,22 +58,19 @@ def working_tree_diff() -> str:
 
 
 def main() -> int:
-    ar = load_router()
-    route = ar.route  # type: ignore[attr-defined]
-
     spec_text = read_text(REPO_ROOT / "docs/session-sets/uat-runner-and-triage-feedback/spec.md")
     s3_start = spec_text.find("### Session 3 of 4:")
     s3_end = spec_text.find("### Session 4 of 4:")
     s3_spec = spec_text[s3_start:s3_end] if s3_start >= 0 else spec_text
 
-    triage_py = read_text(REPO_ROOT / "ai-router/uat_runner/triage.py")
-    runner_py = read_text(REPO_ROOT / "ai-router/uat_runner/runner.py")
-    rem_init = read_text(REPO_ROOT / "ai-router/uat_runner/remediations/__init__.py")
-    rem_catalog = read_text(REPO_ROOT / "ai-router/uat_runner/remediations/catalog_stale.py")
-    rem_bug = read_text(REPO_ROOT / "ai-router/uat_runner/remediations/app_functional_bug.py")
-    rem_seed = read_text(REPO_ROOT / "ai-router/uat_runner/remediations/seed_data_gap.py")
-    rem_amb = read_text(REPO_ROOT / "ai-router/uat_runner/remediations/ambiguous_locator.py")
-    test_rem = read_text(REPO_ROOT / "ai-router/uat_runner/test_cases/test_remediations.py")
+    triage_py = read_text(REPO_ROOT / "uat_runner/triage.py")
+    runner_py = read_text(REPO_ROOT / "uat_runner/runner.py")
+    rem_init = read_text(REPO_ROOT / "uat_runner/remediations/__init__.py")
+    rem_catalog = read_text(REPO_ROOT / "uat_runner/remediations/catalog_stale.py")
+    rem_bug = read_text(REPO_ROOT / "uat_runner/remediations/app_functional_bug.py")
+    rem_seed = read_text(REPO_ROOT / "uat_runner/remediations/seed_data_gap.py")
+    rem_amb = read_text(REPO_ROOT / "uat_runner/remediations/ambiguous_locator.py")
+    test_rem = read_text(REPO_ROOT / "uat_runner/test_cases/test_remediations.py")
 
     smoke_test_summary = """
 test_remediations.py end-to-end smoke (CURRENT redo state):
@@ -118,7 +104,7 @@ synthetic_failures.py (triage classification only, no dispatch):
   pattern).
 
 CLI script-mode invocation (the prior CLI Critical):
-  $ python ai-router/uat_runner/cli.py --help
+  $ python uat_runner/cli.py --help
   -> usage prints; CLI is invokable. The repo-wide rename of `ai-router/`
   to `ai_router/` is deferred to its own session set; the bootstrap
   workaround in cli.py + test scripts is the practical fix.
@@ -167,43 +153,43 @@ introduced by the redo. Produce a final verdict (VERIFIED / ISSUES_FOUND).
 
 ## Implementation files (current HEAD)
 
-### ai-router/uat_runner/remediations/__init__.py
+### uat_runner/remediations/__init__.py
 ```python
 {rem_init}
 ```
 
-### ai-router/uat_runner/remediations/catalog_stale.py
+### uat_runner/remediations/catalog_stale.py
 ```python
 {rem_catalog}
 ```
 
-### ai-router/uat_runner/remediations/app_functional_bug.py
+### uat_runner/remediations/app_functional_bug.py
 ```python
 {rem_bug}
 ```
 
-### ai-router/uat_runner/remediations/seed_data_gap.py
+### uat_runner/remediations/seed_data_gap.py
 ```python
 {rem_seed}
 ```
 
-### ai-router/uat_runner/remediations/ambiguous_locator.py
+### uat_runner/remediations/ambiguous_locator.py
 ```python
 {rem_amb}
 ```
 
-### ai-router/uat_runner/triage.py
+### uat_runner/triage.py
 ```python
 {triage_py}
 ```
 
-### ai-router/uat_runner/runner.py (excerpt; full file ~520 lines)
+### uat_runner/runner.py (excerpt; full file ~520 lines)
 ```python
 {runner_py[:8000]}
 ... [truncated]
 ```
 
-### ai-router/uat_runner/test_cases/test_remediations.py
+### uat_runner/test_cases/test_remediations.py
 ```python
 {test_rem}
 ```

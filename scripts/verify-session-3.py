@@ -5,28 +5,17 @@ Uses max_tier=2 to route to Gemini Pro (non-Anthropic) because Sessions 1 and
 session-reviews/session-003.md and returns the route result for logging.
 """
 
-import importlib.util
 import json
 import subprocess
 import sys
 from pathlib import Path
 
+from ai_router import route
+
 REPO = Path(__file__).resolve().parents[1]
 SPEC = REPO / "docs/session-sets/security-dashboard-uat-remediation/spec.md"
 LOG = REPO / "docs/session-sets/security-dashboard-uat-remediation/activity-log.json"
 OUT = REPO / "docs/session-sets/security-dashboard-uat-remediation/session-reviews/session-003.md"
-
-
-def load_ai_router():
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        str(REPO / "ai-router/__init__.py"),
-        submodule_search_locations=[str(REPO / "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)
-    return mod
 
 
 def extract_session3_log():
@@ -61,8 +50,6 @@ def run_git(*args) -> str:
 
 
 def main():
-    ar = load_ai_router()
-
     finding2, session3_scope, finding10 = extract_finding2_and_session3_scope()
     activity = extract_session3_log()
     diff = run_git("diff", "--unified=5", "HEAD", "--",
@@ -131,7 +118,7 @@ minor issues / major issues), then per-item findings with file paths
 and line numbers where applicable. Be precise; avoid generic praise.
 """.strip()
 
-    result = ar.route(
+    result = route(
         content=content,
         task_type="session-verification",
         max_tier=2,

@@ -17,24 +17,13 @@ Run from repo root:
 
 from __future__ import annotations
 
-import importlib.util
 import subprocess
 import sys
 from pathlib import Path
 
+from ai_router import route
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def load_router() -> object:
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        str(REPO_ROOT / "ai-router" / "__init__.py"),
-        submodule_search_locations=[str(REPO_ROOT / "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
-    return mod
 
 
 def read_text(path: Path) -> str:
@@ -57,7 +46,7 @@ def working_tree_diff() -> str:
     """
     result = subprocess.run(
         ["git", "diff", "a597392", "--no-color", "--",
-         "ai-router/uat_runner/", "docs/ai-led-session-workflow.md",
+         "uat_runner/", "docs/ai-led-session-workflow.md",
          "docs/planning/project-guidance.md", "tools/uat-suppressions.json",
          "docs/session-sets/uat-runner-and-triage-feedback/",
          "docs/session-sets/sensitive-field-masking-audit-uat-remediation/activity-log.json"],
@@ -69,15 +58,12 @@ def working_tree_diff() -> str:
 
 
 def main() -> int:
-    ar = load_router()
-    route = ar.route  # type: ignore[attr-defined]
-
     spec_text = read_text(REPO_ROOT / "docs/session-sets/uat-runner-and-triage-feedback/spec.md")
     s4_start = spec_text.find("### Session 4 of 4:")
     s4_end = spec_text.find("## What This Set Preserves")
     s4_spec = spec_text[s4_start:s4_end] if s4_start >= 0 else spec_text
 
-    cli_py = read_text(REPO_ROOT / "ai-router/uat_runner/cli.py")
+    cli_py = read_text(REPO_ROOT / "uat_runner/cli.py")
 
     # Workflow doc Step 5 — find the UAT runner sub-step
     workflow = read_text(REPO_ROOT / "docs/ai-led-session-workflow.md")
@@ -101,19 +87,19 @@ def main() -> int:
 
     cli_invocation_test = """
 CLI invocation test (CURRENT redo state):
-    $ python ai-router/uat_runner/cli.py --help
+    $ python uat_runner/cli.py --help
     -> usage prints; CLI is invokable as a script.
 
-The original `python -m ai_router.uat_runner.cli` form still does NOT work
+The original `python -m uat_runner.cli` form still does NOT work
 because the package directory uses a hyphen. The redo addresses this by:
   (a) Adding an importlib bootstrap inside cli.py so it works as a script.
   (b) Updating docs/ai-led-session-workflow.md and project-guidance.md to
-      use the working `python ai-router/uat_runner/cli.py` form.
+      use the working `python uat_runner/cli.py` form.
   (c) Documenting that the underscore rename is the long-term fix and is
       tracked as its own session set.
 
 Backfill execution test (CURRENT redo state):
-    $ python ai-router/uat_runner/cli.py \\
+    $ python uat_runner/cli.py \\
         --checklist docs/session-sets/sensitive-field-masking-audit-uat-remediation/...uat-checklist.json \\
         --catalog docs/component-catalog/index.json \\
         --session-set sensitive-field-masking-audit-uat-remediation
@@ -180,7 +166,7 @@ prior-verification defect is addressed, identify any new defects.
 
 {cli_invocation_test}
 
-## ai-router/uat_runner/cli.py (the deliverable)
+## uat_runner/cli.py (the deliverable)
 
 ```python
 {cli_py}

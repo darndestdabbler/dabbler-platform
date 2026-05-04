@@ -25,7 +25,6 @@ timeout. This revision chunks the work:
 Intentionally scratch-quality: archived with the Session 10 commit.
 """
 
-import importlib.util
 import json
 import os
 import re
@@ -33,6 +32,8 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
+
+from ai_router import route
 
 REPO = Path(__file__).resolve().parents[1]
 SESSION_SET = REPO / "docs" / "session-sets" / "security-dashboard-uat-remediation"
@@ -125,18 +126,6 @@ FA_BUCKETS: list[tuple[str, str, list[str]]] = [
         ],
     ),
 ]
-
-
-def load_ai_router():
-    spec = importlib.util.spec_from_file_location(
-        "ai_router",
-        str(REPO / "ai-router" / "__init__.py"),
-        submodule_search_locations=[str(REPO / "ai-router")],
-    )
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["ai_router"] = mod
-    spec.loader.exec_module(mod)
-    return mod
 
 
 def extract_test_method_names(src: str) -> list[str]:
@@ -646,9 +635,6 @@ def run_coverage_gate(route, checklist_doc: dict, blocks: dict[str, str]) -> boo
 
 
 def main():
-    ar = load_ai_router()
-    route = ar.route
-
     pw_text = PLAYWRIGHT_FILE.read_text(encoding="utf-8")
     method_names = extract_test_method_names(pw_text)
     print(f"[session10] Enumerated {len(method_names)} Playwright test methods.", flush=True)
