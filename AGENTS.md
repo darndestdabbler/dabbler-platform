@@ -61,26 +61,42 @@ If keys are missing, stop and tell the human.
 
 ### AI router import
 
+The router is the `dabbler-ai-router` PyPI package (canonical
+dabbler-ai-orchestration repo, Set 010 onwards). It is declared in
+`requirements.txt` and lives in the workspace `.venv`. Bare imports
+work:
+
 ```python
-import importlib.util, sys
-
-def load_ai_router():
-    spec = importlib.util.spec_from_file_location(
-        'ai_router', 'ai-router/__init__.py',
-        submodule_search_locations=['ai-router'])
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules['ai_router'] = mod
-    spec.loader.exec_module(mod)
-    return mod
-
-ar = load_ai_router()
-route = ar.route
+from ai_router import route, send_session_complete_notification
+from ai_router.session_log import SessionLog
 ```
 
-Use `.venv/Scripts/python.exe` to run Python scripts on Windows. The same
-module exposes `send_session_complete_notification()`, which reads
-`PUSHOVER_API_KEY` and `PUSHOVER_USER_KEY` from the environment or Windows
-User environment.
+The platform-specific UAT runner that used to live at
+`ai-router/uat_runner/` is now a top-level `uat_runner/` package
+alongside the pip-installed canonical router:
+
+```python
+from uat_runner.runner import run_checklist
+from uat_runner.triage import FailureRecord, TriageSession
+```
+
+The operator-tuned config lives at `ai_router/router-config.yaml`
+(workspace-relative, not inside the venv). Set the env var so
+`route()` reads it:
+
+```bash
+export AI_ROUTER_CONFIG=ai_router/router-config.yaml
+export AI_ROUTER_METRICS_PATH=ai_router/router-metrics.jsonl
+```
+
+Use `.venv/Scripts/python.exe` to run Python scripts on Windows.
+`send_session_complete_notification()` reads `PUSHOVER_API_KEY` and
+`PUSHOVER_USER_KEY` from the environment or Windows User environment.
+
+If `pip install` of the router needs to be re-run (fresh clone, dropped
+venv, etc.), the canonical extension's **Dabbler: Install ai-router**
+command does it from VS Code: PyPI install (default) or GitHub
+sparse-checkout fallback for offline / pre-release / fork scenarios.
 
 ### Delegation Discipline (pointer)
 
@@ -95,7 +111,7 @@ depth from `router-config.yaml`. Your job is to pass the right `task_type`
 and let the router handle the rest.
 
 See `docs/ai-led-session-workflow.md` -> **Delegation Discipline** for the
-full criteria, the human-tunable thresholds (in `ai-router/router-config.yaml`
+full criteria, the human-tunable thresholds (in `ai_router/router-config.yaml`
 under `delegation:`), and the rationale.
 
 ## Building & Testing
@@ -125,18 +141,26 @@ images instead of orphaning dangling layers. Playwright is intentionally
 - `src/Libs/` -- integrated Dabbler libraries
 - `tests/` -- xUnit, bUnit, and Playwright tests
 - `docker/` -- local and CI-like compose stack
-- `ai-router/` -- routing code, prompt templates, and workflow utilities
+- `ai_router/` -- operator-tuned `router-config.yaml` and the
+  append-only `router-metrics.jsonl` cost telemetry; the router
+  itself is `pip install dabbler-ai-router` (declared in
+  `requirements.txt`)
+- `uat_runner/` -- platform-specific UAT runner package (CLI +
+  triage + remediations + test_cases). Calls into the canonical
+  router via `import ai_router`.
 - `docs/` -- workflow docs and session sets
 
 Code style conventions (namespaces, casing, nullable, `Async` suffix) live in
 `docs/planning/project-guidance.md` -> Conventions -> Code Style.
 
 If a file-system operation (typically `mv`, `rm -rf`, or `git worktree
-remove`) fails with a Windows file-lock error, run `python -m
-ai_router.utils cleanup-dev-orphans` first -- it shuts down dotnet
-build servers, kills stale Claude Code background polling loops, and
-clears orphan `conhost.exe`. Pass `--match-path dabbler-platform` to
-scope the polling-loop kill to this repo only. Each category is also
-runnable on its own (`kill-dotnet-build-servers`,
-`kill-stale-claude-polls`, `kill-conhost`). Source lives at
-`ai-router/utils.py` Section 5.
+remove`) fails with a Windows file-lock error, run
+`.venv/Scripts/python.exe -m ai_router.utils cleanup-dev-orphans`
+first -- it shuts down dotnet build servers, kills stale Claude Code
+background polling loops, and clears orphan `conhost.exe`. Pass
+`--match-path dabbler-platform` to scope the polling-loop kill to this
+repo only. Each category is also runnable on its own
+(`kill-dotnet-build-servers`, `kill-stale-claude-polls`,
+`kill-conhost`). Source lives in the canonical
+`dabbler-ai-orchestration` repo at `ai_router/utils.py` Section 5;
+the same code is what gets pip-installed into `.venv`.
