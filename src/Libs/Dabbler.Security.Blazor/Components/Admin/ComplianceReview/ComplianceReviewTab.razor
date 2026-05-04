@@ -62,6 +62,15 @@
                      RowsPerPage="25"
                      data-testid="compliance-review-grid">
             <Columns>
+                @* HierarchyColumn renders the expand chevron that toggles
+                   ChildRowContent. Without this column the ChildRowContent
+                   is defined but users have no UI to open it; the row
+                   click handler does nothing. The chevron is the
+                   user-visible affordance for "expand this row" and is
+                   what the UAT step "EXPAND ROW where ..." compiles
+                   against. *@
+                <HierarchyColumn T="AppSensitiveAccessLog" />
+
                 @* TemplateColumns require an explicit SortBy because MudDataGrid
                    only auto-derives the SortBy expression on PropertyColumn. The
                    SortBy keys here line up with the cases in ApplySort below

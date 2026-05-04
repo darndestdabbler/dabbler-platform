@@ -2,6 +2,211 @@
   "sessionSetName": "sensitive-field-masking-audit-uat-remediation",
   "createdDate": "2026-04-30T11:50:00.000000+00:00",
   "totalSessions": 2,
-  "entries": [],
-  "_resetNote": "Reset 2026-04-30 after the uat-workflow-dsl-alignment session set retired the manual *UatCoverageTests.cs + uat-coverage-review pattern that the original Session 1 used. The prior Session 1 attempt (2026-04-28) is archived under .session1-prior-attempt/. Session 1 will be re-executed from scratch under the DSL pipeline."
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-30T11:52:41.748029+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md (relevant sections), session-set-authoring-guide.md, ai-led-session-workflow.md UAT/E2E pipeline section, and spec.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/devidp-prereq",
+      "dateTime": "2026-04-30T11:52:41.748029+00:00",
+      "description": "Confirmed restore-devidp set is COMPLETE (change-log.md present).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-04-30T11:52:41.748029+00:00",
+      "description": "Authored ai-assignment.md directly (per human override on routing for this session).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/dsl-emitter-fixes",
+      "dateTime": "2026-04-30T16:00:00.000000+00:00",
+      "description": "In sibling repo dabbler-uat-dsl: shipped FOLLOW LINK IN NEW TAB verb (grammar/AST/validator/emitter), active-page tracking via currentPage local in emitted code, anchored visible-text regex with whitespace tolerance + IgnoreCase for CLICK BUTTON/LINK/TAB/MENU ITEM, .mud-popover-open scoping for menu items / dropdown options, row locators via Filter(HasText) chains, EXPAND ROW chevron click, Click + Clear + PressSequentially for inputs (per-keystroke), VERIFY SNACKBAR HasText filter, Exact:true on all GetByLabel calls. All 199 unit tests passing.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/platform-fixes",
+      "dateTime": "2026-04-30T16:00:00.000000+00:00",
+      "description": "Repo-local: PlaywrightFixture.WaitForQuietAsync layered probe (data-actions-in-flight -> data-blazor-ready -> no-op); PlaywrightFixtureUatAdapter un-stubbed; dabbler-tracked-actions.js MutationObserver auto-bootstrap (fires regardless of layout); ComponentCatalogCrawler records visible text + aria-label separately (visible text wins for non-icon controls); crawler follows target=_blank links via RunAndWaitForPopupAsync; CustomerDataProvider.FindSearchFilter reads CompositeFilter.Filters; ComplianceReviewTab adds <HierarchyColumn /> to surface row expander; security-config.json MaskExemptions cleaned to [].",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/checklist-authoring",
+      "dateTime": "2026-04-30T16:00:00.000000+00:00",
+      "description": "Authored sensitive-field-masking-audit-uat-remediation-uat-checklist.json with 6 UATs against real catalog, visible-text labels, role-switch flows.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/uat-1st-pass",
+      "dateTime": "2026-04-30T15:13:00.000000+00:00",
+      "description": "Human ran UAT manually: UAT-1, UAT-2, UAT-4, UAT-5, UAT-6 passed. UAT-3 ambiguous: SSN field rendered without mask but value was empty for james.smith@example.com, so the human could not confirm an exemption-delivered unmasked SSN.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/empty-ssn-diagnosis",
+      "dateTime": "2026-05-01T01:00:00.000000+00:00",
+      "description": "Diagnosed UAT-3 empty-input. Two issues found: (1) Web role-switch state was not propagated to API, so the API evaluated permissions and mask exemptions against the user's natural admin claims rather than the active BackofficeUser role; (2) PermissionService.ApplyFieldPermissionsAsync did not consult MaskExemptions. Additionally, the actual Customers row for james.smith@example.com had SocialSecurityNumber=NULL in the DB despite SeedData.cs intending '123-45-6789' for customer 0 (the SSN column was added by an idempotent ALTER on a pre-existing DB, never backfilled).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/diagnose-empty-ssn",
+      "dateTime": "2026-05-01T01:30:00.000000+00:00",
+      "description": "Diagnosed UAT-3 'no value displayed' feedback. Initial hypothesis was a two-permission-systems mismatch (AppFieldPermission Hidden vs MaskExemption). Investigation showed AppFieldPermissions has zero rows for Customer.SocialSecurityNumber, so the API was never nulling it via PermissionService. The actual root cause was simpler: Customers.SocialSecurityNumber for James Smith (Id=1) was NULL in the dev DB. SeedData.GetCustomers sets '123-45-6789' for customer 0 only on initial seed; DatabaseInitializer.EnsureAcmeCoffeeSchemaAsync added the column via idempotent ALTER on a pre-existing DB, which doesn't replay seed data.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/codify-backfill",
+      "dateTime": "2026-05-01T07:30:00.000000+00:00",
+      "description": "Codified the SSN backfill in DatabaseInitializer.EnsureAcmeCoffeeSchemaAsync: an idempotent UPDATE Customers SET SocialSecurityNumber='123-45-6789' WHERE Id=1 AND SocialSecurityNumber IS NULL, paired with the existing ALTER. Replay-safe (the IS NULL guard prevents resetting deliberately-cleared values). Verified empirically: NULLed the row in SQL, recreated api with --build, post-startup query returned '123-45-6789'.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/uat-2nd-pass",
+      "dateTime": "2026-05-01T02:00:00.000000+00:00",
+      "description": "Human re-ran UAT manually after backfill: all 6 UATs pass cleanly. UAT-3 confirmed showing the real unmasked SSN under active exemption.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 12,
+      "stepKey": "session-1/verification-r1",
+      "dateTime": "2026-05-01T06:41:33.433466+00:00",
+      "description": "Round 1 cross-provider verification routed via gpt-5-4. Verdict: ISSUES_FOUND ($0.0690). Two material issues drove follow-on work: (R1-1) the speculative X-App-Switched-Role propagation that had been added during diagnosis was trusted without API-side authorization (Critical security); (R1-2) the SSN backfill was applied manually rather than codified (Major reproducibility). Two other issues were verifier misreads (alleged lack of UAT pipeline evidence; alleged contradiction in masking behavior) and were clarified.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1467,
+          "outputTokens": 4354,
+          "costUsd": 0.069
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 13,
+      "stepKey": "session-1/speculative-gate-attempt",
+      "dateTime": "2026-05-01T07:45:00.000000+00:00",
+      "description": "Attempted to address R1-1 by hardening the X-App-Switched-Role gate with a natural-roles + RoleSwitching.AllowedRoles intersection. Round 2 verification surfaced one residual concern about the AllowedRoles intersection (since fixed). Then post-fix W2 runs began intermittently failing on UAT-1's 'VERIFY TEXT contains XXX-XX-' assertion. Pass rate dropped from reliable to ~1/3.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1573,
+          "outputTokens": 3876,
+          "costUsd": 0.0654
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 14,
+      "stepKey": "session-1/diagnostic-trace",
+      "dateTime": "2026-05-01T08:15:00.000000+00:00",
+      "description": "Injected diagnostic console output (test-side page snapshot + binder-side resolution log + component-side render log) to find why the W2 was flaking 1/5. Initial finding: when failing, the customer detail page rendered an editable input element with the raw SSN value '123-45-6789'; body innerText didn't contain 'XXX-XX-' because <input>.value isn't part of innerText. Hypothesized RestrictedFormField initial-render race: Unrestricted default state → ChildContent renders before ResolveAsync replaces with masked span.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 15,
+      "stepKey": "session-1/restricted-form-field-fix",
+      "dateTime": "2026-05-01T08:45:00.000000+00:00",
+      "description": "Fixed the initial-render race in RestrictedFormField: added _isResolved flag, gated the @if chain to render nothing until ResolveAsync sets the flag. Real defense-in-depth fix (closes a brief flash of the editable input on slow renders that humans on congested SignalR circuits could observe). 715 unit tests still pass including the 200 Dabbler.Security.Blazor tests.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 16,
+      "stepKey": "session-1/revert-speculative-gate",
+      "dateTime": "2026-05-01T08:45:00.000000+00:00",
+      "description": "Reverted the speculative role-switch propagation work in full: removed UserSessionContextConstants.SwitchedRoleHeaderName, the IRoleSwitcher header forwarding from UserIdentityHandler, the InternalUserMiddleware gate (incl. SecurityConfigurationManager method-injection), the PermissionService MaskExemption integration, and the API security-config.json RoleSwitching block. Rationale: with zero AppFieldPermission Hidden rows for Customer.SSN today, role-switch propagation does not change observable masking behavior. The Web's RestrictionBinder is the sole authority. The gate was speculative defense-in-depth for a scenario that doesn't exist in the current data shape, and it added attack-surface complexity without buying anything observable.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 17,
+      "stepKey": "session-1/state-pollution-root-cause",
+      "dateTime": "2026-05-01T09:30:00.000000+00:00",
+      "description": "Continued instrumentation revealed the ACTUAL root cause of the W2 flake: NOT a render race in RestrictedFormField but DETERMINISTIC state pollution across runs. UAT-2 grants a MaskExemption that SecurityConfigurationManager persists to the container's writable /app/security-config.json. UAT-3 in the same run sees the exemption and passes. But UAT-1 in the NEXT W2 run still sees the exemption and fails (because UAT-1 expects no exemption). Pattern: 1/N pass rate where the first run is clean and subsequent runs see the prior run's writes. Verified via `docker exec ... grep MaskExemptions /app/security-config.json` showing the persisted exemption that doesn't appear in the source-tree file. The BATON had explicitly warned about this earlier in the session ('Always force-recreate before re-running'); the warning was not enforced by tooling, only by documentation, so the footgun fired multiple times.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 18,
+      "stepKey": "session-1/runner-reset-flag",
+      "dateTime": "2026-05-01T09:45:00.000000+00:00",
+      "description": "Added --reset-app-state flag to ai-router/uat_runner/cli.py. When passed, the runner force-recreates the web + api docker compose containers via `docker compose -f docker/docker-compose.app.yml up --force-recreate -d web api` before running the checklist. This eliminates state pollution across runs by reverting the container's writable layer to the image's baked-in state. Cost ~10s per run. Skips gracefully when the compose file isn't present (developer running services from `dotnet run`). Empirical verification: 5/5 W2 passes with --reset-app-state on consecutive runs (where without the flag, runs 2-5 fail deterministically).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 19,
+      "stepKey": "session-1/remaining-popover-flake",
+      "dateTime": "2026-05-01T09:50:00.000000+00:00",
+      "description": "With the state-pollution fix in place, ~1/3 W2 runs still fail with a different symptom: System.TimeoutException waiting for `Locator('.mud-popover-open').Last` in UAT-2's OPEN DROPDOWN step. This is a separate, pre-existing W0-emitter race when MudBlazor's MudSelect popover is the SECOND popover of a tab — its render-then-ready timing varies enough that the 30s wait sometimes lapses. Documented as scope for the existing follow-on session set `docs/session-sets/uat-dsl-verify-input-value/spec.md` (which I'll expand to cover the OPEN DROPDOWN emit pattern as well as the VERIFY INPUT verb).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 20,
+      "stepKey": "session-1/runner-auto-reset",
+      "dateTime": "2026-05-01T10:30:00.000000+00:00",
+      "description": "Round 3 verifier raised a Major: --reset-app-state was opt-in, not enforced for the canonical Session 1 run path; future engineers running cli.py without the flag would still hit the state-pollution bug. Closed by upgrading the runner to read a top-level `RequiresAppStateReset` field from the checklist JSON. When set, the runner force-recreates containers BEFORE running the test even without the CLI flag. Added `RequiresAppStateReset: true` to this checklist. Empirical: 5 consecutive runs WITHOUT the CLI flag now auto-reset and pass (modulo one pre-existing OPEN DROPDOWN popover-timeout flake on run 2 that's scoped for the follow-on uat-dsl-verify-input-value session set). project-guidance.md updated to document the field as the canonical signal for state-mutating checklists.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1690,
+          "outputTokens": 4255,
+          "costUsd": 0.0869
+        }
+      ]
+    }
+  ],
+  "_resetNote": "Reset 2026-04-30 after the uat-workflow-dsl-alignment session set retired the manual *UatCoverageTests.cs + uat-coverage-review pattern that the original Session 1 used. The prior Session 1 attempt (2026-04-28) is archived under .session1-prior-attempt/. Session 1 was re-executed from scratch under the DSL pipeline."
 }

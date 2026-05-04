@@ -97,6 +97,19 @@ public static class DatabaseInitializer
                 ALTER TABLE [dbo].[Customers]
                     ADD [SocialSecurityNumber] nvarchar(11) NULL;
             END");
+
+        // Backfill the well-known test SSN that SeedData.GetCustomers sets
+        // for customer 0. The seeder only fires on initial seed; for
+        // pre-existing dev/CI DBs the ALTER above adds the column with
+        // NULLs and never replays the seed expression, so the masking
+        // UAT's "real value under exemption" path renders empty. Apply
+        // the backfill conditionally so a deliberately-cleared value
+        // doesn't get reset on every startup.
+        await context.Database.ExecuteSqlRawAsync(@"
+            UPDATE [dbo].[Customers]
+            SET [SocialSecurityNumber] = N'123-45-6789'
+            WHERE [Id] = 1
+              AND [SocialSecurityNumber] IS NULL;");
     }
 
     private static async Task BackfillSecuritySeedDataAsync(

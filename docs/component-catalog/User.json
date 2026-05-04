@@ -1,6 +1,6 @@
 {
   "appName": "AcmeCoffeeOnline",
-  "generatedAt": "2026-04-30T01:44:13Z",
+  "generatedAt": "2026-04-30T21:04:45Z",
   "schemaVersion": "1.1",
   "entries": [
     {
@@ -15,8 +15,8 @@
     {
       "routePath": "/",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -25,8 +25,8 @@
     {
       "routePath": "/",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -67,8 +67,8 @@
     {
       "routePath": "/",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -92,8 +92,8 @@
     {
       "routePath": "/",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -176,8 +176,8 @@
     {
       "routePath": "/admin/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -186,8 +186,8 @@
     {
       "routePath": "/admin/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -228,8 +228,8 @@
     {
       "routePath": "/admin/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": true
@@ -253,8 +253,8 @@
     {
       "routePath": "/admin/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": true
@@ -387,8 +387,8 @@
     {
       "routePath": "/admin/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Current page 1",
+      "elementRole": "Button",
+      "userVisibleLabel": "1",
       "ariaLabel": "Current page 1",
       "htmlTag": "button",
       "isWatermarked": true
@@ -396,8 +396,8 @@
     {
       "routePath": "/admin/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Page 2",
+      "elementRole": "Button",
+      "userVisibleLabel": "2",
       "ariaLabel": "Page 2",
       "htmlTag": "button",
       "isWatermarked": true
@@ -423,8 +423,8 @@
     {
       "routePath": "/admin/security",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -433,8 +433,8 @@
     {
       "routePath": "/admin/security",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -475,8 +475,8 @@
     {
       "routePath": "/admin/security",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -500,8 +500,8 @@
     {
       "routePath": "/admin/security",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -534,7 +534,7 @@
       "routePath": "/admin/security",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "ROLE DOCUMENTATION",
+      "userVisibleLabel": "Role Documentation Read-only reference for the baked-in roles, the defaults for user-type roles, and the Default Masks / Mask Exemptions semantics. Canonical role names are immutable; the display alia",
       "htmlTag": "div",
       "isWatermarked": false
     },
@@ -558,8 +558,8 @@
     {
       "routePath": "/admin/users",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -568,8 +568,8 @@
     {
       "routePath": "/admin/users",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -610,8 +610,8 @@
     {
       "routePath": "/admin/users",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -635,8 +635,8 @@
     {
       "routePath": "/admin/users",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -770,8 +770,8 @@
     {
       "routePath": "/counter",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -780,8 +780,8 @@
     {
       "routePath": "/counter",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -822,8 +822,8 @@
     {
       "routePath": "/counter",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -847,8 +847,8 @@
     {
       "routePath": "/counter",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -897,8 +897,8 @@
     {
       "routePath": "/customers",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -907,8 +907,8 @@
     {
       "routePath": "/customers",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -949,8 +949,8 @@
     {
       "routePath": "/customers",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -974,8 +974,8 @@
     {
       "routePath": "/customers",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1000,7 +1000,7 @@
       "routePath": "/customers",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "Filter panel",
+      "userVisibleLabel": "Last Name Email City State Active",
       "ariaLabel": "Filter panel",
       "htmlTag": "div",
       "isWatermarked": false
@@ -1159,8 +1159,8 @@
     {
       "routePath": "/customers/{CustomerId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -1169,8 +1169,8 @@
     {
       "routePath": "/customers/{CustomerId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -1211,8 +1211,8 @@
     {
       "routePath": "/customers/{CustomerId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1236,8 +1236,8 @@
     {
       "routePath": "/customers/{CustomerId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1379,8 +1379,8 @@
     {
       "routePath": "/dashboard",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -1389,8 +1389,8 @@
     {
       "routePath": "/dashboard",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -1431,8 +1431,8 @@
     {
       "routePath": "/dashboard",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1456,8 +1456,8 @@
     {
       "routePath": "/dashboard",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1540,8 +1540,8 @@
     {
       "routePath": "/not-found",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -1550,8 +1550,8 @@
     {
       "routePath": "/not-found",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -1592,8 +1592,8 @@
     {
       "routePath": "/not-found",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1617,8 +1617,8 @@
     {
       "routePath": "/not-found",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1651,8 +1651,8 @@
     {
       "routePath": "/orders",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -1661,8 +1661,8 @@
     {
       "routePath": "/orders",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -1703,8 +1703,8 @@
     {
       "routePath": "/orders",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1728,8 +1728,8 @@
     {
       "routePath": "/orders",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -1754,7 +1754,7 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "Filter panel",
+      "userVisibleLabel": "Status Retail Business Order Date From Order Date To Min Total Max Total",
       "ariaLabel": "Filter panel",
       "htmlTag": "div",
       "isWatermarked": false
@@ -1913,8 +1913,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "16",
-      "testId": "order-detail-link-16",
+      "userVisibleLabel": "65",
+      "testId": "order-detail-link-65",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1922,8 +1922,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "17",
-      "testId": "order-detail-link-17",
+      "userVisibleLabel": "64",
+      "testId": "order-detail-link-64",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1931,8 +1931,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "18",
-      "testId": "order-detail-link-18",
+      "userVisibleLabel": "63",
+      "testId": "order-detail-link-63",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1940,8 +1940,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "19",
-      "testId": "order-detail-link-19",
+      "userVisibleLabel": "62",
+      "testId": "order-detail-link-62",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1949,8 +1949,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "20",
-      "testId": "order-detail-link-20",
+      "userVisibleLabel": "61",
+      "testId": "order-detail-link-61",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1958,8 +1958,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "21",
-      "testId": "order-detail-link-21",
+      "userVisibleLabel": "60",
+      "testId": "order-detail-link-60",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1967,8 +1967,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "22",
-      "testId": "order-detail-link-22",
+      "userVisibleLabel": "59",
+      "testId": "order-detail-link-59",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1976,8 +1976,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "23",
-      "testId": "order-detail-link-23",
+      "userVisibleLabel": "58",
+      "testId": "order-detail-link-58",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1985,8 +1985,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "24",
-      "testId": "order-detail-link-24",
+      "userVisibleLabel": "57",
+      "testId": "order-detail-link-57",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -1994,8 +1994,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "25",
-      "testId": "order-detail-link-25",
+      "userVisibleLabel": "56",
+      "testId": "order-detail-link-56",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2003,8 +2003,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "26",
-      "testId": "order-detail-link-26",
+      "userVisibleLabel": "55",
+      "testId": "order-detail-link-55",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2012,8 +2012,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "27",
-      "testId": "order-detail-link-27",
+      "userVisibleLabel": "54",
+      "testId": "order-detail-link-54",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2021,8 +2021,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "28",
-      "testId": "order-detail-link-28",
+      "userVisibleLabel": "53",
+      "testId": "order-detail-link-53",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2030,8 +2030,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "29",
-      "testId": "order-detail-link-29",
+      "userVisibleLabel": "52",
+      "testId": "order-detail-link-52",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2039,8 +2039,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "30",
-      "testId": "order-detail-link-30",
+      "userVisibleLabel": "51",
+      "testId": "order-detail-link-51",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2048,8 +2048,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "31",
-      "testId": "order-detail-link-31",
+      "userVisibleLabel": "50",
+      "testId": "order-detail-link-50",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2057,8 +2057,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "32",
-      "testId": "order-detail-link-32",
+      "userVisibleLabel": "49",
+      "testId": "order-detail-link-49",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2066,8 +2066,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "33",
-      "testId": "order-detail-link-33",
+      "userVisibleLabel": "48",
+      "testId": "order-detail-link-48",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2075,8 +2075,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "34",
-      "testId": "order-detail-link-34",
+      "userVisibleLabel": "47",
+      "testId": "order-detail-link-47",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2084,8 +2084,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "35",
-      "testId": "order-detail-link-35",
+      "userVisibleLabel": "46",
+      "testId": "order-detail-link-46",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2093,8 +2093,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "36",
-      "testId": "order-detail-link-36",
+      "userVisibleLabel": "45",
+      "testId": "order-detail-link-45",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2102,8 +2102,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "37",
-      "testId": "order-detail-link-37",
+      "userVisibleLabel": "44",
+      "testId": "order-detail-link-44",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2111,8 +2111,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "38",
-      "testId": "order-detail-link-38",
+      "userVisibleLabel": "43",
+      "testId": "order-detail-link-43",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2120,8 +2120,8 @@
       "routePath": "/orders",
       "role": "User",
       "elementRole": "Link",
-      "userVisibleLabel": "39",
-      "testId": "order-detail-link-39",
+      "userVisibleLabel": "42",
+      "testId": "order-detail-link-42",
       "htmlTag": "a",
       "isWatermarked": false
     },
@@ -2173,8 +2173,8 @@
     {
       "routePath": "/orders/{OrderId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -2183,8 +2183,8 @@
     {
       "routePath": "/orders/{OrderId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -2225,8 +2225,8 @@
     {
       "routePath": "/orders/{OrderId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -2250,8 +2250,8 @@
     {
       "routePath": "/orders/{OrderId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -2408,7 +2408,7 @@
       "routePath": "/orders/{OrderId}",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "ITEMS (1)",
+      "userVisibleLabel": "ADD PRODUCT Product Qty Unit Price Discount % Line Total Deep Dark Roast - Regular - Drip 3 $18.49 0 $55.47",
       "htmlTag": "div",
       "isWatermarked": false
     },
@@ -2490,8 +2490,8 @@
     {
       "routePath": "/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -2500,8 +2500,8 @@
     {
       "routePath": "/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -2542,8 +2542,8 @@
     {
       "routePath": "/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -2567,8 +2567,8 @@
     {
       "routePath": "/products",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -2593,7 +2593,7 @@
       "routePath": "/products",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "Filter panel",
+      "userVisibleLabel": "Roast Level Caffeine Grind Type Available Min Price Max Price",
       "ariaLabel": "Filter panel",
       "htmlTag": "div",
       "isWatermarked": false
@@ -2779,8 +2779,8 @@
     {
       "routePath": "/products/catalog",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -2789,8 +2789,8 @@
     {
       "routePath": "/products/catalog",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -2831,8 +2831,8 @@
     {
       "routePath": "/products/catalog",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -2856,8 +2856,8 @@
     {
       "routePath": "/products/catalog",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -2882,7 +2882,7 @@
       "routePath": "/products/catalog",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "Filter panel",
+      "userVisibleLabel": "Roast Level Caffeine Grind Type Available Min Price Max Price",
       "ariaLabel": "Filter panel",
       "htmlTag": "div",
       "isWatermarked": false
@@ -3068,8 +3068,8 @@
     {
       "routePath": "/products/{ProductId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -3078,8 +3078,8 @@
     {
       "routePath": "/products/{ProductId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -3120,8 +3120,8 @@
     {
       "routePath": "/products/{ProductId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -3145,8 +3145,8 @@
     {
       "routePath": "/products/{ProductId}",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -3244,7 +3244,7 @@
       "routePath": "/products/{ProductId}",
       "role": "User",
       "elementRole": "Input",
-      "userVisibleLabel": "Description",
+      "userVisibleLabel": "Representative Playwright automation product.",
       "testId": "field-description",
       "htmlTag": "textarea",
       "isWatermarked": false
@@ -3270,8 +3270,8 @@
     {
       "routePath": "/reports/orders-by-customer",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -3280,8 +3280,8 @@
     {
       "routePath": "/reports/orders-by-customer",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -3322,8 +3322,8 @@
     {
       "routePath": "/reports/orders-by-customer",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -3347,8 +3347,8 @@
     {
       "routePath": "/reports/orders-by-customer",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -3365,7 +3365,7 @@
       "routePath": "/reports/orders-by-customer",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "Orders by Retail Business",
+      "userVisibleLabel": "Orders by Retail Business Report Parameters Start Date Start Date is required End Date End Date is required Order Status Filter Summary RUN REPORT 100% Set parameters and click \u0022Run Report\u0022 to generat",
       "ariaLabel": "Orders by Retail Business",
       "htmlTag": "div",
       "isWatermarked": false
@@ -3483,8 +3483,8 @@
     {
       "routePath": "/reports/sales-by-product",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -3493,8 +3493,8 @@
     {
       "routePath": "/reports/sales-by-product",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -3535,8 +3535,8 @@
     {
       "routePath": "/reports/sales-by-product",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -3560,8 +3560,8 @@
     {
       "routePath": "/reports/sales-by-product",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false
@@ -3578,7 +3578,7 @@
       "routePath": "/reports/sales-by-product",
       "role": "User",
       "elementRole": "Element",
-      "userVisibleLabel": "Sales by Product",
+      "userVisibleLabel": "Sales by Product Report Parameters Start Date Start Date is required End Date End Date is required Roast Level Filter Summary RUN REPORT 100% Set parameters and click \u0022Run Report\u0022 to generate the repo",
       "ariaLabel": "Sales by Product",
       "htmlTag": "div",
       "isWatermarked": false
@@ -3696,8 +3696,8 @@
     {
       "routePath": "/weather",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Platform Admin, sign out",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
       "ariaLabel": "Internal Platform Admin, sign out",
       "testId": "user-context-user",
       "htmlTag": "a",
@@ -3706,8 +3706,8 @@
     {
       "routePath": "/weather",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Internal Operations, switch organization",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
       "ariaLabel": "Internal Operations, switch organization",
       "testId": "active-organization-label",
       "htmlTag": "a",
@@ -3748,8 +3748,8 @@
     {
       "routePath": "/weather",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Reports",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
       "ariaLabel": "Toggle Reports",
       "htmlTag": "button",
       "isWatermarked": false
@@ -3773,8 +3773,8 @@
     {
       "routePath": "/weather",
       "role": "User",
-      "elementRole": "IconButton",
-      "userVisibleLabel": "Toggle Admin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
       "ariaLabel": "Toggle Admin",
       "htmlTag": "button",
       "isWatermarked": false

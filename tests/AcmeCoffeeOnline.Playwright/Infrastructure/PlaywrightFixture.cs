@@ -1071,17 +1071,82 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     /// On failure, dumps DOM watermark state, browser console history, and page state so the
     /// cumulative-flake investigation can pinpoint which layer failed (SignalR / handler / shim / attribute).
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The W0 DSL emitter unconditionally calls <c>WaitForQuietAsync</c> after
+    /// every interaction step. Three classes of pages reach this method:
+    /// </para>
+    /// <list type="number">
+    ///   <item>
+    ///     <b>Watermarked Blazor pages</b> (top-level component inherits
+    ///     <c>TrackedComponentBase</c>, e.g. <c>/admin/products</c>): the page
+    ///     advertises <c>data-actions-in-flight</c>. Wait for the value to
+    ///     become <c>"[]"</c>, signalling all in-flight tracked actions have
+    ///     completed. This is the original watermark contract.
+    ///   </item>
+    ///   <item>
+    ///     <b>Unwatermarked Blazor pages</b> (e.g. <c>/login</c>,
+    ///     <c>/dev/email-inbox</c>): no <c>data-actions-in-flight</c> attribute.
+    ///     Wait for <c>NetworkIdle</c> so the SignalR <c>_blazor</c> WebSocket
+    ///     handshake completes before the next interaction step runs. Without
+    ///     this gate, a DSL-compiled test that navigates to <c>/login</c> and
+    ///     immediately calls <c>FillAsync</c> races the circuit attach: the
+    ///     <c>input</c> event fires at the DOM but the server-side
+    ///     <c>@bind-Value</c> handler is not subscribed yet, so the bound C#
+    ///     field never updates and downstream form-validation gates (like
+    ///     "Send sign-in link" being disabled while <c>_email</c> is empty)
+    ///     stay closed. The user's browser performs this same wait implicitly:
+    ///     they cannot type into a form until the page has finished loading.
+    ///   </item>
+    ///   <item>
+    ///     <b>Non-Blazor surfaces</b> (an external SSO provider, a static error
+    ///     page): neither watermark nor SignalR. <c>NetworkIdle</c> still works
+    ///     as a "page settled" signal.
+    ///   </item>
+    /// </list>
+    /// </remarks>
     public async Task WaitForQuietAsync(IPage page)
     {
+        // Probe up front so the watermark branch doesn't pay the full
+        // assertion timeout on unwatermarked routes.
+        var watermarkPresent = await page.EvaluateAsync<bool>(
+            "() => document.documentElement.hasAttribute('data-actions-in-flight')");
+
+        if (watermarkPresent)
+        {
+            try
+            {
+                await Assertions.Expect(page.Locator("html"))
+                    .ToHaveAttributeAsync("data-actions-in-flight", "[]");
+            }
+            catch (PlaywrightException)
+            {
+                await DumpQuietDiagnosticsAsync(page);
+                throw;
+            }
+            return;
+        }
+
+        // Unwatermarked Blazor pages: gate on data-blazor-ready="true". This
+        // attribute is set by an auto-bootstrap in dabbler-tracked-actions.js
+        // as soon as Blazor's interactive runtime attaches the first component
+        // (detected via the `_bl_<guid>` element marker Blazor injects on
+        // interactive render). Reliable on every Blazor route regardless of
+        // which layout hosts the page. Non-Blazor surfaces (external SSO
+        // login pages, static error pages) won't set this attribute, so we
+        // bound the wait to a short window and silently fall through if it
+        // never arrives.
         try
         {
             await Assertions.Expect(page.Locator("html"))
-                .ToHaveAttributeAsync("data-actions-in-flight", "[]");
+                .ToHaveAttributeAsync("data-blazor-ready", "true",
+                    new() { Timeout = 10_000 });
         }
         catch (PlaywrightException)
         {
-            await DumpQuietDiagnosticsAsync(page);
-            throw;
+            // Not a Blazor page (or readiness signal genuinely absent) — let
+            // the next step run; if the page truly isn't interactive, the
+            // next assertion will surface the real error with better context.
         }
     }
 

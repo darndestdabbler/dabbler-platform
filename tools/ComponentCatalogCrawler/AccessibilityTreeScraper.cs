@@ -69,10 +69,27 @@ public sealed class AccessibilityTreeScraper
             if (tag === 'th') return 'columnheader';
             return tag;
           };
-          // Accessible-name approximation: aria-label > aria-labelledby text > label[for] > innerText.
-          const computeName = (el) => {
-            const ariaLabel = el.getAttribute('aria-label');
-            if (ariaLabel) return ariaLabel.trim();
+          // User-visible label resolution: prefer the text the USER SEES on
+          // screen, NOT the screen-reader-only aria-label. The DSL is
+          // grounded in what the user reads — when an element has both
+          // visible text ("System Admin") and an aria-label
+          // ("System Admin, switch role"), the user-faithful catalog entry
+          // uses the visible text. We still record the aria-label
+          // separately on each entry for any consumer that needs it.
+          //
+          // Resolution priority for visible text:
+          //   1. trimmed innerText (what's on screen)
+          //   2. aria-labelledby (text from referenced node)
+          //   3. <label for=> (form-field labels)
+          //   4. aria-label (icon-only fallback — no visible text exists)
+          const computeVisibleText = (el) => {
+            // 1. innerText is what the user sees. Whitespace-collapse for
+            //    consistency with how the user reads it.
+            const raw = (el.innerText || el.textContent || '').trim();
+            const collapsed = raw.replace(/\s+/g, ' ');
+            if (collapsed) return collapsed;
+
+            // 2. aria-labelledby: another node provides the visible text.
             const labelledBy = el.getAttribute('aria-labelledby');
             if (labelledBy) {
               const ids = labelledBy.split(/\s+/);
@@ -84,7 +101,8 @@ public sealed class AccessibilityTreeScraper
                 .join(' ');
               if (txt) return txt;
             }
-            // For form fields, prefer associated <label>.
+
+            // 3. <label for=> association (form fields).
             const id = el.id;
             if (id) {
               const lbl = document.querySelector(`label[for="${CSS.escape(id)}"]`);
@@ -93,9 +111,11 @@ public sealed class AccessibilityTreeScraper
                 if (text) return text;
               }
             }
-            // Fallback: trimmed innerText (single-line preferred).
-            const raw = (el.innerText || el.textContent || '').trim();
-            return raw.replace(/\s+/g, ' ');
+
+            // 4. No visible text — return empty; aria-label is captured
+            //    separately by the caller and will be used as the
+            //    icon-only fallback.
+            return '';
           };
           const closestScope = (el) => {
             const dlg = el.closest('[role="dialog"], [role="alertdialog"]');
@@ -119,13 +139,14 @@ public sealed class AccessibilityTreeScraper
             seen.add(el);
             if (!isVisible(el)) continue;
             const role = computedRole(el);
-            const name = computeName(el);
+            const visibleText = computeVisibleText(el);
             const ariaLabel = el.getAttribute('aria-label');
-            // Skip if no name AND no aria-label — nothing the DSL can locate.
-            if (!name && !ariaLabel) continue;
+            // Skip if no visible text AND no aria-label — nothing the DSL
+            // can locate by user-readable identity.
+            if (!visibleText && !ariaLabel) continue;
             out.push({
               role,
-              name: (name || '').slice(0, 200),
+              visibleText: (visibleText || '').slice(0, 200),
               ariaLabel,
               testId: el.getAttribute('data-testid'),
               htmlTag: el.tagName.toLowerCase(),
@@ -211,29 +232,54 @@ public sealed class AccessibilityTreeScraper
                 continue;
             }
 
-            var name = (GetStringOrNull(r, "name") ?? string.Empty).Trim();
+            var visibleText = (GetStringOrNull(r, "visibleText") ?? string.Empty).Trim();
             var ariaLabel = GetStringOrNull(r, "ariaLabel");
             var testId = GetStringOrNull(r, "testId");
             var htmlTag = GetStringOrNull(r, "htmlTag");
             var scope = GetStringOrNull(r, "scope");
 
-            var hasName = !string.IsNullOrEmpty(name);
+            var hasVisible = !string.IsNullOrEmpty(visibleText);
             var hasAria = !string.IsNullOrEmpty(ariaLabel);
 
-            // IconButton: a button whose visible name came from aria-label
-            // (i.e., the button has an explicit aria-label) is recorded as
-            // IconButton — that is exactly what the DSL `CLICK ICON BUTTON
-            // with aria-label` verb is designed to address.
-            if (string.Equals(elementRole, "Button", StringComparison.Ordinal)
-                && hasAria
-                && (!hasName || string.Equals(name, ariaLabel, StringComparison.Ordinal)))
+            // Element classification + label-source decision:
+            //
+            // The DSL is grounded in what the USER reads on screen. When an
+            // element has BOTH visible text and an aria-label (the common
+            // case for labeled controls with screen-reader enrichment), the
+            // visible text is what the user reads — that's the
+            // userVisibleLabel. The aria-label is recorded separately and
+            // is available for icon-only locator paths via CLICK ICON BUTTON.
+            //
+            // - Element has visible text → record as Button/Link/whatever
+            //   the role mapped to. `userVisibleLabel = visibleText`.
+            //   Authoring uses CLICK BUTTON / CLICK LINK with the visible
+            //   text the user reads.
+            // - Element has only aria-label (icon-only — chevron, X, edit
+            //   pencil) → record as IconButton (when role mapped to Button)
+            //   with `userVisibleLabel = ariaLabel`. The aria-label IS the
+            //   only thing locating the control; CLICK ICON BUTTON is the
+            //   right verb.
+            string userVisibleLabel;
+            if (hasVisible)
             {
-                elementRole = "IconButton";
-                name = ariaLabel!.Trim();
+                // Visible text wins. ElementRole stays as mapped (Button,
+                // Link, Tab, etc.). This is the user-faithful path.
+                userVisibleLabel = visibleText;
             }
-
-            if (!hasName && !hasAria)
+            else if (hasAria)
             {
+                // Icon-only control: aria-label is the only readable identity.
+                // Reclassify Buttons as IconButton so authoring tools route
+                // to the CLICK ICON BUTTON verb.
+                if (string.Equals(elementRole, "Button", StringComparison.Ordinal))
+                {
+                    elementRole = "IconButton";
+                }
+                userVisibleLabel = ariaLabel!.Trim();
+            }
+            else
+            {
+                // Neither — nothing the DSL can locate.
                 continue;
             }
 
@@ -241,7 +287,7 @@ public sealed class AccessibilityTreeScraper
                 RoutePath: routePath,
                 Role: role,
                 ElementRole: elementRole,
-                UserVisibleLabel: name,
+                UserVisibleLabel: userVisibleLabel,
                 AriaLabel: hasAria ? ariaLabel : null,
                 TestId: string.IsNullOrWhiteSpace(testId) ? null : testId,
                 HtmlTag: string.IsNullOrWhiteSpace(htmlTag) ? null : htmlTag,

@@ -80,7 +80,7 @@
       "stepNumber": 9,
       "stepKey": "session-1/happy-path",
       "dateTime": "2026-04-28T13:19:44.105383+00:00",
-      "description": "End-to-end smoke run: ai-router/uat_runner/test_cases/smoke-checklist.json compiled cleanly via W0, wrapper test ran via dotnet test, .trx parsed, 1 passed / 0 failed. Also exercised compile-failure path against masking checklist (UnknownRoute errors as documented in W1) \u2014 runner correctly reports compile failed and exits without invoking dotnet test.",
+      "description": "End-to-end smoke run: ai-router/uat_runner/test_cases/smoke-checklist.json compiled cleanly via W0, wrapper test ran via dotnet test, .trx parsed, 1 passed / 0 failed. Also exercised compile-failure path against masking checklist (UnknownRoute errors as documented in W1) — runner correctly reports compile failed and exits without invoking dotnet test.",
       "status": "complete",
       "routedApiCalls": []
     },
@@ -89,7 +89,7 @@
       "stepNumber": 10,
       "stepKey": "session-1/build-and-test",
       "dateTime": "2026-04-28T13:21:50.826265+00:00",
-      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (pre-existing CS0618 obsolete + null-ref warnings unrelated to this set). dotnet test (excluding Playwright): 446/449 passed; 3 RowRestrictionIntegrationTests failed under parallel suite run but PASS when run in isolation \u2014 known flaky-under-parallel pattern (lessons-learned: Isolate Flaky-Under-Parallel Tests). No tests touched by this set. Playwright smoke run via runner passed (1/1).",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (pre-existing CS0618 obsolete + null-ref warnings unrelated to this set). dotnet test (excluding Playwright): 446/449 passed; 3 RowRestrictionIntegrationTests failed under parallel suite run but PASS when run in isolation — known flaky-under-parallel pattern (lessons-learned: Isolate Flaky-Under-Parallel Tests). No tests touched by this set. Playwright smoke run via runner passed (1/1).",
       "status": "complete",
       "routedApiCalls": []
     },
@@ -427,6 +427,356 @@
       "description": "Updated step-9-reorg-review.md to reflect the redo: noted Sessions 3 and 4 were redone after a post-hoc audit, added a new Haiku-fabricated-audit lesson candidate proposed for promotion to lessons-learned.md, updated the sign-off to reflect the redo's verification rather than the Haiku original's fake VERIFIED.",
       "status": "completed",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T12:12:13.394816+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T12:31:57.990734+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T12:40:19.189666+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T12:44:55.968935+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T12:47:00.063329+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "AMBIGUOUS_LOCATOR",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T14:15:38.883039+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-ambiguous-locator.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T14:22:17.609068+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T14:26:01.452250+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T14:33:12.369442+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "SEED_DATA_GAP",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T15:05:26.792764+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-seed-gap.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "SEED_DATA_GAP",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T15:08:46.648921+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-seed-gap.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "SEED_DATA_GAP",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T15:38:36.717989+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-seed-gap.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T15:40:23.446270+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T16:07:24.523640+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T16:08:43.525883+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T16:10:31.088438+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T16:20:26.188742+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T16:24:09.468729+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T16:31:40.777018+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T16:35:24.940187+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T16:42:41.017236+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T16:47:09.175963+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T16:50:45.502504+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T16:55:02.782868+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "AMBIGUOUS_LOCATOR",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T17:00:35.497477+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-ambiguous-locator.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T17:05:03.799889+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T17:09:52.754099+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T17:15:28.198727+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T18:17:05.408261+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T18:23:19.802883+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T18:31:42.375028+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-04-30T18:34:21.208424+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T18:39:09.229636+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T18:44:12.225490+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "CATALOG_STALE",
+      "autoApplied": true,
+      "outcome": "auto-recovery-failed",
+      "dateTime": "2026-04-30T21:04:46.049522+00:00",
+      "reason": "Catalog re-crawl completed but the affected locator is still missing. The component may have been removed, renamed, or moved behind a permission gate not exercised by the crawler. Falls through to human review."
     }
   ]
 }

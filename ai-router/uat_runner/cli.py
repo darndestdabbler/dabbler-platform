@@ -18,7 +18,9 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -59,6 +61,62 @@ if __package__ in (None, ""):
     from ai_router.uat_runner import runner  # type: ignore[import-not-found]
 else:
     from . import runner
+
+
+_APP_COMPOSE_FILE = Path("docker/docker-compose.app.yml")
+
+
+def _checklist_requires_reset(checklist_path: Path) -> bool:
+    """Return True when the checklist JSON declares
+    `RequiresAppStateReset: true` at the top level. The flag is the
+    canonical signal a checklist mutates persisted application state
+    (MaskExemption grants, RoleSwitching writes, OrganizationSwitching
+    overrides, etc.) and therefore needs the container's writable
+    layer reset before the next run. Missing or malformed file falls
+    back to False — the CLI's `--reset-app-state` flag is still
+    available for ad-hoc forcing."""
+    try:
+        import json as _json
+        with checklist_path.open(encoding="utf-8") as f:
+            data = _json.load(f)
+        return bool(data.get("RequiresAppStateReset"))
+    except (OSError, ValueError):
+        return False
+
+
+def _reset_app_state_or_warn() -> None:
+    """Force-recreate web + api containers so the next run starts from a
+    clean writable layer. Skips if compose isn't available (developer is
+    running services from `dotnet run` or similar) — prints a warning so
+    the user knows persisted state from a prior run may bleed in."""
+    if not _APP_COMPOSE_FILE.exists():
+        print(
+            f"[reset-state] {_APP_COMPOSE_FILE} not found; skipping reset. "
+            "If the app is running outside compose, restart it manually before re-running."
+        )
+        return
+
+    print("[reset-state] Force-recreating web + api containers (~10s) so "
+          "persisted state from the prior run does not bleed in...")
+    cmd = [
+        "docker", "compose",
+        "-f", str(_APP_COMPOSE_FILE),
+        "up", "--force-recreate", "-d",
+        "web", "api",
+    ]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
+    if proc.returncode != 0:
+        print(
+            f"[reset-state] WARNING: docker compose returned {proc.returncode}.\n"
+            f"stdout: {proc.stdout}\nstderr: {proc.stderr}\n"
+            "Continuing — but persisted state may bleed in."
+        )
+        return
+    # Give the web container a moment to finish startup before the test
+    # connects. The compose `Healthy` gate covers the api; the web has no
+    # healthcheck wired today so a short wait is the simplest guard.
+    time.sleep(6)
+    print("[reset-state] Containers recreated.")
 
 
 def main() -> int:
@@ -120,8 +178,32 @@ def main() -> int:
         action="store_true",
         help="Stop after compile; do not run dotnet test.",
     )
+    parser.add_argument(
+        "--reset-app-state",
+        action="store_true",
+        help=(
+            "Force-recreate the web (and api, when present) docker compose "
+            "containers before running the checklist. Required when a UAT "
+            "step mutates state that the SecurityConfigurationManager "
+            "persists to the container's writable layer (e.g., MaskExemption "
+            "grants in UAT-2 of sensitive-field-masking-audit-uat-remediation). "
+            "Without this flag, a re-run will start with the prior run's "
+            "writes still in place, causing UAT-1 expectations to fail "
+            "non-deterministically. The flag adds ~10 seconds per run; use "
+            "it whenever the checklist contains an exemption-grant or any "
+            "other persisted state mutation."
+        ),
+    )
 
     args = parser.parse_args()
+
+    # Honor the checklist's `RequiresAppStateReset` flag — the canonical
+    # signal a checklist mutates persisted state and therefore needs the
+    # container's writable layer reset before each run. The CLI flag is
+    # also accepted, so an operator can force a reset for ad-hoc runs.
+    needs_reset = args.reset_app_state or _checklist_requires_reset(args.checklist)
+    if needs_reset:
+        _reset_app_state_or_warn()
 
     try:
         report = runner.run_checklist(

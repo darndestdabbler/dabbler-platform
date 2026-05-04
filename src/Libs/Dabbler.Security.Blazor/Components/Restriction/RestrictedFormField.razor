@@ -5,7 +5,17 @@
 @inject IFieldMaskService FieldMaskService
 @implements IDisposable
 
-@if (_resolved.Visibility == ColumnVisibility.Hidden)
+@if (!_isResolved)
+{
+    @* Initial render before the binder's async ResolveAsync has completed.
+       Render nothing rather than the unrestricted ChildContent fallback —
+       otherwise the unmasked editable input flashes on screen for the
+       first render cycle, then is replaced by the masked span once the
+       binder resolves. That flash is both a test-flake source (Playwright
+       sometimes snapshots before resolution) and a real defense-in-depth
+       gap for human users on slow renders. *@
+}
+else if (_resolved.Visibility == ColumnVisibility.Hidden)
 {
     @* Hidden: render nothing. *@
 }
@@ -100,6 +110,8 @@ else
     private RestrictionResolution _resolved =
         RestrictionResolution.Unrestricted(string.Empty, string.Empty);
 
+    private bool _isResolved;
+
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
     {
@@ -127,6 +139,7 @@ else
     {
         _resolved = await Binder.ResolveAsync(EntityKey, ColumnKey, EntityId);
         _lastResolvedEntityId = EntityId;
+        _isResolved = true;
     }
 
     private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)

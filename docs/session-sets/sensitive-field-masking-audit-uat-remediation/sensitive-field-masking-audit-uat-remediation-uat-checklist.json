@@ -1,0 +1,482 @@
+{
+  "ProjectName": "Sensitive Field Masking and Audit Remediation (DSL Pipeline Redo)",
+  "RequiresAppStateReset": true,
+  "Review": [
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Default Mask Rendering Under Real Login + Role Switch",
+      "ItemLabel": "UAT-1: BackofficeUser (via role-switch from admin) sees the SSN masked when no exemption is active",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync",
+      "Feedback": "",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\""
+        },
+        {
+          "StepNumber": 6,
+          "Action": "FOLLOW LINK IN NEW TAB with text \"Open\""
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"System Admin\""
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK MENU ITEM with label \"Backoffice User\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY SNACKBAR shows \"Now viewing as 'Backoffice User'.\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK LINK with text \"Retail Businesses\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK INPUT with label \"Last Name\" and enter \"Smith\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK ROW in \"Retail Businesses\" where \"Account Email\" = \"james.smith@example.com\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "VERIFY URL matches \"/customers/[0-9]+$\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "VERIFY TEXT contains \"XXX-XX-\""
+        },
+        {
+          "StepNumber": 15,
+          "Action": "VERIFY ELEMENT with label \"Social Security Number\" is not visible"
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Grant",
+      "ItemLabel": "UAT-2: SystemAdmin grants a Customer.SocialSecurityNumber mask exemption to BackofficeUser",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\""
+        },
+        {
+          "StepNumber": 6,
+          "Action": "FOLLOW LINK IN NEW TAB with text \"Open\""
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"Admin\""
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK LINK with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK TAB with name \"ROLE MASTER DETAILS\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK ROW in \"Role Master Details\" where \"Display alias\" = \"Backoffice User\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK TAB with name \"Mask Exemptions\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "OPEN DROPDOWN with label \"Table\" and select item whose text = \"Customer\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "OPEN DROPDOWN with label \"Column\" and select item whose text = \"SocialSecurityNumber\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "CLICK BUTTON with caption \"Add\""
+        },
+        {
+          "StepNumber": 15,
+          "Action": "VERIFY ROW in \"Mask Exemptions\" where \"Column\" = \"SocialSecurityNumber\" and \"Status\" = \"Active\" exists"
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Effect",
+      "ItemLabel": "UAT-3: BackofficeUser with an active exemption sees the SSN unmasked",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync",
+      "Feedback": "",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\""
+        },
+        {
+          "StepNumber": 6,
+          "Action": "FOLLOW LINK IN NEW TAB with text \"Open\""
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"System Admin\""
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK MENU ITEM with label \"Backoffice User\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY SNACKBAR shows \"Now viewing as 'Backoffice User'.\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK LINK with text \"Retail Businesses\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK INPUT with label \"Last Name\" and enter \"Smith\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK ROW in \"Retail Businesses\" where \"Account Email\" = \"james.smith@example.com\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "VERIFY URL matches \"/customers/[0-9]+$\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "VERIFY ELEMENT with label \"Social Security Number\" is visible"
+        },
+        {
+          "StepNumber": 15,
+          "Action": "VERIFY \"the masked text 'XXX-XX-' is not present on the customer detail page (manual step — no DSL VERIFY TEXT does-not-contain primitive)\""
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Audit Event Visibility",
+      "ItemLabel": "UAT-4: CrossOrgMonitor sees ExemptionGranted and FieldUnmaskedRead events for Customer",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\""
+        },
+        {
+          "StepNumber": 6,
+          "Action": "FOLLOW LINK IN NEW TAB with text \"Open\""
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"System Admin\""
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK MENU ITEM with label \"Cross Org Monitor\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY SNACKBAR shows \"Now viewing as 'Cross Org Monitor'.\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK BUTTON with caption \"Admin\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK LINK with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK TAB with name \"COMPLIANCE REVIEW\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "VERIFY ROW in \"Compliance Review\" where \"Event\" = \"ExemptionGranted\" exists"
+        },
+        {
+          "StepNumber": 14,
+          "Action": "VERIFY ROW in \"Compliance Review\" where \"Event\" = \"FieldUnmaskedRead\" exists"
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Correlation Cluster Layout",
+      "ItemLabel": "UAT-5: Row expander renders the correlation cluster section (judgment item)",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync",
+      "IsJudgmentItem": true,
+      "Feedback": "",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\""
+        },
+        {
+          "StepNumber": 6,
+          "Action": "FOLLOW LINK IN NEW TAB with text \"Open\""
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"System Admin\""
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK MENU ITEM with label \"Cross Org Monitor\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY SNACKBAR shows \"Now viewing as 'Cross Org Monitor'.\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK BUTTON with caption \"Admin\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK LINK with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK TAB with name \"COMPLIANCE REVIEW\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "EXPAND ROW in \"Compliance Review\" where \"Event\" = \"ExemptionGranted\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "VERIFY \"the row expander panel is visible and renders either a correlation cluster table or a 'No other rows in this correlation' message — JUDGMENT: cluster section reads clearly\""
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Export CSV",
+      "ItemLabel": "UAT-6: Export CSV button triggers a download and shows a success snackbar",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"We sent a sign-in code to\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\""
+        },
+        {
+          "StepNumber": 6,
+          "Action": "FOLLOW LINK IN NEW TAB with text \"Open\""
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"System Admin\""
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK MENU ITEM with label \"Cross Org Monitor\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY SNACKBAR shows \"Now viewing as 'Cross Org Monitor'.\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK BUTTON with caption \"Admin\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK LINK with text \"Security Dashboard\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK TAB with name \"COMPLIANCE REVIEW\""
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK BUTTON with caption \"Export CSV\""
+        },
+        {
+          "StepNumber": 14,
+          "Action": "VERIFY SNACKBAR shows \"Exported\""
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Default Mask Rendering Under Real Login + Role Switch",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Grant",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Sensitive Field Masking",
+      "Subarea": "Mask Exemption Effect",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Audit Event Visibility",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Correlation Cluster Layout",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Compliance Review",
+      "Subarea": "Export CSV",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    }
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  },
+  "DocumentDate": "5/1/2026, 2:32:45 AM"
+}

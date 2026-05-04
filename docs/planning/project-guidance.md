@@ -545,6 +545,25 @@ before proceeding.
   the consumer-side adoption (catalog crawler updates, prompt-template
   updates, smoke proof) lands as its own dabbler-platform session set.
 
+  **Catalog classifier — visible text wins, aria-label is the icon-only
+  fallback.** `tools/ComponentCatalogCrawler/AccessibilityTreeScraper.cs`
+  records each control's `userVisibleLabel` from the rendered
+  `innerText` first (what the human reads) and only falls back to
+  `aria-labelledby` / `<label for=>` / `aria-label` when no visible
+  text is present. When a control has both visible text and an
+  aria-label that differs (e.g., button "Save" with `aria-label="Save
+  changes to record"`), the aria-label is stored separately in the
+  `ariaLabel` field but **does not** become the locator key. Human UAT
+  steps must match what the human sees on screen, so locator probes
+  resolve `(role, userVisibleLabel)`. Icon-only controls (no visible
+  text) are reclassified with the aria-label as `userVisibleLabel`
+  and `elementRole=IconButton`. Do not change this policy without
+  reviewing the `sensitive-field-masking-audit-uat-remediation`
+  Session 1 rationale — the prior aria-label-first behavior caused
+  `GetByRole(Name=...)` to silently match the ARIA accessible name
+  (which prefers aria-label) instead of the user-visible caption,
+  producing checklists the human could not run.
+
 - **UAT↔E2E pairing under the DSL pipeline.** New `requiresE2E:
   true` sets do not author a separate `*UatCoverageTests.cs` paired
   to the checklist by `// begin STEP NNN` comments. The DSL
@@ -663,8 +682,32 @@ The runner is invoked via:
 python ai-router/uat_runner/cli.py \
   --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \
   --catalog docs/component-catalog/index.json \
-  --session-set {slug}
+  --session-set {slug} \
+  [--reset-app-state]    # required when the checklist mutates persisted state
 ```
+
+**`--reset-app-state` (CLI flag) and `RequiresAppStateReset: true` (checklist
+top-level field) are the two ways to enable container-state reset before
+each run.** Either signal causes the runner to force-recreate the web +
+api docker compose containers via `docker compose ... up
+--force-recreate -d web api` before executing the test. The reset is
+required for any checklist whose UAT steps mutate persisted application
+state — examples include MaskExemption grants, role-switching
+configuration changes, organization-membership edits, and anything else
+that the `SecurityConfigurationManager` (or analogous service) writes to
+the on-disk JSON file store. Without the reset, the next W2 run starts
+with the prior run's writes still present in the container's writable
+layer, and assertions that depend on a clean baseline (e.g., UAT-1
+expecting *no* exemption) fail deterministically. The reset adds ~10
+seconds per run.
+
+**Use the checklist field, not the CLI flag, when authoring a new
+state-mutating checklist.** The CLI flag is for ad-hoc operator runs;
+the checklist field is the durable signal that future humans + AI
+runners both honor automatically. Add `"RequiresAppStateReset": true`
+at the top of the checklist JSON, alongside `ProjectName`. See lesson
+**State-Mutating UATs Pollute The Container's Writable Layer Across
+Runs** in `lessons-learned.md`.
 
 Exit codes:
 

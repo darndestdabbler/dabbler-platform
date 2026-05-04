@@ -126,7 +126,7 @@ public class UserIdentityHandler : DelegatingHandler
                 request.Headers.Add(UserSessionContextConstants.ActiveOrganizationIdHeaderName, activeOrganizationId);
             }
         }
-        
+
         return await base.SendAsync(request, ct);
     }
 }
