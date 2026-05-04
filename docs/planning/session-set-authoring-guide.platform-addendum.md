@@ -18,8 +18,14 @@
 
 - Session sets: `docs/session-sets/<slug>/`
 - Archived sets: `docs/session-sets/_archived/`
-- Spec template seeds: see `template-seed/` for the project-bootstrap
-  copies of CLAUDE.md / AGENTS.md / GEMINI.md and the workflow doc.
+- Spec template seeds: the canonical
+  [`dabbler-ai-orchestration`](https://github.com/darndestdabbler/dabbler-ai-orchestration)
+  repo holds the project-bootstrap reference (its own CLAUDE.md /
+  AGENTS.md / GEMINI.md and `docs/ai-led-session-workflow.md`).
+  The pre-Set-010 `template-seed/` directory in this repo was
+  removed once the canonical extension's **Dabbler: Install
+  ai-router** command obsoleted the copy-into-your-repo bootstrap
+  pattern.
 - E2E tests: `tests/AcmeCoffeeOnline.Playwright/` — Playwright-driven
   through Docker compose stacks (`docker/docker-compose.infra.yml` for
   persistent dev infra, `docker/docker-compose.app.yml` for the app
