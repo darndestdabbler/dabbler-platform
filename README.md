@@ -25,9 +25,9 @@ The repo currently includes:
 - Docker Compose for web, api, sql server, MailHog, and Playwright
 - xUnit, bUnit, and Playwright coverage including conformance tests, filter
   panel interaction tests, accessibility assertions, and browser workflows
-- repo-root AI workflow assets: `ai-router/`, `AGENTS.md`, `CLAUDE.md`, and
-  `GEMINI.md`
-- durable cutover/guardrail docs and a reusable `template-seed/` bootstrap folder
+- repo-root AI workflow assets: `requirements.txt`, `ai_router/`,
+  `uat_runner/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
+- durable cutover/guardrail docs
 
 ## Project layout
 
@@ -38,10 +38,17 @@ The repo currently includes:
 - `src/Libs/` — integrated Dabbler libraries (Components, Security, Reports)
 - `tests/` — xUnit, bUnit, and Playwright coverage
 - `docker/` — compose and container definitions
-- `ai-router/` — router code, prompt templates, and workflow utilities
+- `ai_router/` — operator-tuned `router-config.yaml` and the
+  append-only `router-metrics.jsonl` cost telemetry. The router
+  itself is `pip install dabbler-ai-router` (declared in
+  `requirements.txt`); the canonical source lives at
+  [darndestdabbler/dabbler-ai-orchestration](https://github.com/darndestdabbler/dabbler-ai-orchestration)
+  and the canonical extension's **Dabbler: Install ai-router**
+  command handles the install for new clones.
+- `uat_runner/` — platform-specific UAT runner package (CLI, triage,
+  remediations, test cases). Calls into the canonical router via
+  `import ai_router`.
 - `docs/` — workflow docs and session-set artifacts
-- `template-seed/` — lightweight local seed for repeating the AI-led workflow
-  in a future repo
 
 ## Local commands
 

@@ -43,7 +43,7 @@ Orchestrator (Claude / Codex / Gemini)
   |
   |  For each step in the session plan:
   |    |-- file work: creates/edits files directly
-  |    |-- reasoning: calls route() via ai-router Python module
+  |    |-- reasoning: calls route() via ai_router Python module (pip-installed as dabbler-ai-router)
   |    |     |-- router selects cheapest capable model
   |    |     |-- Gemini Flash (tier 1), Gemini Pro (tier 2),
   |    |     |   Sonnet (tier 2), or Opus (tier 3)
@@ -108,7 +108,7 @@ human explicitly overrides it.
 
 ### AI Router
 
-A Python module in `ai-router/` that routes reasoning tasks to external AI
+A Python module in `ai_router/` (pip-installed as `dabbler-ai-router`) that routes reasoning tasks to external AI
 models. The orchestrator calls `route()` instead of performing analysis,
 review, or documentation itself. The router:
 
@@ -216,9 +216,9 @@ Key rules for the spec:
 
 ### 3. Configure the AI Router
 
-The router is configured via `ai-router/router-config.yaml`. Prompt templates
-and workflow utilities live under `ai-router/prompt-templates/` and
-`ai-router/utils/`. Key sections:
+The router is configured via `ai_router/router-config.yaml`. Prompt templates
+and workflow utilities live under `ai_router/prompt-templates/` and
+`ai_router/utils/`. Key sections:
 
 **Models:** Define available models with tier, pricing, and context limits.
 Each model may also declare `generation_params` controlling the API-level
@@ -531,7 +531,7 @@ The pipeline has four stages, in order:
    and
    [`dabbler-uat-dsl/docs/data-contracts.md`](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/data-contracts.md).
 3. **Run via the W2 runner.** Use
-   `python ai-router/uat_runner/cli.py` (described in the next
+   `python -m uat_runner.cli` (described in the next
    sub-step). The runner wires `--suppressions` and infers
    `--active-role` from the persona named in the checklist's first
    sign-in step. Target ≥5/5 deterministic when the spec demands
@@ -559,7 +559,7 @@ That pattern is retired for new work. The migration policy:
   → run via W2 → hand to human. The W2 pass is the coverage proof;
   there is no separate `uat-coverage-review` call.
 - **The task type is retired.** `uat-coverage-review` has been
-  removed from `ai-router/router-config.yaml` and the prompt
+  removed from `ai_router/router-config.yaml` and the prompt
   template file. Any new spec that references it is invalid; surface
   it at spec authoring time.
 
@@ -758,12 +758,10 @@ UAT runner to validate the checklist against the live app before notifying
 the human:
 
 ```bash
-# The package directory uses a hyphen (`ai-router`), so `python -m
-# ai_router.uat_runner.cli` does not resolve. Invoke the CLI as a script
-# instead — it bootstraps `ai_router` via importlib at startup. A repo-wide
-# rename to `ai_router/` is the long-term fix and is tracked as its own
-# session set.
-python ai-router/uat_runner/cli.py \
+# The UAT runner is a top-level package; module-style invocation works
+# directly because dabbler-ai-router is pip-installed and uat_runner/
+# lives at the workspace root.
+python -m uat_runner.cli \
   --checklist docs/session-sets/{slug}/{slug}-uat-checklist.json \
   --catalog docs/component-catalog/index.json \
   --session-set {slug}
@@ -812,7 +810,7 @@ dispatches to a different AI provider for independent review.
 2. Build a verification prompt with: spec excerpt + file contents +
    build results. **The prompt must include the structured JSON
    response schema** (defined in
-   `ai-router/prompt-templates/verification.md`) so the verifier
+   `ai_router/prompt-templates/verification.md`) so the verifier
    returns `{"verdict": "VERIFIED" | "ISSUES_FOUND", "issues": [...]}`
    rather than a bare paragraph. Bare-paragraph verdicts have caused
    parser failures and silent ISSUES_FOUND-misclassified-as-VERIFIED
@@ -1021,7 +1019,7 @@ mark_session_complete(
 ```
 
 Then send a session-complete notification through the reusable helper in
-`ai-router/`. **Critical ordering:** notify here — before the Step 9
+`ai_router/`. **Critical ordering:** notify here — before the Step 9
 reorganization review — so the human is not holding up the "session
 complete" signal while they think about proposals. Include the
 next-orchestrator recommendation (and on the last session, the
@@ -1143,7 +1141,9 @@ Each agent-specific file should contain:
 2. **Pointer to `docs/planning/project-guidance.md`**
 3. **Pointer to `docs/planning/lessons-learned.md`**
 4. **Pointer to this workflow doc** for the full procedure and rules
-5. **AI router import snippet** — how to load the `ai-router` module
+5. **AI router import snippet** — how to import the pip-installed
+   `ai_router` (`dabbler-ai-router` PyPI package) and the local
+   `uat_runner/` package
 6. **API key export commands** — platform-specific commands to load keys
 7. **Build and test commands**
 8. **Solution structure**
@@ -1169,24 +1169,28 @@ The orchestrator:
 
 ### Importing the Router
 
-The module directory is `ai-router/` (hyphenated). Python cannot import
-hyphenated package names directly, so use `importlib`:
+The router is the `dabbler-ai-router` PyPI package (canonical
+dabbler-ai-orchestration repo, Set 010 onwards). It is declared in
+`requirements.txt` and lives in the workspace `.venv`. Bare imports
+work:
 
 ```python
-import importlib.util, sys
-
-def load_ai_router():
-    spec = importlib.util.spec_from_file_location(
-        'ai_router', 'ai-router/__init__.py',
-        submodule_search_locations=['ai-router'])
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules['ai_router'] = mod
-    spec.loader.exec_module(mod)
-    return mod
-
-ar = load_ai_router()
-route = ar.route
+from ai_router import route, send_session_complete_notification
+from ai_router.session_log import SessionLog
 ```
+
+The platform-specific UAT runner is a top-level `uat_runner/`
+package alongside the pip-installed canonical router:
+
+```python
+from uat_runner.runner import run_checklist
+from uat_runner.triage import FailureRecord, TriageSession
+```
+
+The operator-tuned config lives at workspace
+`ai_router/router-config.yaml`; set `AI_ROUTER_CONFIG=ai_router/router-config.yaml`
+and `AI_ROUTER_METRICS_PATH=ai_router/router-metrics.jsonl` so
+`route()` reads them.
 
 On Windows, use `.venv/Scripts/python.exe` to run Python.
 
@@ -1305,7 +1309,7 @@ filesystem.
 ## Metrics and Observability
 
 Every routed call, verifier call, and tiebreaker call is appended to a
-global log at `ai-router/router-metrics.jsonl`. The log is append-only
+global log at `ai_router/router-metrics.jsonl`. The log is append-only
 JSON lines (one record per line). It spans all session sets — it is
 NOT per-session-set — so cross-project trends can be analyzed.
 
