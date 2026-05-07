@@ -16,6 +16,26 @@
 
 ---
 
+## Session Set Configuration
+
+```yaml
+requiresUAT: true
+requiresE2E: true
+uatScope: full
+outsourceMode: first
+```
+
+Reasoning: A composite UI control driving four distinct data-entry
+workflows (Add-Only, Search+Update, Pick-or-Add, M2M-with-payload)
+cannot be visually verified by automated tests alone — each workflow
+needs human eyes confirming the layout, keyboard flow, and visual
+polish look correct end-to-end. Playwright coverage handles the
+interaction contracts and regression-detection; UAT exercises the
+humans-actually-using-this verification dimension that automated
+tests can't reach.
+
+---
+
 ## Context
 
 Four data-entry workflows are served today by bespoke page compositions

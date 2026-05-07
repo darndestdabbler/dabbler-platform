@@ -17,6 +17,19 @@
 
 ---
 
+## Session Set Configuration
+
+```yaml
+requiresUAT: true
+requiresE2E: true
+uatScope: full
+outsourceMode: first
+```
+
+(Detailed UAT scope reasoning below in the [UAT scope](#uat-scope) section.)
+
+---
+
 ## Status
 
 **This is a stub spec.** The substantive design lives in the
