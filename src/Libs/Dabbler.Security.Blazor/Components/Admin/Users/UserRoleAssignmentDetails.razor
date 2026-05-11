@@ -108,6 +108,21 @@
                 You do not have an active baked-in admin role, so role assignments are read-only.
             </MudAlert>
         }
+        else if (_assignableRoles.Count == 0)
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined"
+                      data-testid="user-role-assignment-no-assignable-roles">
+                No additional roles can be assigned to this user from this surface.
+                @if (ExcludeUserAdminAssignment)
+                {
+                    <span>UserAdmin elevation is managed in <strong>Manage Organization Admins</strong>.</span>
+                }
+                <span>
+                    Baked-in admin roles (SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor) cannot be combined with
+                    user-type roles, and user-type roles already held by the user are not re-assignable.
+                </span>
+            </MudAlert>
+        }
         else
         {
             <div class="d-flex align-center gap-2">

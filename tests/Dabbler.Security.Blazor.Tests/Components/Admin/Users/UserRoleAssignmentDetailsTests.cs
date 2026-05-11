@@ -420,6 +420,55 @@ public class UserRoleAssignmentDetailsTests
     }
 
     [Fact]
+    public void NoAssignableRoles_RendersExplanationAlert_InsteadOfEmptyDropdown()
+    {
+        // UAT-3 finding (admin-users-cross-links Session 1 closeout, 2026-05-11):
+        // SystemAdmin selected own row in seeded data — every candidate role failed
+        // the authority filter and the dropdown rendered empty without explanation.
+        // This test confirms the explanation alert appears instead.
+        //
+        // We force the empty state with an empty IBakedInRoleProvider + empty
+        // UserTypeRoles config so `candidates` is [] before the authority filter
+        // runs. The exact mechanism by which candidates becomes empty is
+        // immaterial to this test — what matters is the rendered behavior.
+        using var ctx = new TestContext();
+        var emptyProvider = new Mock<IBakedInRoleProvider>();
+        emptyProvider.Setup(p => p.GetBakedInRoles()).Returns([]);
+        emptyProvider.Setup(p => p.TryGetBakedInRole(It.IsAny<string>())).Returns((BakedInRoleDefinition?)null);
+
+        var store = new Mock<ISecurityConfigurationStore>();
+        store.Setup(s => s.LoadAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new SecurityConfiguration
+        {
+            UserTypeRoles = []
+        });
+
+        var queryMock = new Mock<IAdminUserQueryService>();
+        queryMock.Setup(q => q.GetActorActiveAdminRole()).Returns(BakedInRoles.SystemAdmin);
+        queryMock.Setup(q => q.GetActorUserId()).Returns("99");
+        queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HashSet<int>());
+
+        var userRoleStore = new Mock<IUserRoleStore>();
+
+        ctx.SetupForDabbler(configureServices: services =>
+        {
+            services.AddSingleton(emptyProvider.Object);
+            services.AddSingleton(new SecurityConfigurationManager(store.Object));
+            services.AddSingleton(userRoleStore.Object);
+            services.AddSingleton(queryMock.Object);
+        });
+
+        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+            .Add(x => x.User, Target)
+            .Add(x => x.ExcludeUserAdminAssignment, true));
+
+        cut.Find("[data-testid='user-role-assignment-no-assignable-roles']")
+            .Should().NotBeNull("the no-assignable-roles alert must replace an empty dropdown");
+        cut.FindAll("[data-testid='user-role-assignment-role-select']")
+            .Should().BeEmpty("the empty dropdown must not render when no roles are assignable");
+    }
+
+    [Fact]
     public async Task ExcludeUserAdminAssignment_True_BlocksAssignUserAdminAtActionLevel()
     {
         using var ctx = new TestContext();
