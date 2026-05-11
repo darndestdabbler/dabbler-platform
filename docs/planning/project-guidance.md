@@ -482,6 +482,66 @@ before proceeding.
   for checklist JSON files intended for human execution.
 - Open and run those files through
   `https://darndestdabbler.github.io/uat-checklist-editor/`.
+- **MANDATORY: each `Review` item is a self-contained, runnable user
+  journey starting from a defined precondition (typically a fresh
+  sign-in via `/login`).** Concretely:
+  - **No item may consist solely of `VERIFY` steps.** Every Review
+    item must include the human-action sequence (`NAVIGATE`, `CLICK`,
+    `OPEN DROPDOWN`, `CLICK INPUT … and enter …`, etc.) that drives
+    the UI to the state being verified. A reader who jumps into any
+    single Review item — not just the first — must be able to execute
+    the whole thing without remembering state from prior items.
+  - **Include the full sign-in flow in `Steps[]` when authentication
+    is part of the user-observable journey.** The masking-audit-uat-
+    remediation set's items 1–12 are the canonical pattern: `NAVIGATE
+    TO "/login"` → `CLICK INPUT "Email address" and enter "…"` →
+    `CLICK BUTTON "Send sign-in link"` → `VERIFY TEXT "We sent a
+    sign-in code to"` → `NAVIGATE TO "/dev/email-inbox"` → `CLICK
+    LINK with text "Open"` → continue into the post-login scenario.
+    Repeat this preamble in every item that depends on sign-in. The
+    cost is duplication; the benefit is items that read top-to-
+    bottom as the human will actually run them.
+  - **Use `Feedback` (Review-level, free-text) — not `HumanAction`
+    or `Expectation` — for human-facing prose.** W0 parses
+    `HumanAction` and `Expectation` as DSL and rejects free prose
+    there with cascading grammar errors. Put persona, ItemLabel
+    rationale, judgment-item notes, and any "what to look for" prose
+    in `Feedback` so the editor renders it for the reviewer without
+    breaking the W0 validator.
+  - **Anti-pattern (do not repeat): single-`VERIFY` items.** A
+    Review item with one step like `VERIFY TEXT contains "X"` reads
+    to the human as "verify this thing somehow" with no instruction
+    on how they got to a page where X is visible. These items break
+    the "self-contained journey" contract and create the impression
+    that UAT is rote inspection rather than guided execution.
+    Surfaced as the explicit failure mode in 2026-05-11 (admin-
+    users-cross-links Session 1 closeout) — the first-draft
+    checklist had four single-`VERIFY` items and was rejected by
+    the human reviewer.
+- **W2 runner-emitted test wrapper conflict with DSL-driven login.**
+  When a checklist's `Steps[]` start with `NAVIGATE TO "/login"`, the
+  W0-runner-emitted Playwright test wrapper's auto-inserted
+  `SeededSignInAsync(persona)` collides with the DSL-driven login:
+  the persona is already signed in before the DSL navigates to
+  `/login`, so the login form is missing and the DSL's `CLICK INPUT
+  "Email address"` step times out. Until the W0 runner adds an
+  opt-out (e.g., `--no-pre-sign-in` or auto-detect-DSL-login),
+  consumer-side options for `requiresUAT: true` sets that need
+  human-equivalent login are:
+  - (a) Author the human-readable checklist with full sign-in flow
+    in `Steps[]` (the right answer for the human), accept that the
+    W2 compiled-test pass is gated on the runner enhancement, and
+    rely on the bUnit / hand-authored Playwright coverage for the
+    automated correctness proof in the meantime.
+  - (b) Use SeededSignInAsync (test setup, out-of-scope of the UAT)
+    and start the DSL after login, accepting weaker human-facing
+    instructions.
+  - (c) Hand-author the Playwright test (masking-audit pattern) so
+    the test exercises the full magic-link flow in `Steps[]` and
+    the auto-emitted wrapper's SeededSignInAsync is only used for
+    setup state mutations (not for the human-equivalent steps).
+  Prefer (a) for new sets; document the W2-pass status in the
+  session's `disposition.json` and surface the runner gap upstream.
 - **MANDATORY: every UAT step must be performable by the human using
   only user-visible surfaces, and the matching Playwright step is the
   W0-compiled output of that DSL step.** Under the DSL-driven
