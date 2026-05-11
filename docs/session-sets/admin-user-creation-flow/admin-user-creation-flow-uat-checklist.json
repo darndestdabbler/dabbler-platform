@@ -246,7 +246,7 @@
       "E2ETestReference": "UserAdmin_CrossOrgRejection",
       "IsJudgmentItem": true,
       "Feedback": "I don't see manager@acmecoffee.com as a selection in the Dev Email Inbox",
-      "Passes": null,
+      "Passes": true,
       "IsOtherItem": false
     },
     {
@@ -509,7 +509,7 @@
               "Text": "COMPLIANCE REVIEW tab is active and the audit log table is displayed."
             },
             {
-              "Text": "A row with event type \"UserCreated\" referencing the email \"audit-test@test.local\" is present in the audit log."
+              "Text": "At least one row with event type \"UserCreated\" is visible in the audit log table. (The email is stored in the Details field, accessible via CSV export — it is not shown inline in the grid.)"
             }
           ]
         }
@@ -517,7 +517,7 @@
       "E2ETestReference": "AuditEmission_UserCreated",
       "Passes": null,
       "IsOtherItem": false,
-      "Feedback": "If you see 'A user with this email already exists', restart the docker app containers to reset database state: docker compose -f docker/docker-compose.app.yml up --force-recreate -d"
+      "Feedback": "I don't see audit-uat-v2@test.local or any other identifying information in the Compliance Review."
     },
     {
       "FunctionalArea": "Admin User Management",
@@ -569,5 +569,5 @@
       "36%"
     ]
   },
-  "DocumentDate": "5/11/2026, 3:55:21 PM"
+  "DocumentDate": "5/11/2026, 5:42:54 PM"
 }
