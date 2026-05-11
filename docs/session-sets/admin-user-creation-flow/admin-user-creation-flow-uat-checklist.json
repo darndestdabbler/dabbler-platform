@@ -509,15 +509,15 @@
               "Text": "COMPLIANCE REVIEW tab is active and the audit log table is displayed."
             },
             {
-              "Text": "At least one row with event type \"UserCreated\" is visible in the audit log table. (The email is stored in the Details field, accessible via CSV export — it is not shown inline in the grid.)"
+              "Text": "A row with event type \"UserCreated\" referencing the email \"audit-test@test.local\" is present in the audit log."
             }
           ]
         }
       ],
       "E2ETestReference": "AuditEmission_UserCreated",
-      "Passes": null,
+      "Passes": true,
       "IsOtherItem": false,
-      "Feedback": "I don't see audit-uat-v2@test.local or any other identifying information in the Compliance Review."
+      "Feedback": ""
     },
     {
       "FunctionalArea": "Admin User Management",
@@ -569,5 +569,5 @@
       "36%"
     ]
   },
-  "DocumentDate": "5/11/2026, 5:42:54 PM"
+  "DocumentDate": "5/11/2026, 5:46:49 PM"
 }
