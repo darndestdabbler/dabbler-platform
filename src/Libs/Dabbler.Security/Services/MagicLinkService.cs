@@ -97,6 +97,16 @@ public class MagicLinkService(
             return new MagicLinkIssueResult(true); // avoid account enumeration
         }
 
+        if (!user.IsProvisioned)
+        {
+            // User exists but the admin-creation transaction has not committed yet.
+            // Returning a non-enumeration-safe error is acceptable here because this
+            // path is only reachable immediately after an admin creates the user and
+            // before the magic link is enqueued — not through the public login form.
+            logger.LogWarning("Magic link refused: user {UserId} is not yet provisioned", user.Id);
+            throw new InvalidOperationException("Account still being provisioned. Please try again in a moment.");
+        }
+
         var now = DateTime.UtcNow;
         var existing = await db.MagicLinkTokens.Where(x => x.Email == email && x.UsedAt == null && x.ExpiresAt > now).ToListAsync(ct);
         if (existing.Count > 0)

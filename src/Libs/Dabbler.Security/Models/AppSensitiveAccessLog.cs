@@ -35,6 +35,17 @@ public enum SensitiveAccessEventKind
     /// long-lived render does not flood the audit table.
     /// </summary>
     ExemptionExpired = 4,
+
+    /// <summary>
+    /// An authorized admin created a new backoffice user account through the
+    /// admin-user-creation flow. Emitted inside the EF transaction before the
+    /// <c>IsProvisioned</c> flag is set to <c>true</c>, so the audit row
+    /// cannot be lost if the post-commit enqueue step fails.
+    /// Payload: <c>EntityKey</c> = "AppUser", <c>EntityId</c> = new user's ID,
+    /// <c>GranterUserId</c> = granting admin's ID, <c>TargetRoleName</c> = initial role,
+    /// <c>Details</c> = target email (truncated to 1024 chars).
+    /// </summary>
+    UserCreated = 5,
 }
 
 /// <summary>

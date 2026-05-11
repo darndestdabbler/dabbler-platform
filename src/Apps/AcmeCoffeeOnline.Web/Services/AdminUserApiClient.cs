@@ -38,6 +38,18 @@ public sealed class AdminUserApiClient
         return await response.Content.ReadFromJsonAsync<AdminUserScopeDto>(cancellationToken);
     }
 
+    public async Task<BackofficeUserCreationResponseDto?> CreateBackofficeUserAsync(
+        CreateBackofficeUserDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PostAsJsonAsync(
+            "api/admin/users",
+            dto,
+            cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<BackofficeUserCreationResponseDto>(cancellationToken);
+    }
+
     private static async Task EnsureSuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         if (response.IsSuccessStatusCode)

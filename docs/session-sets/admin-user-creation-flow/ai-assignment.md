@@ -36,11 +36,11 @@
 
 | Field | Value |
 |---|---|
-| Orchestrator used | *(fill after session)* |
-| Effort used | *(fill after session)* |
-| Wall-clock duration | *(fill after session)* |
-| Token consumption | *(fill after session)* |
-| Deviation from plan | *(fill after session)* |
+| Orchestrator used | claude-code / claude-opus-4-7 |
+| Effort used | high |
+| Wall-clock duration | ~15 min |
+| Total routed cost | $0.6530 |
+| Deviation from plan | Two verification rounds required (round 1 found 6 issues; round 2 VERIFIED). Session completed on schedule. |
 
 ---
 
@@ -73,11 +73,11 @@
 
 | Field | Value |
 |---|---|
-| Orchestrator used | *(fill after session)* |
-| Effort used | *(fill after session)* |
-| Wall-clock duration | *(fill after session)* |
-| Token consumption | *(fill after session)* |
-| Deviation from plan | *(fill after session)* |
+| Orchestrator used | claude-code / claude-sonnet-4-6 |
+| Effort used | high |
+| Wall-clock duration | ~60 min |
+| Total routed cost | $1.58 (2 verification rounds via opus/gemini-pro) |
+| Deviation from plan | Verification round 1 found 2 Major + 4 Minor issues; all fixed; round 2 VERIFIED. BaseVerifyUrl moved server-side (security fix). EmailAlreadyExistsException base class changed. 201 now uses CreatedAtAction. |
 
 ---
 

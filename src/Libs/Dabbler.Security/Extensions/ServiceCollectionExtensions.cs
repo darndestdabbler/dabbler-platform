@@ -171,6 +171,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRowRestrictionBroker, RowRestrictionBroker>();
         services.AddSingleton<OrganizationScopeFilter>();
         services.AddScoped<IAdminUserQueryService, AdminUserQueryService>();
+        services.AddScoped<IBackofficeUserCreationService, BackofficeUserCreationService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IExternalLoginService, ExternalLoginService>();
         services.TryAddSingleton<DevEmailInbox>();

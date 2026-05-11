@@ -67,6 +67,15 @@ public class AppUser
     public ICollection<AppUserOrganizationMembership> OrganizationMemberships { get; set; } = new List<AppUserOrganizationMembership>();
 
     /// <summary>
+    /// Gets or sets a value indicating whether the admin-creation provisioning workflow has completed
+    /// for this account. Defaults to <c>true</c> for all paths except the admin-user-creation flow,
+    /// which sets this to <c>false</c> on INSERT and flips it to <c>true</c> inside the same EF
+    /// transaction once the role + membership rows are committed. Magic-link issuance checks this
+    /// flag and refuses for un-provisioned users to prevent sign-in before the transaction commits.
+    /// </summary>
+    public bool IsProvisioned { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the collection of external login providers (e.g., Google, Facebook) linked to this user account.
     /// </summary>
     public ICollection<AppExternalLogin> ExternalLogins { get; set; } = new List<AppExternalLogin>();
