@@ -17,3 +17,9 @@ __pycache__/
 src/Libs/Dabbler.Security.DevIdp/devidp.db
 src/Libs/Dabbler.Security.DevIdp/devidp.db-shm
 src/Libs/Dabbler.Security.DevIdp/devidp.db-wal
+
+# Local dotnet tools (dabbler-uat-dsl CLI etc. — installed on demand
+# via `dotnet tool install --tool-path .tools`; never committed.
+# Fresh clones / CI install from Directory.Packages.props or the
+# sibling repo's pack-output).
+.tools/

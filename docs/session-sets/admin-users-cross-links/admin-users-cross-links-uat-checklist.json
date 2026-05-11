@@ -1,14 +1,14 @@
 {
   "ProjectName": "AcmeCoffeeOnline - admin-users-cross-links",
   "ReleaseLabel": "admin-users-cross-links Session 1",
-  "DocumentDate": "2026-05-11",
+  "DocumentDate": "5/11/2026, 10:13:55 AM",
   "RequiresAppStateReset": false,
   "Review": [
     {
       "FunctionalArea": "Manage Organization Admins Page",
       "Subarea": "Page Heading and Dashboard Banner",
       "ItemLabel": "UAT-1: SystemAdmin signs in via magic link, navigates to Manage Organization Admins, and sees the renamed page heading plus the dashboard cross-link banner",
-      "Feedback": "Persona: admin@acmecoffee.com → SystemAdmin. The W0-compiled Playwright test wrapper pre-signs-in via SeededSignInAsync (test setup, out-of-scope of this UAT); the human follows the magic-link flow in steps 1-6. The /login and /dev/email-inbox routes are pre-auth and not in the component catalog — UnknownRoute errors for these routes are suppressed for this checklist.",
+      "Feedback": "",
       "Steps": [
         {
           "StepNumber": 1,
@@ -68,13 +68,14 @@
             }
           ]
         }
-      ]
+      ],
+      "Passes": true
     },
     {
       "FunctionalArea": "Cross-Link From /admin/users To Security Dashboard",
       "Subarea": "Banner Link Click-Through",
       "ItemLabel": "UAT-2: After signing in, SystemAdmin clicks the dashboard banner link on Manage Organization Admins and lands on the Security Dashboard's Users and Role Assignment tab",
-      "Feedback": "Persona: admin@acmecoffee.com → SystemAdmin (signed in via magic link in steps 1-6). The banner link href is /admin/security (corrected from the initial /admin/security-dashboard path). Adding ?tab= query-parameter support to DabblerSecurityDashboard so the tab opens directly is queued as a follow-on enhancement; today the human clicks the tab manually after landing.",
+      "Feedback": "",
       "Steps": [
         {
           "StepNumber": 1,
@@ -135,14 +136,15 @@
             }
           ]
         }
-      ]
+      ],
+      "Passes": true
     },
     {
       "FunctionalArea": "Canonical UserAdmin Surface",
       "Subarea": "Dashboard Tab Excludes UserAdmin; Cross-Link Back To /admin/users",
       "ItemLabel": "UAT-3: SystemAdmin signs in, opens the dashboard Users tab, selects a user, confirms UserAdmin is excluded from the role dropdown, and uses the cross-link to navigate back to Manage Organization Admins for the correct org",
       "IsJudgmentItem": true,
-      "Feedback": "Persona: admin@acmecoffee.com → SystemAdmin. Steps 1-6 are the magic-link sign-in flow; 7-8 navigate to the Users tab; step 9 is the judgment checkpoint that drives the human through row selection, dropdown inspection, and cross-link click-through. The dropdown contents, the detail-panel banner, and the org-switch redirect all live behind a click-driven row-selection that the catalog crawler does not capture. bUnit tests ExcludeUserAdminAssignment_True_FiltersUserAdminFromDropdown and ExcludeUserAdminAssignment_True_ShowsOrgAdminCrossLinkBanner_WhenUserHasOrgs verify the dropdown and banner behavior programmatically; this UAT verifies the human-observable behavior end-to-end.",
+      "Feedback": "The Role dropdown has no values in it",
       "Steps": [
         {
           "StepNumber": 1,
@@ -202,7 +204,47 @@
             }
           ]
         }
-      ]
+      ],
+      "Passes": false
+    },
+    {
+      "FunctionalArea": "Manage Organization Admins Page",
+      "Subarea": "Page Heading and Dashboard Banner",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Link From /admin/users To Security Dashboard",
+      "Subarea": "Banner Link Click-Through",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Canonical UserAdmin Surface",
+      "Subarea": "Dashboard Tab Excludes UserAdmin; Cross-Link Back To /admin/users",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
     }
-  ]
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  }
 }
