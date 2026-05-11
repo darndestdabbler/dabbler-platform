@@ -425,6 +425,29 @@ before proceeding.
   roles. Note: `Dabbler.Security.Blazor` does not reference `Dabbler.Testing.Blazor`
   — migration scope for that library is deferred until a spec explicitly adds
   the dependency.
+- **Playwright tests that create unique-key records (users, emails, etc.) must
+  use a static run-unique suffix to avoid collisions across repeated
+  `dotnet test` invocations.** The W2 runner's `--reset-app-state` flag
+  handles state isolation via container recreation; for direct `dotnet test`
+  and CI runs without container reset, embed a static
+  `RunId = Guid.NewGuid().ToString("N")[..8]` field in the test class and
+  append it to any email or name that must be unique in the DB (e.g.,
+  `$"e2e-newuser-{RunId}@test.local"`). Promoted 2026-05-11 from
+  `admin-user-creation-flow` Session 3, where UAT-1 and UAT-4 Playwright tests
+  failed on the second run because prior-run emails already existed in the
+  database.
+- **Testing MudBlazor dialog components in bUnit: store the
+  `IRenderedComponent<MudDialogProvider>` ref and use it as the search root.**
+  `TestContext.Find()`, `FindComponent()`, `InvokeAsync()`, and `WaitForState()`
+  are extension methods on `IRenderedFragment`, not on `TestContext`. MudBlazor
+  renders dialog content inside `MudDialogProvider`, not inside the `MudDialog`
+  component itself. The correct pattern: store the provider ref from
+  `ctx.RenderComponent<MudDialogProvider>()` during test setup, then after
+  calling `IDialogService.ShowAsync`, search for dialog elements via
+  `provider.Find(...)`, `provider.FindComponent<T>()`, etc. Tests that call
+  `ctx.Find(...)` directly will fail with a compile error. Pattern established
+  in `admin-user-creation-flow` Session 3
+  (`CreateBackofficeUserDialogTests.cs`). Promoted 2026-05-11.
 
 ### Human UAT And Checklist Editor
 
