@@ -1,6 +1,6 @@
 {
   "appName": "AcmeCoffeeOnline",
-  "generatedAt": "2026-04-30T21:02:47Z",
+  "generatedAt": "2026-05-11T12:12:52Z",
   "schemaVersion": "1.1",
   "entries": [
     {
@@ -991,8 +991,17 @@
       "routePath": "/admin/users",
       "role": "SystemAdmin",
       "elementRole": "Text",
-      "userVisibleLabel": "User Administration",
+      "userVisibleLabel": "Manage Organization Admins",
       "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "SystemAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Open the Security Dashboard \u2192 Users and Role Assignment tab",
+      "testId": "user-admin-dashboard-banner-link",
+      "htmlTag": "a",
       "isWatermarked": false
     },
     {

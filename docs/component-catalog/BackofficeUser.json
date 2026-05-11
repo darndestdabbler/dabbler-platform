@@ -1,6 +1,6 @@
 {
   "appName": "AcmeCoffeeOnline",
-  "generatedAt": "2026-04-30T21:03:17Z",
+  "generatedAt": "2026-05-11T12:13:21Z",
   "schemaVersion": "1.1",
   "entries": [
     {
@@ -257,7 +257,7 @@
       "routePath": "/admin/users",
       "role": "BackofficeUser",
       "elementRole": "Text",
-      "userVisibleLabel": "User Administration",
+      "userVisibleLabel": "Manage Organization Admins",
       "htmlTag": "h4",
       "isWatermarked": false
     },

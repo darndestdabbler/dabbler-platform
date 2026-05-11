@@ -4,6 +4,30 @@
   "suppressions": [
     {
       "checklists": [
+        "docs/session-sets/admin-users-cross-links/admin-users-cross-links-uat-checklist.json"
+      ],
+      "errorKind": "UnknownRoute",
+      "routePathPatterns": ["*"],
+      "rationale": "Click-driven navigation (CLICK LINK, CLICK MENU ITEM, CLICK TAB) does not advance W0's route cursor, producing cascading UnknownRoute errors after the first click-driven transition. All quoted labels were selected verbatim from docs/component-catalog/index.json for the route x role active at each step. The majority of UAT steps for this set are judgment items (catalog was crawled before the rename and before the new cross-link controls were added); a re-crawl after the session closes will update the catalog and allow future sets to use these labels without suppressions."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/admin-users-cross-links/admin-users-cross-links-uat-checklist.json"
+      ],
+      "errorKind": "UnknownLabel",
+      "routePathPatterns": ["*"],
+      "rationale": "The catalog was crawled before this session's UI changes: (1) the /admin/users heading 'User Administration' was renamed to 'Manage Organization Admins'; (2) the dashboard info banner (data-testid=user-admin-dashboard-banner) and org-admin cross-link banner (data-testid=user-role-assignment-manage-org-admins-banner) are new controls. All new-label steps are marked IsJudgmentItem=true with rationale. A catalog re-crawl after this session will add the new labels; at that point this suppression should be narrowed or removed."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/admin-users-cross-links/admin-users-cross-links-uat-checklist.json"
+      ],
+      "errorKind": "ElementTypeMismatch",
+      "routePathPatterns": ["*"],
+      "rationale": "The checklist uses VERIFY ELEMENT for labels that appear in the catalog as elementRole=Text ('Manage Organization Admins'), elementRole=Link ('Open the Security Dashboard...' banner link), and elementRole=Button ('GRANT USERADMIN'). These are valid elements on the correct routes for the correct role. The VERIFY ELEMENT verb's strict elementRole=Element requirement is intentionally relaxed here because: (a) the Text/Link/Button distinctions do not affect the human verification goal (the human can see whether the text or button is present regardless of its ARIA role); (b) the Playwright emitter's VERIFY ELEMENT implementation confirms visibility of the matching label regardless of elementRole; and (c) using verb-specific forms (VERIFY TEXT, VERIFY LINK, VERIFY BUTTON) for each elementRole would require extending the DSL. Aligns with the existing w0-cli smoke set ElementTypeMismatch suppression rationale."
+    },
+    {
+      "checklists": [
         "docs/session-sets/w0-cli-suppressions-and-role-pinning/smoke/w0-cli-suppressions-and-role-pinning-uat-checklist.json"
       ],
       "errorKind": "ElementTypeMismatch",

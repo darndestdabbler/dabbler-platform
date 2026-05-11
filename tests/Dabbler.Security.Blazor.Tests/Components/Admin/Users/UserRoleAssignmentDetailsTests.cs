@@ -349,6 +349,110 @@ public class UserRoleAssignmentDetailsTests
         raisedFor.Should().Be(Target.UserId);
     }
 
+    // A target with no roles allows baked-in role assignment (no NonUserTypeCombination block).
+    private static readonly AdminUserRow TargetNoRoles = new(
+        "77", "Target No Roles", "nroles@test.local", true,
+        [new AdminUserOrganization(10, "internal", "Internal", true, true)],
+        []);
+
+    [Fact]
+    public void ExcludeUserAdminAssignment_True_FiltersUserAdminFromDropdown()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(configureServices: RegisterCommonServices);
+
+        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+            .Add(x => x.User, TargetNoRoles)
+            .Add(x => x.ExcludeUserAdminAssignment, true));
+
+        var assignable = GetAssignableRoleNames(cut.Instance);
+        assignable.Should().NotContain(BakedInRoles.UserAdmin);
+        assignable.Should().Contain(BakedInRoles.SystemAdmin);
+    }
+
+    [Fact]
+    public void ExcludeUserAdminAssignment_False_IncludesUserAdminInDropdown()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(configureServices: RegisterCommonServices);
+
+        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+            .Add(x => x.User, TargetNoRoles)
+            .Add(x => x.ExcludeUserAdminAssignment, false));
+
+        var assignable = GetAssignableRoleNames(cut.Instance);
+        assignable.Should().Contain(BakedInRoles.UserAdmin);
+    }
+
+    [Fact]
+    public void ExcludeUserAdminAssignment_True_RendersUserAdminChipAsReadOnly_WhenAlreadyAssigned()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(configureServices: RegisterCommonServices);
+
+        var targetWithUserAdmin = Target with { Roles = [BakedInRoles.UserAdmin, "Customer"] };
+
+        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+            .Add(x => x.User, targetWithUserAdmin)
+            .Add(x => x.ExcludeUserAdminAssignment, true));
+
+        var chip = cut.Find("[data-testid='user-role-assignment-current-UserAdmin']");
+        chip.Should().NotBeNull();
+        var closeButton = chip.ParentElement?.QuerySelector("button.mud-chip-close-button")
+            ?? chip.QuerySelector("button.mud-chip-close-button");
+        closeButton.Should().BeNull("UserAdmin chip must be read-only when ExcludeUserAdminAssignment=true");
+    }
+
+    [Fact]
+    public void ExcludeUserAdminAssignment_True_ShowsOrgAdminCrossLinkBanner_WhenUserHasOrgs()
+    {
+        using var ctx = new TestContext();
+        ctx.SetupForDabbler(configureServices: RegisterCommonServices);
+
+        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+            .Add(x => x.User, Target)
+            .Add(x => x.ExcludeUserAdminAssignment, true));
+
+        cut.Find("[data-testid='user-role-assignment-manage-org-admins-banner']")
+            .Should().NotBeNull();
+        cut.Find("[data-testid='user-role-assignment-org-admin-link-10']")
+            .Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task ExcludeUserAdminAssignment_True_BlocksAssignUserAdminAtActionLevel()
+    {
+        using var ctx = new TestContext();
+        var roleStoreMock = new Mock<IUserRoleStore>();
+
+        ctx.SetupForDabbler(configureServices: services =>
+        {
+            RegisterCommonServices(services);
+            services.RemoveAll<IUserRoleStore>();
+            services.AddSingleton(roleStoreMock.Object);
+        });
+
+        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+            .Add(x => x.User, Target)
+            .Add(x => x.ExcludeUserAdminAssignment, true));
+
+        await cut.InvokeAsync(() =>
+        {
+            var type = cut.Instance.GetType();
+            type.GetField("_pendingRoleName",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .SetValue(cut.Instance, BakedInRoles.UserAdmin);
+
+            var assign = type.GetMethod("AssignAsync",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+            return (Task)assign.Invoke(cut.Instance, null)!;
+        });
+
+        roleStoreMock.Verify(
+            s => s.AddRoleAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static IReadOnlyList<string> GetAssignableRoleNames(UserRoleAssignmentDetails component)
     {
         var field = typeof(UserRoleAssignmentDetails).GetField(

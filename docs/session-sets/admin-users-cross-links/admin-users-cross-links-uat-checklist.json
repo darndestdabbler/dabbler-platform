@@ -1,0 +1,100 @@
+{
+  "ProjectName": "AcmeCoffeeOnline - admin-users-cross-links",
+  "ReleaseLabel": "admin-users-cross-links Session 1",
+  "DocumentDate": "2026-05-11",
+  "RequiresAppStateReset": false,
+  "Review": [
+    {
+      "FunctionalArea": "Manage Organization Admins Page",
+      "Subarea": "Page Heading",
+      "ItemLabel": "UAT-1: Page heading reads Manage Organization Admins",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.Generated.AdminUsersCrossLinksUatTests.RunChecklistAsync",
+      "Feedback": "Persona admin@acmecoffee.com signed in as SystemAdmin by SeededSignInAsync test setup. Verify visually that the browser tab and page h4 heading both show 'Manage Organization Admins', not the old 'User Administration' text.",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/users\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "VERIFY TEXT contains \"Manage Organization Admins\"",
+          "Verifications": []
+        }
+      ]
+    },
+    {
+      "FunctionalArea": "Manage Organization Admins Page",
+      "Subarea": "Dashboard Cross-Link Banner",
+      "ItemLabel": "UAT-2: Dashboard cross-link banner visible on /admin/users",
+      "Feedback": "Still signed in as SystemAdmin from UAT-1. The banner links to /admin/security-dashboard?tab=users-and-role-assignment.",
+      "Steps": [
+        {
+          "StepNumber": 3,
+          "Action": "VERIFY TEXT contains \"Open the Security Dashboard\"",
+          "Verifications": []
+        }
+      ]
+    },
+    {
+      "FunctionalArea": "Manage Organization Admins Page",
+      "Subarea": "UserAdmin Grant Actions",
+      "ItemLabel": "UAT-3: GRANT USERADMIN and REMOVE USERADMIN buttons still present on /admin/users",
+      "IsJudgmentItem": true,
+      "Feedback": "Judgment item — verifying GRANT USERADMIN requires first switching to an organization with UserAdmin-eligible members, which cannot be done in a single navigate-and-verify DSL sequence without the org-switch URL. bUnit test GrantUserAdminAction_RefreshesRenderedScope verifies the button render and grant flow programmatically. Manual: switch organization to 'Internal Platform' (or any org with members), navigate to Admin → Manage Organization Admins, and verify GRANT USERADMIN or REMOVE USERADMIN buttons appear in the Actions column.",
+      "Steps": [
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"Manage Organization Admins\"",
+          "Verifications": []
+        }
+      ]
+    },
+    {
+      "FunctionalArea": "Security Dashboard",
+      "Subarea": "Users and Role Assignment Tab",
+      "ItemLabel": "UAT-4: Users and Role Assignment tab reachable from Security Dashboard",
+      "Feedback": "Navigate to /admin/security and activate the USERS AND ROLE ASSIGNMENT tab.",
+      "Steps": [
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK TAB with name \"USERS AND ROLE ASSIGNMENT\"",
+          "Verifications": []
+        }
+      ]
+    },
+    {
+      "FunctionalArea": "Security Dashboard",
+      "Subarea": "UserAdmin Excluded from Role Dropdown",
+      "ItemLabel": "UAT-5: UserAdmin not assignable from the dashboard role dropdown",
+      "IsJudgmentItem": true,
+      "Feedback": "Judgment item — tab detail controls (role dropdown) not in catalog (user selection requires click-driven row expansion not captured by crawler). Select any user row, open the Role dropdown in the Assign role section, and confirm UserAdmin (or 'User Administrator (UserAdmin)') is NOT in the list. bUnit test ExcludeUserAdminAssignment_True_FiltersUserAdminFromDropdown verifies this programmatically.",
+      "Steps": [
+        {
+          "StepNumber": 7,
+          "Action": "VERIFY TEXT contains \"Users and Role Assignment\"",
+          "Verifications": []
+        }
+      ]
+    },
+    {
+      "FunctionalArea": "Security Dashboard",
+      "Subarea": "Org-Admin Cross-Link",
+      "ItemLabel": "UAT-6: Manage org admins cross-link appears in user detail panel",
+      "IsJudgmentItem": true,
+      "Feedback": "Judgment item — detail panel banner only visible with a user selected; click-driven row expansion not in catalog. With a user selected, verify an info alert reading 'To grant or revoke UserAdmin access for this user, use Manage Organization Admins:' is visible with at least one 'Manage org admins for <OrgName>' link whose href starts '/auth/switch-organization?organizationId='. bUnit test ExcludeUserAdminAssignment_True_ShowsOrgAdminCrossLinkBanner_WhenUserHasOrgs verifies this programmatically.",
+      "Steps": [
+        {
+          "StepNumber": 8,
+          "Action": "VERIFY TEXT contains \"Users and Role Assignment\"",
+          "Verifications": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,9 +1,13 @@
 using System.Net;
+using System.Security.Claims;
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Web.Components.Pages.Admin;
 using AcmeCoffeeOnline.Web.Services;
 using AcmeCoffeeOnline.Web.Tests.Infrastructure;
 using Bunit;
+using Dabbler.Security.Authorization;
+using Dabbler.Security.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -102,14 +106,47 @@ public sealed class UserManagementPageTests : TestContext
             Assert.Contains("Switch into an organization where you hold user-admin access", cut.Markup));
     }
 
+    [Theory]
+    [InlineData("SystemAdmin", true)]
+    [InlineData("CrossOrgUserAdmin", true)]
+    [InlineData("UserAdmin", true)]
+    [InlineData("CrossOrgMonitor", false)]
+    [InlineData(null, false)]
+    public void DashboardBanner_VisibilityMatchesActorRole(string? activeRole, bool expectBanner)
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        Services.AddMudServices();
+
+        var handler = new StubHttpMessageHandler((request, _) =>
+            Task.FromResult(request.RequestUri?.PathAndQuery == "/api/admin/users/scope"
+                ? StubHttpMessageHandler.Json(HttpStatusCode.OK, CreateScope(canManageUsers: false, hasScopedAdmin: false))
+                : StubHttpMessageHandler.Empty(HttpStatusCode.NotFound)));
+        Services.AddScoped(_ => new AdminUserApiClient(CreateHttpClient(handler)));
+
+        var cut = RenderPage(activeRole);
+
+        cut.WaitForAssertion(() =>
+        {
+            if (expectBanner)
+                Assert.Contains("data-testid=\"user-admin-dashboard-banner\"", cut.Markup);
+            else
+                Assert.DoesNotContain("data-testid=\"user-admin-dashboard-banner\"", cut.Markup);
+        });
+    }
+
     private static HttpClient CreateHttpClient(HttpMessageHandler handler)
         => new(handler)
         {
             BaseAddress = new Uri("https://acme.test/")
         };
 
-    private IRenderedFragment RenderPage()
-        => Render(builder =>
+    private IRenderedFragment RenderPage(string? activeRole = null)
+    {
+        Services.AddSingleton<IBakedInRoleProvider, PlatformBakedInRoleProvider>();
+        Services.AddSingleton<IRoleSwitcher>(new StubRoleSwitcher(activeRole));
+        Services.AddScoped<AuthenticationStateProvider>(_ =>
+            new StubAuthStateProvider(activeRole));
+        return Render(builder =>
         {
             builder.OpenComponent<MudThemeProvider>(0);
             builder.CloseComponent();
@@ -120,6 +157,29 @@ public sealed class UserManagementPageTests : TestContext
             builder.OpenComponent<UserManagement>(3);
             builder.CloseComponent();
         });
+    }
+
+    private sealed class StubRoleSwitcher(string? activeRole) : IRoleSwitcher
+    {
+        public bool IsRoleSwitched => activeRole is not null;
+        public IEnumerable<string> EffectiveRoles(ClaimsPrincipal user)
+            => activeRole is not null ? [activeRole] : [];
+        public void SwitchToRole(string roleName) { }
+        public void ClearSwitch() { }
+    }
+
+    private sealed class StubAuthStateProvider(string? role) : AuthenticationStateProvider
+    {
+        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            ClaimsPrincipal user = role is not null
+                ? new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(ClaimTypes.Name, "test"), new Claim(ClaimTypes.Role, role)],
+                    "test"))
+                : new ClaimsPrincipal(new ClaimsIdentity());
+            return Task.FromResult(new AuthenticationState(user));
+        }
+    }
 
     private static AdminUserScopeDto CreateScope(bool canManageUsers, bool hasScopedAdmin)
         => new()

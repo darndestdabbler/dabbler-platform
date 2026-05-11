@@ -33,7 +33,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 GENERATED_DIR_RELATIVE = Path("tests/AcmeCoffeeOnline.Playwright/Generated")
 PLAYWRIGHT_CSPROJ = (
     REPO_ROOT / "tests/AcmeCoffeeOnline.Playwright/AcmeCoffeeOnline.Playwright.csproj"

@@ -2,15 +2,33 @@
 @attribute [DabblerPageAuthorize("/admin/users")]
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @inject AdminUserApiClient AdminUserApiClient
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IRoleSwitcher RoleSwitcher
+@inject IBakedInRoleProvider BakedInRoleProvider
 @inject ISnackbar Snackbar
 
-<PageTitle>User Administration — AcmeCoffeeDistributors</PageTitle>
+<PageTitle>Manage Organization Admins — AcmeCoffeeDistributors</PageTitle>
 
-<MudText Typo="Typo.h4" GutterBottom="true">User Administration</MudText>
+<MudText Typo="Typo.h4" GutterBottom="true">Manage Organization Admins</MudText>
 <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
-    User-admin actions follow the active organization. Switch organizations from the shell to review a different scope, while system administrators remain able to move across organizations without restriction.
+    Grant or revoke UserAdmin access for members of the active organization. Switch organizations from the shell to manage a different scope.
 </MudText>
+
+@if (_showDashboardBanner)
+{
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Class="mb-4"
+              data-testid="user-admin-dashboard-banner">
+        Looking for full role assignment?
+        <MudLink Href="/admin/security-dashboard?tab=users-and-role-assignment"
+                 data-testid="user-admin-dashboard-banner-link">
+            Open the Security Dashboard → Users and Role Assignment tab
+        </MudLink>
+    </MudAlert>
+}
 
 @if (_loading)
 {
@@ -119,9 +137,21 @@ else
 @code {
     private bool _loading = true;
     private AdminUserScopeDto? _scope;
+    // Cached once on init. True when the actor's role can access the Security Dashboard tab.
+    private bool _showDashboardBanner;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var effectiveRoles = new HashSet<string>(
+            RoleSwitcher.EffectiveRoles(authState.User),
+            StringComparer.OrdinalIgnoreCase);
+        _showDashboardBanner = effectiveRoles
+            .Select(r => BakedInRoleProvider.TryGetBakedInRole(r))
+            .Where(b => b is not null)
+            .Any(b => string.Equals(b!.Name, BakedInRoles.SystemAdmin, StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(b.Name, BakedInRoles.CrossOrgUserAdmin, StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(b.Name, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase));
         await LoadScopeAsync();
     }
 
