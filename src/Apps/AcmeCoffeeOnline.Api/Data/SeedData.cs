@@ -8,6 +8,7 @@ public static class SeedData
 {
     public const string RegionalSalesRepEmail = "sloane.reyes@acmecoffee.com";
     public const string DualMembershipUserEmail = "casey.hart@acmecoffee.com";
+    public const string UserAdminManagerEmail = "manager@acmecoffee.com";
 
     private static Random CreateRandom() => new(42);
 
@@ -297,6 +298,11 @@ public static class SeedData
             });
         }
 
+        // UserAdmin persona for UAT-2 re-run (admin-user-creation-flow-uat-remediation).
+        // Added after retail contacts so IDs 1–61 remain stable (juser stays at 11).
+        // Baked-in UserAdmin role is granted via user-roles.json key "manager@acmecoffee.com".
+        users.Add(new AppUser { Email = UserAdminManagerEmail, DisplayName = "Morgan Manager", CreatedAt = now });
+
         return users;
     }
 
@@ -368,7 +374,8 @@ public static class SeedData
             "warehouse@acmecoffee.com",
             RegionalSalesRepEmail,
             DualMembershipUserEmail,
-            "juser@acmecoffee.com"
+            "juser@acmecoffee.com",
+            UserAdminManagerEmail,
         })
         {
             AddMembership(users.First(u => u.Email == email), internalOrganization, isDefault: true);
@@ -455,7 +462,9 @@ public static class SeedData
         });
 
         // Internal operations admins stay scoped to the internal organization.
-        foreach (var email in new[] { "kbrown@acmecoffee.com", "tjones@acmecoffee.com" })
+        // manager@acmecoffee.com is the UserAdmin UAT-2 persona; BackofficeUserAdmin
+        // grants dashboard access; baked-in UserAdmin comes from user-roles.json key "62".
+        foreach (var email in new[] { "kbrown@acmecoffee.com", "tjones@acmecoffee.com", UserAdminManagerEmail })
         {
             var user = users.First(u => u.Email == email);
             AddScopedRole(user, adminRole.Name, memberships => memberships.Single(m => m.IsDefault));

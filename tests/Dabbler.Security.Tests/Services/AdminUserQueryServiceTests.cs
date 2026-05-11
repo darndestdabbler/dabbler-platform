@@ -40,14 +40,14 @@ public class AdminUserQueryServiceTests
         var rows = await sut.GetUsersAsync();
 
         rows.Select(r => r.UserId).Should().BeEquivalentTo(
-            SystemAdminUserId.ToString(),
-            UserAdminScopedToInternalUserId.ToString(),
-            CrossOrgMonitorUserId.ToString(),
-            InternalStaffUserId.ToString(),
-            RetailContact1UserId.ToString(),
-            RetailContact2UserId.ToString());
+            "sysadmin@test.local",
+            "useradmin@test.local",
+            "monitor@test.local",
+            "staff@test.local",
+            "contact1@test.local",
+            "contact2@test.local");
 
-        var retailContact1 = rows.Single(r => r.UserId == RetailContact1UserId.ToString());
+        var retailContact1 = rows.Single(r => r.UserId == "contact1@test.local");
         retailContact1.Organizations.Should().ContainSingle()
             .Which.OrganizationId.Should().Be(RetailOrg1Id);
     }
@@ -67,7 +67,7 @@ public class AdminUserQueryServiceTests
         var rows = await sut.GetUsersAsync();
 
         rows.Should().HaveCount(6);
-        rows.Should().Contain(r => r.UserId == RetailContact2UserId.ToString());
+        rows.Should().Contain(r => r.UserId == "contact2@test.local");
     }
 
     [Fact]
@@ -96,12 +96,12 @@ public class AdminUserQueryServiceTests
         var rows = await sut.GetUsersAsync();
 
         rows.Select(r => r.UserId).Should().BeEquivalentTo(
-            SystemAdminUserId.ToString(),
-            UserAdminScopedToInternalUserId.ToString(),
-            CrossOrgMonitorUserId.ToString(),
-            InternalStaffUserId.ToString());
+            "sysadmin@test.local",
+            "useradmin@test.local",
+            "monitor@test.local",
+            "staff@test.local");
 
-        var staffRow = rows.Single(r => r.UserId == InternalStaffUserId.ToString());
+        var staffRow = rows.Single(r => r.UserId == "staff@test.local");
         staffRow.Organizations.Should().ContainSingle()
             .Which.OrganizationId.Should().Be(InternalOrgId);
     }

@@ -188,7 +188,7 @@ public sealed class UserSessionContextService : IUserSessionContextService
         // actually exercise SystemAdmin behavior (including cross-organization access).
         var storeRoles = _userRoleStore is null
             ? (IReadOnlyList<string>)[]
-            : await _userRoleStore.GetRolesAsync(user.Id.ToString(), ct);
+            : await _userRoleStore.GetRolesAsync(user.Email, ct);
 
         var availableOrganizations = memberships
             .Select(membership => new UserSessionOrganization(

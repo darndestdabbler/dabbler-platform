@@ -139,7 +139,7 @@ public sealed class UserSessionContextServiceTests : IDisposable
         var (user, _, _) = await SeedDualMembershipUserAsync();
 
         _userRoleStoreMock
-            .Setup(s => s.GetRolesAsync(user.Id.ToString(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRolesAsync(user.Email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<string>)["SystemAdmin"]);
 
         var sessionContext = await _service.BuildAsync(user.Id);
@@ -166,7 +166,7 @@ public sealed class UserSessionContextServiceTests : IDisposable
         await _db.SaveChangesAsync();
 
         _userRoleStoreMock
-            .Setup(s => s.GetRolesAsync(user.Id.ToString(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRolesAsync(user.Email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<string>)["SystemAdmin"]);
 
         var sessionContext = await _service.BuildAsync(user.Id, outsideOrganization.Id);
@@ -183,7 +183,7 @@ public sealed class UserSessionContextServiceTests : IDisposable
         var (user, _, _) = await SeedDualMembershipUserAsync();
 
         _userRoleStoreMock
-            .Setup(s => s.GetRolesAsync(user.Id.ToString(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRolesAsync(user.Email, It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<string>)["SystemAdmin"]);
 
         var principal = await _service.CreatePrincipalAsync(user.Id);

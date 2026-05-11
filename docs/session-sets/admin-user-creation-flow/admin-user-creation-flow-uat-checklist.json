@@ -467,10 +467,10 @@
         },
         {
           "StepNumber": 10,
-          "Action": "CLICK INPUT \"Email\" and enter \"audit-test@test.local\"",
+          "Action": "CLICK INPUT \"Email\" and enter \"audit-uat-v2@test.local\"",
           "Verifications": [
             {
-              "Text": "Email field contains \"audit-test@test.local\"."
+              "Text": "Email field contains \"audit-uat-v2@test.local\"."
             }
           ]
         },
@@ -497,7 +497,7 @@
           "Action": "CLICK BUTTON \"Create User\"",
           "Verifications": [
             {
-              "Text": "Dialog closes without error and a row for \"Audit Test User\" with email \"audit-test@test.local\" is visible in the user grid."
+              "Text": "Dialog closes without error and a row for \"Audit Test User\" with email \"audit-uat-v2@test.local\" is visible in the user grid."
             }
           ]
         },
@@ -517,7 +517,7 @@
       "E2ETestReference": "AuditEmission_UserCreated",
       "Passes": null,
       "IsOtherItem": false,
-      "Feedback": "I can't create the user.  Perhaps we need to reset the database?"
+      "Feedback": "If you see 'A user with this email already exists', restart the docker app containers to reset database state: docker compose -f docker/docker-compose.app.yml up --force-recreate -d"
     },
     {
       "FunctionalArea": "Admin User Management",

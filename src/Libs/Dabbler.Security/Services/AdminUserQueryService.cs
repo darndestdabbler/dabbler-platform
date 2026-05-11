@@ -115,13 +115,12 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
         var rows = new List<AdminUserRow>(projected.Count);
         foreach (var user in projected)
         {
-            var userId = user.Id.ToString();
-            var roles = assignments.TryGetValue(userId, out var stored)
+            var roles = assignments.TryGetValue(user.Email, out var stored)
                 ? stored.OrderBy(name => name, StringComparer.OrdinalIgnoreCase).ToArray()
                 : [];
 
             rows.Add(new AdminUserRow(
-                userId,
+                user.Email,
                 user.DisplayName,
                 user.Email,
                 user.IsActive,

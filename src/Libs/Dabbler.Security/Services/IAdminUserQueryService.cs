@@ -6,7 +6,7 @@ namespace Dabbler.Security.Services;
 /// Projects the subset of user information needed by the Security Dashboard's
 /// Users and Role Assignment tab.
 /// </summary>
-/// <param name="UserId">Stable identifier for the user (string form of <c>AppUser.Id</c>).</param>
+/// <param name="UserId">Stable identifier for the user (email address — matches <c>IUserRoleStore</c> key).</param>
 /// <param name="DisplayName">User's display name.</param>
 /// <param name="Email">User's email address.</param>
 /// <param name="IsActive">Whether the user account itself is active.</param>
@@ -80,9 +80,9 @@ public interface IAdminUserQueryService
 
     /// <summary>
     /// Returns the stable user identifier of the currently signed-in actor
-    /// (<c>AppUser.Id.ToString()</c> for the seeded-identity flow), or an
-    /// empty string if no authenticated user is in scope. Used to drive
-    /// self-assignment rules in <see cref="RoleAssignmentAuthority"/>.
+    /// (the <c>NameIdentifier</c> claim value), or an empty string if no
+    /// authenticated user is in scope. Used to drive self-assignment rules
+    /// in <see cref="RoleAssignmentAuthority"/>.
     /// </summary>
     string GetActorUserId();
 
