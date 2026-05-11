@@ -1,10 +1,28 @@
+@using Dabbler.Security.Authorization
 @using Dabbler.Security.Blazor.Components.Admin.Shared
 @using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Users
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IAdminUserQueryService UserQueryService
 
 <div data-testid="users-and-role-assignment-tab">
-    <MudText Typo="Typo.h6" Class="mb-1">Users and Role Assignment</MudText>
+    <div class="d-flex align-center justify-space-between mb-1">
+        <MudText Typo="Typo.h6">Users and Role Assignment</MudText>
+        @if (_canAddUsers)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                       OnClick="OpenAddUserDialogAsync"
+                       data-testid="add-user-button">
+                Add User
+            </MudButton>
+        }
+    </div>
     <MudText Typo="Typo.body2" Class="mb-3">
         Search users by name, email, role, or organization. Select a user to
         manage their role assignments. UserAdmin sees only users in their
@@ -32,6 +50,37 @@
     private AdminUserRow? _selectedUser;
     private bool _isResultsExpanded = true;
     private string? _summaryText;
+    private bool _canAddUsers;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var actor = authState.User;
+        var activeRole = UserQueryService.GetActorActiveAdminRole(actor);
+        // CrossOrgMonitor can see the tab but cannot create users.
+        _canAddUsers = activeRole is BakedInRoles.SystemAdmin
+            or BakedInRoles.CrossOrgUserAdmin
+            or BakedInRoles.UserAdmin;
+    }
+
+    private async Task OpenAddUserDialogAsync()
+    {
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateBackofficeUserDialog>("Add User", options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false } && _grid is not null)
+        {
+            await _grid.RefreshAsync(null);
+        }
+    }
 
     private Task OnSelectedUserChangedAsync(AdminUserRow? row)
     {

@@ -99,7 +99,8 @@ public static class AdminUserQueryServiceMockExtensions
         string? actorActiveRole,
         string actorUserId,
         IReadOnlySet<int> actorOrganizationIds,
-        IReadOnlyList<AdminUserRow>? users = null)
+        IReadOnlyList<AdminUserRow>? users = null,
+        IReadOnlyList<AdminUserOrganization>? grantableOrgs = null)
     {
         mock.Setup(q => q.GetActorActiveAdminRole(It.IsAny<ClaimsPrincipal>()))
             .Returns(actorActiveRole);
@@ -112,6 +113,8 @@ public static class AdminUserQueryServiceMockExtensions
             mock.Setup(q => q.GetUsersAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(users);
         }
+        mock.Setup(q => q.GetGrantableOrganizationsAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(grantableOrgs ?? []);
     }
 }
 

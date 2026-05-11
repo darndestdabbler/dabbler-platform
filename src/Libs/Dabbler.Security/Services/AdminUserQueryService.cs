@@ -234,6 +234,44 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
         return actor.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AdminUserOrganization>> GetGrantableOrganizationsAsync(
+        ClaimsPrincipal actor,
+        CancellationToken ct = default)
+    {
+        var actorActiveRole = GetActorActiveAdminRole(actor);
+
+        // CrossOrgMonitor and unauthenticated callers cannot create users.
+        var bakedIn = string.IsNullOrEmpty(actorActiveRole)
+            ? null
+            : _bakedInRoleProvider.TryGetBakedInRole(actorActiveRole);
+        if (bakedIn is null || !bakedIn.Privileges.CanAssignUsersToRoles)
+        {
+            return [];
+        }
+
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var query = db.AppOrganizations
+            .AsNoTracking()
+            .Where(o => o.IsActive);
+
+        if (!bakedIn.Privileges.CanSeeAllOrganizations)
+        {
+            var scopeIds = await LoadActorAssignedOrganizationIdsAsync(db, actor, ct);
+            if (scopeIds.Count == 0)
+            {
+                return [];
+            }
+            query = query.Where(o => scopeIds.Contains(o.Id));
+        }
+
+        return await query
+            .OrderBy(o => o.Name)
+            .Select(o => new AdminUserOrganization(o.Id, o.Key, o.Name, false, o.IsInternal))
+            .ToListAsync(ct);
+    }
+
     private int? ResolveActorUserIdInt(ClaimsPrincipal? actor)
     {
         var raw = GetActorUserId(actor);

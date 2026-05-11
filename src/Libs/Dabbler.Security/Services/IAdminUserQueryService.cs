@@ -114,4 +114,12 @@ public interface IAdminUserQueryService
     /// <inheritdoc cref="GetActorUserId()" />
     /// <param name="actor">The actor's <see cref="ClaimsPrincipal"/> from <c>AuthenticationStateProvider</c>.</param>
     string GetActorUserId(ClaimsPrincipal actor);
+
+    /// <summary>
+    /// Returns the organizations the granter may assign a new user to.
+    /// SystemAdmin and CrossOrgUserAdmin see all active organizations;
+    /// UserAdmin sees only the organizations they are an active member of.
+    /// CrossOrgMonitor and actors with no active admin role get an empty list.
+    /// </summary>
+    Task<IReadOnlyList<AdminUserOrganization>> GetGrantableOrganizationsAsync(ClaimsPrincipal actor, CancellationToken ct = default);
 }
