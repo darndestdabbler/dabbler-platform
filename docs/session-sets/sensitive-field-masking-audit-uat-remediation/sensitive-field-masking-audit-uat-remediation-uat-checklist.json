@@ -202,7 +202,7 @@
         },
         {
           "StepNumber": 14,
-          "Action": "VERIFY ELEMENT with label \"Social Security Number\" is visible"
+          "Action": "VERIFY INPUT with label \"Social Security Number\" has value matching \"[0-9]{3}-[0-9]{2}-[0-9]{4}\""
         },
         {
           "StepNumber": 15,
