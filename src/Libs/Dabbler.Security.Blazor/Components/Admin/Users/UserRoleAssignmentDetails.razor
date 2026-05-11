@@ -1,6 +1,7 @@
 @using Dabbler.Security.Authorization
 @using Dabbler.Security.Configuration
 @using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Users
 @inject SecurityConfigurationManager ConfigManager
@@ -8,6 +9,7 @@
 @inject IAdminUserQueryService UserQueryService
 @inject IUserRoleStore UserRoleStore
 @inject AuthorizationStateNotifier Notifier
+@inject AuthenticationStateProvider AuthStateProvider
 @inject ISnackbar Snackbar
 @implements IDisposable
 
@@ -111,16 +113,17 @@
         else if (_assignableRoles.Count == 0)
         {
             <MudAlert Severity="Severity.Info" Variant="Variant.Outlined"
-                      data-testid="user-role-assignment-no-assignable-roles">
-                No additional roles can be assigned to this user from this surface.
+                      data-testid="user-role-assignment-no-assignable-roles"
+                      data-debug-actor-role="@_actorActiveRole"
+                      data-debug-target-roles="@string.Join(",", User?.Roles ?? [])"
+                      data-debug-actor-orgs="@string.Join(",", _actorOrganizationIds)">
+                No additional roles can be assigned to this user from this surface — this user already
+                holds an admin-class role that cannot be combined with another, or holds every user-type
+                role they are eligible for.
                 @if (ExcludeUserAdminAssignment)
                 {
                     <span>UserAdmin elevation is managed in <strong>Manage Organization Admins</strong>.</span>
                 }
-                <span>
-                    Baked-in admin roles (SystemAdmin, CrossOrgUserAdmin, CrossOrgMonitor) cannot be combined with
-                    user-type roles, and user-type roles already held by the user are not re-assignable.
-                </span>
             </MudAlert>
         }
         else
@@ -219,9 +222,15 @@
 
     private async Task RefreshActorContextAsync()
     {
-        _actorActiveRole = UserQueryService.GetActorActiveAdminRole();
-        _actorUserId = UserQueryService.GetActorUserId();
-        _actorOrganizationIds = await UserQueryService.GetActorAssignedOrganizationIdsAsync();
+        // IHttpContextAccessor.HttpContext is null in interactive Blazor Server,
+        // so IAdminUserQueryService's no-arg methods return null/empty there. Pass
+        // the principal from AuthenticationStateProvider into the overloads so the
+        // actor context resolves correctly in both prerender and interactive phases.
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var actor = authState.User;
+        _actorActiveRole = UserQueryService.GetActorActiveAdminRole(actor);
+        _actorUserId = UserQueryService.GetActorUserId(actor);
+        _actorOrganizationIds = await UserQueryService.GetActorAssignedOrganizationIdsAsync(actor);
         // Cache once per actor-context refresh. /admin/users is accessible to SystemAdmin and UserAdmin.
         _canManageOrgAdmins = string.Equals(_actorActiveRole, BakedInRoles.SystemAdmin, StringComparison.OrdinalIgnoreCase)
             || string.Equals(_actorActiveRole, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase);

@@ -1,9 +1,11 @@
 @using Dabbler.Components
 @using Dabbler.Components.Data
 @using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Users
 @inject IAdminUserQueryService UserQueryService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div data-testid="users-master-grid-container">
     <FilterPanel T="AdminUserRow"
@@ -179,7 +181,13 @@
     /// </summary>
     public async Task RefreshAsync(string? selectedUserId = null)
     {
-        _rows = (await UserQueryService.GetUsersAsync()).ToList();
+        // Pass the principal from AuthenticationStateProvider so the actor context
+        // resolves correctly in interactive Blazor Server (where IHttpContextAccessor
+        // returns null per Microsoft's documented stance). Without this, GetUsersAsync's
+        // fail-closed early return treats every actor as unauthenticated and returns
+        // an empty grid.
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _rows = (await UserQueryService.GetUsersAsync(authState.User)).ToList();
 
         var previousSelectionId = selectedUserId ?? _selected?.UserId;
 

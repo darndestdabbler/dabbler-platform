@@ -36,7 +36,11 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(CancellationToken ct = default)
+        => GetUsersAsync(_httpContextAccessor.HttpContext?.User, ct);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(ClaimsPrincipal actor, CancellationToken ct = default)
     {
         // Use a single fresh context for the entire call. Earlier revisions
         // reused a scoped DbContext, which crashed the Users tab with
@@ -45,8 +49,8 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
         // kicked off concurrent queries during their initial render.
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
-        var actorActiveRole = GetActorActiveAdminRole();
-        var scopeOrganizationIds = await LoadActorAssignedOrganizationIdsAsync(db, ct);
+        var actorActiveRole = GetActorActiveAdminRole(actor);
+        var scopeOrganizationIds = await LoadActorAssignedOrganizationIdsAsync(db, actor, ct);
         var actorSeesAllOrganizations = ActorSeesAllOrganizations(actorActiveRole);
 
         // Fail closed: a caller without an active baked-in admin role gets an
@@ -129,17 +133,22 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(CancellationToken ct = default)
+    public Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(CancellationToken ct = default)
+        => GetActorAssignedOrganizationIdsAsync(_httpContextAccessor.HttpContext?.User, ct);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal actor, CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
-        return await LoadActorAssignedOrganizationIdsAsync(db, ct);
+        return await LoadActorAssignedOrganizationIdsAsync(db, actor, ct);
     }
 
     private async Task<IReadOnlySet<int>> LoadActorAssignedOrganizationIdsAsync(
         DabblerSecurityDbContext db,
+        ClaimsPrincipal? actor,
         CancellationToken ct)
     {
-        var userId = ResolveActorUserIdInt();
+        var userId = ResolveActorUserIdInt(actor);
         if (userId is null)
         {
             return new HashSet<int>();
@@ -160,20 +169,32 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
 
     /// <inheritdoc />
     public string? GetActorActiveAdminRole()
+        => GetActorActiveAdminRole(_httpContextAccessor.HttpContext?.User);
+
+    /// <inheritdoc />
+    public string? GetActorActiveAdminRole(ClaimsPrincipal? actor)
     {
-        var principal = _httpContextAccessor.HttpContext?.User;
-        if (principal is null || principal.Identity?.IsAuthenticated != true)
+        if (actor is null || actor.Identity?.IsAuthenticated != true)
         {
             return null;
         }
 
-        // Returns the first baked-in admin-class role the caller holds. Both
-        // "can assign users to roles" (SystemAdmin / CrossOrgUserAdmin /
-        // UserAdmin) and "can see all organizations" (CrossOrgMonitor adds
-        // here, plus the previous three) qualify. Pure user-type roles and
-        // unknown role names are skipped so the caller is not falsely classed
-        // as an admin actor.
-        foreach (var roleName in _roleSwitcher.EffectiveRoles(principal))
+        // Returns the highest-privilege baked-in admin-class role the caller
+        // holds. "Highest" is defined as: a role that can assign users to roles
+        // (SystemAdmin / CrossOrgUserAdmin / UserAdmin) wins over a role that
+        // can only see all organizations (CrossOrgMonitor). Within those two
+        // groups the iteration order of EffectiveRoles wins. This matters
+        // because a SystemAdmin user whose principal also carries a
+        // CrossOrgMonitor claim must be classed as SystemAdmin for the
+        // assignment authority's granterRoleName check to pass — picking
+        // CrossOrgMonitor would make the authority deny every assignment with
+        // "The CrossOrgMonitor role cannot assign roles to users", which is
+        // the 2026-05-11 admin-users-cross-links UAT-3 finding.
+        //
+        // Pure user-type roles and unknown role names are skipped so the
+        // caller is not falsely classed as an admin actor.
+        string? fallbackSeeAllRole = null;
+        foreach (var roleName in _roleSwitcher.EffectiveRoles(actor))
         {
             var bakedIn = _bakedInRoleProvider.TryGetBakedInRole(roleName);
             if (bakedIn is null)
@@ -181,32 +202,41 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
                 continue;
             }
 
-            if (bakedIn.Privileges.CanAssignUsersToRoles
-                || bakedIn.Privileges.CanSeeAllOrganizations
-                || string.Equals(bakedIn.Name, BakedInRoles.SystemAdmin, StringComparison.OrdinalIgnoreCase))
+            if (bakedIn.Privileges.CanAssignUsersToRoles)
             {
                 return bakedIn.Name;
             }
+
+            // Hold the first see-all role as a fallback in case no
+            // assignment-capable role surfaces. CrossOrgMonitor is the only
+            // baked-in role that hits this branch today.
+            if (fallbackSeeAllRole is null && bakedIn.Privileges.CanSeeAllOrganizations)
+            {
+                fallbackSeeAllRole = bakedIn.Name;
+            }
         }
 
-        return null;
+        return fallbackSeeAllRole;
     }
 
     /// <inheritdoc />
     public string GetActorUserId()
+        => GetActorUserId(_httpContextAccessor.HttpContext?.User);
+
+    /// <inheritdoc />
+    public string GetActorUserId(ClaimsPrincipal? actor)
     {
-        var principal = _httpContextAccessor.HttpContext?.User;
-        if (principal is null || principal.Identity?.IsAuthenticated != true)
+        if (actor is null || actor.Identity?.IsAuthenticated != true)
         {
             return string.Empty;
         }
 
-        return principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+        return actor.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
     }
 
-    private int? ResolveActorUserIdInt()
+    private int? ResolveActorUserIdInt(ClaimsPrincipal? actor)
     {
-        var raw = GetActorUserId();
+        var raw = GetActorUserId(actor);
         return int.TryParse(raw, out var value) ? value : null;
     }
 

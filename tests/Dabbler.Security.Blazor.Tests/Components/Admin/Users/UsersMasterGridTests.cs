@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Bunit;
 using Dabbler.Components;
 using Dabbler.Components.Data;
@@ -115,11 +116,16 @@ public class UsersMasterGridTests
         queryMock.SetupSequence(q => q.GetUsersAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync([Alice])
             .ReturnsAsync([Alice, Bob]);
+        // Mirror onto the ClaimsPrincipal overload (the one components actually call).
+        queryMock.SetupSequence(q => q.GetUsersAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([Alice])
+            .ReturnsAsync([Alice, Bob]);
 
         queryMock.Setup(q => q.GetActorActiveAdminRole()).Returns("SystemAdmin");
         queryMock.Setup(q => q.GetActorUserId()).Returns("99");
         queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<int>());
+        queryMock.MirrorActorOverloads("SystemAdmin", "99", new HashSet<int>());
 
         ctx.SetupForDabbler(configureServices: services =>
         {
@@ -172,6 +178,7 @@ public class UsersMasterGridTests
         mock.Setup(q => q.GetActorUserId()).Returns("99");
         mock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<int>());
+        mock.MirrorActorOverloads("SystemAdmin", "99", new HashSet<int>(), rows);
         services.AddSingleton(mock.Object);
     }
 }

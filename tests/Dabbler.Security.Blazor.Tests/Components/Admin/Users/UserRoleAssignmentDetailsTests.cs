@@ -50,6 +50,7 @@ public class UserRoleAssignmentDetailsTests
         queryMock.Setup(q => q.GetActorUserId()).Returns("99");
         queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<int> { 10 });
+        queryMock.MirrorActorOverloads(BakedInRoles.CrossOrgUserAdmin, "99", new HashSet<int> { 10 });
 
         ctx.SetupForDabbler(configureServices: services =>
         {
@@ -81,6 +82,7 @@ public class UserRoleAssignmentDetailsTests
         queryMock.Setup(q => q.GetActorUserId()).Returns(string.Empty);
         queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<int>());
+        queryMock.MirrorActorOverloads(null, string.Empty, new HashSet<int>());
 
         ctx.SetupForDabbler(configureServices: services =>
         {
@@ -213,6 +215,7 @@ public class UserRoleAssignmentDetailsTests
             queryMock.Setup(q => q.GetActorUserId()).Returns("99");
             queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new HashSet<int> { 10 });
+            queryMock.MirrorActorOverloads(BakedInRoles.CrossOrgUserAdmin, "99", new HashSet<int> { 10 });
             services.AddSingleton(queryMock.Object);
         });
 
@@ -258,6 +261,7 @@ public class UserRoleAssignmentDetailsTests
             // UserAdmin in a different org than the target.
             queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new HashSet<int> { 999 });
+            queryMock.MirrorActorOverloads(BakedInRoles.UserAdmin, "99", new HashSet<int> { 999 });
             services.AddSingleton(queryMock.Object);
         });
 
@@ -447,6 +451,7 @@ public class UserRoleAssignmentDetailsTests
         queryMock.Setup(q => q.GetActorUserId()).Returns("99");
         queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<int>());
+        queryMock.MirrorActorOverloads(BakedInRoles.SystemAdmin, "99", new HashSet<int>());
 
         var userRoleStore = new Mock<IUserRoleStore>();
 
@@ -541,6 +546,7 @@ public class UserRoleAssignmentDetailsTests
         queryMock.Setup(q => q.GetActorUserId()).Returns("99");
         queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<int>());
+        queryMock.MirrorActorOverloads(BakedInRoles.SystemAdmin, "99", new HashSet<int>());
         services.AddSingleton(queryMock.Object);
     }
 }

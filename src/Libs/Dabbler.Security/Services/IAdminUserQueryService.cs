@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace Dabbler.Security.Services;
 
 /// <summary>
@@ -83,4 +85,33 @@ public interface IAdminUserQueryService
     /// self-assignment rules in <see cref="RoleAssignmentAuthority"/>.
     /// </summary>
     string GetActorUserId();
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ClaimsPrincipal-accepting overloads (2026-05-11)
+    //
+    // The original four methods above resolve the actor from
+    // IHttpContextAccessor.HttpContext?.User. In interactive Blazor Server
+    // components, HttpContext is null per Microsoft's documented stance, so
+    // those methods return null/empty and the role-assignment UI fails
+    // silently. Blazor components must pass the principal obtained from
+    // AuthenticationStateProvider.GetAuthenticationStateAsync() into these
+    // overloads instead. Non-Blazor callers (API controllers, middleware)
+    // continue to use the no-arg methods above.
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <inheritdoc cref="GetUsersAsync(CancellationToken)" />
+    /// <param name="actor">The actor's <see cref="ClaimsPrincipal"/> from <c>AuthenticationStateProvider</c>.</param>
+    Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(ClaimsPrincipal actor, CancellationToken ct = default);
+
+    /// <inheritdoc cref="GetActorAssignedOrganizationIdsAsync(CancellationToken)" />
+    /// <param name="actor">The actor's <see cref="ClaimsPrincipal"/> from <c>AuthenticationStateProvider</c>.</param>
+    Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal actor, CancellationToken ct = default);
+
+    /// <inheritdoc cref="GetActorActiveAdminRole()" />
+    /// <param name="actor">The actor's <see cref="ClaimsPrincipal"/> from <c>AuthenticationStateProvider</c>.</param>
+    string? GetActorActiveAdminRole(ClaimsPrincipal actor);
+
+    /// <inheritdoc cref="GetActorUserId()" />
+    /// <param name="actor">The actor's <see cref="ClaimsPrincipal"/> from <c>AuthenticationStateProvider</c>.</param>
+    string GetActorUserId(ClaimsPrincipal actor);
 }

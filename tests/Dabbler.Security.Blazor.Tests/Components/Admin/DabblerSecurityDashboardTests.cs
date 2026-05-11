@@ -60,6 +60,7 @@ public class DabblerSecurityDashboardTests
         queryMock.Setup(q => q.GetActorUserId()).Returns(string.Empty);
         queryMock.Setup(q => q.GetActorAssignedOrganizationIdsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HashSet<int>());
+        queryMock.MirrorActorOverloads(null, string.Empty, new HashSet<int>(), []);
         svc.AddSingleton(queryMock.Object);
 
         var userRoleStore = new Mock<IUserRoleStore>();
