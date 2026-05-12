@@ -1,40 +1,38 @@
 {
   "sessionSet": "unified-master-details-composite",
-  "session": 1,
+  "session": 2,
   "status": "complete",
-  "verificationVerdict": "VERIFIED",
+  "verificationVerdict": "ISSUES_FOUND",
   "progressKeys": {
-    "session-1/read-planning": "complete",
-    "session-1/explore-consumers": "complete",
-    "session-1/shell-generify": "complete",
-    "session-1/contexts-file": "complete",
-    "session-1/migrate-role-tab": "complete",
-    "session-1/migrate-other-consumers": "complete",
-    "session-1/bunit-tests": "complete",
-    "session-1/build-and-test": "complete",
-    "session-1/verification": "complete",
-    "session-1/commit-push-notify": "complete"
+    "session-2/read-planning": "complete",
+    "session-2/showgrid-false": "complete",
+    "session-2/session-counter": "complete",
+    "session-2/demo-page": "complete",
+    "session-2/bunit-tests": "complete",
+    "session-2/playwright": "complete",
+    "session-2/build-and-test": "complete",
+    "session-2/verification": "complete",
+    "session-2/commit-push-notify": "complete"
   },
   "deliverables": {
-    "shellGenerified": "MasterDetailExpansionShell<TRow,TEntity,TLink> with ShowGrid, FilterContent, GridContent, DetailsContent, DetailsActions, CollapsedSummaryContent, SessionSummaryContent, RowUseAction, LinkDataContent slots and all Scenario 1-4 parameters declared",
-    "contextsFileAdded": "MasterDetailShellContexts.cs: ShellMode enum, TargetEditability enum, DetailsContext<TEntity>, LinkContext<TLink>, DetailsActionsContext<TEntity,TLink>, SaveRequest<TEntity,TLink>, SaveAndUseResult<TEntity,TLink>",
-    "roleMasterGridStripped": "FilterPanel extracted; external Filter parameter added; FilterColumns exposed as public static; FiltersChanged callback removed",
-    "roleMasterDetailsTabMigrated": "FilterPanel at tab level as FilterContent, RoleMasterGrid as GridContent with external filter, RoleDetailsSection as DetailsContent",
-    "otherConsumersMigrated": "OrganizationMasterDetailsTab, DefaultMasksTab, UsersAndRoleAssignmentTab: ResultsContent → GridContent with TRow/TEntity/TLink=object",
-    "bUnitTestsAdded": "MasterDetailExpansionShellTests: 4 updated + 7 new tests (FilterContent renders, DetailsContent outside panel, ShowGridFalse, ShowAddAction, OnRowSelected callback, CollapsedSummaryContent override, GridContent present when collapsed)",
-    "regressionTestFixed": "RoleMasterDetailsTabTests.FilterChange test updated to use tab-level FilterPanel instead of removed grid.FiltersChanged"
+    "showGridFalseLayout": "MasterDetailExpansionShell now branches on ShowGrid=false: drops MudExpansionPanels entirely, wraps DetailsContent in a full-width MudPaper, renders SessionSummaryContent<int> as a thin MudAlert above the form, and supplies default Save/Cancel buttons when DetailsActions is null.",
+    "sessionCounter": "Shell-owned _sessionCount field increments inside HandleDefaultSaveAsync after a successful OnSaveRequested invocation (OperationCanceledException swallowed for consumer-cancelled saves). Exposed to consumers via RenderFragment<int>? SessionSummaryContent.",
+    "demoPage": "CustomerBatchEntryPage.razor created at /customers/batch-entry — shell configured with ShowGrid=false + ShowAddAction=false; SessionSummaryContent renders 'Records added this session: N'; DetailsContent hosts a MudForm for CustomerDto; OnSaveRequested validates, POSTs to the customers API, then clears the form.",
+    "bUnitTestsAdded": "5 new MasterDetailExpansionShellTests methods covering ShowGrid=false: no MudExpansionPanel in render tree, MudPaper present, session counter increments on save, form buffer resets, SessionSummaryContent renders when provided.",
+    "playwrightTestsAdded": "CustomerBatchEntryWorkflowTests with 3 facts: navigate-no-collapse-chrome, save-clears-form-and-increments-counter, two-records-both-persisted-in-db (verified via read-back API).",
+    "verifierIssuesFixed": "Major (duplicate batchentry-{RunId}-1@test.local emails across two Playwright tests → distinct -s2 / -s3a / -s3b suffixes) and Minor (HandleCancel fire-and-forget _form.ResetAsync → HandleCancel made async Task awaiting ResetAsync). See issue-logs/session-002.json."
   },
   "buildResult": "PASS (0 errors)",
-  "testResult": "PASS: 217/217 Security.Blazor.Tests, 305/305 Security.Tests, 43 Components.Tests, 16 Reports.Blazor.Tests, 27 Api.Tests, 6 Testing.Blazor.Tests. 5 pre-existing failures in TemplateSeedSmokeTests (README.md missing, unrelated to this session).",
+  "testResult": "PASS: 222/222 Security.Blazor.Tests (incl. 5 new shell tests), 305/305 Security.Tests, 43 Components.Tests, 16 Reports.Blazor.Tests, 27 Api.Tests, 6 Testing.Blazor.Tests. 5 pre-existing failures in AcmeCoffeeOnline.Web.Tests TemplateSeedSmokeTests + WorkflowAssetSmokeTests are unchanged from before this session and unrelated to shell work.",
   "nextSessionSet": null,
   "next_orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
+    "model": "claude-opus-4-7",
     "effort": "high",
     "reason": {
-      "code": "continue-current-trajectory",
-      "specifics": "Session 1 configuration succeeded; Session 2 has comparable complexity (ShowGrid=false branch + demo page + Playwright)"
+      "code": "other",
+      "specifics": "Complexity step-up (not cost-driven): Session 3 introduces PickOrAddDialog<TRow,TEntity,TLink> — a generic multi-modal stateful component with dirty-state tracking, in-form label-swap (Use ↔ Save and Use), parent-form integration, and IDialogService.Close(DialogResult.Ok(id)) wiring. Routed analysis during Session 2 closeout upgraded the original Sonnet recommendation to Opus."
     }
   },
   "openIssues": []
