@@ -29,9 +29,10 @@
   "nextSessionSet": null,
   "next_orchestrator": {
     "engine": "claude-code",
+    "provider": "anthropic",
     "model": "claude-sonnet-4-6",
     "effort": "high",
-    "rationale": "Session 1 configuration succeeded; Session 2 has comparable complexity (ShowGrid=false branch + demo page + Playwright)"
+    "reason": "Session 1 configuration succeeded; Session 2 has comparable complexity (ShowGrid=false branch + demo page + Playwright)"
   },
   "openIssues": []
 }
