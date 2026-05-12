@@ -319,6 +319,31 @@ before proceeding.
 
 ## Conventions
 
+### Composite Shell Components
+
+- Prefer a single generic component with capability parameters over multiple
+  mode-specific variants. `MasterDetailExpansionShell<TRow, TEntity, TLink>`
+  is the reference: three independent boolean knobs (`ShowGrid`, `ShowLinkData`,
+  `TargetEditability`) cover Add-Only, Search+Update, Pick-or-Add, and M:N-with-
+  payload from one component rather than four variants. A wrapper dialog
+  (`PickOrAddDialog`) is the correct composition unit for modal invocation.
+  Apply this pattern when a new composite UI control needs to serve more than
+  one workflow shape — name the capability parameters, not the mode.
+- When a composite form hosts multiple EF entities (e.g., target entity + join-
+  table payload), use separate dirty-state trackers per section (`_entityDirty`,
+  `_linkDirty`) rather than a single flag. The action label and save handler
+  read `AnyDirty = _entityDirty || _linkDirty`; each EF write is gated on its
+  own flag. This pattern was first used in `MasterDetailExpansionShell` Session 4.
+- `MudBlazor 8.x` places `data-testid` attributes directly on the `<input>`
+  element inside `MudTextField`, not on the wrapper div. Playwright locators
+  that use `GetByTestId("foo")` already resolve to the `<input>`; calling
+  `.Locator("input")` on the result looks for a child input and returns nothing.
+  Use `ToHaveValueAsync` (not `ToContainTextAsync`) when asserting input values.
+  Also: `MudTextField ReadOnly="true"` in MudBlazor 8.x does not set the HTML
+  `readonly` attribute. Use toggle-button text (e.g., "Edit record" vs "Lock
+  record") as the Playwright proxy for read-only state; `Not.ToBeEditableAsync`
+  produces false failures.
+
 ### MudBlazor Usage
 
 - Use `MudDataGrid<T>` directly with `ServerData` callbacks, column

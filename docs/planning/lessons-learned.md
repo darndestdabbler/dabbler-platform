@@ -1698,3 +1698,19 @@ Use this structure for new entries:
   }
   ```
   Surface the workflow-doc gap to the orchestration repo (issue draft in change-log) so future agents inherit the corrected procedure. Once Step 8 is updated, this lesson stops being a hazard and stabilizes as routine — at that point it can be retired or promoted to a Convention if a stable disposition-authoring pattern emerges across sessions.
+
+## Blazor DI Lifetime Mismatch Breaks Parent-Child State Sharing
+
+- **Context:** `unified-master-details-composite` Session 5 — after fixing the `OrdersController` 409 bug, order saves still weren't navigating because `OrderCreatePage.State.Record.Id` was always 0 despite the save succeeding.
+- **Failure or friction:** `OrderDetailState` was registered as `AddTransient`. Both `OrderCreatePage` and its child `OrderDetail` injected `OrderDetailState`, but each got a different instance. `OrderDetail.State` saved the order and got `Id = 123`, but `OrderCreatePage.State.Record.Id` was still 0 — different object. The `NavigateTo` never fired.
+- **Lesson:** In Blazor Server, `AddTransient` gives every injection point a fresh instance. For state objects that parent and child components must share within a single page interaction, use `AddScoped` (one instance per Blazor circuit/connection). `AddScoped` is safe: each browser tab is a separate circuit so multi-user isolation is preserved.
+- **Action for future sessions:** When a state class is injected by both a page component and a child component, and they need to observe each other's mutations, register it as `AddScoped`. If it's exclusively owned by one component and never read by another, `AddTransient` is fine. Check DI registration when a parent "doesn't see" a child's state change.
+
+## MudBlazor 8.x Data-testid Placement and ReadOnly Behavior
+
+- **Context:** `unified-master-details-composite` Session 5 Playwright test fixes.
+- **Failure or friction:** Two categories of test failures traced to MudBlazor 8.x behavior differences:
+  1. `GetByTestId("foo").Locator("input")` returned `<element(s) not found>` because MudBlazor 8.x places `data-testid` directly on the `<input>` element, not on a wrapper div. Playwright then looked for a child `input` inside an `input` element — none exists.
+  2. `Not.ToBeEditableAsync()` on a MudTextField with `ReadOnly="true"` always failed (field appeared editable) because MudBlazor 8.x does not set the HTML `readonly` attribute on the underlying input for `ReadOnly=true`. Playwright's `isEditable()` checks the `readonly` HTML attribute specifically.
+- **Lesson:** In MudBlazor 8.x, `GetByTestId("foo")` resolves directly to the `<input>` element; use `ToHaveValueAsync` (not `.Locator("input").ToHaveValueAsync`) for input value assertions. For ReadOnly state, use the toggle button's visible text as the proxy (the shell renders "Edit record" when IsTargetReadOnly=true; Playwright can check `ToContainTextAsync("Edit record")`). `Not.ToBeEditableAsync` / `ToBeEditableAsync` are unreliable for MudBlazor ReadOnly.
+- **Action for future sessions:** When writing Playwright tests against MudBlazor 8.x MudTextField: use `GetByTestId("testid").ToHaveValueAsync(...)` directly; never append `.Locator("input")`. For ReadOnly state checks use observable UI signals (button text, class names, aria attributes) rather than `ToBeEditableAsync`.
