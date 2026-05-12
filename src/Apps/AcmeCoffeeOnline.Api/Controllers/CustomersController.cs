@@ -65,7 +65,7 @@ public class CustomersController : ControllerBase
 
         var created = await _customerService.CreateAsync(dto, cancellationToken);
         await _permissionService.ApplyFieldPermissionsAsync(created, userId, "Customer");
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created);
+        return Ok(created);
     }
 
     [HttpPut("{id:int}")]

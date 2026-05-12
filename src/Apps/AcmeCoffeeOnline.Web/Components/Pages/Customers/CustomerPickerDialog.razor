@@ -27,7 +27,8 @@
                  OnUsePicked="HandleUsePickedAsync"
                  OnSaveAndUse="HandleSaveAndUseAsync"
                  OnAdd="HandleAddAsync"
-                 OnRowSelected="HandleRowSelectedAsync">
+                 OnRowSelected="HandleRowSelectedAsync"
+                 OnTargetEditingToggled="HandleTargetEditingToggledAsync">
     <FilterContent>
         <MudTextField T="string"
                       Value="@_search"
@@ -73,6 +74,7 @@
                                   Label="First name"
                                   Required="true"
                                   ReadOnly="@TargetReadOnly"
+                                  Immediate="true"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   data-testid="customer-picker-first-name" />
@@ -123,8 +125,14 @@
     private IReadOnlyList<CustomerDto> _rows = Array.Empty<CustomerDto>();
     private string? _search;
     private bool _loading;
+    private bool _isTargetReadOnly;
 
-    private bool TargetReadOnly => _pickOrAdd?.DetailsContext?.IsTargetReadOnly ?? false;
+    private bool TargetReadOnly => _isTargetReadOnly;
+
+    protected override void OnParametersSet()
+    {
+        _isTargetReadOnly = InspectToDecide;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -173,6 +181,13 @@
         if (args.Item is null) return;
         await HandleRowSelectedAsync(args.Item);
         _pickOrAdd?.NotifyRowSelected(args.Item);
+        _isTargetReadOnly = InspectToDecide;
+    }
+
+    private Task HandleTargetEditingToggledAsync(bool isReadOnly)
+    {
+        _isTargetReadOnly = isReadOnly;
+        return Task.CompletedTask;
     }
 
     private Task HandleRowSelectedAsync(CustomerDto row)

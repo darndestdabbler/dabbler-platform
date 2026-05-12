@@ -49,8 +49,12 @@ public sealed class OrderProductLinePickerWorkflowTests
             var productName = (await firstProductRow.Locator("td").Nth(0).InnerTextAsync()).Trim();
             await firstProductRow.GetByTestId("product-line-picker-row-use").ClickAsync();
 
-            // Verify product is loaded into the (read-only) target card
-            await Assertions.Expect(page.GetByTestId("product-line-picker-name").Locator("input")).ToHaveValueAsync(productName);
+            // Dialog stays open (row-use returns null → PickOrAddDialog keeps the dialog open for link data entry)
+            await Assertions.Expect(page.GetByTestId("product-line-picker")).ToBeVisibleAsync();
+
+            // Verify product is loaded into the (read-only) target card.
+            // In MudBlazor 8.x, data-testid is placed directly on the <input> element; use ToHaveValueAsync.
+            await Assertions.Expect(page.GetByTestId("product-line-picker-name")).ToHaveValueAsync(productName);
 
             // Fill in the link data (quantity and discount)
             await PlaywrightFixture.FillFormFieldAsync(page, "product-line-picker-quantity", "2");

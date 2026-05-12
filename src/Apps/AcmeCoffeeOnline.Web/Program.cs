@@ -309,7 +309,7 @@ builder.Services.AddHttpClient<OrganizationOptionsApiClient>(client =>
 }).AddHttpMessageHandler<UserIdentityHandler>();
 
 builder.Services.AddScoped<ShellSessionStateLoader>();
-builder.Services.AddTransient<OrderDetailState>();
+builder.Services.AddScoped<OrderDetailState>();
 
 // Grid data providers
 builder.Services.AddTransient<IGridDataProvider<ProductDto>, ProductDataProvider>();

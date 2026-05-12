@@ -50,20 +50,22 @@ public sealed class OrderItemTunerPageWorkflowTests
             // 1. Edit only link data (Quantity)
             await PlaywrightFixture.FillFormFieldAsync(page, "order-item-tuner-quantity", "5");
             await page.GetByTestId("order-item-tuner-shell-save-button").ClickAsync();
-            await Assertions.Expect(page.Locator(".mud-snackbar")).ToContainTextAsync("Saved line details (demo mode).");
-            await page.Locator(".mud-snackbar .mud-icon-button").ClickAsync(); // Dismiss snackbar
+            await Assertions.Expect(page.Locator(".mud-snackbar").First).ToContainTextAsync("Saved line details (demo mode).");
+            await page.Locator(".mud-snackbar .mud-icon-button").First.ClickAsync();
+            await Assertions.Expect(page.Locator(".mud-snackbar")).ToHaveCountAsync(0);
 
             // 2. Edit only target data (Product Name)
             await PlaywrightFixture.FillFormFieldAsync(page, "order-item-tuner-product-name", "New Product Name");
             await page.GetByTestId("order-item-tuner-shell-save-button").ClickAsync();
-            await Assertions.Expect(page.Locator(".mud-snackbar")).ToContainTextAsync("Saved product (demo mode).");
-            await page.Locator(".mud-snackbar .mud-icon-button").ClickAsync(); // Dismiss snackbar
+            await Assertions.Expect(page.Locator(".mud-snackbar").First).ToContainTextAsync("Saved product (demo mode).");
+            await page.Locator(".mud-snackbar .mud-icon-button").First.ClickAsync();
+            await Assertions.Expect(page.Locator(".mud-snackbar")).ToHaveCountAsync(0);
 
             // 3. Edit both target and link data
             await PlaywrightFixture.FillFormFieldAsync(page, "order-item-tuner-product-name", "Another Product Name");
             await PlaywrightFixture.FillFormFieldAsync(page, "order-item-tuner-discount", "25");
             await page.GetByTestId("order-item-tuner-shell-save-button").ClickAsync();
-            await Assertions.Expect(page.Locator(".mud-snackbar")).ToContainTextAsync("Saved product + line details (demo mode).");
+            await Assertions.Expect(page.Locator(".mud-snackbar").First).ToContainTextAsync("Saved product + line details (demo mode).");
         }
         finally
         {

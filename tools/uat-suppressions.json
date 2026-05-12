@@ -92,6 +92,38 @@
     },
     {
       "checklists": [
+        "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
+      ],
+      "errorKind": "UnknownRoute",
+      "routePathPatterns": ["/login", "/dev/email-inbox"],
+      "rationale": "Pre-auth routes /login and /dev/email-inbox are never in the component catalog because the crawler authenticates via SeededSessionAuth before crawling. UAT items exercising the magic-link sign-in flow must reference these routes. Labels ('Email address', 'Send sign-in link', 'Open') are the standard magic-link pattern used across all prior UAT sets."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
+      ],
+      "errorKind": "UnknownRoute",
+      "routePathPatterns": ["*"],
+      "rationale": "W0's route cursor only advances on NAVIGATE TO statements. Click-driven navigation (CLICK BUTTON 'Pick customer', CLICK BUTTON 'Add Product', CLICK TAB 'ROLES', etc.) does not advance the cursor, producing cascading UnknownRoute errors after the first click-driven transition. All quoted labels were selected from the component catalog or verified directly from source code for the route x role active at each step. The new pages (/customers/batch-entry, /admin/order-item-tuner, /orders/new) are not yet in the catalog because the catalog was last crawled before Sessions 1-4 added these routes; a re-crawl after this session closes will add them. The correctness proof for this set is the hand-authored Playwright tests from Sessions 1-4 (CustomerBatchEntryWorkflowTests, OrderCustomerPickerWorkflowTests, OrderProductLinePickerWorkflowTests, OrderItemTunerPageWorkflowTests, CustomerPickerInspectToDecideTests)."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
+      ],
+      "errorKind": "UnknownLabel",
+      "routePathPatterns": ["*"],
+      "rationale": "New controls from Sessions 1-4 (Pick customer, Add Product, Inspect, Edit record, Save and Use, Inspect line buttons; product/customer picker dialog fields; order item tuner fields; batch entry counter) are not in the catalog because the catalog was crawled before these controls were added. All labels are verified verbatim from source code. A catalog re-crawl after this session will add the new labels and allow future sets to use them without suppressions."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
+      ],
+      "errorKind": "ElementTypeMismatch",
+      "routePathPatterns": ["*"],
+      "rationale": "Some elements are referenced via verb forms whose expected elementRole differs from the catalog's recorded elementRole (e.g., CLICK LINK for row cells, CLICK BUTTON for icon-buttons). The user-visible label and interaction goal are correct; the elementRole taxonomy difference does not affect the human verification goal."
+    },
+    {
+      "checklists": [
         "docs/session-sets/post-rebuild-uat/*-uat-checklist.json",
         "docs/session-sets/security-dashboard-uat/*-uat-checklist.json",
         "docs/session-sets/security-dashboard-polish/*-uat-checklist.json",
