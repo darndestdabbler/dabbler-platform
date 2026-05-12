@@ -1,4 +1,6 @@
 @using System.Security.Claims
+@using Dabbler.Components
+@using Dabbler.Components.Data
 @using Dabbler.Security.Authorization
 @using Dabbler.Security.Blazor.Components.Admin.Shared
 @using Dabbler.Security.Configuration
@@ -21,35 +23,44 @@
         exemptions below.
     </MudText>
 
-    <MasterDetailExpansionShell TestId="role-master-details-shell"
+    <MasterDetailExpansionShell TRow="RoleMasterGrid.RoleRow"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="role-master-details-shell"
                                 IsExpanded="@_isResultsExpanded"
                                 IsExpandedChanged="OnResultsExpandedChangedAsync"
                                 ExpandedHeaderText="Roles"
                                 CollapsedSummaryText="@_summaryText"
                                 CollapsedSummaryBadge="@_summaryBadge">
-        <ResultsContent>
+        <FilterContent>
+            <FilterPanel T="RoleMasterGrid.RoleRow"
+                         Columns="RoleMasterGrid.FilterColumns"
+                         FilterChanged="OnFilterChangedAsync"
+                         ShowAddGroup="false"
+                         ShowFilterChips="true" />
+        </FilterContent>
+        <GridContent>
             <RoleMasterGrid @ref="_grid"
                             CanManageRoles="@_canManageRoles"
-                            SelectedRoleChanged="OnSelectedRoleChangedAsync"
-                            FiltersChanged="OnFiltersChangedAsync" />
-        </ResultsContent>
+                            Filter="@_filterDescriptor"
+                            SelectedRoleChanged="OnSelectedRoleChangedAsync" />
+        </GridContent>
+        <DetailsContent>
+            @if (_selection is not null)
+            {
+                <RoleDetailsSection Selection="@_selection"
+                                    OnPersisted="OnSubTabPersistedAsync" />
+            }
+        </DetailsContent>
     </MasterDetailExpansionShell>
-
-    @if (_selection is not null)
-    {
-        <RoleDetailsSection Selection="@_selection"
-                            OnPersisted="OnSubTabPersistedAsync" />
-    }
 </div>
 
 @code {
     /// <summary>
     /// Top-level composer for the Role Master Details tab. Wraps the
-    /// <see cref="RoleMasterGrid"/> in a <see cref="MasterDetailExpansionShell"/>
-    /// so selecting a row collapses the results grid and shows a compact
-    /// summary header (e.g. <c>"Role: BackofficeUser"</c>) while the details
-    /// surface takes focus below. Re-expanding the header returns to the
-    /// results view.
+    /// <see cref="RoleMasterGrid"/> in a <see cref="MasterDetailExpansionShell{TRow,TEntity,TLink}"/>
+    /// using the new slot pattern: filter in <c>FilterContent</c>, grid in
+    /// <c>GridContent</c>, and details form in <c>DetailsContent</c>.
     /// </summary>
 
     private RoleMasterGrid? _grid;
@@ -58,6 +69,7 @@
     private bool _isResultsExpanded = true;
     private string? _summaryText;
     private string? _summaryBadge;
+    private CompositeFilterDescriptor? _filterDescriptor;
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -108,8 +120,9 @@
         return Task.CompletedTask;
     }
 
-    private Task OnFiltersChangedAsync()
+    private Task OnFilterChangedAsync(CompositeFilterDescriptor? descriptor)
     {
+        _filterDescriptor = descriptor;
         _isResultsExpanded = true;
         _summaryText = null;
         _summaryBadge = null;

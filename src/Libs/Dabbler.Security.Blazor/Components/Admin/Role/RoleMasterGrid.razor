@@ -11,13 +11,6 @@
 @inject IDialogService Dialogs
 
 <div data-testid="role-master-grid-container">
-    <FilterPanel T="RoleRow"
-                 @ref="_filterPanel"
-                 Columns="_filterColumns"
-                 FilterChanged="OnFilterChanged"
-                 ShowAddGroup="false"
-                 ShowFilterChips="true" />
-
     <div class="d-flex align-center my-2">
         <MudText Typo="Typo.body2" Color="Color.Secondary">
             @($"{FilteredRows.Count} of {_rows.Count} roles")
@@ -103,39 +96,18 @@
 
 @code {
     /// <summary>
-    /// Master grid for Role Master Details. Shows ALL roles (baked-in +
-    /// user-type). Baked-in rows are greyed and carry a "baked-in" chip.
-    /// Display alias is inline-editable for every row; the canonical name
-    /// stays read-only. Add and Archive affordances are only enabled for
-    /// user-type rows and only when <see cref="CanManageRoles"/>.
+    /// Master grid fragment for Role Master Details. Shows ALL roles (baked-in +
+    /// user-type). Filtering is driven externally via the <see cref="Filter"/>
+    /// parameter — see <see cref="FilterColumns"/> for the column definitions to
+    /// pass to a tab-level <c>FilterPanel&lt;RoleRow&gt;</c>.
     /// </summary>
 
     /// <summary>
-    /// Whether the active user has the SystemAdmin-compiled <c>CanManageRoles</c>
-    /// privilege. Controls Add / Archive affordance enablement.
+    /// Column definitions for the role filter. Consume at the tab level when
+    /// constructing a <c>FilterPanel&lt;RoleRow&gt;</c> to pass as
+    /// <c>FilterContent</c> to the shell.
     /// </summary>
-    [Parameter]
-    public bool CanManageRoles { get; set; }
-
-    /// <summary>
-    /// Raised whenever the selected row changes (or is cleared).
-    /// </summary>
-    [Parameter]
-    public EventCallback<RoleRow?> SelectedRoleChanged { get; set; }
-
-    /// <summary>
-    /// Raised whenever the filter panel changes so the parent tab can
-    /// re-expand the results shell and clear any collapsed summary state.
-    /// </summary>
-    [Parameter]
-    public EventCallback FiltersChanged { get; set; }
-
-    private FilterPanel<RoleRow>? _filterPanel;
-    private CompositeFilterDescriptor? _filter;
-    private RoleRow? _selected;
-    private List<RoleRow> _rows = new();
-
-    private readonly List<FilterColumnDefinition> _filterColumns = new()
+    public static readonly IReadOnlyList<FilterColumnDefinition> FilterColumns = new[]
     {
         new FilterColumnDefinition
         {
@@ -160,7 +132,28 @@
         },
     };
 
-    private IReadOnlyList<RoleRow> FilteredRows => ApplyFilter(_rows, _filter);
+    /// <summary>
+    /// Whether the active user has the SystemAdmin-compiled <c>CanManageRoles</c>
+    /// privilege. Controls Add / Archive affordance enablement.
+    /// </summary>
+    [Parameter]
+    public bool CanManageRoles { get; set; }
+
+    /// <summary>
+    /// External filter descriptor pushed from the tab-level
+    /// <c>FilterPanel&lt;RoleRow&gt;</c>. When <c>null</c>, all rows are shown.
+    /// </summary>
+    [Parameter]
+    public CompositeFilterDescriptor? Filter { get; set; }
+
+    /// <summary>Raised whenever the selected row changes (or is cleared).</summary>
+    [Parameter]
+    public EventCallback<RoleRow?> SelectedRoleChanged { get; set; }
+
+    private RoleRow? _selected;
+    private List<RoleRow> _rows = new();
+
+    private IReadOnlyList<RoleRow> FilteredRows => ApplyFilter(_rows, Filter);
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -222,9 +215,6 @@
         if (filter is null || filter.Filters.Count == 0)
             return rows;
 
-        // FilterPanel runs with ShowAddGroup=false, so the coordinator always emits a
-        // single AND group. Simple case-insensitive Contains matching on the three
-        // text columns is enough for the role list.
         return rows.Where(r =>
         {
             foreach (var entry in filter.Filters)
@@ -243,19 +233,6 @@
             }
             return true;
         }).ToList();
-    }
-
-    private async Task OnFilterChanged(CompositeFilterDescriptor? descriptor)
-    {
-        _filter = descriptor;
-        if (FiltersChanged.HasDelegate)
-        {
-            await FiltersChanged.InvokeAsync();
-        }
-        else
-        {
-            StateHasChanged();
-        }
     }
 
     private async Task OnRowClickAsync(DataGridRowClickEventArgs<RoleRow> args)

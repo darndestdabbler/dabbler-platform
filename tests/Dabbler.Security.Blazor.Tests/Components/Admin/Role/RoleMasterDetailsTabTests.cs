@@ -1,4 +1,6 @@
 using Bunit;
+using Dabbler.Components;
+using Dabbler.Components.Data;
 using Dabbler.Security.Abstractions;
 using Dabbler.Security.Authorization;
 using Dabbler.Security.Blazor.Components.Admin.Role;
@@ -197,7 +199,10 @@ public class RoleMasterDetailsTabTests
         cut.Find("[data-testid='role-master-details-shell-summary']")
             .TextContent.Should().Contain("Role: BackofficeUser");
 
-        await cut.InvokeAsync(() => grid.Instance.FiltersChanged.InvokeAsync());
+        // Filter changes now flow through the tab-level FilterPanel (the
+        // FilterPanel was extracted from RoleMasterGrid in this session).
+        var filterPanel = cut.FindComponent<FilterPanel<RoleMasterGrid.RoleRow>>();
+        await cut.InvokeAsync(() => filterPanel.Instance.FilterChanged.InvokeAsync(null));
 
         cut.FindAll("[data-testid='role-master-details-shell-summary']").Should().BeEmpty();
         cut.Find("[data-testid='role-master-details-shell-header']")

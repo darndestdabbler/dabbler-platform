@@ -1,64 +1,154 @@
+@typeparam TRow
+@typeparam TEntity
+@typeparam TLink
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Shared
 
-<div data-testid="@TestId" class="master-detail-expansion-shell mb-3">
-    <MudExpansionPanels MultiExpansion="false" Elevation="0">
-        <MudExpansionPanel Expanded="@IsExpanded"
-                           ExpandedChanged="@HandleExpandedChanged"
-                           DisableGutters="true">
-            <TitleContent>
-                <div class="d-flex align-center gap-2" data-testid="@($"{TestId}-header")">
-                    @if (IsExpanded)
-                    {
-                        <MudText Typo="Typo.subtitle2">@ExpandedHeaderText</MudText>
-                    }
-                    else
-                    {
-                        <MudText Typo="Typo.subtitle2"
-                                 data-testid="@($"{TestId}-summary")">
-                            @(string.IsNullOrWhiteSpace(CollapsedSummaryText)
-                                ? ExpandedHeaderText
-                                : CollapsedSummaryText)
-                        </MudText>
-                        @if (!string.IsNullOrWhiteSpace(CollapsedSummaryBadge))
+@if (ShowGrid)
+{
+    <div data-testid="@TestId" class="master-detail-expansion-shell mb-3">
+        <MudExpansionPanels MultiExpansion="false" Elevation="0">
+            <MudExpansionPanel Expanded="@IsExpanded"
+                               ExpandedChanged="@HandleExpandedChanged"
+                               DisableGutters="true">
+                <TitleContent>
+                    <div class="d-flex align-center gap-2" data-testid="@($"{TestId}-header")">
+                        @if (IsExpanded)
                         {
-                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
-                                     data-testid="@($"{TestId}-summary-badge")">
-                                @CollapsedSummaryBadge
-                            </MudChip>
+                            <MudText Typo="Typo.subtitle2">@ExpandedHeaderText</MudText>
                         }
-                    }
-                </div>
-            </TitleContent>
-            <ChildContent>
-                <div class="master-detail-results-body" data-testid="@($"{TestId}-body")">
-                    @ResultsContent
-                </div>
-            </ChildContent>
-        </MudExpansionPanel>
-    </MudExpansionPanels>
-</div>
+                        else if (CollapsedSummaryContent is not null)
+                        {
+                            @CollapsedSummaryContent
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.subtitle2"
+                                     data-testid="@($"{TestId}-summary")">
+                                @(string.IsNullOrWhiteSpace(CollapsedSummaryText)
+                                    ? ExpandedHeaderText
+                                    : CollapsedSummaryText)
+                            </MudText>
+                            @if (!string.IsNullOrWhiteSpace(CollapsedSummaryBadge))
+                            {
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                         data-testid="@($"{TestId}-summary-badge")">
+                                    @CollapsedSummaryBadge
+                                </MudChip>
+                            }
+                        }
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <div class="master-detail-results-body" data-testid="@($"{TestId}-body")">
+                        @if (FilterContent is not null)
+                        {
+                            <div class="master-detail-filter-region">
+                                @FilterContent
+                            </div>
+                        }
+                        @GridContent
+                    </div>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    </div>
+}
+else
+{
+    @* ShowGrid=false: Scenario 1 (Add Only) — full-width form, no expansion chrome.
+       Implemented in Session 2. *@
+    <div data-testid="@TestId" class="master-detail-expansion-shell master-detail-add-only mb-3">
+        @if (SessionSummaryContent is not null)
+        {
+            <div class="master-detail-session-summary mb-2" data-testid="@($"{TestId}-session-summary")">
+                @SessionSummaryContent
+            </div>
+        }
+    </div>
+}
+
+@if (DetailsContent is not null)
+{
+    <div class="master-detail-details-body" data-testid="@($"{TestId}-details")">
+        @DetailsContent
+    </div>
+}
 
 @code {
-    /// <summary>
-    /// Shared master-details expansion wrapper. Each tab (Role, Organization,
-    /// Users, Default Masks) places its results grid inside
-    /// <see cref="ResultsContent"/>; row selection flips
-    /// <see cref="IsExpanded"/> to <c>false</c> and the caller provides a
-    /// compact <see cref="CollapsedSummaryText"/> so the human sees which row
-    /// is currently being edited in the details surface below. Changing a
-    /// filter re-expands the panel and the caller clears the summary.
-    /// </summary>
+    // -----------------------------------------------------------------------
+    // Identity
+    // -----------------------------------------------------------------------
 
     /// <summary>
-    /// The data-testid root for this shell. The header, summary, and optional
-    /// badge carry derived test ids (<c>{TestId}-header</c>,
-    /// <c>{TestId}-summary</c>, <c>{TestId}-summary-badge</c>) so Playwright
-    /// and bUnit assertions can find them without digging into MudBlazor
-    /// internals.
+    /// Root data-testid for this shell. Derived test ids:
+    /// <c>{TestId}-header</c>, <c>{TestId}-body</c>, <c>{TestId}-summary</c>,
+    /// <c>{TestId}-summary-badge</c>, <c>{TestId}-details</c>.
     /// </summary>
     [Parameter, EditorRequired]
     public string TestId { get; set; } = "master-detail-shell";
+
+    // -----------------------------------------------------------------------
+    // Layout knobs
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// When <c>false</c>, drops the expansion panel entirely and renders
+    /// <see cref="DetailsContent"/> in a full-width surface (Scenario 1 /
+    /// Add-Only). Implemented in Session 2.
+    /// </summary>
+    [Parameter]
+    public bool ShowGrid { get; set; } = true;
+
+    /// <summary>
+    /// When <c>true</c>, renders a toolbar Add button that raises
+    /// <see cref="OnAddRequested"/>. Default <c>true</c>.
+    /// </summary>
+    [Parameter]
+    public bool ShowAddAction { get; set; } = true;
+
+    /// <summary>
+    /// When <c>true</c>, each grid row gets a row-wise "Use" action rendered
+    /// via <see cref="RowUseAction"/> (or the default MudIconButton). Used in
+    /// Scenarios 3 and 4.
+    /// </summary>
+    [Parameter]
+    public bool ShowRowUseAction { get; set; }
+
+    /// <summary>
+    /// When <c>true</c> and a row is selected but no fields are dirty, the
+    /// primary action button reads "Use" rather than "Save and Use". Used in
+    /// Scenarios 3 and 4.
+    /// </summary>
+    [Parameter]
+    public bool AllowLinkOnly { get; set; }
+
+    /// <summary>Inline or Dialog rendering mode.</summary>
+    [Parameter]
+    public ShellMode Mode { get; set; } = ShellMode.Inline;
+
+    /// <summary>
+    /// Controls whether target-entity fields are editable, permanently read-only,
+    /// or start read-only with an unlock toggle.
+    /// </summary>
+    [Parameter]
+    public TargetEditability TargetEditability { get; set; } = TargetEditability.Editable;
+
+    /// <summary>
+    /// When <c>true</c>, renders the <see cref="LinkDataContent"/> slot in a
+    /// visually-distinct "Link Data" card above the target form. Used in
+    /// Scenarios 4a and 4b.
+    /// </summary>
+    [Parameter]
+    public bool ShowLinkData { get; set; }
+
+    /// <summary>Heading text for the Link Data card. Default "Link Data".</summary>
+    [Parameter]
+    public string LinkDataHeading { get; set; } = "Link Data";
+
+    // -----------------------------------------------------------------------
+    // Expansion / collapse state
+    // -----------------------------------------------------------------------
 
     /// <summary>Controls whether the results region is expanded.</summary>
     [Parameter]
@@ -73,27 +163,168 @@
     public string ExpandedHeaderText { get; set; } = "Results";
 
     /// <summary>
-    /// Compact read-only summary shown when the panel is collapsed (e.g.
-    /// <c>"Role: BackofficeUser"</c>). When blank, the collapsed header
-    /// falls back to <see cref="ExpandedHeaderText"/>.
+    /// Compact read-only summary shown when collapsed (e.g. "Role: BackofficeUser").
+    /// Falls back to <see cref="ExpandedHeaderText"/> when blank.
+    /// Ignored when <see cref="CollapsedSummaryContent"/> is set.
     /// </summary>
     [Parameter]
     public string? CollapsedSummaryText { get; set; }
 
     /// <summary>
-    /// Optional chip rendered next to the collapsed summary. Used for the
-    /// baked-in role indicator on Role Master Details.
+    /// Optional chip rendered next to the collapsed summary text.
+    /// Ignored when <see cref="CollapsedSummaryContent"/> is set.
     /// </summary>
     [Parameter]
     public string? CollapsedSummaryBadge { get; set; }
 
+    // -----------------------------------------------------------------------
+    // Button labels
+    // -----------------------------------------------------------------------
+
+    /// <summary>Label for the primary save action. Default "Save".</summary>
+    [Parameter]
+    public string SaveLabel { get; set; } = "Save";
+
+    /// <summary>Label for the save-and-use action. Default "Save and Use".</summary>
+    [Parameter]
+    public string SaveAndUseLabel { get; set; } = "Save and Use";
+
+    /// <summary>Label for the use-only action. Default "Use".</summary>
+    [Parameter]
+    public string UseLabel { get; set; } = "Use";
+
+    /// <summary>Label for the cancel action. Default "Cancel".</summary>
+    [Parameter]
+    public string CancelLabel { get; set; } = "Cancel";
+
+    // -----------------------------------------------------------------------
+    // Working / busy state
+    // -----------------------------------------------------------------------
+
+    /// <summary>When true, disables action buttons while an async save is in flight.</summary>
+    [Parameter]
+    public bool Working { get; set; }
+
+    /// <summary>Raised when the shell's internal working state changes.</summary>
+    [Parameter]
+    public EventCallback<bool> WorkingChanged { get; set; }
+
+    /// <summary>When true, disables link-data action buttons while a link save is in flight.</summary>
+    [Parameter]
+    public bool LinkWorking { get; set; }
+
+    /// <summary>Raised when the link working state changes.</summary>
+    [Parameter]
+    public EventCallback<bool> LinkWorkingChanged { get; set; }
+
+    // -----------------------------------------------------------------------
+    // Slots (render fragments)
+    // -----------------------------------------------------------------------
+
     /// <summary>
-    /// The results content (filter + action row + grid). Individual grids own
-    /// their own scroll regions so the filter controls stay visible when the
-    /// row set grows beyond the available viewport.
+    /// Filter controls to render at the top of the expansion panel body.
+    /// Typically a <c>FilterPanel&lt;TRow&gt;</c>. Optional — omit when the
+    /// grid component manages filtering internally.
     /// </summary>
-    [Parameter, EditorRequired]
-    public RenderFragment ResultsContent { get; set; } = default!;
+    [Parameter]
+    public RenderFragment? FilterContent { get; set; }
+
+    /// <summary>
+    /// The results grid (and any toolbar). Required when <see cref="ShowGrid"/> is
+    /// <c>true</c>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? GridContent { get; set; }
+
+    /// <summary>
+    /// Custom row-wise Use action template. Rendered in each row when
+    /// <see cref="ShowRowUseAction"/> is <c>true</c>. Defaults to a
+    /// <c>MudIconButton</c> that raises <see cref="OnUseRequested"/>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment<TRow>? RowUseAction { get; set; }
+
+    /// <summary>
+    /// The target-entity detail form. Rendered below the expansion panel
+    /// (or as the sole surface when <see cref="ShowGrid"/> is <c>false</c>).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? DetailsContent { get; set; }
+
+    /// <summary>
+    /// Link-data fields rendered in a visually-distinct card above the target
+    /// form when <see cref="ShowLinkData"/> is <c>true</c>.
+    /// Implemented in Session 4.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? LinkDataContent { get; set; }
+
+    /// <summary>
+    /// Custom action buttons for the details surface (overrides the default
+    /// Save / Save-and-Use / Cancel row). Receives a
+    /// <see cref="DetailsActionsContext{TEntity,TLink}"/> carrying dirty-state flags.
+    /// </summary>
+    [Parameter]
+    public RenderFragment<DetailsActionsContext<TEntity, TLink>>? DetailsActions { get; set; }
+
+    /// <summary>
+    /// Custom content for the collapsed panel header. When set, overrides
+    /// <see cref="CollapsedSummaryText"/> and <see cref="CollapsedSummaryBadge"/>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? CollapsedSummaryContent { get; set; }
+
+    /// <summary>
+    /// Thin summary fragment rendered above the full-width form when
+    /// <see cref="ShowGrid"/> is <c>false</c> (e.g., "Records added this session: 14").
+    /// Implemented in Session 2.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? SessionSummaryContent { get; set; }
+
+    // -----------------------------------------------------------------------
+    // Callbacks
+    // -----------------------------------------------------------------------
+
+    /// <summary>Raised when the user clicks the Add toolbar button.</summary>
+    [Parameter]
+    public EventCallback OnAddRequested { get; set; }
+
+    /// <summary>Raised when the user clicks a grid row (or the row-wise Use button).</summary>
+    [Parameter]
+    public EventCallback<TRow> OnRowSelected { get; set; }
+
+    /// <summary>Raised when the user clicks the row-wise "Use" button to link without editing.</summary>
+    [Parameter]
+    public EventCallback<TRow> OnUseRequested { get; set; }
+
+    /// <summary>Raised when the user saves in Scenarios 1 / 2 (no dialog close).</summary>
+    [Parameter]
+    public EventCallback<SaveRequest<TEntity, TLink>> OnSaveRequested { get; set; }
+
+    /// <summary>
+    /// Raised when the user clicks "Save and Use" in Scenarios 3 / 4.
+    /// The consumer saves both entity and link data and returns a
+    /// <see cref="SaveAndUseResult{TEntity,TLink}"/> via the callback.
+    /// </summary>
+    [Parameter]
+    public EventCallback<SaveRequest<TEntity, TLink>> OnSaveAndUseRequested { get; set; }
+
+    /// <summary>
+    /// Raised when the user toggles target editability in
+    /// <see cref="TargetEditability.ReadOnlyWithToggle"/> mode.
+    /// The bool argument is the new IsTargetReadOnly value.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OnTargetEditingToggled { get; set; }
+
+    /// <summary>Raised when the user clicks Cancel in the details surface.</summary>
+    [Parameter]
+    public EventCallback OnCancelRequested { get; set; }
+
+    // -----------------------------------------------------------------------
+    // Internals
+    // -----------------------------------------------------------------------
 
     private async Task HandleExpandedChanged(bool expanded)
     {

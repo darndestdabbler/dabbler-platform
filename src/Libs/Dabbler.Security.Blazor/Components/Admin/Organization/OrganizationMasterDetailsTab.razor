@@ -9,17 +9,20 @@
         key, name, internal/external status, and active/archive status.
     </MudText>
 
-    <MasterDetailExpansionShell TestId="organization-master-details-shell"
+    <MasterDetailExpansionShell TRow="object"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="organization-master-details-shell"
                                 IsExpanded="@_isResultsExpanded"
                                 IsExpandedChanged="OnResultsExpandedChangedAsync"
                                 ExpandedHeaderText="Organizations"
                                 CollapsedSummaryText="@_summaryText">
-        <ResultsContent>
+        <GridContent>
             <OrganizationMasterGrid @ref="_grid"
                                     SelectedOrganizationIdChanged="OnSelectedOrganizationIdChangedAsync"
                                     CreateRequested="OnCreateRequestedAsync"
                                     FiltersChanged="OnFiltersChangedAsync" />
-        </ResultsContent>
+        </GridContent>
     </MasterDetailExpansionShell>
 
     <OrganizationDetailsForm Selection="@_selection"

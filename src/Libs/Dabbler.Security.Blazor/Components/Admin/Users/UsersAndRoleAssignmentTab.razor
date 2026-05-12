@@ -29,16 +29,19 @@
         assigned organizations; SystemAdmin and CrossOrgUserAdmin see all users.
     </MudText>
 
-    <MasterDetailExpansionShell TestId="users-and-role-assignment-shell"
+    <MasterDetailExpansionShell TRow="object"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="users-and-role-assignment-shell"
                                 IsExpanded="@_isResultsExpanded"
                                 IsExpandedChanged="OnResultsExpandedChangedAsync"
                                 ExpandedHeaderText="Users"
                                 CollapsedSummaryText="@_summaryText">
-        <ResultsContent>
+        <GridContent>
             <UsersMasterGrid @ref="_grid"
                              SelectedUserChanged="OnSelectedUserChangedAsync"
                              FiltersChanged="OnFiltersChangedAsync" />
-        </ResultsContent>
+        </GridContent>
     </MasterDetailExpansionShell>
 
     <UserRoleAssignmentDetails User="@_selectedUser"

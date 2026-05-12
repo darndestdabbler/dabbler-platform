@@ -17,15 +17,18 @@
         sensitive field would itself leak information.
     </MudText>
 
-    <MasterDetailExpansionShell TestId="default-masks-shell"
+    <MasterDetailExpansionShell TRow="object"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="default-masks-shell"
                                 IsExpanded="@_isResultsExpanded"
                                 IsExpandedChanged="OnResultsExpandedChangedAsync"
                                 ExpandedHeaderText="Default Masks"
                                 CollapsedSummaryText="@CollapsedSummaryText">
-        <ResultsContent>
+        <GridContent>
             <DefaultMasksGrid @ref="_grid"
                               FiltersChanged="OnFiltersChangedAsync" />
-        </ResultsContent>
+        </GridContent>
     </MasterDetailExpansionShell>
 </div>
 

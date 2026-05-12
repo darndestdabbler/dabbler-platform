@@ -1,12 +1,17 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "unified-master-details-composite",
-  "currentSession": null,
-  "totalSessions": null,
-  "status": "not-started",
-  "lifecycleState": null,
-  "startedAt": null,
+  "currentSession": 1,
+  "totalSessions": 5,
+  "status": "in-progress",
+  "lifecycleState": "work_in_progress",
+  "startedAt": "2026-05-11T20:08:35.072761-04:00",
   "completedAt": null,
   "verificationVerdict": null,
-  "orchestrator": null
+  "orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-6",
+    "effort": "high"
+  }
 }
