@@ -68,14 +68,14 @@ moderate
 | 9 | Commit, push, notify | Direct |
 
 ### Actuals (filled after the session)
-- Orchestrator used: TBD
-- Total routed cost: TBD
-- Deviations from recommendation: TBD
-- Notes for next-session calibration: TBD
+- Orchestrator used: claude-code / claude-sonnet-4-6 @ effort=high
+- Total routed cost: ~$0.54 (Gemini Pro x2 for test-generation $0.039, Opus x1 for session-verification $0.505)
+- Deviations from recommendation: effort=high vs recommended medium; needed two verification runs (first failed due to Unicode encoding before saving — second run succeeded)
+- Notes for next-session calibration: Verification caught Major issue (duplicate emails across tests) + Minor (fire-and-forget async). Quick fixes. Router recommends Opus for Session 3 due to PickOrAddDialog complexity; original recommendation was Sonnet.
 
 **Next-session orchestrator recommendation (Session 3):**
-`claude-code` `claude-sonnet-4-6` @ `effort=medium`
-Rationale: Session 3 introduces a new dialog wrapper and wiring — similar complexity to Session 2's demo page and layout changes; sonnet-class sufficient.
+`claude-code` `claude-opus-4-7` @ `effort=high`
+Rationale: PickOrAddDialog is a new generic multi-modal stateful component with dirty-state tracking and dialog-close integration — higher complexity than Sessions 1/2 shell modifications. Routed analysis upgraded recommendation from Sonnet to Opus.
 
 ---
 

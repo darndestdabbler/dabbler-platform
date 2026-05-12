@@ -215,4 +215,91 @@ public class MasterDetailExpansionShellTests
 
         cut.Find("[data-testid='inner-grid']").Should().NotBeNull();
     }
+
+    // ── Session 2: ShowGrid=false / Add-Only layout tests ──────────────────
+
+    [Fact]
+    public void Shell_ShowGridFalse_DetailsContent_RenderedInMudPaper()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowGrid, false)
+            .Add(c => c.DetailsContent, builder =>
+                builder.AddMarkupContent(0, "<div data-testid='inner-details'>details</div>")));
+
+        var detailsPaper = cut.Find("[data-testid='test-shell-details']");
+        detailsPaper.Should().NotBeNull();
+        detailsPaper.QuerySelector("[data-testid='inner-details']").Should().NotBeNull();
+
+        cut.FindAll("[data-testid='test-shell-header']").Should().BeEmpty();
+        cut.FindAll("[data-testid='test-shell-body']").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Shell_ShowGridFalse_DefaultSaveAndCancelButtons_Rendered()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowGrid, false)
+            .Add(c => c.DetailsContent, _ => { }));
+
+        cut.Find("[data-testid='test-shell-save-button']").Should().NotBeNull();
+        cut.Find("[data-testid='test-shell-cancel-button']").Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Shell_ShowGridFalse_SaveButton_IncrementsSessionCount()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowGrid, false)
+            .Add(c => c.DetailsContent, _ => { })
+            .Add(c => c.SessionSummaryContent, (count) => builder =>
+                builder.AddContent(0, $"Count: {count}"))
+            .Add(c => c.OnSaveRequested, EventCallback.Factory.Create<SaveRequest<object, object>>(
+                this, _ => Task.CompletedTask)));
+
+        cut.Find("[data-testid='test-shell-save-button']").Click();
+
+        var summary = cut.Find("[data-testid='test-shell-session-summary']");
+        summary.TextContent.Should().Contain("Count: 1");
+    }
+
+    [Fact]
+    public void Shell_ShowGridFalse_CancelButton_RaisesOnCancelRequested()
+    {
+        using var ctx = Build();
+        var cancelRequested = false;
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowGrid, false)
+            .Add(c => c.DetailsContent, _ => { })
+            .Add(c => c.OnCancelRequested, EventCallback.Factory.Create(this, () =>
+            {
+                cancelRequested = true;
+            })));
+
+        cut.Find("[data-testid='test-shell-cancel-button']").Click();
+
+        cancelRequested.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Shell_ShowGridFalse_SessionSummaryContent_NotRendered_WhenNotProvided()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowGrid, false));
+
+        cut.FindAll("[data-testid='test-shell-session-summary']").Should().BeEmpty();
+    }
 }

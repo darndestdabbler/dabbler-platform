@@ -116,6 +116,102 @@
           "costUsd": 0.355035
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-05-12T02:47:59.339242-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/showgrid-false",
+      "dateTime": "2026-05-12T02:48:56.379087-04:00",
+      "description": "Implemented ShowGrid=false layout: MudPaper wrapping DetailsContent, MudAlert for SessionSummaryContent<int>, default Save/Cancel buttons when DetailsActions is null. Moved DetailsContent rendering inside ShowGrid branch.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/session-counter",
+      "dateTime": "2026-05-12T02:48:56.380087-04:00",
+      "description": "Added _sessionCount field; HandleDefaultSaveAsync increments after successful OnSaveRequested (catches OperationCanceledException for consumer-cancelled saves). SessionSummaryContent changed from RenderFragment? to RenderFragment<int>?.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/demo-page",
+      "dateTime": "2026-05-12T02:49:28.697837-04:00",
+      "description": "Created CustomerBatchEntryPage.razor at /customers/batch-entry: shell with ShowGrid=false, ShowAddAction=false; SessionSummaryContent renders count; DetailsContent is a MudForm for CustomerDto; OnSaveRequested validates, creates customer via API, clears form.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/bunit-tests",
+      "dateTime": "2026-05-12T02:51:52.527939-04:00",
+      "description": "Routed test-generation for ShowGrid=false bUnit tests via gemini-pro; 5 new test methods generated",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 10172,
+          "outputTokens": 986,
+          "costUsd": 0.022574999999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/playwright",
+      "dateTime": "2026-05-12T02:54:12.969622-04:00",
+      "description": "Routed test-generation for CustomerBatchEntryWorkflowTests Playwright tests via gemini-pro",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 3140,
+          "outputTokens": 1285,
+          "costUsd": 0.016774999999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-05-12T02:56:43.303342-04:00",
+      "description": "dotnet build: 0 errors. dotnet test (non-Playwright): 222 Security.Blazor.Tests (5 new shell tests pass), 305 Security.Tests, 43 Components.Tests, 16 Reports.Blazor.Tests, 27 Api.Tests, 6 Testing.Blazor.Tests all pass. 5 pre-existing failures in AcmeCoffeeOnline.Web.Tests (TemplateSeedSmokeTests + WorkflowAssetSmokeTests, unchanged).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-05-12T03:01:12.221793-04:00",
+      "description": "Cross-provider verification: model=opus",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8905,
+          "outputTokens": 4948,
+          "costUsd": 0.504675
+        }
+      ]
     }
   ]
 }

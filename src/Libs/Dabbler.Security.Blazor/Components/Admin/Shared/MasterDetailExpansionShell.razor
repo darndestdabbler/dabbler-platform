@@ -53,25 +53,56 @@
             </MudExpansionPanel>
         </MudExpansionPanels>
     </div>
+
+    @if (DetailsContent is not null)
+    {
+        <div class="master-detail-details-body" data-testid="@($"{TestId}-details")">
+            @DetailsContent
+        </div>
+    }
 }
 else
 {
-    @* ShowGrid=false: Scenario 1 (Add Only) — full-width form, no expansion chrome.
-       Implemented in Session 2. *@
+    @* ShowGrid=false: Scenario 1 (Add Only) — full-width MudPaper, no expansion chrome. *@
     <div data-testid="@TestId" class="master-detail-expansion-shell master-detail-add-only mb-3">
         @if (SessionSummaryContent is not null)
         {
-            <div class="master-detail-session-summary mb-2" data-testid="@($"{TestId}-session-summary")">
-                @SessionSummaryContent
-            </div>
+            <MudAlert Severity="Severity.Info" Class="mb-3" Elevation="0"
+                      data-testid="@($"{TestId}-session-summary")">
+                @SessionSummaryContent(_sessionCount)
+            </MudAlert>
         }
-    </div>
-}
-
-@if (DetailsContent is not null)
-{
-    <div class="master-detail-details-body" data-testid="@($"{TestId}-details")">
-        @DetailsContent
+        @if (DetailsContent is not null)
+        {
+            <MudPaper Class="pa-4" Elevation="1"
+                      data-testid="@($"{TestId}-details")">
+                @DetailsContent
+                <MudDivider Class="my-3" />
+                @if (DetailsActions is not null)
+                {
+                    @DetailsActions(new DetailsActionsContext<TEntity, TLink>())
+                }
+                else
+                {
+                    <MudStack Row="true" Spacing="2">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Disabled="@Working"
+                                   OnClick="HandleDefaultSaveAsync"
+                                   data-testid="@($"{TestId}-save-button")">
+                            @SaveLabel
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Default"
+                                   Disabled="@Working"
+                                   OnClick="HandleCancelAsync"
+                                   data-testid="@($"{TestId}-cancel-button")">
+                            @CancelLabel
+                        </MudButton>
+                    </MudStack>
+                }
+            </MudPaper>
+        }
     </div>
 }
 
@@ -276,11 +307,11 @@ else
 
     /// <summary>
     /// Thin summary fragment rendered above the full-width form when
-    /// <see cref="ShowGrid"/> is <c>false</c> (e.g., "Records added this session: 14").
-    /// Implemented in Session 2.
+    /// <see cref="ShowGrid"/> is <c>false</c>. Receives the current session
+    /// save count as context (e.g., "Records added this session: @context").
     /// </summary>
     [Parameter]
-    public RenderFragment? SessionSummaryContent { get; set; }
+    public RenderFragment<int>? SessionSummaryContent { get; set; }
 
     // -----------------------------------------------------------------------
     // Callbacks
@@ -326,11 +357,40 @@ else
     // Internals
     // -----------------------------------------------------------------------
 
+    private int _sessionCount;
+
     private async Task HandleExpandedChanged(bool expanded)
     {
         if (IsExpanded == expanded) return;
         IsExpanded = expanded;
         if (IsExpandedChanged.HasDelegate)
             await IsExpandedChanged.InvokeAsync(expanded);
+    }
+
+    private async Task HandleDefaultSaveAsync()
+    {
+        Working = true;
+        if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(true);
+        try
+        {
+            await OnSaveRequested.InvokeAsync(new SaveRequest<TEntity, TLink>());
+            if (!ShowGrid)
+                _sessionCount++;
+        }
+        catch (OperationCanceledException)
+        {
+            // Consumer cancelled the save (e.g., validation failed) — do not increment.
+        }
+        finally
+        {
+            Working = false;
+            if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(false);
+        }
+    }
+
+    private async Task HandleCancelAsync()
+    {
+        if (OnCancelRequested.HasDelegate)
+            await OnCancelRequested.InvokeAsync();
     }
 }
