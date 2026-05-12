@@ -1,0 +1,26 @@
+@page "/orders/new"
+@attribute [DabblerPageAuthorize("/orders")]
+
+<PageTitle>New Order — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4" data-testid="order-create-page">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/orders"))"
+                           aria-label="Back to orders" />
+            <MudText Typo="Typo.h4" data-testid="order-create-title">New order</MudText>
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            Pick or add a customer, then save the order header to begin adding items.
+        </MudText>
+    </MudStack>
+
+    <OrderDetail IsNew="true"
+                 IsReadOnly="false" />
+</MudContainer>
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

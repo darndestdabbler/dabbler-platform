@@ -1,10 +1,12 @@
 @inherits Dabbler.Testing.Blazor.Components.TrackedComponentBase
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Shared.Enums
+@using AcmeCoffeeOnline.Web.Components.Pages.Customers
 @using AcmeCoffeeOnline.Web.Components.Pages.Products
 @using AcmeCoffeeOnline.Web.Services
 @using MudBlazor
 @inject OrderDetailState State
+@inject IDialogService DialogService
 
 @if (State.IsLoading)
 {
@@ -89,12 +91,25 @@ else if (State.Record is not null)
     <MudForm @ref="_form" Model="State.Record">
         <MudGrid>
             <MudItem xs="12" md="4">
-                <MudTextField T="string"
-                              Value="State.Record.CustomerName"
-                              Label="Customer"
-                              ReadOnly="true"
-                              Variant="Variant.Outlined"
-                              data-testid="field-customer-name" />
+                <MudStack Row="true" AlignItems="AlignItems.End" Spacing="2">
+                    <MudTextField T="string"
+                                  Value="State.Record.CustomerName"
+                                  Label="Customer"
+                                  ReadOnly="true"
+                                  Variant="Variant.Outlined"
+                                  data-testid="field-customer-name" />
+                    @if (IsNew && !IsReadOnly)
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   Size="Size.Medium"
+                                   StartIcon="@Icons.Material.Filled.Person"
+                                   OnClick="OpenCustomerPickerAsync"
+                                   data-testid="pick-customer-button">
+                            Pick customer
+                        </MudButton>
+                    }
+                </MudStack>
             </MudItem>
 
             <MudItem xs="12" md="4">
@@ -508,4 +523,25 @@ else
     {
         await State.RefreshNotesAsync();
     });
+
+    // ── Customer Picker (Scenario 3) ────────────────────────────────
+
+    private async Task OpenCustomerPickerAsync()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Medium,
+        };
+        var dialog = await DialogService.ShowAsync<CustomerPickerDialog>(
+            "Pick or add customer", new DialogParameters(), options);
+        var result = await dialog.Result;
+        if (result is null || result.Canceled) return;
+        if (result.Data is not CustomerDto customer) return;
+        if (State.Record is null) return;
+        State.Record.CustomerId = customer.Id;
+        State.Record.CustomerName = $"{customer.FirstName} {customer.LastName}".Trim();
+        StateHasChanged();
+    }
 }

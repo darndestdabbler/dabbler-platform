@@ -1,0 +1,226 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using MudBlazor
+@namespace AcmeCoffeeOnline.Web.Components.Pages.Customers
+@inject CustomerApiClient CustomerApi
+@inject ISnackbar Snackbar
+
+@* ------------------------------------------------------------------ *@
+@* CustomerPickerDialog                                                 *@
+@*                                                                      *@
+@* Concrete wrapper around                                              *@
+@* PickOrAddDialog<CustomerDto, CustomerDto, object> for Scenario 3:    *@
+@* a parent form (Order) needs a related Customer. User searches an     *@
+@* existing customer (row-wise "Use") or adds a new one ("Save and     *@
+@* Use"). DialogResult.Data carries the chosen/created CustomerDto.    *@
+@* ------------------------------------------------------------------ *@
+
+<PickOrAddDialog TRow="CustomerDto" TEntity="CustomerDto" TLink="object"
+                 @ref="_pickOrAdd"
+                 TestId="customer-picker-dialog"
+                 ShowRowUseAction="true"
+                 AllowLinkOnly="true"
+                 ExpandedHeaderText="Existing customers"
+                 OnUsePicked="HandleUsePickedAsync"
+                 OnSaveAndUse="HandleSaveAndUseAsync"
+                 OnAdd="HandleAddAsync"
+                 OnRowSelected="HandleRowSelectedAsync">
+    <FilterContent>
+        <MudTextField T="string"
+                      Value="@_search"
+                      ValueChanged="@OnSearchChangedAsync"
+                      Placeholder="Search by name or email…"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      DebounceInterval="300"
+                      data-testid="customer-picker-search" />
+    </FilterContent>
+    <GridContent>
+        <MudDataGrid T="CustomerDto"
+                     Items="_rows"
+                     Dense="true"
+                     Bordered="true"
+                     Hover="true"
+                     Loading="_loading"
+                     ReadOnly="true"
+                     RowClick="@OnRowClickAsync"
+                     data-testid="customer-picker-grid">
+            <Columns>
+                <PropertyColumn Property="c => c.LastName" Title="Last name" />
+                <PropertyColumn Property="c => c.FirstName" Title="First name" />
+                <PropertyColumn Property="c => c.Email" Title="Email" />
+                <TemplateColumn Sortable="false" CellStyle="width: 56px;">
+                    <CellTemplate>
+                        @if (_pickOrAdd?.EffectiveRowUseAction is not null)
+                        {
+                            @_pickOrAdd.EffectiveRowUseAction(context.Item)
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </GridContent>
+    <DetailsContent>
+        <MudForm @ref="_form" Model="@_buffer">
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField T="string"
+                                  Value="@_buffer.FirstName"
+                                  ValueChanged="@(v => OnFieldChanged(() => _buffer.FirstName = v))"
+                                  Label="First name"
+                                  Required="true"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  data-testid="customer-picker-first-name" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField T="string"
+                                  Value="@_buffer.LastName"
+                                  ValueChanged="@(v => OnFieldChanged(() => _buffer.LastName = v))"
+                                  Label="Last name"
+                                  Required="true"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  data-testid="customer-picker-last-name" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField T="string"
+                                  Value="@_buffer.Email"
+                                  ValueChanged="@(v => OnFieldChanged(() => _buffer.Email = v))"
+                                  Label="Email"
+                                  Required="true"
+                                  InputType="InputType.Email"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  data-testid="customer-picker-email" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DetailsContent>
+</PickOrAddDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    private PickOrAddDialog<CustomerDto, CustomerDto, object>? _pickOrAdd;
+    private MudForm? _form;
+    private CustomerDto _buffer = NewBuffer();
+    private IReadOnlyList<CustomerDto> _rows = Array.Empty<CustomerDto>();
+    private string? _search;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync(string.Empty);
+    }
+
+    private static CustomerDto NewBuffer() => new()
+    {
+        Email = string.Empty,
+        FirstName = string.Empty,
+        LastName = string.Empty,
+        IsActive = true,
+    };
+
+    private async Task LoadAsync(string searchTerm)
+    {
+        _loading = true;
+        try
+        {
+            var request = new PagedRequest { Page = 1, PageSize = 25 };
+            var paged = string.IsNullOrWhiteSpace(searchTerm)
+                ? await CustomerApi.GetAllAsync(request)
+                : await CustomerApi.SearchAsync(searchTerm, request);
+            _rows = paged.Items;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnSearchChangedAsync(string? value)
+    {
+        _search = value;
+        await LoadAsync(value ?? string.Empty);
+    }
+
+    private void OnFieldChanged(Action mutate)
+    {
+        mutate();
+        _pickOrAdd?.DetailsContext?.SetDirty();
+    }
+
+    private async Task OnRowClickAsync(DataGridRowClickEventArgs<CustomerDto> args)
+    {
+        if (args.Item is null) return;
+        await HandleRowSelectedAsync(args.Item);
+        _pickOrAdd?.NotifyRowSelected(args.Item);
+    }
+
+    private Task HandleRowSelectedAsync(CustomerDto row)
+    {
+        _buffer = new CustomerDto
+        {
+            Id = row.Id,
+            Email = row.Email,
+            FirstName = row.FirstName,
+            LastName = row.LastName,
+            Phone = row.Phone,
+            Address = row.Address,
+            City = row.City,
+            State = row.State,
+            ZipCode = row.ZipCode,
+            SocialSecurityNumber = row.SocialSecurityNumber,
+            IsActive = row.IsActive,
+            CreatedDate = row.CreatedDate,
+            ModifiedDate = row.ModifiedDate,
+            ModifiedBy = row.ModifiedBy,
+        };
+        return Task.CompletedTask;
+    }
+
+    private Task HandleAddAsync()
+    {
+        _buffer = NewBuffer();
+        _pickOrAdd?.DetailsContext?.SetDirty();
+        return Task.CompletedTask;
+    }
+
+    private Task<object?> HandleUsePickedAsync(CustomerDto row) =>
+        Task.FromResult<object?>(row);
+
+    private async Task<object?> HandleSaveAndUseAsync(SaveRequest<CustomerDto, object> request)
+    {
+        if (_form is not null)
+        {
+            await _form.Validate();
+            if (!_form.IsValid)
+                return null;
+        }
+
+        try
+        {
+            CustomerDto? saved;
+            if (_buffer.Id == 0)
+                saved = await CustomerApi.CreateAsync(_buffer);
+            else if (request.EntityDirty)
+                saved = await CustomerApi.UpdateAsync(_buffer.Id, _buffer);
+            else
+                saved = _buffer;
+
+            if (saved is null)
+            {
+                Snackbar.Add("Save returned no customer.", Severity.Error);
+                return null;
+            }
+            return saved;
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add($"Save failed: {ex.Message}", Severity.Error);
+            return null;
+        }
+    }
+}

@@ -302,4 +302,86 @@ public class MasterDetailExpansionShellTests
 
         cut.FindAll("[data-testid='test-shell-session-summary']").Should().BeEmpty();
     }
+
+    // ── Session 3: Dirty state + Use/Save-and-Use label swap tests ─────────
+
+    [Fact]
+    public async Task RaiseUseRequestedAsync_InvokesOnUseRequestedCallbackWithRow()
+    {
+        using var ctx = Build();
+        var requestedRow = new TestRow { Id = 1, Name = "Test" };
+        TestRow? capturedRow = null;
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowRowUseAction, true)
+            .Add(c => c.OnUseRequested, EventCallback.Factory.Create<TestRow>(this, row =>
+            {
+                capturedRow = row;
+            })));
+
+        await cut.InvokeAsync(() => cut.Instance.RaiseUseRequestedAsync(requestedRow));
+
+        capturedRow.Should().NotBeNull();
+        capturedRow.Should().Be(requestedRow);
+    }
+
+    [Fact]
+    public async Task PrimaryActionLabel_AllowLinkOnly_SwapsCorrectlyWithSelectionAndDirtyState()
+    {
+        using var ctx = Build();
+        var selectedRow = new TestRow { Id = 1, Name = "Test" };
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowRowUseAction, true)
+            .Add(c => c.AllowLinkOnly, true)
+            .Add(c => c.UseLabel, "Use It")
+            .Add(c => c.SaveAndUseLabel, "Save & Use"));
+
+        // 1. Initial state: no selection, not dirty -> "Save & Use" (ShowRowUseAction=true path)
+        cut.Instance.PrimaryActionLabel.Should().Be("Save & Use");
+
+        // 2. Select a row, not dirty -> "Use It"
+        await cut.InvokeAsync(() => cut.Instance.NotifyRowSelected(selectedRow));
+        cut.Instance.PrimaryActionLabel.Should().Be("Use It");
+
+        // 3. Row selected AND dirty -> "Save & Use"
+        await cut.InvokeAsync(() => cut.Instance.DetailsContext.SetDirty());
+        cut.Instance.PrimaryActionLabel.Should().Be("Save & Use");
+    }
+
+    [Fact]
+    public async Task ResetSelection_ClearsSelectionAndDirtyState()
+    {
+        using var ctx = Build();
+        var selectedRow = new TestRow { Id = 1, Name = "Test" };
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowRowUseAction, true)
+            .Add(c => c.AllowLinkOnly, true)
+            .Add(c => c.UseLabel, "Use It")
+            .Add(c => c.SaveAndUseLabel, "Save & Use"));
+
+        // Set up a selected and dirty state
+        await cut.InvokeAsync(() => cut.Instance.NotifyRowSelected(selectedRow));
+        await cut.InvokeAsync(() => cut.Instance.DetailsContext.SetDirty());
+        cut.Instance.PrimaryActionLabel.Should().Be("Save & Use");
+        cut.Instance.DetailsContext.IsDirty.Should().BeTrue();
+
+        // Act: reset
+        await cut.InvokeAsync(() => cut.Instance.ResetSelection());
+
+        // Assert: state is cleared. With no selection, IsPrimaryActionUseOnly is false,
+        // so the label falls back to SaveAndUse (ShowRowUseAction=true path).
+        cut.Instance.DetailsContext.IsDirty.Should().BeFalse();
+        cut.Instance.PrimaryActionLabel.Should().Be("Save & Use");
+    }
+
+    private sealed record TestRow
+    {
+        public int Id { get; init; }
+        public string Name { get; init; } = string.Empty;
+    }
 }

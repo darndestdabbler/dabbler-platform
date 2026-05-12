@@ -1,29 +1,32 @@
 {
   "sessionSet": "unified-master-details-composite",
-  "session": 2,
+  "session": 3,
   "status": "complete",
-  "verificationVerdict": "ISSUES_FOUND",
+  "verificationVerdict": "VERIFIED",
   "progressKeys": {
-    "session-2/read-planning": "complete",
-    "session-2/showgrid-false": "complete",
-    "session-2/session-counter": "complete",
-    "session-2/demo-page": "complete",
-    "session-2/bunit-tests": "complete",
-    "session-2/playwright": "complete",
-    "session-2/build-and-test": "complete",
-    "session-2/verification": "complete",
-    "session-2/commit-push-notify": "complete"
+    "session-3/read-planning": "complete",
+    "session-3/dialog-component": "complete",
+    "session-3/row-use-template": "complete",
+    "session-3/dirty-state-label": "complete",
+    "session-3/wire-parent-form": "complete",
+    "session-3/bunit-tests": "complete",
+    "session-3/playwright": "complete",
+    "session-3/build-and-test": "complete",
+    "session-3/verification": "complete",
+    "session-3/commit-push-notify": "complete"
   },
   "deliverables": {
-    "showGridFalseLayout": "MasterDetailExpansionShell now branches on ShowGrid=false: drops MudExpansionPanels entirely, wraps DetailsContent in a full-width MudPaper, renders SessionSummaryContent<int> as a thin MudAlert above the form, and supplies default Save/Cancel buttons when DetailsActions is null.",
-    "sessionCounter": "Shell-owned _sessionCount field increments inside HandleDefaultSaveAsync after a successful OnSaveRequested invocation (OperationCanceledException swallowed for consumer-cancelled saves). Exposed to consumers via RenderFragment<int>? SessionSummaryContent.",
-    "demoPage": "CustomerBatchEntryPage.razor created at /customers/batch-entry — shell configured with ShowGrid=false + ShowAddAction=false; SessionSummaryContent renders 'Records added this session: N'; DetailsContent hosts a MudForm for CustomerDto; OnSaveRequested validates, POSTs to the customers API, then clears the form.",
-    "bUnitTestsAdded": "5 new MasterDetailExpansionShellTests methods covering ShowGrid=false: no MudExpansionPanel in render tree, MudPaper present, session counter increments on save, form buffer resets, SessionSummaryContent renders when provided.",
-    "playwrightTestsAdded": "CustomerBatchEntryWorkflowTests with 3 facts: navigate-no-collapse-chrome, save-clears-form-and-increments-counter, two-records-both-persisted-in-db (verified via read-back API).",
-    "verifierIssuesFixed": "Major (duplicate batchentry-{RunId}-1@test.local emails across two Playwright tests → distinct -s2 / -s3a / -s3b suffixes) and Minor (HandleCancel fire-and-forget _form.ResetAsync → HandleCancel made async Task awaiting ResetAsync). See issue-logs/session-002.json."
+    "shellDirtyStateAndLabelSwap": "MasterDetailExpansionShell now tracks _selectedRow + _hasSelectedRow, surfaces a public PrimaryActionLabel that resolves to UseLabel when AllowLinkOnly && row selected && !dirty, SaveAndUseLabel when ShowRowUseAction=true, else SaveLabel. CascadingValue<DetailsContext<TEntity>> wraps the render tree so consumer fields call SetDirty() from ValueChanged. New public methods NotifyRowSelected/RaiseUseRequestedAsync/ResetSelection and EffectiveRowUseAction (default MudIconButton template).",
+    "pickOrAddDialog": "New generic Dabbler.Security.Blazor.Components.Admin.Shared.PickOrAddDialog<TRow,TEntity,TLink> hosting the shell with Mode=Dialog. Forwards all slots (FilterContent/GridContent/RowUseAction/DetailsContent/LinkDataContent) and parameters. Converts OnUseRequested/OnSaveAndUseRequested into Dialog.Close(DialogResult.Ok(result)) when the consumer-supplied Func returns non-null; throws OperationCanceledException when OnSaveAndUse returns null so the shell preserves dirty state across validation failures. Pass-through DetailsContext + NotifyRowSelected for consumers wiring MudDataGrid.RowClick.",
+    "customerPickerDialogConcrete": "AcmeCoffeeOnline.Web.Components.Pages.Customers.CustomerPickerDialog wraps PickOrAddDialog<CustomerDto,CustomerDto,object>. Provides FilterContent (search box → CustomerApi.SearchAsync), GridContent (MudDataGrid wired to RowClick → NotifyRowSelected), DetailsContent (MudForm for new-customer fields). Returns the chosen/created CustomerDto via DialogResult.Data.",
+    "orderDetailWiring": "OrderDetail.razor: customer field augmented with a 'Pick customer' button (visible when IsNew && !IsReadOnly, data-testid='pick-customer-button'). Click opens CustomerPickerDialog via IDialogService.ShowAsync; on close-with-result, writes CustomerId + CustomerName onto State.Record.",
+    "orderCreatePage": "New /orders/new route (OrderCreatePage.razor) renders <OrderDetail IsNew=true>; provides an entry point for Playwright Scenario 3 testing.",
+    "bUnitTestsAdded": "7 new tests. MasterDetailExpansionShellTests: RaiseUseRequestedAsync_InvokesOnUseRequestedCallbackWithRow, PrimaryActionLabel_AllowLinkOnly_SwapsCorrectlyWithSelectionAndDirtyState, ResetSelection_ClearsSelectionAndDirtyState. New PickOrAddDialogTests: OnUsePicked/OnSaveAndUse × {ReturningNonNull_ClosesDialogWithResult, ReturningNull_KeepsDialogOpen} = 4 tests.",
+    "playwrightTestsAdded": "OrderCustomerPickerWorkflowTests: Picker_PickExisting_PopulatesParentFieldAsync, Picker_AddNew_SavesAndPopulatesParentFieldAsync, Picker_DirtyState_FlipsPrimaryButtonLabelAsync.",
+    "verifierIssueFixed": "Minor — dirty-state reset on validation failure. Fixed by throwing OperationCanceledException from PickOrAddDialog.HandleSaveAndUseRequestedAsync when OnSaveAndUse returns null. See issue-logs/session-003.json."
   },
   "buildResult": "PASS (0 errors)",
-  "testResult": "PASS: 222/222 Security.Blazor.Tests (incl. 5 new shell tests), 305/305 Security.Tests, 43 Components.Tests, 16 Reports.Blazor.Tests, 27 Api.Tests, 6 Testing.Blazor.Tests. 5 pre-existing failures in AcmeCoffeeOnline.Web.Tests TemplateSeedSmokeTests + WorkflowAssetSmokeTests are unchanged from before this session and unrelated to shell work.",
+  "testResult": "PASS: 229/229 Security.Blazor.Tests (incl. 7 new shell + dialog tests), 305/305 Security.Tests, 27/27 Api.Tests, 16/16 Reports.Blazor.Tests, 43/43 Components.Tests, 6/6 Testing.Blazor.Tests. 5 pre-existing failures in AcmeCoffeeOnline.Web.Tests TemplateSeedSmokeTests + WorkflowAssetSmokeTests are unchanged from Sessions 1 and 2 and unrelated to shell/dialog work.",
   "nextSessionSet": null,
   "next_orchestrator": {
     "engine": "claude-code",
@@ -31,8 +34,8 @@
     "model": "claude-opus-4-7",
     "effort": "high",
     "reason": {
-      "code": "other",
-      "specifics": "Complexity step-up (not cost-driven): Session 3 introduces PickOrAddDialog<TRow,TEntity,TLink> — a generic multi-modal stateful component with dirty-state tracking, in-form label-swap (Use ↔ Save and Use), parent-form integration, and IDialogService.Close(DialogResult.Ok(id)) wiring. Routed analysis during Session 2 closeout upgraded the original Sonnet recommendation to Opus."
+      "code": "continue-current-trajectory",
+      "specifics": "Session 4 introduces the most complex state management of the set (TargetEditability modes, split _entityDirty/_linkDirty, M2M-with-payload demo, inspect-to-decide variant). The Opus @ high configuration succeeded for Session 3's PickOrAddDialog complexity; Session 4 builds on the same patterns with strictly more orchestration."
     }
   },
   "openIssues": []

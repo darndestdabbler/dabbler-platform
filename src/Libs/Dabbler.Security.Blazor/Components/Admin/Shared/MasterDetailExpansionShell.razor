@@ -4,6 +4,7 @@
 @using MudBlazor
 @namespace Dabbler.Security.Blazor.Components.Admin.Shared
 
+<CascadingValue Value="_detailsContext" IsFixed="true">
 @if (ShowGrid)
 {
     <div data-testid="@TestId" class="master-detail-expansion-shell mb-3">
@@ -58,6 +59,30 @@
     {
         <div class="master-detail-details-body" data-testid="@($"{TestId}-details")">
             @DetailsContent
+            @if (DetailsActions is not null)
+            {
+                @DetailsActions(BuildActionsContext())
+            }
+            else
+            {
+                <MudDivider Class="my-3" />
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Disabled="@Working"
+                               OnClick="HandlePrimaryActionAsync"
+                               data-testid="@($"{TestId}-primary-button")">
+                        @PrimaryActionLabel
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               Disabled="@Working"
+                               OnClick="HandleCancelAsync"
+                               data-testid="@($"{TestId}-cancel-button")">
+                        @CancelLabel
+                    </MudButton>
+                </MudStack>
+            }
         </div>
     }
 }
@@ -80,7 +105,7 @@ else
                 <MudDivider Class="my-3" />
                 @if (DetailsActions is not null)
                 {
-                    @DetailsActions(new DetailsActionsContext<TEntity, TLink>())
+                    @DetailsActions(BuildActionsContext())
                 }
                 else
                 {
@@ -105,6 +130,7 @@ else
         }
     </div>
 }
+</CascadingValue>
 
 @code {
     // -----------------------------------------------------------------------
@@ -271,6 +297,8 @@ else
     /// Custom row-wise Use action template. Rendered in each row when
     /// <see cref="ShowRowUseAction"/> is <c>true</c>. Defaults to a
     /// <c>MudIconButton</c> that raises <see cref="OnUseRequested"/>.
+    /// Consumers reach this via the <see cref="EffectiveRowUseAction"/>
+    /// property, which falls back to the built-in template when this is null.
     /// </summary>
     [Parameter]
     public RenderFragment<TRow>? RowUseAction { get; set; }
@@ -358,6 +386,127 @@ else
     // -----------------------------------------------------------------------
 
     private int _sessionCount;
+    private TRow? _selectedRow;
+    private bool _hasSelectedRow;
+    private DetailsContext<TEntity> _detailsContext = default!;
+
+    /// <summary>
+    /// The shell-owned <see cref="DetailsContext{TEntity}"/> exposed for
+    /// consumers (typically a dialog wrapper) that need to drive
+    /// <c>SetDirty()</c> from outside the cascading-value subtree.
+    /// </summary>
+    public DetailsContext<TEntity> DetailsContext => _detailsContext;
+
+    protected override void OnInitialized()
+    {
+        _detailsContext = new DetailsContext<TEntity>
+        {
+            SetDirty = SetEntityDirty,
+            ToggleTargetEditing = () => { },
+        };
+    }
+
+    private void SetEntityDirty()
+    {
+        if (!_detailsContext.IsDirty)
+        {
+            _detailsContext.SetDirtyInternal();
+            StateHasChanged();
+        }
+    }
+
+    private DetailsActionsContext<TEntity, TLink> BuildActionsContext() =>
+        new()
+        {
+            EntityDirty = _detailsContext.IsDirty,
+            LinkDirty = false,
+        };
+
+    /// <summary>
+    /// The label that should appear on the shell's primary action button,
+    /// reflecting current dirty state and selection:
+    /// <list type="bullet">
+    ///   <item><description><see cref="UseLabel"/> when <see cref="AllowLinkOnly"/> is true,
+    ///   a row is selected, and no entity fields are dirty.</description></item>
+    ///   <item><description><see cref="SaveAndUseLabel"/> when <see cref="ShowRowUseAction"/>
+    ///   is true (Scenarios 3/4) and the above does not apply.</description></item>
+    ///   <item><description><see cref="SaveLabel"/> otherwise (Scenarios 1/2).</description></item>
+    /// </list>
+    /// </summary>
+    public string PrimaryActionLabel
+    {
+        get
+        {
+            if (AllowLinkOnly && _hasSelectedRow && !_detailsContext.IsDirty)
+                return UseLabel;
+            if (ShowRowUseAction)
+                return SaveAndUseLabel;
+            return SaveLabel;
+        }
+    }
+
+    /// <summary>
+    /// True when the primary action is "Use" (a row is selected and no
+    /// fields are dirty in <see cref="AllowLinkOnly"/> mode). False otherwise.
+    /// </summary>
+    public bool IsPrimaryActionUseOnly =>
+        AllowLinkOnly && _hasSelectedRow && !_detailsContext.IsDirty;
+
+    /// <summary>
+    /// Effective row-use template: returns <see cref="RowUseAction"/> when
+    /// provided, otherwise a default MudIconButton that raises
+    /// <see cref="OnUseRequested"/>. Consumers' GridContent template columns
+    /// reach into this property via a back-reference to the shell.
+    /// </summary>
+    public RenderFragment<TRow> EffectiveRowUseAction => row =>
+        RowUseAction is not null
+            ? RowUseAction(row)
+            : DefaultRowUseAction(row);
+
+    private RenderFragment DefaultRowUseAction(TRow row) =>
+        @<MudIconButton Icon="@Icons.Material.Filled.AddTask"
+                        Size="Size.Small"
+                        Color="Color.Primary"
+                        OnClick="@(() => RaiseUseRequestedAsync(row))"
+                        data-testid="@($"{TestId}-row-use")" />;
+
+    /// <summary>
+    /// Invoked by the default <see cref="RowUseAction"/> (or by custom row
+    /// templates that opt in). Records the selection so the primary action
+    /// label can flip to "Use", then raises <see cref="OnUseRequested"/>.
+    /// </summary>
+    public async Task RaiseUseRequestedAsync(TRow row)
+    {
+        _selectedRow = row;
+        _hasSelectedRow = true;
+        if (OnUseRequested.HasDelegate)
+            await OnUseRequested.InvokeAsync(row);
+    }
+
+    /// <summary>
+    /// Records a row as the selected row without raising <see cref="OnUseRequested"/>.
+    /// Used by consumers that drive selection via row-click rather than the
+    /// row-wise Use button (so the primary action label flips when the user
+    /// has chosen a row to edit/link).
+    /// </summary>
+    public void NotifyRowSelected(TRow row)
+    {
+        _selectedRow = row;
+        _hasSelectedRow = true;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Resets selection + dirty state. Useful for "Cancel" + "back to grid"
+    /// transitions in the dialog wrapper.
+    /// </summary>
+    public void ResetSelection()
+    {
+        _selectedRow = default;
+        _hasSelectedRow = false;
+        _detailsContext.ResetDirty();
+        StateHasChanged();
+    }
 
     private async Task HandleExpandedChanged(bool expanded)
     {
@@ -367,15 +516,64 @@ else
             await IsExpandedChanged.InvokeAsync(expanded);
     }
 
+    private async Task HandlePrimaryActionAsync()
+    {
+        var entityDirty = _detailsContext.IsDirty;
+        var request = new SaveRequest<TEntity, TLink>
+        {
+            EntityDirty = entityDirty,
+            LinkDirty = false,
+        };
+
+        Working = true;
+        if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(true);
+        try
+        {
+            if (IsPrimaryActionUseOnly)
+            {
+                if (_selectedRow is not null && OnUseRequested.HasDelegate)
+                    await OnUseRequested.InvokeAsync(_selectedRow);
+                return;
+            }
+
+            if (ShowRowUseAction && OnSaveAndUseRequested.HasDelegate)
+            {
+                await OnSaveAndUseRequested.InvokeAsync(request);
+            }
+            else if (OnSaveRequested.HasDelegate)
+            {
+                await OnSaveRequested.InvokeAsync(request);
+                if (!ShowGrid)
+                    _sessionCount++;
+            }
+
+            _detailsContext.ResetDirty();
+        }
+        catch (OperationCanceledException)
+        {
+            // Consumer cancelled — leave dirty state intact.
+        }
+        finally
+        {
+            Working = false;
+            if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(false);
+        }
+    }
+
     private async Task HandleDefaultSaveAsync()
     {
         Working = true;
         if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(true);
         try
         {
-            await OnSaveRequested.InvokeAsync(new SaveRequest<TEntity, TLink>());
+            await OnSaveRequested.InvokeAsync(new SaveRequest<TEntity, TLink>
+            {
+                EntityDirty = _detailsContext.IsDirty,
+                LinkDirty = false,
+            });
             if (!ShowGrid)
                 _sessionCount++;
+            _detailsContext.ResetDirty();
         }
         catch (OperationCanceledException)
         {

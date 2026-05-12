@@ -45,6 +45,7 @@ public sealed class DetailsContext<TEntity>
     /// </summary>
     public Action SetDirty { get; init; } = () => { };
 
+    internal void SetDirtyInternal() => IsDirty = true;
     internal void ResetDirty() => IsDirty = false;
 }
 

@@ -212,6 +212,74 @@
           "costUsd": 0.504675
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/bunit-tests",
+      "dateTime": "2026-05-12T04:08:49.277375-04:00",
+      "description": "Routed test-generation for PickOrAddDialog dialog-close + shell dirty-state/label-swap bUnit tests",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 14154,
+          "outputTokens": 2326,
+          "costUsd": 0.0409525
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/bunit-tests",
+      "dateTime": "2026-05-12T04:10:35.861198-04:00",
+      "description": "Routed test-generation for PickOrAddDialog dialog-close + shell dirty-state/label-swap bUnit tests",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 14057,
+          "outputTokens": 2956,
+          "costUsd": 0.04713125
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/playwright",
+      "dateTime": "2026-05-12T04:16:42.423862-04:00",
+      "description": "Routed test-generation for Order -> Customer picker Playwright tests",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 9216,
+          "outputTokens": 1632,
+          "costUsd": 0.027840000000000004
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-05-12T04:23:40.270389-04:00",
+      "description": "Cross-provider verification: model=opus",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 36090,
+          "outputTokens": 11978,
+          "costUsd": 1.4397000000000002
+        }
+      ]
     }
   ]
 }

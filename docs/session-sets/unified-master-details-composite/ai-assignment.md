@@ -104,10 +104,10 @@ moderate
 | 10 | Commit, push, notify | Direct |
 
 ### Actuals (filled after the session)
-- Orchestrator used: TBD
-- Total routed cost: TBD
-- Deviations from recommendation: TBD
-- Notes for next-session calibration: TBD
+- Orchestrator used: claude-code / claude-opus-4-7 @ effort=high
+- Total routed cost: ~$1.52 (gemini-pro test-generation x2: $0.047 + $0.028 = $0.075; opus session-verification: $1.44)
+- Deviations from recommendation: matched the upgraded Session 2 next-session recommendation (Opus @ high vs. spec's original Sonnet @ medium). Verification was unfortunately Opus→Opus self-route (~$1.44) because the router selected Opus despite the orchestrator already being Opus.
+- Notes for next-session calibration: Verifier flagged one Minor — dirty state reset on validation failure — fixed by throwing OperationCanceledException from the dialog when OnSaveAndUse returns null. Session 4 should consider tightening the router's verifier selection to prefer cross-provider when orchestrator is Opus (or apply the `feedback_self_verify_when_no_cross_provider` rule to skip the verification call).
 
 **Next-session orchestrator recommendation (Session 4):**
 `claude-code` `claude-opus-4-7` @ `effort=high`
