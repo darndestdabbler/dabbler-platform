@@ -22,6 +22,8 @@
                  ShowRowUseAction="true"
                  AllowLinkOnly="true"
                  ExpandedHeaderText="Existing customers"
+                 TargetCardHeading="Customer"
+                 TargetEditability="@(InspectToDecide ? TargetEditability.ReadOnlyWithToggle : TargetEditability.Editable)"
                  OnUsePicked="HandleUsePickedAsync"
                  OnSaveAndUse="HandleSaveAndUseAsync"
                  OnAdd="HandleAddAsync"
@@ -70,6 +72,7 @@
                                   ValueChanged="@(v => OnFieldChanged(() => _buffer.FirstName = v))"
                                   Label="First name"
                                   Required="true"
+                                  ReadOnly="@TargetReadOnly"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   data-testid="customer-picker-first-name" />
@@ -80,6 +83,7 @@
                                   ValueChanged="@(v => OnFieldChanged(() => _buffer.LastName = v))"
                                   Label="Last name"
                                   Required="true"
+                                  ReadOnly="@TargetReadOnly"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   data-testid="customer-picker-last-name" />
@@ -91,6 +95,7 @@
                                   Label="Email"
                                   Required="true"
                                   InputType="InputType.Email"
+                                  ReadOnly="@TargetReadOnly"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   data-testid="customer-picker-email" />
@@ -103,12 +108,23 @@
 @code {
     [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
 
+    /// <summary>
+    /// Scenario 3 "inspect-to-decide" mode. When true, the dialog's target
+    /// customer card uses <see cref="TargetEditability.ReadOnlyWithToggle"/>
+    /// so reviewers drill in read-only first and toggle to edit only when
+    /// a correction is needed. Default <c>false</c> (target is editable).
+    /// </summary>
+    [Parameter]
+    public bool InspectToDecide { get; set; }
+
     private PickOrAddDialog<CustomerDto, CustomerDto, object>? _pickOrAdd;
     private MudForm? _form;
     private CustomerDto _buffer = NewBuffer();
     private IReadOnlyList<CustomerDto> _rows = Array.Empty<CustomerDto>();
     private string? _search;
     private bool _loading;
+
+    private bool TargetReadOnly => _pickOrAdd?.DetailsContext?.IsTargetReadOnly ?? false;
 
     protected override async Task OnInitializedAsync()
     {

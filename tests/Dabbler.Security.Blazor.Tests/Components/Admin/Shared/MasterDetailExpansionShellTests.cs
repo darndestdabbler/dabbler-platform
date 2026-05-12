@@ -379,6 +379,154 @@ public class MasterDetailExpansionShellTests
         cut.Instance.PrimaryActionLabel.Should().Be("Save & Use");
     }
 
+    // ── Session 4: Link-data UI, read-only toggles, and multi-dirty state ─
+
+    [Fact]
+    public void Shell_ShowLinkData_RendersLinkCardWithHeading()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowLinkData, true)
+            .Add(c => c.LinkDataHeading, "Line details")
+            .Add(c => c.LinkDataContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<p>some-link-content</p>")))
+            .Add(c => c.DetailsContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<div>details</div>"))));
+
+        var card = cut.Find("[data-testid='test-shell-link-card']");
+        card.Should().NotBeNull();
+        card.TextContent.Should().Contain("Line details");
+        card.TextContent.Should().Contain("some-link-content");
+    }
+
+    [Fact]
+    public void Shell_ShowLinkData_RendersTargetCardWithHeading()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowLinkData, true)
+            .Add(c => c.TargetCardHeading, "Product")
+            .Add(c => c.DetailsContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<div>details</div>"))));
+
+        var card = cut.Find("[data-testid='test-shell-target-card']");
+        card.Should().NotBeNull();
+        card.TextContent.Should().Contain("Product");
+    }
+
+    [Fact]
+    public void Shell_TargetEditability_ReadOnly_NoToggleButton()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.TargetEditability, TargetEditability.ReadOnly)
+            .Add(c => c.ShowLinkData, true)
+            .Add(c => c.DetailsContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<div>details</div>"))));
+
+        cut.FindAll("[data-testid='test-shell-edit-toggle']").Should().BeEmpty();
+        cut.Instance.DetailsContext.IsTargetReadOnly.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Shell_TargetEditability_ReadOnlyWithToggle_ToggleButtonFlipsState_AndFiresCallback()
+    {
+        using var ctx = Build();
+        bool? firedValue = null;
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.TargetEditability, TargetEditability.ReadOnlyWithToggle)
+            .Add(c => c.ShowLinkData, true)
+            .Add(c => c.DetailsContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<div>details</div>")))
+            .Add(c => c.OnTargetEditingToggled, EventCallback.Factory.Create<bool>(this, captured => firedValue = captured)));
+
+        cut.Instance.DetailsContext.IsTargetReadOnly.Should().BeTrue();
+
+        cut.Find("[data-testid='test-shell-edit-toggle']").Click();
+
+        cut.Instance.DetailsContext.IsTargetReadOnly.Should().BeFalse();
+        firedValue.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Shell_LinkDirty_AloneFlipsPrimaryActionLabelToSaveAndUse()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowRowUseAction, true)
+            .Add(c => c.AllowLinkOnly, true)
+            .Add(c => c.UseLabel, "Use It")
+            .Add(c => c.SaveAndUseLabel, "Save & Use")
+            .Add(c => c.DetailsContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<div>details</div>"))));
+
+        await cut.InvokeAsync(() => cut.Instance.NotifyRowSelected(new TestRow()));
+        cut.Instance.PrimaryActionLabel.Should().Be("Use It");
+
+        await cut.InvokeAsync(() => cut.Instance.LinkContext.SetLinkDirty());
+        cut.Instance.PrimaryActionLabel.Should().Be("Save & Use");
+    }
+
+    [Fact]
+    public async Task Shell_ToggleWithoutChange_PreservesUseLabel()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.TargetEditability, TargetEditability.ReadOnlyWithToggle)
+            .Add(c => c.ShowRowUseAction, true)
+            .Add(c => c.AllowLinkOnly, true)
+            .Add(c => c.UseLabel, "Use It")
+            .Add(c => c.DetailsContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<div>details</div>"))));
+
+        await cut.InvokeAsync(() => cut.Instance.NotifyRowSelected(new TestRow()));
+        cut.Instance.PrimaryActionLabel.Should().Be("Use It");
+
+        cut.Find("[data-testid='test-shell-edit-toggle']").Click();
+
+        cut.Instance.PrimaryActionLabel.Should().Be("Use It");
+    }
+
+    [Fact]
+    public async Task Shell_SaveRequest_CarriesBothDirtyFlags_OnPrimaryAction()
+    {
+        using var ctx = Build();
+        SaveRequest<object, object>? capturedRequest = null;
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowRowUseAction, true)
+            .Add(c => c.DetailsContent, (RenderFragment)(b =>
+                b.AddMarkupContent(0, "<div>details</div>")))
+            .Add(c => c.OnSaveAndUseRequested, EventCallback.Factory.Create<SaveRequest<object, object>>(
+                this, req => Task.FromResult(capturedRequest = req))));
+
+        await cut.InvokeAsync(() =>
+        {
+            cut.Instance.NotifyRowSelected(new TestRow());
+            cut.Instance.DetailsContext.SetDirty();
+            cut.Instance.LinkContext.SetLinkDirty();
+        });
+
+        cut.Find("[data-testid='test-shell-primary-button']").Click();
+
+        capturedRequest.Should().NotBeNull();
+        capturedRequest!.EntityDirty.Should().BeTrue();
+        capturedRequest!.LinkDirty.Should().BeTrue();
+    }
+
     private sealed record TestRow
     {
         public int Id { get; init; }

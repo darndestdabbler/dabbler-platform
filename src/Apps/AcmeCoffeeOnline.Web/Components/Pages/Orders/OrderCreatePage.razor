@@ -1,5 +1,8 @@
 @page "/orders/new"
+@using AcmeCoffeeOnline.Web.Services
 @attribute [DabblerPageAuthorize("/orders")]
+@inject NavigationManager NavigationManager
+@inject OrderDetailState State
 
 <PageTitle>New Order — AcmeCoffeeDistributors</PageTitle>
 
@@ -17,10 +20,15 @@
     </MudStack>
 
     <OrderDetail IsNew="true"
-                 IsReadOnly="false" />
+                 IsReadOnly="false"
+                 OnSaved="OnOrderSavedAsync" />
 </MudContainer>
 
 @code {
-    [Inject]
-    private NavigationManager NavigationManager { get; set; } = default!;
+    private Task OnOrderSavedAsync()
+    {
+        if (State.Record is not null && State.Record.Id > 0)
+            NavigationManager.NavigateTo($"/orders/{State.Record.Id}");
+        return Task.CompletedTask;
+    }
 }

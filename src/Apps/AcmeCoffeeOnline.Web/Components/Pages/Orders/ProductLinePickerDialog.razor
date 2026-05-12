@@ -1,0 +1,317 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using MudBlazor
+@namespace AcmeCoffeeOnline.Web.Components.Pages.Orders
+@inject ProductApiClient ProductApi
+@inject ISnackbar Snackbar
+
+@* ------------------------------------------------------------------ *@
+@* ProductLinePickerDialog                                              *@
+@*                                                                      *@
+@* Scenario 4b — M:N-with-payload: Order ↔ Product join carries         *@
+@* Quantity / Discount on OrderItemDto. The dialog picks an existing    *@
+@* Product (TargetEditability=ReadOnly), the user fills the link card   *@
+@* (Quantity / Discount), and Save-and-Use returns the populated        *@
+@* OrderItemDto. UnitPrice comes from the picked product.               *@
+@*                                                                      *@
+@* The second invocation (4b-toggle, controlled by AllowTargetEdit)     *@
+@* uses TargetEditability=ReadOnlyWithToggle so reviewers can unlock    *@
+@* the product surface only when an explicit edit is needed. The "Use"  *@
+@* button is NOT available here — link data is always required.        *@
+@* ------------------------------------------------------------------ *@
+
+<PickOrAddDialog TRow="ProductDto" TEntity="ProductDto" TLink="OrderItemDto"
+                 @ref="_pickOrAdd"
+                 TestId="product-line-picker"
+                 ShowRowUseAction="true"
+                 AllowLinkOnly="false"
+                 ShowLinkData="true"
+                 LinkDataHeading="Line details"
+                 TargetCardHeading="Product"
+                 ExpandedHeaderText="Available products"
+                 TargetEditability="@EffectiveTargetEditability"
+                 OnUsePicked="HandleUsePickedAsync"
+                 OnSaveAndUse="HandleSaveAndUseAsync"
+                 OnRowSelected="HandleRowSelectedAsync">
+    <FilterContent>
+        <MudTextField T="string"
+                      Value="@_search"
+                      ValueChanged="@OnSearchChangedAsync"
+                      Placeholder="Search products…"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      DebounceInterval="300"
+                      data-testid="product-line-picker-search" />
+    </FilterContent>
+    <GridContent>
+        <MudDataGrid T="ProductDto"
+                     Items="_rows"
+                     Dense="true"
+                     Bordered="true"
+                     Hover="true"
+                     Loading="_loading"
+                     ReadOnly="true"
+                     RowClick="@OnRowClickAsync"
+                     data-testid="product-line-picker-grid">
+            <Columns>
+                <PropertyColumn Property="p => p.Name" Title="Product" />
+                <PropertyColumn Property="p => p.UnitPrice" Title="Unit price" Format="C2" />
+                <TemplateColumn Sortable="false" CellStyle="width: 56px;">
+                    <CellTemplate>
+                        @if (_pickOrAdd?.EffectiveRowUseAction is not null)
+                        {
+                            @_pickOrAdd.EffectiveRowUseAction(context.Item)
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </GridContent>
+    <DetailsContent>
+        @* Target card body — product fields read-only or read-only-with-toggle. *@
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudTextField T="string"
+                              Value="@_target.Name"
+                              ValueChanged="@(v => OnTargetChanged(() => _target.Name = v))"
+                              Label="Product name"
+                              ReadOnly="@TargetReadOnly"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              data-testid="product-line-picker-name" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudNumericField T="decimal"
+                                 Value="@_target.UnitPrice"
+                                 ValueChanged="@(v => OnTargetChanged(() => _target.UnitPrice = v))"
+                                 Label="Unit price"
+                                 ReadOnly="@TargetReadOnly"
+                                 Format="N2"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 data-testid="product-line-picker-unit-price" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField T="string"
+                              Value="@_target.Description"
+                              ValueChanged="@(v => OnTargetChanged(() => _target.Description = v))"
+                              Label="Description"
+                              ReadOnly="@TargetReadOnly"
+                              Lines="2"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              data-testid="product-line-picker-description" />
+            </MudItem>
+        </MudGrid>
+    </DetailsContent>
+    <LinkDataContent>
+        @* Link card body — Quantity + Discount are the join-table payload. *@
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudNumericField T="int"
+                                 Value="@_link.Quantity"
+                                 ValueChanged="@(v => OnLinkChanged(() => _link.Quantity = v))"
+                                 Label="Quantity"
+                                 Min="1"
+                                 Required="true"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 data-testid="product-line-picker-quantity" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudNumericField T="decimal"
+                                 Value="@_link.Discount"
+                                 ValueChanged="@(v => OnLinkChanged(() => _link.Discount = v))"
+                                 Label="Discount %"
+                                 Min="0"
+                                 Max="100"
+                                 Required="true"
+                                 Format="N2"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 data-testid="product-line-picker-discount" />
+            </MudItem>
+        </MudGrid>
+    </LinkDataContent>
+</PickOrAddDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    /// <summary>
+    /// Order id the resulting line will belong to. Used to populate
+    /// <c>OrderItemDto.OrderId</c> on the returned link payload.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public int OrderId { get; set; }
+
+    /// <summary>
+    /// When <c>true</c>, the target product card uses
+    /// <see cref="TargetEditability.ReadOnlyWithToggle"/> (4b-toggle variant).
+    /// When <c>false</c> (default), uses
+    /// <see cref="TargetEditability.ReadOnly"/> (standard 4b-locked).
+    /// </summary>
+    [Parameter]
+    public bool AllowTargetEdit { get; set; }
+
+    /// <summary>
+    /// Optional existing line to review/edit. When provided, the dialog opens
+    /// with the line's product surfaced in the target card and its quantity /
+    /// unit-price / discount surfaced in the link card. Used by OrderDetail's
+    /// "Review line" affordance (Scenario 4b-toggle). When null, the dialog
+    /// opens with empty buffers (standard Scenario 4b-locked Add flow).
+    /// </summary>
+    [Parameter]
+    public OrderItemDto? ExistingLine { get; set; }
+
+    private PickOrAddDialog<ProductDto, ProductDto, OrderItemDto>? _pickOrAdd;
+    private ProductDto _target = NewTarget();
+    private OrderItemDto _link = NewLink();
+    private IReadOnlyList<ProductDto> _rows = Array.Empty<ProductDto>();
+    private string? _search;
+    private bool _loading;
+
+    private TargetEditability EffectiveTargetEditability =>
+        AllowTargetEdit ? TargetEditability.ReadOnlyWithToggle : TargetEditability.ReadOnly;
+
+    private bool TargetReadOnly => _pickOrAdd?.DetailsContext?.IsTargetReadOnly ?? true;
+
+    private static ProductDto NewTarget() => new()
+    {
+        Name = string.Empty,
+        Description = string.Empty,
+    };
+
+    private static OrderItemDto NewLink() => new()
+    {
+        Quantity = 1,
+        Discount = 0m,
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ExistingLine is not null)
+        {
+            // Surface the existing line's product + payload so the user can
+            // review (4b-toggle) without first clicking a row.
+            _target = new ProductDto
+            {
+                Id = ExistingLine.ProductId,
+                Name = ExistingLine.ProductName,
+                UnitPrice = ExistingLine.UnitPrice,
+            };
+            _link = new OrderItemDto
+            {
+                OrderId = ExistingLine.OrderId,
+                ProductId = ExistingLine.ProductId,
+                ProductName = ExistingLine.ProductName,
+                UnitPrice = ExistingLine.UnitPrice,
+                Quantity = ExistingLine.Quantity,
+                Discount = ExistingLine.Discount,
+            };
+        }
+        await LoadAsync(string.Empty);
+    }
+
+    private async Task LoadAsync(string searchTerm)
+    {
+        _loading = true;
+        try
+        {
+            var request = new PagedRequest
+            {
+                Page = 1,
+                PageSize = 25,
+                SearchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm,
+            };
+            var paged = await ProductApi.GetAllAsync(request);
+            _rows = paged.Items;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnSearchChangedAsync(string? value)
+    {
+        _search = value;
+        await LoadAsync(value ?? string.Empty);
+    }
+
+    private void OnTargetChanged(Action mutate)
+    {
+        mutate();
+        _pickOrAdd?.DetailsContext?.SetDirty();
+    }
+
+    private void OnLinkChanged(Action mutate)
+    {
+        mutate();
+        _pickOrAdd?.LinkContext?.SetLinkDirty();
+    }
+
+    private async Task OnRowClickAsync(DataGridRowClickEventArgs<ProductDto> args)
+    {
+        if (args.Item is null) return;
+        await HandleRowSelectedAsync(args.Item);
+        _pickOrAdd?.NotifyRowSelected(args.Item);
+    }
+
+    private Task HandleRowSelectedAsync(ProductDto row)
+    {
+        _target = new ProductDto
+        {
+            Id = row.Id,
+            Name = row.Name,
+            UnitPrice = row.UnitPrice,
+            Description = row.Description,
+            IsAvailable = row.IsAvailable,
+        };
+        _link.ProductId = row.Id;
+        _link.ProductName = row.Name;
+        _link.UnitPrice = row.UnitPrice;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Row-Use icon click. We use this purely as a "select this product"
+    /// affordance — it must NOT close the dialog, because the user still
+    /// needs to fill in Quantity / Discount on the link card. Hydrate the
+    /// target and link buffers explicitly so behavior does not depend on
+    /// DOM bubbling into <c>MudDataGrid.RowClick</c>, then return null so
+    /// <c>PickOrAddDialog</c> keeps the dialog open.
+    /// </summary>
+    private async Task<object?> HandleUsePickedAsync(ProductDto row)
+    {
+        await HandleRowSelectedAsync(row);
+        _pickOrAdd?.NotifyRowSelected(row);
+        return null;
+    }
+
+    private Task<object?> HandleSaveAndUseAsync(SaveRequest<ProductDto, OrderItemDto> request)
+    {
+        if (_link.ProductId == 0)
+        {
+            Snackbar.Add("Select a product first.", Severity.Warning);
+            return Task.FromResult<object?>(null);
+        }
+        if (_link.Quantity < 1)
+        {
+            Snackbar.Add("Quantity must be at least 1.", Severity.Warning);
+            return Task.FromResult<object?>(null);
+        }
+
+        var result = new OrderItemDto
+        {
+            OrderId = OrderId,
+            ProductId = _link.ProductId,
+            ProductName = _link.ProductName,
+            Quantity = _link.Quantity,
+            UnitPrice = _link.UnitPrice,
+            Discount = _link.Discount,
+        };
+        return Task.FromResult<object?>(result);
+    }
+}

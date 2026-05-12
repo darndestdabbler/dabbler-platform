@@ -174,6 +174,35 @@ public sealed class OrderDetailState
         }
     }
 
+    /// <summary>
+    /// Persist an order item that has already been composed by a picker
+    /// dialog (Scenario 4b — Order ↔ Product M:N with payload). The caller
+    /// supplies a fully-populated <see cref="OrderItemDto"/> including
+    /// ProductId, ProductName, Quantity, UnitPrice, and Discount.
+    /// </summary>
+    public async Task AddItemFromDialogAsync(
+        OrderItemDto item,
+        CancellationToken cancellationToken = default)
+    {
+        if (Record is null) return;
+
+        IsAddingItem = true;
+        try
+        {
+            item.OrderId = Record.Id;
+            var created = await _orderClient.AddItemAsync(Record.Id, item, cancellationToken);
+            if (created is not null)
+            {
+                Record.OrderItems.Add(created);
+                RecalculateTotal();
+            }
+        }
+        finally
+        {
+            IsAddingItem = false;
+        }
+    }
+
     public async Task RemoveItemAsync(OrderItemDto item, CancellationToken cancellationToken = default)
     {
         if (Record is null)

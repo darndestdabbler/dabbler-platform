@@ -5,6 +5,7 @@
 @namespace Dabbler.Security.Blazor.Components.Admin.Shared
 
 <CascadingValue Value="_detailsContext" IsFixed="true">
+<CascadingValue Value="_linkContext" IsFixed="true">
 @if (ShowGrid)
 {
     <div data-testid="@TestId" class="master-detail-expansion-shell mb-3">
@@ -58,7 +59,57 @@
     @if (DetailsContent is not null)
     {
         <div class="master-detail-details-body" data-testid="@($"{TestId}-details")">
-            @DetailsContent
+            @if (ShowLinkData && LinkDataContent is not null)
+            {
+                <MudCard Class="mb-3" data-testid="@($"{TestId}-link-card")">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.subtitle1">@LinkDataHeading</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @LinkDataContent
+                    </MudCardContent>
+                </MudCard>
+            }
+            @if (ShowLinkData)
+            {
+                <MudCard Class="mb-3" data-testid="@($"{TestId}-target-card")">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.subtitle1">@TargetCardHeading</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            @if (TargetEditability == TargetEditability.ReadOnlyWithToggle)
+                            {
+                                <MudButton Variant="Variant.Text"
+                                           StartIcon="@(_detailsContext.IsTargetReadOnly ? Icons.Material.Filled.Edit : Icons.Material.Filled.Lock)"
+                                           OnClick="ToggleTargetEditingAsync"
+                                           data-testid="@($"{TestId}-edit-toggle")">
+                                    @(_detailsContext.IsTargetReadOnly ? EditRecordLabel : LockRecordLabel)
+                                </MudButton>
+                            }
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @DetailsContent
+                    </MudCardContent>
+                </MudCard>
+            }
+            else
+            {
+                @if (TargetEditability == TargetEditability.ReadOnlyWithToggle)
+                {
+                    <MudButton Variant="Variant.Text"
+                               StartIcon="@(_detailsContext.IsTargetReadOnly ? Icons.Material.Filled.Edit : Icons.Material.Filled.Lock)"
+                               OnClick="ToggleTargetEditingAsync"
+                               Class="mb-2"
+                               data-testid="@($"{TestId}-edit-toggle")">
+                        @(_detailsContext.IsTargetReadOnly ? EditRecordLabel : LockRecordLabel)
+                    </MudButton>
+                }
+                @DetailsContent
+            }
             @if (DetailsActions is not null)
             {
                 @DetailsActions(BuildActionsContext())
@@ -101,6 +152,29 @@ else
         {
             <MudPaper Class="pa-4" Elevation="1"
                       data-testid="@($"{TestId}-details")">
+                @if (ShowLinkData && LinkDataContent is not null)
+                {
+                    <MudCard Class="mb-3" data-testid="@($"{TestId}-link-card")">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.subtitle1">@LinkDataHeading</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @LinkDataContent
+                        </MudCardContent>
+                    </MudCard>
+                }
+                @if (TargetEditability == TargetEditability.ReadOnlyWithToggle)
+                {
+                    <MudButton Variant="Variant.Text"
+                               StartIcon="@(_detailsContext.IsTargetReadOnly ? Icons.Material.Filled.Edit : Icons.Material.Filled.Lock)"
+                               OnClick="ToggleTargetEditingAsync"
+                               Class="mb-2"
+                               data-testid="@($"{TestId}-edit-toggle")">
+                        @(_detailsContext.IsTargetReadOnly ? EditRecordLabel : LockRecordLabel)
+                    </MudButton>
+                }
                 @DetailsContent
                 <MudDivider Class="my-3" />
                 @if (DetailsActions is not null)
@@ -130,6 +204,7 @@ else
         }
     </div>
 }
+</CascadingValue>
 </CascadingValue>
 
 @code {
@@ -253,6 +328,18 @@ else
     /// <summary>Label for the cancel action. Default "Cancel".</summary>
     [Parameter]
     public string CancelLabel { get; set; } = "Cancel";
+
+    /// <summary>Header text on the target card when <see cref="ShowLinkData"/> is true. Default "Details".</summary>
+    [Parameter]
+    public string TargetCardHeading { get; set; } = "Details";
+
+    /// <summary>Label on the toggle button when target is currently read-only. Default "Edit record".</summary>
+    [Parameter]
+    public string EditRecordLabel { get; set; } = "Edit record";
+
+    /// <summary>Label on the toggle button when target is currently editable. Default "Lock record".</summary>
+    [Parameter]
+    public string LockRecordLabel { get; set; } = "Lock record";
 
     // -----------------------------------------------------------------------
     // Working / busy state
@@ -389,6 +476,7 @@ else
     private TRow? _selectedRow;
     private bool _hasSelectedRow;
     private DetailsContext<TEntity> _detailsContext = default!;
+    private LinkContext<TLink> _linkContext = default!;
 
     /// <summary>
     /// The shell-owned <see cref="DetailsContext{TEntity}"/> exposed for
@@ -397,12 +485,23 @@ else
     /// </summary>
     public DetailsContext<TEntity> DetailsContext => _detailsContext;
 
+    /// <summary>
+    /// The shell-owned <see cref="LinkContext{TLink}"/> exposed for consumers
+    /// that drive <c>SetLinkDirty()</c> from outside the cascading-value subtree.
+    /// </summary>
+    public LinkContext<TLink> LinkContext => _linkContext;
+
     protected override void OnInitialized()
     {
         _detailsContext = new DetailsContext<TEntity>
         {
+            IsTargetReadOnly = TargetEditability != TargetEditability.Editable,
             SetDirty = SetEntityDirty,
-            ToggleTargetEditing = () => { },
+            ToggleTargetEditing = ToggleTargetEditingInternal,
+        };
+        _linkContext = new LinkContext<TLink>
+        {
+            SetLinkDirty = SetLinkDirtyInternal,
         };
     }
 
@@ -415,12 +514,45 @@ else
         }
     }
 
+    private void SetLinkDirtyInternal()
+    {
+        if (!_linkContext.IsLinkDirty)
+        {
+            _linkContext.SetLinkDirtyInternal();
+            StateHasChanged();
+        }
+    }
+
     private DetailsActionsContext<TEntity, TLink> BuildActionsContext() =>
         new()
         {
             EntityDirty = _detailsContext.IsDirty,
-            LinkDirty = false,
+            LinkDirty = _linkContext.IsLinkDirty,
         };
+
+    /// <summary>
+    /// True if either the target entity or the link data has been edited.
+    /// Drives the primary-action label and the dialog-close gating.
+    /// </summary>
+    private bool AnyDirty => _detailsContext.IsDirty || _linkContext.IsLinkDirty;
+
+    private void ToggleTargetEditingInternal()
+    {
+        // Synchronous entry-point used by consumer code via DetailsContext.ToggleTargetEditing.
+        // Mirrors ToggleTargetEditingAsync below; we don't await OnTargetEditingToggled
+        // here because the consumer signature is a synchronous Action.
+        _detailsContext.IsTargetReadOnly = !_detailsContext.IsTargetReadOnly;
+        StateHasChanged();
+        if (OnTargetEditingToggled.HasDelegate)
+            _ = OnTargetEditingToggled.InvokeAsync(_detailsContext.IsTargetReadOnly);
+    }
+
+    private async Task ToggleTargetEditingAsync()
+    {
+        _detailsContext.IsTargetReadOnly = !_detailsContext.IsTargetReadOnly;
+        if (OnTargetEditingToggled.HasDelegate)
+            await OnTargetEditingToggled.InvokeAsync(_detailsContext.IsTargetReadOnly);
+    }
 
     /// <summary>
     /// The label that should appear on the shell's primary action button,
@@ -437,7 +569,7 @@ else
     {
         get
         {
-            if (AllowLinkOnly && _hasSelectedRow && !_detailsContext.IsDirty)
+            if (AllowLinkOnly && _hasSelectedRow && !AnyDirty)
                 return UseLabel;
             if (ShowRowUseAction)
                 return SaveAndUseLabel;
@@ -446,11 +578,13 @@ else
     }
 
     /// <summary>
-    /// True when the primary action is "Use" (a row is selected and no
-    /// fields are dirty in <see cref="AllowLinkOnly"/> mode). False otherwise.
+    /// True when the primary action is "Use" (a row is selected and neither
+    /// the entity nor the link is dirty, in <see cref="AllowLinkOnly"/> mode).
+    /// Toggling <see cref="TargetEditability.ReadOnlyWithToggle"/> alone does
+    /// NOT flip this — only an actual entity or link field change does.
     /// </summary>
     public bool IsPrimaryActionUseOnly =>
-        AllowLinkOnly && _hasSelectedRow && !_detailsContext.IsDirty;
+        AllowLinkOnly && _hasSelectedRow && !AnyDirty;
 
     /// <summary>
     /// Effective row-use template: returns <see cref="RowUseAction"/> when
@@ -487,24 +621,33 @@ else
     /// Records a row as the selected row without raising <see cref="OnUseRequested"/>.
     /// Used by consumers that drive selection via row-click rather than the
     /// row-wise Use button (so the primary action label flips when the user
-    /// has chosen a row to edit/link).
+    /// has chosen a row to edit/link). Re-applies the
+    /// <see cref="TargetEditability"/> default to <c>IsTargetReadOnly</c> so
+    /// that returning to a picked row after an Add cycle reverts the form to
+    /// the configured read-only baseline.
     /// </summary>
     public void NotifyRowSelected(TRow row)
     {
         _selectedRow = row;
         _hasSelectedRow = true;
+        _detailsContext.IsTargetReadOnly = TargetEditability != TargetEditability.Editable;
         StateHasChanged();
     }
 
     /// <summary>
-    /// Resets selection + dirty state. Useful for "Cancel" + "back to grid"
-    /// transitions in the dialog wrapper.
+    /// Resets selection + dirty state for both entity and link. Forces the
+    /// target editable (the user is adding, not picking) regardless of
+    /// <see cref="TargetEditability"/>; consumers in pure
+    /// <see cref="TargetEditability.ReadOnly"/> mode shouldn't be exposing
+    /// an Add affordance anyway.
     /// </summary>
     public void ResetSelection()
     {
         _selectedRow = default;
         _hasSelectedRow = false;
         _detailsContext.ResetDirty();
+        _linkContext.ResetLinkDirty();
+        _detailsContext.IsTargetReadOnly = false;
         StateHasChanged();
     }
 
@@ -518,11 +661,10 @@ else
 
     private async Task HandlePrimaryActionAsync()
     {
-        var entityDirty = _detailsContext.IsDirty;
         var request = new SaveRequest<TEntity, TLink>
         {
-            EntityDirty = entityDirty,
-            LinkDirty = false,
+            EntityDirty = _detailsContext.IsDirty,
+            LinkDirty = _linkContext.IsLinkDirty,
         };
 
         Working = true;
@@ -548,6 +690,7 @@ else
             }
 
             _detailsContext.ResetDirty();
+            _linkContext.ResetLinkDirty();
         }
         catch (OperationCanceledException)
         {
@@ -569,11 +712,12 @@ else
             await OnSaveRequested.InvokeAsync(new SaveRequest<TEntity, TLink>
             {
                 EntityDirty = _detailsContext.IsDirty,
-                LinkDirty = false,
+                LinkDirty = _linkContext.IsLinkDirty,
             });
             if (!ShowGrid)
                 _sessionCount++;
             _detailsContext.ResetDirty();
+            _linkContext.ResetLinkDirty();
         }
         catch (OperationCanceledException)
         {

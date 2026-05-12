@@ -280,6 +280,57 @@
           "costUsd": 1.4397000000000002
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/bunit-tests",
+      "dateTime": "2026-05-12T07:26:41.729759-04:00",
+      "description": "Routed test-generation for Session 4 shell tests (ShowLinkData, TargetEditability, LinkContext, label-flip with link dirty, toggle-without-change)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 13562,
+          "outputTokens": 1911,
+          "costUsd": 0.0360625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/playwright",
+      "dateTime": "2026-05-12T07:28:27.785844-04:00",
+      "description": "Routed test-generation for Session 4 Playwright tests (4a tuner, 4b product-line picker, Scenario 3 inspect-to-decide)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 10274,
+          "outputTokens": 3033,
+          "costUsd": 0.0431725
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-05-12T07:37:44.435440-04:00",
+      "description": "Cross-provider verification: model=gpt-5-4",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 27095,
+          "outputTokens": 7281,
+          "costUsd": 0.1769525
+        }
+      ]
     }
   ]
 }

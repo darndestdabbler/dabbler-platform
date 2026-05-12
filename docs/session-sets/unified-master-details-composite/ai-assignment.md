@@ -142,10 +142,10 @@ high
 | 12 | Commit, push, notify | Direct |
 
 ### Actuals (filled after the session)
-- Orchestrator used: TBD
-- Total routed cost: TBD
-- Deviations from recommendation: TBD
-- Notes for next-session calibration: TBD
+- Orchestrator used: claude-code / claude-opus-4-7 @ effort=high
+- Total routed cost: ~$0.26 (gemini-pro test-generation x2: $0.036 + $0.043 = $0.079; gpt-5-4 session-verification: $0.18). 88% verification-cost reduction vs. Session 3's $1.44 Opus self-verify after the router-config override committed between sessions.
+- Deviations from recommendation: matched the recommended Opus @ high. The verification-cost fix from between-sessions delivered as designed — first time the override fired in practice. Verifier (GPT-5.4) caught 3 real bugs that an Opus self-verify could plausibly have missed (true cross-provider value).
+- Notes for next-session calibration: Three Major-or-Minor findings from verification — all fixed in-session. (1) HandleUsePickedAsync wasn't hydrating buffers, relied on DOM bubbling. (2) Review-line dialog ignored the clicked OrderItem (no ExistingLine parameter). (3) ShowGrid=false branch missed the toggle-button rendering. Session 5 should add a structural lesson about "don't depend on event bubbling between sibling component handlers — wire the cross-talk explicitly" to lessons-learned.md.
 
 **Next-session orchestrator recommendation (Session 5):**
 `claude-code` `claude-sonnet-4-6` @ `effort=low`

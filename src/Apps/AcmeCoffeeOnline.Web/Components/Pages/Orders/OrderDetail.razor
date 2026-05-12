@@ -104,9 +104,18 @@ else if (State.Record is not null)
                                    Color="Color.Primary"
                                    Size="Size.Medium"
                                    StartIcon="@Icons.Material.Filled.Person"
-                                   OnClick="OpenCustomerPickerAsync"
+                                   OnClick="@(() => OpenCustomerPickerAsync())"
                                    data-testid="pick-customer-button">
                             Pick customer
+                        </MudButton>
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Secondary"
+                                   Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.Search"
+                                   OnClick="@(() => OpenCustomerPickerAsync(inspectToDecide: true))"
+                                   data-testid="inspect-customer-button"
+                                   Title="Inspect (target locked, unlock to edit)">
+                            Inspect
                         </MudButton>
                     }
                 </MudStack>
@@ -170,42 +179,11 @@ else if (State.Record is not null)
                                        Color="Color.Primary"
                                        Size="Size.Small"
                                        StartIcon="@Icons.Material.Filled.Add"
-                                       OnClick="@(() => _showProductPicker = true)">
+                                       OnClick="OpenProductLinePickerAsync"
+                                       data-testid="add-product-button">
                                 Add Product
                             </MudButton>
                         </MudStack>
-                    }
-
-                    @if (_showProductPicker)
-                    {
-                        <MudPaper Class="pa-3 mb-3" Elevation="1">
-                            <MudStack Row="true" AlignItems="AlignItems.End" Spacing="2">
-                                <ProductComboBox @bind-Value="_selectedProduct"
-                                                 Label="Select Product"
-                                                 Required="true" />
-                                <MudNumericField T="int"
-                                                 @bind-Value="_newItemQuantity"
-                                                 Label="Qty"
-                                                 Min="1"
-                                                 Style="width: 80px;" />
-                                <MudNumericField T="decimal"
-                                                 @bind-Value="_newItemDiscount"
-                                                 Label="Discount %"
-                                                 Min="0"
-                                                 Max="100"
-                                                 Style="width: 100px;" />
-                                <MudButton Variant="Variant.Filled"
-                                           Color="Color.Primary"
-                                           Size="Size.Small"
-                                           OnClick="AddItemAsync"
-                                           Disabled="@(_selectedProduct is null || State.IsAddingItem)">
-                                    Add
-                                </MudButton>
-                                <MudIconButton Icon="@Icons.Material.Filled.Close"
-                                               Size="Size.Small"
-                                               OnClick="@(() => _showProductPicker = false)" />
-                            </MudStack>
-                        </MudPaper>
                     }
 
                     <MudDataGrid T="OrderItemDto"
@@ -213,7 +191,8 @@ else if (State.Record is not null)
                                  Dense="true"
                                  Bordered="true"
                                  Hover="true"
-                                 ReadOnly="true">
+                                 ReadOnly="true"
+                                 data-testid="order-items-grid">
                         <Columns>
                             <PropertyColumn Property="i => i.ProductName" Title="Product" />
                             <PropertyColumn Property="i => i.Quantity" Title="Qty" />
@@ -230,8 +209,14 @@ else if (State.Record is not null)
                             </TemplateColumn>
                             @if (!IsReadOnly)
                             {
-                                <TemplateColumn Sortable="false" CellStyle="width: 50px;">
+                                <TemplateColumn Sortable="false" CellStyle="width: 96px;">
                                     <CellTemplate>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                                       Size="Size.Small"
+                                                       Color="Color.Primary"
+                                                       OnClick="@(() => OpenProductLineInspectorAsync(context.Item))"
+                                                       data-testid="inspect-item-button"
+                                                       Title="Review line (target read-only, unlock to edit)" />
                                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                                        Size="Size.Small"
                                                        Color="Color.Error"
@@ -348,12 +333,6 @@ else
     // Date pickers need nullable DateTime?
     private DateTime? _orderDate;
     private DateTime? _shipDate;
-
-    // M:M product picker state
-    private bool _showProductPicker;
-    private ProductDto? _selectedProduct;
-    private int _newItemQuantity = 1;
-    private decimal _newItemDiscount;
 
     // Note popup
     private OrderNotePopup? _notePopup;
@@ -488,14 +467,59 @@ else
 
     // ── M:M Order Items ─────────────────────────────────────────────
 
-    private Task AddItemAsync() => TrackAction("add-item", async () =>
+    private async Task OpenProductLinePickerAsync()
     {
-        await State.AddItemAsync(_selectedProduct, _newItemQuantity, _newItemDiscount);
-        _selectedProduct = null;
-        _newItemQuantity = 1;
-        _newItemDiscount = 0;
-        _showProductPicker = false;
-    });
+        if (State.Record is null) return;
+
+        var parameters = new DialogParameters<ProductLinePickerDialog>
+        {
+            { p => p.OrderId, State.Record.Id },
+            { p => p.AllowTargetEdit, false },  // Scenario 4b-locked
+        };
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Medium,
+        };
+        var dialog = await DialogService.ShowAsync<ProductLinePickerDialog>(
+            "Add product line", parameters, options);
+        var result = await dialog.Result;
+        if (result is null || result.Canceled) return;
+        if (result.Data is not OrderItemDto newItem) return;
+
+        await TrackAction("add-item", async () =>
+        {
+            await State.AddItemFromDialogAsync(newItem);
+        });
+    }
+
+    private async Task OpenProductLineInspectorAsync(OrderItemDto item)
+    {
+        // Scenario 4b-toggle: target product card starts read-only;
+        // user toggles to unlock if a correction is needed. We surface the
+        // existing item's quantity/discount so the user can review the line
+        // before deciding to edit.
+        if (State.Record is null) return;
+
+        var parameters = new DialogParameters<ProductLinePickerDialog>
+        {
+            { p => p.OrderId, State.Record.Id },
+            { p => p.AllowTargetEdit, true },  // Scenario 4b-toggle
+            { p => p.ExistingLine, item },
+        };
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Medium,
+        };
+        var dialog = await DialogService.ShowAsync<ProductLinePickerDialog>(
+            $"Review line — {item.ProductName}", parameters, options);
+        await dialog.Result;
+        // Inspector is review-only for Session 4; persisting changes via the
+        // toggle flow lands in a follow-up. Read the result if needed.
+    }
 
     private Task RemoveItemAsync(OrderItemDto item) => TrackAction("remove-item", async () =>
     {
@@ -526,16 +550,23 @@ else
 
     // ── Customer Picker (Scenario 3) ────────────────────────────────
 
-    private async Task OpenCustomerPickerAsync()
+    private async Task OpenCustomerPickerAsync(bool inspectToDecide = false)
     {
+        var parameters = new DialogParameters<CustomerPickerDialog>
+        {
+            { p => p.InspectToDecide, inspectToDecide },
+        };
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
             FullWidth = true,
             MaxWidth = MaxWidth.Medium,
         };
+        var title = inspectToDecide
+            ? "Inspect customer (toggle to unlock)"
+            : "Pick or add customer";
         var dialog = await DialogService.ShowAsync<CustomerPickerDialog>(
-            "Pick or add customer", new DialogParameters(), options);
+            title, parameters, options);
         var result = await dialog.Result;
         if (result is null || result.Canceled) return;
         if (result.Data is not CustomerDto customer) return;

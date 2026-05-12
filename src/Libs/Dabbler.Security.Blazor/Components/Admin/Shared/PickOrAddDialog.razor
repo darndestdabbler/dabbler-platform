@@ -17,6 +17,9 @@
                                     TargetEditability="@TargetEditability"
                                     ShowLinkData="@ShowLinkData"
                                     LinkDataHeading="@LinkDataHeading"
+                                    TargetCardHeading="@TargetCardHeading"
+                                    EditRecordLabel="@EditRecordLabel"
+                                    LockRecordLabel="@LockRecordLabel"
                                     SaveAndUseLabel="@SaveAndUseLabel"
                                     UseLabel="@UseLabel"
                                     CancelLabel="@CancelLabel"
@@ -31,6 +34,7 @@
                                     OnSaveAndUseRequested="HandleSaveAndUseRequestedAsync"
                                     OnRowSelected="HandleRowSelectedAsync"
                                     OnAddRequested="HandleAddRequestedAsync"
+                                    OnTargetEditingToggled="HandleTargetEditingToggledAsync"
                                     OnCancelRequested="HandleCancelRequestedAsync" />
     </DialogContent>
 </MudDialog>
@@ -49,10 +53,16 @@
     [Parameter] public TargetEditability TargetEditability { get; set; } = TargetEditability.Editable;
     [Parameter] public bool ShowLinkData { get; set; }
     [Parameter] public string LinkDataHeading { get; set; } = "Link Data";
+    [Parameter] public string TargetCardHeading { get; set; } = "Details";
+    [Parameter] public string EditRecordLabel { get; set; } = "Edit record";
+    [Parameter] public string LockRecordLabel { get; set; } = "Lock record";
     [Parameter] public string SaveAndUseLabel { get; set; } = "Save and Use";
     [Parameter] public string UseLabel { get; set; } = "Use";
     [Parameter] public string CancelLabel { get; set; } = "Cancel";
     [Parameter] public string ExpandedHeaderText { get; set; } = "Results";
+
+    /// <summary>Optional callback when the user toggles target editability (ReadOnlyWithToggle mode).</summary>
+    [Parameter] public EventCallback<bool> OnTargetEditingToggled { get; set; }
 
     [Parameter] public RenderFragment? FilterContent { get; set; }
     [Parameter] public RenderFragment? GridContent { get; set; }
@@ -119,6 +129,13 @@
     /// </summary>
     public void NotifyRowSelected(TRow row) => _shell?.NotifyRowSelected(row);
 
+    /// <summary>
+    /// The shell's <see cref="LinkContext{TLink}"/>. Surfaced so the dialog's
+    /// host can call <c>SetLinkDirty()</c> from outside the cascading-value
+    /// subtree (same pattern as <see cref="DetailsContext"/>).
+    /// </summary>
+    public LinkContext<TLink>? LinkContext => _shell?.LinkContext;
+
     private async Task HandleUseRequestedAsync(TRow row)
     {
         if (OnUsePicked is null) return;
@@ -167,6 +184,11 @@
         _shell?.ResetSelection();
         return OnAdd.HasDelegate ? OnAdd.InvokeAsync() : Task.CompletedTask;
     }
+
+    private Task HandleTargetEditingToggledAsync(bool isReadOnly) =>
+        OnTargetEditingToggled.HasDelegate
+            ? OnTargetEditingToggled.InvokeAsync(isReadOnly)
+            : Task.CompletedTask;
 
     private Task HandleCancelRequestedAsync()
     {

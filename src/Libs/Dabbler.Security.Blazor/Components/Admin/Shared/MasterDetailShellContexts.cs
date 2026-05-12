@@ -64,6 +64,7 @@ public sealed class LinkContext<TLink>
     /// </summary>
     public Action SetLinkDirty { get; init; } = () => { };
 
+    internal void SetLinkDirtyInternal() => IsLinkDirty = true;
     internal void ResetLinkDirty() => IsLinkDirty = false;
 }
 
