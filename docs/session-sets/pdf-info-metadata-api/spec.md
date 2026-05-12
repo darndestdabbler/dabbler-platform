@@ -120,8 +120,14 @@ output at [`session-reviews/session-001.md`](session-reviews/session-001.md).
   human-UAT section below names the reviewer action for
   completeness.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 3 — Design exploration (COMPLETE, 2026-04-18)
 
 Design-only, read-only across both repos. See

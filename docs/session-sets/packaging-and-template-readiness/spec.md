@@ -33,8 +33,14 @@ Inside this set, once the packable surface and template contract are frozen,
 NuGet smoke proof and template wiring can proceed in parallel across disjoint
 paths.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 7: Repository Cleanup
 
 **Steps:**

@@ -17,3 +17,6 @@ __pycache__/
 src/Libs/Dabbler.Security.DevIdp/devidp.db
 src/Libs/Dabbler.Security.DevIdp/devidp.db-shm
 src/Libs/Dabbler.Security.DevIdp/devidp.db-wal
+
+# Local dabbler-uat-dsl CLI installed via dotnet tool install --tool-path
+.tools/

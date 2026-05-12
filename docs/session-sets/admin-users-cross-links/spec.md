@@ -74,7 +74,7 @@ see [docs/session-sets/admin-user-creation-flow/spec.md](../admin-user-creation-
    for the dashboard. A naïve role-only check yields dead links and
    confusing partial-access states.
 
-## UAT scope
+## Session Set Configuration
 
 ```yaml
 requiresUAT: true
@@ -82,18 +82,23 @@ requiresE2E: true
 uatScope: full
 ```
 
-Reasoning: Components 2 and 3 affect the SAME human-equivalent flows
-that the masking-audit UAT exercises (role-switching across orgs,
-clicking through to user-admin surfaces). The UAT must verify the
-canonical-surface change empirically — e.g., a SystemAdmin attempting
-to grant UserAdmin from the dashboard tab now sees the read-only chip,
-and the cross-link successfully lands them on `/admin/users` for the
-correct org.
+> Rationale: Components 2 and 3 affect the SAME human-equivalent flows
+> that the masking-audit UAT exercises (role-switching across orgs,
+> clicking through to user-admin surfaces). The UAT must verify the
+> canonical-surface change empirically — e.g., a SystemAdmin attempting
+> to grant UserAdmin from the dashboard tab now sees the read-only chip,
+> and the cross-link successfully lands them on `/admin/users` for the
+> correct org.
 
-## Estimated session count
+## Sessions
 
-1 session, sonnet-class. Mechanical Razor edits + one library bump +
-authorization-correct gating.
+### Session 1 of 1: Implement disposition Option 1 components 1-5
+
+**Goal:** Mechanical Razor edits + one library bump + authorization-correct gating (sonnet-class).
+
+**Scope:** Components 1-5 of the disposition's Option 1, as enumerated in the Scope summary above. Component 6 (admin-driven user-creation flow) is its own session set ([admin-user-creation-flow](../admin-user-creation-flow/spec.md)).
+
+> **Stub session.** Before running this session, the orchestrator should flesh out per-step actions, progress keys, and risk-tightening notes from the disposition doc — particularly the shared-library impact on `Dabbler.Security.Blazor`.
 
 ## Risk notes
 

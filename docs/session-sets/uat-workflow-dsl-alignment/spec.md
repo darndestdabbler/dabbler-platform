@@ -132,8 +132,7 @@ COMPATIBILITY.md) cover process, orchestration, and integration.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 2: dabbler-uat-dsl docs surface + dabbler-platform link refactor
 
 > **Code work happens in `dabbler-uat-dsl`** (new `docs/` folder).

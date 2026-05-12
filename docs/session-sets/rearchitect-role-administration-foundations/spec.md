@@ -97,8 +97,14 @@ section apply. Most relevant to this set:
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 5: Baked-in role constants, privileges, DisplayAlias, Principle
 
 **Steps:**

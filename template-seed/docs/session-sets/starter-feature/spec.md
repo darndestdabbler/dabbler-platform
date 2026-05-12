@@ -44,7 +44,7 @@ Describe the first body of work for the new repo here.
 - add `DabblerMultiComboBox<T>` only when a concrete starter workflow truly
   needs multiselect lookup behavior
 
-## Session Plan
+## Sessions
 
 ### Session 1 of 2: Baseline And Guardrails
 

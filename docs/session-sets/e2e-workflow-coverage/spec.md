@@ -256,8 +256,14 @@ through real controls. Direct `goto()` is permitted only for:
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 5: Infrastructure Extensions and Navigation Proof
 
 **Target: ~12 tests**

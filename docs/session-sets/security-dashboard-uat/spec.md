@@ -81,8 +81,14 @@ itself.
 
 6. Save the completed checklist JSON back to the same path.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 1: Generate UAT Checklist and Hand Off
 
 **Steps:**

@@ -195,8 +195,7 @@ this set.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 4: Runner scaffold, fixture adapter, happy-path execution
 
 **Steps:**

@@ -166,8 +166,7 @@ Step 2-class affordance we need.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 2: Crawler scaffold, catalog schema, first manifest
 
 **Steps:**

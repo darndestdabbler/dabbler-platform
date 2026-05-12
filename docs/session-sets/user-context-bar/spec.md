@@ -60,8 +60,14 @@ design is a single sentence:
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 3: Build `UserContextBar` + Sign-Out dialog
 
 **Steps:**

@@ -88,8 +88,14 @@ the corrected closure.
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 1 — Upgrade, caller coverage, Playwright coverage, close Finding 2
 
 **Location of work:** `dabbler-platform/` (this repo).

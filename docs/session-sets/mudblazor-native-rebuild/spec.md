@@ -136,8 +136,14 @@ No default parallelization assumption is required between sessions.
 Inside sessions, independent page rebuilds or independent test efforts may
 proceed in parallel when the shared patterns from earlier sessions are stable.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 8: Architecture Decisions and Layout Foundation
 
 **Steps:**

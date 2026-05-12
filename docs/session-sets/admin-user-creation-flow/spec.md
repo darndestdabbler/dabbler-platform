@@ -77,7 +77,7 @@ Constraints from the disposition:
   others (e.g., the admin selects which org the user belongs to).
   Document the diffs explicitly.
 
-## UAT scope
+## Session Set Configuration
 
 ```yaml
 requiresUAT: true
@@ -85,25 +85,30 @@ requiresE2E: true
 uatScope: full
 ```
 
-Reasoning: This is a new user-facing feature with multi-step flow,
-authorization gating per role, and email/onboarding side effects.
-The UAT must exercise the happy path (SystemAdmin creates a
-BackofficeUser in their org, the new user receives the magic-link
-email, signs in, and shows up in the Security Dashboard's "Users
-and Role Assignment" tab) AND the authorization-denial paths
-(UserAdmin can't create cross-org; CrossOrgMonitor can't create at
-all).
+> Rationale: This is a new user-facing feature with multi-step flow,
+> authorization gating per role, and email/onboarding side effects.
+> The UAT must exercise the happy path (SystemAdmin creates a
+> BackofficeUser in their org, the new user receives the magic-link
+> email, signs in, and shows up in the Security Dashboard's "Users
+> and Role Assignment" tab) AND the authorization-denial paths
+> (UserAdmin can't create cross-org; CrossOrgMonitor can't create at
+> all).
 
-## Estimated session count
+## Sessions
 
-2-3 sessions, opus-class:
-- **Session 1:** Flesh out the spec; design API + form layout;
-  agree on the role + membership constraint shape.
-- **Session 2:** Implement API + service layer + audit emissions;
-  unit tests for `RoleAssignmentAuthority` interaction.
-- **Session 3:** Implement Razor surface ("Add User" affordance +
-  form + magic-link email send); UAT checklist; W2 runner pass;
-  commit.
+> **Stub plan, opus-class.** Sessions are sketched; Session 1 produces the fleshed-out per-session step lists before Session 2 starts implementation.
+
+### Session 1 of 3: Flesh out spec — API + form layout + role/membership constraint shape
+
+Design API + form layout; agree on the role + membership constraint shape. Output is a fleshed-out spec that Sessions 2 and 3 implement against.
+
+### Session 2 of 3: Implement API + service layer + audit emissions
+
+Implement API + service layer + audit emissions; unit tests for `RoleAssignmentAuthority` interaction.
+
+### Session 3 of 3: Implement Razor surface + UAT + close-out
+
+Implement Razor surface ("Add User" affordance + form + magic-link email send); UAT checklist; W2 runner pass; commit.
 
 ## Risk notes
 

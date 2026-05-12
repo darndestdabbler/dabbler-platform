@@ -150,8 +150,7 @@ in a follow-up set.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 5: Dabbler.Testing.Blazor lib scaffold and watermark proof
 
 **Steps:**

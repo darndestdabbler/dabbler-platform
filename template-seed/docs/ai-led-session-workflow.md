@@ -177,7 +177,7 @@ uatScope: none
 
 Describe the goals and deliverables.
 
-## Session Plan
+## Sessions
 
 ### Session 1 of N: <Title>
 

@@ -247,8 +247,7 @@ drift from a manually-edited generated file.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 5: Repo bootstrap, grammar v1, grammar tests
 
 **Steps:**

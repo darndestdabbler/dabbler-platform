@@ -175,8 +175,14 @@ Indexes: `(UserId, Timestamp desc)`, `(EntityKey, ColumnKey, Timestamp desc)`,
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 5: Field mask rendering service, Customer.SSN field, placement decision locked in
 
 **Purpose:** Replace the hardcoded `<span data-masked="true">********</span>`

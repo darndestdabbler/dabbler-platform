@@ -84,8 +84,14 @@ each bug before changing code.
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 3: Orders visibility for BackofficeUser
 
 **Steps:**

@@ -47,8 +47,14 @@ per session, progress keys, and updated risk notes.
 7. Integration tests prove the stamping + filter flow end-to-end.
 8. UAT checklist queued.
 
-## Session Plan (brief — fleshed out at session 1)
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 1. Design + Principle. Pick marker interface vs. base class for
    transactional entities. Document the six-column convention.
 2. EF migrations + `SaveChanges` interceptor + temporal tracking.
