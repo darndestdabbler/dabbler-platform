@@ -358,6 +358,27 @@ dialog with the correct id; dirty-state relabels correctly.
 
 ### Session 4 of 5: Scenarios 4a / 4b + inspect-to-decide — `LinkDataContent` + `TargetEditability`
 
+> **Decisions locked 2026-05-12 (between Sessions 3 and 4):**
+> - **Scenario 4b** wires the existing `OrderItemDto` (Order ↔ Product with
+>   `Quantity`/`UnitPrice`/`Discount` link payload). The current ad-hoc
+>   `_showProductPicker` flow in
+>   [OrderDetail.razor:164-194](../../../src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Orders/OrderDetail.razor#L164-L194)
+>   is **migrated** to a `PickOrAddDialog<ProductDto, ProductDto, OrderItemDto>`
+>   with `ShowLinkData=true, TargetEditability=ReadOnly` (and a second
+>   invocation with `ReadOnlyWithToggle` for the 4b-toggle variant). The
+>   existing Playwright tests in `OrdersWorkflowTests` are the regression
+>   net — they must stay green throughout the rewrite.
+> - **Scenario 4a** (`ShowLinkData=true, TargetEditability=Editable`) does
+>   not fit the Order Items flow (editing a `Product` mid-order is
+>   contrived). Build a **small fresh demo page** (e.g.,
+>   `/admin/order-item-tuner`) where editing the product alongside the
+>   link data is the actual use case. Keep the demo minimal — the goal is
+>   to exercise the 4a code path, not to ship admin tooling.
+> - **Contingency:** if the OrderItems migration proves disruptive
+>   mid-session, fall back to a fresh demo page for 4b too. Do not let
+>   the migration block Session 4's verification.
+
+
 **Steps:**
 
 1. Read planning docs.

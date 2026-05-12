@@ -240,6 +240,18 @@ routing:
     # $0.20 per runner execution). Not auto-verified — the ground truth is the
     # human-review pipeline, not a cross-provider AI second-opinion.
     uat-failure-triage: sonnet
+    # Force session-verification onto GPT-5.4 rather than letting tier-3
+    # default land on Opus. Rationale: when the orchestrator is Opus (which
+    # is increasingly common for high-effort sessions), Opus→Opus
+    # self-verification (a) costs ~$1.44 per call instead of ~$0.45,
+    # (b) loses the cross-provider bias check that makes verification
+    # valuable. The preferred_pairings map below already declares
+    # opus→gpt-5-4 as the intended pairing for *auto-verify*, but standalone
+    # route(task_type='session-verification') calls bypass that map and fall
+    # through to the tier-3 default. This override aligns the standalone
+    # path with the pairings intent. Captured 2026-05-12 after Session 3 of
+    # unified-master-details-composite paid $1.44 for an Opus→Opus verify.
+    session-verification: gpt-5-4
 
 # --- Delegation ---
 # Guidance for orchestrators (Claude Code / Codex / Gemini) on which
