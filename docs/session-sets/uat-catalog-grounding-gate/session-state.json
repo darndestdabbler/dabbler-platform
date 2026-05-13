@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 2,
+  "sessionSetName": "uat-catalog-grounding-gate",
+  "currentSession": 1,
+  "totalSessions": 2,
+  "status": "complete",
+  "lifecycleState": "closed",
+  "startedAt": "2026-05-12T16:00:00.000000-04:00",
+  "completedAt": "2026-05-12T17:00:00.000000-04:00",
+  "verificationVerdict": "VERIFIED",
+  "orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-6",
+    "effort": "low"
+  }
+}

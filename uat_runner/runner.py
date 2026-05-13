@@ -40,6 +40,192 @@ PLAYWRIGHT_CSPROJ = (
 )
 W0_CLI_PROJECT = REPO_ROOT.parent / "dabbler-uat-dsl/src/Dabbler.Uat.Dsl.Cli"
 
+# ---------------------------------------------------------------------------
+# Catalog grounding gate
+#
+# Any DSL action that references a label (caption, name, text, label keyword)
+# on a route that IS in the component catalog must use a label that also
+# exists in the catalog.  If the label is absent the runner aborts with a
+# CATALOG_GROUNDED_VIOLATION — this error is NOT suppressible.
+#
+# Routes that are NOT in the catalog (new pages not yet crawled) continue to
+# use the existing CATALOG_STALE path and may be suppressed as before.
+# ---------------------------------------------------------------------------
+
+# Verb patterns that produce a human-visible label the catalog should record.
+# Group 1 = the quoted label string.
+_LABEL_PATTERNS = [
+    re.compile(r'CLICK\s+BUTTON\s+(?:in\s+"[^"]+"\s+)?with\s+caption\s+"([^"]+)"', re.I),
+    re.compile(r'CLICK\s+INPUT\s+(?:in\s+"[^"]+"\s+)?with\s+label\s+"([^"]+)"', re.I),
+    re.compile(r'CLICK\s+TAB\s+(?:in\s+"[^"]+"\s+)?with\s+name\s+"([^"]+)"', re.I),
+    re.compile(r'CLICK\s+LINK\s+(?:in\s+"[^"]+"\s+)?with\s+text\s+"([^"]+)"', re.I),
+    re.compile(r'CLICK\s+MENU\s+ITEM\s+(?:in\s+"[^"]+"\s+)?with\s+label\s+"([^"]+)"', re.I),
+    re.compile(r'CLICK\s+CHECKBOX\s+(?:in\s+"[^"]+"\s+)?with\s+label\s+"([^"]+)"', re.I),
+    re.compile(r'CLICK\s+SWITCH\s+(?:in\s+"[^"]+"\s+)?with\s+label\s+"([^"]+)"', re.I),
+    re.compile(r'OPEN\s+DROPDOWN\s+(?:in\s+"[^"]+"\s+)?with\s+label\s+"([^"]+)"', re.I),
+    re.compile(r'VERIFY\s+ELEMENT\s+(?:in\s+"[^"]+"\s+)?with\s+label\s+"([^"]+)"', re.I),
+    re.compile(r'VERIFY\s+TEXT\s+(?:in\s+"[^"]+"\s+)?(?:equals|contains|matches)\s+"([^"]+)"', re.I),
+]
+_NAVIGATE_PATTERN = re.compile(r'NAVIGATE\s+TO\s+"(https?://[^/\s"]+(/[^"]*)?)"', re.I)
+
+
+@dataclass
+class CatalogGroundingViolation:
+    """A label used in a checklist step that is absent on a catalog-known route."""
+    route: str
+    label: str
+    action: str
+    item_label: str
+
+
+def _load_catalog_index(catalog_path: str | Path) -> dict:
+    """Return {routePath: {normalised_label, ...}} for all entries."""
+    try:
+        doc = json.loads(Path(catalog_path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    result: dict[str, set[str]] = {}
+    for entry in doc.get("entries", []):
+        route = entry.get("routePath", "")
+        label = entry.get("userVisibleLabel", "") or ""
+        aria = entry.get("ariaLabel", "") or ""
+        if route:
+            result.setdefault(route, set())
+            if label:
+                result[route].add(label.strip().upper())
+            if aria:
+                result[route].add(aria.strip().upper())
+    return result
+
+
+def _check_catalog_grounding(
+    checklist_path: str | Path,
+    catalog_path: str | Path,
+) -> list[CatalogGroundingViolation]:
+    """Pre-flight check: return violations where a label on a catalog-known
+    route does not exist in the catalog.
+
+    Works by:
+    1. Parsing the checklist's Step actions sequentially, tracking which route
+       is active via NAVIGATE TO steps.
+    2. For each interaction verb, extracting the label argument.
+    3. If the current route is in the catalog AND the label is not → violation.
+
+    Routes absent from the catalog are silently skipped (CATALOG_STALE path).
+    """
+    catalog_labels = _load_catalog_index(catalog_path)
+    if not catalog_labels:
+        return []  # no catalog → nothing to check
+
+    catalog_routes: frozenset[str] = frozenset(catalog_labels.keys())
+
+    try:
+        doc = json.loads(Path(checklist_path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+
+    violations: list[CatalogGroundingViolation] = []
+    current_route = ""
+    labels_checked = 0
+    routes_skipped: set[str] = set()
+
+    for item in doc.get("Review", []):
+        item_label = item.get("ItemLabel", "")
+        for step in item.get("Steps", []):
+            action = step.get("Action", "")
+            if not action:
+                continue
+
+            # Update route tracker
+            nav = _NAVIGATE_PATTERN.match(action.strip())
+            if nav:
+                url = nav.group(1)
+                # Extract path portion: strip scheme + host, keep from first /
+                try:
+                    from urllib.parse import urlparse
+                    parsed = urlparse(url)
+                    current_route = parsed.path or "/"
+                except Exception:
+                    pass
+                continue  # NAVIGATE steps have no catalog label to check
+
+            if not current_route:
+                continue  # no route context yet
+
+            # Check whether current_route is in the catalog
+            if current_route not in catalog_routes:
+                routes_skipped.add(current_route)
+                continue  # new/uncrawled route — skip (CATALOG_STALE applies)
+
+            # Extract label from the action
+            for pattern in _LABEL_PATTERNS:
+                m = pattern.match(action.strip())
+                if m:
+                    labels_checked += 1
+                    label = m.group(1).strip()
+                    label_upper = label.upper()
+                    route_labels = catalog_labels.get(current_route, set())
+                    if label_upper not in route_labels:
+                        violations.append(CatalogGroundingViolation(
+                            route=current_route,
+                            label=label,
+                            action=action,
+                            item_label=item_label,
+                        ))
+                    break  # only one verb per step
+
+    # Emit telemetry so skipped (CATALOG_STALE) routes are visible, not silent
+    if routes_skipped:
+        skipped_list = ", ".join(sorted(routes_skipped))
+        print(
+            f"Catalog grounding gate: {labels_checked} label(s) checked on "
+            f"{len(catalog_routes)} catalog route(s). "
+            f"{len(routes_skipped)} route(s) skipped (CATALOG_STALE, not yet crawled): "
+            f"{skipped_list}",
+            file=sys.stderr,
+        )
+
+    return violations
+
+
+def _format_grounding_violations(
+    violations: list[CatalogGroundingViolation],
+    catalog_path: str | Path,
+) -> str:
+    """Build a human-readable report of catalog grounding violations."""
+    catalog_labels = _load_catalog_index(catalog_path)
+    lines = [
+        "CATALOG_GROUNDED_VIOLATION: The following labels were not found in the",
+        "component catalog for their route. These errors are NOT suppressible.",
+        "Every label on a catalog-known route must exist verbatim in the catalog.",
+        "",
+    ]
+    by_route: dict[str, list[CatalogGroundingViolation]] = {}
+    for v in violations:
+        by_route.setdefault(v.route, []).append(v)
+
+    for route, vs in by_route.items():
+        lines.append(f"  Route: {route}")
+        for v in vs:
+            lines.append(f"    Label not found: \"{v.label}\"")
+            lines.append(f"    In step:  {v.action}")
+            lines.append(f"    Item:     {v.item_label}")
+        # Show what IS available on this route (first 8 unique labels)
+        available = sorted(catalog_labels.get(route, set()))[:8]
+        if available:
+            lines.append(f"    Available labels on {route}:")
+            for lbl in available:
+                lines.append(f"      - {lbl}")
+        lines.append("")
+
+    lines.append(
+        "Fix: replace each flagged label with one from the catalog list above.\n"
+        "     Run `python -c \"import json; "
+        "[print(e['userVisibleLabel']) for e in json.load(open('docs/component-catalog/index.json'))['entries']"
+        f" if e['routePath']=='{list(by_route.keys())[0]}']\"` to see all labels."
+    )
+    return "\n".join(lines)
+
 
 @dataclass
 class StepFailure:
@@ -366,6 +552,34 @@ def run_checklist(
             test_exit_code=None,
             trx_path=None,
             runner_message=role_message,
+        )
+
+    # ------------------------------------------------------------------
+    # Pre-flight: catalog grounding gate
+    # Labels on catalog-known routes must exist in the catalog.
+    # This check runs before W0 and cannot be bypassed by suppressions.
+    # ------------------------------------------------------------------
+    grounding_violations = _check_catalog_grounding(checklist, catalog)
+    if grounding_violations:
+        violation_report = _format_grounding_violations(grounding_violations, catalog)
+        print(violation_report, file=sys.stderr)
+        return RunReport(
+            checklist_path=str(checklist),
+            catalog_path=str(catalog),
+            class_name=class_name,
+            emitted_path=str(emitted_path),
+            wrapper_path="",
+            compile_ok=False,
+            compile_output="",
+            test_invoked=False,
+            test_exit_code=None,
+            trx_path=None,
+            runner_message=(
+                f"CATALOG_GROUNDED_VIOLATION: {len(grounding_violations)} label(s) "
+                "on catalog-known route(s) were not found in the catalog. "
+                "This error cannot be suppressed. Fix the checklist to use "
+                "catalog-verified labels before re-running."
+            ),
         )
 
     suppressions_path = REPO_ROOT / "tools/uat-suppressions.json"
