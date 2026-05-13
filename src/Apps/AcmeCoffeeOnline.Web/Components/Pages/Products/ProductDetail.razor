@@ -2,6 +2,7 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Shared.Enums
 @using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Components.MasterDetail
 @using Dabbler.Security.Blazor.Components.Restriction
 @using MudBlazor
 @inject ProductApiClient ProductClient
@@ -10,39 +11,38 @@
 {
     <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="ma-4" />
 }
-else if (_record is not null)
+else if (_record is not null && _session is not null)
 {
-    @* ── Toolbar ──────────────────────────────────────────────────── *@
-    <MudStack Row="true" Spacing="2" Class="mb-4">
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Material.Filled.Save"
-                   OnClick="HandleSaveAsync"
-                   Disabled="@(!_isDirty || _saving)"
-                   data-testid="save-button">
-            Save
-        </MudButton>
-        <MudButton Variant="Variant.Outlined"
-                   Color="Color.Default"
-                   StartIcon="@Icons.Material.Filled.Undo"
-                   OnClick="HandleUndo"
-                   Disabled="@(!_isDirty)"
-                   data-testid="undo-button">
-            Undo
-        </MudButton>
-        @if (!IsNew)
-        {
-            <MudSpacer />
+    @* ── Toolbar (DirtyAwareActionRow + page-specific actions in CustomActions) ── *@
+    <DirtyAwareActionRow IsDirty="@_session.IsDirty"
+                         Saving="@_saving"
+                         ShowCancel="false"
+                         OnSave="HandleSaveAsync"
+                         Class="mb-4"
+                         CustomActionsPosition="ActionRowSlot.End">
+        <CustomActions>
             <MudButton Variant="Variant.Outlined"
-                       Color="Color.Error"
-                       StartIcon="@(_record.IsAvailable ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
-                       OnClick="HandleToggleAvailabilityAsync"
-                       Disabled="_saving"
-                       data-testid="toggle-availability-button">
-                @(_record.IsAvailable ? "Deactivate" : "Activate")
+                       Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.Undo"
+                       OnClick="HandleUndo"
+                       Disabled="@(!_session.IsDirty)"
+                       data-testid="undo-button">
+                Undo
             </MudButton>
-        }
-    </MudStack>
+            @if (!IsNew)
+            {
+                <MudSpacer />
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           StartIcon="@(_record.IsAvailable ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                           OnClick="HandleToggleAvailabilityAsync"
+                           Disabled="@_saving"
+                           data-testid="toggle-availability-button">
+                    @(_record.IsAvailable ? "Deactivate" : "Activate")
+                </MudButton>
+            }
+        </CustomActions>
+    </DirtyAwareActionRow>
 
     @* ── Form ─────────────────────────────────────────────────────── *@
     <MudForm @ref="_form" Model="_record">
@@ -50,13 +50,13 @@ else if (_record is not null)
             @* Column 1 *@
             <MudItem xs="12" md="6">
                 <MudTextField T="string"
-                              @bind-Value="_record.Name"
+                              Value="_record.Name"
+                              ValueChanged="@((string v) => { _record.Name = v; _session.NotifyChanged(); })"
                               Label="Name"
                               Required="true"
                               RequiredError="Product name is required"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-name" />
             </MudItem>
 
@@ -65,7 +65,7 @@ else if (_record is not null)
                     <ChildContent Context="restriction">
                         <MudNumericField T="decimal"
                                          Value="_record.UnitPrice"
-                                         ValueChanged="@((decimal v) => { _record.UnitPrice = v; OnFieldChanged(string.Empty); })"
+                                         ValueChanged="@((decimal v) => { _record.UnitPrice = v; _session.NotifyChanged(); })"
                                          Label="Unit Price"
                                          Min="0.01m"
                                          Max="9999.99m"
@@ -84,7 +84,7 @@ else if (_record is not null)
             <MudItem xs="12" md="6">
                 <MudSelect T="RoastLevel"
                            Value="_record.RoastLevel"
-                           ValueChanged="@((RoastLevel v) => { _record.RoastLevel = v; OnFieldChanged(string.Empty); })"
+                           ValueChanged="@((RoastLevel v) => { _record.RoastLevel = v; _session.NotifyChanged(); })"
                            Label="Roast Level"
                            Variant="Variant.Outlined"
                            data-testid="field-roast-level">
@@ -98,7 +98,7 @@ else if (_record is not null)
             <MudItem xs="12" md="6">
                 <MudSelect T="CaffeineContent"
                            Value="_record.CaffeineContent"
-                           ValueChanged="@((CaffeineContent v) => { _record.CaffeineContent = v; OnFieldChanged(string.Empty); })"
+                           ValueChanged="@((CaffeineContent v) => { _record.CaffeineContent = v; _session.NotifyChanged(); })"
                            Label="Caffeine Content"
                            Variant="Variant.Outlined"
                            data-testid="field-caffeine-content">
@@ -112,7 +112,7 @@ else if (_record is not null)
             <MudItem xs="12" md="6">
                 <MudSelect T="GrindType"
                            Value="_record.GrindType"
-                           ValueChanged="@((GrindType v) => { _record.GrindType = v; OnFieldChanged(string.Empty); })"
+                           ValueChanged="@((GrindType v) => { _record.GrindType = v; _session.NotifyChanged(); })"
                            Label="Grind Type"
                            Variant="Variant.Outlined"
                            data-testid="field-grind-type">
@@ -126,7 +126,7 @@ else if (_record is not null)
             <MudItem xs="12" md="6">
                 <MudCheckBox T="bool"
                              Value="_record.IsAvailable"
-                             ValueChanged="@((bool v) => { _record.IsAvailable = v; OnFieldChanged(string.Empty); })"
+                             ValueChanged="@((bool v) => { _record.IsAvailable = v; _session.NotifyChanged(); })"
                              Label="Available"
                              Color="Color.Primary"
                              data-testid="field-is-available" />
@@ -135,22 +135,22 @@ else if (_record is not null)
             @* Full-width fields *@
             <MudItem xs="12">
                 <MudTextField T="string"
-                              @bind-Value="_record.Description"
+                              Value="_record.Description"
+                              ValueChanged="@((string v) => { _record.Description = v; _session.NotifyChanged(); })"
                               Label="Description"
                               Lines="3"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-description" />
             </MudItem>
 
             <MudItem xs="12" md="6">
                 <MudTextField T="string"
-                              @bind-Value="_record.ImageUrl"
+                              Value="_record.ImageUrl"
+                              ValueChanged="@((string v) => { _record.ImageUrl = v; _session.NotifyChanged(); })"
                               Label="Image URL"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-image-url" />
             </MudItem>
         </MudGrid>
@@ -194,10 +194,9 @@ else
 
     private MudForm? _form;
     private ProductDto? _record;
-    private ProductDto? _snapshot;
+    private EditSession<ProductDto>? _session;
     private bool _loading = true;
     private bool _saving;
-    private bool _isDirty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -209,13 +208,16 @@ else
                 CreatedDate = DateTime.UtcNow,
                 ModifiedDate = DateTime.UtcNow
             };
-            TakeSnapshot();
+            _session = new EditSession<ProductDto>(_record);
             _loading = false;
         }
         else if (ProductId is not null)
         {
             _record = await ProductClient.GetByIdAsync(ProductId.Value);
-            TakeSnapshot();
+            if (_record is not null)
+            {
+                _session = new EditSession<ProductDto>(_record);
+            }
             _loading = false;
         }
         else
@@ -223,8 +225,6 @@ else
             _loading = false;
         }
     }
-
-    private void OnFieldChanged(string _) => UpdateDirtyState();
 
     private Task HandleSaveAsync() => TrackAction("save", async () =>
     {
@@ -234,7 +234,7 @@ else
             if (!_form.IsValid) return;
         }
 
-        if (_record is null) return;
+        if (_record is null || _session is null) return;
 
         _saving = true;
         try
@@ -244,7 +244,7 @@ else
                 var created = await ProductClient.CreateAsync(_record);
                 if (created is not null)
                 {
-                    _record = created;
+                    _session.CommitFrom(created);
                     IsNew = false;
                 }
             }
@@ -252,11 +252,15 @@ else
             {
                 var updated = await ProductClient.UpdateAsync(_record.Id, _record);
                 if (updated is not null)
-                    _record = updated;
+                {
+                    _session.CommitFrom(updated);
+                }
+                else
+                {
+                    _session.Commit();
+                }
             }
 
-            TakeSnapshot();
-            UpdateDirtyState();
             await OnSaved.InvokeAsync();
         }
         finally
@@ -267,30 +271,19 @@ else
 
     private void HandleUndo()
     {
-        if (_record is null || _snapshot is null) return;
-
-        _record.Name = _snapshot.Name;
-        _record.RoastLevel = _snapshot.RoastLevel;
-        _record.CaffeineContent = _snapshot.CaffeineContent;
-        _record.GrindType = _snapshot.GrindType;
-        _record.UnitPrice = _snapshot.UnitPrice;
-        _record.IsAvailable = _snapshot.IsAvailable;
-        _record.Description = _snapshot.Description;
-        _record.ImageUrl = _snapshot.ImageUrl;
-        UpdateDirtyState();
+        _session?.Undo();
     }
 
     private Task HandleToggleAvailabilityAsync() => TrackAction("toggle-availability", async () =>
     {
-        if (_record is null) return;
+        if (_record is null || _session is null) return;
 
         _saving = true;
         try
         {
             await ProductClient.ToggleAvailabilityAsync(_record.Id);
             _record.IsAvailable = !_record.IsAvailable;
-            TakeSnapshot();
-            UpdateDirtyState();
+            _session.Commit();
             await OnDeleted.InvokeAsync();
         }
         finally
@@ -298,42 +291,4 @@ else
             _saving = false;
         }
     });
-
-    private void TakeSnapshot()
-    {
-        if (_record is null) return;
-
-        _snapshot = new ProductDto
-        {
-            Id = _record.Id,
-            Name = _record.Name,
-            RoastLevel = _record.RoastLevel,
-            CaffeineContent = _record.CaffeineContent,
-            GrindType = _record.GrindType,
-            UnitPrice = _record.UnitPrice,
-            IsAvailable = _record.IsAvailable,
-            Description = _record.Description,
-            ImageUrl = _record.ImageUrl,
-            CreatedDate = _record.CreatedDate,
-            ModifiedDate = _record.ModifiedDate
-        };
-    }
-
-    private void UpdateDirtyState()
-    {
-        if (_record is null || _snapshot is null)
-        {
-            _isDirty = false;
-            return;
-        }
-
-        _isDirty = _record.Name != _snapshot.Name
-            || _record.RoastLevel != _snapshot.RoastLevel
-            || _record.CaffeineContent != _snapshot.CaffeineContent
-            || _record.GrindType != _snapshot.GrindType
-            || _record.UnitPrice != _snapshot.UnitPrice
-            || _record.IsAvailable != _snapshot.IsAvailable
-            || _record.Description != _snapshot.Description
-            || _record.ImageUrl != _snapshot.ImageUrl;
-    }
 }

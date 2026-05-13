@@ -1,0 +1,128 @@
+{
+  "sessionSetName": "composable-crud-helpers",
+  "createdDate": "2026-05-13T16:58:04.269790-04:00",
+  "totalSessions": 6,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-05-13T18:31:13.070513-04:00",
+      "description": "Authored ai-assignment.md via route(task_type=analysis)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1456,
+          "outputTokens": 3146,
+          "costUsd": 0.033280000000000004
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/edit-session",
+      "dateTime": "2026-05-13T18:34:59.613422-04:00",
+      "description": "Authored EditSession<T> helper (JSON snapshot + reflection-based Undo) in src/Libs/Dabbler.Components/MasterDetail/EditSession.cs",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/action-row",
+      "dateTime": "2026-05-13T18:34:59.616472-04:00",
+      "description": "Authored DirtyAwareActionRow Blazor component with CustomActions slot in src/Libs/Dabbler.Components/MasterDetail/DirtyAwareActionRow.razor (plus ActionRowSlot enum)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/products-migration",
+      "dateTime": "2026-05-13T18:34:59.617093-04:00",
+      "description": "Migrated ProductDetail.razor to use EditSession<ProductDto> + DirtyAwareActionRow with Undo + Toggle Availability in CustomActions slot; data-testids preserved",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-after-migration",
+      "dateTime": "2026-05-13T18:34:59.617093-04:00",
+      "description": "dotnet build of AcmeCoffeeOnline.Web after migration: 0 errors, 34 pre-existing warnings (not introduced)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/bunit-tests",
+      "dateTime": "2026-05-13T18:37:49.736394-04:00",
+      "description": "Routed test-generation for EditSession<T> + DirtyAwareActionRow (xUnit and bUnit).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 2541,
+          "outputTokens": 4313,
+          "costUsd": 0.04630625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-05-13T18:48:12.406733-04:00",
+      "description": "Cross-provider session-verification routed to gpt-5-4. Result saved to session-reviews/session-001.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3211,
+          "outputTokens": 7947,
+          "costUsd": 0.1272325
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification-round-2",
+      "dateTime": "2026-05-13T18:51:29.548459-04:00",
+      "description": "Round 2 session-verification routed to gpt-5-4 with reshaped context. Result saved to session-reviews/session-002.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3911,
+          "outputTokens": 1010,
+          "costUsd": 0.024927500000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/next-orch-recommendation",
+      "dateTime": "2026-05-13T18:53:05.550768-04:00",
+      "description": "Routed next-orchestrator recommendation for Session 2.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 871,
+          "outputTokens": 68,
+          "costUsd": 0.0017687500000000001
+        }
+      ]
+    }
+  ]
+}

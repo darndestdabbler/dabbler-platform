@@ -1,6 +1,6 @@
 # Configurable Master-Details Composite Spec
 
-> **Status:** **DRAFT — awaiting human review before kickoff.**
+> **Status:** Approved — kicked off 2026-05-13 (Session 1 in progress).
 > **Purpose:** Build `ConfigurableMasterDetails<TEntity>`, a higher-level
 > composite that wraps `MasterDetailExpansionShell<TRow,TEntity,TLink>` and
 > drives the entire CRUD surface (header, filter, grid, details action row)
