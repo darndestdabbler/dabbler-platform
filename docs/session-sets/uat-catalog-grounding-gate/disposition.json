@@ -1,31 +1,32 @@
 {
   "sessionSet": "uat-catalog-grounding-gate",
-  "session": 1,
+  "session": 2,
   "status": "complete",
   "verificationVerdict": "VERIFIED",
   "progressKeys": {
-    "session-1/read-planning": "complete",
-    "session-1/implement-classifier": "complete",
-    "session-1/wire-into-runner": "complete",
-    "session-1/prove-catches-cheating": "complete",
-    "session-1/unit-test": "complete",
-    "session-1/verification": "complete",
-    "session-1/commit-push-notify": "complete"
+    "session-2/read-planning": "complete",
+    "session-2/catalog-lookup": "complete",
+    "session-2/update-generation-instructions": "complete",
+    "session-2/reauthor-2abc": "complete",
+    "session-2/playwright-tests": "complete",
+    "session-2/dotnet-test": "complete",
+    "session-2/w2-run": "complete",
+    "session-2/project-guidance": "complete",
+    "session-2/verification": "complete",
+    "session-2/commit-push-notify": "complete",
+    "session-2/reorganization": "complete"
   },
   "deliverables": {
-    "catalogGroundingGate": "uat_runner/runner.py: added _LABEL_PATTERNS, CatalogGroundingViolation dataclass, _load_catalog_index(), _check_catalog_grounding(), _format_grounding_violations(). Gate fires before W0, cannot be bypassed by suppressions. Two-tier: known route + absent label = CATALOG_GROUNDED_VIOLATION (hard); unknown route = CATALOG_STALE (silently skipped). Telemetry line emitted to stderr when routes are skipped so blind spots are visible.",
-    "smokeTests": "uat_runner/test_cases/catalog_grounding_gate_tests.py: 9 tests covering correct label, wrong tab name, uncrawled route, case-insensitive match, fake CLICK LINK, wrong button caption, correct button caption, multiple items, and real broken checklist. All 9 pass.",
-    "proofItWorks": "W2 runner against unified-master-details-composite checklist: 12 CATALOG_GROUNDED_VIOLATION errors on /admin/security (ROLES, first role row in the grid, Add, Role Name) and /orders. admin-users-cross-links checklist: clean pass, no violations.",
+    "scenario2Rewritten": "Re-authored 2a/2b/2c with catalog-grounded DSL labels. 2a remains IsJudgmentItem=true (no grid catalog entry for CLICK ROW); 2b retargeted to actual ADD USER-TYPE ROLE button + dialog; 2c retargeted from non-existent Role Name input to Backoffice User display alias with persistence-across-reload check.",
+    "scenario4bToggleConsolidated": "Four separate 4b-toggle judgment items collapsed into one manual-UAT item with comprehensive prose verifications. The original DSL referenced dialog-internal labels not in the catalog and would have failed the gate.",
+    "playwrightTests": "tests/AcmeCoffeeOnline.Playwright/RoleMasterDetailsRegressionTests.cs: 3 [Fact] tests using verified data-testids (role-row-BackofficeUser, role-master-add-button, add-role-dialog-*, role-row-BackofficeUser-alias). 3/3 pass green against Docker stack (15s total).",
+    "projectGuidanceUpdate": "Added CATALOG_GROUNDED_VIOLATION policy + uat-plan-generation catalog-grounding mandate to docs/planning/project-guidance.md under UAT Runner (W2).",
+    "changeLog": "docs/session-sets/uat-catalog-grounding-gate/change-log.md — set-level summary.",
     "buildResult": "PASS (0 errors)",
-    "verifierFindingsFixed": "GPT-5.4 recommended adding telemetry for skipped routes to avoid silent blind spots — implemented: stderr warning listing skipped route count and names."
+    "testResult": "PASS: 3/3 RoleMasterDetailsRegressionTests. W2 gate clean on the fixed unified-master-details-composite checklist (2 labels checked on 17 catalog routes; 5 routes skipped CATALOG_STALE).",
+    "verifierFindingsFixed": "GPT-5.4 verified VERIFIED with stylistic-only caveats. Noted that BackofficeUser is correctly the immutable canonical role name, not the editable display alias."
   },
-  "openIssues": [],
   "nextSessionSet": null,
-  "next_orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "low",
-    "reason": "Session 2 is procedural: catalog lookup, checklist re-authoring, Playwright test writing, W2 validation. Same orchestrator and effort level as Session 1."
-  }
+  "next_orchestrator": null,
+  "openIssues": []
 }

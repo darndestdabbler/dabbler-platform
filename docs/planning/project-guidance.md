@@ -820,11 +820,34 @@ Runs** in `lessons-learned.md`.
 Exit codes:
 
 - `0` = Pass OR auto-recovered CATALOG_STALE failures only.
-- `1` = Compilation failed OR human-review issues filed.
+- `1` = Compilation failed OR human-review issues filed OR
+  CATALOG_GROUNDED_VIOLATION (see below).
 
 If the runner exits 1, resolve filed issues before build/test and human
 notification. See `docs/ai-led-session-workflow.md` → **Sub-step: UAT
 Runner** for the remediation procedure for each class.
+
+**CATALOG_GROUNDED_VIOLATION is not suppressible.** If the checklist
+references a label on a route that IS in `docs/component-catalog/index.json`
+and that label is NOT in the catalog for that route × role, the W2 runner
+aborts before W0 with a `CATALOG_GROUNDED_VIOLATION` error. This error
+class deliberately cannot be added to `tools/uat-suppressions.json` — the
+suppression file is only honored for routes the catalog does not yet
+cover (CATALOG_STALE). The rationale: a checklist author who has the
+catalog available has no excuse to invent labels. The gate prevents AI
+orchestrators from authoring checklist steps that compile to Playwright
+code that finds nothing.
+
+**Catalog grounding mandate for `uat-plan-generation` callers.** Any
+orchestrator preparing the prompt for `route(task_type="uat-plan-generation", ...)`
+must include `docs/component-catalog/index.json` (or a filtered slice for
+the relevant routes) in the prompt context and instruct the model to use
+only labels that appear verbatim as `userVisibleLabel` in catalog entries
+for the active route × role. Inventing labels is a defect. If a needed
+label is missing from the catalog, the correct action is to re-crawl the
+catalog or mark the affected item `IsJudgmentItem: true` — not to
+fabricate a label that the W0 compiler will faithfully turn into broken
+Playwright code.
 
 ---
 

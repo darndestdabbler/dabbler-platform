@@ -1,7 +1,7 @@
 {
   "ProjectName": "AcmeCoffeeOnline - unified-master-details-composite",
   "ReleaseLabel": "unified-master-details-composite Session 5",
-  "DocumentDate": "2026-05-12",
+  "DocumentDate": "5/12/2026, 7:31:51 PM",
   "RequiresAppStateReset": false,
   "Review": [
     {
@@ -9,19 +9,49 @@
       "Subarea": "Page Layout",
       "ItemLabel": "1a: Add-Only page renders full-width with no expansion panel chrome",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/customers/batch-entry\"", "Verifications": [
-          { "Text": "Page renders the details form full-width; no collapse/expand panel header or body chrome is present anywhere on the page" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/customers/batch-entry\"",
+          "Verifications": [
+            {
+              "Text": "Page renders the details form full-width; no collapse/expand panel header or body chrome is present anywhere on the page"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "CustomerBatchEntryWorkflowTests.BatchEntry_PageLoads_NoExpansionChromeAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -29,25 +59,75 @@
       "Subarea": "Save Behavior",
       "ItemLabel": "1b: Save clears form and increments session counter from 0 to 1",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/customers/batch-entry\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK INPUT with label \"First Name\" and enter \"Batch\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK INPUT with label \"Last Name\" and enter \"Test\"", "Verifications": [] },
-        { "StepNumber": 10, "Action": "CLICK INPUT with label \"Email\" and enter \"batch-1b-uat@test.local\"", "Verifications": [] },
-        { "StepNumber": 11, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [
-          { "Text": "Snackbar displays 'Customer added.'" },
-          { "Text": "Session summary reads 'Records added this session: 1'" },
-          { "Text": "Email and First Name input fields are cleared to empty" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/customers/batch-entry\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK INPUT with label \"First Name\" and enter \"Batch\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT with label \"Last Name\" and enter \"Test\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK INPUT with label \"Email\" and enter \"batch-1b-uat@test.local\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK BUTTON with caption \"Save\"",
+          "Verifications": [
+            {
+              "Text": "Snackbar displays 'Customer added.'"
+            },
+            {
+              "Text": "Session summary reads 'Records added this session: 1'"
+            },
+            {
+              "Text": "Email and First Name input fields are cleared to empty"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "CustomerBatchEntryWorkflowTests.BatchEntry_Save_IncrementsCounterAndClearsFormAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -55,86 +135,237 @@
       "Subarea": "Database Persistence",
       "ItemLabel": "1c: Two successive saves produce counter=2 and both DB records persisted",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/customers/batch-entry\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK INPUT with label \"First Name\" and enter \"First\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK INPUT with label \"Last Name\" and enter \"Customer\"", "Verifications": [] },
-        { "StepNumber": 10, "Action": "CLICK INPUT with label \"Email\" and enter \"batch-1c-one-uat@test.local\"", "Verifications": [] },
-        { "StepNumber": 11, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [
-          { "Text": "Session summary reads 'Records added this session: 1'" }
-        ]},
-        { "StepNumber": 12, "Action": "CLICK INPUT with label \"First Name\" and enter \"Second\"", "Verifications": [] },
-        { "StepNumber": 13, "Action": "CLICK INPUT with label \"Last Name\" and enter \"Customer\"", "Verifications": [] },
-        { "StepNumber": 14, "Action": "CLICK INPUT with label \"Email\" and enter \"batch-1c-two-uat@test.local\"", "Verifications": [] },
-        { "StepNumber": 15, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [
-          { "Text": "Session summary reads 'Records added this session: 2'" },
-          { "Text": "Navigate to the customer list and confirm both emails appear" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/customers/batch-entry\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK INPUT with label \"First Name\" and enter \"First\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT with label \"Last Name\" and enter \"Customer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK INPUT with label \"Email\" and enter \"batch-1c-one-uat@test.local\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK BUTTON with caption \"Save\"",
+          "Verifications": [
+            {
+              "Text": "Session summary reads 'Records added this session: 1'"
+            }
+          ]
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK INPUT with label \"First Name\" and enter \"Second\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK INPUT with label \"Last Name\" and enter \"Customer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 14,
+          "Action": "CLICK INPUT with label \"Email\" and enter \"batch-1c-two-uat@test.local\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 15,
+          "Action": "CLICK BUTTON with caption \"Save\"",
+          "Verifications": [
+            {
+              "Text": "Session summary reads 'Records added this session: 2'"
+            },
+            {
+              "Text": "Navigate to the customer list and confirm both emails appear"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "CustomerBatchEntryWorkflowTests.BatchEntry_TwoRecords_BothPersistedInDbAsync",
+      "IsJudgmentItem": false,
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 2: Role Master-Details Regression",
+      "Subarea": "Expansion Panel Behavior",
+      "ItemLabel": "2a: Selecting the Backoffice User role row collapses the expansion panel",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"",
+          "Verifications": [
+            {
+              "Text": "ROLE MASTER DETAILS tab is the default active tab; the Roles grid is visible with all baked-in and user-type roles listed"
+            },
+            {
+              "Text": "MANUAL: click on the Backoffice User row in the Roles grid (click on the Description cell or the row outside any input/button), then verify the expansion panel collapses to a single-line summary reading 'Role: BackofficeUser'. The Playwright test RoleMasterDetailsRegressionTests.RoleMasterDetails_SelectRow_CollapsesShellAsync verifies this programmatically via the role-row-BackofficeUser data-testid; this manual step is the human spot-check that the visible behavior matches."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "RoleMasterDetailsRegressionTests.RoleMasterDetails_SelectRow_CollapsesShellAsync",
+      "IsJudgmentItem": true,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 2: Role Master-Details Regression",
+      "Subarea": "Add User-Type Role",
+      "ItemLabel": "2b: Clicking 'ADD USER-TYPE ROLE' opens the Add User-Type Role dialog",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK BUTTON with caption \"ADD USER-TYPE ROLE\"",
+          "Verifications": [
+            {
+              "Text": "Add User-Type Role dialog opens with empty Canonical Name, Display Alias, and Description input fields and Cancel + Create buttons"
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "RoleMasterDetailsRegressionTests.RoleMasterDetails_AddUserTypeRoleButton_OpensDialogAsync",
       "IsJudgmentItem": false,
       "Passes": false,
       "Feedback": ""
     },
     {
       "FunctionalArea": "Scenario 2: Role Master-Details Regression",
-      "Subarea": "Expansion Panel Behavior",
-      "ItemLabel": "2a: Selecting a role row collapses the expansion panel; collapsed summary visible",
+      "Subarea": "Display Alias Persistence",
+      "ItemLabel": "2c: Editing the BackofficeUser display alias persists across page reload",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK TAB with name \"ROLES\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK LINK with text \"first role row in the grid\"", "Verifications": [
-          { "Text": "Expansion panel collapses; a collapsed summary header showing the selected role name becomes visible" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK INPUT with label \"Backoffice User\" and enter \"UAT-Edited-Alias\"",
+          "Verifications": [
+            {
+              "Text": "Snackbar confirms 'Display alias updated.'"
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"",
+          "Verifications": [
+            {
+              "Text": "After page reload, the BackofficeUser row's display alias shows 'UAT-Edited-Alias' (persistence confirmed)"
+            }
+          ]
+        }
       ],
-      "E2ETestReference": "",
-      "IsJudgmentItem": true,
-      "Passes": false,
-      "Feedback": ""
-    },
-    {
-      "FunctionalArea": "Scenario 2: Role Master-Details Regression",
-      "Subarea": "Expansion Panel Behavior",
-      "ItemLabel": "2b: Clicking Add expands the expansion panel",
-      "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK TAB with name \"ROLES\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Add\"", "Verifications": [
-          { "Text": "Expansion panel expands to reveal an empty detail form ready for input" }
-        ]}
-      ],
-      "E2ETestReference": "",
-      "IsJudgmentItem": true,
-      "Passes": false,
-      "Feedback": ""
-    },
-    {
-      "FunctionalArea": "Scenario 2: Role Master-Details Regression",
-      "Subarea": "Save Behavior",
-      "ItemLabel": "2c: Editing and saving a role persists the change (regression check)",
-      "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/admin/security\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK TAB with name \"ROLES\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK LINK with text \"first role row in the grid\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "CLICK INPUT with label \"Role Name\" and enter \"UAT-Edited-Role\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [
-          { "Text": "Snackbar confirms the save succeeded" },
-          { "Text": "After refreshing the page, the edited role name persists in the grid" }
-        ]}
-      ],
-      "E2ETestReference": "",
-      "IsJudgmentItem": true,
+      "E2ETestReference": "RoleMasterDetailsRegressionTests.RoleMasterDetails_EditDisplayAlias_PersistsAsync",
+      "IsJudgmentItem": false,
       "Passes": false,
       "Feedback": ""
     },
@@ -143,47 +374,138 @@
       "Subarea": "Row-wise Use",
       "ItemLabel": "3a: Row-wise Use links existing customer; parent form populates; dialog closes",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK BUTTON with caption \"Pick customer\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK BUTTON with caption \"Use\"", "Verifications": [
-          { "Text": "Dialog closes; parent order form customer field shows the selected customer's name" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"Pick customer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with caption \"Use\"",
+          "Verifications": [
+            {
+              "Text": "Dialog closes; parent order form customer field shows the selected customer's name"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderCustomerPickerWorkflowTests.Picker_PickExisting_PopulatesParentFieldAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "I think that there is a missing step between step #8 and #9.  Shouldn't I select a customer?"
     },
     {
       "FunctionalArea": "Scenario 3: Pick-or-Add Customer",
       "Subarea": "Add New Customer",
       "ItemLabel": "3b: Add path creates DB record, closes dialog, and sets parent FK",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK BUTTON with caption \"Pick customer\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK INPUT with label \"First Name\" and enter \"UAT\"", "Verifications": [] },
-        { "StepNumber": 10, "Action": "CLICK INPUT with label \"Last Name\" and enter \"NewCustomer\"", "Verifications": [] },
-        { "StepNumber": 11, "Action": "CLICK INPUT with label \"Email\" and enter \"uat-3b-new@test.local\"", "Verifications": [] },
-        { "StepNumber": 12, "Action": "CLICK BUTTON with caption \"Save and Use\"", "Verifications": [
-          { "Text": "Dialog closes; parent form customer field shows 'UAT NewCustomer'" },
-          { "Text": "New customer record exists in the database", "VerificationMethod": "api" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"Pick customer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT with label \"First Name\" and enter \"UAT\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK INPUT with label \"Last Name\" and enter \"NewCustomer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK INPUT with label \"Email\" and enter \"uat-3b-new@test.local\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK BUTTON with caption \"Save and Use\"",
+          "Verifications": [
+            {
+              "Text": "Dialog closes; parent form customer field shows 'UAT NewCustomer'"
+            },
+            {
+              "Text": "New customer record exists in the database",
+              "VerificationMethod": "api"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderCustomerPickerWorkflowTests.Picker_AddNew_SavesAndPopulatesParentFieldAsync",
       "IsJudgmentItem": false,
-      "Passes": false,
+      "Passes": true,
       "Feedback": ""
     },
     {
@@ -191,99 +513,247 @@
       "Subarea": "Dirty State Label",
       "ItemLabel": "3c: Select existing row then edit a field changes primary button from 'Use' to 'Save and Use'",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK BUTTON with caption \"Pick customer\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK LINK with text \"first customer row cell\"", "Verifications": [
-          { "Text": "Primary button text reads 'Use'" }
-        ]},
-        { "StepNumber": 10, "Action": "CLICK INPUT with label \"First Name\" and enter \"Dirty\"", "Verifications": [
-          { "Text": "Primary button text changes to 'Save and Use'" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"Pick customer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK LINK with text \"first customer row cell\"",
+          "Verifications": [
+            {
+              "Text": "Primary button text reads 'Use'"
+            }
+          ]
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK INPUT with label \"First Name\" and enter \"Dirty\"",
+          "Verifications": [
+            {
+              "Text": "Primary button text changes to 'Save and Use'"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderCustomerPickerWorkflowTests.Picker_DirtyState_FlipsPrimaryButtonLabelAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "I don't see a link with \"first customer row cell\""
     },
     {
       "FunctionalArea": "Scenario 3: Inspect-to-Decide",
       "Subarea": "Initial Read-Only State",
       "ItemLabel": "3d: Inspect dialog shows read-only target fields and primary button labeled 'Use'",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK BUTTON with caption \"Pick customer\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK BUTTON with caption \"Use\"", "Verifications": [] },
-        { "StepNumber": 10, "Action": "CLICK BUTTON with caption \"Inspect\"", "Verifications": [] },
-        { "StepNumber": 11, "Action": "CLICK LINK with text \"first customer row\"", "Verifications": [
-          { "Text": "'Edit record' toggle button is visible in the dialog" },
-          { "Text": "Target fields (e.g., First Name) are read-only and cannot be edited" },
-          { "Text": "Primary button text reads 'Use'" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"Pick customer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with caption \"Use\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK BUTTON with caption \"Inspect\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK LINK with text \"first customer row\"",
+          "Verifications": [
+            {
+              "Text": "'Edit record' toggle button is visible in the dialog"
+            },
+            {
+              "Text": "Target fields (e.g., First Name) are read-only and cannot be edited"
+            },
+            {
+              "Text": "Primary button text reads 'Use'"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "CustomerPickerInspectToDecideTests.InspectToDecide_ToggleFlow_MakesFieldsEditableAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "I'm not sure what to do with #8."
     },
     {
       "FunctionalArea": "Scenario 3: Inspect-to-Decide",
       "Subarea": "Toggle Without Edit",
       "ItemLabel": "3e: Clicking 'Edit record' toggle makes fields editable but label stays 'Use'",
       "Steps": [
-        { "StepNumber": 1, "Action": "CLICK BUTTON with caption \"Edit record\"", "Verifications": [
-          { "Text": "Target fields (e.g., First Name) become editable input fields" },
-          { "Text": "Primary button text still reads 'Use' (toggle alone does not dirty the form)" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "CLICK BUTTON with caption \"Edit record\"",
+          "Verifications": [
+            {
+              "Text": "Target fields (e.g., First Name) become editable input fields"
+            },
+            {
+              "Text": "Primary button text still reads 'Use' (toggle alone does not dirty the form)"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "CustomerPickerInspectToDecideTests.InspectToDecide_ToggleFlow_MakesFieldsEditableAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "?"
     },
     {
       "FunctionalArea": "Scenario 3: Inspect-to-Decide",
       "Subarea": "Dirty State Label",
       "ItemLabel": "3f: Editing a field after enabling inspect-edit mode flips label to 'Save and Use'",
       "Steps": [
-        { "StepNumber": 1, "Action": "CLICK INPUT with label \"First Name\" and enter \"Edited\"", "Verifications": [
-          { "Text": "Primary button text changes from 'Use' to 'Save and Use'" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "CLICK INPUT with label \"First Name\" and enter \"Edited\"",
+          "Verifications": [
+            {
+              "Text": "Primary button text changes from 'Use' to 'Save and Use'"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "CustomerPickerInspectToDecideTests.InspectToDecide_ToggleFlow_MakesFieldsEditableAsync",
       "IsJudgmentItem": false,
       "Passes": false,
-      "Feedback": ""
+      "Feedback": "?"
     },
     {
       "FunctionalArea": "Scenario 4a: Both Cards Editable",
       "Subarea": "Page Layout",
       "ItemLabel": "4a-layout: Order Item Tuner page shows both target and link data cards with no expansion chrome",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "VERIFY TEXT contains \"Order item tuner\"", "Verifications": [
-          { "Text": "Target entity card is visible on the page" },
-          { "Text": "Link Data card is visible above or adjacent to the target card" },
-          { "Text": "Save and Cancel buttons are visible" },
-          { "Text": "No collapse/expand panel header or body chrome is present (ShowGrid=false)" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "VERIFY TEXT contains \"Order item tuner\"",
+          "Verifications": [
+            {
+              "Text": "Target entity card is visible on the page"
+            },
+            {
+              "Text": "Link Data card is visible above or adjacent to the target card"
+            },
+            {
+              "Text": "Save and Cancel buttons are visible"
+            },
+            {
+              "Text": "No collapse/expand panel header or body chrome is present (ShowGrid=false)"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderItemTunerPageWorkflowTests.TunerPage_Loads_CorrectLayoutAsync",
       "IsJudgmentItem": false,
@@ -295,17 +765,55 @@
       "Subarea": "Dirty State Save",
       "ItemLabel": "4a-link-only: Edit Quantity (link data) only then save shows 'Saved line details (demo mode).'",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK INPUT with label \"Quantity\" and enter \"5\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [
-          { "Text": "Snackbar contains 'Saved line details (demo mode).'" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK INPUT with label \"Quantity\" and enter \"5\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with caption \"Save\"",
+          "Verifications": [
+            {
+              "Text": "Snackbar contains 'Saved line details (demo mode).'"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderItemTunerPageWorkflowTests.TunerPage_DirtyState_FlipsSaveMessageAsync",
       "IsJudgmentItem": false,
@@ -317,11 +825,25 @@
       "Subarea": "Dirty State Save",
       "ItemLabel": "4a-target-only: Edit Product Name (target) only then save shows 'Saved product (demo mode).'",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Product Name\" and enter \"New Product Name\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [
-          { "Text": "Snackbar contains 'Saved product (demo mode).'" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Product Name\" and enter \"New Product Name\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Save\"",
+          "Verifications": [
+            {
+              "Text": "Snackbar contains 'Saved product (demo mode).'"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderItemTunerPageWorkflowTests.TunerPage_DirtyState_FlipsSaveMessageAsync",
       "IsJudgmentItem": false,
@@ -333,12 +855,30 @@
       "Subarea": "Dirty State Save",
       "ItemLabel": "4a-both: Edit both target and link data then save shows 'Saved product + line details (demo mode).'",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Product Name\" and enter \"Another Product Name\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK INPUT with label \"Discount\" and enter \"25\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [
-          { "Text": "Snackbar contains 'Saved product + line details (demo mode).'" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/order-item-tuner\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Product Name\" and enter \"Another Product Name\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK INPUT with label \"Discount\" and enter \"25\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "CLICK BUTTON with caption \"Save\"",
+          "Verifications": [
+            {
+              "Text": "Snackbar contains 'Saved product + line details (demo mode).'"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderItemTunerPageWorkflowTests.TunerPage_DirtyState_FlipsSaveMessageAsync",
       "IsJudgmentItem": false,
@@ -350,21 +890,73 @@
       "Subarea": "Dialog Layout",
       "ItemLabel": "4b-locked-layout: Product line picker shows disabled target fields and no edit-toggle",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/login\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Send sign-in link\"", "Verifications": [] },
-        { "StepNumber": 4, "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"", "Verifications": [] },
-        { "StepNumber": 5, "Action": "CLICK LINK with text \"Open\"", "Verifications": [] },
-        { "StepNumber": 6, "Action": "CLICK BUTTON with caption \"Admin\"", "Verifications": [] },
-        { "StepNumber": 7, "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"", "Verifications": [] },
-        { "StepNumber": 8, "Action": "CLICK BUTTON with caption \"Pick customer\"", "Verifications": [] },
-        { "StepNumber": 9, "Action": "CLICK BUTTON with caption \"Use\"", "Verifications": [] },
-        { "StepNumber": 10, "Action": "CLICK BUTTON with caption \"Save\"", "Verifications": [] },
-        { "StepNumber": 11, "Action": "CLICK BUTTON with caption \"Add Product\"", "Verifications": [] },
-        { "StepNumber": 12, "Action": "CLICK BUTTON with caption \"Use\"", "Verifications": [
-          { "Text": "Product fields in the target card are disabled (cannot be edited)" },
-          { "Text": "No 'Edit record' toggle button is visible in the dialog" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/new\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"Pick customer\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK BUTTON with caption \"Use\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK BUTTON with caption \"Save\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK BUTTON with caption \"Add Product\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK BUTTON with caption \"Use\"",
+          "Verifications": [
+            {
+              "Text": "Product fields in the target card are disabled (cannot be edited)"
+            },
+            {
+              "Text": "No 'Edit record' toggle button is visible in the dialog"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderProductLinePickerWorkflowTests.AddProduct_PickFillAndSave_PersistsOrderItemAsync",
       "IsJudgmentItem": false,
@@ -376,12 +968,28 @@
       "Subarea": "Save Link Data",
       "ItemLabel": "4b-locked-save: Fill Quantity=2 and Discount=15.50, Save and Use closes dialog and updates items grid",
       "Steps": [
-        { "StepNumber": 1, "Action": "CLICK INPUT with label \"Quantity\" and enter \"2\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK INPUT with label \"Discount\" and enter \"15.50\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Save and Use\"", "Verifications": [
-          { "Text": "Dialog closes" },
-          { "Text": "Order items grid shows a new row with the selected product name and quantity 2" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "CLICK INPUT with label \"Quantity\" and enter \"2\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Discount\" and enter \"15.50\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Save and Use\"",
+          "Verifications": [
+            {
+              "Text": "Dialog closes"
+            },
+            {
+              "Text": "Order items grid shows a new row with the selected product name and quantity 2"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderProductLinePickerWorkflowTests.AddProduct_PickFillAndSave_PersistsOrderItemAsync",
       "IsJudgmentItem": false,
@@ -393,10 +1001,20 @@
       "Subarea": "Database Verification",
       "ItemLabel": "4b-locked-db: DB verification confirms join row has correct Quantity/Discount and product is unchanged",
       "Steps": [
-        { "StepNumber": 1, "Action": "VERIFY URL matches \"/orders/\"", "Verifications": [
-          { "Text": "API call to GET /api/orders/{id}: order has exactly one order item with Quantity=2 and Discount=15.50", "VerificationMethod": "api" },
-          { "Text": "The product record itself was not modified by the save operation", "VerificationMethod": "api" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "VERIFY URL matches \"/orders/\"",
+          "Verifications": [
+            {
+              "Text": "API call to GET /api/orders/{id}: order has exactly one order item with Quantity=2 and Discount=15.50",
+              "VerificationMethod": "api"
+            },
+            {
+              "Text": "The product record itself was not modified by the save operation",
+              "VerificationMethod": "api"
+            }
+          ]
+        }
       ],
       "E2ETestReference": "OrderProductLinePickerWorkflowTests.AddProduct_PickFillAndSave_PersistsOrderItemAsync",
       "IsJudgmentItem": false,
@@ -405,64 +1023,247 @@
     },
     {
       "FunctionalArea": "Scenario 4b: Toggle Variant",
-      "Subarea": "Dialog Layout",
-      "ItemLabel": "4b-toggle-layout: Inspect Line dialog shows read-only target fields and 'Edit record' toggle",
+      "Subarea": "End-to-End Manual Verification",
+      "ItemLabel": "4b-toggle: Inspect Line dialog read-only-with-toggle flow (no E2E coverage; full manual UAT)",
       "Steps": [
-        { "StepNumber": 1, "Action": "NAVIGATE TO \"http://localhost:5010/orders\"", "Verifications": [] },
-        { "StepNumber": 2, "Action": "CLICK LINK with text \"first order with items\"", "Verifications": [] },
-        { "StepNumber": 3, "Action": "CLICK BUTTON with caption \"Inspect line\"", "Verifications": [
-          { "Text": "Dialog opens; target product fields are displayed in read-only mode" },
-          { "Text": "'Edit record' toggle button is visible in the target card header" }
-        ]}
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders\"",
+          "Verifications": [
+            {
+              "Text": "MANUAL STEP A — Open an order that already has at least one line item (click an Orders grid row). The Items tab on the order detail page should show one or more rows."
+            },
+            {
+              "Text": "MANUAL STEP B — In the Items grid, click the 'Inspect line' icon-button on a row. The ProductLinePickerDialog opens with the product target card pre-populated and ALL target product fields rendered read-only (cannot type into them)."
+            },
+            {
+              "Text": "MANUAL STEP C — Verify the 'Edit record' toggle button is visible in the target card header (with an Edit icon)."
+            },
+            {
+              "Text": "MANUAL STEP D — Click the 'Edit record' toggle. Target fields transition from read-only to editable; toggle button text/icon flips to 'Lock record' (with Lock icon)."
+            },
+            {
+              "Text": "MANUAL STEP E — Edit the Product Name field to a new value. Primary button label changes from 'Use' to 'Save and Use'."
+            },
+            {
+              "Text": "MANUAL STEP F — Click 'Save and Use'. Dialog closes. Reopen the same line via 'Inspect line' and verify the new Product Name persisted (target was saved) and the order item join row is still associated with this product (link row preserved). VerificationMethod: ui (visual confirmation) + optional api (GET /api/orders/{id} shows updated product name)."
+            }
+          ]
+        }
       ],
       "E2ETestReference": "",
       "IsJudgmentItem": true,
+      "Passes": false,
+      "Feedback": "Consolidated 4b-toggle-layout/click/label/save into one manual UAT item. The original DSL steps referenced labels inside dialogs that are not in the component catalog (dialogs open after interaction; the crawler authenticates and crawls top-level pages only). This is a known-judgment item with no Playwright coverage; manual verification is the authoritative proof."
+    },
+    {
+      "FunctionalArea": "Scenario 1: Add-Only",
+      "Subarea": "Page Layout",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 1: Add-Only",
+      "Subarea": "Save Behavior",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 1: Add-Only",
+      "Subarea": "Database Persistence",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 2: Role Master-Details Regression",
+      "Subarea": "Expansion Panel Behavior",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 2: Role Master-Details Regression",
+      "Subarea": "Save Behavior",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 3: Pick-or-Add Customer",
+      "Subarea": "Row-wise Use",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 3: Pick-or-Add Customer",
+      "Subarea": "Add New Customer",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 3: Pick-or-Add Customer",
+      "Subarea": "Dirty State Label",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 3: Inspect-to-Decide",
+      "Subarea": "Initial Read-Only State",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 3: Inspect-to-Decide",
+      "Subarea": "Toggle Without Edit",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 3: Inspect-to-Decide",
+      "Subarea": "Dirty State Label",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 4a: Both Cards Editable",
+      "Subarea": "Page Layout",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 4a: Both Cards Editable",
+      "Subarea": "Dirty State Save",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 4b: Locked Target",
+      "Subarea": "Dialog Layout",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 4b: Locked Target",
+      "Subarea": "Save Link Data",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 4b: Locked Target",
+      "Subarea": "Database Verification",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Scenario 4b: Toggle Variant",
+      "Subarea": "Dialog Layout",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
       "Passes": false,
       "Feedback": ""
     },
     {
       "FunctionalArea": "Scenario 4b: Toggle Variant",
       "Subarea": "Toggle Behavior",
-      "ItemLabel": "4b-toggle-click: Clicking 'Edit record' toggle makes target fields editable",
-      "Steps": [
-        { "StepNumber": 1, "Action": "CLICK BUTTON with caption \"Edit record\"", "Verifications": [
-          { "Text": "Target product fields transition from read-only to editable input fields" }
-        ]}
-      ],
-      "E2ETestReference": "",
-      "IsJudgmentItem": true,
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
       "Passes": false,
       "Feedback": ""
     },
     {
       "FunctionalArea": "Scenario 4b: Toggle Variant",
       "Subarea": "Dirty State Label",
-      "ItemLabel": "4b-toggle-label: Editing a target field flips primary button label to 'Save and Use'",
-      "Steps": [
-        { "StepNumber": 1, "Action": "CLICK INPUT with label \"Product Name\" and enter \"Edited Product Name\"", "Verifications": [
-          { "Text": "Primary button label changes from 'Use' to 'Save and Use'" }
-        ]}
-      ],
-      "E2ETestReference": "",
-      "IsJudgmentItem": true,
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
       "Passes": false,
       "Feedback": ""
     },
     {
       "FunctionalArea": "Scenario 4b: Toggle Variant",
       "Subarea": "Database Persistence",
-      "ItemLabel": "4b-toggle-save: Save and Use persists both target entity and join row in DB",
-      "Steps": [
-        { "StepNumber": 1, "Action": "CLICK BUTTON with caption \"Save and Use\"", "Verifications": [
-          { "Text": "Dialog closes" },
-          { "Text": "Target product entity is updated in the database with the edited field value", "VerificationMethod": "api" },
-          { "Text": "Join row (order item) is still correctly associated with the updated product", "VerificationMethod": "api" }
-        ]}
-      ],
-      "E2ETestReference": "",
-      "IsJudgmentItem": true,
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
       "Passes": false,
       "Feedback": ""
     }
-  ]
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  }
 }
