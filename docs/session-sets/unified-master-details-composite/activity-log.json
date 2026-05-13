@@ -331,6 +331,127 @@
           "costUsd": 0.1769525
         }
       ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/uat-checklist",
+      "dateTime": "2026-05-12T08:21:26.235169-04:00",
+      "description": "Routed uat-plan-generation to author unified-master-details-composite-uat-checklist.json: 23 items across all 4 scenarios + inspect-to-decide + 4b subscenarios. Three opus authoring passes with gpt-5-4 verification (final pass accepted; first two had ISSUES_FOUND from verifier and were re-routed). Suppressions for CATALOG_STALE added to tools/uat-suppressions.json.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 7374,
+          "outputTokens": 21190,
+          "costUsd": 1.69986
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 11300,
+          "outputTokens": 5965,
+          "costUsd": 0.117725
+        },
+        {
+          "model": "opus",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 7278,
+          "outputTokens": 13611,
+          "costUsd": 1.129995
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 10342,
+          "outputTokens": 5570,
+          "costUsd": 0.109405
+        },
+        {
+          "model": "opus",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 7397,
+          "outputTokens": 12384,
+          "costUsd": 1.039755
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 11159,
+          "outputTokens": 6046,
+          "costUsd": 0.118588
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/uat-runner",
+      "dateTime": "2026-05-12T10:30:00.000000-04:00",
+      "description": "W0 compiled the DSL checklist to 360+ lines of Playwright; W2 runner executed with --skip-dotnet-test per the SeededSignInAsync/DSL conflict (same pattern as admin-user-creation-flow). All suppressed errors are CATALOG_STALE class (new routes not yet in catalog). Authoritative coverage remains the hand-authored Playwright tests from Sessions 1-4.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-05-12T11:00:00.000000-04:00",
+      "description": "Build PASS (0 errors). Unit+bUnit PASS: 633/633 across 6 suites. Playwright: 148/159 pass; 9 failures (8 pre-existing from prior sessions, 1 new W0 UnifiedMasterDetailsCompositeUatTests SeededSignInAsync conflict in the same class as AdminUsersCrossLinksUatTests). Five app bugs found and fixed during the run: CustomersController + OrdersController CreatedAtActionResult → Ok(created); OrderDetailState AddTransient → AddScoped; CustomerPickerDialog Immediate=true + local _isTargetReadOnly; ProductLinePickerDialog StateHasChanged after row selection; test assertions updated for MudBlazor 8.x ReadOnly + data-testid placement.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-05-12T11:14:50.769421-04:00",
+      "description": "Cross-provider session-verification: model=gpt-5-4. Verdict VERIFIED with no blocking issues.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2431,
+          "outputTokens": 5753,
+          "costUsd": 0.092373
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 214,
+          "outputTokens": 335,
+          "costUsd": 0.005560
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/change-log",
+      "dateTime": "2026-05-12T11:15:30.000000-04:00",
+      "description": "Authored change-log.md as set-level summary covering shell capabilities, all 4 scenarios, Session 5 bug fixes, and known follow-up items (keyboard navigation deferred; full migration audit deferred; catalog re-crawl needed for new routes).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/commit-push-notify",
+      "dateTime": "2026-05-12T11:18:02.000000-04:00",
+      "description": "Closeout commit 1c459bf: change-log.md, UAT checklist, disposition.json, session-state.json, 5 app bug fixes, and 3 updated Playwright tests in a single commit. Push + Pushover notify completed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 9,
+      "stepKey": "session-5/reorganization",
+      "dateTime": "2026-05-12T11:20:00.000000-04:00",
+      "description": "Step 9 reorganization review: scanned project-guidance.md and lessons-learned.md for promotion candidates. No reorganization proposed for this set.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

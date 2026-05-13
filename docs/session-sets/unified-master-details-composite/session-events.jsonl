@@ -6,3 +6,5 @@
 {"timestamp": "2026-05-12T08:26:28.348562Z", "session_number": 3, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "VERIFIED"}
 {"timestamp": "2026-05-12T11:12:43.675388Z", "session_number": 4, "event_type": "work_started"}
 {"timestamp": "2026-05-12T11:40:49.242908Z", "session_number": 4, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "VERIFIED"}
+{"timestamp": "2026-05-12T12:09:34.402288Z", "session_number": 5, "event_type": "work_started"}
+{"timestamp": "2026-05-12T15:18:02.000000Z", "session_number": 5, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "VERIFIED"}
