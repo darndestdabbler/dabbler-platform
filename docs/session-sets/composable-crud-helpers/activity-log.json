@@ -123,6 +123,87 @@
           "costUsd": 0.0017687500000000001
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-05-14T04:27:54.865322-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/filter-records",
+      "dateTime": "2026-05-14T04:27:54.865322-04:00",
+      "description": "Created FilterConfig.cs (FilterConfig<TEntity>, FilterMode, FilterProperty<TEntity> discriminated union with IsForeignKey + LoadLookupItemsAsync helpers) + LookupSource.cs (Static + AsyncLoader)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/filter-panel",
+      "dateTime": "2026-05-14T04:27:54.865322-04:00",
+      "description": "Created DeclarativeFilterPanel.razor: renders Text/Numeric/Date/Bool/EnumVal/ForeignKey<TForeign> using MudBlazor controls. Role='search' outer wrapper. Active filter chips via MudChipSet. InitialValues parameter for pre-seeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/filter-persistence",
+      "dateTime": "2026-05-14T04:27:54.881380-04:00",
+      "description": "Server-side URL persistence via JS history.replaceState. Restores from query string on init. Preserves non-filter params raw (no re-encoding). Handles '+' as space in ParseQueryString. InvariantCulture for decimal/date. Fragment preserved.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/products-wiring",
+      "dateTime": "2026-05-14T04:27:54.881380-04:00",
+      "description": "Migrated ProductList.razor: replaced FilterPanel<ProductDto> with DeclarativeFilterPanel. 6 properties: Text(Name), EnumVal x3(RoastLevel/CaffeineContent/GrindType), Bool(IsAvailable), Numeric AsRange(UnitPrice MinPlaceholder='Min $' MaxPlaceholder='Max $'). InitialValues wires InitialSearchTerm into panel.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/bunit-tests",
+      "dateTime": "2026-05-14T04:27:54.881380-04:00",
+      "description": "Created DeclarativeFilterPanelTests.cs: 25 new tests covering FilterProperty helpers, LookupSource, all filter types (Text/Numeric/Date/Bool/EnumVal/ForeignKey static+async), query-string restore for enum and numeric range, ClientSide/ServerSide URL behavior. 100/100 pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/playwright",
+      "dateTime": "2026-05-14T04:27:54.881380-04:00",
+      "description": "Created ProductsFilterQueryStringTests.cs: 1 new test verifying query-string persistence and restore on page reload. 2 pre-existing filter tests stay green via role='search', GetByLabel, GetByPlaceholder, .mud-chip contracts.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-05-14T04:27:54.881380-04:00",
+      "description": "Build: 0 errors. 100/100 Dabbler.Components.Tests pass. 5 pre-existing HTTP-timeout failures in TemplateSeedSmokeTests/WorkflowAssetSmokeTests (unrelated, confirmed pre-existing).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-05-14T04:27:54.881380-04:00",
+      "description": "Cross-provider verification by GPT-5.4 (7 rounds: R1 ForeignKey+Date tests missing; R2 Name text filter missing+AsyncLoader test; R3 chip key+init overwrite; R4 InitialSearchTerm+URL preservation+InvariantCulture; R5 raw URL preservation+ForeignKey owned keys; R6 ParseQueryString +decoding+flag params+fragment; R7 VERIFIED).",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

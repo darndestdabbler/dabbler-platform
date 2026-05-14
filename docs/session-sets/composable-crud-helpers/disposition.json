@@ -1,22 +1,25 @@
 {
   "status": "completed",
-  "summary": "Pivoted configurable-master-details-composite -> composable-crud-helpers after routed second opinions (GPT-5.4 + Gemini Pro independent convergence). Shipped EditSession<T> + DirtyAwareActionRow with 32 tests; migrated /products/{id} internals with all 9 Playwright tests green and zero regression. Cross-provider verification Round 1 ISSUES_FOUND -> Round 2 VERIFIED after fixes + reverify-reshaped on Minor false positive.",
+  "summary": "Shipped DeclarativeFilterPanel<TEntity> (Text/Numeric/Date/Bool/EnumVal/ForeignKey), FilterConfig<TEntity>, LookupSource<TForeign>. Migrated ProductList.razor from bespoke FilterPanel to DeclarativeFilterPanel with 6 filter properties. Server-side URL persistence via JS history.replaceState with raw query-fragment preservation. 25 new bUnit tests (100/100 pass). 1 new Playwright query-string reload test. 7-round verification: R1 ForeignKey unimplemented + Date/FK bUnit missing; R2 Name text filter missing + AsyncLoader test; R3 chip key + init overwrite; R4 InitialSearchTerm + URL preservation + InvariantCulture; R5 raw URL re-encoding + ForeignKey owned keys; R6 ParseQueryString '+' decoding + flag params + fragment; R7 VERIFIED.",
   "files_changed": [
     "ai_router/router-metrics.jsonl",
     "docs/session-sets/composable-crud-helpers/activity-log.json",
     "docs/session-sets/composable-crud-helpers/ai-assignment.md",
     "docs/session-sets/composable-crud-helpers/session-events.jsonl",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-001.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-002.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-2.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-3.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-4.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-5.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-6.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-7.md",
     "docs/session-sets/composable-crud-helpers/session-state.json",
-    "docs/session-sets/composable-crud-helpers/spec.md",
-    "docs/session-sets/composable-crud-helpers/spec.md.original",
-    "docs/session-sets/configurable-master-details-composite/session-state.json",
-    "src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Products/ProductDetail.razor",
-    "src/Libs/Dabbler.Components/MasterDetail/ActionRowSlot.cs",
-    "src/Libs/Dabbler.Components/MasterDetail/DirtyAwareActionRow.razor",
-    "src/Libs/Dabbler.Components/MasterDetail/EditSession.cs",
-    "tests/Dabbler.Components.Tests/MasterDetail/DirtyAwareActionRowTests.cs",
-    "tests/Dabbler.Components.Tests/MasterDetail/EditSessionTests.cs"
+    "src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Products/ProductList.razor",
+    "src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor",
+    "src/Libs/Dabbler.Components/MasterDetail/FilterConfig.cs",
+    "src/Libs/Dabbler.Components/MasterDetail/LookupSource.cs",
+    "tests/AcmeCoffeeOnline.Playwright/ProductsFilterQueryStringTests.cs",
+    "tests/Dabbler.Components.Tests/MasterDetail/DeclarativeFilterPanelTests.cs"
   ],
   "verification_method": "api",
   "verification_message_ids": [],
@@ -24,10 +27,10 @@
     "engine": "claude-code",
     "provider": "anthropic",
     "model": "claude-sonnet-4-6",
-    "effort": "medium",
+    "effort": "low",
     "reason": {
       "code": "switch-due-to-cost",
-      "specifics": "Session 2 is mechanical implementation against a fixed design (filter DSL records + DeclarativeFilterPanel) — no architectural decisions. Sonnet handles this work at lower cost than Opus while maintaining the routed-test-generation and cross-provider-verification scaffolding. Routed analysis (gemini-pro, 2026-05-13) confirmed."
+      "specifics": "Session 3 is mechanical page migration (OrderList + OrderDetail) applying already-shipped helpers — no novel design. Low-effort Sonnet is appropriate per routed analysis (gemini-pro, 2026-05-14)."
     }
   },
   "blockers": []

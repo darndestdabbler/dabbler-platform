@@ -65,14 +65,17 @@ High. This session requires significant `test-generation` for both bUnit and new
 | 7.1  | Verify session output against original spec. | `session-verification` -> openai gpt-5.4 |
 
 ### Actuals (filled after the session)
-- Orchestrator used: `<engine + model + effort>`
-- Total routed cost: $X.XX
-- Deviations from recommendation: `<any>`
-- Notes for next-session calibration: `<any>`
+- Orchestrator used: anthropic claude-sonnet-4-6 @ effort=medium ✓ (matched recommendation)
+- Total routed cost: ~$1.16
+  - test-generation (bUnit): Gemini Pro $0.00 (503 timeout → direct authoring fallback) 
+  - session-verification Rounds 1–7: gpt-5-4 $0.127 + $0.108 + $0.121 + $0.151 + $0.181 + $0.174 + $0.144 = **$1.01 verification total**
+  - next-session recommendation: gemini-pro $0.001
+- Deviations from recommendation: Session 2 was pre-planned as Sonnet; the Opus-based prior turn offered to swap and human confirmed. Actual execution used Sonnet 4.6 as recommended. Gemini Pro 503 on test-generation → direct authoring (no cost, per timeout-fallback rule).
+- Notes for next-session calibration: Verification ran 7 rounds because URL persistence had multiple edge cases (ForeignKey, + encoding, fragment, flag params, owned-key semantics). Session 3 is mechanical page migration (no new primitives); verification should converge faster. Consider passing more context (full file contents) on Round 1 to reduce false-positive cycles.
 
 **Next-session orchestrator recommendation (Session 3):**
-google gemini-1.5-pro-cli @ effort=medium
-Rationale: Session 3 is a pure migration, applying existing patterns to new targets; this highly repetitive work is an ideal use case for a fast, low-cost CLI-first model.
+anthropic claude-sonnet-4-6 @ effort=low
+Rationale (per routed analysis 2026-05-14, gemini-pro): Session 3 is mechanical page migration applying already-shipped helpers — no novel design. Low effort Sonnet is appropriate.
 
 ---
 
