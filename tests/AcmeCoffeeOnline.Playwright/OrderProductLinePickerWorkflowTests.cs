@@ -64,14 +64,31 @@ public sealed class OrderProductLinePickerWorkflowTests
             await page.GetByTestId("product-line-picker-primary-button").ClickAsync();
             await Assertions.Expect(page.GetByTestId("product-line-picker")).Not.ToBeVisibleAsync();
 
-            // Verify the new item appears in the order items grid on the parent page
+            // Verify the new item appears in the order items grid on the parent page.
+            // Use `.mud-table-body tr` (data rows only) so unrelated header / filter /
+            // expansion-shell chrome rows don't pollute the count.
             var itemsGrid = page.GetByTestId("order-items-grid");
-            await Assertions.Expect(itemsGrid.Locator("tr")).ToHaveCountAsync(2); // Header + 1 data row
+            await Assertions.Expect(itemsGrid.Locator(".mud-table-body tr")).ToHaveCountAsync(1);
             await Assertions.Expect(itemsGrid).ToContainTextAsync(productName);
             await Assertions.Expect(itemsGrid).ToContainTextAsync("2"); // Quantity
 
-            // Verify persisted state via API
-            var order = await _fixture.GetOrderByIdAsync(userId, orderId);
+            // Session 5: the add flow is now in-memory only. The order's Save
+            // button commits the full graph (EF cascade). The grid above
+            // reflects the in-memory state; persistence requires a parent save.
+            await page.GetByTestId("save-button").ClickAsync();
+            await _fixture.WaitForQuietAsync(page);
+
+            // Verify persisted state via API after the parent save
+            // Briefly poll — WaitForQuietAsync confirms the client action is done,
+            // but a separate API GET round-trip can still race with the PUT's
+            // commit visibility under heavy test load.
+            OrderSnapshot order = null!;
+            for (var i = 0; i < 10; i++)
+            {
+                order = await _fixture.GetOrderByIdAsync(userId, orderId);
+                if (order.OrderItems.Count >= 1) break;
+                await Task.Delay(250);
+            }
             Assert.NotNull(order);
             var orderItem = Assert.Single(order.OrderItems);
             Assert.Equal(productName, orderItem.ProductName);

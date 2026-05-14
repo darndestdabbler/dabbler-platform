@@ -117,7 +117,10 @@ public class OrderService : IOrderService
 
     public async Task<OrderDto?> UpdateAsync(int id, OrderDto dto, CancellationToken cancellationToken = default)
     {
-        var order = await FindOrderWithRowFilterAsync(id, cancellationToken);
+        // Load with OrderItems tracked so EF can cascade insert/update/delete
+        // on SaveChanges for the merged graph (Session 5: nested 1:N save).
+        var query = ApplyRowFilter(_db.Orders.Include(o => o.OrderItems));
+        var order = await query.FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
         if (order is null)
             return null;
 
@@ -125,6 +128,11 @@ public class OrderService : IOrderService
         order.ShipDate = dto.ShipDate;
         order.ModifiedDate = DateTime.UtcNow;
         order.ModifiedBy = dto.ModifiedBy;
+
+        if (IsModifiable(order.Status))
+        {
+            await MergeOrderItemsAsync(order, dto.OrderItems, cancellationToken);
+        }
 
         await _db.SaveChangesAsync(cancellationToken);
 
@@ -135,6 +143,75 @@ public class OrderService : IOrderService
             .FirstAsync(o => o.Id == id, cancellationToken);
 
         return MapToDto(refreshed);
+    }
+
+    private async Task MergeOrderItemsAsync(
+        Order order,
+        IReadOnlyList<OrderItemDto> incoming,
+        CancellationToken cancellationToken)
+    {
+        // Preserve-existing semantics: an empty incoming list means the caller
+        // didn't intend to touch OrderItems (legacy header-only PUT). The Web
+        // app's Session 5 flow always sends the full collection, so a "delete
+        // every item" intent looks like a 1-item PUT (deleting items one at a
+        // time then saving) — never an empty list.
+        if (incoming.Count == 0)
+            return;
+
+        var existingById = order.OrderItems.ToDictionary(oi => oi.Id);
+        var incomingIds = new HashSet<int>(incoming.Where(i => i.Id > 0).Select(i => i.Id));
+
+        // Delete: items in the existing order that are not in the incoming list.
+        foreach (var existing in order.OrderItems.ToList())
+        {
+            if (existing.Id > 0 && !incomingIds.Contains(existing.Id))
+            {
+                _db.OrderItems.Remove(existing);
+                order.OrderItems.Remove(existing);
+            }
+        }
+
+        // Cache product lookups for added items so we don't hit the DB per row.
+        var addedProductIds = incoming
+            .Where(i => i.Id == 0)
+            .Select(i => i.ProductId)
+            .Distinct()
+            .ToList();
+        var addedProducts = addedProductIds.Count > 0
+            ? await _db.Products
+                .Where(p => addedProductIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id, cancellationToken)
+            : new Dictionary<int, Product>();
+
+        foreach (var item in incoming)
+        {
+            if (item.Id > 0 && existingById.TryGetValue(item.Id, out var existing))
+            {
+                // Update: copy mutable fields from incoming.
+                existing.Quantity = item.Quantity;
+                existing.UnitPrice = item.UnitPrice;
+                existing.Discount = item.Discount;
+            }
+            else if (item.Id == 0)
+            {
+                // Insert: trust the incoming ProductId; UnitPrice may default to the product's price.
+                if (!addedProducts.TryGetValue(item.ProductId, out var product))
+                    continue; // unknown product — skip silently (validation belongs at the API edge)
+
+                var newItem = new OrderItem
+                {
+                    OrderId = order.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice > 0 ? item.UnitPrice : product.UnitPrice,
+                    Discount = item.Discount
+                };
+                order.OrderItems.Add(newItem);
+            }
+        }
+
+        // Recalculate total from the merged in-memory collection.
+        order.Total = order.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice * (1 - oi.Discount));
     }
 
     public async Task<StatusTransitionResult> UpdateStatusAsync(int id, OrderStatus newStatus, CancellationToken cancellationToken = default)

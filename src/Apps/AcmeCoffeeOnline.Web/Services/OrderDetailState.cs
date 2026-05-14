@@ -203,6 +203,48 @@ public sealed class OrderDetailState
         }
     }
 
+    /// <summary>
+    /// Session 5: add an order line in-memory only. The new item carries
+    /// <c>Id = 0</c> so the server-side <c>UpdateAsync</c> merge will INSERT it
+    /// when the parent order is saved. No API call.
+    /// </summary>
+    public void AddItemInMemory(OrderItemDto item)
+    {
+        if (Record is null) return;
+        item.OrderId = Record.Id;
+        item.Id = 0;
+        Record.OrderItems.Add(item);
+        RecalculateTotal();
+    }
+
+    /// <summary>
+    /// Session 5: update an existing order line in-memory only. Mutates the
+    /// stored item's mutable fields (quantity / unit price / discount); the
+    /// parent save merges the change via <c>OrderService.UpdateAsync</c>.
+    /// No API call.
+    /// </summary>
+    public void UpdateItemInMemory(OrderItemDto item, int quantity, decimal unitPrice, decimal discount)
+    {
+        if (Record is null) return;
+        item.Quantity = quantity;
+        item.UnitPrice = unitPrice;
+        item.Discount = discount;
+        RecalculateTotal();
+    }
+
+    /// <summary>
+    /// Session 5: remove an order line in-memory only. Items that were already
+    /// persisted are dropped from <c>Record.OrderItems</c> so the parent save
+    /// will DELETE them; items added this session (Id == 0) simply disappear.
+    /// No API call.
+    /// </summary>
+    public void RemoveItemInMemory(OrderItemDto item)
+    {
+        if (Record is null) return;
+        Record.OrderItems.Remove(item);
+        RecalculateTotal();
+    }
+
     public async Task RemoveItemAsync(OrderItemDto item, CancellationToken cancellationToken = default)
     {
         if (Record is null)

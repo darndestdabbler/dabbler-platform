@@ -5,6 +5,7 @@
 @using AcmeCoffeeOnline.Web.Components.Pages.Products
 @using AcmeCoffeeOnline.Web.Services
 @using Dabbler.Components.MasterDetail
+@using Dabbler.Security.Blazor.Components.Admin.Shared
 @using MudBlazor
 @inject OrderDetailState State
 @inject IDialogService DialogService
@@ -154,65 +155,158 @@ else if (State.Record is not null)
     {
         <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" Class="mt-4">
             @* ── Order Items Tab ──────────────────────────────────── *@
+            @* Session 5: wrap the nested OrderItems grid in MasterDetailExpansionShell;
+                 the per-row edit form below the grid uses DirtyAwareActionRow.
+                 Add / Edit / Delete mutate the parent's in-memory OrderItems
+                 collection; the parent order's DirtyAwareActionRow is the sole
+                 server commit and the API merges the full graph via EF cascade. *@
             <MudTabPanel Text="@($"Items ({State.Record.OrderItems.Count})")"
                          Icon="@Icons.Material.Filled.ShoppingCart">
-                <MudPaper Class="pa-3" Elevation="0">
-                    @if (!IsReadOnly)
-                    {
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
-                            <MudSpacer />
-                            <MudButton Variant="Variant.Outlined"
-                                       Color="Color.Primary"
-                                       Size="Size.Small"
-                                       StartIcon="@Icons.Material.Filled.Add"
-                                       OnClick="OpenProductLinePickerAsync"
-                                       data-testid="add-product-button">
-                                Add Product
-                            </MudButton>
-                        </MudStack>
-                    }
+                <MasterDetailExpansionShell TRow="OrderItemDto" TEntity="OrderItemDto" TLink="object"
+                                            TestId="order-items-shell"
+                                            ShowGrid="true"
+                                            ShowAddAction="false"
+                                            IsExpanded="true"
+                                            ExpandedHeaderText="@($"Order items ({State.Record.OrderItems.Count})")"
+                                            TargetEditability="TargetEditability.Editable">
+                    <GridContent>
+                        @if (!IsReadOnly)
+                        {
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           OnClick="OpenProductLinePickerAsync"
+                                           data-testid="add-product-button">
+                                    Add Product
+                                </MudButton>
+                            </MudStack>
+                        }
 
-                    <MudDataGrid T="OrderItemDto"
-                                 Items="State.Record.OrderItems"
-                                 Dense="true"
-                                 Bordered="true"
-                                 Hover="true"
-                                 ReadOnly="true"
-                                 data-testid="order-items-grid">
-                        <Columns>
-                            <PropertyColumn Property="i => i.ProductName" Title="Product" />
-                            <PropertyColumn Property="i => i.Quantity" Title="Qty" />
-                            <PropertyColumn Property="i => i.UnitPrice" Title="Unit Price" Format="C2"
-                                           CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
-                            <PropertyColumn Property="i => i.Discount" Title="Discount %" Format="N0"
-                                           CellStyle="text-align:right; max-width:110px" HeaderStyle="text-align:right; max-width:110px" />
-                            <TemplateColumn Title="Line Total" Sortable="false"
-                                           CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px">
-                                <CellTemplate>
-                                    @{ var lineTotal = OrderDetailState.CalculateLineTotal(context.Item); }
-                                    @lineTotal.ToString("C2")
-                                </CellTemplate>
-                            </TemplateColumn>
-                            @if (!IsReadOnly)
-                            {
-                                <TemplateColumn Sortable="false" CellStyle="width: 96px;">
+                        <MudDataGrid T="OrderItemDto"
+                                     Items="State.Record.OrderItems"
+                                     Dense="true"
+                                     Bordered="true"
+                                     Hover="true"
+                                     ReadOnly="true"
+                                     data-testid="order-items-grid">
+                            <Columns>
+                                <PropertyColumn Property="i => i.ProductName" Title="Product" />
+                                <PropertyColumn Property="i => i.Quantity" Title="Qty" />
+                                <PropertyColumn Property="i => i.UnitPrice" Title="Unit Price" Format="C2"
+                                               CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
+                                <PropertyColumn Property="i => i.Discount" Title="Discount %" Format="N0"
+                                               CellStyle="text-align:right; max-width:110px" HeaderStyle="text-align:right; max-width:110px" />
+                                <TemplateColumn Title="Line Total" Sortable="false"
+                                               CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px">
                                     <CellTemplate>
-                                        <MudIconButton Icon="@Icons.Material.Filled.Search"
-                                                       Size="Size.Small"
-                                                       Color="Color.Primary"
-                                                       OnClick="@(() => OpenProductLineInspectorAsync(context.Item))"
-                                                       data-testid="inspect-item-button"
-                                                       Title="Review line (target read-only, unlock to edit)" />
-                                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                                       Size="Size.Small"
-                                                       Color="Color.Error"
-                                                       OnClick="@(() => RemoveItemAsync(context.Item))" />
+                                        @{ var lineTotal = OrderDetailState.CalculateLineTotal(context.Item); }
+                                        @lineTotal.ToString("C2")
                                     </CellTemplate>
                                 </TemplateColumn>
-                            }
-                        </Columns>
-                    </MudDataGrid>
-                </MudPaper>
+                                @if (!IsReadOnly)
+                                {
+                                    <TemplateColumn Sortable="false" CellStyle="width: 132px;">
+                                        <CellTemplate>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                           Size="Size.Small"
+                                                           Color="Color.Primary"
+                                                           OnClick="@(() => BeginEditItem(context.Item))"
+                                                           data-testid="edit-item-button"
+                                                           Title="Edit line" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                                           Size="Size.Small"
+                                                           Color="Color.Default"
+                                                           OnClick="@(() => OpenProductLineInspectorAsync(context.Item))"
+                                                           data-testid="inspect-item-button"
+                                                           Title="Review line (target read-only, unlock to edit)" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                           Size="Size.Small"
+                                                           Color="Color.Error"
+                                                           OnClick="@(() => RemoveItemAsync(context.Item))"
+                                                           data-testid="delete-item-button" />
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                }
+                            </Columns>
+                        </MudDataGrid>
+                    </GridContent>
+
+                    @* Per-row edit form — rendered only when the user clicks Edit on a grid row. *@
+                    <DetailsContent>
+                        @if (_editingItem is not null && _originalItem is not null && !IsReadOnly)
+                        {
+                            <MudText Typo="Typo.subtitle1" Class="mb-2">
+                                Edit line — @_editingItem.ProductName
+                            </MudText>
+                            <MudForm @ref="_itemForm" Model="_editingItem">
+                                <MudGrid>
+                                    <MudItem xs="12" md="4">
+                                        <MudTextField T="string"
+                                                      Value="@_editingItem.ProductName"
+                                                      Label="Product"
+                                                      ReadOnly="true"
+                                                      Variant="Variant.Outlined"
+                                                      data-testid="edit-item-product" />
+                                    </MudItem>
+                                    <MudItem xs="6" md="2">
+                                        <MudNumericField T="int"
+                                                         Value="@_editingItem.Quantity"
+                                                         ValueChanged="@((int v) => OnItemQuantityChanged(v))"
+                                                         Label="Quantity"
+                                                         Min="1"
+                                                         Immediate="true"
+                                                         Variant="Variant.Outlined"
+                                                         data-testid="edit-item-quantity" />
+                                    </MudItem>
+                                    <MudItem xs="6" md="3">
+                                        <MudNumericField T="decimal"
+                                                         Value="@_editingItem.UnitPrice"
+                                                         ValueChanged="@((decimal v) => OnItemUnitPriceChanged(v))"
+                                                         Label="Unit Price"
+                                                         Format="N2"
+                                                         Adornment="Adornment.Start"
+                                                         AdornmentText="$"
+                                                         Immediate="true"
+                                                         Variant="Variant.Outlined"
+                                                         data-testid="edit-item-unit-price" />
+                                    </MudItem>
+                                    <MudItem xs="6" md="3">
+                                        <MudNumericField T="decimal"
+                                                         Value="@_editingItem.Discount"
+                                                         ValueChanged="@((decimal v) => OnItemDiscountChanged(v))"
+                                                         Label="Discount %"
+                                                         Min="0m"
+                                                         Max="100m"
+                                                         Format="N2"
+                                                         Immediate="true"
+                                                         Variant="Variant.Outlined"
+                                                         data-testid="edit-item-discount" />
+                                    </MudItem>
+                                </MudGrid>
+                            </MudForm>
+                        }
+                    </DetailsContent>
+
+                    <DetailsActions Context="ctx">
+                        @if (_editingItem is not null && !IsReadOnly)
+                        {
+                            <DirtyAwareActionRow IsDirty="@_itemFormDirty"
+                                                 ShowCancel="true"
+                                                 SaveLabel="Save line"
+                                                 CancelLabel="Cancel"
+                                                 CloseLabel="Close"
+                                                 OnSave="HandleItemSaveAsync"
+                                                 OnCancel="HandleItemCancelAsync"
+                                                 TestId="edit-item-action-row"
+                                                 SaveTestId="save-item-button"
+                                                 CancelTestId="cancel-item-button"
+                                                 Class="mt-2" />
+                        }
+                    </DetailsActions>
+                </MasterDetailExpansionShell>
             </MudTabPanel>
 
             @* ── Order Notes Tab ──────────────────────────────────── *@
@@ -323,6 +417,16 @@ else
 
     private int? _loadedOrderId;
     private bool? _loadedIsNew;
+
+    // ── Session 5: nested OrderItem row-form state ──────────────
+    // _editingItem is a working buffer (a copy of the selected row); _originalItem
+    // is the live reference inside Record.OrderItems. Save copies the buffer back
+    // into _originalItem via UpdateItemInMemory and flags the parent session dirty.
+    // Cancel discards the buffer untouched.
+    private MudForm? _itemForm;
+    private OrderItemDto? _editingItem;
+    private OrderItemDto? _originalItem;
+    private bool _itemFormDirty;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -450,10 +554,13 @@ else
         if (result is null || result.Canceled) return;
         if (result.Data is not OrderItemDto newItem) return;
 
-        await TrackAction("add-item", async () =>
+        // Session 5: add to the parent's in-memory OrderItems collection only;
+        // EF cascade persists on the parent's Save.
+        await TrackAction("add-item", () =>
         {
-            await State.AddItemFromDialogAsync(newItem);
-            _session?.Commit();
+            State.AddItemInMemory(newItem);
+            _session?.NotifyChanged();
+            return Task.CompletedTask;
         });
     }
 
@@ -484,11 +591,84 @@ else
         // toggle flow lands in a follow-up. Read the result if needed.
     }
 
-    private Task RemoveItemAsync(OrderItemDto item) => TrackAction("remove-item", async () =>
+    // Session 5: deletion is in-memory only; EF cascade removes on parent Save.
+    // The cancel handler also clears the edit form if the user deletes the row
+    // they were editing.
+    private Task RemoveItemAsync(OrderItemDto item) => TrackAction("remove-item", () =>
     {
-        await State.RemoveItemAsync(item);
-        _session?.Commit();
+        State.RemoveItemInMemory(item);
+        if (ReferenceEquals(_originalItem, item))
+        {
+            _editingItem = null;
+            _originalItem = null;
+            _itemFormDirty = false;
+        }
+        _session?.NotifyChanged();
+        return Task.CompletedTask;
     });
+
+    // ── Session 5: nested row-form edit handlers ────────────────
+
+    private void BeginEditItem(OrderItemDto item)
+    {
+        _originalItem = item;
+        _editingItem = new OrderItemDto
+        {
+            Id = item.Id,
+            OrderId = item.OrderId,
+            ProductId = item.ProductId,
+            ProductName = item.ProductName,
+            Quantity = item.Quantity,
+            UnitPrice = item.UnitPrice,
+            Discount = item.Discount
+        };
+        _itemFormDirty = false;
+    }
+
+    private void OnItemQuantityChanged(int v)
+    {
+        if (_editingItem is null) return;
+        _editingItem.Quantity = v;
+        _itemFormDirty = true;
+    }
+
+    private void OnItemUnitPriceChanged(decimal v)
+    {
+        if (_editingItem is null) return;
+        _editingItem.UnitPrice = v;
+        _itemFormDirty = true;
+    }
+
+    private void OnItemDiscountChanged(decimal v)
+    {
+        if (_editingItem is null) return;
+        _editingItem.Discount = v;
+        _itemFormDirty = true;
+    }
+
+    private Task HandleItemSaveAsync() => TrackAction("save-item", () =>
+    {
+        if (_editingItem is null || _originalItem is null) return Task.CompletedTask;
+
+        State.UpdateItemInMemory(
+            _originalItem,
+            _editingItem.Quantity,
+            _editingItem.UnitPrice,
+            _editingItem.Discount);
+        _session?.NotifyChanged();
+        _editingItem = null;
+        _originalItem = null;
+        _itemFormDirty = false;
+        return Task.CompletedTask;
+    });
+
+    private Task HandleItemCancelAsync()
+    {
+        _editingItem = null;
+        _originalItem = null;
+        _itemFormDirty = false;
+        return Task.CompletedTask;
+    }
 
     // ── Order Notes ─────────────────────────────────────────────────
 

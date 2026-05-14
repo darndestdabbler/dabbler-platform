@@ -428,6 +428,108 @@
           "costUsd": 0.1119
         }
       ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/read-planning",
+      "dateTime": "2026-05-14T07:09:23.222638-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, spec.md (full re-read), activity-log.json, ai-assignment.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/server-merge",
+      "dateTime": "2026-05-14T07:53:00-04:00",
+      "description": "OrderService.UpdateAsync now merges dto.OrderItems against tracked Order.OrderItems via EF cascade: Id==0 -> INSERT, missing from dto -> DELETE, matching Id -> UPDATE, Order.Total recalculated. Skips merge when status is not modifiable (Delivered/Cancelled) and skips merge when incoming list is empty (preserve-existing heuristic for legacy callers that pass header-only DTOs).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/client-state-in-memory",
+      "dateTime": "2026-05-14T07:53:30-04:00",
+      "description": "OrderDetailState gained three in-memory mutation methods: AddItemInMemory forces Id=0/sets OrderId; UpdateItemInMemory mutates Quantity/UnitPrice/Discount on the supplied ref; RemoveItemInMemory drops the item. All three recalc Record.Total. No API traffic.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/orderdetail-shell-wiring",
+      "dateTime": "2026-05-14T07:54:00-04:00",
+      "description": "OrderDetail.razor OrderItems tab wrapped in MasterDetailExpansionShell<OrderItemDto, OrderItemDto, object> from Dabbler.Security.Blazor (already referenced). Per-row edit form (DetailsContent slot) uses DirtyAwareActionRow with SaveLabel='Save line', CancelLabel='Cancel'. Edit/inspect/delete icons on each row. Add via ProductLinePickerDialog now calls AddItemInMemory + NotifyChanged (no API). Delete calls RemoveItemInMemory + NotifyChanged. Edit opens a buffer-copy form; Save mutates parent via UpdateItemInMemory + NotifyChanged; Cancel discards.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/unit-tests",
+      "dateTime": "2026-05-14T07:55:00-04:00",
+      "description": "Routed test-generation -> gemini-pro produced OrderDetailStateNestedItemsTests.cs (9 tests covering add/update/remove in-memory + no-HTTP-traffic assertions) and OrderServiceMergeItemsTests.cs (5 tests covering insert/delete/update merge + Total recalc + non-modifiable-status no-op). Adjusted the merge-test prompt to pick an already-terminal seed order (no mutation of seed state). All 14 new tests pass; 32/32 Api.Tests + 130/130 Components.Tests + 132/137 Web.Tests (5 pre-existing TemplateSeed/WorkflowAsset failures unrelated). One iteration: initial merge logic deleted all items when dto.OrderItems was empty; added preserve-existing heuristic so legacy callers passing header-only DTOs keep their items.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 12688,
+          "outputTokens": 4356,
+          "costUsd": 0.05942
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 12688,
+          "outputTokens": 3918,
+          "costUsd": 0.055
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/playwright-tests",
+      "dateTime": "2026-05-14T07:56:00-04:00",
+      "description": "OrderProductLinePickerWorkflowTests.AddProduct_PickFillAndSave_PersistsOrderItemAsync updated to follow Session 5 save semantics: in-memory add via dialog -> parent Save -> verify DB persistence. New OrderNestedItemsSaveTests.cs adds 3 tests: EditItem via row form + parent save + DB verify; DeleteItem via row icon + parent save + DB verify; AddItem via picker on existing order + parent save + DB verify. Each test restores baseline via API. Playwright project compiles green; not executed this session (docker not running).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 7,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-05-14T07:56:30-04:00",
+      "description": "Full solution build: 0 errors, 137 pre-existing warnings (no new). Test results: Dabbler.Components.Tests 130/130 pass; AcmeCoffeeOnline.Api.Tests 32/32 pass (includes 5 new merge tests + 27 pre-existing); AcmeCoffeeOnline.Web.Tests 132/137 pass (5 pre-existing TemplateSeed/WorkflowAsset failures documented Session 2). Playwright suite not run (docker not running this session).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-05-14T08:15:00-04:00",
+      "description": "Cross-provider session-verification by GPT-5.4. R1: ISSUES_FOUND (2 issues). Issue 1 (Discount semantics inconsistency Web vs API) accepted as PRE-EXISTING (formula in OrderService.cs since commit 3c0a76b, predates this session set entirely; Session 5's MergeOrderItemsAsync uses the same formula as the existing AddItemAsync/RemoveItemAsync); documented in disposition.json for a follow-up session set. Issue 2 (missing bUnit-level proof of OrderDetail row-form wiring) addressed by adding RowFormBufferCopy_SaveCommitsBufferToOriginal_CancelDiscardsAsync to OrderDetailStateNestedItemsTests.cs. R2: VERIFIED. Reviews saved to session-reviews/session-005.md + session-005-round-2.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 20299,
+          "outputTokens": 15700,
+          "costUsd": 0.286247
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2742,
+          "outputTokens": 4126,
+          "costUsd": 0.068745
+        }
+      ]
     }
   ]
 }

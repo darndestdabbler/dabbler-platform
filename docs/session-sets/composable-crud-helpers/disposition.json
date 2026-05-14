@@ -1,25 +1,20 @@
 {
   "status": "completed",
-  "summary": "Shipped DeclarativeFilterPanel<TEntity> (Text/Numeric/Date/Bool/EnumVal/ForeignKey), FilterConfig<TEntity>, LookupSource<TForeign>. Migrated ProductList.razor from bespoke FilterPanel to DeclarativeFilterPanel with 6 filter properties. Server-side URL persistence via JS history.replaceState with raw query-fragment preservation. 25 new bUnit tests (100/100 pass). 1 new Playwright query-string reload test. 7-round verification: R1 ForeignKey unimplemented + Date/FK bUnit missing; R2 Name text filter missing + AsyncLoader test; R3 chip key + init overwrite; R4 InitialSearchTerm + URL preservation + InvariantCulture; R5 raw URL re-encoding + ForeignKey owned keys; R6 ParseQueryString '+' decoding + flag params + fragment; R7 VERIFIED.",
+  "summary": "Shipped nested 1:N Orders -> OrderItems edit flow per Session 5 spec. Server: OrderService.UpdateAsync now merges dto.OrderItems against the tracked Order.OrderItems collection (Id==0 INSERT, missing DELETE, matching Id UPDATE, Total recalculated; skipped when status is non-modifiable or when incoming list is empty for legacy callers). Client: OrderDetailState gained AddItemInMemory / UpdateItemInMemory / RemoveItemInMemory (no API traffic; recalc Total). UI: OrderDetail.razor OrderItems tab wrapped in MasterDetailExpansionShell<OrderItemDto, OrderItemDto, object> from Dabbler.Security.Blazor with per-row edit form using DirtyAwareActionRow (SaveLabel='Save line'). Add via ProductLinePickerDialog now in-memory; Delete via row icon in-memory; Edit via buffer-copy + row-form save. Parent's DirtyAwareActionRow is the sole server commit. Coverage: OrderDetailStateNestedItemsTests (10 unit tests inc. buffer-copy pattern); OrderServiceMergeItemsTests (5 integration tests against seeded LocalDB inc. INSERT/DELETE/UPDATE/Total-recalc/non-modifiable-status); OrderNestedItemsSaveTests (3 Playwright tests for edit/delete/add + parent save + DB verification); OrderProductLinePickerWorkflowTests existing test updated for new in-memory-then-parent-save flow. Tests: Components.Tests 130/130 pass; Api.Tests 32/32 pass; Web.Tests 132/137 pass (5 pre-existing TemplateSeed/WorkflowAsset failures documented Session 2). Playwright Orders-targeted runs: OrderNestedItemsTests 3/3 + OrderProductLinePickerWorkflowTests 1/1 pass against running docker compose stack (sqlserver + api + web). Full Playwright suite (174 tests, 13min): 160 pass, 12 fail, 2 skip. The 12 failures are not Orders-related (Customers, MultiOrganization, security flows); they look like the pre-existing flake set the lessons-learned doc warns about and likely reflect seed pollution from prior runs of this and earlier sessions. No new Orders-Playwright regression observed. Verification: GPT-5.4 R1 ISSUES_FOUND (2), R2 VERIFIED after addressing Issue 2 (added buffer-copy bUnit-equivalent test); Issue 1 (Discount semantics Web /100m vs API 1-Discount) documented as pre-existing and out of Session 5 scope.",
   "files_changed": [
     "ai_router/router-metrics.jsonl",
     "docs/session-sets/composable-crud-helpers/activity-log.json",
-    "docs/session-sets/composable-crud-helpers/ai-assignment.md",
     "docs/session-sets/composable-crud-helpers/session-events.jsonl",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-002.md",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-2.md",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-3.md",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-4.md",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-5.md",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-6.md",
-    "docs/session-sets/composable-crud-helpers/session-reviews/session-002-round-7.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-005.md",
+    "docs/session-sets/composable-crud-helpers/session-reviews/session-005-round-2.md",
     "docs/session-sets/composable-crud-helpers/session-state.json",
-    "src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Products/ProductList.razor",
-    "src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor",
-    "src/Libs/Dabbler.Components/MasterDetail/FilterConfig.cs",
-    "src/Libs/Dabbler.Components/MasterDetail/LookupSource.cs",
-    "tests/AcmeCoffeeOnline.Playwright/ProductsFilterQueryStringTests.cs",
-    "tests/Dabbler.Components.Tests/MasterDetail/DeclarativeFilterPanelTests.cs"
+    "src/Apps/AcmeCoffeeOnline.Api/Services/OrderService.cs",
+    "src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Orders/OrderDetail.razor",
+    "src/Apps/AcmeCoffeeOnline.Web/Services/OrderDetailState.cs",
+    "tests/AcmeCoffeeOnline.Api.Tests/OrderServiceMergeItemsTests.cs",
+    "tests/AcmeCoffeeOnline.Playwright/OrderNestedItemsSaveTests.cs",
+    "tests/AcmeCoffeeOnline.Playwright/OrderProductLinePickerWorkflowTests.cs",
+    "tests/AcmeCoffeeOnline.Web.Tests/Services/OrderDetailStateNestedItemsTests.cs"
   ],
   "verification_method": "api",
   "verification_message_ids": [],
@@ -30,8 +25,14 @@
     "effort": "low",
     "reason": {
       "code": "switch-due-to-cost",
-      "specifics": "Session 3 is mechanical page migration (OrderList + OrderDetail) applying already-shipped helpers — no novel design. Low-effort Sonnet is appropriate per routed analysis (gemini-pro, 2026-05-14)."
+      "specifics": "Session 6 is the final wrap-up session: generate UAT checklist (routed task), run W2 runner, generate change-log via routed summarization, run cost report, and execute Step 9 reorganization review. All work is either routed or mechanical; sonnet-class is appropriate. Opus is only needed when novel design judgment is required, which is not the case for Session 6."
     }
   },
-  "blockers": []
+  "blockers": [],
+  "scope_deferrals": [
+    {
+      "title": "Discount semantics inconsistency between Web and API",
+      "details": "OrderService recalculates Total using `Quantity * UnitPrice * (1 - Discount)` (treating Discount as a 0..1 fraction), while OrderDetailState.CalculateLineTotal in the Web uses `Quantity * UnitPrice * (1 - Discount / 100m)` (treating Discount as a percentage 0..100). The Web's labels read 'Discount %'. The API formula has been in place since commit 3c0a76b (the initial rebuild's 'Session 5 of 6: rebuild app parity in integrated repo'), predating this session set. Session 5's MergeOrderItemsAsync uses the same formula as the existing AddItemAsync/RemoveItemAsync paths for consistency. Fixing this requires a dedicated session: decide canonical semantic, migrate one side, update seeded data if needed, verify no persisted Order.Total values are corrupted. Surfaced by GPT-5.4 verifier Round 1; out of Session 5 scope. Candidate spec slug: `order-discount-semantics-alignment`."
+    }
+  ]
 }
