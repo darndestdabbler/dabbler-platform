@@ -133,6 +133,20 @@ rejects each (see `docs/ai-led-session-workflow.md` Step 9, post-notify).
   factored separately from UI components so UI can be rebuilt independently.
 - The demo app should be presentation-worthy and broad enough to prove the
   platform without turning into product-specific scaffolding.
+- **Composition over configuration for CRUD page composites.** When a CRUD
+  page variant (different routing model, different action buttons, different
+  filter sophistication) needs a reusable UI primitive, the right abstraction
+  is a small focused helper the page adopts à la carte — not a whole-page
+  config-driven composite. A config DSL that re-implements the Blazor renderer
+  accepts all variation as enums (impossibly broad) or rejects them (forces
+  every page into one rigid shape). The platform's CRUD helpers
+  (`EditSession<T>`, `<DirtyAwareActionRow>`, `<DeclarativeFilterPanel>`) are
+  the reference: each page wires them independently instead of being generated
+  from a `MasterDetailsConfig<TEntity>`. This principle was validated by two
+  independent cross-provider reviews (GPT 5.4 and Gemini Pro) and by the
+  abandoned `ConfigurableMasterDetails<TEntity>` prototype in the
+  `composable-crud-helpers` set; the verdict converged: "the composite picked
+  the wrong axis of variation."
 
 ### Testing Hierarchy
 
@@ -343,6 +357,36 @@ before proceeding.
   `readonly` attribute. Use toggle-button text (e.g., "Edit record" vs "Lock
   record") as the Playwright proxy for read-only state; `Not.ToBeEditableAsync`
   produces false failures.
+
+### CRUD Form Conventions
+
+These rules apply to every Blazor form managed by an `EditSession<T>` and a
+`<DirtyAwareActionRow>`. They are the codified form of the composable-crud-helpers
+set's form-component conventions, validated across Products, Orders, and
+Customers detail pages.
+
+- **Form fields bind with `Value`/`ValueChanged`, never `@bind-Value`.** Two-way
+  `@bind-Value` bypasses `EditSession<T>`'s dirty tracking because it does not
+  call `NotifyChanged()`. Every field must use the explicit form:
+  `Value="@_record.Field" ValueChanged="@((T v) => { _record.Field = v; _session.NotifyChanged(); })"`.
+- **`<DirtyAwareActionRow>` owns the Save/Cancel/Delete action row.** Pages must
+  not add their own Save, Cancel, or Delete buttons outside the action row. Page-
+  specific affordances (Undo, Toggle Availability, Status workflow buttons) go in
+  the `CustomActions` slot; the row's primary buttons remain Save, Cancel-or-Close,
+  and Delete only.
+- Required form fields get `Required="true"` + `RequiredError`.
+- Layout uses `MudGrid` + `MudItem` with project breakpoints (`xs="12" md="6"`).
+- On a successful server save, call `_session.CommitFrom(updated)` (not just
+  `Commit()`). `CommitFrom` updates the snapshot baseline so a subsequent Undo
+  restores to the last saved value, not the original construction-time value.
+- Use `EditSession<T>` for any detail page that maintains a dirty snapshot. Flat
+  DTOs with public read/write scalar/enum/string/nullable properties are the
+  supported shape; get-only collections and EF navigation properties are
+  out of scope — use a dedicated compare-and-copy strategy for those.
+- Nested grid row forms (`MasterDetailExpansionShell` `DetailsActions` slot) also
+  render `<DirtyAwareActionRow>` per row form. The parent order's action row
+  is the sole server commit; the per-row form mutates the parent's in-memory
+  collection only.
 
 ### MudBlazor Usage
 

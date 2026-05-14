@@ -278,6 +278,13 @@ Use this structure for new entries:
 
 ## ValueChanged Callbacks Must Cover All Editable Fields
 
+- **Promoted to Convention on 2026-05-14** (Step 9 reorganization review for the
+  `composable-crud-helpers` session set). The same rule is now captured — with
+  binding-pattern specificity — in `project-guidance.md` → Conventions → CRUD Form
+  Conventions: *"Form fields bind with `Value`/`ValueChanged`, never `@bind-Value`."*
+  Applied as the right call in Products (Session 1), Orders (Session 3), and
+  Customers (Session 4) migrations. Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Product detail form with Save/Undo dirty-state tracking
 - **Failure or friction:** The Undo button stayed permanently disabled because
   five of eight editable fields (UnitPrice, RoastLevel, CaffeineContent,
