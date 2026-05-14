@@ -2,15 +2,15 @@
 @using AcmeCoffeeOnline.Shared.Enums
 @using Dabbler.Components
 @using Dabbler.Components.Data
+@using Dabbler.Components.MasterDetail
 @using MudBlazor
+@using System.Linq.Expressions
 
 @* ── Filter panel ───────────────────────────────────────────────────── *@
-<FilterPanel T="OrderDto"
-             @ref="_filterPanel"
-             Columns="_filterColumns"
-             FilterChanged="@OnFilterChangedAsync"
-             ShowAddGroup="false"
-             ShowFilterChips="true" />
+<DeclarativeFilterPanel TEntity="OrderDto"
+                        Config="_filterConfig"
+                        FilterChanged="@OnFilterChangedAsync"
+                        InitialValues="@BuildInitialFilterValues()" />
 
 @* ── Toolbar ────────────────────────────────────────────────────────── *@
 <div class="d-flex align-center gap-2 my-2">
@@ -88,7 +88,6 @@
 </MudDataGrid>
 
 @code {
-    private FilterPanel<OrderDto>? _filterPanel;
     private MudDataGrid<OrderDto>? _mudDataGrid;
     private bool _isLoading;
     private Exception? _error;
@@ -110,72 +109,42 @@
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
 
-    protected override void OnParametersSet()
-    {
-        if (!string.IsNullOrWhiteSpace(InitialSearchTerm) && _currentFilter is null)
+    private static readonly FilterConfig<OrderDto> _filterConfig = new(
+        FilterMode.ServerSide,
+        new FilterProperty<OrderDto>[]
         {
-            _currentFilter = new CompositeFilterDescriptor
+            new FilterProperty<OrderDto>.EnumVal
             {
-                Filters = [new FilterDescriptor("CustomerName", "contains", InitialSearchTerm.Trim())]
-            };
-        }
-    }
+                Property = e => (object?)e.Status,
+                Label = "Status",
+            },
+            new FilterProperty<OrderDto>.Text
+            {
+                Property = e => e.CustomerName,
+                Label = "Retail Business",
+            },
+            new FilterProperty<OrderDto>.Date
+            {
+                Property = e => (object?)e.OrderDate,
+                Label = "Order Date",
+                AsRange = true,
+            },
+            new FilterProperty<OrderDto>.Numeric
+            {
+                Property = e => (object?)e.Total,
+                Label = "Total",
+                AsRange = true,
+                MinPlaceholder = "Min $",
+                MaxPlaceholder = "Max $",
+            },
+        });
 
-    private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
+    private IReadOnlyDictionary<string, object?>? BuildInitialFilterValues()
     {
-        new()
-        {
-            Header = "Status",
-            PropertyName = "Status",
-            EditorType = FilterEditorType.ComboBox,
-            ItemsSource = Enum.GetValues<OrderStatus>().Cast<object>(),
-            DefaultOperator = "eq",
-            ShowOperator = false,
-        },
-        new()
-        {
-            Header = "Retail Business",
-            PropertyName = "CustomerName",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "Contact name...",
-        },
-        new()
-        {
-            Header = "Order Date From",
-            PropertyName = "OrderDate",
-            EditorType = FilterEditorType.Date,
-            DefaultOperator = "gte",
-            ShowOperator = false,
-        },
-        new()
-        {
-            Header = "Order Date To",
-            PropertyName = "OrderDate",
-            EditorType = FilterEditorType.Date,
-            DefaultOperator = "lte",
-            ShowOperator = false,
-        },
-        new()
-        {
-            Header = "Min Total",
-            PropertyName = "Total",
-            EditorType = FilterEditorType.NumericText,
-            DefaultOperator = "gte",
-            ShowOperator = false,
-            Placeholder = "Min $",
-        },
-        new()
-        {
-            Header = "Max Total",
-            PropertyName = "Total",
-            EditorType = FilterEditorType.NumericText,
-            DefaultOperator = "lte",
-            ShowOperator = false,
-            Placeholder = "Max $",
-        }
-    };
+        if (string.IsNullOrWhiteSpace(InitialSearchTerm))
+            return null;
+        return new Dictionary<string, object?> { ["CustomerName"] = InitialSearchTerm.Trim() };
+    }
 
     private async Task<GridData<OrderDto>> ServerDataFuncAsync(GridState<OrderDto> state)
     {

@@ -100,14 +100,20 @@ Moderate. The primary cost is `test-generation` for the migrated components' spe
 | 7.1  | Verify session output against original spec. | `session-verification` -> anthropic claude-4.0-opus |
 
 ### Actuals (filled after the session)
-- Orchestrator used: `<engine + model + effort>`
-- Total routed cost: $X.XX
-- Deviations from recommendation: `<any>`
-- Notes for next-session calibration: `<any>`
+- Orchestrator used: anthropic claude-sonnet-4-6 @ effort=low ✓ (matched Session 2 actuals recommendation)
+- Total routed cost: ~$0.39
+  - test-generation: gemini-pro $0.048
+  - tiebreaker analysis (Issues 2+3): gemini-pro $0.007
+  - session-verification Round 1: gpt-5-4 $0.114
+  - session-verification Round 2: gpt-5-4 $0.120
+  - session-verification Round 3 (VERIFIED): gpt-5-4 $0.101
+  - next-session recommendation: gemini-pro $0.001
+- Deviations from recommendation: None. The Session 3 block in this document recommended Gemini CLI, but Session 2 actuals had already overridden to Sonnet at effort=low, which matched the actual run.
+- Notes for next-session calibration: Verification took 3 rounds — R1 found 4 issues (2 real, 2 context-gap false positives), R2 re-raised filter wiring issue (resolved by adding 3 bUnit wiring tests), R3 VERIFIED. Pre-include page wrapper files (OrderDetailPage.razor etc.) in verification context to prevent context-gap false positives.
 
 **Next-session orchestrator recommendation (Session 4):**
-google gemini-1.5-pro-cli @ effort=medium
-Rationale: Similar to Session 3, this is another straightforward migration, making the cost-effective Gemini-CLI the logical choice.
+anthropic claude-sonnet-4-6 @ effort=low
+Rationale (per routed analysis 2026-05-14, gemini-pro): "Matched Session 3 actuals showing Sonnet at low effort was sufficient; Session 4 presents no increase in complexity."
 
 ---
 

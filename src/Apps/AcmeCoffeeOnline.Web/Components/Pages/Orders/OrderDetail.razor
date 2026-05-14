@@ -4,6 +4,7 @@
 @using AcmeCoffeeOnline.Web.Components.Pages.Customers
 @using AcmeCoffeeOnline.Web.Components.Pages.Products
 @using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Components.MasterDetail
 @using MudBlazor
 @inject OrderDetailState State
 @inject IDialogService DialogService
@@ -14,7 +15,7 @@
 }
 else if (State.Record is not null)
 {
-    @* ── Status Workflow ─────────────────────────────────────────── *@
+    @* ── Status Display (chip always visible when not new) ──────────── *@
     @if (!IsNew)
     {
         <MudPaper Class="pa-3 mb-4" Elevation="0" Outlined="true">
@@ -26,8 +27,21 @@ else if (State.Record is not null)
                          Variant="Variant.Filled">
                     @State.Record.Status
                 </MudChip>
-                <MudSpacer />
-                @if (!IsReadOnly)
+            </MudStack>
+        </MudPaper>
+    }
+
+    @* ── Toolbar (DirtyAwareActionRow; status workflow + Undo in CustomActions) ── *@
+    @if (!IsReadOnly)
+    {
+        <DirtyAwareActionRow IsDirty="@(IsNew || (_session?.IsDirty ?? false))"
+                             Saving="@_saving"
+                             ShowCancel="false"
+                             OnSave="HandleSaveAsync"
+                             Class="mb-4"
+                             CustomActionsPosition="ActionRowSlot.End">
+            <CustomActions>
+                @if (!IsNew)
                 {
                     @foreach (var transition in OrderDetailState.GetAvailableTransitions(State.Record.Status))
                     {
@@ -36,55 +50,27 @@ else if (State.Record is not null)
                                    Size="Size.Small"
                                    StartIcon="@GetTransitionIcon(transition)"
                                    OnClick="@(() => UpdateStatusAsync(transition))"
-                                   Disabled="@(State.IsStatusUpdating || _isDirty)">
+                                   Disabled="@(State.IsStatusUpdating || (_session?.IsDirty ?? false))">
                             @transition
                         </MudButton>
                     }
-                    @if (_isDirty)
+                    @if (_session?.IsDirty ?? false)
                     {
                         <MudText Typo="Typo.caption" Color="Color.Secondary">
                             Save or undo header changes before changing status.
                         </MudText>
                     }
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               StartIcon="@Icons.Material.Filled.Undo"
+                               OnClick="HandleUndo"
+                               Disabled="@(!_session?.IsDirty ?? true)"
+                               data-testid="undo-button">
+                        Undo
+                    </MudButton>
                 }
-            </MudStack>
-        </MudPaper>
-    }
-
-    @* ── Toolbar ──────────────────────────────────────────────────── *@
-    @if (!IsReadOnly && IsNew)
-    {
-        <MudStack Row="true" Spacing="2" Class="mb-4">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Save"
-                       OnClick="HandleSaveAsync"
-                       Disabled="_saving"
-                       data-testid="save-button">
-                Save
-            </MudButton>
-        </MudStack>
-    }
-    else if (!IsReadOnly && !IsNew)
-    {
-        <MudStack Row="true" Spacing="2" Class="mb-4">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Save"
-                       OnClick="HandleSaveAsync"
-                       Disabled="@(!_isDirty || _saving)"
-                       data-testid="save-button">
-                Save
-            </MudButton>
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Default"
-                       StartIcon="@Icons.Material.Filled.Undo"
-                       OnClick="HandleUndo"
-                       Disabled="@(!_isDirty)"
-                       data-testid="undo-button">
-                Undo
-            </MudButton>
-        </MudStack>
+            </CustomActions>
+        </DirtyAwareActionRow>
     }
 
     @* ── Order Header Form ────────────────────────────────────────── *@
@@ -153,7 +139,7 @@ else if (State.Record is not null)
             <MudItem xs="12" md="8">
                 <MudTextField T="string"
                               Value="State.Record.Notes"
-                              ValueChanged="OnNotesChanged"
+                              ValueChanged="@((string? v) => OnNotesChanged(v))"
                               Label="Notes"
                               ReadOnly="IsReadOnly"
                               Variant="Variant.Outlined"
@@ -325,10 +311,8 @@ else
     public EventCallback OnDeleted { get; set; }
 
     private MudForm? _form;
+    private EditSession<OrderDto>? _session;
     private bool _saving;
-    private bool _isDirty;
-    private string? _snapshotNotes;
-    private DateTime? _snapshotShipDate;
 
     // Date pickers need nullable DateTime?
     private DateTime? _orderDate;
@@ -353,35 +337,15 @@ else
         {
             _orderDate = State.Record.OrderDate;
             _shipDate = State.Record.ShipDate;
-            TakeSnapshot();
-            UpdateDirtyState();
+            _session = new EditSession<OrderDto>(State.Record);
         }
-    }
-
-    private void TakeSnapshot()
-    {
-        if (State.Record is null) return;
-        _snapshotNotes = State.Record.Notes;
-        _snapshotShipDate = State.Record.ShipDate;
-    }
-
-    private void UpdateDirtyState()
-    {
-        if (State.Record is null || IsNew)
-        {
-            _isDirty = false;
-            return;
-        }
-
-        _isDirty = !string.Equals(State.Record.Notes, _snapshotNotes, StringComparison.Ordinal)
-            || State.Record.ShipDate != _snapshotShipDate;
     }
 
     private void OnNotesChanged(string? value)
     {
         if (State.Record is null) return;
         State.Record.Notes = value;
-        UpdateDirtyState();
+        _session?.NotifyChanged();
     }
 
     private void OnShipDateChanged(DateTime? value)
@@ -389,16 +353,14 @@ else
         _shipDate = value;
         if (State.Record is not null)
             State.Record.ShipDate = value;
-        UpdateDirtyState();
+        _session?.NotifyChanged();
     }
 
     private void HandleUndo()
     {
-        if (State.Record is null) return;
-        State.Record.Notes = _snapshotNotes;
-        State.Record.ShipDate = _snapshotShipDate;
-        _shipDate = _snapshotShipDate;
-        UpdateDirtyState();
+        if (State.Record is null || _session is null) return;
+        _session.Undo();
+        _shipDate = State.Record.ShipDate;
     }
 
     // ── Save ────────────────────────────────────────────────────────
@@ -420,9 +382,9 @@ else
                 {
                     _orderDate = State.Record.OrderDate;
                     _shipDate = State.Record.ShipDate;
+                    // State.Record may be a new object (server response); re-init session
+                    _session = new EditSession<OrderDto>(State.Record);
                 }
-                TakeSnapshot();
-                UpdateDirtyState();
             }
 
             await OnSaved.InvokeAsync();
@@ -460,8 +422,8 @@ else
         if (State.Record is not null)
         {
             _shipDate = State.Record.ShipDate;
-            TakeSnapshot();
-            UpdateDirtyState();
+            // State.Record may be refreshed from server; re-init session on new baseline
+            _session = new EditSession<OrderDto>(State.Record);
         }
     });
 
@@ -491,6 +453,7 @@ else
         await TrackAction("add-item", async () =>
         {
             await State.AddItemFromDialogAsync(newItem);
+            _session?.Commit();
         });
     }
 
@@ -524,6 +487,7 @@ else
     private Task RemoveItemAsync(OrderItemDto item) => TrackAction("remove-item", async () =>
     {
         await State.RemoveItemAsync(item);
+        _session?.Commit();
     });
 
     // ── Order Notes ─────────────────────────────────────────────────

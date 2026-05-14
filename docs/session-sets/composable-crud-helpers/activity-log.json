@@ -204,6 +204,135 @@
       "description": "Cross-provider verification by GPT-5.4 (7 rounds: R1 ForeignKey+Date tests missing; R2 Name text filter missing+AsyncLoader test; R3 chip key+init overwrite; R4 InitialSearchTerm+URL preservation+InvariantCulture; R5 raw URL preservation+ForeignKey owned keys; R6 ParseQueryString +decoding+flag params+fragment; R7 VERIFIED).",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-05-14T05:05:03.993326-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, session-set spec, ai-assignment.md, and existing Orders pages (OrderList.razor, OrderDetail.razor, OrderDetailState.cs, OrderDto.cs, OrdersWorkflowTests.cs)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/orders-migration",
+      "dateTime": "2026-05-14T05:10:39.139685-04:00",
+      "description": "Migrated OrderList.razor: replaced FilterPanel<OrderDto> with DeclarativeFilterPanel using FilterConfig<OrderDto> (Status/EnumVal, CustomerName/Text, OrderDate/Date AsRange, Total/Numeric AsRange). Migrated OrderDetail.razor: replaced manual snapshot/dirty logic (_snapshotNotes, _snapshotShipDate, TakeSnapshot, UpdateDirtyState, HandleUndo) with EditSession<OrderDto> + DirtyAwareActionRow (ShowCancel=false). Status workflow buttons unchanged in MudPaper above row. Undo in CustomActions with data-testid=undo-button. Session re-inited after SaveAsync, UpdateStatusAsync. Session.Commit() called after item add/remove.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/bunit-tests",
+      "dateTime": "2026-05-14T05:10:39.139685-04:00",
+      "description": "Created OrdersFilterConfigTests.cs (5 tests: config shape, Status/EnumVal, CustomerName/Text label, OrderDate/Date AsRange, Total/Numeric AsRange+placeholders). Created OrderDetailEditSessionTests.cs (6 tests: initial clean, Notes dirty, ShipDate dirty, Undo restore, CommitFrom baseline, Commit after item add).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 4421,
+          "outputTokens": 2100,
+          "costUsd": 0.0482
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/playwright",
+      "dateTime": "2026-05-14T05:10:39.140674-04:00",
+      "description": "Created OrdersMigrationTests.cs with 3 Playwright tests: filter query-string persistence on reload, DirtyAwareActionRow save/undo behavior, status transition button updates status chip.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-05-14T05:10:39.141674-04:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors. Dabbler.Components.Tests: 111/111 pass (100 pre-existing + 11 new). Playwright tests compiled but not run (docker not running this session).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-05-14T05:30:24.790331-04:00",
+      "description": "Cross-provider session-verification by GPT-5.4. R1: ISSUES_FOUND (4 findings). Fixed Issue 1 (status buttons in CustomActions) + Issue 4 (scoped filter chip). Issues 2+3 challenged with tiebreaker (Gemini Pro) \u2014 accepted as false positives. R2: ISSUES_FOUND (re-raised Issue 2 as filter wiring). Added 3 bUnit filter-wiring tests to OrdersFilterConfigTests.cs. R3: VERIFIED.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3800,
+          "outputTokens": 1100,
+          "costUsd": 0.114
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2100,
+          "outputTokens": 150,
+          "costUsd": 0.0068
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 4200,
+          "outputTokens": 900,
+          "costUsd": 0.1203
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3900,
+          "outputTokens": 800,
+          "costUsd": 0.101
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-05-14T05:30:32.272522-04:00",
+      "description": "Cross-provider session-verification by GPT-5.4. R1: ISSUES_FOUND (4 findings). Fixed Issue 1 (status buttons in CustomActions) + Issue 4 (scoped filter chip). Issues 2+3 challenged with tiebreaker (Gemini Pro) \u2014 accepted as false positives. R2: ISSUES_FOUND (re-raised Issue 2 as filter wiring). Added 3 bUnit filter-wiring tests to OrdersFilterConfigTests.cs. R3: VERIFIED.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3800,
+          "outputTokens": 1100,
+          "costUsd": 0.114
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2100,
+          "outputTokens": 150,
+          "costUsd": 0.0068
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 4200,
+          "outputTokens": 900,
+          "costUsd": 0.1203
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3900,
+          "outputTokens": 800,
+          "costUsd": 0.101
+        }
+      ]
     }
   ]
 }
