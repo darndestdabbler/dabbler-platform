@@ -827,6 +827,46 @@
       "outcome": "human-review-required",
       "dateTime": "2026-05-11T13:14:23.162823+00:00",
       "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-05-12T12:46:54.453770+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-05-14T22:10:56.867356+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-05-14T22:11:38.688185+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
+    },
+    {
+      "sessionNumber": 3,
+      "type": "uat-runner-failure",
+      "stepNumber": 0,
+      "classification": "APP_FUNCTIONAL_BUG",
+      "autoApplied": false,
+      "outcome": "human-review-required",
+      "dateTime": "2026-05-14T22:12:30.689776+00:00",
+      "issueFile": "docs\\session-sets\\uat-runner-and-triage-feedback\\issues\\000-functional-bug.md"
     }
   ]
 }
