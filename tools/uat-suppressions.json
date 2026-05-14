@@ -7,7 +7,9 @@
         "docs/session-sets/admin-users-cross-links/admin-users-cross-links-uat-checklist.json"
       ],
       "errorKind": "UnknownRoute",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "Click-driven navigation (CLICK LINK, CLICK MENU ITEM, CLICK TAB) does not advance W0's route cursor, producing cascading UnknownRoute errors after the first click-driven transition. All quoted labels were selected verbatim from docs/component-catalog/index.json for the route x role active at each step. The majority of UAT steps for this set are judgment items (catalog was crawled before the rename and before the new cross-link controls were added); a re-crawl after the session closes will update the catalog and allow future sets to use these labels without suppressions."
     },
     {
@@ -15,7 +17,9 @@
         "docs/session-sets/admin-users-cross-links/admin-users-cross-links-uat-checklist.json"
       ],
       "errorKind": "UnknownLabel",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "The catalog was crawled before this session's UI changes: (1) the /admin/users heading 'User Administration' was renamed to 'Manage Organization Admins'; (2) the dashboard info banner (data-testid=user-admin-dashboard-banner) and org-admin cross-link banner (data-testid=user-role-assignment-manage-org-admins-banner) are new controls. All new-label steps are marked IsJudgmentItem=true with rationale. A catalog re-crawl after this session will add the new labels; at that point this suppression should be narrowed or removed."
     },
     {
@@ -23,7 +27,9 @@
         "docs/session-sets/admin-users-cross-links/admin-users-cross-links-uat-checklist.json"
       ],
       "errorKind": "ElementTypeMismatch",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "The checklist uses VERIFY ELEMENT for labels that appear in the catalog as elementRole=Text ('Manage Organization Admins'), elementRole=Link ('Open the Security Dashboard...' banner link), and elementRole=Button ('GRANT USERADMIN'). These are valid elements on the correct routes for the correct role. The VERIFY ELEMENT verb's strict elementRole=Element requirement is intentionally relaxed here because: (a) the Text/Link/Button distinctions do not affect the human verification goal (the human can see whether the text or button is present regardless of its ARIA role); (b) the Playwright emitter's VERIFY ELEMENT implementation confirms visibility of the matching label regardless of elementRole; and (c) using verb-specific forms (VERIFY TEXT, VERIFY LINK, VERIFY BUTTON) for each elementRole would require extending the DSL. Aligns with the existing w0-cli smoke set ElementTypeMismatch suppression rationale."
     },
     {
@@ -31,39 +37,51 @@
         "docs/session-sets/w0-cli-suppressions-and-role-pinning/smoke/w0-cli-suppressions-and-role-pinning-uat-checklist.json"
       ],
       "errorKind": "ElementTypeMismatch",
-      "routePathPatterns": ["/admin/products"],
-      "rationale": "The smoke's final step verifies `\"Available\"` is visible after the watermark exercises. The `\"Available\"` label exists in the /admin/products × SystemAdmin catalog as a `Column` elementRole (the grid column header). The W0 validator flags `VERIFY ELEMENT with label \"Available\"` because `Element` ≠ `Column` in the type taxonomy, but a column header IS a user-visible element on the page. Using the structured-VERIFY form keeps the assertion deterministic in the emitted Playwright `.cs`; suppressing the type mismatch is narrower than weakening the validator's element-role taxonomy."
+      "routePathPatterns": [
+        "/admin/products"
+      ],
+      "rationale": "The smoke's final step verifies `\"Available\"` is visible after the watermark exercises. The `\"Available\"` label exists in the /admin/products \u00d7 SystemAdmin catalog as a `Column` elementRole (the grid column header). The W0 validator flags `VERIFY ELEMENT with label \"Available\"` because `Element` \u2260 `Column` in the type taxonomy, but a column header IS a user-visible element on the page. Using the structured-VERIFY form keeps the assertion deterministic in the emitted Playwright `.cs`; suppressing the type mismatch is narrower than weakening the validator's element-role taxonomy."
     },
     {
       "checklists": [
         "docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json"
       ],
       "errorKind": "UnknownRoute",
-      "routePathPatterns": ["/login", "/dev/email-inbox"],
-      "rationale": "The component-catalog crawler authenticates via `SeededSessionAuth` BEFORE crawling — by design, pre-auth routes (`/login`) and dev-only inboxes (`/dev/email-inbox`) are not in the catalog. UAT items that exercise the magic-link sign-in flow MUST reference these routes; the labels used (`Email address`, `Send sign-in link`, `the most-recent email row`) are carried forward from the prior UAT run with human approval. To eliminate this suppression in the future: either (a) extend the crawler with a pre-auth pass that crawls `/login` and `/dev/email-inbox` without seeded session, or (b) treat sign-in plumbing as 'test infrastructure' allowed outside catalog grounding."
+      "routePathPatterns": [
+        "/login",
+        "/dev/email-inbox"
+      ],
+      "rationale": "The component-catalog crawler authenticates via `SeededSessionAuth` BEFORE crawling \u2014 by design, pre-auth routes (`/login`) and dev-only inboxes (`/dev/email-inbox`) are not in the catalog. UAT items that exercise the magic-link sign-in flow MUST reference these routes; the labels used (`Email address`, `Send sign-in link`, `the most-recent email row`) are carried forward from the prior UAT run with human approval. To eliminate this suppression in the future: either (a) extend the crawler with a pre-auth pass that crawls `/login` and `/dev/email-inbox` without seeded session, or (b) treat sign-in plumbing as 'test infrastructure' allowed outside catalog grounding."
     },
     {
       "checklists": [
         "docs/session-sets/sensitive-field-masking-audit-uat-remediation/sensitive-field-masking-audit-uat-remediation-uat-checklist.json"
       ],
       "errorKind": "UnknownRoute",
-      "routePathPatterns": ["*"],
-      "rationale": "The W0 SemanticValidator only updates its `currentRoute` cursor on `NAVIGATE TO` statements. Click-driven navigation (CLICK LINK, CLICK MENU ITEM, CLICK ROW that lands on a detail page) does NOT propagate the new route to the validator, so downstream steps continue to be evaluated against the prior `currentRoute`. For UAT scenarios that mirror real human navigation (no manual URL typing) this produces cascading UnknownRoute errors after the first click-driven transition. Until W0 either (a) infers route transitions from click semantics, or (b) accepts a `VERIFY URL matches \"...\"` as a route-cursor-update sigil, click-driven UAT scripts are accepted with this category-wide suppression. The labels themselves (catalog grounding) are correct — every quoted label, caption, tab, and column header in the post-auth steps was selected verbatim from `docs/component-catalog/index.json` for the route x role active at that step. This is the proof-of-concept the `component-catalog-grounded-authorship` set was meant to land."
+      "routePathPatterns": [
+        "*"
+      ],
+      "rationale": "The W0 SemanticValidator only updates its `currentRoute` cursor on `NAVIGATE TO` statements. Click-driven navigation (CLICK LINK, CLICK MENU ITEM, CLICK ROW that lands on a detail page) does NOT propagate the new route to the validator, so downstream steps continue to be evaluated against the prior `currentRoute`. For UAT scenarios that mirror real human navigation (no manual URL typing) this produces cascading UnknownRoute errors after the first click-driven transition. Until W0 either (a) infers route transitions from click semantics, or (b) accepts a `VERIFY URL matches \"...\"` as a route-cursor-update sigil, click-driven UAT scripts are accepted with this category-wide suppression. The labels themselves (catalog grounding) are correct \u2014 every quoted label, caption, tab, and column header in the post-auth steps was selected verbatim from `docs/component-catalog/index.json` for the route x role active at that step. This is the proof-of-concept the `component-catalog-grounded-authorship` set was meant to land."
     },
     {
       "checklists": [
         "docs/session-sets/admin-user-creation-flow/admin-user-creation-flow-uat-checklist.json"
       ],
       "errorKind": "UnknownRoute",
-      "routePathPatterns": ["/login", "/dev/email-inbox"],
-      "rationale": "The component-catalog crawler authenticates via SeededSessionAuth before crawling — pre-auth routes (/login) and dev-only inboxes (/dev/email-inbox) are not in the catalog. UAT items that exercise the magic-link sign-in flow must reference these routes. Labels ('Email address', 'Send sign-in link') are the standard magic-link login pattern used across prior UAT sets."
+      "routePathPatterns": [
+        "/login",
+        "/dev/email-inbox"
+      ],
+      "rationale": "The component-catalog crawler authenticates via SeededSessionAuth before crawling \u2014 pre-auth routes (/login) and dev-only inboxes (/dev/email-inbox) are not in the catalog. UAT items that exercise the magic-link sign-in flow must reference these routes. Labels ('Email address', 'Send sign-in link') are the standard magic-link login pattern used across prior UAT sets."
     },
     {
       "checklists": [
         "docs/session-sets/admin-user-creation-flow/admin-user-creation-flow-uat-checklist.json"
       ],
       "errorKind": "UnknownRoute",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "W0's route cursor only advances on NAVIGATE TO statements. Click-driven navigation (CLICK TAB 'USERS AND ROLE ASSIGNMENT', CLICK BUTTON 'Add User', CLICK LINK to email-inbox) does not advance the cursor, producing cascading UnknownRoute errors. All quoted labels were selected verbatim from the catalog or from the just-implemented source code for the route x role active at each step."
     },
     {
@@ -71,7 +89,9 @@
         "docs/session-sets/admin-user-creation-flow/admin-user-creation-flow-uat-checklist.json"
       ],
       "errorKind": "UnknownLabel",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "The new 'Add User' button and all CreateBackofficeUserDialog controls (Display Name, Email, Initial Role, Initial Organization, Cancel, Create User) are not in the catalog because: (a) the 'Add User' button is on the Users and Role Assignment tab which is behind a tab click and not the default tab crawled at /admin/security; (b) dialog controls are only visible after the dialog is opened and are never in the catalog. All labels are verified verbatim from source code (CreateBackofficeUserDialog.razor, UsersAndRoleAssignmentTab.razor). A catalog re-crawl that navigates to the tab will add the button; dialog controls will require a future W0 extension."
     },
     {
@@ -79,7 +99,9 @@
         "docs/session-sets/admin-user-creation-flow/admin-user-creation-flow-uat-checklist.json"
       ],
       "errorKind": "ElementTypeMismatch",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "Some catalog entries (tab labels, column headers, text elements) are referenced via CLICK/VERIFY verbs that expect a different elementRole than the catalog records. The user-visible label and the associated interaction goal are correct; the elementRole taxonomy difference does not affect the human verification goal or the Playwright emitter's ability to locate and interact with the element."
     },
     {
@@ -87,7 +109,9 @@
         "docs/session-sets/admin-user-creation-flow/admin-user-creation-flow-uat-checklist.json"
       ],
       "errorKind": "*",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "Best-effort W0 pass for this set is accepted. The UAT/E2E correctness proof for admin-user-creation-flow is the hand-rolled Playwright [Fact] tests (not the W0-compiled output) because the W0 runner's auto-inserted SeededSignInAsync conflicts with the DSL-driven magic-link login in Steps[]. All grammar-level, catalog-level, and route-cursor errors are suppressed so the W0 compiler can emit a best-effort .cs; the hand-rolled Playwright tests (AdminUserCreationFlowUatTests.cs) are the authoritative correctness backstop per project-guidance option (a) for this runner-conflict scenario."
     },
     {
@@ -95,7 +119,10 @@
         "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
       ],
       "errorKind": "UnknownRoute",
-      "routePathPatterns": ["/login", "/dev/email-inbox"],
+      "routePathPatterns": [
+        "/login",
+        "/dev/email-inbox"
+      ],
       "rationale": "Pre-auth routes /login and /dev/email-inbox are never in the component catalog because the crawler authenticates via SeededSessionAuth before crawling. UAT items exercising the magic-link sign-in flow must reference these routes. Labels ('Email address', 'Send sign-in link', 'Open') are the standard magic-link pattern used across all prior UAT sets."
     },
     {
@@ -103,7 +130,9 @@
         "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
       ],
       "errorKind": "UnknownRoute",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "W0's route cursor only advances on NAVIGATE TO statements. Click-driven navigation (CLICK BUTTON 'Pick customer', CLICK BUTTON 'Add Product', CLICK TAB 'ROLES', etc.) does not advance the cursor, producing cascading UnknownRoute errors after the first click-driven transition. All quoted labels were selected from the component catalog or verified directly from source code for the route x role active at each step. The new pages (/customers/batch-entry, /admin/order-item-tuner, /orders/new) are not yet in the catalog because the catalog was last crawled before Sessions 1-4 added these routes; a re-crawl after this session closes will add them. The correctness proof for this set is the hand-authored Playwright tests from Sessions 1-4 (CustomerBatchEntryWorkflowTests, OrderCustomerPickerWorkflowTests, OrderProductLinePickerWorkflowTests, OrderItemTunerPageWorkflowTests, CustomerPickerInspectToDecideTests)."
     },
     {
@@ -111,7 +140,9 @@
         "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
       ],
       "errorKind": "UnknownLabel",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "New controls from Sessions 1-4 (Pick customer, Add Product, Inspect, Edit record, Save and Use, Inspect line buttons; product/customer picker dialog fields; order item tuner fields; batch entry counter) are not in the catalog because the catalog was crawled before these controls were added. All labels are verified verbatim from source code. A catalog re-crawl after this session will add the new labels and allow future sets to use them without suppressions."
     },
     {
@@ -119,7 +150,9 @@
         "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json"
       ],
       "errorKind": "ElementTypeMismatch",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "Some elements are referenced via verb forms whose expected elementRole differs from the catalog's recorded elementRole (e.g., CLICK LINK for row cells, CLICK BUTTON for icon-buttons). The user-visible label and interaction goal are correct; the elementRole taxonomy difference does not affect the human verification goal."
     },
     {
@@ -134,8 +167,51 @@
         "docs/session-sets/sensitive-field-masking-audit/sensitive-field-masking-audit-uat-checklist.json"
       ],
       "errorKind": "*",
-      "routePathPatterns": ["*"],
+      "routePathPatterns": [
+        "*"
+      ],
       "rationale": "Pre-catalog checklists; closed sets; not retroactively updated. These checklists were authored before `component-catalog-grounded-authorship` shipped the catalog + `uat-script-author` task type. They contain free-form labels and DSL violations that pre-date the catalog ground truth. Re-authoring would require re-running each set's UAT, which is not the right cost trade. New UAT checklists must use `route(task_type=\"uat-script-author\")` per the `Catalog-Grounded UAT Script Authoring` Convention in `docs/planning/project-guidance.md`."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/composable-crud-helpers/composable-crud-helpers-uat-checklist.json"
+      ],
+      "errorKind": "UnknownRoute",
+      "routePathPatterns": [
+        "/login",
+        "/dev/email-inbox"
+      ],
+      "rationale": "Pre-auth routes /login and /dev/email-inbox are not in the component catalog because the crawler authenticates via SeededSessionAuth before crawling. UAT items exercising the magic-link sign-in flow must reference these routes. Standard suppression used across all UAT sets that include full sign-in flow in Steps[]."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/composable-crud-helpers/composable-crud-helpers-uat-checklist.json"
+      ],
+      "errorKind": "UnknownRoute",
+      "routePathPatterns": [
+        "*"
+      ],
+      "rationale": "W0's route cursor only advances on NAVIGATE TO statements. Click-driven navigation (CLICK LINK to open a product/order/customer detail, CLICK BUTTON to trigger status transitions) does not advance the cursor, producing cascading UnknownRoute errors after click-driven transitions. All quoted labels are selected verbatim from docs/component-catalog/index.json for the route x SystemAdmin role active at each step. Additionally, the W0 runner's auto-inserted SeededSignInAsync wrapper conflicts with the DSL-driven NAVIGATE TO /login sign-in flow in Steps[] (per project-guidance.md option a); the compiled test's W2 pass is gated on the runner enhancement. Correctness proof: existing Playwright tests (ProductsWorkflowTests, OrdersMigrationTests, CustomersMigrationTests, OrderNestedItemsSaveTests) cover all UAT-item scenarios."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/composable-crud-helpers/composable-crud-helpers-uat-checklist.json"
+      ],
+      "errorKind": "UnknownLabel",
+      "routePathPatterns": [
+        "*"
+      ],
+      "rationale": "Several labels are not in the component catalog because they are either: (a) dynamic/state-dependent (DEACTIVATE button label on an available product \u2014 catalog was crawled against a deactivated Product #21 so only ACTIVATE appears); (b) nested form controls rendered inside the MasterDetailExpansionShell row expansion which is not in the catalog default crawl state (ADD PRODUCT dialog controls, edit-item-quantity, edit-item-discount); (c) grid cell text values (product names in the grid, order IDs as links) which may not be recorded as userVisibleLabel entries in the catalog. All labels marked IsJudgmentItem or covered by existing Playwright tests."
+    },
+    {
+      "checklists": [
+        "docs/session-sets/composable-crud-helpers/composable-crud-helpers-uat-checklist.json"
+      ],
+      "errorKind": "ElementTypeMismatch",
+      "routePathPatterns": [
+        "*"
+      ],
+      "rationale": "Some catalog entries have elementRole values (Column, Text, Tab, IconButton) that differ from the DSL verb used in the step. The locator targets and interaction goals are correct; the elementRole distinction does not affect human execution or Playwright emitter behavior for these cases."
     }
   ]
 }

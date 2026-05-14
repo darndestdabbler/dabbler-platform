@@ -7,7 +7,7 @@ namespace AcmeCoffeeOnline.Playwright;
 [Collection(PlaywrightCollection.Name)]
 public sealed class CustomersMigrationTests
 {
-    private static readonly string RunId = Guid.NewGuid().ToString("N")[..8];
+    private static readonly string RunId = Random.Shared.Next(0, 10_000_000).ToString("D7");
 
     private readonly PlaywrightFixture _fixture;
 
