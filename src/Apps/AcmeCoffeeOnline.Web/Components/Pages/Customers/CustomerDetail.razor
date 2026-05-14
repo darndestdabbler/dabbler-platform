@@ -1,6 +1,7 @@
 @inherits Dabbler.Testing.Blazor.Components.TrackedComponentBase
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Components.MasterDetail
 @using Dabbler.Security.Blazor.Components.Restriction
 @using MudBlazor
 @inject CustomerApiClient CustomerClient
@@ -11,119 +12,125 @@
 }
 else if (_record is not null)
 {
-    @* ── Toolbar ──────────────────────────────────────────────────── *@
-    <MudStack Row="true" Spacing="2" Class="mb-4">
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Material.Filled.Save"
-                   OnClick="HandleSaveAsync"
-                   Disabled="@(!_isDirty || _saving)"
-                   data-testid="save-button">
-            Save
-        </MudButton>
-        <MudButton Variant="Variant.Outlined"
-                   Color="Color.Default"
-                   StartIcon="@Icons.Material.Filled.Undo"
-                   OnClick="HandleUndo"
-                   Disabled="@(!_isDirty)"
-                   data-testid="undo-button">
-            Undo
-        </MudButton>
-    </MudStack>
+    @* ── Toolbar (DirtyAwareActionRow; Undo in CustomActions) ──────── *@
+    @if (!IsReadOnly)
+    {
+        <DirtyAwareActionRow IsDirty="@(IsNew || (_session?.IsDirty ?? false))"
+                             Saving="@_saving"
+                             ShowCancel="false"
+                             OnSave="HandleSaveAsync"
+                             Class="mb-4"
+                             CustomActionsPosition="ActionRowSlot.End">
+            <CustomActions>
+                @if (!IsNew)
+                {
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               StartIcon="@Icons.Material.Filled.Undo"
+                               OnClick="HandleUndo"
+                               Disabled="@(!_session?.IsDirty ?? true)"
+                               data-testid="undo-button">
+                        Undo
+                    </MudButton>
+                }
+            </CustomActions>
+        </DirtyAwareActionRow>
+    }
 
     @* ── Form ─────────────────────────────────────────────────────── *@
     <MudForm @ref="_form" Model="_record">
         <MudGrid>
             <MudItem xs="12" md="4">
                 <MudTextField T="string"
-                              @bind-Value="_record.FirstName"
+                              Value="@_record.FirstName"
+                              ValueChanged="@((string v) => { _record.FirstName = v; _session?.NotifyChanged(); })"
                               Label="First Name"
                               Required="true"
                               RequiredError="First name is required"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-first-name" />
             </MudItem>
 
             <MudItem xs="12" md="4">
                 <MudTextField T="string"
-                              @bind-Value="_record.LastName"
+                              Value="@_record.LastName"
+                              ValueChanged="@((string v) => { _record.LastName = v; _session?.NotifyChanged(); })"
                               Label="Last Name"
                               Required="true"
                               RequiredError="Last name is required"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-last-name" />
             </MudItem>
 
             <MudItem xs="12" md="4">
                 <MudTextField T="string"
-                              @bind-Value="_record.Email"
+                              Value="@_record.Email"
+                              ValueChanged="@((string v) => { _record.Email = v; _session?.NotifyChanged(); })"
                               Label="Email"
                               Required="true"
                               RequiredError="Email is required"
                               InputType="InputType.Email"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-email" />
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string"
-                              @bind-Value="_record.Phone"
+                <MudTextField T="string?"
+                              Value="@_record.Phone"
+                              ValueChanged="@((string? v) => { _record.Phone = v; _session?.NotifyChanged(); })"
                               Label="Phone"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-phone" />
             </MudItem>
 
             <MudItem xs="12" md="8">
-                <MudTextField T="string"
-                              @bind-Value="_record.Address"
+                <MudTextField T="string?"
+                              Value="@_record.Address"
+                              ValueChanged="@((string? v) => { _record.Address = v; _session?.NotifyChanged(); })"
                               Label="Address"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-address" />
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string"
-                              @bind-Value="_record.City"
+                <MudTextField T="string?"
+                              Value="@_record.City"
+                              ValueChanged="@((string? v) => { _record.City = v; _session?.NotifyChanged(); })"
                               Label="City"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-city" />
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string"
-                              @bind-Value="_record.State"
+                <MudTextField T="string?"
+                              Value="@_record.State"
+                              ValueChanged="@((string? v) => { _record.State = v; _session?.NotifyChanged(); })"
                               Label="State"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-state" />
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string"
-                              @bind-Value="_record.ZipCode"
+                <MudTextField T="string?"
+                              Value="@_record.ZipCode"
+                              ValueChanged="@((string? v) => { _record.ZipCode = v; _session?.NotifyChanged(); })"
                               Label="Zip Code"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              TextChanged="OnFieldChanged"
                               data-testid="field-zip-code" />
             </MudItem>
 
             <MudItem xs="12" md="4">
                 <MudCheckBox T="bool"
-                             @bind-Value="_record.IsActive"
+                             Value="@_record.IsActive"
+                             ValueChanged="@((bool v) => { _record.IsActive = v; _session?.NotifyChanged(); })"
                              Label="Active"
                              Color="Color.Primary"
                              data-testid="field-is-active" />
@@ -186,10 +193,9 @@ else
 
     private MudForm? _form;
     private CustomerDto? _record;
-    private CustomerDto? _snapshot;
+    private EditSession<CustomerDto>? _session;
     private bool _loading = true;
     private bool _saving;
-    private bool _isDirty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -201,13 +207,14 @@ else
                 CreatedDate = DateTime.UtcNow,
                 ModifiedDate = DateTime.UtcNow
             };
-            TakeSnapshot();
+            _session = new EditSession<CustomerDto>(_record);
             _loading = false;
         }
         else if (CustomerId is not null)
         {
             _record = await CustomerClient.GetByIdAsync(CustomerId.Value);
-            TakeSnapshot();
+            if (_record is not null)
+                _session = new EditSession<CustomerDto>(_record);
             _loading = false;
         }
         else
@@ -216,7 +223,11 @@ else
         }
     }
 
-    private void OnFieldChanged(string _) => UpdateDirtyState();
+    private void HandleUndo()
+    {
+        if (_record is null || _session is null) return;
+        _session.Undo();
+    }
 
     private Task HandleSaveAsync() => TrackAction("save", async () =>
     {
@@ -237,6 +248,7 @@ else
                 if (created is not null)
                 {
                     _record = created;
+                    _session = new EditSession<CustomerDto>(_record);
                     IsNew = false;
                 }
             }
@@ -244,11 +256,9 @@ else
             {
                 var updated = await CustomerClient.UpdateAsync(_record.Id, _record);
                 if (updated is not null)
-                    _record = updated;
+                    _session?.CommitFrom(updated);
             }
 
-            TakeSnapshot();
-            UpdateDirtyState();
             await OnSaved.InvokeAsync();
         }
         finally
@@ -256,61 +266,4 @@ else
             _saving = false;
         }
     });
-
-    private void HandleUndo()
-    {
-        if (_record is null || _snapshot is null) return;
-
-        _record.FirstName = _snapshot.FirstName;
-        _record.LastName = _snapshot.LastName;
-        _record.Email = _snapshot.Email;
-        _record.Phone = _snapshot.Phone;
-        _record.Address = _snapshot.Address;
-        _record.City = _snapshot.City;
-        _record.State = _snapshot.State;
-        _record.ZipCode = _snapshot.ZipCode;
-        _record.IsActive = _snapshot.IsActive;
-        UpdateDirtyState();
-    }
-
-    private void TakeSnapshot()
-    {
-        if (_record is null) return;
-
-        _snapshot = new CustomerDto
-        {
-            Id = _record.Id,
-            FirstName = _record.FirstName,
-            LastName = _record.LastName,
-            Email = _record.Email,
-            Phone = _record.Phone,
-            Address = _record.Address,
-            City = _record.City,
-            State = _record.State,
-            ZipCode = _record.ZipCode,
-            IsActive = _record.IsActive,
-            CreatedDate = _record.CreatedDate,
-            ModifiedDate = _record.ModifiedDate,
-            ModifiedBy = _record.ModifiedBy
-        };
-    }
-
-    private void UpdateDirtyState()
-    {
-        if (_record is null || _snapshot is null)
-        {
-            _isDirty = false;
-            return;
-        }
-
-        _isDirty = _record.FirstName != _snapshot.FirstName
-            || _record.LastName != _snapshot.LastName
-            || _record.Email != _snapshot.Email
-            || _record.Phone != _snapshot.Phone
-            || _record.Address != _snapshot.Address
-            || _record.City != _snapshot.City
-            || _record.State != _snapshot.State
-            || _record.ZipCode != _snapshot.ZipCode
-            || _record.IsActive != _snapshot.IsActive;
-    }
 }

@@ -139,14 +139,18 @@ Moderate. Costs are driven by `test-generation` for the new pages and potentiall
 | 7.1  | Verify session output against original spec. | `session-verification` -> anthropic claude-4.0-opus |
 
 ### Actuals (filled after the session)
-- Orchestrator used: `<engine + model + effort>`
-- Total routed cost: $X.XX
-- Deviations from recommendation: `<any>`
-- Notes for next-session calibration: `<any>`
+- Orchestrator used: anthropic claude-sonnet-4-6 @ effort=low ✓ (matched recommendation)
+- Total routed cost: ~$0.15
+  - analysis (ConfirmDeleteButton): gemini-pro $0.0035
+  - test-generation (bUnit): gemini-pro $0.0358
+  - session-verification Round 1: gpt-5-4 $0.1119
+  - next-session recommendation: gemini-pro $0.0012
+- Deviations from recommendation: None.
+- Notes for next-session calibration: Verification VERIFIED in 1 round — simplest verification run in the set so far. Clean migration with no novel design. ConfirmDeleteButton analysis confirmed extraction not yet justified. Session 5 introduces nested 1:N shell wiring — genuine complexity justifies Opus.
 
 **Next-session orchestrator recommendation (Session 5):**
-anthropic claude-4.0-opus @ effort=max
-Rationale: The next session introduces significant complexity with nested forms, data persistence semantics, and the largest test surface, justifying the use of a top-tier model.
+anthropic claude-opus-4-7 @ effort=high
+Rationale (per routed analysis 2026-05-14, gemini-pro): "The high complexity of wiring nested state management, EF cascade persistence, and multi-layered testing (bUnit/Playwright) requires a top-tier model for a robust implementation."
 
 ---
 

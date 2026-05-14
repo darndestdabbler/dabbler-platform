@@ -1,15 +1,14 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using Dabbler.Components
 @using Dabbler.Components.Data
+@using Dabbler.Components.MasterDetail
 @using MudBlazor
+@using System.Linq.Expressions
 
 @* ── Filter panel ───────────────────────────────────────────────────── *@
-<FilterPanel T="CustomerDto"
-             @ref="_filterPanel"
-             Columns="_filterColumns"
-             FilterChanged="@OnFilterChangedAsync"
-             ShowAddGroup="false"
-             ShowFilterChips="true" />
+<DeclarativeFilterPanel TEntity="CustomerDto"
+                        Config="_filterConfig"
+                        FilterChanged="@OnFilterChangedAsync" />
 
 @* ── Toolbar ────────────────────────────────────────────────────────── *@
 <div class="d-flex align-center gap-2 my-2">
@@ -75,7 +74,6 @@
 </MudDataGrid>
 
 @code {
-    private FilterPanel<CustomerDto>? _filterPanel;
     private MudDataGrid<CustomerDto>? _mudDataGrid;
     private bool _isLoading;
     private Exception? _error;
@@ -94,53 +92,36 @@
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
 
-    private readonly IReadOnlyList<FilterColumnDefinition> _filterColumns = new List<FilterColumnDefinition>
-    {
-        new()
+    private static readonly FilterConfig<CustomerDto> _filterConfig = new(
+        FilterMode.ServerSide,
+        new FilterProperty<CustomerDto>[]
         {
-            Header = "Last Name",
-            PropertyName = "LastName",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "Last name...",
-        },
-        new()
-        {
-            Header = "Email",
-            PropertyName = "Email",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "Email...",
-        },
-        new()
-        {
-            Header = "City",
-            PropertyName = "City",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "City...",
-        },
-        new()
-        {
-            Header = "State",
-            PropertyName = "State",
-            EditorType = FilterEditorType.Text,
-            DefaultOperator = "contains",
-            ShowOperator = false,
-            Placeholder = "State...",
-        },
-        new()
-        {
-            Header = "Active",
-            PropertyName = "IsActive",
-            EditorType = FilterEditorType.CheckBox,
-            DefaultOperator = "eq",
-            ShowOperator = false,
-        }
-    };
+            new FilterProperty<CustomerDto>.Text
+            {
+                Property = e => (object?)e.LastName,
+                Label = "Last Name",
+            },
+            new FilterProperty<CustomerDto>.Text
+            {
+                Property = e => (object?)e.Email,
+                Label = "Email",
+            },
+            new FilterProperty<CustomerDto>.Text
+            {
+                Property = e => (object?)e.City,
+                Label = "City",
+            },
+            new FilterProperty<CustomerDto>.Text
+            {
+                Property = e => (object?)e.State,
+                Label = "State",
+            },
+            new FilterProperty<CustomerDto>.Bool
+            {
+                Property = e => (object?)e.IsActive,
+                Label = "Active",
+            },
+        });
 
     private async Task<GridData<CustomerDto>> ServerDataFuncAsync(GridState<CustomerDto> state)
     {

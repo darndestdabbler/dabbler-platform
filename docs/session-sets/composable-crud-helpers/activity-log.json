@@ -333,6 +333,101 @@
           "costUsd": 0.101
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-05-14T06:35:34.808014-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, spec.md, activity-log.json, ai-assignment.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/customers-migration",
+      "dateTime": "2026-05-14T06:35:34.809007-04:00",
+      "description": "Migrated CustomerList.razor: replaced FilterPanel<CustomerDto> with DeclarativeFilterPanel using FilterConfig<CustomerDto> (LastName/Text, Email/Text, City/Text, State/Text, IsActive/Bool). Migrated CustomerDetail.razor: replaced manual _snapshot/_isDirty/TakeSnapshot/UpdateDirtyState/HandleUndo with EditSession<CustomerDto> + DirtyAwareActionRow (ShowCancel=false, Undo in CustomActions). Fixed all @bind-Value \u2192 Value/ValueChanged. IsActive checkbox now tracked. CommitFrom(updated) called after update save; new EditSession after create save.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/optional-confirm-delete-extract",
+      "dateTime": "2026-05-14T06:35:34.810008-04:00",
+      "description": "Routed analysis for ConfirmDeleteButton extraction: NO \u2014 zero usage of IDialogService+DeleteAsync pattern across S1-S3 pages. No component extracted.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1200,
+          "outputTokens": 80,
+          "costUsd": 0.0035
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/bunit-tests",
+      "dateTime": "2026-05-14T06:35:34.811016-04:00",
+      "description": "Created CustomersFilterConfigTests.cs (11 tests: 7 config-shape + 3 filter-wiring). Created CustomerDetailEditSessionTests.cs (6 tests: initial clean, edit LastName, edit Email, Undo restore, CommitFrom baseline, Commit freeze). Created CustomersMigrationTests.cs (2 Playwright tests: filter QS persistence + DirtyAwareActionRow save/undo).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 4000,
+          "outputTokens": 3500,
+          "costUsd": 0.0358
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-05-14T06:35:34.812021-04:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors. Dabbler.Components.Tests: 130/130 pass (111 pre-existing + 19 new). Playwright not run (Docker not running).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-05-14T06:37:31.451776-04:00",
+      "description": "Cross-provider session-verification by GPT-5.4. R1: VERIFIED (no issues).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 5000,
+          "outputTokens": 800,
+          "costUsd": 0.1119
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-05-14T06:37:37.232961-04:00",
+      "description": "Cross-provider session-verification by GPT-5.4. R1: VERIFIED (no issues).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 5000,
+          "outputTokens": 800,
+          "costUsd": 0.1119
+        }
+      ]
     }
   ]
 }
