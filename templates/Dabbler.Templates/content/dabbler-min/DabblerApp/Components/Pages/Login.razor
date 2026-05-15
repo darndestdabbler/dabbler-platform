@@ -72,8 +72,15 @@
                        FullWidth="true"
                        Disabled="@(_submitting || string.IsNullOrWhiteSpace(_code))"
                        Class="mb-3">
-                @if (_submitting) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> @:Verifying... }
-                else { @:Verify code }
+                @if (_submitting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    @:Verifying...
+                }
+                else
+                {
+                    @:Verify code
+                }
             </MudButton>
 
             <MudButton OnClick="ResetToEmail" Variant="Variant.Text" Color="Color.Default" FullWidth="true">

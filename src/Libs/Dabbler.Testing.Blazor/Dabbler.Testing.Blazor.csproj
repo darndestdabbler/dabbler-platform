@@ -10,6 +10,7 @@
     <Description>Testing utilities for Blazor Server apps: action watermark tracking, test readiness probes, and render-wait synchronization for Playwright E2E tests.</Description>
     <PackageTags>blazor;testing;playwright;e2e;watermark</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

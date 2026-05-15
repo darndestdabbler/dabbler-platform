@@ -503,10 +503,27 @@ Moderate
 | 4 | Record any package-level limitations. | `route(task_type="documentation")` |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-sonnet-4-6, medium effort) — matched the
+  spec recommendation.
+- **Total routed cost:** $0.0845 (session verification only; all work was direct per activity log)
+  - 1 session-verification round (gpt-5-4, $0.0845)
+- **Deviations from recommendation:**
+  - All steps were executed as direct work with no `route()` calls other than verification.
+    This is consistent with the session's mechanical nature (csproj restructuring, test infra
+    scaffolding, pack.ps1 authoring) — all well under the 50-line / single-file thresholds.
+  - `session-7/packaged-contract-check` noted by verifier as only partially evidenced:
+    `NupkgArtifactTests` covers metadata/content but not public-surface/API contract
+    assertions. Accepted as deferred to Session 9's pack execution pass.
+- **Notes for next-session calibration:**
+  - The three verifier flags were: (1) namespace preservation is source-compat not binary-compat,
+    (2) `packaged-contract-check` not fully proven by described tests, (3) package validation
+    tests were skipped because pack output was absent. All three are explicitly resolved by
+    Session 9 running `tools/pack.ps1` and exercising the NupkgArtifactTests.
+  - Binary compatibility caveat documented: namespace preservation is a good source-compat tactic
+    but not binary-compat without type forwarders. For a preview package, rebuild-required-on-upgrade
+    is acceptable; document in release-checklist.md.
+- **Session verification:** ISSUES_FOUND (3 flagged items, all deferred to Session 9 per operator
+  decision — the core deliverables were accepted as substantially complete for their scope)
 
 **Next-session orchestrator recommendation:** Claude Code (claude-sonnet-4-6)
 
@@ -572,12 +589,45 @@ Moderate
 | 3 | Append one catch-up session only if a direct omission was exposed. | direct work |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-sonnet-4-6, medium effort) — matched the
+  Session 8 next-orc recommendation (Sonnet medium).
+- **Total routed cost:** ~$0.49 across 5 routed calls.
+  - Session 10 orchestrator recommendation: gemini-pro analysis, $0.0054
+  - Round 1 session-verification: gpt-5-4, $0.1446 — ISSUES_FOUND (1 Major: prefix
+    matching too loose; 1 Minor: consumer-readiness doc wording)
+  - Round 2 session-verification: gpt-5-4, $0.1138 — ISSUES_FOUND (1 Major: template
+    nupkg lookup glob; 1 Minor: consumer-readiness step 1 conflated checks)
+  - Round 3 session-verification: gpt-5-4, $0.1485 — ISSUES_FOUND (1 Major: global
+    template hive mutation; 1 Minor: RunTool WaitForExit async drain)
+  - Round 4 session-verification (operator-authorized): gpt-5-4, $0.0788 — ISSUES_FOUND
+    (1 Minor: async drain incomplete after successful WaitForExit)
+  Minor fixed inline; Round 4 closes as operator-decisioned per
+  `feedback_verifier_spiral_doc_sessions`.
+- **Deviations from recommendation:**
+  - All work done directly per session spec (no routing for test authoring, which
+    was mechanical template-smoke plumbing). Cross-provider verification used `route()`.
+  - Session 9 uncovered 7 template quality issues (missing usings, broken syntax,
+    app-specific refs) that were NOT in the spec. All fixed inline; no catch-up session.
+  - 4 verification rounds (max-2-retries policy + 2 operator-authorized) per
+    `feedback_verifier_spiral_doc_sessions` pattern. Each round surfaced a genuine
+    correctness issue; no round was bookkeeping-only.
+- **Notes for next-session calibration:**
+  - Template quality issues accumulate when template content is authored without
+    running a full consumer smoke test. Future sessions that author template content
+    SHOULD include a build-and-test smoke step in the same session.
+  - Use `--debug:custom-hive` for `dotnet new` template isolation in smoke tests.
+  - gpt-5-4 verifier cost at complexity 63-70: $0.08-0.14 per round. Natural settling
+    point for code+doc sessions was 4 rounds here.
+- **Session verification:** **ISSUES_FOUND** — Round 4 of 4 (operator-authorized).
+  All Major issues resolved Rounds 1-3; 1 Minor fixed inline at Round 4.
+- **Adjudications:** None.
 
-**Next-session orchestrator recommendation:** Claude Code (claude-sonnet-4-6)
+**Next-session orchestrator recommendation (routed analysis, gemini-pro, $0.0054 — see
+[`session-reviews/session-10-next-orchestrator-recommendation.md`](./session-reviews/session-10-next-orchestrator-recommendation.md)):**
+**Claude Code (`claude-opus-4-7`, high effort)** per routed analysis. Note: spec
+originally recommended Sonnet moderate; routed analysis upgrades citing the complexity
+of first Playwright E2E tests for packaging/template features. Operator should confirm
+at Session 10 start per `feedback_honor_spec_sized_orchestrator`.
 
 ---
 

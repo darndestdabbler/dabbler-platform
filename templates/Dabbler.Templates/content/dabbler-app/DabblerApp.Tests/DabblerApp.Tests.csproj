@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Stubs meta-package: bUnit opt-in (§4.4 ledger) -->
+    <!-- Stubs meta-package: bUnit opt-in (§4.4 ledger). The meta-package transitively
+         includes Dabbler.Platform.Stubs.Components, .Reports, and .Security. -->
     <PackageReference Include="Dabbler.Platform.Stubs" Version="0.1.0-preview.1" />
-    <PackageReference Include="Dabbler.Platform.Stubs.Components" Version="0.1.0-preview.1" />
 
     <!-- bUnit and test framework -->
     <PackageReference Include="bunit" Version="1.37.7" />

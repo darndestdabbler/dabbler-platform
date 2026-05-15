@@ -38,7 +38,17 @@ public class NupkgArtifactTests
         if (!Directory.Exists(PackOutputDir))
             return [];
 
-        return Directory.GetFiles(PackOutputDir, $"{packageId}.*.nupkg");
+        // Use a digit guard after the packageId prefix so Dabbler.Components.Compat.*.nupkg
+        // does not satisfy a lookup for packageId="Dabbler.Components".
+        var prefix = packageId + ".";
+        return Directory.GetFiles(PackOutputDir, $"{packageId}.*.nupkg")
+            .Where(f =>
+            {
+                var name = Path.GetFileName(f);
+                return name is not null &&
+                       name.Length > prefix.Length &&
+                       char.IsDigit(name[prefix.Length]);
+            });
     }
 
     private static readonly string[] PackagedLibraries =

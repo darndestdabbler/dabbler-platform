@@ -7,6 +7,7 @@ using Dabbler.Security.Extensions;
 using Dabbler.Security.Blazor.Extensions;
 using Dabbler.Security.Options;
 using Dabbler.Testing.Blazor.Hosting;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;

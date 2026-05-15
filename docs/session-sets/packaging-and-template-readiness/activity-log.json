@@ -948,6 +948,136 @@
           "costUsd": 0.011779999999999999
         }
       ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 1,
+      "stepKey": "session-9/prerequisites-verified",
+      "dateTime": "2026-05-15T13:05:19.551241-04:00",
+      "description": "Prerequisites verified: templates/Dabbler.Templates/, tools/Dabbler.Security.DevIdp.Tool/, docs/getting-started.md, tools/pack.ps1 all present from Session 8.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 2,
+      "stepKey": "session-9/update-ai-assignment",
+      "dateTime": "2026-05-15T13:07:40.254494-04:00",
+      "description": "Updated ai-assignment.md Session 7 actuals (TBD\u2192real data, cost $0.0845 gpt-5-4 verify, ISSUES_FOUND deferred to Session 9). Routed Session 10 recommendation via gemini-pro ($0.0054): Opus high recommended (upgrade from spec Sonnet moderate). Saved session-10-next-orchestrator-recommendation.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1200,
+          "outputTokens": 350,
+          "costUsd": 0.0054
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 3,
+      "stepKey": "session-9/consumer-validation",
+      "dateTime": "2026-05-15T13:32:12.208127-04:00",
+      "description": "Ran tools/pack.ps1 (14 nupkgs, hermeticity verified). Ran NupkgArtifactTests (51 passed). Ran PackagingSmokeTests: 4 active tests passed (PackOutput_ContainsAllRequiredLibraryNupkgs, DabblerApp_Template_InstallsAndBuildsClean, DabblerMin_Template_InstallsAndBuildsClean, DabblerApp_ScaffoldedBUnit_AllTestsPass). Fixed 7 template + packaging issues inline: icon.png missing in Testing.Blazor, missing using directives in _Imports.razor, missing using in Program.cs, DabblerAssetLinks removal, AccessDeniedCard scaffold, Login.razor Razor parser bug, wrong Stubs.Components namespace.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 4,
+      "stepKey": "session-9/template-smoke-proof",
+      "dateTime": "2026-05-15T13:32:12.210653-04:00",
+      "description": "All template smoke tests pass. dabbler-app and dabbler-min scaffold, restore, and build clean. Scaffolded bUnit tests pass with Stubs opt-in. 2 tests remain skipped (Session 10 E2E: sign-in and PDF export require running app docker stack).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 5,
+      "stepKey": "session-9/catch-up-decision",
+      "dateTime": "2026-05-15T13:32:12.211670-04:00",
+      "description": "No catch-up session needed. All 7 template/packaging omissions were fixed inline in Session 9. Sessions 10 (E2E) and 11 (UAT) proceed as planned. Consumer-readiness notes authored at docs/packaging/consumer-readiness.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 6,
+      "stepKey": "session-9/build-and-test",
+      "dateTime": "2026-05-15T13:56:54.817473-04:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 202 pre-existing warnings. Per-project test runs: 919 passed, 2 skipped (Packaging.Smoke Session-10 deferred tests), 0 new failures. Dabbler.Security.Tests shows 1 failure only in full-solution parallel batch (pre-existing race; passes 305/305 alone \u2014 documented in Session 4 actuals as SeededOrderMutationCollection fix scope). New test projects: Dabbler.PublicSurface.Tests (51 passed), Dabbler.Packaging.Smoke (4 passed, 2 skipped).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 7,
+      "stepKey": "session-9/cross-provider-verification",
+      "dateTime": "2026-05-15T14:01:05.878515-04:00",
+      "description": "Cross-provider session verification via gpt-5-4 ($0.1446)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 8049,
+          "outputTokens": 8301,
+          "costUsd": 0.14463749999999997
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 8,
+      "stepKey": "session-9/cross-provider-verification-round-2",
+      "dateTime": "2026-05-15T14:05:16.024170-04:00",
+      "description": "Round 2 cross-provider session verification via gpt-5-4 ($0.1138)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 6036,
+          "outputTokens": 6579,
+          "costUsd": 0.11377499999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 9,
+      "stepKey": "session-9/cross-provider-verification-round-3",
+      "dateTime": "2026-05-15T14:09:31.771537-04:00",
+      "description": "Round 3 cross-provider session verification via gpt-5-4 ($0.1485)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 4781,
+          "outputTokens": 9105,
+          "costUsd": 0.1485275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 10,
+      "stepKey": "session-9/cross-provider-verification-round-4",
+      "dateTime": "2026-05-15T14:13:01.358489-04:00",
+      "description": "Round 4 (operator-authorized) cross-provider session verification via gpt-5-4 ($0.0788)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3265,
+          "outputTokens": 4707,
+          "costUsd": 0.0787675
+        }
+      ]
     }
   ]
 }
