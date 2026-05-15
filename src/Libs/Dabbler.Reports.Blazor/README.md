@@ -1,11 +1,8 @@
 # Dabbler.Reports.Blazor
 
-Blazor report UI for the retained notes-driven reporting workflow. The
-supported contract centers on prompting for parameters, executing a report, and
-rendering the composed output.
-
-The current supported contract is defined in
-`docs/planning/notes-driven-supported-library-surface.md`.
+Blazor report UI for the retained reporting workflow. The supported contract
+centers on prompting for parameters, executing a report, and rendering the
+composed output.
 
 ## Supported Core
 
@@ -37,13 +34,6 @@ Or embed just the viewer:
 - execute report queries against a report data provider
 - view composed report output in the browser
 - keep PDF/export support as supporting behavior, not the main contract story
-
-## Compatibility-Only Surface
-
-`DabblerQueryReportPage<T>` is retained only for compatibility. The supported
-notes-driven contract prefers composing `DabblerQueryPage<T>` and
-`DabblerReportPage` separately instead of treating the combined surface as the
-default reusable path.
 
 ## Dependencies
 

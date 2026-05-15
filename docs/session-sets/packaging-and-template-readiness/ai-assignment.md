@@ -51,12 +51,45 @@ Moderate (revised 2026-05-15 after dropping the `force_model="opus"` forcing on 
 | 5 | Build and run any markdown-aware checks. | direct work |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-opus-4-7, high effort) — operator
+  declined to swap to the recommended Sonnet @ low effort, kept Opus.
+- **Total routed cost:** ~$0.86 (33 calls)
+  - 15 documentation-refresh routed calls (gemini-pro, ~$0.31)
+  - 15 auto-cross-provider verifier calls on the refresh sweep
+    (gpt-5-4-mini, ~$0.23)
+  - 1 routed Session-3 next-orchestrator analysis (gemini-pro, $0.003)
+  - 3 session-verification rounds (gpt-5-4 each, $0.116 + $0.115 + $0.083 = $0.314)
+- **Deviations from recommendation:** Orchestrator ran at Opus high effort
+  rather than Sonnet low. Operator-confirmed deviation at session start.
+  Cost impact was the orchestrator-side reasoning depth (paid in Anthropic
+  conversation tokens, not in routed-call cost). Future sessions in this set
+  should still honor the spec-sized orchestrator unless the operator
+  explicitly chooses to swap.
+- **Notes for next-session calibration:** The 15-doc refresh sweep at
+  gemini-pro defaults landed at ~$0.02 average per doc — well under
+  conservative estimates. The auto-verifier critiques (gpt-5-4-mini)
+  added ~$0.015 per doc on top and surfaced concrete missing-detail
+  callouts that would have been missed by the doc-refresh model alone.
+  The 3 session-verification rounds were a pattern of "verifier flags
+  real concerns but with one context-gap finding per round" — be ready
+  to dispute findings via `record_adjudication` and to tighten the
+  verification bundle iteratively. The Round-3 ISSUES_FOUND was Minor
+  and referred to a transient prompt artifact, not the deliverable;
+  retry budget was exhausted at 2/2 retries.
+- **Session verification:** ISSUES_FOUND (1 Minor, transient prompt only,
+  not deliverable; retry budget 2/2 exhausted; documented in
+  disposition.json).
+- **Adjudications:** 1 — Round-1 Issue 2
+  (`Dabbler.Security.Blazor` `[Authorize(Roles="SystemAdmin")]` example),
+  cause=context-gap, resolution=accept-dismissal.
 
-**Next-session orchestrator recommendation:** Claude Code (claude-sonnet-4-6)
+**Next-session orchestrator recommendation (routed analysis, gemini-pro,
+$0.003):** Claude Code (`claude-opus-4-7`, medium effort). Routed analysis
+overrode the original ai-assignment recommendation (Sonnet low) because
+Session 3 authors a canonical, high-leverage entry-point document by
+synthesizing from multiple sources, and weak initial drafts trigger
+costly verification re-work cycles. The next orchestrator may swap to
+Sonnet medium if context permits.
 
 ---
 

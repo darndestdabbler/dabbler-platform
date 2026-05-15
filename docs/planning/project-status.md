@@ -1,10 +1,19 @@
 # Project Status — AI-Led Development Prototype
 
-> **Purpose:** Capture everything a fresh Claude needs to know about the
-> current state of the prototype after the BATON v2 deliverable package
-> completed. Supersedes BATON v2 and Session 2–9 handoffs/briefs, all of
-> which were bootstrapping artifacts whose durable content has landed in
-> the files named under "Where durable content lives now" below.
+> **STALE — last refreshed 2026-04-21.** This file describes the prototype
+> as of the BATON v2 deliverable package and predates the Phase 2
+> packaging-and-template-readiness work (started 2026-05-15). For the
+> current Phase 2 status, see
+> `docs/session-sets/packaging-and-template-readiness/spec.md` and the
+> change logs of the most recently completed session sets under
+> `docs/session-sets/`. The pointers under "Where durable content lives
+> now" below are still authoritative for the topics they cover.
+>
+> **Original purpose:** Capture everything a fresh Claude needs to know
+> about the current state of the prototype after the BATON v2 deliverable
+> package completed. Supersedes BATON v2 and Session 2–9 handoffs/briefs,
+> all of which were bootstrapping artifacts whose durable content has
+> landed in the files named under "Where durable content lives now" below.
 > **Read order:** This file first, then the authoritative files it points
 > to. Do not read the retired handoff/brief documents — if something from
 > them were still load-bearing, it would be restated here.
@@ -39,7 +48,6 @@ briefs have been retired.
 | Practical lessons from execution | `docs/planning/lessons-learned.md` |
 | Session-set workflow — procedure, rules, router usage, verification, UAT, close-out | `docs/ai-led-session-workflow.md` |
 | Board-facing governance narrative | `docs/planning/governance-two-pager.md` |
-| Governance two-pager section outline (rationale for section order, "Section 3 is load-bearing") | `docs/planning/governance-two-pager-outline.md` |
 | Orchestrator bootstrap (API keys, import snippets) | `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` |
 | Router design rationale (rules-first verifier selection, per-task `on_disagreement`, complexity-heuristic stopping point) | Comment blocks inline in `ai-router/router-config.yaml` |
 | LLM instructions used for every routed task | `ai-router/prompt-templates/system-prompts.md`, `task-prompts.md`, `verification.md` |
@@ -93,7 +101,6 @@ is re-used for any future revision, correct the ordering there too.
         ├── project-status.md                        (this file)
         ├── project-guidance.md
         ├── lessons-learned.md
-        ├── governance-two-pager-outline.md
         ├── governance-two-pager.md
         └── governance-slides-outline.md             (if/when Session 8 scope runs)
 ```

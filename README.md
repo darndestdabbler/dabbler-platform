@@ -29,6 +29,13 @@ The repo currently includes:
   `uat_runner/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
 - durable cutover/guardrail docs
 
+The single source of truth for the AI-led workflow is
+[`docs/ai-led-session-workflow.md`](docs/ai-led-session-workflow.md)
+(execution mechanics; it links onward to the spec-authoring guide).
+Per-library READMEs live under [`src/Libs/`](src/Libs/); the W0
+toolchain ↔ catalog ↔ W2 runner compatibility matrix lives at
+[`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md).
+
 ## Project layout
 
 - `src/Apps/AcmeCoffeeOnline.Web/` — rebuilt Blazor Server host with

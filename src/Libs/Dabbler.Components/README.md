@@ -9,9 +9,24 @@ composition rather than heavyweight wrapper abstractions.
 
 ## Active Core
 
+### CRUD master/details composition
+
+The library ships a small set of à-la-carte helpers that pages wire up
+independently rather than being generated from a config object. Each
+helper does one thing and is composed by the page itself.
+
 | Surface | Role |
 |---------|------|
-| `FilterPanel<T>` | MudBlazor-native QBE filter panel with AND/OR group logic, operator selection, presets, and active filter chips |
+| `DeclarativeFilterPanel<TEntity>` | Catalog-friendly QBE filter panel with AND/OR group logic, operator selection, presets, and active filter chips. The current default for new query pages. |
+| `EditSession<T>` | Dirty-tracking snapshot for a detail-page record (NotifyChanged / Commit / CommitFrom / Cancel). Pairs with `<DirtyAwareActionRow>`. |
+| `<DirtyAwareActionRow>` | Save / Cancel / Delete action row that reads `EditSession<T>` state, with a `CustomActions` slot for page-specific buttons. |
+| `<MasterDetailExpansionShell>` | Generic master-detail composite (Add-Only, Search+Update, Pick-or-Add, M:N-with-payload) selected via capability parameters (`ShowGrid`, `ShowLinkData`, `TargetEditability`). |
+| `FilterPanel<T>` | Original MudBlazor-native QBE filter panel; retained for legacy callers. New pages prefer `DeclarativeFilterPanel<TEntity>`. |
+
+### Filter and data-provider primitives
+
+| Surface | Role |
+|---------|------|
 | `FilteringCoordinator` | Manages filter state, group lifecycle, and change notification |
 | `FilterColumnDefinition` | Defines filterable columns with types, operators, and editor metadata |
 | `FilterGroupCollection` / `FilterGroup` | AND/OR group model for composable filter expressions |
@@ -35,18 +50,20 @@ the main application, which has moved to MudBlazor-native layout and routing:
 
 ## Quick Start
 
-Register services in `Program.cs`:
+Register MudBlazor services in `Program.cs` (Dabbler.Components types
+have no project-wide DI extension — components and helpers are used
+directly by the pages that need them):
 
 ```csharp
 builder.Services.AddMudServices();
 ```
 
-Use `FilterPanel<T>` with `MudDataGrid<T>` for query pages:
+Use `DeclarativeFilterPanel<TEntity>` with `MudDataGrid<T>` for query pages:
 
 ```razor
-<FilterPanel T="Customer"
-             FilterColumns="@filterColumns"
-             Coordinator="@coordinator" />
+<DeclarativeFilterPanel TEntity="Customer"
+                        FilterColumns="@filterColumns"
+                        Coordinator="@coordinator" />
 
 <MudDataGrid T="Customer"
              ServerData="@dataProvider.ToServerDataFunc(coordinator.GetCompositeFilter)">

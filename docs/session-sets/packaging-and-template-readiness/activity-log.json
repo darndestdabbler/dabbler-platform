@@ -72,6 +72,261 @@
           "costUsd": 0.042195
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:35:09.658779-04:00",
+      "description": "Routed documentation refresh for README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1803,
+          "outputTokens": 899,
+          "costUsd": 0.01124375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:36:21.999577-04:00",
+      "description": "Routed documentation refresh for docs/COMPATIBILITY.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2418,
+          "outputTokens": 1494,
+          "costUsd": 0.017962500000000003
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:39:18.333763-04:00",
+      "description": "Routed documentation refresh for docs/ai-led-session-workflow.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 17678,
+          "outputTokens": 16814,
+          "costUsd": 0.19023749999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:40:14.724861-04:00",
+      "description": "Routed documentation refresh for docs/planning/governance-two-pager.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2336,
+          "outputTokens": 118,
+          "costUsd": 0.0040999999999999995
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:41:02.802329-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Components/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1514,
+          "outputTokens": 676,
+          "costUsd": 0.008652499999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:41:34.927033-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Platform.Stubs/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1384,
+          "outputTokens": 79,
+          "costUsd": 0.0025199999999999997
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:42:05.118208-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Reports.Blazor/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1310,
+          "outputTokens": 73,
+          "costUsd": 0.0023675
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:42:37.521138-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Reports.Core/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1298,
+          "outputTokens": 89,
+          "costUsd": 0.0025125
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:43:03.774253-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Reports.Export/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1078,
+          "outputTokens": 72,
+          "costUsd": 0.0020675
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:44:06.899273-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Security/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2122,
+          "outputTokens": 1172,
+          "costUsd": 0.014372500000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:50:18.591947-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Security.Blazor/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1827,
+          "outputTokens": 933,
+          "costUsd": 0.011613749999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:51:17.834644-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Testing.Blazor/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1667,
+          "outputTokens": 807,
+          "costUsd": 0.010153750000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:52:12.965362-04:00",
+      "description": "Routed documentation refresh for CLAUDE.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2832,
+          "outputTokens": 1861,
+          "costUsd": 0.022150000000000003
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:53:00.449020-04:00",
+      "description": "Routed documentation refresh for AGENTS.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2862,
+          "outputTokens": 125,
+          "costUsd": 0.0048275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:54:00.665208-04:00",
+      "description": "Routed documentation refresh for GEMINI.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2854,
+          "outputTokens": 99,
+          "costUsd": 0.004557500000000001
+        }
+      ]
     }
   ]
 }

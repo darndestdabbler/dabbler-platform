@@ -135,5 +135,4 @@ human.
 
 ---
 
-*Draft produced in Session 7, 2026-04-20. Companion to
-`governance-two-pager-outline.md`.*
+*Draft produced in Session 7, 2026-04-20.*

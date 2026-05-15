@@ -51,8 +51,8 @@ This registers MudBlazor services, cascading authentication state, and a `Delega
 
 | Component | Description |
 |---|---|
-| `DabblerSecurityDashboard` | Central admin panel. Under the restriction-based model (session set `rearchitect-role-administration-dashboard`), it exposes five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, and Role Documentation. Each tab is gated by the active baked-in role. |
-| `DabblerUserRoleManager` | Manage user-to-role assignments. |
+| `DabblerSecurityDashboard` | Central admin panel. Under the restriction-based model, it exposes five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, and Role Documentation. Each tab is gated by the active baked-in role. |
+| `RestrictedFormField` / `RestrictedGridColumn` | Render fields and grid columns subject to the active role's `ColumnRestriction` rules and any `DefaultMask` + `MaskExemption` resolution. |
 
 ## Current Contract Notes
 
@@ -97,7 +97,7 @@ Add the role switcher to your layout or navigation bar. It renders a dropdown fo
 ## Dependencies
 
 - [Dabbler.Security](https://www.nuget.org/packages/Dabbler.Security/) -- Core package
-- [MudBlazor](https://www.nuget.org/packages/MudBlazor/) (>= 7.15.0)
+- [MudBlazor](https://www.nuget.org/packages/MudBlazor/) (8.x)
 - [Microsoft.AspNetCore.Components.Web](https://www.nuget.org/packages/Microsoft.AspNetCore.Components.Web/)
 
 ## License

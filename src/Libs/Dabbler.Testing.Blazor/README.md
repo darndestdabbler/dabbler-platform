@@ -115,5 +115,5 @@ See `tests/Dabbler.Testing.Blazor.Tests/` for bUnit tests verifying watermark be
 
 ## References
 
-- [AI-Led Session Workflow](../../docs/ai-led-session-workflow.md)
-- [Project Guidance](../../docs/planning/project-guidance.md) (Testing Hierarchy section)
+- [AI-Led Session Workflow](../../../docs/ai-led-session-workflow.md)
+- [Project Guidance](../../../docs/planning/project-guidance.md) (Testing Hierarchy section)

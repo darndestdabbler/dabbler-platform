@@ -32,7 +32,7 @@ versions.
 | `Dabbler.Uat.Dsl.Cli`                              | 1.2.1   | `dabbler-uat-dsl/src/Dabbler.Uat.Dsl.Cli/Dabbler.Uat.Dsl.Cli.csproj` |
 | `Dabbler.Uat.Dsl.Emitters.Playwright.CSharp`       | 1.1.0   | `Directory.Packages.props` |
 | Component-catalog schema                           | 1.1     | written by `tools/ComponentCatalogCrawler/`; consumed by W0 (which ignores `isWatermarked`) and the W2 runner |
-| W2 runner (`ai-router/uat_runner/cli.py`)          | 2026-04-30 | tracks W0 1.2.x flags (`--suppressions`, `--active-role`) natively |
+| W2 runner (`uat_runner`)                           | 2026-04-30 | top-level `uat_runner/` package; tracks W0 1.2.x flags (`--suppressions`, `--active-role`) natively |
 | `Dabbler.Testing.Blazor` (watermark library)       | integrated source under `src/Libs/Dabbler.Testing.Blazor/` | `TrackedComponentBase` + `TrackAction` + `WaitForQuietAsync` |
 
 All five rows must align: a W0 Core version that does not understand
@@ -66,10 +66,11 @@ sits in this table; ad-hoc combinations are unsupported.
 
 ### Flag expectations
 
-The W2 runner (`ai-router/uat_runner/runner.py`) calls `dabbler-uat-dsl
-compile` with both `--suppressions tools/uat-suppressions.json` and
-`--active-role <inferred>` on every invocation. Both flags require
-W0 Cli ≥ 1.2.1.
+The W2 runner (`uat_runner.runner`, invoked via `python -m uat_runner.cli`)
+calls `dabbler-uat-dsl compile` with both `--suppressions
+tools/uat-suppressions.json` and `--active-role <inferred>` on every
+invocation. The `--active-role` flag requires W0 Cli ≥ 1.2.1; `--suppressions`
+was already supported in 1.2.0.
 
 ---
 

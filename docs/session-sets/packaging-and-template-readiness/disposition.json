@@ -1,61 +1,105 @@
 {
   "schemaVersion": 1,
   "sessionSet": "packaging-and-template-readiness",
-  "sessionNumber": 1,
+  "sessionNumber": 2,
   "isFinalSession": false,
-  "verificationVerdict": "VERIFIED",
+  "verificationVerdict": "ISSUES_FOUND",
   "verifierModel": "gpt-5-4",
   "verifierProvider": "openai",
-  "verifierRound": 1,
-  "scopeDeviations": [
+  "verifierRound": 3,
+  "verificationHistory": [
     {
-      "spec_step": "Original Session 1 plan (full repository cleanup with FOLDERS_AND_FILES_TO_SAVE.md keep list)",
-      "actual": "Narrowed to residual cleanup. The bulk of the original Session 1 scope (17 completed session-set folders, 43 obsolete planning docs, 6 obsolete docs files, samples/, FOLDERS_AND_FILES_TO_SAVE.md, stale references in CLAUDE.md/GEMINI.md/AGENTS.md) was already executed as a direct commit on 2026-04-16 (8730107). The 36 currently-completed session sets under docs/session-sets/ were retained as reference material by operator decision.",
-      "rationale": "Re-running the full original scope would have re-deleted nothing (already gone) and would have either invented a new keep list under the deleted FOLDERS_AND_FILES_TO_SAVE.md name or deleted ~30 recently-completed session sets that the operator still uses as reference. Narrowing to actual residuals was the rational reading of 'Session 1' against the current repo state. spec.md was updated in-session to document the narrowing."
+      "round": 1,
+      "model": "gpt-5-4",
+      "provider": "openai",
+      "verdict": "ISSUES_FOUND",
+      "cost_usd": 0.1156,
+      "issuesFound": 4,
+      "summary": "(Major) README scope mismatch — added pointer to docs/planning/session-set-authoring-guide.md but excluded that doc from refresh sweep; (Major) Dabbler.Security.Blazor README may contain misleading [Authorize(Roles=SystemAdmin)] example; (Minor) markdown-check evidence missing from log; (Minor) deleted-doc inbound-reference scan missing."
     },
     {
-      "spec_step": "Steps 2-3 of the narrowed spec (orphan dirs + one-off scripts)",
-      "actual": "Step 4 added mid-session: removed 5 pre-existing deterministic test failures (TemplateSeedSmokeTests.cs deleted, AiRouterConfig_LoadsConsolidatedPromptTemplates removed from WorkflowAssetSmokeTests.cs).",
-      "rationale": "The Step-5 build/test pass surfaced 5 orphan tests for directories that had been deleted weeks earlier (template-seed/ in f80ec18 on 2026-05-04, legacy ai-router/ in e0d7126). Per feedback_fix_broken_tests_no_carry_forward.md, deterministic failures are never silently tolerated. Operator approved removal in-session; spec was updated."
+      "round": 2,
+      "model": "gpt-5-4",
+      "provider": "openai",
+      "verdict": "ISSUES_FOUND",
+      "cost_usd": 0.1153,
+      "issuesFound": 1,
+      "summary": "Confirmed Issue-2 dismissal as valid context-gap finding. Confirmed Issue 1, 3, 4 fixes. Raised one new issue: refresh log was internally inconsistent with the post-Round-1 diff (governance-two-pager.md was edited but log row still said NO CHANGES NEEDED; edited count was 8 should be 9; README per-doc row didn't reflect Round-1 follow-up that dropped the authoring-guide pointer)."
+    },
+    {
+      "round": 3,
+      "model": "gpt-5-4",
+      "provider": "openai",
+      "verdict": "ISSUES_FOUND",
+      "cost_usd": 0.0833,
+      "issuesFound": 1,
+      "summary": "Minor only — verification PROMPT (one-shot artifact in tools/verify_session2.py, deleted at session close) had a stale 'Out of scope' assertion claiming all 7 NO CHANGES NEEDED docs were unchanged. The refresh-log.md DELIVERABLE correctly notes that 2 of those 7 (Reports.Blazor, governance-two-pager) were later edited via the per-doc table. Verifier explicitly: 'Everything else in the supplied bundle looks materially consistent.' Retry budget 2/2 exhausted; per workflow Step 7 Minor issues do not block commit. No further repo edit required since the deliverable is internally consistent."
+    }
+  ],
+  "adjudications": [
+    {
+      "round": 1,
+      "task_type": "session-verification",
+      "cause": "context-gap",
+      "resolution": "accept-dismissal",
+      "finding_summary": "Dabbler.Security.Blazor README may still contain misleading [Authorize(Roles=SystemAdmin)] example",
+      "dismissal_reason": "Verified via git show HEAD: and current file content — the example was never in the actual README, only in the model's rejected refresh proposal. Round 2 verifier confirmed: 'the current src/Libs/Dabbler.Security.Blazor/README.md you included does not contain a misleading [Authorize(Roles=SystemAdmin)] example. That round-1 finding was indeed a context-gap error.'"
+    }
+  ],
+  "scopeDeviations": [
+    {
+      "spec_step": "Session 2 Step 3 (per-doc routing decision)",
+      "actual": "Refresh sweep scoped to 15 docs (Tier 1 + Tier 2) per operator decision at session start. Internal planning/governance/roadmap docs excluded from refresh routing.",
+      "rationale": "The spec said 'inventory every consumer-facing doc' then refresh per-doc. Operator-confirmed scope: refresh truly consumer-facing entry points (top-level README, COMPATIBILITY, ai-led-session-workflow, governance two-pager, 8 per-library READMEs, 3 orchestrator instruction files) but skip internal planning docs that serve the human + AI workflow rather than platform consumers. Recent session-set churn means project-guidance.md / lessons-learned.md / session-set-authoring-guide.md are continuously updated in normal session work; routing a refresh would be churn without value."
+    },
+    {
+      "spec_step": "Session 2 Step 3 (route to Opus per spec)",
+      "actual": "Per ai-assignment.md commit 5cb2bfb (2026-05-15), `force_model='opus'` was dropped from documentation calls; the router picked gemini-pro for every refresh.",
+      "rationale": "Authoring-time decision per `feedback_avoid_upward_routing.md` — Sonnet/Gemini orchestrators routing tier-2 documentation tasks to Opus pays twice. Default router selection at gemini-pro was sufficient: 8 of 15 docs received material refresh proposals; 7 came back NO CHANGES NEEDED. The auto-verifier critiques (gpt-5-4-mini) caught real misses on the 8 proposed refreshes. The decision to drop force-Opus was made before this session started; it is not a session-time deviation from the as-authored ai-assignment routing decisions."
     }
   ],
   "deferredItems": [],
   "followOnSpecsCalledOut": [],
-  "buildResult": "clean (0 errors, 20 pre-existing warnings: CS8669 on auto-generated Razor, MUD0002 on Title attribute, CS0618 on already-[Obsolete]-marked RoleSwitchingPermission)",
-  "testResult": "864 pass; 0 fail across 7 test projects (excluding Playwright). 5 pre-existing deterministic failures eliminated by orphan-test removal.",
+  "buildResult": "clean (0 errors, 256 pre-existing warnings: CS8669 on auto-generated Razor, MUD0002 on Title attribute, CS0618 on already-[Obsolete]-marked RoleSwitchingPermission)",
+  "testResult": "864 pass; 0 fail across 7 test projects (excluding Playwright per Session 1 baseline). No test changes this session. Playwright project not run — no compose stack required for documentation refresh; spec did not ask for E2E coverage in this session.",
   "newTestsAdded": [],
-  "testsRemoved": [
-    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeed_IncludesWorkflowAssetsWithoutApplicationScaffolding",
-    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeedReadme_MakesMinimalStarterContractExplicit",
-    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeedInstructionFiles_RepeatTheNarrowedStarterDefaults",
-    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeedStarterSpec_RequiresExplicitJustificationForAdvancedDefaults",
-    "AcmeCoffeeOnline.Web.Tests.WorkflowAssetSmokeTests.AiRouterConfig_LoadsConsolidatedPromptTemplates"
-  ],
+  "testsRemoved": [],
   "filesTouched": [
-    "docs/session-sets/packaging-and-template-readiness/spec.md (updated Session 1 to reflect narrowed scope)",
-    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (authored via routed analysis, gemini-pro)",
+    "README.md (added pointers to ai-led-session-workflow.md, src/Libs/, COMPATIBILITY.md; Round-1 follow-up dropped session-set-authoring-guide.md pointer per Issue-1 resolution)",
+    "docs/COMPATIBILITY.md (corrected `ai-router/uat_runner/cli.py` → `uat_runner` package path; corrected `--suppressions` vs `--active-role` flag attribution)",
+    "docs/planning/project-status.md (added STALE notice at top; removed inbound references to deleted governance-two-pager-outline.md from 'Where durable content lives now' table and directory tree)",
+    "docs/planning/governance-two-pager.md (Round-1 Issue-4 cleanup: removed trailing `Companion to governance-two-pager-outline.md` reference)",
+    "src/Libs/Dabbler.Components/README.md (restructured Active Core into CRUD-helpers + filter-primitives subsections; added DeclarativeFilterPanel<TEntity>, EditSession<T>, DirtyAwareActionRow, MasterDetailExpansionShell; kept legacy FilterPanel<T> mention; rejected model-proposed AddDabblerComponents() that doesn't exist)",
+    "src/Libs/Dabbler.Reports.Blazor/README.md (manual catch — model missed: removed dead reference to docs/planning/notes-driven-supported-library-surface.md; removed compatibility-only DabblerQueryReportPage<T> section since the type no longer exists)",
+    "src/Libs/Dabbler.Security/README.md (rewrote Authorization section to match restriction-based model: 5 baked-in roles, user-type roles, ColumnRestriction/RowRestriction/UiRestriction, DefaultMask + MaskExemption; explicitly noted 'No role inheritance'; bumped EF Core dependency 9.0.0 → 10.0.5)",
+    "src/Libs/Dabbler.Security.Blazor/README.md (removed DabblerUserRoleManager — verified type no longer exists; replaced with RestrictedFormField/RestrictedGridColumn — verified these exist; bumped MudBlazor 7.15.0 → 8.x)",
+    "src/Libs/Dabbler.Testing.Blazor/README.md (fixed broken relative link path ../../docs/... → ../../../docs/... — 3 levels up from src/Libs/<lib>/ to repo root)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/refresh-pass-001/refresh-log.md (NEW — per-doc disposition table, markdown-check evidence subsection, Round-1+2+3 verification history, raw routed responses preserved alongside)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/refresh-pass-001/*.response.md (NEW — 15 raw routed-refresh responses preserved for audit; each includes the doc-time auto-verifier critique)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-002.md (3 verification rounds, raw verifier output)",
+    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 2 actuals + Session-3 next-orchestrator recommendation)",
     "docs/session-sets/packaging-and-template-readiness/disposition.json (this file)",
-    "tests/AcmeCoffeeOnline.Web.Tests/WorkflowAssetSmokeTests.cs (removed AiRouterConfig_LoadsConsolidatedPromptTemplates)"
+    "docs/session-sets/packaging-and-template-readiness/activity-log.json (per-step log)",
+    "docs/session-sets/packaging-and-template-readiness/session-state.json (in-progress → complete via mark_session_complete)"
   ],
   "filesDeleted": [
-    "composable-crud-helpers/ (top-level orphan dir; canonical session set is complete under docs/session-sets/)",
-    "unified-master-details-composite/ (top-level orphan dir; canonical session set is complete)",
-    "gen_checklist.py (one-off, unreferenced)",
-    "run_changelog.py (one-off, unreferenced)",
-    "run_verification.py (one-off, unreferenced)",
-    "run_gate_tests.py (one-off, unreferenced)",
-    "tests/AcmeCoffeeOnline.Web.Tests/TemplateSeedSmokeTests.cs (4 orphan tests; template-seed/ deleted 2026-05-04 in f80ec18)"
+    "docs/planning/governance-two-pager-outline.md (operator-approved deletion: outline-only doc, full draft governance-two-pager.md was completed and supersedes it)",
+    "tools/refresh_docs.py (one-shot script that drove the per-doc refresh sweep; not part of platform tooling)",
+    "tools/verify_session2.py (one-shot script that drove the 3 cross-provider verification rounds; not part of platform tooling)",
+    "tools/next_orc_session3.py (one-shot script that routed the Session-3 next-orchestrator analysis; not part of platform tooling)",
+    "tmp/session2.diff (transient diff bundle for verification rounds)",
+    "tmp/verify_session2.log + verify_session2_round2.log + verify_session2_round3.log + next_orc_session3.log (one-shot routed-call output captures)"
   ],
-  "routedCallsTotalUsd": 0.0832,
+  "routedCallsTotalUsd": 0.86,
   "next_orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "low",
+    "model": "claude-opus-4-7",
+    "effort": "medium",
     "reason": {
-      "code": "switch-due-to-cost",
-      "specifics": "Session 2 is documentation refresh — the orchestrator's role is to inventory consumer-facing docs and route each refresh via route(task_type='documentation') to Opus. Sonnet at low effort is sufficient for that orchestration role; Opus would be wasted on coordination work."
+      "code": "switch-due-to-quality",
+      "specifics": "Routed analysis (gemini-pro, $0.003) recommended Opus medium for Session 3 over the original ai-assignment Sonnet-low recommendation. Session 3 authors `docs/platform-overview.md`, the canonical entry-point doc for future platform consumers — high-leverage synthesis from project-guidance + lessons-learned + this session's refresh log. Weak initial drafts trigger Round-1 verification re-work cycles; Opus medium reduces that risk for a small additional reasoning cost. Operator may swap to Sonnet medium if context permits."
     }
   },
-  "notes": "First session of an 11-session set. Pre-existing uncommitted state-flips for transactional-system-columns (session-state.json, session-events.jsonl, activity-log.json) are included in this commit as workflow bookkeeping cleanup but were not part of Session 1's designed scope — they reflect the prior orchestrator's close that was never pushed."
+  "notes": "Session 2 was documentation refresh — 15 docs routed for refresh assessment; 8 received material edits (with Round-1 follow-ups producing 9 total edited files), 5 truly NO CHANGES NEEDED, 1 deleted as a stale duplicate, 1 stale-flagged. The 3 verification rounds documented a useful failure mode: the verifier consistently flagged real issues but also produced one context-gap finding per round (Round 1: SystemAdmin Authorize example never existed in the README; Round 3: 'Out of scope' assertion was about a transient verification-prompt artifact, not the deliverable). The disagreement-resolution procedure worked as designed — record_adjudication captured the dismissal for tuning visibility. Cost discipline note: the routed-cost-vs-orchestrator-cost balance for this session was lopsided toward orchestrator-side reasoning since Opus high was the active orchestrator running multi-step file work; future documentation-refresh sessions should honor the spec-sized Sonnet-low orchestrator unless explicitly overridden."
 }

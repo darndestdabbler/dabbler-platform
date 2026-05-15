@@ -55,13 +55,22 @@ Dabbler.Security is a comprehensive authentication and authorization library for
 
 ### Authorization (Runtime-Configurable)
 
-- **Page Permissions** -- Control which roles can access specific pages/routes.
-- **Entity Permissions** -- Grant CRUD-level (Create, Read, Update, Delete) access per entity, per role.
-- **Field Permissions** -- Set per-role field visibility (Editable, ReadOnly, Hidden).
+- **Five baked-in roles** -- `SystemAdmin`, `CrossOrgUserAdmin`,
+  `CrossOrgMonitor`, `UserAdmin`, `User`. Privileges are compiled in;
+  applications can set a per-deployment `DisplayAlias` but cannot alter
+  baked-in privileges.
+- **User-type roles (default-permissive, JSON-configured)** -- Additional
+  application-defined roles shaped entirely by explicit restrictions.
+- **`ColumnRestriction`** -- View-only or hidden field per role.
+- **`RowRestriction`** -- Filter expression scoping data access per role.
+- **`UiRestriction`** -- Disabled or hidden page or control per role.
 - **Endpoint Permissions** -- Secure API endpoints based on role.
-- **Control Permissions** -- Manage UI control states (Enabled, Disabled, Hidden) by role.
-- **Row Filters** -- Scope data access with per-role data filtering expressions.
-- **Role Inheritance** -- Create role hierarchies where child roles inherit permissions.
+- **Sensitive-field masking** -- Platform-wide `DefaultMask` rules render
+  sensitive values masked even when the underlying value is null. Per-role
+  `MaskExemption` (with optional `ExpiresAt` and authority rules) reveals
+  the original value to authorized users. Baked-in roles bypass DefaultMask.
+- **No role inheritance.** A user assigned to multiple roles must
+  explicitly switch to operate under each one.
 
 ### Infrastructure
 
@@ -100,8 +109,8 @@ Key `DabblerSecurityOptions` properties:
 
 ## Dependencies
 
-- Microsoft.EntityFrameworkCore (>= 9.0.0)
-- Microsoft.EntityFrameworkCore.SqlServer (>= 9.0.0)
+- Microsoft.EntityFrameworkCore (>= 10.0.5)
+- Microsoft.EntityFrameworkCore.SqlServer (>= 10.0.5)
 - Otp.NET (>= 1.4.0)
 - Microsoft.AspNetCore.Authentication.OpenIdConnect (>= 10.0.5)
 
