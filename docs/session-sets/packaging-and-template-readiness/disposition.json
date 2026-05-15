@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "sessionSet": "packaging-and-template-readiness",
+  "sessionNumber": 1,
+  "isFinalSession": false,
+  "verificationVerdict": "VERIFIED",
+  "verifierModel": "gpt-5-4",
+  "verifierProvider": "openai",
+  "verifierRound": 1,
+  "scopeDeviations": [
+    {
+      "spec_step": "Original Session 1 plan (full repository cleanup with FOLDERS_AND_FILES_TO_SAVE.md keep list)",
+      "actual": "Narrowed to residual cleanup. The bulk of the original Session 1 scope (17 completed session-set folders, 43 obsolete planning docs, 6 obsolete docs files, samples/, FOLDERS_AND_FILES_TO_SAVE.md, stale references in CLAUDE.md/GEMINI.md/AGENTS.md) was already executed as a direct commit on 2026-04-16 (8730107). The 36 currently-completed session sets under docs/session-sets/ were retained as reference material by operator decision.",
+      "rationale": "Re-running the full original scope would have re-deleted nothing (already gone) and would have either invented a new keep list under the deleted FOLDERS_AND_FILES_TO_SAVE.md name or deleted ~30 recently-completed session sets that the operator still uses as reference. Narrowing to actual residuals was the rational reading of 'Session 1' against the current repo state. spec.md was updated in-session to document the narrowing."
+    },
+    {
+      "spec_step": "Steps 2-3 of the narrowed spec (orphan dirs + one-off scripts)",
+      "actual": "Step 4 added mid-session: removed 5 pre-existing deterministic test failures (TemplateSeedSmokeTests.cs deleted, AiRouterConfig_LoadsConsolidatedPromptTemplates removed from WorkflowAssetSmokeTests.cs).",
+      "rationale": "The Step-5 build/test pass surfaced 5 orphan tests for directories that had been deleted weeks earlier (template-seed/ in f80ec18 on 2026-05-04, legacy ai-router/ in e0d7126). Per feedback_fix_broken_tests_no_carry_forward.md, deterministic failures are never silently tolerated. Operator approved removal in-session; spec was updated."
+    }
+  ],
+  "deferredItems": [],
+  "followOnSpecsCalledOut": [],
+  "buildResult": "clean (0 errors, 20 pre-existing warnings: CS8669 on auto-generated Razor, MUD0002 on Title attribute, CS0618 on already-[Obsolete]-marked RoleSwitchingPermission)",
+  "testResult": "864 pass; 0 fail across 7 test projects (excluding Playwright). 5 pre-existing deterministic failures eliminated by orphan-test removal.",
+  "newTestsAdded": [],
+  "testsRemoved": [
+    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeed_IncludesWorkflowAssetsWithoutApplicationScaffolding",
+    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeedReadme_MakesMinimalStarterContractExplicit",
+    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeedInstructionFiles_RepeatTheNarrowedStarterDefaults",
+    "AcmeCoffeeOnline.Web.Tests.TemplateSeedSmokeTests.TemplateSeedStarterSpec_RequiresExplicitJustificationForAdvancedDefaults",
+    "AcmeCoffeeOnline.Web.Tests.WorkflowAssetSmokeTests.AiRouterConfig_LoadsConsolidatedPromptTemplates"
+  ],
+  "filesTouched": [
+    "docs/session-sets/packaging-and-template-readiness/spec.md (updated Session 1 to reflect narrowed scope)",
+    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (authored via routed analysis, gemini-pro)",
+    "docs/session-sets/packaging-and-template-readiness/disposition.json (this file)",
+    "tests/AcmeCoffeeOnline.Web.Tests/WorkflowAssetSmokeTests.cs (removed AiRouterConfig_LoadsConsolidatedPromptTemplates)"
+  ],
+  "filesDeleted": [
+    "composable-crud-helpers/ (top-level orphan dir; canonical session set is complete under docs/session-sets/)",
+    "unified-master-details-composite/ (top-level orphan dir; canonical session set is complete)",
+    "gen_checklist.py (one-off, unreferenced)",
+    "run_changelog.py (one-off, unreferenced)",
+    "run_verification.py (one-off, unreferenced)",
+    "run_gate_tests.py (one-off, unreferenced)",
+    "tests/AcmeCoffeeOnline.Web.Tests/TemplateSeedSmokeTests.cs (4 orphan tests; template-seed/ deleted 2026-05-04 in f80ec18)"
+  ],
+  "routedCallsTotalUsd": 0.0832,
+  "next_orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-6",
+    "effort": "low",
+    "reason": {
+      "code": "switch-due-to-cost",
+      "specifics": "Session 2 is documentation refresh — the orchestrator's role is to inventory consumer-facing docs and route each refresh via route(task_type='documentation') to Opus. Sonnet at low effort is sufficient for that orchestration role; Opus would be wasted on coordination work."
+    }
+  },
+  "notes": "First session of an 11-session set. Pre-existing uncommitted state-flips for transactional-system-columns (session-state.json, session-events.jsonl, activity-log.json) are included in this commit as workflow bookkeeping cleanup but were not part of Session 1's designed scope — they reflect the prior orchestrator's close that was never pushed."
+}

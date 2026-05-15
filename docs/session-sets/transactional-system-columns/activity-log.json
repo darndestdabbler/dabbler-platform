@@ -81,6 +81,39 @@
           "costUsd": 0.1014
         }
       ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/change-log-commit-notify",
+      "dateTime": "2026-05-15T03:21:25.769249-04:00",
+      "description": "Wrote disposition.json, change-log.md (routed summarization, gemini-flash, $0.0003), updated ai-assignment.md actuals, routed next-set recommendation (gemini-pro, $0.0049). Committed (a47043a) and pushed to migrate/dabbler-ai-router-pip.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0003
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0049
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/reorganization",
+      "dateTime": "2026-05-15T03:23:58.825046-04:00",
+      "description": "Step 9 reorganization review: NO move candidates for project-guidance.md or lessons-learned.md (no Lesson\u2192Convention promotions with \u22652-context evidence, no demotions, no relocations identified). Separately, per rule #14, added a new lesson to lessons-learned.md about test-time Customer rows racing the security-seed backfill under xUnit parallelism.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

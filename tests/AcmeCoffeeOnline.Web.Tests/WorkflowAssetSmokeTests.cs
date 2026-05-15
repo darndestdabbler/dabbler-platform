@@ -3,39 +3,6 @@ namespace AcmeCoffeeOnline.Web.Tests;
 public sealed class WorkflowAssetSmokeTests
 {
     [Fact]
-    public void AiRouterConfig_LoadsConsolidatedPromptTemplates()
-    {
-        var repoRoot = GetRepoRoot();
-        var configText = ReadRepoFile(repoRoot, "ai-router", "config.py");
-        var routerConfig = ReadRepoFile(repoRoot, "ai-router", "router-config.yaml");
-        var routerInit = ReadRepoFile(repoRoot, "ai-router", "__init__.py");
-
-        Assert.Contains("config_dir / \"prompt-templates\"", configText);
-        Assert.Contains("config_dir.parent / \"prompt-templates\"", configText);
-        Assert.Contains("system_prompt_file: prompt-templates/system-prompts.md", routerConfig);
-        Assert.Contains("task-prompts.md", configText);
-        Assert.Contains("prompt_template_file: prompt-templates/verification.md", routerConfig);
-        Assert.Contains("session_verification_started", routerInit);
-        Assert.Contains("session_verification_completed", routerInit);
-        Assert.Contains("_log_session_verification_event", routerInit);
-
-        string[] requiredFiles =
-        [
-            "ai-router/prompt-templates/system-prompts.md",
-            "ai-router/prompt-templates/task-prompts.md",
-            "ai-router/prompt-templates/verification.md",
-            "ai-router/utils.py",
-        ];
-
-        foreach (var requiredFile in requiredFiles)
-        {
-            Assert.True(
-                File.Exists(Path.Combine(repoRoot, requiredFile)),
-                $"Missing workflow asset: {requiredFile}");
-        }
-    }
-
-    [Fact]
     public void RepoRoot_ResolvesToSolutionDirectory()
     {
         var repoRoot = GetRepoRoot();
