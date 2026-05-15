@@ -531,12 +531,26 @@ Moderate
 | 4 | Ensure the template story stays compatible with future CLI-driven consumers. | `route(task_type="analysis")` |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-sonnet-4-6, medium effort) — matched the recommendation
+- **Total routed cost:** ~$0.19 across 4 routed calls
+  - 1 documentation call (gemini-pro, $0.016) — getting-started.md
+  - Round 1 session-verification: gpt-5-4, $0.156 — ISSUES_FOUND (1 Major A12 role seeding, 2 Minor)
+  - Round 2 session-verification: gpt-5-4, $0.012 — VERIFIED
+  - Next-orchestrator analysis: gemini-pro, $0.0018
+- **Deviations from recommendation:**
+  - None substantive. Orchestrator ran at Sonnet medium as recommended.
+  - getting-started.md routed output needed significant direct correction (too short, wrong .NET version, wrong DB setup). The routed draft served as a structural outline; the final doc was authored directly. Per `feedback_api_timeout_direct_fallback`: "stop retrying after quality issues; author directly using full local context."
+  - Template content excluded from compilation via `<DefaultItemExcludes>` + `<Compile Remove>` — not anticipated in the spec but required to make the csproj work with Microsoft.NET.Sdk.
+- **Notes for next-session calibration:**
+  - Session 9's consumer validation requires the pack.ps1 to produce nupkgs FIRST, then the smoke test validates them. Orchestrator should run `tools/pack.ps1` before activating the skipped `PackagingSmokeTests`.
+  - The template's bUnit test project (`DabblerApp.Tests`) is template CONTENT — it is not in the solution's test run. It's only executed when a consumer scaffolds and runs `dotnet test MyApp.Tests/`.
+  - The gpt-5-4 Round 1 verification at complexity 70 cost $0.156 for a 5.7K token prompt. For future sessions, if the prompt fits under 3K tokens at complexity 63 (as in Round 2, $0.012), target that range.
+- **Session verification:** **VERIFIED** (Round 2 of 2 — Round 1 ISSUES_FOUND fixes applied, Round 2 clean)
+- **Adjudications:** None
 
-**Next-session orchestrator recommendation:** Claude Code (claude-sonnet-4-6)
+**Next-session orchestrator recommendation (routed analysis, gemini-pro, $0.0018 — see
+[`session-reviews/session-9-next-orchestrator-recommendation.md`](./session-reviews/session-9-next-orchestrator-recommendation.md)):**
+**Claude Code (`claude-sonnet-4-6`, medium effort).** Rationale: Session 9 is implementation-centric (run pack.ps1, execute smoke tests, validate template install + build), not synthesis-heavy. Sonnet medium matches the structured, procedural nature of the work.
 
 ---
 

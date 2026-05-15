@@ -1,0 +1,169 @@
+@page "/login"
+@layout DabblerApp.Components.Layout.AuthLayout
+@attribute [AllowAnonymous]
+@using System.Net.Http.Json
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+
+<PageTitle>Sign In — DabblerApp</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8" data-testid="login-page">
+    <MudPaper Elevation="2" Class="pa-8">
+        <MudText Typo="Typo.h4" GutterBottom="true">Sign In</MudText>
+
+        @if (!string.IsNullOrEmpty(_queryError))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@_queryError</MudAlert>
+        }
+
+        @if (_step == LoginStep.EnterEmail)
+        {
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+            }
+
+            <MudTextField @bind-Value="_email"
+                          Label="Email address"
+                          InputType="InputType.Email"
+                          Required="true"
+                          Immediate="true"
+                          Class="mb-4"
+                          Disabled="_submitting" />
+
+            <MudButton OnClick="SendMagicLinkAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Disabled="@(_submitting || string.IsNullOrWhiteSpace(_email))">
+                @if (_submitting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    @:Sending...
+                }
+                else
+                {
+                    @:Send sign-in link
+                }
+            </MudButton>
+        }
+        else if (_step == LoginStep.EnterCode)
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-4">
+                We sent a sign-in code to <strong>@_email</strong>. Enter the code below.
+            </MudAlert>
+
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+            }
+
+            <MudTextField @bind-Value="_code"
+                          Label="6-digit code"
+                          MaxLength="6"
+                          Required="true"
+                          Immediate="true"
+                          Class="mb-4"
+                          Disabled="_submitting" />
+
+            <MudButton OnClick="VerifyCodeAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Disabled="@(_submitting || string.IsNullOrWhiteSpace(_code))"
+                       Class="mb-3">
+                @if (_submitting) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> @:Verifying... }
+                else { @:Verify code }
+            </MudButton>
+
+            <MudButton OnClick="ResetToEmail" Variant="Variant.Text" Color="Color.Default" FullWidth="true">
+                Use a different email
+            </MudButton>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+    [SupplyParameterFromQuery] public string? ReturnUrl { get; set; }
+    [SupplyParameterFromQuery] public string? Token { get; set; }
+
+    private enum LoginStep { EnterEmail, EnterCode }
+    private LoginStep _step = LoginStep.EnterEmail;
+    private string _email = string.Empty;
+    private string _code = string.Empty;
+    private bool _submitting;
+    private string? _errorMessage;
+    private string? _queryError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _queryError = Error == "expired" ? "Your sign-in link has expired." : null;
+        if (!string.IsNullOrWhiteSpace(Token))
+            await VerifyTokenAsync(Token);
+    }
+
+    private async Task SendMagicLinkAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_email)) return;
+        _submitting = true; _errorMessage = null;
+        try
+        {
+            var client = HttpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync(
+                $"{Navigation.BaseUri.TrimEnd('/')}/auth/send-magic-link",
+                new { email = _email.Trim() });
+            if (response.IsSuccessStatusCode) _step = LoginStep.EnterCode;
+            else _errorMessage = "Failed to send sign-in link.";
+        }
+        catch { _errorMessage = "Unable to reach the server."; }
+        finally { _submitting = false; }
+    }
+
+    private async Task VerifyCodeAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_code)) return;
+        _submitting = true; _errorMessage = null;
+        try
+        {
+            var client = HttpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync(
+                $"{Navigation.BaseUri.TrimEnd('/')}/auth/verify",
+                new { token = (string?)null, email = _email.Trim(), code = _code.Trim() });
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<VerifyResponse>();
+                if (result?.ExchangeToken is not null)
+                    Navigation.NavigateTo($"/auth/complete?token={result.ExchangeToken}&returnUrl={Uri.EscapeDataString(ReturnUrl ?? "/")}", forceLoad: true);
+            }
+            else _errorMessage = "Invalid or expired code.";
+        }
+        catch { _errorMessage = "Unable to reach the server."; }
+        finally { _submitting = false; }
+    }
+
+    private async Task VerifyTokenAsync(string token)
+    {
+        _submitting = true;
+        try
+        {
+            var client = HttpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync(
+                $"{Navigation.BaseUri.TrimEnd('/')}/auth/verify",
+                new { token, email = (string?)null, code = (string?)null });
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<VerifyResponse>();
+                if (result?.ExchangeToken is not null)
+                    Navigation.NavigateTo($"/auth/complete?token={result.ExchangeToken}&returnUrl={Uri.EscapeDataString(ReturnUrl ?? "/")}", forceLoad: true);
+            }
+            else _queryError = "Your sign-in link is invalid or expired.";
+        }
+        catch { _queryError = "Unable to reach the server."; }
+        finally { _submitting = false; }
+    }
+
+    private void ResetToEmail() { _step = LoginStep.EnterEmail; _code = string.Empty; _errorMessage = null; }
+
+    private record VerifyResponse(bool Success, int? Id, string? ExchangeToken);
+}

@@ -816,6 +816,138 @@
       "description": "docs/packaging/release-checklist.md authored (\u00a76.5). Solution updated with 5 new projects. All non-Playwright tests pass (868 total, 0 failures).",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 1,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:17:08.777300-04:00",
+      "description": "Beginning Session 8: VS Template and Stub-Opt-In Readiness. Deliverables: tools/Dabbler.Security.DevIdp.Tool/, templates/Dabbler.Templates/ (dabbler-app + dabbler-min), docs/getting-started.md.",
+      "status": "in-progress",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 2,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:30:01.005429-04:00",
+      "description": "Routed docs/getting-started.md via documentation task (gemini-pro, $0.0156)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 866,
+          "outputTokens": 1456,
+          "costUsd": 0.0156425
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 3,
+      "stepKey": "session-8/cli-consumer-compatibility",
+      "dateTime": "2026-05-15T12:33:34.213091-04:00",
+      "description": "Created tools/Dabbler.Security.DevIdp.Tool/ dotnet tool package (A6): extracted DevIdpHost.RunAsync() from Program.cs, thin wrapper Program.cs in tool project, PackAsTool=true with ToolCommandName=dabbler-devidp.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 4,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:33:34.214707-04:00",
+      "description": "Created templates/Dabbler.Templates/ with dabbler-app and dabbler-min templates. dabbler-app: Blazor Server + Security + Components + Reports + Testing.Blazor + bUnit tests. dabbler-min: Security only. Both seed admin@local.test (A12) and include in-memory sample data (A13). template.json, csproj, all Razor + C# files authored.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 5,
+      "stepKey": "session-8/stub-opt-in",
+      "dateTime": "2026-05-15T12:33:34.217230-04:00",
+      "description": "Template dabbler-app includes DabblerApp.Tests/ bUnit project with Dabbler.Platform.Stubs opt-in per \u00a74.4. Services.AddDabblerPlatformStubs() + AddStubGridDataProvider used in SampleItemListTests.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 6,
+      "stepKey": "session-8/platform-generic-defaults",
+      "dateTime": "2026-05-15T12:33:34.218238-04:00",
+      "description": "Template defaults use SQL Server + magic-link auth + JSON file store. No AcmeCoffeeOnline-specific defaults. Production warnings for InternalApiKey/MfaEncryptionKey/EmailSenderType/OIDC in README and getting-started.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 7,
+      "stepKey": "session-8/cli-consumer-compatibility",
+      "dateTime": "2026-05-15T12:33:34.219456-04:00",
+      "description": "Template scaffolded with region-comment Program.cs insert points for CLI consumers. security-config.json at app root. CLI consumer compatibility per ledger \u00a75.7.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 8,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:33:34.222053-04:00",
+      "description": "Authored docs/getting-started.md (G11) \u2014 first-app tutorial: install template, scaffold, configure SQL Server, start MailHog, run, sign in as admin@local.test, explore /items grid, /reports/sample PDF export, bUnit tests, before-deploy checklist, next steps, troubleshooting.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 9,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:33:34.223068-04:00",
+      "description": "Wired new projects into solution: templates/Dabbler.Templates/ + tools/Dabbler.Security.DevIdp.Tool/ added to Dabbler.Platform.sln. Updated pack.ps1 to include both projects. Updated PackagingSmokeTests.cs required nupkg prefixes. Updated README.md with getting-started link + templates/tools entries.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 10,
+      "stepKey": "session-8/build-and-test",
+      "dateTime": "2026-05-15T12:42:49.328608-04:00",
+      "description": "dotnet build: 0 errors, 0 warnings. dotnet test (non-Playwright): 868 passed, 0 failed (6 Packaging.Smoke skipped - require pack-output, 51 PublicSurface skipped - require pack-output). Dabbler.Security.DevIdp (refactored) builds clean. Dabbler.Security.DevIdp.Tool builds clean. Dabbler.Templates builds clean (template content excluded from compilation).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 11,
+      "stepKey": "session-8/cross-provider-verification",
+      "dateTime": "2026-05-15T12:46:30.743697-04:00",
+      "description": "Routed session-verification to cross-provider verifier (gpt-5-4, $0.1560)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 5747,
+          "outputTokens": 9445,
+          "costUsd": 0.1560425
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 12,
+      "stepKey": "session-8/cross-provider-verification",
+      "dateTime": "2026-05-15T12:48:38.562651-04:00",
+      "description": "Round 2 verification (gpt-5-4, $0.0118): fixed A12 role seeding Major + 2 Minor. Re-verified.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1700,
+          "outputTokens": 502,
+          "costUsd": 0.011779999999999999
+        }
+      ]
     }
   ]
 }

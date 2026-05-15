@@ -60,6 +60,9 @@ public class PackagingSmokeTests
             "Dabbler.Security.",
             "Dabbler.Security.Blazor.",
             "Dabbler.Testing.Blazor.",
+            // Session 8 deliverables
+            "Dabbler.Security.DevIdp.Tool.",
+            "Dabbler.Templates.",
         };
 
         var missing = requiredPrefixes
@@ -70,20 +73,20 @@ public class PackagingSmokeTests
             $"All library packages must be present in pack-output/. Missing prefixes: {string.Join(", ", missing)}");
     }
 
-    // Session 8 will activate and expand these tests once the template package exists:
+    // Session 9 activates and expands these once the full consumer-validation path is proven:
 
-    [Fact(Skip = "Requires Session 8 Dabbler.Templates package — activate in Session 8/9")]
+    [Fact(Skip = "Session 9: validate install + build from packed Dabbler.Templates")]
     public void DabblerApp_Template_InstallsAndBuildsClean() { }
 
-    [Fact(Skip = "Requires Session 8 Dabbler.Templates package — activate in Session 8/9")]
+    [Fact(Skip = "Session 9: validate install + build from packed Dabbler.Templates")]
     public void DabblerMin_Template_InstallsAndBuildsClean() { }
 
-    [Fact(Skip = "Requires Session 8/9 — sign-in via magic link as admin@local.test")]
+    [Fact(Skip = "Session 9: sign-in via magic link as admin@local.test against scaffolded app")]
     public void DabblerApp_SignIn_ReachesSecuredPage() { }
 
-    [Fact(Skip = "Requires Session 8/9 — sample report renders and PDF export returns non-empty bytes")]
+    [Fact(Skip = "Session 9: sample report renders and PDF export returns non-empty bytes")]
     public void DabblerApp_SampleReport_PdfExportSucceeds() { }
 
-    [Fact(Skip = "Requires Session 8/9 — scaffolded bUnit project tests all pass")]
+    [Fact(Skip = "Session 9: scaffolded bUnit project tests all pass")]
     public void DabblerApp_ScaffoldedBUnit_AllTestsPass() { }
 }

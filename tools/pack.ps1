@@ -70,6 +70,9 @@ $LibraryProjects = @(
     "src/Libs/Dabbler.Platform.Stubs.Reports/Dabbler.Platform.Stubs.Reports.csproj"
     "src/Libs/Dabbler.Platform.Stubs.Security/Dabbler.Platform.Stubs.Security.csproj"
     "src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj"
+    # Session 8 deliverables
+    "tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj"
+    "templates/Dabbler.Templates/Dabbler.Templates.csproj"
 )
 
 # ---------------------------------------------------------------------------
@@ -164,8 +167,6 @@ $InRepoMappings
     $Nupkgs = Get-ChildItem -Path $OutputAbsolute -Filter "*.nupkg" | Select-Object -ExpandProperty Name
     $Missing = @()
     foreach ($Id in $InRepoPackageIds) {
-        # Templates and DevIdp.Tool are Session 8 deliverables — skip if not produced yet
-        if ($Id -in @("Dabbler.Templates", "Dabbler.Security.DevIdp.Tool")) { continue }
 
         $Found = $Nupkgs | Where-Object { $_ -like "$Id.$Version.nupkg" }
         if (-not $Found) {

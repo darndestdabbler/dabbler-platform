@@ -29,7 +29,12 @@ The repo currently includes:
   `uat_runner/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
 - durable cutover/guardrail docs
 
-**New here?** Start with
+**New external adopter?** Start with
+[`docs/getting-started.md`](docs/getting-started.md) — scaffold a
+full Blazor Server app with security, reports, and tests in under 30
+minutes using `dotnet new dabbler-app`.
+
+**New here (contributor)?** Start with
 [`docs/platform-overview.md`](docs/platform-overview.md) — the
 canonical entry-point doc describing what the platform is, the
 libraries it ships, and how to adopt them.
@@ -48,6 +53,8 @@ toolchain ↔ catalog ↔ W2 runner compatibility matrix lives at
 - `src/Apps/AcmeCoffeeOnline.Api/` — rebuilt REST API host
 - `src/Apps/AcmeCoffeeOnline.Shared/` — shared DTOs, enums, and models
 - `src/Libs/` — integrated Dabbler libraries (Components, Security, Reports)
+- `templates/Dabbler.Templates/` — `dotnet new` template package (`dabbler-app`, `dabbler-min`)
+- `tools/Dabbler.Security.DevIdp.Tool/` — `dotnet tool` that runs the DevIdp OIDC provider locally (`dabbler-devidp`)
 - `tests/` — xUnit, bUnit, and Playwright coverage
 - `docker/` — compose and container definitions
 - `ai_router/` — operator-tuned `router-config.yaml` and the

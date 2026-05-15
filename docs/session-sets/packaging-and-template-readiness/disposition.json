@@ -1,25 +1,26 @@
 {
   "status": "VERIFIED",
-  "summary": "Session 7 of 11 (packaging-and-template-readiness): Stubs sub-package split (A3), compat content move (A4), THIRD-PARTY-NOTICES in Reports.* (A7), hermetic pack pipeline tools/pack.ps1 (A1), PublicSurface.Tests + Packaging.Smoke baseline (A10/A2), release-checklist.md. Build green, 868 non-Playwright tests pass. GPT-5.4 cross-provider verification: VERIFIED with 3 accepted findings.",
+  "summary": "Session 8 of 11 (packaging-and-template-readiness): VS Template and Stub-Opt-In Readiness. Delivered: Dabbler.Security.DevIdp.Tool (dotnet tool, A6), Dabbler.Templates (dabbler-app + dabbler-min templates, A12+A13), docs/getting-started.md (G11). Build green, 868 non-Playwright tests pass. GPT-5.4 cross-provider verification: VERIFIED Round 2 (Round 1 fixed A12 role seeding Major + 2 Minor doc corrections).",
   "files_changed": [
-    "src/Libs/Dabbler.Platform.Stubs.Components/ (new)",
-    "src/Libs/Dabbler.Platform.Stubs.Reports/ (new)",
-    "src/Libs/Dabbler.Platform.Stubs.Security/ (new)",
-    "src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj",
-    "src/Libs/Dabbler.Platform.Stubs/DabblerStubServiceCollectionExtensions.cs",
-    "src/Libs/Dabbler.Components.Compat/ (compat files moved + namespace updated)",
-    "src/Libs/Dabbler.Reports.Core/THIRD-PARTY-NOTICES.txt (new)",
-    "src/Libs/Dabbler.Reports.Export/THIRD-PARTY-NOTICES.txt (new)",
-    "src/Libs/Dabbler.Reports.Blazor/THIRD-PARTY-NOTICES.txt (new)",
-    "tools/pack.ps1 (new)",
-    "tests/Dabbler.PublicSurface.Tests/ (new)",
-    "tests/Dabbler.Packaging.Smoke/ (new)",
-    "docs/packaging/release-checklist.md (new)",
-    "Directory.Packages.props",
-    "Dabbler.Platform.sln"
+    "src/Libs/Dabbler.Security.DevIdp/DevIdpHost.cs (new)",
+    "src/Libs/Dabbler.Security.DevIdp/Program.cs (now 1-line delegation)",
+    "tools/Dabbler.Security.DevIdp.Tool/ (new: csproj + Program.cs)",
+    "templates/Dabbler.Templates/ (new: csproj + dabbler-app + dabbler-min template content)",
+    "docs/getting-started.md (new, G11)",
+    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 8 actuals)",
+    "tools/pack.ps1 (added DevIdp.Tool + Templates to library projects list)",
+    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs (added DevIdp.Tool + Templates to required nupkg prefixes; updated Skip comments to Session 9)",
+    "README.md (added getting-started.md pointer + templates/tools project layout entries)",
+    "Dabbler.Platform.sln (added Dabbler.Templates + DevIdp.Tool projects)"
   ],
   "verification_method": "gpt-5-4",
+  "verification_rounds": 2,
   "verification_message_ids": [],
+  "scope_deviations": [
+    "getting-started.md routed draft (gemini-pro) needed significant direct authoring — too short, wrong .NET version, incorrect DB setup instructions. Per feedback_api_timeout_direct_fallback, authored directly rather than re-routing.",
+    "Dabbler.Templates.csproj required <DefaultItemExcludes> + <Compile Remove> for template content to prevent build errors — not anticipated in the spec, needed for Microsoft.NET.Sdk compliance.",
+    "AppDbInitializer.cs seeds AppRole for SystemAdmin before assigning it — the spec said 'seeds admin@local.test' but the role assignment is required for the user to actually have SystemAdmin privileges. Round 1 verifier caught this; fixed before Round 2."
+  ],
   "next_orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
@@ -27,7 +28,7 @@
     "effort": "medium",
     "reason": {
       "code": "continue-current-trajectory",
-      "specifics": "Session 8 (VS template + DevIdp.Tool) is implementation-heavy like Session 7; Sonnet-class is appropriate for the same reasons."
+      "specifics": "Session 9 (consumer validation + template smoke proof) is implementation-centric; Sonnet medium matches the structured procedural nature of running pack.ps1 + smoke tests."
     }
   },
   "blockers": []

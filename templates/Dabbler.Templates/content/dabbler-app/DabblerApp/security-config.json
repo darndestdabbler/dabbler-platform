@@ -1,0 +1,7 @@
+{
+  "UserTypeRoles": [],
+  "OrganizationSwitching": { "AllowedRoles": [] },
+  "DefaultMasks": [],
+  "MaskExemptions": [],
+  "BakedInRoleAliasOverrides": []
+}
