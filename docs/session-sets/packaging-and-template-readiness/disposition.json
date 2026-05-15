@@ -83,7 +83,7 @@
     "model": "claude-opus-4-7",
     "effort": "high",
     "reason": {
-      "code": "spec-required",
+      "code": "continue-current-trajectory",
       "specifics": "Routed analysis (gemini-pro, $0.0019) recommended Claude Code Opus high for Session 4, aligning with the original spec ai-assignment recommendation of Opus moderate. Session 4 (Tri-Provider Platform Value Review) requires the orchestrator to (a) author its own architecture-level value assessment from scratch and (b) synthesize three independent provider reviews into a consolidated platform-value-review.md with gap dispositions. Both are exactly the 'Opus required for direct reasoning and synthesis' profile. The orchestrator-self-contributes-to-review-panel feedback memory applies: when the orchestrator's provider (Anthropic) is on the review panel, the orchestrator writes that perspective directly instead of routing Opus→Opus."
     }
   },
