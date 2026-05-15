@@ -40,13 +40,13 @@ Claude Code (claude-sonnet-4-6, low effort)
 The orchestrator's role is primarily coordination, inventorying documents and routing them for refresh tasks. Sonnet is the cheapest orchestrator capable of managing this workflow.
 
 ### Estimated routed cost
-High
+Moderate (revised 2026-05-15 after dropping the `force_model="opus"` forcing on documentation calls — see `feedback_avoid_upward_routing`. Per-doc refresh now lands on the router's default for `documentation` (Gemini Pro typical) instead of Opus.)
 
 | Step | Action | Routing Decision |
 | :--- | :--- | :--- |
 | 1 | Read `docs/planning/project-guidance.md` and `docs/planning/lessons-learned.md`. | direct work |
 | 2 | Inventory every consumer-facing doc. | `route(task_type="analysis")` |
-| 3 | For each doc on the list, route a refresh pass. | `route(task_type="documentation", force_model="claude-opus-4-7")` |
+| 3 | For each doc on the list, route a refresh pass. | `route(task_type="documentation")` — let router pick (Gemini Pro typical); escalation ladder lifts to higher tier if response is truncated. Do NOT pass `force_model="claude-opus-4-7"` — routing Sonnet→Opus on a tier-2 task pays twice. |
 | 4 | Identify docs that are stale enough to delete or that duplicate other docs. | `route(task_type="analysis")` |
 | 5 | Build and run any markdown-aware checks. | direct work |
 
@@ -66,15 +66,15 @@ High
 Claude Code (claude-sonnet-4-6, low effort)
 
 ### Rationale
-Similar to session 2, the orchestrator coordinates the authoring and integration of a single key document via routing. Sonnet is the most cost-effective choice for this orchestration work.
+Similar to session 2, the orchestrator coordinates the authoring and integration of a single key document via routing. Sonnet is the most cost-effective choice for this orchestration work. If Session 3's first routed draft comes back structurally inadequate at Step 7 verification, escalation should be a re-run with `complexity_hint=70` (lifts to tier 3 once) or — preferred — a follow-up session under an Opus orchestrator that writes the rewrite directly. Do not force `Opus` on the initial routed call.
 
 ### Estimated routed cost
-High
+Moderate (revised 2026-05-15 — dropped the `force_model="opus"` forcing on the documentation call. See `feedback_avoid_upward_routing`.)
 
 | Step | Action | Routing Decision |
 | :--- | :--- | :--- |
 | 1 | Read planning docs and the refresh log from Session 2. | direct work |
-| 2 | Route to author `docs/platform-overview.md`. | `route(task_type="documentation", force_model="claude-opus-4-7")` |
+| 2 | Route to author `docs/platform-overview.md`. | `route(task_type="documentation")` — let router pick. If the cross-provider verifier flags structural gaps at Step 7, re-route with `complexity_hint=70` once; if still inadequate, escalate to an Opus-orchestrator follow-up session per the avoid-upward-routing principle. |
 | 3 | Wire the overview into the doc graph. | `route(task_type="refactoring")` |
 | 4 | Cross-provider verify the overview. | `route(task_type="session-verification")` |
 | 5 | Build and run markdown checks. | direct work |

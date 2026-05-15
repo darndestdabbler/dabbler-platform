@@ -127,10 +127,14 @@ directories, 4 top-level Python scripts, 1 orphan test file, and the
    `src/Libs/*/`. Capture the inventory as a working list inside this session
    (no committed inventory file required).
 3. For each doc on the list, route a refresh pass via
-   `route(task_type="documentation")` to Opus — the doc may need an accuracy
+   `route(task_type="documentation")` — the doc may need an accuracy
    check against current code, a scope correction (removing references to
-   retired features), or a tightening pass. Cross-provider verification of
-   each refresh follows the standard Step 7 procedure.
+   retired features), or a tightening pass. Do not force `force_model="opus"`
+   on these calls; documentation is base complexity 25 and the router's
+   default target (Gemini Pro typical) is sufficient — the escalation ladder
+   will lift to a higher tier if a response is truncated or inadequate.
+   Cross-provider verification of each refresh follows the standard Step 7
+   procedure.
 4. Identify docs that are stale enough to delete or that duplicate other docs;
    merge or remove with the operator's approval before proceeding.
 5. Build and run any markdown-aware checks the repo already has (link
@@ -154,12 +158,22 @@ state; the refresh log is committed alongside the session review.
 **Steps:**
 1. Read `docs/planning/project-guidance.md`,
    `docs/planning/lessons-learned.md`, and the refresh log from Session 2.
-2. Route via `route(task_type="documentation")` to Opus to author
+2. Route via `route(task_type="documentation")` to author
    `docs/platform-overview.md` — the canonical entry-point doc for a future
    platform consumer. The overview must cover: what the platform is, the
    problems it solves, the libraries that ship and what each provides, the
    intended adoption path, the opt-in stub-mode story, the accessibility
-   posture, and a pointer to per-library deep-dive docs.
+   posture, and a pointer to per-library deep-dive docs. Do not force
+   `force_model="opus"` on this call; let the router pick. If the routed
+   output is judged inadequate at Step 7 verification (e.g., the
+   cross-provider verifier surfaces structural gaps the doc must close),
+   the orchestrator may re-route with `complexity_hint=70` to push the
+   call into tier 3, or — preferred when the routed output is
+   structurally inadequate rather than just rough — upgrade the
+   orchestrator to Opus for a follow-up session and write the rewrite
+   directly. (Routing from a Sonnet orchestrator up to an Opus target
+   pays twice; if Opus quality is the requirement, run Opus as the
+   orchestrator.)
 3. Wire the overview into the doc graph: link to it from the root `README.md`
    and from any `docs/` index docs that already exist. Add reciprocal links
    from per-library READMEs back to the overview where relevant.
