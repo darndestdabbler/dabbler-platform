@@ -113,12 +113,52 @@ Moderate (revised 2026-05-15 — dropped the `force_model="opus"` forcing on the
 | 5 | Build and run markdown checks. | direct work |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-opus-4-7, medium effort) — operator
+  chose to stay on Opus medium per Session 2 routed analysis (over the
+  spec's Sonnet-low recommendation), citing the high-leverage nature of
+  authoring the canonical platform overview.
+- **Total routed cost:** ~$0.27
+  - 1 routed `documentation` call (gemini-pro, $0.0545) drafting the
+    initial overview. Auto-verified inline by gpt-5-4-mini, which flagged
+    Major gaps (under-length, missing Components primitives, compressed
+    Security baked-in role list, thin adoption path).
+  - 3 session-verification rounds (gpt-5-4 each, $0.0997 + $0.1062 + $0.0122
+    = $0.218). Round 1 caught a real Major (NuGet adoption-story
+    inconsistency between overview and per-library READMEs); Round 2
+    caught a sub-issue in the Round-1 fix (over-broad note that swept
+    in third-party deps + a remaining first-party NuGet link in
+    Dependencies); Round 3 VERIFIED.
+  - 1 routed Session-4 next-orchestrator analysis (gemini-pro, $0.0019)
+    recommending Claude Code Opus high.
+- **Deviations from recommendation:** Orchestrator ran at Opus medium
+  rather than Sonnet low. Operator-confirmed at session start per the
+  Session 2 routed-analysis re-recommendation. The pattern in this set
+  has been "spec said Sonnet low; operator runs Opus" — calibration
+  signal for future doc-authoring sessions: the spec-sized Sonnet-low
+  estimate may be too low for canonical entry-point doc work.
+- **Notes for next-session calibration:**
+  - The 595-line overview required orchestrator-side revision to address
+    the initial routed draft's gaps (gemini-pro produced ~215 lines vs
+    spec target 300-500). For high-leverage canonical-doc work, future
+    sessions may want to either (a) route to Sonnet (the existing
+    documentation prompt template favors verbose output) or (b) seed
+    the prompt with explicit per-section bullet lists derived from the
+    source READMEs.
+  - The 3-round verification arc reflected the cumulative-fix pattern
+    `feedback_verification_round_depth` describes: send full file
+    contents on Round 1, then tighten the bundle on retries. Round 2
+    introduced its own sub-issue (over-broad fix), which the verifier
+    caught — Round 3 was cheap ($0.0122) because the bundle was narrow.
+- **Session verification:** VERIFIED (gpt-5-4, Round 3 of 3 — Rounds 1
+  and 2 ISSUES_FOUND, fixes applied, Round 3 clean).
+- **Adjudications:** None.
 
-**Next-session orchestrator recommendation:** Claude Code (claude-opus-4-7)
+**Next-session orchestrator recommendation (routed analysis, gemini-pro,
+$0.0019):** Claude Code (`claude-opus-4-7`, high effort). Rationale: the
+orchestrator must perform two distinct, high-reasoning tasks — authoring
+its own architectural review from scratch and synthesizing three complex
+provider assessments. This requires maximum model capability and aligns
+with the original spec ai-assignment recommendation.
 
 ---
 

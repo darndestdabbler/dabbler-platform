@@ -1,5 +1,9 @@
 # Dabbler.Components
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 Blazor UI component library providing reusable filtering, expression engine,
 and data provider abstractions for MudBlazor-native application pages.
 

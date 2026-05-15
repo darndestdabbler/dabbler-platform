@@ -1,5 +1,9 @@
 # Dabbler.Security.Blazor
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 Dabbler.Security.Blazor provides the notes-driven runtime authorization UI for
 Blazor Server applications. The supported core surface centers on secured
 rendering, role-aware navigation, runtime permission editing, and the security
@@ -11,6 +15,16 @@ policy-shaped rather than the main reusable-surface contract this repo is
 currently simplifying.
 
 ## Quick Start
+
+> **Adoption note (2026-05):** the supported adoption model today is
+> **integrated source** — add `<ProjectReference>` entries from your
+> app to `src/Libs/Dabbler.Security/` and `src/Libs/Dabbler.Security.Blazor/`.
+> The first-party Dabbler NuGet packages are the future packaged path
+> described in
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md);
+> they have not shipped yet. Third-party dependencies listed under
+> *Dependencies* below (MudBlazor, ASP.NET Core packages) are
+> normal NuGet packages your app project already references.
 
 Register the necessary services in your `Program.cs`:
 
@@ -96,7 +110,9 @@ Add the role switcher to your layout or navigation bar. It renders a dropdown fo
 
 ## Dependencies
 
-- [Dabbler.Security](https://www.nuget.org/packages/Dabbler.Security/) -- Core package
+- `Dabbler.Security` — core package (integrated source today at
+  `src/Libs/Dabbler.Security/`; future NuGet release per
+  [`docs/platform-overview.md`](../../../docs/platform-overview.md))
 - [MudBlazor](https://www.nuget.org/packages/MudBlazor/) (8.x)
 - [Microsoft.AspNetCore.Components.Web](https://www.nuget.org/packages/Microsoft.AspNetCore.Components.Web/)
 

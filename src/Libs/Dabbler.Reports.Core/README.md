@@ -1,5 +1,9 @@
 # Dabbler.Reports.Core
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 Banded report layout engine with RDF-based report definitions. Supports grouping, aggregates, running totals, hide duplicates, subreports, PrintWhen expressions, and CanGrow/CanShrink layout.
 
 ## Capabilities

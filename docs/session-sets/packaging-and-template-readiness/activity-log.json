@@ -327,6 +327,92 @@
           "costUsd": 0.004557500000000001
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/draft-overview",
+      "dateTime": "2026-05-15T07:21:45.062769-04:00",
+      "description": "Routed platform-overview draft to gemini-pro ($0.0545); wrote docs/platform-overview.md and saved raw response.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 18838,
+          "outputTokens": 3098,
+          "costUsd": 0.0545275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/wire-doc-graph",
+      "dateTime": "2026-05-15T07:25:58.258561-04:00",
+      "description": "Wired doc graph: README.md (added New-here pointer to platform-overview.md), src/Libs/README.md (refreshed inventory with overview link and current 8 libraries + DevIdp note), and added 'Part of the Dabbler Platform' pointer block to all 8 per-library READMEs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/cross-provider-verify",
+      "dateTime": "2026-05-15T07:27:43.449898-04:00",
+      "description": "Cross-provider session-verification routed to gpt-5-4 ($0.0997).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 13868,
+          "outputTokens": 4335,
+          "costUsd": 0.099695
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/cross-provider-verify-round-2",
+      "dateTime": "2026-05-15T07:30:26.023565-04:00",
+      "description": "Round 2 cross-provider verification (after Adoption-note fix); routed to gpt-5-4 ($0.1062).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 9053,
+          "outputTokens": 5571,
+          "costUsd": 0.1061975
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/cross-provider-verify-round-3",
+      "dateTime": "2026-05-15T07:31:35.994293-04:00",
+      "description": "Round 3 cross-provider verification (NuGet link relabeled + note scope narrowed); routed to gpt-5-4 ($0.0122).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1545,
+          "outputTokens": 553,
+          "costUsd": 0.0121575
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-05-15T07:32:19.016624-04:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 256 pre-existing warnings (matches Session 2 baseline). Full test suite not re-run; doc-only session with no source changes.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

@@ -1,5 +1,9 @@
 # Dabbler.Reports.Blazor
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 Blazor report UI for the retained reporting workflow. The supported contract
 centers on prompting for parameters, executing a report, and rendering the
 composed output.

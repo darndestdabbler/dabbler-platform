@@ -1,5 +1,9 @@
 # Dabbler.Reports.Export
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 PDF export for Dabbler Reports. Renders composed report pages to PDF documents using the DabblerPdf library, with full support for fonts, styles, images, borders, and multi-page output.
 
 ## Quick Start

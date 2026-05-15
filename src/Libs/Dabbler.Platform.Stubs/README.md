@@ -1,5 +1,9 @@
 # Dabbler.Platform.Stubs
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 Reusable stub providers for the retained Dabbler platform surface.
 
 This package turns the repo's existing in-memory testing patterns into a

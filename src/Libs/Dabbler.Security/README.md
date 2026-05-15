@@ -1,10 +1,22 @@
 # Dabbler.Security
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 Dabbler.Security is a comprehensive authentication and authorization library for ASP.NET Core and Blazor Server applications. It provides passwordless magic link authentication, TOTP-based MFA, external identity provider integration, and a powerful runtime-configurable authorization system for fine-grained access control.
 
 ## Quick Start
 
-1. Install the NuGet package:
+> **Adoption note (2026-05):** the supported adoption model today is
+> **integrated source** under `src/Libs/` — add a `<ProjectReference>`
+> from your application to `src/Libs/Dabbler.Security/`. The NuGet
+> install command below is the future packaged path described in
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md);
+> NuGet packages have not shipped yet. The packaging work is tracked
+> by the `packaging-and-template-readiness` session set.
+
+1. Install the NuGet package (future packaged path):
 
     ```sh
     dotnet add package Dabbler.Security

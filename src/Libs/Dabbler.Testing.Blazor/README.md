@@ -1,5 +1,9 @@
 # Dabbler.Testing.Blazor
 
+> Part of the Dabbler Platform. See
+> [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
+> the platform-level view of how this library fits in.
+
 Testing utilities for Blazor Server applications, with emphasis on deterministic synchronization for Playwright E2E tests.
 
 ## Features

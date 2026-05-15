@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "sessionSet": "packaging-and-template-readiness",
-  "sessionNumber": 2,
+  "sessionNumber": 3,
   "isFinalSession": false,
-  "verificationVerdict": "ISSUES_FOUND",
+  "verificationVerdict": "VERIFIED",
   "verifierModel": "gpt-5-4",
   "verifierProvider": "openai",
   "verifierRound": 3,
@@ -13,93 +13,79 @@
       "model": "gpt-5-4",
       "provider": "openai",
       "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1156,
-      "issuesFound": 4,
-      "summary": "(Major) README scope mismatch — added pointer to docs/planning/session-set-authoring-guide.md but excluded that doc from refresh sweep; (Major) Dabbler.Security.Blazor README may contain misleading [Authorize(Roles=SystemAdmin)] example; (Minor) markdown-check evidence missing from log; (Minor) deleted-doc inbound-reference scan missing."
+      "cost_usd": 0.0997,
+      "issuesFound": 1,
+      "summary": "(Major) Adoption story inconsistent across the doc graph: docs/platform-overview.md says integrated source under src/Libs/ is the only supported model and that NuGet packaging has not shipped yet, but src/Libs/Dabbler.Security/README.md still tells consumers to `dotnet add package Dabbler.Security` and src/Libs/Dabbler.Security.Blazor/README.md points readers at a NuGet-distributed core package."
     },
     {
       "round": 2,
       "model": "gpt-5-4",
       "provider": "openai",
       "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1153,
+      "cost_usd": 0.1062,
       "issuesFound": 1,
-      "summary": "Confirmed Issue-2 dismissal as valid context-gap finding. Confirmed Issue 1, 3, 4 fixes. Raised one new issue: refresh log was internally inconsistent with the post-Round-1 diff (governance-two-pager.md was edited but log row still said NO CHANGES NEEDED; edited count was 8 should be 9; README per-doc row didn't reflect Round-1 follow-up that dropped the authoring-guide pointer)."
+      "summary": "(Major) The Round-1 fix to src/Libs/Dabbler.Security.Blazor/README.md was a partial fix: (a) Dependencies still contained a concrete https://www.nuget.org/packages/Dabbler.Security/ link pointing readers at a first-party NuGet-distributed package, and (b) the adoption note was over-broad — it said `NuGet packages (referenced in Dependencies below) ... have not shipped yet` which incorrectly swept in third-party packages like MudBlazor and Microsoft.AspNetCore.Components.Web that DO exist today. The Round-1 fix to src/Libs/Dabbler.Security/README.md was acceptable."
     },
     {
       "round": 3,
       "model": "gpt-5-4",
       "provider": "openai",
-      "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.0833,
-      "issuesFound": 1,
-      "summary": "Minor only — verification PROMPT (one-shot artifact in tools/verify_session2.py, deleted at session close) had a stale 'Out of scope' assertion claiming all 7 NO CHANGES NEEDED docs were unchanged. The refresh-log.md DELIVERABLE correctly notes that 2 of those 7 (Reports.Blazor, governance-two-pager) were later edited via the per-doc table. Verifier explicitly: 'Everything else in the supplied bundle looks materially consistent.' Retry budget 2/2 exhausted; per workflow Step 7 Minor issues do not block commit. No further repo edit required since the deliverable is internally consistent."
+      "verdict": "VERIFIED",
+      "cost_usd": 0.0122,
+      "issuesFound": 0,
+      "summary": "Verified: the concrete first-party NuGet link to Dabbler.Security has been replaced with a non-link bullet identifying integrated source today and a future NuGet release; the adoption note is now correctly scoped to first-party Dabbler packages and explicitly excludes third-party packages (MudBlazor, ASP.NET Core) from the 'not shipped yet' statement. No remaining inconsistency between src/Libs/Dabbler.Security.Blazor/README.md and docs/platform-overview.md."
     }
   ],
-  "adjudications": [
-    {
-      "round": 1,
-      "task_type": "session-verification",
-      "cause": "context-gap",
-      "resolution": "accept-dismissal",
-      "finding_summary": "Dabbler.Security.Blazor README may still contain misleading [Authorize(Roles=SystemAdmin)] example",
-      "dismissal_reason": "Verified via git show HEAD: and current file content — the example was never in the actual README, only in the model's rejected refresh proposal. Round 2 verifier confirmed: 'the current src/Libs/Dabbler.Security.Blazor/README.md you included does not contain a misleading [Authorize(Roles=SystemAdmin)] example. That round-1 finding was indeed a context-gap error.'"
-    }
-  ],
+  "adjudications": [],
   "scopeDeviations": [
     {
-      "spec_step": "Session 2 Step 3 (per-doc routing decision)",
-      "actual": "Refresh sweep scoped to 15 docs (Tier 1 + Tier 2) per operator decision at session start. Internal planning/governance/roadmap docs excluded from refresh routing.",
-      "rationale": "The spec said 'inventory every consumer-facing doc' then refresh per-doc. Operator-confirmed scope: refresh truly consumer-facing entry points (top-level README, COMPATIBILITY, ai-led-session-workflow, governance two-pager, 8 per-library READMEs, 3 orchestrator instruction files) but skip internal planning docs that serve the human + AI workflow rather than platform consumers. Recent session-set churn means project-guidance.md / lessons-learned.md / session-set-authoring-guide.md are continuously updated in normal session work; routing a refresh would be churn without value."
-    },
-    {
-      "spec_step": "Session 2 Step 3 (route to Opus per spec)",
-      "actual": "Per ai-assignment.md commit 5cb2bfb (2026-05-15), `force_model='opus'` was dropped from documentation calls; the router picked gemini-pro for every refresh.",
-      "rationale": "Authoring-time decision per `feedback_avoid_upward_routing.md` — Sonnet/Gemini orchestrators routing tier-2 documentation tasks to Opus pays twice. Default router selection at gemini-pro was sufficient: 8 of 15 docs received material refresh proposals; 7 came back NO CHANGES NEEDED. The auto-verifier critiques (gpt-5-4-mini) caught real misses on the 8 proposed refreshes. The decision to drop force-Opus was made before this session started; it is not a session-time deviation from the as-authored ai-assignment routing decisions."
+      "spec_step": "Session 3 Step 2 (route to Opus per spec)",
+      "actual": "Per ai-assignment.md commit 5cb2bfb (2026-05-15), `force_model='opus'` was dropped from the documentation call; the router picked gemini-pro for the initial draft.",
+      "rationale": "Authoring-time decision per `feedback_avoid_upward_routing.md`. The gemini-pro draft was substantially shorter than the spec target (215 vs 300-500 lines) and missed shipped primitives in Components/Security sections. The orchestrator-side revision addressed every flagged gap directly (mechanical edit work using the source READMEs already in context). Net effect: routed cost stayed low ($0.0545 for the doc call) while the orchestrator absorbed the elaboration cost in conversation tokens. For canonical entry-point doc work, future sessions may want to seed the prompt with explicit per-section bullet lists or route to Sonnet (whose documentation template favors longer output) — calibration note recorded in ai-assignment.md actuals."
     }
   ],
   "deferredItems": [],
   "followOnSpecsCalledOut": [],
-  "buildResult": "clean (0 errors, 256 pre-existing warnings: CS8669 on auto-generated Razor, MUD0002 on Title attribute, CS0618 on already-[Obsolete]-marked RoleSwitchingPermission)",
-  "testResult": "864 pass; 0 fail across 7 test projects (excluding Playwright per Session 1 baseline). No test changes this session. Playwright project not run — no compose stack required for documentation refresh; spec did not ask for E2E coverage in this session.",
+  "buildResult": "clean (0 errors, 256 pre-existing warnings: CS8669 on auto-generated Razor, MUD0002 on Title attribute, CS0618 on already-[Obsolete]-marked RoleSwitchingPermission). Matches Session 2 baseline.",
+  "testResult": "Full test suite not re-run; doc-only session with no source changes (only docs/**/*.md and src/Libs/**/README.md edits). Session 2 baseline of 864 pass / 0 fail across 7 test projects (excluding Playwright) carries forward.",
   "newTestsAdded": [],
   "testsRemoved": [],
   "filesTouched": [
-    "README.md (added pointers to ai-led-session-workflow.md, src/Libs/, COMPATIBILITY.md; Round-1 follow-up dropped session-set-authoring-guide.md pointer per Issue-1 resolution)",
-    "docs/COMPATIBILITY.md (corrected `ai-router/uat_runner/cli.py` → `uat_runner` package path; corrected `--suppressions` vs `--active-role` flag attribution)",
-    "docs/planning/project-status.md (added STALE notice at top; removed inbound references to deleted governance-two-pager-outline.md from 'Where durable content lives now' table and directory tree)",
-    "docs/planning/governance-two-pager.md (Round-1 Issue-4 cleanup: removed trailing `Companion to governance-two-pager-outline.md` reference)",
-    "src/Libs/Dabbler.Components/README.md (restructured Active Core into CRUD-helpers + filter-primitives subsections; added DeclarativeFilterPanel<TEntity>, EditSession<T>, DirtyAwareActionRow, MasterDetailExpansionShell; kept legacy FilterPanel<T> mention; rejected model-proposed AddDabblerComponents() that doesn't exist)",
-    "src/Libs/Dabbler.Reports.Blazor/README.md (manual catch — model missed: removed dead reference to docs/planning/notes-driven-supported-library-surface.md; removed compatibility-only DabblerQueryReportPage<T> section since the type no longer exists)",
-    "src/Libs/Dabbler.Security/README.md (rewrote Authorization section to match restriction-based model: 5 baked-in roles, user-type roles, ColumnRestriction/RowRestriction/UiRestriction, DefaultMask + MaskExemption; explicitly noted 'No role inheritance'; bumped EF Core dependency 9.0.0 → 10.0.5)",
-    "src/Libs/Dabbler.Security.Blazor/README.md (removed DabblerUserRoleManager — verified type no longer exists; replaced with RestrictedFormField/RestrictedGridColumn — verified these exist; bumped MudBlazor 7.15.0 → 8.x)",
-    "src/Libs/Dabbler.Testing.Blazor/README.md (fixed broken relative link path ../../docs/... → ../../../docs/... — 3 levels up from src/Libs/<lib>/ to repo root)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/refresh-pass-001/refresh-log.md (NEW — per-doc disposition table, markdown-check evidence subsection, Round-1+2+3 verification history, raw routed responses preserved alongside)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/refresh-pass-001/*.response.md (NEW — 15 raw routed-refresh responses preserved for audit; each includes the doc-time auto-verifier critique)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-002.md (3 verification rounds, raw verifier output)",
-    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 2 actuals + Session-3 next-orchestrator recommendation)",
+    "docs/platform-overview.md (NEW — 595 lines; canonical entry-point doc covering platform identity, problems-solved, 8 consumable libraries + DevIdp dev helper, today-integrated-source vs future-NuGet adoption path, opt-in stub-mode story, WCAG 2.1 AA accessibility posture, testing-hierarchy pointer, and per-library deep-dive index)",
+    "README.md (added 'New here?' pointer to docs/platform-overview.md at the top of the foundation section)",
+    "src/Libs/README.md (rewrote inventory: refreshed library list to current 8 consumable libraries + DevIdp dev helper; added Dabbler.Testing.Blazor.Tests; added pointer to platform-overview.md; removed stale notes-driven-supported-library-surface.md reference)",
+    "src/Libs/Dabbler.Components/README.md (added 'Part of the Dabbler Platform' pointer block to platform-overview.md)",
+    "src/Libs/Dabbler.Platform.Stubs/README.md (added 'Part of the Dabbler Platform' pointer block)",
+    "src/Libs/Dabbler.Reports.Core/README.md (added 'Part of the Dabbler Platform' pointer block)",
+    "src/Libs/Dabbler.Reports.Export/README.md (added 'Part of the Dabbler Platform' pointer block)",
+    "src/Libs/Dabbler.Reports.Blazor/README.md (added 'Part of the Dabbler Platform' pointer block)",
+    "src/Libs/Dabbler.Security/README.md (added 'Part of the Dabbler Platform' pointer block AND Round-1 fix: Adoption-note callout explaining integrated source today vs future NuGet)",
+    "src/Libs/Dabbler.Security.Blazor/README.md (added 'Part of the Dabbler Platform' pointer block AND Round-1 + Round-2 fixes: Adoption-note callout scoped to first-party Dabbler packages, plus Dependencies entry for Dabbler.Security relabeled from concrete NuGet link to integrated-source-today-with-future-NuGet-pointer)",
+    "src/Libs/Dabbler.Testing.Blazor/README.md (added 'Part of the Dabbler Platform' pointer block)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-003.md (3 verification rounds — verifier raw output)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/overview-draft.response.md (NEW — raw gemini-pro routed draft preserved for audit)",
+    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 3 actuals + Session-4 next-orchestrator recommendation)",
     "docs/session-sets/packaging-and-template-readiness/disposition.json (this file)",
     "docs/session-sets/packaging-and-template-readiness/activity-log.json (per-step log)",
     "docs/session-sets/packaging-and-template-readiness/session-state.json (in-progress → complete via mark_session_complete)"
   ],
   "filesDeleted": [
-    "docs/planning/governance-two-pager-outline.md (operator-approved deletion: outline-only doc, full draft governance-two-pager.md was completed and supersedes it)",
-    "tools/refresh_docs.py (one-shot script that drove the per-doc refresh sweep; not part of platform tooling)",
-    "tools/verify_session2.py (one-shot script that drove the 3 cross-provider verification rounds; not part of platform tooling)",
-    "tools/next_orc_session3.py (one-shot script that routed the Session-3 next-orchestrator analysis; not part of platform tooling)",
-    "tmp/session2.diff (transient diff bundle for verification rounds)",
-    "tmp/verify_session2.log + verify_session2_round2.log + verify_session2_round3.log + next_orc_session3.log (one-shot routed-call output captures)"
+    "tmp/draft_overview.py (one-shot script that dispatched the documentation routing; not part of platform tooling)",
+    "tmp/verify_session3.py + verify_session3_r2.py + verify_session3_r3.py (one-shot scripts for the 3 verification rounds)",
+    "tmp/next_orc_session4.py (one-shot script that routed the Session-4 next-orchestrator analysis)",
+    "tmp/*.log (transient routed-call output captures)",
+    "tmp/next_orc_session4.txt (transient text capture of the next-orc recommendation)"
   ],
-  "routedCallsTotalUsd": 0.86,
+  "routedCallsTotalUsd": 0.274,
   "next_orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
     "model": "claude-opus-4-7",
-    "effort": "medium",
+    "effort": "high",
     "reason": {
-      "code": "other",
-      "specifics": "Switch-due-to-quality: routed analysis (gemini-pro, $0.003) recommended Opus medium for Session 3 over the original ai-assignment Sonnet-low recommendation. Session 3 authors `docs/platform-overview.md`, the canonical entry-point doc for future platform consumers — high-leverage synthesis from project-guidance + lessons-learned + this session's refresh log. Weak initial drafts trigger Round-1 verification re-work cycles; Opus medium reduces that risk for a small additional reasoning cost. Operator may swap to Sonnet medium if context permits. (Note: closeout gate enum lacks an explicit 'switch-due-to-quality' code; logging as 'other' with full rationale.)"
+      "code": "spec-required",
+      "specifics": "Routed analysis (gemini-pro, $0.0019) recommended Claude Code Opus high for Session 4, aligning with the original spec ai-assignment recommendation of Opus moderate. Session 4 (Tri-Provider Platform Value Review) requires the orchestrator to (a) author its own architecture-level value assessment from scratch and (b) synthesize three independent provider reviews into a consolidated platform-value-review.md with gap dispositions. Both are exactly the 'Opus required for direct reasoning and synthesis' profile. The orchestrator-self-contributes-to-review-panel feedback memory applies: when the orchestrator's provider (Anthropic) is on the review panel, the orchestrator writes that perspective directly instead of routing Opus→Opus."
     }
   },
-  "notes": "Session 2 was documentation refresh — 15 docs routed for refresh assessment; 8 received material edits (with Round-1 follow-ups producing 9 total edited files), 5 truly NO CHANGES NEEDED, 1 deleted as a stale duplicate, 1 stale-flagged. The 3 verification rounds documented a useful failure mode: the verifier consistently flagged real issues but also produced one context-gap finding per round (Round 1: SystemAdmin Authorize example never existed in the README; Round 3: 'Out of scope' assertion was about a transient verification-prompt artifact, not the deliverable). The disagreement-resolution procedure worked as designed — record_adjudication captured the dismissal for tuning visibility. Cost discipline note: the routed-cost-vs-orchestrator-cost balance for this session was lopsided toward orchestrator-side reasoning since Opus high was the active orchestrator running multi-step file work; future documentation-refresh sessions should honor the spec-sized Sonnet-low orchestrator unless explicitly overridden."
+  "notes": "Session 3 authored docs/platform-overview.md as the canonical entry-point doc for future platform consumers. The 3 verification rounds documented a useful pattern: cross-provider verification catching real consumer-facing inconsistencies the doc-refresh model alone missed. Round 1 surfaced the NuGet adoption-story mismatch (overview says integrated-source-only-today, but two per-library READMEs still said `dotnet add package Dabbler.Security`); Round 2 surfaced a sub-issue in the Round-1 fix (over-broad scope + lingering first-party NuGet link); Round 3 verified clean. Cost discipline note: the routed-cost-vs-orchestrator-cost balance for this session was again lopsided toward orchestrator-side reasoning (~$0.27 routed vs Opus medium conversation tokens). For canonical-doc-authoring sessions, an alternative routing pattern worth piloting in a future doc session is: route a section-by-section authoring pass (per-library section as separate route calls) rather than one big doc call, allowing the router's per-call complexity scoring to escalate naturally for the heaviest sections (Security, Components) while keeping the lighter sections (Reports.Export, Reports.Core) on cheaper models."
 }

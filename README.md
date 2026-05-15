@@ -29,6 +29,11 @@ The repo currently includes:
   `uat_runner/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
 - durable cutover/guardrail docs
 
+**New here?** Start with
+[`docs/platform-overview.md`](docs/platform-overview.md) — the
+canonical entry-point doc describing what the platform is, the
+libraries it ships, and how to adopt them.
+
 The single source of truth for the AI-led workflow is
 [`docs/ai-led-session-workflow.md`](docs/ai-led-session-workflow.md)
 (execution mechanics; it links onward to the spec-authoring guide).
