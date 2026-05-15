@@ -183,12 +183,104 @@ High
 | 6 | If the review surfaces a critical value gap, pause and check with the human. | direct work |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-opus-4-7, high effort) —
+  operator declined to drop to moderate per the Session 3 routed
+  next-orc recommendation (Opus high), citing the tri-provider
+  synthesis workload.
+- **Total routed cost:** ~$1.06 across 8 routed calls (router-metrics
+  shows additional calls from in-conversation testing).
+  Breakdown:
+  - Tri-provider value review (Step 4):
+    - gemini-pro architecture: 1 call, $0.0419
+    - gpt-5-4 architecture: 1 call, $0.1963 (after one
+      reasoning_effort=xhigh attempt timed out 3× at 300s for ~$0
+      in returned tokens; retried at high with 600s timeout)
+  - Cross-provider session verification (Steps 6-7):
+    - Round 1: gpt-5-4 session-verification, $0.1395
+    - Round 2: gpt-5-4 session-verification, $0.1552
+    - Round 3: gpt-5-4 session-verification, $0.2065
+    - Round 4: gpt-5-4 session-verification, $0.1349
+  - Next-orchestrator analysis: gemini-pro, $0.0038
+- **Deviations from recommendation:**
+  - Orchestrator ran at Opus **high** rather than the spec-recommended
+    **moderate**, by operator confirmation (Session 3 next-orc
+    analysis chose high; operator ratified at session start).
+  - Spec Step 4 said `route(task_type="architecture", force_model=...)`;
+    `route()` doesn't support `force_model` and architecture is
+    auto-verified, so the orchestrator bypassed `route()` via direct
+    `call_model()` per the spec's "fallback to the underlying router
+    primitive" allowance. Both calls were recorded to router-metrics
+    via `record_call()`.
+  - gpt-5-4 first run at task_type_params `reasoning_effort=xhigh`
+    timed out 3× (300s × 3 = 15 min wall, ~$0 tokens). Retried at the
+    model-default `reasoning_effort=high` with provider timeout
+    bumped to 600s; completed in 187s. Future high-token (>50KB
+    prompt) architecture calls should drop to `high` or bump the
+    timeout.
+  - Scope extended beyond `Touches: This session-set folder` to
+    apply `fix-now` items: `docs/platform-overview.md`,
+    `src/Libs/Dabbler.Reports.Export/README.md`, and (Round 4)
+    `src/Libs/Dabbler.Reports.Core/README.md`. The fix-now
+    investigation surfaced a non-trivial detail: `DabblerPdf` is a
+    C# port of OpenPDF and therefore dual-licensed
+    LGPL-2.1-only OR MPL-2.0, **not** MIT — adopters need this for
+    compliance review.
+  - Build/test verification surfaced a pre-existing test race
+    between `OrderUpdateTests` and `TemporalTablesTests`
+    (pass-alone-fail-in-suite, both targeting the first-seeded
+    Order's Notes column). Operator-confirmed inline fix per
+    `feedback_fix_broken_tests_no_carry_forward`: introduced a new
+    `SeededOrderMutationCollection` (mirroring the existing
+    `FlakyPlaywrightCollection` pattern) with
+    `DisableParallelization=true` and tagged both test classes.
+  - **4 verification rounds vs the stated max-2-retries.** Round 1
+    ISSUES_FOUND with 1 Major + 2 Minor (all fixable); Round 2
+    ISSUES_FOUND with 1 Minor arithmetic; Round 3 ISSUES_FOUND
+    with 2 Major + 1 Minor; Round 4 ISSUES_FOUND with 1 Major
+    (Opus context asymmetry vs spec Step 2's "self-contained"
+    clause) + 2 Minor. The residual Major is a spec-interpretation
+    issue (Step 2 says "no prior context" but Step 3 says "the
+    orchestrator already has the full context loaded") that
+    operator deferred to Step 9 reorganization review as a
+    spec-revision item, not a session-4-internal fix.
+- **Notes for next-session calibration:**
+  - The tri-provider review pattern's cost composition was lopsided:
+    $0.24 for the actual provider review calls vs ~$0.62 for the
+    4 verification rounds. Future tri-provider sessions should
+    consider front-loading more synthesis effort in the orchestrator
+    drafting pass to reduce verifier-round churn.
+  - The verifier-spiral pattern (each round finding new nits) is
+    real for documentation-heavy sessions. Calibration: 2-3 rounds
+    is the natural settling point; rounds 4+ should be operator-
+    decisioned, not orchestrator-automated.
+  - The `feedback_orchestrator_self_contributes_to_review_panel`
+    pattern works as intended (full context utilized, saves
+    Opus→Opus routing cost), but it conflicts with strict readings
+    of "identical and self-contained" prompt clauses in tri-provider
+    review specs. Future spec authors should pick one reading and
+    spell it out unambiguously, OR the workflow doc should resolve
+    the ambiguity globally.
+- **Session verification:** **ISSUES_FOUND** (Round 4 of 4) — 1
+  residual Major (Opus self-assessment context asymmetry vs spec
+  Step 2 "self-contained" clause) deferred to Step 9 spec-revision
+  review per operator decision. All bookkeeping issues from Rounds
+  1-3 were fixed.
+- **Adjudications:** 0 (no orchestrator-vs-verifier disagreements
+  routed through `record_adjudication`; Round 4's residual Major
+  was accepted as deferred-rather-than-dismissed, so the adjudication
+  channel did not apply).
 
-**Next-session orchestrator recommendation:** Claude Code (claude-opus-4-7)
+**Next-session orchestrator recommendation (routed analysis,
+gemini-pro, $0.0038):** Claude Code (`claude-opus-4-7`, high
+effort). Rationale: Session 5's core tasks — drafting a complex
+technical proposal and synthesizing tri-provider reviews — demand
+the same high-level reasoning and authoring capabilities as Session
+4. The incumbent orchestrator (Claude Opus) performed effectively in
+Session 4, handling scope extensions and surfacing deep
+specification ambiguities, which confirms its suitability for this
+type of work. The cost and verification patterns from Session 4
+indicate the task's inherent complexity, reinforcing the need for a
+top-tier model rather than a cheaper alternative.
 
 ---
 

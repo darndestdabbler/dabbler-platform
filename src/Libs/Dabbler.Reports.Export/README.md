@@ -27,7 +27,11 @@ File.WriteAllBytes("output.pdf", pdfBytes);
 ## Dependencies
 
 - `Dabbler.Reports.Core` (report definitions, layout engine)
-- `DabblerPdf` (PDF rendering)
+- `DabblerPdf` (PDF rendering) — Dabbler-authored C# port of
+  [OpenPDF](https://github.com/LibrePDF/OpenPDF), ships as a NuGet
+  package from the sibling
+  [`darndestdabbler/dabbler-pdf`](https://github.com/darndestdabbler/dabbler-pdf)
+  repository. **Dual-licensed LGPL-2.1-only OR MPL-2.0** (not MIT).
 - .NET 10.0
 
 ## License

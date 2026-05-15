@@ -20,6 +20,7 @@ namespace AcmeCoffeeOnline.Api.Tests;
 // when a parallel WebApplicationFactory boots, causing AppUser duplicate-
 // key races. Probe-update of an existing row is safe because the seed
 // is keyed on Customer.Email (unchanged by the probe).
+[Collection(SeededOrderMutationCollection.Name)]
 public sealed class TemporalTablesTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;

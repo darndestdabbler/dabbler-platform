@@ -17,6 +17,7 @@ namespace AcmeCoffeeOnline.Api.Tests;
 /// database. Covers the UAT finding where SystemAdmin could not edit an order
 /// from the detail page.
 /// </summary>
+[Collection(SeededOrderMutationCollection.Name)]
 public sealed class OrderUpdateTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;

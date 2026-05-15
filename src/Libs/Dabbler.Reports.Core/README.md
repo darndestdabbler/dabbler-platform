@@ -41,7 +41,11 @@ Report definitions use a JSON-based format (`.rdf.json`) that describes bands, e
 ## Dependencies
 
 - `Dabbler.Components` (expression engine)
-- `DabblerPdf` (text measurement)
+- `DabblerPdf` (text measurement) — Dabbler-authored C# port of
+  [OpenPDF](https://github.com/LibrePDF/OpenPDF), ships as a NuGet
+  package from the sibling
+  [`darndestdabbler/dabbler-pdf`](https://github.com/darndestdabbler/dabbler-pdf)
+  repository. **Dual-licensed LGPL-2.1-only OR MPL-2.0** (not MIT).
 - .NET 10.0
 
 ## License

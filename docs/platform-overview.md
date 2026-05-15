@@ -221,6 +221,19 @@ Renders composed report pages (the output of `Dabbler.Reports.Core`'s
 `BandLayoutEngine`) into PDF documents using the `DabblerPdf` library.
 Handles fonts, styles, images, borders, and multi-page output.
 
+**About `DabblerPdf`.** `DabblerPdf` is a Dabbler-authored C# port of
+[OpenPDF](https://github.com/LibrePDF/OpenPDF), used by both
+`Dabbler.Reports.Core` (for text measurement during banded layout) and
+`Dabbler.Reports.Export` (for the actual PDF output). It ships as a
+NuGet package from the sibling
+[`darndestdabbler/dabbler-pdf`](https://github.com/darndestdabbler/dabbler-pdf)
+repository. **License note:** because `DabblerPdf` is an OpenPDF port,
+it is dual-licensed under **LGPL-2.1-only OR MPL-2.0** (the adopter
+chooses which), *not* MIT like the rest of the platform. Adopters
+whose distribution or compliance posture requires a non-copyleft
+license for the PDF stack should consult those licenses before
+adopting `Dabbler.Reports.*`.
+
 ```csharp
 var exporter = new PdfExporter(report)
 {
@@ -593,3 +606,10 @@ concern you care about, follow these onward links:
   rendering).
 - [`Dabbler.Testing.Blazor`](../src/Libs/Dabbler.Testing.Blazor/README.md) —
   Playwright synchronization watermark, bUnit helpers.
+
+**License.** All eight platform libraries listed above are released
+under the [MIT License](https://opensource.org/licenses/MIT). The
+transitive `DabblerPdf` dependency that powers
+`Dabbler.Reports.Core` and `Dabbler.Reports.Export` is dual-licensed
+LGPL-2.1-only OR MPL-2.0 (see the "About `DabblerPdf`" note in the
+Reports.Export section above).
