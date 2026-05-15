@@ -1,34 +1,28 @@
 {
   "status": "VERIFIED",
-  "summary": "Session 8 of 11 (packaging-and-template-readiness): VS Template and Stub-Opt-In Readiness. Delivered: Dabbler.Security.DevIdp.Tool (dotnet tool, A6), Dabbler.Templates (dabbler-app + dabbler-min templates, A12+A13), docs/getting-started.md (G11). Build green, 868 non-Playwright tests pass. GPT-5.4 cross-provider verification: VERIFIED Round 2 (Round 1 fixed A12 role seeding Major + 2 Minor doc corrections).",
+  "summary": "Session 10 of 11 (packaging-and-template-readiness): Playwright E2E Tests For Packaging And Template Features. Delivered: TemplateSmokePlaywrightTests.cs (3 SkippableFact tests verifying template app runtime integrity — login page renders, auth redirect, static asset delivery; skips when PLAYWRIGHT_TEMPLATE_APP_URL not set). Added Xunit.SkippableFact to AcmeCoffeeOnline.Playwright.csproj. Build green, 913 non-Playwright tests pass, 5 skip (expected). GPT-5.4 cross-provider verification: VERIFIED Round 4 (Rounds 1-3 fixed exception-filter edge cases in skip logic).",
   "files_changed": [
-    "src/Libs/Dabbler.Security.DevIdp/DevIdpHost.cs (new)",
-    "src/Libs/Dabbler.Security.DevIdp/Program.cs (now 1-line delegation)",
-    "tools/Dabbler.Security.DevIdp.Tool/ (new: csproj + Program.cs)",
-    "templates/Dabbler.Templates/ (new: csproj + dabbler-app + dabbler-min template content)",
-    "docs/getting-started.md (new, G11)",
-    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 8 actuals)",
-    "tools/pack.ps1 (added DevIdp.Tool + Templates to library projects list)",
-    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs (added DevIdp.Tool + Templates to required nupkg prefixes; updated Skip comments to Session 9)",
-    "README.md (added getting-started.md pointer + templates/tools project layout entries)",
-    "Dabbler.Platform.sln (added Dabbler.Templates + DevIdp.Tool projects)"
+    "tests/AcmeCoffeeOnline.Playwright/TemplateSmokePlaywrightTests.cs (new)",
+    "tests/AcmeCoffeeOnline.Playwright/AcmeCoffeeOnline.Playwright.csproj (added Xunit.SkippableFact)",
+    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 10 actuals + S11 recommendation)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-11-next-orchestrator-recommendation.md (new)"
   ],
   "verification_method": "gpt-5-4",
-  "verification_rounds": 2,
+  "verification_rounds": 4,
   "verification_message_ids": [],
   "scope_deviations": [
-    "getting-started.md routed draft (gemini-pro) needed significant direct authoring — too short, wrong .NET version, incorrect DB setup instructions. Per feedback_api_timeout_direct_fallback, authored directly rather than re-routing.",
-    "Dabbler.Templates.csproj required <DefaultItemExcludes> + <Compile Remove> for template content to prevent build errors — not anticipated in the spec, needed for Microsoft.NET.Sdk compliance.",
-    "AppDbInitializer.cs seeds AppRole for SystemAdmin before assigning it — the spec said 'seeds admin@local.test' but the role assignment is required for the user to actually have SystemAdmin privileges. Round 1 verifier caught this; fixed before Round 2."
+    "Sessions 7-9 introduced no new browser UI in the AcmeCoffeeOnline demo app. The packaging/template work is tooling-level (NuGet packages, VS templates, dotnet tool). Playwright test scope is the template app's runtime integrity, not new demo-app UI flows.",
+    "Wrote SkippableFact tests rather than always-run tests — the template app requires SQL Server (LocalDB) + DevIdp + separate process to run. SkippableFact matches the PackagingSmokeTests pattern for infrastructure-dependent tests.",
+    "4 verification rounds (policy max 2 + operator-authorized extension per feedback_verifier_spiral_doc_sessions). All findings were Minor exception-filter edge cases; each round improved the skip-vs-fail boundary."
   ],
   "next_orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
+    "model": "claude-opus-4-7",
     "effort": "medium",
     "reason": {
-      "code": "continue-current-trajectory",
-      "specifics": "Session 9 (consumer validation + template smoke proof) is implementation-centric; Sonnet medium matches the structured procedural nature of running pack.ps1 + smoke tests."
+      "code": "other",
+      "specifics": "Session 11 (UAT checklist + change-log + Step 9 reorg review) demands higher reasoning than the original ai-assignment Sonnet-low estimate. Routed gemini-pro analysis recommended Opus medium."
     }
   },
   "blockers": []

@@ -651,12 +651,40 @@ Moderate
 | 5 | Build and test the full suite. | direct work |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-opus-4-7, high effort) — operator confirmed
+  "continue" when offered the spec-recommended Sonnet medium swap; recorded as Opus high per
+  actual runtime.
+- **Total routed cost:** ~$0.30 across 6 routed calls.
+  - Scope analysis (gemini-pro, $0.0091)
+  - Session 11 orchestrator recommendation (gemini-pro, $0.0038)
+  - Round 1 session-verification (gpt-5-4, $0.0831) — ISSUES_FOUND (1 Minor: unreachable → skip)
+  - Round 2 session-verification (gpt-5-4, $0.0544) — ISSUES_FOUND (1 Minor: 404/500 → skip vs fail)
+  - Round 3 session-verification (gpt-5-4, $0.0903) — ISSUES_FOUND (2 Minor: timeout exception filters)
+  - Round 4 session-verification (gpt-5-4, $0.0591) — **VERIFIED**
+- **Deviations from recommendation:**
+  - Orchestrator ran at Opus high rather than Sonnet medium. Operator override at session
+    start per `feedback_honor_spec_sized_orchestrator`.
+  - Playwright test scope was minimal: Sessions 7-9 introduced no new browser UI in the demo
+    app; wrote one SkippableFact test (`TemplateSmokePlaywrightTests.cs`) verifying template
+    app runtime integrity (login page renders) rather than the full §6.1 smoke sequence which
+    requires a fully configured running template app with SQL Server.
+  - Scope analysis routed (gemini-pro, $0.0091) rather than orchestrator-self-opining.
+- **Notes for next-session calibration:**
+  - The template browser smoke (ledger §6.1 steps 5-8) requires SQL Server + DevIdp + template
+    app running — complex infrastructure not automatable in a CI run without dedicated setup.
+    SkippableFact is the correct pattern; the full smoke is an operator-run gate.
+  - Session 11 is the final session: UAT checklist + Step 9 reorg + change-log.
+- **Session verification:** **VERIFIED** (Round 4 of 4, operator-authorized per
+  `feedback_verifier_spiral_doc_sessions`). Rounds 1-3 each surfaced one or two Minor
+  issues around exception-handling edge cases in the skip logic; all fixed inline.
+  Round 4 clean.
 
-**Next-session orchestrator recommendation:** Claude Code (claude-sonnet-4-6)
+**Next-session orchestrator recommendation (routed analysis, gemini-pro, $0.0038 — see
+[`session-reviews/session-11-next-orchestrator-recommendation.md`](./session-reviews/session-11-next-orchestrator-recommendation.md)):**
+**Claude Code (`claude-opus-4-7`, medium effort).** Rationale: UAT checklist authoring
++ Step 9 reorganization review + change-log demand higher reasoning than the original
+Sonnet-low estimate. Operator should confirm at Session 11 start per
+`feedback_honor_spec_sized_orchestrator`.
 
 ---
 

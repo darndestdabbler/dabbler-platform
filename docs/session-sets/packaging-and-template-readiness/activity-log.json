@@ -1078,6 +1078,144 @@
           "costUsd": 0.0787675
         }
       ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 3,
+      "stepKey": "session-10/prerequisites",
+      "dateTime": "2026-05-15T14:35:52.003200-04:00",
+      "description": "Verified Session 7-9 deliverables: PackagingSmokeTests, NupkgArtifactTests, tools/pack.ps1, templates/Dabbler.Templates, DevIdp.Tool, getting-started.md, consumer-readiness.md, release-checklist.md, scenarios.md all present. pack-output/ also present (14 nupkgs).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 3.5,
+      "stepKey": "session-10/ai-assignment",
+      "dateTime": "2026-05-15T14:35:52.004197-04:00",
+      "description": "Routed Session 11 orchestrator recommendation via gemini-pro ($0.0038). Recommendation: Claude Code claude-opus-4-7 medium effort. Rationale: UAT checklist authoring + Step 9 reorganization review + change-log demand higher reasoning than the original ai-assignment's Sonnet-low estimate. Saved recommendation to session-11-next-orchestrator-recommendation.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 600,
+          "outputTokens": 350,
+          "costUsd": 0.0038
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 4,
+      "stepKey": "session-10/identify-test-scope",
+      "dateTime": "2026-05-15T14:35:52.007418-04:00",
+      "description": "Routed scope analysis via gemini-pro ($0.0091). Finding: the packaging/template work in Sessions 7-9 introduced no new browser UI to the demo app. The one genuinely new browser-level validation is the template app's RUNTIME integrity (PackagingSmokeTests only validates build, not runtime DI/startup). Deliverable: SkippableFact Playwright test that navigates to a running dabbler-app instance (skips when PLAYWRIGHT_TEMPLATE_APP_URL not set).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2863,
+          "outputTokens": 550,
+          "costUsd": 0.0091
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 4,
+      "stepKey": "session-10/write-playwright-tests",
+      "dateTime": "2026-05-15T14:42:32.234743-04:00",
+      "description": "Authored tests/AcmeCoffeeOnline.Playwright/TemplateSmokePlaywrightTests.cs: 3 [SkippableFact] tests covering (1) Blazor framework JS served, (2) dabbler-app login page renders + auth redirect, (3) dabbler-min login page renders. Added Xunit.SkippableFact reference to AcmeCoffeeOnline.Playwright.csproj. All 3 tests skip correctly when PLAYWRIGHT_TEMPLATE_APP_URL is not set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 5,
+      "stepKey": "session-10/regression-check",
+      "dateTime": "2026-05-15T14:42:32.237137-04:00",
+      "description": "Build: 0 errors, 256 pre-existing warnings. Non-Playwright test run: 0 failures. Summary: Dabbler.Security.Tests 305 pass, Security.Blazor.Tests 236 pass, Api.Tests 38 pass, Web.Tests 133 pass, Components.Tests 130 pass, PublicSurface.Tests 51 pass, Reports.Blazor.Tests 16 pass, Packaging.Smoke 4 pass + 2 skip (require running template app). New TemplateSmokePlaywrightTests: 3 skip (PLAYWRIGHT_TEMPLATE_APP_URL not set).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 5,
+      "stepKey": "session-10/build-and-test",
+      "dateTime": "2026-05-15T14:42:32.239650-04:00",
+      "description": "dotnet build Dabbler.Platform.sln -c Release: success, 0 errors. dotnet test (non-Playwright): all pass, total 913 passed, 5 skipped, 0 failed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 6,
+      "stepKey": "session-10/verification",
+      "dateTime": "2026-05-15T14:44:34.577801-04:00",
+      "description": "Cross-provider session verification Round 1 via gpt-5-4. Cost: $0.0831.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3931,
+          "outputTokens": 4883,
+          "costUsd": 0.08307250000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 7,
+      "stepKey": "session-10/verification-round-2",
+      "dateTime": "2026-05-15T14:46:55.246775-04:00",
+      "description": "Cross-provider session verification Round 2 via gpt-5-4. Cost: $0.0544.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2206,
+          "outputTokens": 3256,
+          "costUsd": 0.054355
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 7,
+      "stepKey": "session-10/verification-round-3",
+      "dateTime": "2026-05-15T14:49:15.477301-04:00",
+      "description": "Cross-provider session verification Round 3 via gpt-5-4. Cost: $0.0903. Verifying Round 2 fix (assert vs skip on 404/500).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2181,
+          "outputTokens": 5656,
+          "costUsd": 0.0902925
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 7,
+      "stepKey": "session-10/verification-round-4",
+      "dateTime": "2026-05-15T14:51:17.336011-04:00",
+      "description": "Cross-provider session verification Round 4 (operator-authorized) via gpt-5-4. Cost: $0.0591. Verifying Round 3 fixes (exception filter tightening).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2210,
+          "outputTokens": 3571,
+          "costUsd": 0.059090000000000004
+        }
+      ]
     }
   ]
 }
