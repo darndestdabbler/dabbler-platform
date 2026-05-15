@@ -7,7 +7,7 @@
     "src/Libs/Dabbler.Platform.Stubs.Security/ (new)",
     "src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj",
     "src/Libs/Dabbler.Platform.Stubs/DabblerStubServiceCollectionExtensions.cs",
-    "src/Libs/Dabbler.Components.Compat/ (compat files moved from Dabbler.Components)",
+    "src/Libs/Dabbler.Components.Compat/ (compat files moved + namespace updated)",
     "src/Libs/Dabbler.Reports.Core/THIRD-PARTY-NOTICES.txt (new)",
     "src/Libs/Dabbler.Reports.Export/THIRD-PARTY-NOTICES.txt (new)",
     "src/Libs/Dabbler.Reports.Blazor/THIRD-PARTY-NOTICES.txt (new)",
@@ -25,7 +25,10 @@
     "provider": "anthropic",
     "model": "claude-sonnet-4-6",
     "effort": "medium",
-    "reason": "Session 8 (VS template + DevIdp.Tool + tutorial) is implementation-heavy; same Sonnet-class sizing as Session 7."
+    "reason": {
+      "code": "continue-current-trajectory",
+      "specifics": "Session 8 (VS template + DevIdp.Tool) is implementation-heavy like Session 7; Sonnet-class is appropriate for the same reasons."
+    }
   },
   "blockers": []
 }
