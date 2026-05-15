@@ -4,85 +4,53 @@
 > [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
 > the platform-level view of how this library fits in.
 
-Dabbler.Security.Blazor provides the notes-driven runtime authorization UI for
-Blazor Server applications. The supported core surface centers on secured
-rendering, role-aware navigation, runtime permission editing, and the security
-dashboard/admin pages that the app and dedicated tests already prove.
+The Blazor Server UI surface for
+[`Dabbler.Security`](../Dabbler.Security/README.md): secured-rendering
+components, the security-administration dashboard, role and
+organization switchers, restriction-aware grid and form binders, and
+the authentication pages (login, MFA, external-login callback).
 
-Authentication pages for magic link login, MFA, and external-login workflows
-remain available, but that broader identity breadth is product- and
-policy-shaped rather than the main reusable-surface contract this repo is
-currently simplifying.
+## Audience
 
-## Quick Start
+Blazor Server teams already adopting `Dabbler.Security` who want the
+matching UI surface — admin pages, dashboard, role-aware navigation,
+declarative security wrappers — without reimplementing them. The
+package is the consumer-facing complement to `Dabbler.Security`'s
+service-level model.
 
-> **Adoption note (2026-05):** the supported adoption model today is
-> **integrated source** — add `<ProjectReference>` entries from your
-> app to `src/Libs/Dabbler.Security/` and `src/Libs/Dabbler.Security.Blazor/`.
-> The first-party Dabbler NuGet packages are the future packaged path
-> described in
-> [`docs/platform-overview.md`](../../../docs/platform-overview.md);
-> they have not shipped yet. Third-party dependencies listed under
-> *Dependencies* below (MudBlazor, ASP.NET Core packages) are
-> normal NuGet packages your app project already references.
+## Prerequisites and stack constraints
 
-Register the necessary services in your `Program.cs`:
+- Blazor Server
+- MudBlazor 8.x
+- .NET 10 (current LTS)
+- Reference to [`Dabbler.Security`](../Dabbler.Security/README.md)
+  (this library extends its service-level model into UI)
+- Reference to [`Dabbler.Components`](../Dabbler.Components/README.md)
+  (for the underlying grid + form primitives)
+
+## Install
+
+> **Adoption note (Session 5 packaging-and-template-readiness):**
+> Supported adoption today is **integrated source** under
+> `src/Libs/Dabbler.Security.Blazor/`. NuGet preview lands at end of
+> Session 7; the future install reads
+> `dotnet add package Dabbler.Security.Blazor --prerelease`.
+
+## Minimal registration
 
 ```csharp
 builder.Services.AddDabblerSecurityBlazor();
 ```
 
-This registers MudBlazor services, cascading authentication state, and a `DelegatingHandler` for passing user identity to downstream API calls.
+This registers MudBlazor services, cascading authentication state,
+restriction-aware renderers, and a `DelegatingHandler` for passing user
+identity to downstream API calls. It complements
+`AddDabblerSecurity(...)` from the service-level library.
 
-## Components
+## Smallest working example
 
-### Authentication Pages
-
-| Component | Route | Description |
-|---|---|---|
-| `LoginPage` | `/login` | Magic link login with optional external OIDC/OAuth entry points. |
-| `MfaPage` | `/mfa` | TOTP setup and verification when a product policy enables MFA. |
-
-### Admin Pages
-
-| Component | Route | Description |
-|---|---|---|
-| `UserListPage` | `/admin/users` | List and manage application users. |
-| `UserEditPage` | `/admin/users/{id}` | Edit user details and metadata. |
-| `RoleListPage` | `/admin/roles` | View and manage security roles. |
-| `RoleAssignmentPage` | `/admin/roles/assign` | Assign and remove roles from users. |
-| `AuditLogPage` | `/admin/audit` | View a chronological audit trail of security events. |
-
-### Supported Core Components
-
-| Component | Description |
-|---|---|
-| `DabblerSecurityNav` | Navigation menu item for admin pages; automatically appears for authorized users. |
-| `DabblerSecured` | Wrapper component that declaratively enforces page, field, and control permissions. |
-| `DabblerRoleSwitcher` | Dropdown for users with multiple roles to switch their active role. |
-
-### Admin Dashboard Components
-
-| Component | Description |
-|---|---|
-| `DabblerSecurityDashboard` | Central admin panel. Under the restriction-based model, it exposes five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, and Role Documentation. Each tab is gated by the active baked-in role. |
-| `RestrictedFormField` / `RestrictedGridColumn` | Render fields and grid columns subject to the active role's `ColumnRestriction` rules and any `DefaultMask` + `MaskExemption` resolution. |
-
-## Current Contract Notes
-
-- The retained supported contract is the runtime authorization story:
-  secured rendering, role switching, security navigation, permission editing,
-  and row filters.
-- The admin/dashboard pages remain part of the supported core because the app
-  and dedicated `tests/Dabbler.Security.Blazor.Tests/` suite exercise them
-  directly.
-- Broader external-login and MFA breadth remains available, but should be
-  treated as product/policy configuration rather than the default reusable
-  platform story.
-
-## Admin Dashboard Setup
-
-Add the central security dashboard to any page:
+A page that mounts the central security dashboard with role-aware
+tabs:
 
 ```razor
 @page "/admin/security"
@@ -90,32 +58,92 @@ Add the central security dashboard to any page:
 <DabblerSecurityDashboard />
 ```
 
-## DabblerSecured Component Usage
-
-Wrap any content that requires role-based permissions. The component automatically handles visibility and state based on the current user's role:
+A typical wrapper around a privileged control:
 
 ```razor
 <DabblerSecured PageKey="Dashboard" ControlKey="ExportButton">
-    <MudButton>Export</MudButton>
+    <MudButton OnClick="@ExportAsync">Export</MudButton>
 </DabblerSecured>
 ```
 
-## Role Switcher Setup
-
-Add the role switcher to your layout or navigation bar. It renders a dropdown for users assigned more than one role:
+A layout that exposes role switching for multi-role users:
 
 ```razor
-<DabblerRoleSwitcher />
+@* MainLayout.razor *@
+<MudAppBar>
+    <DabblerRoleSwitcher />
+</MudAppBar>
 ```
 
-## Dependencies
+## Supported components
 
-- `Dabbler.Security` — core package (integrated source today at
-  `src/Libs/Dabbler.Security/`; future NuGet release per
-  [`docs/platform-overview.md`](../../../docs/platform-overview.md))
-- [MudBlazor](https://www.nuget.org/packages/MudBlazor/) (8.x)
-- [Microsoft.AspNetCore.Components.Web](https://www.nuget.org/packages/Microsoft.AspNetCore.Components.Web/)
+### Authentication pages
 
-## License
+| Component | Route | Description |
+|-----------|-------|-------------|
+| `LoginPage` | `/login` | Magic-link login with optional external OIDC/OAuth entry points. |
+| `MfaPage` | `/mfa` | TOTP setup and verification when product policy enables MFA. |
 
-This package is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+### Admin pages
+
+| Component | Route | Description |
+|-----------|-------|-------------|
+| `UserListPage` | `/admin/users` | List and manage application users. |
+| `UserEditPage` | `/admin/users/{id}` | Edit user details and metadata. |
+| `RoleListPage` | `/admin/roles` | View and manage security roles. |
+| `RoleAssignmentPage` | `/admin/roles/assign` | Assign and remove roles from users. |
+| `AuditLogPage` | `/admin/audit` | View a chronological audit trail of security events. |
+
+### Core authorization-UI components
+
+| Component | Description |
+|-----------|-------------|
+| `DabblerSecurityNav` | Navigation menu item for admin pages; automatically appears for authorized users (gated by baked-in role). |
+| `DabblerSecured` | Declarative wrapper enforcing page, field, or control permissions on its child content. |
+| `DabblerRoleSwitcher` | Dropdown for users with multiple roles to switch their active role. |
+
+### Dashboard
+
+| Component | Description |
+|-----------|-------------|
+| `DabblerSecurityDashboard` | Central admin panel exposing five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, Role Documentation. Each tab is gated by the active baked-in role. |
+| `RestrictedFormField` / `RestrictedGridColumn` | Render fields and grid columns subject to the active role's `ColumnRestriction` rules and `DefaultMask` + `MaskExemption` resolution. |
+
+## Current contract notes
+
+- The retained supported contract is the runtime authorization story:
+  secured rendering, role switching, security navigation, permission
+  editing, and row filters.
+- The admin / dashboard pages are part of the supported core — the
+  demo app and `tests/Dabbler.Security.Blazor.Tests/` exercise them
+  directly.
+- Broader external-login and MFA breadth remains available, but should
+  be treated as product / policy configuration rather than the default
+  reusable platform story.
+
+## Related packages
+
+- [`Dabbler.Security`](../Dabbler.Security/README.md) — service-level
+  authorization model (restrictions, masking, baked-in roles,
+  authentication). This library cannot function without it.
+- [`Dabbler.Components`](../Dabbler.Components/README.md) — the CRUD
+  primitives that `RestrictedFormField` / `RestrictedGridColumn` wrap.
+- [`Dabbler.Testing.Blazor`](../Dabbler.Testing.Blazor/README.md) —
+  watermark instrumentation for Playwright E2E tests of admin /
+  dashboard pages.
+
+## Warnings and caveats
+
+- **Disabled-state and hidden-control tests should sign in as the role
+  whose product definition mandates that absence**, not a privileged
+  role whose product direction might widen later. Asserting
+  "SystemAdmin cannot see X" is brittle; assert under the user-type
+  role whose `UiRestriction` actually defines the absence. See
+  `docs/planning/lessons-learned.md` → *Hard-Asserted Disabled-State
+  Tests Become Regressions When The Feature Gets Enabled*.
+- **`MudDataGrid` `data-testid` lands on the `<input>`, not the wrapper**
+  (a MudBlazor 8.x convention). Test selectors should account for this.
+- **`MudTextField ReadOnly="true"` does NOT set the HTML `readonly`
+  attribute** in MudBlazor 8.x; tests asserting read-only state must
+  use behavior-level proxies (e.g., toggle-button text).
+- **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).

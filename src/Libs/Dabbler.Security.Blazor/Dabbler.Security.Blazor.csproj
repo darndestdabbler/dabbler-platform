@@ -5,6 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- NuGet package metadata (per ledger §9.2 — landed in Session 6 to bring Security.Blazor in line with the other packable libraries) -->
+    <PackageId>Dabbler.Security.Blazor</PackageId>
+    <Description>Blazor Server UI surface for Dabbler.Security: secured-rendering components, the security-administration dashboard, role-switcher and organization-switcher controls, masked-field renderers, and the restriction-aware grid/form binders.</Description>
+    <PackageTags>blazor;mudblazor;security;authorization;dashboard;role-switcher;masked-fields</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +30,11 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Dabbler.Security.Blazor.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

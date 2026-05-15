@@ -101,3 +101,56 @@ When updating the catalog schema:
 4. Update [`dabbler-uat-dsl/docs/data-contracts.md`](https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/docs/data-contracts.md)
    in the sibling repo to describe the new schema version, and bump
    the schema row in the table above.
+
+---
+
+## Dabbler.* libraries — compatibility matrix
+
+> **Status:** First-row entries below are forward-looking — the
+> Dabbler.* libraries are not yet published to NuGet. The
+> integrated-source path (`src/Libs/Dabbler.*/`) is supported today;
+> NuGet preview lands at end of Session 7 of
+> [`packaging-and-template-readiness`](session-sets/packaging-and-template-readiness/spec.md).
+> This section is added per ledger A18 so the matrix exists in
+> place when the first preview ships.
+
+Each pre-1.0 release of the Dabbler.* libraries ships in lock-step under a
+single `$(DabblerVersion)` MSBuild property
+([ledger §3.6](session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#36-versioning-policy-final)).
+The table below pins each `DabblerVersion` against the upstream
+versions of MudBlazor, the W0 toolchain, and the .NET runtime / SDK
+known to work together.
+
+| `DabblerVersion` | MudBlazor | W0 Core / Cli / Emitter | Component-catalog schema | .NET SDK / runtime | Status |
+|------------------|-----------|--------------------------|--------------------------|---------------------|--------|
+| `0.1.0-preview.1` *(forthcoming, end of Session 7)* | 8.x (8.15.0) | 1.2.0 / 1.2.1 / 1.1.0 | 1.1 | .NET 10 (10.0.5) | Planned — first published preview gated on Session 7 metadata + §6.1 smoke pass per [ledger §3.6](session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#36-versioning-policy-final). |
+
+### Bump procedure for the Dabbler.* row
+
+When a new `$(DabblerVersion)` is released:
+
+1. Update `Directory.Build.props` `<DabblerVersion>` (lock-step across
+   all packable libraries — see
+   [ledger §9.4](session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#94-directorybuildprops-package-metadata-foundation-proposal-31)).
+2. Add a new row to the **Dabbler.\* libraries — compatibility matrix**
+   table above with the matching MudBlazor / W0 / .NET versions known
+   to work together. Pin the W0 row to whatever the current **Current
+   supported combination** specifies.
+3. Re-run `Dabbler.Packaging.Smoke` against the new pack output to
+   confirm the matrix entry. A green smoke is the proof; a failing
+   smoke means the row should not land.
+4. Note the bump in the consuming session set's `change-log.md` and in
+   the release notes.
+
+### Lock-step versioning rationale
+
+A consumer who installs `Dabbler.Security.Blazor 0.2.0` but stays on
+`Dabbler.Components 0.1.0` runs into restore-time signature mismatches
+because component-level types appear in `Dabbler.Security.Blazor`
+component signatures. Lock-step versioning trades a small risk of
+unnecessary version bumps (e.g., `Dabbler.Testing.Blazor` with no
+inter-Dabbler deps bumping needlessly) for the disappearance of an
+entire class of NuGet-restore-fails-with-confusing-error-message bug.
+See
+[ledger §3.6](session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#36-versioning-policy-final)
+for the full rationale.

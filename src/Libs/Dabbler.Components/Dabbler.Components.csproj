@@ -5,10 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
-    <!-- NuGet package metadata -->
+    <!-- NuGet package metadata (per ledger §9.3 — description tightened to match the post-rebuild contract) -->
     <PackageId>Dabbler.Components</PackageId>
-    <Description>Blazor UI component library for data-driven applications: DataGrid with QBE filtering, FilterGrid, ComboBox, Navigation Shell, Expression Engine, composite pages, and metadata-driven configuration. Migrated from Microsoft Access.</Description>
-    <PackageTags>blazor;components;datagrid;filtergrid;combobox;navigation;expression-engine;access-migration</PackageTags>
+    <Description>MudBlazor-native CRUD primitives for Blazor Server: declarative QBE filter panel, dirty-tracking edit session, master/detail expansion shell, and the underlying expression-engine + data-provider abstractions. Composition-over-configuration: pages declare their own MudDataGrid columns and MudForm fields.</Description>
+    <PackageTags>blazor;mudblazor;qbe;filter-panel;edit-session;master-detail;expression-engine;data-provider</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

@@ -20,6 +20,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.53.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <!-- W0 dabbler-uat-dsl. Consumed via local NuGet feed in nuget.config
          (../dabbler-uat-dsl/pack-output). Re-pack the sibling repo after
          pulling its changes (`dotnet pack <project> -o pack-output`). -->

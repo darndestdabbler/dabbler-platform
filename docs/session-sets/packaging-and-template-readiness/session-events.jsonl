@@ -7,3 +7,5 @@
 {"timestamp": "2026-05-15T11:38:42.794118Z", "session_number": 4, "event_type": "work_started"}
 {"timestamp": "2026-05-15T13:15:06.309767Z", "session_number": 4, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "ISSUES_FOUND"}
 {"timestamp": "2026-05-15T13:21:13.712474Z", "session_number": 5, "event_type": "work_started"}
+{"timestamp": "2026-05-15T14:01:49.890562Z", "session_number": 5, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "VERIFIED"}
+{"timestamp": "2026-05-15T14:13:01.244227Z", "session_number": 6, "event_type": "work_started"}

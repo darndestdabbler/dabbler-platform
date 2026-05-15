@@ -667,6 +667,119 @@
       "description": "Round 3: VERIFIED. 0 Critical, 0 Major, 0 Minor \u2014 clean pass after fixing A7 surface and \u00a78 accounting. gpt-5-4, 28K input / 9K output / 127s / $0.2105.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 2,
+      "stepKey": "session-6/packable-surface-freeze",
+      "dateTime": "2026-05-15T10:21:31.906315-04:00",
+      "description": "Authored packaging-readiness-ledger.md as the binding contract for Sessions 7-11. Direct synthesis using already-loaded Session 4 + Session 5 context per orchestrator-self-contributes-when-context-loaded discipline. Records: A1-A18 + G1-G23 disposition matrix; 12 library/sub-package NuGet packages + 1 template + 1 CLI tool = 14 packages; stubs sub-package split; two-template VS contract; consumer-install smoke depth (sign-in + secured page + report + PDF + bUnit); hermetic pack pipeline; staged-promotion+unlist rollback; per-library README seven-section structure; intra-set parallelization map; 10 acceptance criteria.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 3,
+      "stepKey": "session-6/apply-review-findings",
+      "dateTime": "2026-05-15T10:25:56.319510-04:00",
+      "description": "Applied mechanical fixes per ledger \u00a79: (1) Directory.Build.props extended with package metadata defaults (Authors/Company/Copyright, RepositoryUrl, MIT license, reproducible-build/SourceLink, $(DabblerVersion)) (2) Directory.Packages.props +Microsoft.SourceLink.GitHub 8.0.0 (3) src/icon.png 128x128 placeholder PNG committed (4) Dabbler.Components.csproj description tightened to MudBlazor-native CRUD primitives, tags refreshed (5) Dabbler.Security.csproj + Dabbler.Security.Blazor.csproj full package metadata added (6) Dabbler.Components.Compat project scaffolded (csproj + placeholder README; content move in Session 7 per A4) (7) AcmeCoffeeOnline.Shared marked IsPackable=false (8) Compat csproj added to solution; builds clean (0 errors, 23 pre-existing CS8669 warnings unchanged).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 4,
+      "stepKey": "session-6/per-library-readme-standardization",
+      "dateTime": "2026-05-15T10:31:53.470444-04:00",
+      "description": "Standardized all 8 per-library READMEs (Components, Reports.Core, Reports.Export, Reports.Blazor, Platform.Stubs, Testing.Blazor, Security, Security.Blazor) plus authored the Components.Compat placeholder README \u2014 applying ledger \u00a77.5 seven-section structure (Audience, Prerequisites, Install, Minimal registration, Smallest working example, Related packages, Warnings/caveats). G3 install subordination applied (Quick Start now points to integrated-source path; Preview NuGet command is the post-Session-7 future). Security README additionally adds the G6 RegisterPages/Entities/Endpoints/Controls taxonomy table and the G7 end-to-end enforcement worked example (row restriction in EF + endpoint gate + DabblerSecured wrap + role-switcher comparison).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 5,
+      "stepKey": "session-6/stub-opt-in-contract",
+      "dateTime": "2026-05-15T10:40:02.489123-04:00",
+      "description": "Authored or extended five doc deliverables per ledger \u00a77: (1) docs/packaging/scenarios.md (A8) \u2014 8 adoption scenarios mapped to package sets (CRUD only / full platform / reports only / security-API / security-Blazor / testing-only / retrofit / bUnit-only) plus the Session 7 metapackage trigger condition and license posture; (2) docs/packaging/retrofit-existing-app.md (A14) \u2014 5-step recipe for incrementally adopting Dabbler.* into existing Blazor Server app, with inner-authz vs outer-auth decision and common pitfalls; (3) docs/COMPATIBILITY.md \u2014 Dabbler.* library matrix appended (A18) with lock-step versioning rationale; (4) docs/reports/rdf-schema.md (G9) \u2014 full RDF schema reference (top-level / data source / parameters / styles / bands / grouping / subreports / footer-aggregate alignment) plus one canonical sales-by-region worked example; (5) docs/platform-overview.md \u2014 G* updates: G21 Stack and audience callout near top, G23 REST-only clarification, G8 Security posture and defaults subsection, G10 Organization/multi-tenancy subsection, G19 Playwright watermark tightening (opt-in instrumentation, animations excluded, plus why-this-matters subsection), G12 dedicated UAT DSL pipeline subsection, G13/G17 Where-to-go-next split into external-adopters vs contributors with governance/issue-filing pointers, G22 reinforced authz-model rigidity. G6/G7 cross-link added in Security library section pointing to README deep-dive.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 6,
+      "stepKey": "session-6/build-and-test",
+      "dateTime": "2026-05-15T10:46:37.462018-04:00",
+      "description": "Build: 0 errors / 0 warnings against Dabbler.Platform.sln (Debug, full solution including new Dabbler.Components.Compat). Non-Playwright tests: 864 passed / 0 failed across 7 test projects (Dabbler.Testing.Blazor.Tests 6, Dabbler.Reports.Blazor.Tests 16, Dabbler.Components.Tests 130, Dabbler.Security.Blazor.Tests 236, AcmeCoffeeOnline.Api.Tests 38, Dabbler.Security.Tests 305, AcmeCoffeeOnline.Web.Tests 133). Playwright not executed this session \u2014 app docker stack intentionally not up; session changes are docs + csproj metadata + scaffold only, none affect Playwright runtime.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 7,
+      "stepKey": "session-6/end-of-session-verification",
+      "dateTime": "2026-05-15T10:49:55.275203-04:00",
+      "description": "Round 1 cross-provider session-verification via gpt-5-4 (gpt-5-4 expected per router rules: Opus orchestrator -> non-Anthropic verifier). Prompt size 60,302 chars; reasoning_effort=high; cost $0.1775.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 16066,
+          "outputTokens": 9156,
+          "costUsd": 0.177505
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 8,
+      "stepKey": "session-6/end-of-session-verification-round-2",
+      "dateTime": "2026-05-15T10:54:33.870181-04:00",
+      "description": "Round 2 cross-provider session-verification via gpt-5-4 after applying Round 1 fixes (3 Majors + 2 Minors). Prompt size 54,554 chars; complexity_hint=85; cost $0.1899.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 14593,
+          "outputTokens": 10227,
+          "costUsd": 0.18988750000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 9,
+      "stepKey": "session-6/end-of-session-verification-round-3",
+      "dateTime": "2026-05-15T10:59:26.778754-04:00",
+      "description": "Round 3 cross-provider session-verification via gpt-5-4 after applying Round 2 fixes (2 Majors + 2 Minors). Prompt size 56,109 chars; complexity_hint=85; cost $0.1852. Final retry per workflow Step 7 max-2-retries policy.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 14993,
+          "outputTokens": 9848,
+          "costUsd": 0.18520250000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 10,
+      "stepKey": "session-6/end-of-session-verification-round-4",
+      "dateTime": "2026-05-15T11:04:08.182413-04:00",
+      "description": "Round 4 cross-provider session-verification (operator-authorized extension past max-2-retries) via gpt-5-4 after applying Round 3 fixes (1 Major + 2 Minors). Prompt size 56,524 chars; complexity_hint=85; cost $0.1904.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 15122,
+          "outputTokens": 10175,
+          "costUsd": 0.19043000000000002
+        }
+      ]
     }
   ]
 }

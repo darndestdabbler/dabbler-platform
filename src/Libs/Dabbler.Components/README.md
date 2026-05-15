@@ -4,85 +4,139 @@
 > [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
 > the platform-level view of how this library fits in.
 
-Blazor UI component library providing reusable filtering, expression engine,
-and data provider abstractions for MudBlazor-native application pages.
+MudBlazor-native CRUD primitives for Blazor Server: declarative QBE
+filter panel, dirty-tracking edit session, master/detail expansion
+shell, and the underlying expression-engine + data-provider
+abstractions. Composition-over-configuration — pages declare their own
+MudDataGrid columns and MudForm fields.
 
-After the MudBlazor-native rebuild, application pages use MudBlazor components
-directly (MudDataGrid, MudForm, MudLayout, MudDialog, etc.) with explicit page
-composition rather than heavyweight wrapper abstractions.
+## Audience
 
-## Active Core
+Teams building Blazor Server CRUD applications who want a tightly
+focused set of composable helpers (filter panel, dirty tracking, action
+row, master-detail shell) instead of a config-driven page generator.
+The helpers are à-la-carte: each page wires only the helpers it needs.
 
-### CRUD master/details composition
+## Prerequisites and stack constraints
 
-The library ships a small set of à-la-carte helpers that pages wire up
-independently rather than being generated from a config object. Each
-helper does one thing and is composed by the page itself.
+- Blazor Server (Blazor WebAssembly is out of scope today)
+- MudBlazor 8.x
+- .NET 10 (current LTS)
+- Dependency-injected access to your `IGridDataProvider<T>` implementations
 
-| Surface | Role |
-|---------|------|
-| `DeclarativeFilterPanel<TEntity>` | Catalog-friendly QBE filter panel with AND/OR group logic, operator selection, presets, and active filter chips. The current default for new query pages. |
-| `EditSession<T>` | Dirty-tracking snapshot for a detail-page record (NotifyChanged / Commit / CommitFrom / Cancel). Pairs with `<DirtyAwareActionRow>`. |
-| `<DirtyAwareActionRow>` | Save / Cancel / Delete action row that reads `EditSession<T>` state, with a `CustomActions` slot for page-specific buttons. |
-| `<MasterDetailExpansionShell>` | Generic master-detail composite (Add-Only, Search+Update, Pick-or-Add, M:N-with-payload) selected via capability parameters (`ShowGrid`, `ShowLinkData`, `TargetEditability`). |
-| `FilterPanel<T>` | Original MudBlazor-native QBE filter panel; retained for legacy callers. New pages prefer `DeclarativeFilterPanel<TEntity>`. |
+## Install
 
-### Filter and data-provider primitives
+> **Adoption note (Session 5 packaging-and-template-readiness):**
+> The supported adoption model today is **integrated source** —
+> add a `<ProjectReference>` from your app csproj to
+> `src/Libs/Dabbler.Components/`. NuGet packages have not shipped
+> yet; the first preview release (`0.1.0-preview.1`) lands at the
+> end of Session 7 per the
+> [packaging-readiness-ledger §3.6](../../docs/session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#36-versioning-policy-final).
+> The future packaged install will read:
+> `dotnet add package Dabbler.Components --prerelease`. Until then,
+> use the integrated-source path.
 
-| Surface | Role |
-|---------|------|
-| `FilteringCoordinator` | Manages filter state, group lifecycle, and change notification |
-| `FilterColumnDefinition` | Defines filterable columns with types, operators, and editor metadata |
-| `FilterGroupCollection` / `FilterGroup` | AND/OR group model for composable filter expressions |
-| `CompositeFilterDescriptor` / `FilterDescriptor` | Filter expression descriptors consumed by the expression engine |
-| `FilterSummaryBuilder` | Generates human-readable filter summary text |
-| `ExpressionEngine` | Expression-based query and report support infrastructure |
-| `IGridDataProvider<T>` | Data provider abstraction with `ToServerDataFunc` for MudDataGrid ServerData callbacks |
+## Minimal registration
 
-## Compatibility Surfaces
-
-These components support the `PlatformStubDemo` scenario and are not used by
-the main application, which has moved to MudBlazor-native layout and routing:
-
-| Surface | Role |
-|---------|------|
-| `DabblerShell` | Left-nav + tabbed-workspace shell for stub and demo app modes |
-| `DabblerNavigationPanel` | Entity/report navigation panel composed into DabblerShell |
-| `DabblerTabbedWorkspace` | In-shell tab manager for search, detail, report, and dashboard content |
-| `DabblerTopMenuBar` | Optional artifact-browsing menu bar when catalog/usage providers are supplied |
-| `DabblerCatalogPage` | Compatibility-only artifact catalog page used by DabblerShell |
-
-## Quick Start
-
-Register MudBlazor services in `Program.cs` (Dabbler.Components types
-have no project-wide DI extension — components and helpers are used
-directly by the pages that need them):
+There is no library-wide DI extension — `Dabbler.Components` types are
+used directly by the pages that need them. The only requirement is
+MudBlazor services:
 
 ```csharp
 builder.Services.AddMudServices();
 ```
 
-Use `DeclarativeFilterPanel<TEntity>` with `MudDataGrid<T>` for query pages:
+If a page consumes a grid-data primitive, register the concrete provider
+for that page's entity:
+
+```csharp
+builder.Services.AddScoped<IGridDataProvider<Customer>, CustomerGridDataProvider>();
+```
+
+## Smallest working example
+
+A query page that combines `DeclarativeFilterPanel<TEntity>` with a
+`MudDataGrid<T>` server-data callback:
 
 ```razor
+@page "/customers"
+
 <DeclarativeFilterPanel TEntity="Customer"
-                        FilterColumns="@filterColumns"
-                        Coordinator="@coordinator" />
+                        FilterColumns="@_filterColumns"
+                        Coordinator="@_coordinator" />
 
 <MudDataGrid T="Customer"
-             ServerData="@dataProvider.ToServerDataFunc(coordinator.GetCompositeFilter)">
+             Bordered="true"
+             ServerData="@_dataProvider.ToServerDataFunc(_coordinator.GetCompositeFilter)">
     <Columns>
         <PropertyColumn Property="x => x.Name" Title="Name" />
         <PropertyColumn Property="x => x.City" Title="City" />
     </Columns>
 </MudDataGrid>
+
+@code {
+    [Inject] private IGridDataProvider<Customer> _dataProvider { get; set; } = default!;
+    private readonly FilteringCoordinator _coordinator = new();
+    private readonly List<FilterColumnDefinition> _filterColumns = new()
+    {
+        new() { Field = nameof(Customer.Name), Caption = "Name" },
+        new() { Field = nameof(Customer.City), Caption = "City" },
+    };
+}
 ```
 
-## Dependencies
+Detail pages additionally compose `EditSession<T>` with
+`<DirtyAwareActionRow>` for save/cancel/delete; see
+`docs/platform-overview.md` § "CRUD Form Conventions" for the form
+wiring pattern.
 
-- [MudBlazor](https://mudblazor.com/) 8.x
-- .NET 10.0
+## Active core
 
-## License
+The library's surface, organized by role:
 
-[MIT](https://licenses.nuget.org/MIT)
+| Surface | Role |
+|---------|------|
+| `DeclarativeFilterPanel<TEntity>` | Catalog-friendly QBE filter panel with AND/OR group logic, operator selection, presets, and active filter chips. Default for new query pages. |
+| `EditSession<T>` | Dirty-tracking snapshot for a detail-page record (NotifyChanged / Commit / CommitFrom / Cancel). Pairs with `<DirtyAwareActionRow>`. |
+| `<DirtyAwareActionRow>` | Save / Cancel / Delete action row that reads `EditSession<T>` state, with a `CustomActions` slot for page-specific buttons. |
+| `<MasterDetailExpansionShell>` | Generic master/detail composite (Add-Only, Search+Update, Pick-or-Add, M:N-with-payload) selected via capability parameters (`ShowGrid`, `ShowLinkData`, `TargetEditability`). |
+| `FilterPanel<T>` | Original MudBlazor-native QBE filter panel; retained for legacy callers. New pages prefer `DeclarativeFilterPanel<TEntity>`. |
+| `FilteringCoordinator` | Manages filter state, group lifecycle, and change notification. |
+| `FilterColumnDefinition` | Defines filterable columns with types, operators, and editor metadata. |
+| `FilterGroupCollection` / `FilterGroup` | AND/OR group model for composable filter expressions. |
+| `CompositeFilterDescriptor` / `FilterDescriptor` | Filter expression descriptors consumed by the expression engine. |
+| `FilterSummaryBuilder` | Generates human-readable filter summary text. |
+| `ExpressionEngine` | Expression-based query and report support infrastructure. |
+| `IGridDataProvider<T>` | Data provider abstraction with `ToServerDataFunc` for MudDataGrid ServerData callbacks. |
+
+## Related packages
+
+- [`Dabbler.Security.Blazor`](../Dabbler.Security.Blazor/README.md) —
+  combines with the helpers above for restriction-aware CRUD pages
+  (column hiding, row scoping, control disablement).
+- [`Dabbler.Reports.Blazor`](../Dabbler.Reports.Blazor/README.md) —
+  consumes the expression engine for report parameter prompts.
+- [`Dabbler.Platform.Stubs`](../Dabbler.Platform.Stubs/README.md) —
+  provides in-memory `StubGridDataProvider<T>` and friends for bUnit
+  tests and demo hosts. Will split into focused sub-packages in
+  Session 7.
+- [`Dabbler.Components.Compat`](../Dabbler.Components.Compat/README.md) —
+  pre-MudBlazor-native compatibility surfaces (shell, navigation,
+  workspace, menu, catalog page) carved out into a deprecated overlay
+  package. See ledger §3.4 for the sunset schedule (0.4.0).
+
+## Warnings and caveats
+
+- **The library focuses on à-la-carte helpers, not a metadata DSL.**
+  The abandoned `MasterDetailsConfig<TEntity>` config-DSL prototype is
+  not coming back; see `docs/planning/project-guidance.md` →
+  *Composition over configuration*.
+- **MudBlazor 8.x `data-testid` lands on the `<input>`, not the
+  wrapper.** Playwright tests should use `GetByTestId("foo")` directly
+  rather than chaining a `.Locator("input")` after.
+- **`MudTextField ReadOnly="true"` does NOT set the HTML `readonly`
+  attribute** in MudBlazor 8.x. Tests asserting read-only state must
+  use behavior-level proxies (e.g., the toggle-button text), not
+  `Not.ToBeEditableAsync`.
+- **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).

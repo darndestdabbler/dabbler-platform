@@ -26,6 +26,36 @@ evaluating the platform for an external project, start here.
 
 ---
 
+## Stack and audience (60-second self-disqualification check)
+
+The platform is built for a narrow stack. If your app falls outside
+the constraints below, the platform is unlikely to be the right fit
+even if individual libraries look attractive:
+
+- **Blazor Server only.** Blazor WebAssembly is out of scope. The
+  testing watermark, the secured-rendering components, and the
+  CRUD primitives all assume Blazor Server's circuit model.
+- **MudBlazor 8.x coupling.** The CRUD primitives, security UI, and
+  reporting UI all consume MudBlazor directly. Apps using a different
+  Blazor UI kit will not get value from the UI surfaces.
+- **.NET 10 (current LTS).** The platform follows the current LTS line
+  per project-guidance Principles → Architecture; multi-targeting to
+  older runtimes is not in scope.
+- **SQL Server-centric security persistence.** The EF Core store for
+  `Dabbler.Security` is implemented against SQL Server. A JSON file
+  store works for dev / single-server, but multi-server production
+  deployments are SQL Server only.
+- **Restriction-based authorization (no role inheritance).** Apps
+  whose authorization model requires role inheritance or
+  customizable baked-in privileges will find `Dabbler.Security` too
+  rigid.
+
+If most of these apply to your app, read on. If two or more don't,
+the platform's surface won't fit — pick à-la-carte primitives if any
+fit your needs, or look elsewhere.
+
+---
+
 ## What the platform is — and what it is not
 
 The Dabbler Platform is **a set of libraries**, not a full-stack
@@ -59,9 +89,13 @@ What this means in practice:
 - **Accessibility is a first-class bar.** WCAG 2.1 AA is the default
   accessibility target for reusable components and application pages,
   validated with automated checks before human UAT — not after.
-- **The web app is not a second data layer.** All database access goes
-  through the REST service layer. The web app calls the API; it does
-  not quietly grow its own DbContext.
+- **The web app is not a second data layer.** All **business** data
+  access goes through the REST service layer. The web app calls the
+  API; it does not quietly grow its own DbContext for domain entities.
+  Platform-internal stores (security configuration, audit log) are an
+  explicit exception — they legitimately need host-startup persistence
+  via `options.UseEfCoreStore()` (or the JSON file store equivalent),
+  and the REST-only principle does not apply to them.
 
 What the platform is **not**:
 
@@ -316,13 +350,87 @@ genuinely need this breadth in enterprise scenarios.
   distributed cache).
 - Integrated email sender (SMTP and development MailHog).
 
-[Deep dive: `Dabbler.Security` README](../src/Libs/Dabbler.Security/README.md)
+**Security posture and defaults — important for adopters to read
+before installing:**
+
+`Dabbler.Security`'s defaults are practical for the platform's
+target audience but are **not** the safest-possible settings.
+Compliance-oriented deployments should opt in to safer settings with
+eyes open. The defaults are:
+
+- **`UnregisteredResourcePolicy = FailOpen`.** A resource that is not
+  registered via `RegisterPages` / `RegisterEntities` /
+  `RegisterEndpoints` / `RegisterControls` defaults to **allow**.
+  Flip to `FailClosed` for compliance postures that require
+  least-privilege defaults; expect to register every resource the
+  runtime should authorize.
+- **User-type roles are default-permissive.** A user-type role with no
+  restrictions sees everything. The model is "deny by explicit
+  `ColumnRestriction` / `RowRestriction` / `UiRestriction`", not "deny
+  by default". This is the inverse of role-as-allowlist systems and
+  surprises adopters used to that model.
+- **Baked-in roles bypass `DefaultMask` enforcement.** The
+  `RestrictionBinder` always returns `IsMasked = false` for baked-in
+  roles (`SystemAdmin`, `CrossOrgUserAdmin`, `CrossOrgMonitor`,
+  `UserAdmin`, `User`). Sensitive-field masking applies only to
+  user-type roles. E2E tests verifying masking must sign in as a
+  user-type role.
+- **Five baked-in roles, compiled-in privileges, no per-deployment
+  customization beyond `DisplayAlias`.** Apps whose authorization
+  model requires inheritance or system-role customization will find
+  this library too rigid. This is by design — the rigidity is the
+  source of the model's auditability.
+
+### Organization and multi-tenancy
+
+`Dabbler.Security` is multi-tenant-aware via the `OrganizationId`
+column carried on every business row and on every user assignment.
+The model is **per-organization scoping**, not full per-tenant data
+isolation — multiple organizations share a database but rows are
+filtered by the active user's organization membership.
+
+Concretely:
+
+- **Persistence.** `OrganizationId` is part of the standard entity
+  shape (`Id`, `OrganizationId`, `UserId`, `SysStart`, `SysEnd` per
+  project-guidance Principles → Architecture). The EF Core store
+  applies an org-scope global filter against all business entities;
+  the JSON file store applies the equivalent filter manually.
+- **Row scoping at the platform level.** Even without an explicit
+  `RowRestriction`, the org-scope filter ensures a user never sees
+  rows from an organization they are not a member of. Add an
+  explicit `RowRestriction` only when the scope is *narrower* than
+  the org (e.g., "User can see only their own orders within their
+  organization").
+- **Role switching interacts with organization membership.**
+  `SystemAdmin` can switch organizations freely (cross-org).
+  `CrossOrgUserAdmin` / `CrossOrgMonitor` see across organizations
+  without switching. Other users can switch only among the
+  organizations they are members of, surfaced through the
+  `DabblerOrganizationSwitcher` component in `Dabbler.Security.Blazor`.
+- **`security-config.json` is per-deployment, not per-organization.**
+  Role / restriction / mask definitions apply globally; if two
+  organizations need different restriction shapes, model that as
+  two separate user-type roles, not as two configuration files.
+
+[Deep dive: `Dabbler.Security` README](../src/Libs/Dabbler.Security/README.md) — see § "Advanced: composing the four registration primitives" for the `RegisterPages` / `RegisterEntities` / `RegisterEndpoints` / `RegisterControls` taxonomy and § "End-to-end enforcement worked example" for the complete row + endpoint + UI restriction composition.
 
 ### 7. `Dabbler.Security.Blazor` — Blazor UI for security
 
-The Blazor UI surface for the security library. The supported core
-centers on secured rendering, role-aware navigation, runtime permission
-editing, and the security dashboard / admin pages.
+**A substantial reusable surface, not just a thin UI veneer.**
+`Dabbler.Security.Blazor` carries admin pages (`/admin/users`,
+`/admin/roles`, `/admin/audit`), a five-tab security dashboard for
+runtime role / mask / organization / user management, a role
+switcher, an organization switcher, restriction-aware grid columns
+and form fields, and the declarative `<DabblerSecured>` permission
+wrapper. Teams adopting `Dabbler.Security` for the authorization
+model typically take this package too — the alternative is
+re-implementing the admin surface against the service-level API,
+which is a major undertaking.
+
+The supported core centers on secured rendering, role-aware
+navigation, runtime permission editing, and the security
+dashboard / admin pages.
 
 **Authentication pages:**
 
@@ -360,15 +468,27 @@ Playwright E2E tests against Blazor Server applications.
 
 Blazor Server renders asynchronously, which means a Playwright test
 that clicks a button cannot rely on the next-frame DOM being settled.
-`Dabbler.Testing.Blazor` solves this with an opt-in DOM watermark:
+`Dabbler.Testing.Blazor` solves this with an **opt-in** DOM watermark:
 
-- `TrackedComponentBase` — opt-in base class. Components wrap async
-  event handlers and data-loading callbacks in `TrackAction(...)`.
-- A JS interop shim maintains DOM attributes
+- **Opt-in instrumentation.** Components observed by the watermark
+  inherit `TrackedComponentBase` and wrap async event handlers AND
+  data-loading callbacks in `TrackAction(...)`. Components that
+  don't opt in are invisible to the watermark — there is no
+  framework-wide auto-instrumentation. This is deliberate: the
+  watermark is a test-time signal, and its cost (a JS-interop
+  round-trip per tracked handler) only pays off on routes Playwright
+  exercises.
+- A JS-interop shim maintains DOM attributes
   (`data-actions-in-flight`, `data-last-action`, `data-render-version`)
-  that expose when components have settled after user actions.
+  that expose when tracked components have settled after user actions.
 - `TestReadinessProbe` signals initial page-load completion via a
   `data-blazor-ready` attribute.
+- **Scope: async handlers + async data callbacks.** The watermark
+  covers the substantial source of E2E flake (async-rendered DOM not
+  yet committed at click time). It does **not** cover CSS animations
+  / transitions — those are not render-correlated and still require
+  documented `Task.Delay()` patterns in the test. Animation-heavy
+  pages need explicit per-animation handling.
 - Configuration is gated by `Testing:ActionTracking:Enabled` in
   `appsettings.json` — **`false` by default** so there is no
   production overhead, **`true` in `appsettings.Development.json`**.
@@ -376,7 +496,7 @@ that clicks a button cannot rely on the next-frame DOM being settled.
 Playwright tests wait on these attributes:
 
 ```csharp
-// After clicking a button that triggers an async handler:
+// After clicking a button that triggers a tracked async handler:
 await Assertions.Expect(page.Locator("html"))
     .ToHaveAttributeAsync("data-actions-in-flight", "[]");
 ```
@@ -385,6 +505,20 @@ The watermark pattern is paired with a DSL verb
 (`WAIT FOR ACTIONS QUIET`) in the W0 UAT/E2E toolchain — see the
 `uat-checklist-editor` and `dabbler-uat-dsl` repositories for the
 authoring side.
+
+### Why this matters for Blazor Server adopters
+
+Blazor Server E2E suites without deterministic synchronization
+typically settle into one of two failure modes: (a) flake from
+race-driven assertions that pass locally and fail in CI, or
+(b) padding every interaction with arbitrary `Task.Delay(...)` calls
+that slow the suite and still leak occasional flakes. The watermark
+collapses both failure modes into "wait for `data-actions-in-flight`
+to be `[]`". For teams whose Playwright suite is currently in that
+state, `Dabbler.Testing.Blazor` is the highest-leverage drop-in the
+platform offers — it carries no Dabbler-internal dependencies and
+adopts cleanly into a non-Dabbler Blazor Server app
+(see [`docs/packaging/scenarios.md`](./packaging/scenarios.md) § 6).
 
 [Deep dive: `Dabbler.Testing.Blazor` README](../src/Libs/Dabbler.Testing.Blazor/README.md)
 
@@ -563,34 +697,63 @@ same source, so drift is structurally impossible.
 
 ---
 
+## UAT DSL → Playwright pipeline
+
+The platform ships a structural answer to the eternal "the human
+checklist and the automated test drifted apart" problem. The
+pipeline has four stages:
+
+1. **Author a UAT checklist in a closed DSL.** The
+   [`uat-checklist-editor`](https://github.com/darndestdabbler/uat-checklist-editor)
+   web app edits a JSON checklist whose steps are expressed in a
+   small, closed verb language (`NAVIGATE TO`, `CLICK BUTTON`,
+   `VERIFY TEXT`, `WAIT FOR ACTIONS QUIET`, etc.). Every label is
+   verbatim from the application's component catalog for the active
+   route × role — invented labels are rejected.
+2. **Compile via the W0 toolchain.** The
+   [`dabbler-uat-dsl`](https://github.com/darndestdabbler/dabbler-uat-dsl)
+   CLI compiles the checklist into a Playwright C# `.cs` test.
+   One DSL step → one Playwright step. There is no AI-driven test
+   generation, no template substitution, no "best-effort" pairing.
+3. **Run the compiled test.** The W2 runner (`uat_runner` Python
+   package) executes the compiled test via `dotnet test`,
+   classifies failures, and surfaces issues for human review.
+4. **Hand the SAME DSL checklist to the human.** The human runs
+   the checklist in the editor's UI; their steps are the steps the
+   Playwright test just executed.
+
+Why this matters: every human UAT step has an automated counterpart
+**by construction**. The compiled test is the proof of coverage for
+the checklist; drift between the two is a compiler bug, not a
+discipline failure. Apps without this pipeline rely on hand-paired
+test methods + checklist items, which drift in practice. The
+pipeline is a unique platform asset for teams running serious
+Blazor Server UAT cycles.
+
+See [`docs/COMPATIBILITY.md`](./COMPATIBILITY.md) for the W0 / W2 /
+catalog-schema version pinning and the
+`Dabbler.Testing.Blazor` library section above for the
+watermark library that the DSL's `WAIT FOR ACTIONS QUIET` verb
+emits against.
+
+---
+
 ## Where to go next
 
-This overview is the entry point. Once you know which library or
-concern you care about, follow these onward links:
+This overview is the entry point. The links below are split by
+audience: external adopters who want to build *with* the platform
+(top), and contributors / repo maintainers who want to work *on* the
+platform itself (bottom).
 
-**Repo orientation:**
-
-- [Top-level `README.md`](../README.md) — repo layout, build commands,
-  Docker compose stack.
-- [`src/Libs/README.md`](../src/Libs/README.md) — the integrated
-  library home index.
-
-**Workflow and governance:**
-
-- [`docs/ai-led-session-workflow.md`](./ai-led-session-workflow.md) —
-  how the platform itself is built using an AI-led, session-based
-  workflow (orchestrator + AI router + cross-provider verification).
-  This is the single source of truth for the workflow.
-- [`docs/COMPATIBILITY.md`](./COMPATIBILITY.md) — the W0 toolchain ↔
-  component catalog ↔ W2 runner compatibility matrix.
-- [`docs/planning/governance-two-pager.md`](./planning/governance-two-pager.md) —
-  governance posture for platform changes and reviews.
+### For external adopters
 
 **Per-library deep dives:**
 
 - [`Dabbler.Components`](../src/Libs/Dabbler.Components/README.md) —
   filter UI, expression engine, CRUD helpers, data-provider
   abstractions.
+- [`Dabbler.Components.Compat`](../src/Libs/Dabbler.Components.Compat/README.md) —
+  deprecated pre-MudBlazor-native compatibility surfaces (sunset 0.4.0).
 - [`Dabbler.Platform.Stubs`](../src/Libs/Dabbler.Platform.Stubs/README.md) —
   opt-in stub providers for tests, demos, and future generated apps.
 - [`Dabbler.Reports.Core`](../src/Libs/Dabbler.Reports.Core/README.md) —
@@ -600,16 +763,68 @@ concern you care about, follow these onward links:
 - [`Dabbler.Reports.Blazor`](../src/Libs/Dabbler.Reports.Blazor/README.md) —
   report UI (parameter prompt, viewer).
 - [`Dabbler.Security`](../src/Libs/Dabbler.Security/README.md) —
-  authentication, authorization, restrictions, masking.
+  authentication, authorization, restrictions, masking. See § *Advanced:
+  composing the four registration primitives* and § *End-to-end
+  enforcement worked example* for the taxonomy + composition story.
 - [`Dabbler.Security.Blazor`](../src/Libs/Dabbler.Security.Blazor/README.md) —
   Blazor UI for security (login, admin pages, dashboard, secured
-  rendering).
+  rendering, role and organization switchers).
 - [`Dabbler.Testing.Blazor`](../src/Libs/Dabbler.Testing.Blazor/README.md) —
   Playwright synchronization watermark, bUnit helpers.
 
-**License.** All eight platform libraries listed above are released
+**Packaging and adoption:**
+
+- [`docs/packaging/scenarios.md`](./packaging/scenarios.md) — common
+  adoption shapes (just CRUD, full platform, reports only, security
+  only, testing utility only, retrofit) mapped to package sets.
+- [`docs/packaging/retrofit-existing-app.md`](./packaging/retrofit-existing-app.md) —
+  step-by-step recipe for incrementally adopting Dabbler.* into an
+  existing Blazor Server app.
+- [`docs/COMPATIBILITY.md`](./COMPATIBILITY.md) — the W0 toolchain ↔
+  catalog ↔ W2 runner compatibility matrix, plus the Dabbler.*
+  library version matrix.
+- [`docs/reports/rdf-schema.md`](./reports/rdf-schema.md) — the
+  schema reference for `.rdf.json` report definitions consumed by
+  `Dabbler.Reports.Core`.
+
+**License (this platform).** All Dabbler.* libraries are released
 under the [MIT License](https://opensource.org/licenses/MIT). The
 transitive `DabblerPdf` dependency that powers
 `Dabbler.Reports.Core` and `Dabbler.Reports.Export` is dual-licensed
 LGPL-2.1-only OR MPL-2.0 (see the "About `DabblerPdf`" note in the
-Reports.Export section above).
+Reports.Export section above). Reports.* packages ship a
+`THIRD-PARTY-NOTICES.txt` for transit disclosure.
+
+### For contributors / repo maintainers
+
+**Repo orientation:**
+
+- [Top-level `README.md`](../README.md) — repo layout, build
+  commands, Docker compose stack.
+- [`src/Libs/README.md`](../src/Libs/README.md) — the integrated
+  library home index.
+
+**Workflow and governance:**
+
+- [`docs/ai-led-session-workflow.md`](./ai-led-session-workflow.md) —
+  how the platform itself is built using an AI-led, session-based
+  workflow (orchestrator + AI router + cross-provider verification).
+  The single source of truth for the workflow.
+- [`docs/planning/governance-two-pager.md`](./planning/governance-two-pager.md) —
+  governance posture for platform changes and reviews.
+- [`docs/planning/project-guidance.md`](./planning/project-guidance.md) —
+  Principles and Conventions; durable strategic commitments.
+- [`docs/planning/lessons-learned.md`](./planning/lessons-learned.md) —
+  failure patterns and tactics learned from prior sessions.
+
+**Issue filing and maintainer contact:**
+
+- File issues against the
+  [`dabbler-platform` GitHub repo](https://github.com/darndestdabbler/dabbler-platform/issues).
+  Include the affected library, the Dabbler version (or commit SHA
+  for integrated-source consumers), and a minimal reproduction.
+- For W0 toolchain issues (`Dabbler.Uat.Dsl.*` packages), file against
+  the sibling [`dabbler-uat-dsl` repo](https://github.com/darndestdabbler/dabbler-uat-dsl/issues).
+- The maintainer-contact channel and contribution policy land alongside
+  the first public preview (Session 7 of
+  `packaging-and-template-readiness`).

@@ -4,28 +4,53 @@
 > [`docs/platform-overview.md`](../../../docs/platform-overview.md) for
 > the platform-level view of how this library fits in.
 
-Reusable stub providers for the retained Dabbler platform surface.
+Opt-in stub providers for the Dabbler platform surface. Reusable
+DI-friendly stubs for bUnit tests, demo / stub-app hosts, and early
+design review when real providers aren't yet wired up.
 
-This package turns the repo's existing in-memory testing patterns into a
-supported DI story for:
+## Audience
 
-- bUnit and direct component tests
-- stub or demo app modes
-- future generated apps that need a first-pass UI before real providers exist
+Teams who want the same component code to run against both real
+providers (production) and in-memory stubs (tests, demos, design
+review) without conditional branches inside the components themselves.
 
-## Supported Stub Surface
+> **Sub-package split coming in Session 7 (per ledger A3).** This
+> package will become a **meta-package** that references three focused
+> sub-packages: `Dabbler.Platform.Stubs.Components`,
+> `Dabbler.Platform.Stubs.Reports`, `Dabbler.Platform.Stubs.Security`.
+> Consumers who want only the component stubs (bUnit-only test wiring)
+> will be able to install
+> `Dabbler.Platform.Stubs.Components` and avoid the transitive
+> `Dabbler.Reports.Core` (and therefore `DabblerPdf` LGPL/MPL) dependency
+> that the current single-package shape imposes. The meta-package
+> documented below continues to provide the umbrella experience for
+> consumers who want everything wired at once.
 
-- `StubGridDataProvider<T>` for query and grid data
-- `StubComboBoxItemProvider<T>` for lookup and combo-box flows
-- `StubReportDataProvider` for report execution and lookup tables
-- `StubEntityMetadataProvider` and `StubNavigationDataProvider` for shell and navigation flows
-- `StubArtifactCatalogProvider` and `StubUsageTrackingProvider` for optional menu/catalog state
-- `StubAuthenticationStateProvider` for role-aware and organization-aware test or demo hosts
-- `AddDabblerPlatformStubs(...)` plus focused registration helpers for DI wiring
+## Prerequisites and stack constraints
 
-## Quick Start
+- Blazor Server (matches the platform target)
+- MudBlazor 8.x (transitively via `Dabbler.Components`)
+- .NET 10 (current LTS)
+- Reference to
+  [`Dabbler.Components`](../Dabbler.Components/README.md) and
+  [`Dabbler.Reports.Core`](../Dabbler.Reports.Core/README.md) (until
+  the Session 7 split — see note above)
+
+## Install
+
+> **Adoption note (Session 5 packaging-and-template-readiness):**
+> Supported adoption today is **integrated source** under
+> `src/Libs/Dabbler.Platform.Stubs/`. NuGet preview lands at end of
+> Session 7 as part of the meta-package + three sub-packages shape;
+> the future install reads
+> `dotnet add package Dabbler.Platform.Stubs --prerelease` for the
+> umbrella, or `dotnet add package Dabbler.Platform.Stubs.<sub> --prerelease`
+> for one sub-package only.
+
+## Minimal registration
 
 ```csharp
+// Build a stub-platform definition
 var definition = new StubPlatformDefinition
 {
     Entities =
@@ -36,39 +61,86 @@ var definition = new StubPlatformDefinition
             DisplayName = "Customers",
             DisplayNameSingular = "Customer",
             ShowInNavigation = true,
-            SmartFilters =
-            [
-                new SmartFilterDefinition
-                {
-                    Name = "Recent",
-                    Category = SmartFilterCategory.Custom
-                }
-            ]
         }
     ]
 };
 
-definition.Navigation.AddRecords(
-    "Customer",
-    "Recent",
-    [new NavigationRecord(101, "Ada Lovelace")]);
-
+// Register the umbrella (or pick focused helpers below)
 services.AddDabblerPlatformStubs(definition);
-services.AddStubGridDataProvider(
-    [
-        new CustomerRow(101, "Ada Lovelace"),
-        new CustomerRow(102, "Grace Hopper")
-    ]);
-services.AddStubAuthentication(new StubUserContext
-{
-    UserId = "stub-user",
-    DisplayName = "Stub User",
-    Email = "stub@example.test",
-    Roles = ["BackofficeUser"],
-    OrganizationId = "org-demo"
-});
 ```
 
-Use the focused helpers when you only want one stubbed concern, and use
-`AddDabblerPlatformStubs(...)` when you want a host that swaps to stub
-metadata/navigation/catalog services as a whole.
+## Smallest working example
+
+A bUnit test that wires a stub grid provider for `Customer`:
+
+```csharp
+[Fact]
+public void CustomersGrid_RendersStubRows()
+{
+    using var ctx = new TestContext();
+    ctx.AddDabblerStubs(StubDefinitions.MinimalCustomer());
+    ctx.Services.AddStubGridDataProvider<Customer>(new[]
+    {
+        new Customer(101, "Ada Lovelace"),
+        new Customer(102, "Grace Hopper"),
+    });
+
+    var cut = ctx.RenderComponent<CustomersGrid>();
+    Assert.Contains("Ada Lovelace", cut.Markup);
+}
+```
+
+The same `CustomersGrid` component renders against the real
+`CustomerGridDataProvider` in production — no conditional code paths
+inside the component.
+
+## Supported stub surface
+
+| Helper | Provider |
+|--------|----------|
+| `AddDabblerPlatformStubs(definition)` | Bulk umbrella registration. |
+| `AddStubGridDataProvider<T>(rows)` | `IGridDataProvider<T>` for grid + query pages. |
+| `AddStubComboBoxItemProvider<T>(items)` | `IComboBoxItemProvider<T>` for lookups. |
+| `AddStubReportDataProvider()` | `IReportDataProvider` returning seeded rows + parameter values. |
+| `AddStubEntityMetadataProvider(definition)` | Metadata for `DeclarativeFilterPanel` + nav. |
+| `AddStubNavigationDataProvider(definition)` | Navigation records for shell-driven hosts. |
+| `AddStubArtifactCatalogProvider(items)` | Optional artifact-catalog state. |
+| `AddStubUsageTrackingProvider()` | Optional usage tracker. |
+| `AddStubAuthentication(userContext)` | `AuthenticationStateProvider` for role-aware / org-aware test contexts. |
+
+## The contract: stubs never silently activate
+
+Per ledger §4.2, stub mode is **explicit opt-in**:
+
+- No auto-discovery. Referencing the package does not register stubs.
+- No environment-variable shortcut. Stubs never silently take over.
+- No production fallback. If a real provider isn't registered, DI
+  throws — which is the correct failure mode for a production app.
+
+## Related packages
+
+- [`Dabbler.Components`](../Dabbler.Components/README.md) — the surfaces
+  these stubs back.
+- [`Dabbler.Reports.Core`](../Dabbler.Reports.Core/README.md) — backs
+  `StubReportDataProvider`. (Will move to sub-package
+  `Dabbler.Platform.Stubs.Reports` in Session 7.)
+- [`Dabbler.Security`](../Dabbler.Security/README.md) — backs
+  `StubAuthentication`. (Will move to sub-package
+  `Dabbler.Platform.Stubs.Security` in Session 7.)
+- [`Dabbler.Testing.Blazor`](../Dabbler.Testing.Blazor/README.md) —
+  pairs with the stub providers for Playwright watermark
+  synchronization during E2E tests.
+
+## Warnings and caveats
+
+- **DabblerPdf transitive license (current single-package shape) —
+  non-MIT.** Through `Dabbler.Reports.Core`, this package transitively
+  pulls in `DabblerPdf` (LGPL-2.1-only OR MPL-2.0). The Session 7 split
+  resolves this for consumers who only need
+  `Dabbler.Platform.Stubs.Components`.
+- **Stubs are not a production posture.** Per ledger §4.2, accidental
+  use of stubs in production is prevented by requiring explicit
+  registration — but the package is named "Stubs" for a reason; do
+  not lean on it as a "real provider not implemented yet" stand-in
+  outside of test / demo / design-review contexts.
+- **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).

@@ -404,12 +404,83 @@ Moderate
 | 4 | Record any conservative intra-set parallelization opportunities. | `route(task_type="planning")` |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-opus-4-7, high effort) —
+  operator chose to keep Opus high per Session 5 routed next-orc
+  analysis ("documentation-heavy + metadata-heavy work spanning many
+  files; Opus's synthesis precision is the right tool"). Operator
+  explicitly chose "Full Session 5 scope" at session start.
+- **Total routed cost:** $0.7458 across 5 routed calls.
+  - 4 session-verification rounds (gpt-5-4 each, all
+    `reasoning_effort=high` per task_type_params):
+    - Round 1: ISSUES_FOUND (3 Major + 2 Minor), $0.1775.
+    - Round 2: ISSUES_FOUND (2 NEW Major + 2 NEW Minor — Round 1
+      fixes confirmed clean), $0.1899.
+    - Round 3: ISSUES_FOUND (1 NEW Major + 2 NEW Minor — incomplete
+      fix propagation from Round 2), $0.1852.
+    - Round 4: **VERIFIED** with 2 deferred-Minor bookkeeping items,
+      $0.1904. Operator-decisioned extension past max-2-retries per
+      `feedback_verifier_spiral_doc_sessions`.
+  - 1 next-orchestrator analysis (gemini-pro, $0.0028) — see below.
+- **Deviations from recommendation:**
+  - Orchestrator ran at Opus high rather than the spec-recommended
+    Sonnet low. Operator-confirmed deviation at session start per the
+    Session 5 routed analysis. Pattern: documentation-synthesis-heavy
+    sessions in this set have all run at Opus high.
+  - Spec Session 6 plan listed 4 narrowly-scoped steps; actual
+    execution landed the broader Session 5 review §7.1 scope
+    (~25-30 file touches). Operator confirmed "Full Session 5 scope"
+    at session start.
+  - Workflow Step 7 says "max 2 retries on verification" (3 rounds
+    total). Round 3 surfaced a substantive Major (§6.3 hermetic-pack
+    `Dabbler.*` glob over-broadness) that warranted verifying the
+    fix. Operator chose "Apply fixes then run Round 4 (Recommended)"
+    at the explicit branching point. Round 4 returned VERIFIED with
+    only deferred-Minor bookkeeping items.
+  - Documentation work authored DIRECTLY rather than routed through
+    `task_type="documentation"` calls. Rationale documented in
+    `disposition.json` scopeDeviations: cross-file synthesis context
+    fully loaded in orchestrator; routing each doc to Gemini Pro
+    would have required ~14 separate calls with full context
+    re-establishment per call. Cross-provider verification (Steps
+    6/7) provided the independent-check obligation. Cost saved: an
+    estimated $0.50-1.50 of routed-documentation calls; cost paid:
+    higher Opus orchestrator-side reasoning tokens.
+- **Notes for next-session calibration:**
+  - The 4-round verifier-spiral pattern is real for documentation-
+    heavy sessions of this scope; future similar sessions should
+    budget for it. Round 3's substantive Major (§6.3 over-broadness)
+    was a genuine ledger-correctness improvement — not bookkeeping.
+    Round 4 was the operator-decisioned validation, which paid off:
+    the §6.3 fix is now correct.
+  - The verifier reliably catches cross-reference staleness across
+    rounds — patterns like "§2.1 row cites §6.2 but content moved to
+    §6.3" recurred. Future sessions with similarly large ledger-style
+    deliverables should plan to add a "cross-ref sweep" as a final
+    pre-commit step.
+  - Session 5's calibration recommendation ("upgrade orchestrator to
+    Opus high for synthesis-heavy work") tracked accurately; Session
+    7's character (implementation-heavy, not synthesis-heavy) is the
+    right inflection point to revert to Sonnet per the spec's
+    ai-assignment.
+- **Session verification:** **VERIFIED** (gpt-5-4, Round 4 of 4 —
+  operator-decisioned Round 4 per `feedback_verifier_spiral_doc_sessions`).
+- **Adjudications:** 0 (no orchestrator-vs-verifier disagreements
+  routed through `record_adjudication`; all findings across 4 rounds
+  were accepted and either fixed or formally deferred).
 
-**Next-session orchestrator recommendation:** Claude Code (claude-sonnet-4-6)
+**Next-session orchestrator recommendation (routed analysis,
+gemini-pro, $0.0028 — see
+[`session-reviews/session-7-next-orchestrator-recommendation.md`](./session-reviews/session-7-next-orchestrator-recommendation.md)):**
+**Claude Code (`claude-sonnet-4-6`, medium effort).** Rationale: Session
+7 is implementation-heavy, comprising discrete code-centric tasks
+(scripting, test authoring, csproj restructuring), aligning with
+Sonnet's strengths and reverting from the Opus model used for Session
+6's broad cross-document synthesis. **Escalation criteria:** escalate
+to Opus only if the optional metapackage evaluation (A8 sub-track)
+requires novel strategic synthesis from user scenarios rather than
+direct implementation. The recommendation matches the original spec
+ai-assignment for Session 7 and the `feedback_honor_spec_sized_orchestrator`
+discipline.
 
 ---
 
