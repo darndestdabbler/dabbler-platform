@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using Dabbler.Components.Compat;
 using FluentAssertions;
 using Xunit;
 

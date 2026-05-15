@@ -6,7 +6,7 @@ using Dabbler.Components.Data.Metadata;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Dabbler.Components;
+namespace Dabbler.Components.Compat;
 
 /// <summary>
 /// A catalog search page that lists all artifacts of a given type using a search box

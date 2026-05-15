@@ -1,4 +1,5 @@
 using Bunit;
+using Dabbler.Components.Compat;
 using Dabbler.Components.Data.Metadata;
 using Dabbler.Components.Tests.TestHelpers;
 using Dabbler.Platform.Stubs;

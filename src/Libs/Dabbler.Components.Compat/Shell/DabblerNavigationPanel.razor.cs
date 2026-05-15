@@ -5,7 +5,7 @@ using Dabbler.Components.Data.Metadata;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace Dabbler.Components;
+namespace Dabbler.Components.Compat;
 
 /// <summary>
 /// A navigation panel with a dual-section layout: an entity list (top) for quick entity access

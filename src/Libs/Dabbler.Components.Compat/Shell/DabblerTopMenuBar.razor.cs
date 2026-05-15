@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
 
-namespace Dabbler.Components;
+namespace Dabbler.Components.Compat;
 
 /// <summary>
 /// Horizontal top menu bar providing catalog-style access to application artifacts:

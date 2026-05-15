@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
-namespace Dabbler.Components;
+namespace Dabbler.Components.Compat;
 
 /// <summary>
 /// A tabbed workspace that manages opening, closing, activating, and rendering

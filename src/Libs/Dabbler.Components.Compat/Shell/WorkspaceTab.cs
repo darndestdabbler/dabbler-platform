@@ -3,7 +3,7 @@
 
 using Microsoft.AspNetCore.Components;
 
-namespace Dabbler.Components;
+namespace Dabbler.Components.Compat;
 
 /// <summary>
 /// Represents a single tab in the <see cref="DabblerTabbedWorkspace"/>.

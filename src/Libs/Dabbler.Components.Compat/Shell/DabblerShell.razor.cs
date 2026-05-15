@@ -4,7 +4,7 @@
 using Dabbler.Components.Data.Metadata;
 using Microsoft.AspNetCore.Components;
 
-namespace Dabbler.Components;
+namespace Dabbler.Components.Compat;
 
 /// <summary>
 /// The top-level shell component that wires the <see cref="DabblerNavigationPanel"/>

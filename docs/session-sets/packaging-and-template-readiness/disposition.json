@@ -1,149 +1,31 @@
 {
-  "schemaVersion": 1,
-  "sessionSet": "packaging-and-template-readiness",
-  "sessionNumber": 6,
-  "isFinalSession": false,
-  "verificationVerdict": "VERIFIED",
-  "verifierModel": "gpt-5-4",
-  "verifierProvider": "openai",
-  "verifierRound": 4,
-  "verificationHistory": [
-    {
-      "round": 1,
-      "model": "gpt-5-4",
-      "provider": "openai",
-      "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1775,
-      "issuesFound": 5,
-      "summary": "3 Major + 2 Minor. (Major) §10 #10 contradicted §2.2 on G21/G22 disposition (limitation vs applied-this-session). (Major) UAT closure bar under-specified — §10 #8 said 'authored with W2 green' which is weaker than 'executed and signed off' that requiresUAT/uatScope:per-set demands. (Major) Stub-mode opt-in conflicted with §5.1's 'Stubs wired? Yes (meta-package)' template wording — risked re-opening the §4.2 'no production stubs' contract. (Minor) §1 said 'Nine NuGet libraries' but §3.1 has 12 (Stubs sub-packages double-counted-or-not). (Minor) CHANGELOG.md vs change-log.md filename inconsistency."
-    },
-    {
-      "round": 2,
-      "model": "gpt-5-4",
-      "provider": "openai",
-      "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1899,
-      "issuesFound": 4,
-      "summary": "Round 1 fixes confirmed clean. 2 NEW Major + 2 NEW Minor. (Major) §6.3 hermetic-pack contract over-constrained (set RestoreSources to local-only blocks restore of MudBlazor / EF Core / etc.). (Major) §3.4 Compat sunset said consumers 'stay pinned to 0.3.x' but §3.6 says every pre-1.0 carries -preview.N suffix — no plain 0.3.x exists. (Minor) Stub test-wiring API name inconsistent between §4.4 (ctx.AddDabblerStubs) and §5.1 (AddDabblerPlatformStubs). (Minor) Cross-refs stale: §10 #8 cited '§11 Reading-guide' (should be §0); §2.1 A4 cited '§3.4 + §3.5 + §9.1' (§3.5 is unrelated)."
-    },
-    {
-      "round": 3,
-      "model": "gpt-5-4",
-      "provider": "openai",
-      "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1852,
-      "issuesFound": 3,
-      "summary": "Round 2 fixes confirmed clean. 1 NEW Major + 2 NEW Minor (follow-on from incomplete fix propagation). (Major) §6.3 'Dabbler.* glob' is over-broad — Dabbler.Uat.Dsl.* also matches Dabbler.* but is sibling-repo-produced, not in-repo. Needs explicit in-repo package-ID allowlist instead of a glob. (Minor) §5.1 stub-API reference still said AddDabblerPlatformStubs in the template description (didn't fully propagate the §4.4 rename). (Minor) §2.1 A1 row still cited §6.2 (should be §6.3)."
-    },
-    {
-      "round": 4,
-      "model": "gpt-5-4",
-      "provider": "openai",
-      "verdict": "VERIFIED",
-      "cost_usd": 0.1904,
-      "issuesFound": 2,
-      "summary": "All Round 3 fixes confirmed RESOLVED (hermetic-pack allowlist, §5.1 propagation, §2.1 cross-ref). Two deferred-Minor bookkeeping items surfaced — both non-blocking. (Minor, deferred) §2 status legend omits 'accept-as-limitation' (used later in §2.2 and §10 but not in the up-front legend table). (Minor, deferred) §2's count totals use a mixed counting basis (rows-vs-file-touches); the surrounding prose acknowledges this. Verifier explicitly endorsed VERIFIED-with-deferred-Minors per the operator's stated Round 4 disposition preference."
-    }
+  "status": "VERIFIED",
+  "summary": "Session 7 of 11 (packaging-and-template-readiness): Stubs sub-package split (A3), compat content move (A4), THIRD-PARTY-NOTICES in Reports.* (A7), hermetic pack pipeline tools/pack.ps1 (A1), PublicSurface.Tests + Packaging.Smoke baseline (A10/A2), release-checklist.md. Build green, 868 non-Playwright tests pass. GPT-5.4 cross-provider verification: VERIFIED with 3 accepted findings.",
+  "files_changed": [
+    "src/Libs/Dabbler.Platform.Stubs.Components/ (new)",
+    "src/Libs/Dabbler.Platform.Stubs.Reports/ (new)",
+    "src/Libs/Dabbler.Platform.Stubs.Security/ (new)",
+    "src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj",
+    "src/Libs/Dabbler.Platform.Stubs/DabblerStubServiceCollectionExtensions.cs",
+    "src/Libs/Dabbler.Components.Compat/ (compat files moved from Dabbler.Components)",
+    "src/Libs/Dabbler.Reports.Core/THIRD-PARTY-NOTICES.txt (new)",
+    "src/Libs/Dabbler.Reports.Export/THIRD-PARTY-NOTICES.txt (new)",
+    "src/Libs/Dabbler.Reports.Blazor/THIRD-PARTY-NOTICES.txt (new)",
+    "tools/pack.ps1 (new)",
+    "tests/Dabbler.PublicSurface.Tests/ (new)",
+    "tests/Dabbler.Packaging.Smoke/ (new)",
+    "docs/packaging/release-checklist.md (new)",
+    "Directory.Packages.props",
+    "Dabbler.Platform.sln"
   ],
-  "adjudications": [],
-  "scopeDeviations": [
-    {
-      "spec_step": "Spec Session 6 plan: 4 steps narrowly scoped to surface-freeze + ledger",
-      "actual": "Session 6 executed a much larger scope: ledger + scenarios.md (A8) + retrofit-existing-app.md (A14) + COMPATIBILITY.md Dabbler.* extension (A18) + rdf-schema.md (G9) + platform-overview.md G* updates (G5/G6 cross-link/G7 cross-link/G8/G10/G12/G13/G17/G19/G21/G22/G23) + 8 per-library README standardization (A11) + G3 quick-start subordination across same 8 READMEs + Compat package scaffold (A4) + Directory.Build.props common metadata + Security/Security.Blazor csproj metadata + Components description tighten + icon.png placeholder.",
-      "rationale": "Session 5 review §7.1 explicitly assigned these deliverables to Session 6. The spec's literal 4-step Session 6 plan reads as planning/freeze-only, but the Session 5 routed next-orc analysis upgraded the orchestrator from Sonnet-low to Opus-high citing 'cross-file synthesis load' across exactly these deliverables. Operator explicitly chose 'Full Session 5 scope' at session start, ratifying the broader interpretation."
-    },
-    {
-      "spec_step": "Workflow Step 7: max 2 retries on verification",
-      "actual": "Ran 4 verification rounds (Round 1 ISSUES_FOUND → fix → Round 2 ISSUES_FOUND → fix → Round 3 ISSUES_FOUND → fix → Round 4 VERIFIED).",
-      "rationale": "Per feedback_verifier_spiral_doc_sessions, rounds 4+ are operator-decisioned. Round 3 surfaced a substantive Major (§6.3 Dabbler.* glob over-broadness) that warranted verifying the fix rather than deferring without check. Operator chose 'Apply fixes then run Round 4 (Recommended)' at the explicit branching point. Round 4 returned VERIFIED with only deferred-Minor bookkeeping items, validating the choice."
-    },
-    {
-      "spec_step": "Orchestrator-self-contribution discipline for documentation work",
-      "actual": "Authored the ledger + 5 new docs + 8 standardized READMEs DIRECTLY rather than routing each through task_type='documentation' or 'planning'.",
-      "rationale": "Delegation Discipline rule says documentation always routes. However, feedback_orchestrator_self_contributes_to_review_panel generalizes to: when the orchestrator has substantial loaded context that the routed model wouldn't have, route-call cost is largely wasted re-establishing it through the prompt. Session 6's deliverables required cross-document coherence across the ledger + 5 docs + 8 READMEs + Session 4/5 review documents — all loaded in orchestrator context. Routing each to Gemini Pro would have required ~14 separate calls with full context re-establishment per call. Session 5 routed next-orc analysis specifically cited 'cross-file synthesis precision' as the reason to keep Opus at high effort. The cross-provider verification step (Steps 6/7) provides the independent-check obligation; authoring went through the orchestrator's loaded synthesis."
-    }
-  ],
-  "deferredItems": [
-    {
-      "item": "Round 4 deferred-Minor: §2 status legend omits 'accept-as-limitation' as a status value.",
-      "deferred_to": "Next-touch ledger edit (no dedicated session needed; the next session that opens the ledger for a substantive reason can add the row).",
-      "rationale": "Cosmetic legend-completeness fix; the status value is already in use and self-documenting from context. Non-blocking for Sessions 7-11.",
-      "owner": "any future session orchestrator that touches the ledger",
-      "severity": "Minor (Round 4 verifier explicitly judged non-blocking)"
-    },
-    {
-      "item": "Round 4 deferred-Minor: §2 aggregate count totals use mixed counting basis (rows-vs-file-touches).",
-      "deferred_to": "Next-touch ledger edit OR explicit cleanup in Session 11 change-log assembly.",
-      "rationale": "The surrounding prose already explains the deliberate double-counting (e.g., 'A11 covers 8 READMEs counted in applied-this-session, also covered by Session 7 follow-on refinements counted in frozen-here'). The Round 4 verifier accepted the explanation but flagged the readability of the totals table. Non-blocking; cleanup is a tidying pass, not a substantive change.",
-      "owner": "Session 11 change-log assembly orchestrator (or earlier opportunistic edit)",
-      "severity": "Minor (Round 4 verifier explicitly judged non-blocking)"
-    },
-    {
-      "item": "Spec ambiguity between Session 4/5 Step 2 'self-contained' and Step 3 'orchestrator full context' (carried from Session 4).",
-      "deferred_to": "Step 9 reorganization review (final session, Session 11). Carried over from Session 4 + 5 dispositions.",
-      "rationale": "Already documented in Session 4 + 5 dispositions; no new development on this front in Session 6. The ambiguity continues to be handled session-by-session via explicit context-asymmetry disclosure in each tri-provider review's synthesis methodology notes.",
-      "owner": "spec author / Step 9 reorganization review",
-      "severity": "Major (carried; not a Session 6-internal item)"
-    }
-  ],
-  "followOnSpecsCalledOut": [],
-  "buildResult": "clean (0 errors, 0 warnings) against Dabbler.Platform.sln Debug full-solution build including new Dabbler.Components.Compat project. Earlier standalone Dabbler.Components.Compat build showed 23 pre-existing CS8669 warnings on auto-generated Razor code from Dabbler.Components (CS8669: nullable annotation in #nullable disable context). Those are pre-existing and not introduced by Session 6.",
-  "testResult": "864/864 non-Playwright tests pass. Breakdown: 38/38 AcmeCoffeeOnline.Api.Tests, 130/130 Dabbler.Components.Tests, 16/16 Dabbler.Reports.Blazor.Tests, 236/236 Dabbler.Security.Blazor.Tests, 305/305 Dabbler.Security.Tests, 133/133 AcmeCoffeeOnline.Web.Tests, 6/6 Dabbler.Testing.Blazor.Tests. Playwright project intentionally excluded — app docker compose stack not up, and Session 6's changes are docs + csproj metadata + Compat scaffold (zero compat surface content moved this session; that's Session 7) — none of which affect Playwright runtime behavior.",
-  "newTestsAdded": [],
-  "testsRemoved": [],
-  "filesTouched": [
-    "docs/session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md (NEW — frozen contract, 942 lines through Round 4 fixes)",
-    "docs/packaging/scenarios.md (NEW — 8 adoption scenarios mapped to package sets, plus Session 7 metapackage trigger conditions and license posture)",
-    "docs/packaging/retrofit-existing-app.md (NEW — 5-step incremental adoption recipe for brownfield Blazor Server apps, with outer-auth-vs-inner-authz decision and common pitfalls)",
-    "docs/reports/rdf-schema.md (NEW — banded-report definition file schema reference with sales-by-region worked example)",
-    "docs/COMPATIBILITY.md (UPDATED — appended Dabbler.* library version matrix section + lock-step versioning rationale per A18)",
-    "docs/platform-overview.md (UPDATED — G* batched: G21 Stack and audience callout, G23 REST-only business-data clarification, G8 Security posture and defaults, G10 Organization/multi-tenancy, G19 Playwright watermark tightening + why-this-matters subsection, G12 dedicated UAT DSL pipeline subsection, G13/G17 Where-to-go-next split with governance/issue-filing pointers, Security.Blazor value-prop strengthening)",
-    "docs/COMPATIBILITY.md (UPDATED — see above; listed twice intentionally for the matrix vs the broader edit)",
-    "Directory.Build.props (UPDATED — package-metadata defaults: Authors, RepositoryUrl, MIT license, reproducible-build + SourceLink properties, $(DabblerVersion), SourceLink PackageReference under IsPackable=true conditional)",
-    "Directory.Packages.props (UPDATED — added Microsoft.SourceLink.GitHub 8.0.0 for CPM)",
-    "Dabbler.Platform.sln (UPDATED — added Dabbler.Components.Compat project + Debug/Release configs + Libs solution-folder nesting via direct .sln edit since dotnet sln add stalled on duplicate-filename warning)",
-    "src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj (UPDATED — explicit <IsPackable>false</IsPackable>; demo-app-internal class library should not pick up Directory.Build.props packable metadata)",
-    "src/Libs/Dabbler.Components/Dabbler.Components.csproj (UPDATED — Description and PackageTags tightened to MudBlazor-native CRUD primitives; stale FilterGrid/ComboBox/Navigation-Shell/Access-migration references removed)",
-    "src/Libs/Dabbler.Security/Dabbler.Security.csproj (UPDATED — full package metadata added: PackageId, Description, PackageTags, PackageReadmeFile, PackageIcon, plus README + icon <None> pack items)",
-    "src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj (UPDATED — full package metadata added, same shape as Security.csproj)",
-    "src/Libs/Dabbler.Components.Compat/Dabbler.Components.Compat.csproj (NEW — placeholder project scaffold; content move stays in Session 7 per ledger §3.4)",
-    "src/Libs/Dabbler.Components.Compat/README.md (NEW — placeholder README citing the Session 7 content move + sunset 0.4.0 policy)",
-    "src/Libs/Dabbler.Components/README.md (UPDATED — 7-section A11 structural standardization + G3 install-path subordination)",
-    "src/Libs/Dabbler.Reports.Core/README.md (UPDATED — same standardization)",
-    "src/Libs/Dabbler.Reports.Export/README.md (UPDATED — same)",
-    "src/Libs/Dabbler.Reports.Blazor/README.md (UPDATED — same)",
-    "src/Libs/Dabbler.Platform.Stubs/README.md (UPDATED — same, plus Session-7-split-coming callout)",
-    "src/Libs/Dabbler.Testing.Blazor/README.md (UPDATED — same)",
-    "src/Libs/Dabbler.Security/README.md (UPDATED — same, plus the G6 RegisterPages/Entities/Endpoints/Controls taxonomy table + the G7 end-to-end enforcement worked example)",
-    "src/Libs/Dabbler.Security.Blazor/README.md (UPDATED — same, plus value-prop strengthening)",
-    "src/icon.png (NEW — 258-byte 128×128 placeholder PNG so existing <None Include='..\\..\\icon.png'> references in packable csprojs resolve)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-006.md (Round 1 verifier raw output)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-006-round-2.md (Round 2 verifier raw output)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-006-round-3.md (Round 3 verifier raw output)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-006-round-4.md (Round 4 verifier raw output)",
-    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 6 actuals appended + Session 7 next-orchestrator recommendation)",
-    "docs/session-sets/packaging-and-template-readiness/disposition.json (this file)",
-    "docs/session-sets/packaging-and-template-readiness/activity-log.json (per-step log)",
-    "docs/session-sets/packaging-and-template-readiness/session-state.json (in-progress -> complete via mark_session_complete)"
-  ],
-  "filesDeleted": [
-    "docs/session-sets/packaging-and-template-readiness/.verify-prompt-builder.py (one-shot prompt-assembly script for Round 1 verification)",
-    "docs/session-sets/packaging-and-template-readiness/.verify-prompt.txt (Round 1 prompt cache)",
-    "docs/session-sets/packaging-and-template-readiness/.run-verify.py (one-shot Round 1 router driver)",
-    "docs/session-sets/packaging-and-template-readiness/.run-verify-r2.py (one-shot Round 2 router driver)",
-    "docs/session-sets/packaging-and-template-readiness/.run-verify-r3.py (one-shot Round 3 router driver)",
-    "docs/session-sets/packaging-and-template-readiness/.run-verify-r4.py (one-shot Round 4 router driver)"
-  ],
-  "routedCallsTotalUsd": 0.7430,
+  "verification_method": "gpt-5-4",
+  "verification_message_ids": [],
   "next_orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
     "model": "claude-sonnet-4-6",
     "effort": "medium",
-    "reason": {
-      "code": "switch-due-to-cost",
-      "specifics": "Session 7 (Package Validation And Consumer Smoke Proof) is heavily implementation-focused — authoring tools/pack.ps1, tests/Dabbler.Packaging.Smoke/, tests/Dabbler.PublicSurface.Tests/, the Stubs sub-package split (A3 csproj structural change), THIRD-PARTY-NOTICES.txt files. These are code/csproj/test-authoring tasks where Sonnet medium is the right tier per the original spec ai-assignment recommendation. The cross-file synthesis load that justified Opus high in Session 6 does not apply — Session 7 is breadth-of-implementation, not breadth-of-synthesis. The switch from Opus high → Sonnet medium reverts to the spec-sized orchestrator, saving the Opus-tier orchestrator-side reasoning cost on work where Sonnet medium has equivalent capability. The ledger is the binding contract; Session 7 implements against it. Matches the spec ai-assignment's Sonnet-medium for Session 7 and the feedback_honor_spec_sized_orchestrator discipline."
-    }
+    "reason": "Session 8 (VS template + DevIdp.Tool + tutorial) is implementation-heavy; same Sonnet-class sizing as Session 7."
   },
-  "notes": "Session 6 froze the packable-surface contract for Sessions 7-11. The packaging-readiness-ledger.md is the binding artifact: Sections §3 (12 NuGet libraries + Compat + Stubs sub-packages + Templates + DevIdp.Tool = 14 packages), §4 (Stubs opt-in contract with explicit AddDabblerPlatformStubs service-collection helper and ctx.AddDabblerStubs bUnit shortcut), §5 (two-template VS contract: dabbler-app + dabbler-min with stubs in bUnit project only, never in production Program.cs), §6 (consumer-install smoke depth, allowlist-based hermetic pack, artifact-content assertions, staged-promotion rollback), §7 (documentation deliverables map), §8 (intra-set parallelization map: 7 || 8 → 9 → 10 → 11), §10 (10 acceptance criteria including human-UAT executed-and-signed-off bar). 4 verification rounds were needed — the verifier-spiral pattern feedback_verifier_spiral_doc_sessions describes is real for documentation-heavy sessions of this scope; the Round 4 VERIFIED outcome with only deferred-Minor bookkeeping items is the natural settling point. Largest substantive find across rounds: Round 3's §6.3 hermetic-pack scope correction (Dabbler.* glob → explicit 14-ID in-repo allowlist), which prevented a Session 7 implementation defect where dabbler-platform's hermetic pack pipeline would have wrongly blocked Dabbler.Uat.Dsl.* sibling-repo restores."
+  "blockers": []
 }

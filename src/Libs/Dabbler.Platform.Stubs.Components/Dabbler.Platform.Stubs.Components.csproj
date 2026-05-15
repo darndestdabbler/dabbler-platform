@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageId>Dabbler.Platform.Stubs.Components</PackageId>
+    <Description>Stub grid-data, combo-box, entity-metadata, and navigation providers for Dabbler.Components bUnit and demo-host consumers. Install this sub-package when you want stub-backed Components wiring without pulling DabblerPdf transitively.</Description>
+    <PackageTags>blazor;stubs;testing;bunit;mudblazor;dabbler-components</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

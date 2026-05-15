@@ -1,7 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
-namespace Dabbler.Components;
+namespace Dabbler.Components.Compat;
 
 /// <summary>
 /// Identifies the kind of content hosted in a workspace tab.
