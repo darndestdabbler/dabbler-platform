@@ -709,7 +709,15 @@ Moderate
 | 6 | Generate `change-log.md` for this session set. | `route(task_type="summarization")` |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-sonnet-4-6, medium effort) — matched the spec's Sonnet low recommendation. The routed Session 10 next-orchestrator analysis recommended Opus medium; operator proceeded with Sonnet (spec-level) since key tasks were routed anyway.
+- **Total routed cost:** ~$0.22 (3 verification rounds + summarization)
+  - change-log.md: route(task_type="summarization", max_tier=1) → gemini-flash, $0.001 (Gemini Pro 400'd; retried at tier 1)
+  - Round 1 session-verification: gpt-5-4, $0.0756 — ISSUES_FOUND (3 Minor)
+  - Round 2 session-verification: gpt-5-4, $0.1025 — ISSUES_FOUND (1 Minor)
+  - Round 3 session-verification (operator-authorized): gpt-5-4, $0.0418 — VERIFIED
+- **Deviations from recommendation:**
+  - UAT checklist authored directly (not via route(task_type="uat-script-author")) because all 7 items are judgment items about developer experience documentation — not Blazor web app UI. The uat-script-author task type is designed for catalog-grounded web app UI checklists; routing it would have produced catalog-grounded output for a scope with no catalog entries.
+  - W0 compiler and W2 runner not invoked (no DSL steps to compile). Automated coverage from Sessions 7-10 (NupkgArtifactTests, PackagingSmokeTests, TemplateSmokePlaywrightTests) provides reachability proof per scope-deviation documentation.
+  - 3 verification rounds (max-2-retries + operator-authorized Round 3 per feedback_verifier_spiral_doc_sessions). All findings were Minor; each round improved checklist self-containedness.
+- **Session verification:** **VERIFIED** (gpt-5-4, Round 3 of 3).
+- **Blockers:** Pending human UAT execution. Session-set is not fully closed until UAT results are recorded in the checklist.
