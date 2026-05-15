@@ -1,127 +1,86 @@
 {
   "schemaVersion": 1,
   "sessionSet": "packaging-and-template-readiness",
-  "sessionNumber": 4,
+  "sessionNumber": 5,
   "isFinalSession": false,
-  "verificationVerdict": "ISSUES_FOUND",
+  "verificationVerdict": "VERIFIED",
   "verifierModel": "gpt-5-4",
   "verifierProvider": "openai",
-  "verifierRound": 4,
+  "verifierRound": 3,
   "verificationHistory": [
     {
       "round": 1,
       "model": "gpt-5-4",
       "provider": "openai",
       "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1395,
+      "cost_usd": 0.2516,
       "issuesFound": 3,
-      "summary": "(Major) Consolidated gap table missing GPT-5.4's 'narrow stack constraints' and Gemini Pro's 'rigid security model' as explicit disposition rows. (Minor) Tally arithmetic inconsistent with table above it. (Minor) Session 4 edits outside session-set folder vs spec 'Touches: This session-set folder.'"
+      "summary": "(Major) Incomplete Session 4 carry-over traceability — G6, G7, G16, G17, G19 not concretely addressed in the proposal §7 table or synthesis. (Minor) Synthesis count statements off by one (header said 'five inline / 11 routed' but tables show 6 / 12; §1 said 'two Critical findings' but routed reviews total three). (Minor) Inaccurate post-review cross-reference claims in proposal (§11.7 referenced a §4.4 note that didn't exist; header claim about update-callout markers didn't match all edited sections)."
     },
     {
       "round": 2,
       "model": "gpt-5-4",
       "provider": "openai",
       "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1552,
-      "issuesFound": 1,
-      "summary": "(Minor) Tally still not internally consistent: G4, G6, G12 carrying mixed-severity strings ('Minor → Major', 'Major (Opus) / Minor (Gemini Pro)') even though preamble said split severities are normalized upward."
+      "cost_usd": 0.2327,
+      "issuesFound": 2,
+      "summary": "(Minor) A7 row partially synthesized Gemini Pro's package-page license-disclosure requirement (THIRD-PARTY-NOTICES.txt + template warning was preserved, but the explicit package-Description + README disclosure surface was implicit not explicit). (Minor) §8 open-question accounting inconsistent between synthesis (claimed Q2-Q5 remain after A17 publish-timing collapse) and proposal (showed only 2 open questions plus 3 resolved-during-review entries)."
     },
     {
       "round": 3,
       "model": "gpt-5-4",
       "provider": "openai",
-      "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.2065,
-      "issuesFound": 3,
-      "summary": "(Major) Tri-provider comparison not apples-to-apples: Opus assessment used context (project-guidance.md, lessons-learned.md) the routed providers didn't have. (Major) fix-now DabblerPdf disclosure incomplete: Dabbler.Reports.Core/README.md also lists DabblerPdf as dependency but missed the new license disclosure. (Minor) Disposition table introduced non-spec disposition 'dismissed'; synthesis didn't carry Opus's 'REST-only vs UseEfCoreStore' inconsistency into the gap table."
-    },
-    {
-      "round": 4,
-      "model": "gpt-5-4",
-      "provider": "openai",
-      "verdict": "ISSUES_FOUND",
-      "cost_usd": 0.1349,
-      "issuesFound": 3,
-      "summary": "(Major, re-flagged from Round 3) Opus self-assessment context asymmetry vs spec Step 2 'self-contained' clause — documentation does not close the compliance gap. (Minor) 'dismissed' disposition value still non-spec. (Minor) Bundle's 'produced artifacts' + 'inline-edits' sections list only platform-overview and Reports.Export but methodology notes claim Reports.Core was also updated — bundle internally inconsistent."
+      "verdict": "VERIFIED",
+      "cost_usd": 0.2105,
+      "issuesFound": 0,
+      "summary": "Clean pass after Round 2 inline fixes. All six checks (a)-(f) PASS. No Critical, Major, or Minor issues. The Session 5 bundle is internally consistent and matches the Session 5 spec and routed-review evidence."
     }
   ],
   "adjudications": [],
   "scopeDeviations": [
     {
-      "spec_step": "Session 4 Step 4 (route via force_model=)",
-      "actual": "Bypassed route() via direct call_model() for gpt-5-4 and gemini-pro architecture calls.",
+      "spec_step": "Session 5 Step 3 (route via force_model=)",
+      "actual": "Bypassed route() via direct call_model() for gpt-5-4 and gemini-pro architecture calls. Same pattern as Session 4.",
       "rationale": "The operator-tuned router-config.yaml has architecture in auto_verify_task_types, meaning every route() call on this task type would trigger a redundant cross-provider verifier on each of the two routed calls (gpt-5-4-mini for gemini-pro; opus for gpt-5-4), duplicating the manual tri-provider review the session was running. The spec explicitly permits this fallback: 'If a force_model parameter isn't supported in the operator-tuned config, the orchestrator may directly invoke each provider via the underlying router primitive.' Both calls were recorded via record_call() so cost telemetry remained intact."
     },
     {
-      "spec_step": "Session 4 Step 4 (gpt-5-4 reasoning_effort)",
-      "actual": "Routed gpt-5-4 at reasoning_effort=high instead of the task_type_params default reasoning_effort=xhigh, with provider timeout bumped from 300s to 600s.",
-      "rationale": "xhigh + 60KB prompt exceeded the 300s OpenAI timeout three times in a row (15 min wall, ~$0 in returned tokens). Retry at the model's default 'high' completed in 187s and produced a substantive 10.7K-token review. Future high-token architecture prompts (>50KB input) should adopt this pattern: either drop the task_type_params override for these prompts or bump the provider timeout."
-    },
-    {
-      "spec_step": "Session 4 Touches: This session-set folder",
-      "actual": "Inline fix-now edits touched docs/platform-overview.md, src/Libs/Dabbler.Reports.Export/README.md, and (Round 4) src/Libs/Dabbler.Reports.Core/README.md.",
-      "rationale": "The Touches line in the Session 4 spec was written before the gap review surfaced and could not have anticipated which files the fix-now actions would land in. The spec's 4-disposition framework (fix-now / fix-during-packaging / accept-as-limitation / defer) explicitly contemplates fix-now actions; constraining those actions to the session-set folder is incompatible with the disposition framework. Surfaced as a spec-author note in the synthesis section 9 methodology notes."
-    },
-    {
-      "spec_step": "Session 4 (test-infra inline fix)",
-      "actual": "Added tests/AcmeCoffeeOnline.Api.Tests/SeededOrderMutationCollection.cs + [Collection] tags on OrderUpdateTests and TemporalTablesTests.",
-      "rationale": "Pre-existing race condition between two test classes targeting the first-seeded Order's Notes column; surfaced when the full test suite was run for Session 4's build/test verification. Operator-confirmed inline fix per feedback_fix_broken_tests_no_carry_forward ('never silently tolerated'). Mirrors the existing FlakyPlaywrightCollection pattern; minimal footprint (1 new file + 2 class-level attribute additions)."
-    },
-    {
-      "spec_step": "Session 4 verification (max 2 retries)",
-      "actual": "Ran 4 verification rounds.",
-      "rationale": "Rounds 1-3 surfaced fixable issues (Round 1 1 Major + 2 Minor; Round 2 1 Minor arithmetic; Round 3 2 Major + 1 Minor — all addressed inline). Round 4 was operator-approved beyond the stated retry budget. Round 4 surfaced 1 residual Major (Opus context asymmetry vs spec Step 2) that the operator chose to defer to Step 9 spec-revision review rather than re-doing Opus's assessment under strict prompt-only constraint (which would dismantle the orchestrator-self-contribution pattern documented in feedback_orchestrator_self_contributes_to_review_panel). Documented for future calibration: 2-3 rounds is the natural settling point for documentation-heavy sessions; rounds 4+ should be operator-decisioned, not orchestrator-automated."
+      "spec_step": "Session 5 verification (max 2 retries)",
+      "actual": "Ran 3 verification rounds (Round 1, Round 2, Round 3).",
+      "rationale": "The 'max 2 retries' budget allows up to 3 rounds total (Round 1 initial + 2 retries). All 3 rounds were within budget. Round 1 found a real Major (carry-over traceability) that justified Round 2; Round 2 found 2 Minor bookkeeping issues; Round 3 verified clean. The arc tracks the natural settling point feedback_verifier_spiral_doc_sessions describes for documentation-heavy sessions."
     }
   ],
   "deferredItems": [
     {
-      "item": "Spec ambiguity between Step 2 ('the prompt should be identical across the three providers and self-contained — assume each reviewer has no prior context') and Step 3 ('the orchestrator writes its own assessment of the review prompt directly — the orchestrator already has the full context loaded').",
-      "deferred_to": "Step 9 reorganization review (final session of this set, Session 11) — spec-revision item, not a session-4-internal fix.",
-      "rationale": "These two clauses carry conflicting requirements. Step 3 explicitly cites 'the orchestrator already has the full context loaded' as the reason for self-contribution, which directly contradicts Step 2's 'no prior context' clause. The orchestrator-self-contribution pattern documented in feedback_orchestrator_self_contributes_to_review_panel was designed precisely to leverage the orchestrator's full context — re-doing Opus's assessment under strict prompt-only constraint would dismantle the pattern (functionally equivalent to routing Opus→Opus, which the feedback memory specifically advises against because it pays the API bill twice for the same judgment). Resolution requires a spec edit that picks one reading and spells it out unambiguously, OR a workflow-doc clarification that resolves the ambiguity globally. The substance of Session 4's tri-provider review (verdict, gap list, dispositions, no-pause conclusion) is sound regardless of which reading wins; only the methodology label changes.",
+      "item": "Spec ambiguity between Step 2 ('the prompt should be identical across the three providers and self-contained') and Step 3 ('the orchestrator already has the full context loaded') in Session 4's spec — same ambiguity applies to Session 5's analogous wording.",
+      "deferred_to": "Step 9 reorganization review (final session of this set, Session 11). Carried over from Session 4 disposition.",
+      "rationale": "Already documented in Session 4 disposition.json. Session 5 honored the same orchestrator-self-contribution interpretation; the synthesis disclosed the context asymmetry explicitly in §8.1. No new deferral; existing deferral continues.",
       "owner": "spec author / Step 9 reorganization review",
-      "severity": "Major"
+      "severity": "Major (carried from Session 4)"
     }
   ],
-  "followOnSpecsCalledOut": [
-    {
-      "name": "session-set-authoring-guide.md update (Step 9 reorganization scope)",
-      "rationale": "Resolve the Step 2 vs Step 3 ambiguity for tri-provider review sessions: either say 'the routed prompt is self-contained but the orchestrator's self-contribution may use the orchestrator's full context' (the position this session took), or 'all tri-provider review panel members operate on the same prompt-only context, including the orchestrator's self-contribution' (the strict-self-contained position). Pick one and update the spec template in session-set-authoring-guide.md so future tri-provider review sessions are unambiguous."
-    }
-  ],
-  "buildResult": "clean (0 errors, 256 pre-existing warnings: CS8669 on auto-generated Razor, MUD0002 on Title attribute, CS0618 on already-[Obsolete]-marked RoleSwitchingPermission). Matches Session 3 baseline. No new warnings introduced by Session 4 changes.",
-  "testResult": "864/864 non-Playwright tests pass after the inline test-collection fix. Breakdown: 38/38 AcmeCoffeeOnline.Api.Tests, 130/130 Dabbler.Components.Tests, 16/16 Dabbler.Reports.Blazor.Tests, 236/236 Dabbler.Security.Blazor.Tests, 305/305 Dabbler.Security.Tests, 133/133 AcmeCoffeeOnline.Web.Tests, 6/6 Dabbler.Testing.Blazor.Tests. Playwright project intentionally excluded — docker compose stack not up, and this session made no code changes that would affect browser-level behavior.",
+  "followOnSpecsCalledOut": [],
+  "buildResult": "clean (0 errors, 256 pre-existing warnings: CS8669 on auto-generated Razor, MUD0002 on Title attribute, CS0618 on already-[Obsolete]-marked RoleSwitchingPermission). Matches Session 4 baseline. No new warnings introduced by Session 5 (doc-only session — no code changes).",
+  "testResult": "864/864 non-Playwright tests pass. Breakdown: 38/38 AcmeCoffeeOnline.Api.Tests, 130/130 Dabbler.Components.Tests, 16/16 Dabbler.Reports.Blazor.Tests, 236/236 Dabbler.Security.Blazor.Tests, 305/305 Dabbler.Security.Tests, 133/133 AcmeCoffeeOnline.Web.Tests, 6/6 Dabbler.Testing.Blazor.Tests. Playwright project intentionally excluded — compose stack not up, and this session made no code changes that would affect browser-level behavior.",
   "newTestsAdded": [],
   "testsRemoved": [],
   "filesTouched": [
-    "docs/session-sets/packaging-and-template-readiness/value-review-prompt.md (NEW — 59,649 chars; self-contained tri-provider review prompt bundling docs/platform-overview.md, README.md, and the 8 per-library READMEs)",
-    "docs/session-sets/packaging-and-template-readiness/value-review-opus.md (NEW — orchestrator's own assessment per feedback_orchestrator_self_contributes_to_review_panel)",
-    "docs/session-sets/packaging-and-template-readiness/value-review-gpt-5-4.md (NEW — GPT-5.4's routed assessment, reasoning_effort=high)",
-    "docs/session-sets/packaging-and-template-readiness/value-review-gemini-pro.md (NEW — Gemini Pro's routed assessment, thinking_budget=-1)",
-    "docs/session-sets/packaging-and-template-readiness/platform-value-review.md (NEW — synthesis: verdicts, agreement areas, disagreement areas, 23-row consolidated gap table with dispositions, critical-gap check, Session 5/8 inputs, methodology notes)",
-    "docs/platform-overview.md (fix-now G2 + G16: DabblerPdf disclosure with LGPL-2.1-only OR MPL-2.0 license note + platform-level license aggregation)",
-    "src/Libs/Dabbler.Reports.Export/README.md (fix-now G2: DabblerPdf license disclosure in Dependencies)",
-    "src/Libs/Dabbler.Reports.Core/README.md (Round-4 follow-up to G2: DabblerPdf license disclosure also added here, since this README also lists DabblerPdf as a dependency)",
-    "tests/AcmeCoffeeOnline.Api.Tests/SeededOrderMutationCollection.cs (NEW — xUnit CollectionDefinition with DisableParallelization=true, mirroring FlakyPlaywrightCollection pattern)",
-    "tests/AcmeCoffeeOnline.Api.Tests/OrderUpdateTests.cs ([Collection(SeededOrderMutationCollection.Name)] added on the class)",
-    "tests/AcmeCoffeeOnline.Api.Tests/TemporalTablesTests.cs ([Collection(SeededOrderMutationCollection.Name)] added on the class)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-004.md (4 verification rounds — verifier raw output)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-004.bundle.md (Round 1 bundle)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-004.bundle.round2.md (Round 2 bundle)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-004.bundle.round3.md (Round 3 bundle)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-004.bundle.round4.md (Round 4 bundle)",
-    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-5-next-orchestrator-recommendation.md (NEW — routed gemini-pro recommendation)",
-    "docs/session-sets/packaging-and-template-readiness/issue-logs/session-004.json (10 issue-tracking entries across the 4 verification rounds)",
-    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 4 actuals + Session 5 next-orchestrator recommendation)",
+    "docs/session-sets/packaging-and-template-readiness/packaging-approach-proposal.md (NEW — ~48KB self-contained tri-provider review proposal; doubles as Opus self-contribution review input; post-review inline edits in §3.3, §4.4, §6.2, §8, §10.1, §10.2, §11.2, §11.7)",
+    "docs/session-sets/packaging-and-template-readiness/packaging-review-gpt-5-4.md (NEW — GPT-5.4's routed assessment, reasoning_effort=high; 2 Critical + 7 Major + 0 Minor + 3 missing-entirely)",
+    "docs/session-sets/packaging-and-template-readiness/packaging-review-gemini-pro.md (NEW — Gemini Pro's routed assessment, thinking_budget=-1; 1 Critical + 1 Major + 1 Minor + 1 missing-entirely)",
+    "docs/session-sets/packaging-and-template-readiness/packaging-approach-review.md (NEW — synthesis: 18 adjustments across 3 Critical / 11 Major / 4 Minor; 6 apply-inline applied; 12 fix-during-packaging routed into Sessions 6-8; §7.5 carry-over traceability matrix; methodology notes)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-005.md (3 verification rounds — verifier raw output, Rounds 1-3)",
+    "docs/session-sets/packaging-and-template-readiness/session-reviews/session-6-next-orchestrator-recommendation.md (NEW — routed gemini-pro recommendation)",
+    "docs/session-sets/packaging-and-template-readiness/ai-assignment.md (Session 5 actuals + Session 6 next-orchestrator recommendation)",
     "docs/session-sets/packaging-and-template-readiness/disposition.json (this file)",
     "docs/session-sets/packaging-and-template-readiness/activity-log.json (per-step log)",
-    "docs/session-sets/packaging-and-template-readiness/session-state.json (in-progress → complete via mark_session_complete)"
+    "docs/session-sets/packaging-and-template-readiness/session-state.json (in-progress -> complete via mark_session_complete)"
   ],
   "filesDeleted": [
-    "tools/value_review_route.py (one-shot script that bypassed route() to call gpt-5-4 and gemini-pro directly; not part of platform tooling)",
-    "tools/build_session4_verification.py (one-shot script for the 4 verification rounds)",
-    "tools/session4_closeout.py (one-shot script for the next-orchestrator routing — deleted at session close)"
+    "tools/packaging_review_route.py (one-shot script that bypassed route() to call gpt-5-4 and gemini-pro directly; not part of platform tooling)",
+    "tools/session5_verify.py (one-shot script for the 3 verification rounds)",
+    "tools/session5_next_orc.py (one-shot script for Session 6 next-orchestrator routing)"
   ],
-  "routedCallsTotalUsd": 1.0586,
+  "routedCallsTotalUsd": 0.9355,
   "next_orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
@@ -129,8 +88,8 @@
     "effort": "high",
     "reason": {
       "code": "continue-current-trajectory",
-      "specifics": "Routed analysis (gemini-pro, $0.0038) recommended Claude Code Opus high for Session 5, matching the original spec ai-assignment recommendation. Session 5 (Packaging Approach Articulation And Tri-Provider Review) requires the orchestrator to (a) draft a complex multi-faceted technical proposal directly and (b) synthesize three independent architectural reviews of it. Same task profile as Session 4 — direct authoring + tri-provider synthesis — which Claude Opus performed effectively despite scope extensions and a 4-round verification arc. The cost and verification patterns from Session 4 reinforce the need for a top-tier model rather than a cheaper alternative."
+      "specifics": "Routed analysis (gemini-pro, $0.0026) recommended Claude Code Opus high for Session 6, citing the cross-file synthesis load: Session 6 formalizes Session 5's proposal + adjustments into frozen contracts and canonical documentation across many files (Components compat split, Security/Security.Blazor metadata, scenarios doc, retrofit doc, compatibility matrix, README structure standardization, plus value-review G6/G7/G17/G19 carry-overs). The original spec ai-assignment for Session 6 suggested Sonnet low; the routed analysis upgrades to Opus high. Operator may downgrade to Sonnet medium if context permits. The router suggested a wrong model id `claude-3-opus-20240229` (training-cutoff artifact); orchestrator corrected to `claude-opus-4-7`."
     }
   },
-  "notes": "Session 4 produced the consolidated tri-provider value review with verdict 'yes-with-caveats' and 23 disposition'd gaps. All three reviewers (Opus, GPT-5.4, Gemini Pro) converged on proceed-with-packaging-but-tighten-the-external-story. The most consequential discovery during fix-now investigation: DabblerPdf is a port of OpenPDF and therefore dual-licensed LGPL-2.1-only OR MPL-2.0, NOT MIT. This is a compliance-critical detail that the original reviewers flagged only as 'undocumented dependency'; the fix-now investigation upgraded it to 'undocumented dependency WITH copyleft license that may deter enterprise adopters'. Disclosure landed in three docs: platform-overview.md (about-DabblerPdf paragraph + license aggregation note), Reports.Export/README.md, Reports.Core/README.md. The 4-round verification arc surfaced a real spec ambiguity (Step 2 'self-contained' vs Step 3 'orchestrator already has full context') that future tri-provider review specs need to resolve unambiguously. Documented as deferred for Step 9 reorganization review at session-set close."
+  "notes": "Session 5 produced the tri-provider-reviewed packaging approach. Verdict: proceed-with-adjustments across all three reviewers. 18 adjustments synthesized: 6 applied inline this session (versioning ladder collapse, staged-promotion rollback, artifact-content assertions, two new risk rows, publish-gate binding); 12 routed into Sessions 6-8 (hermetic pack pipeline, smoke-test depth expansion, Stubs sub-package split, Components compat moved out of main package, DevIdp as dotnet tool, THIRD-PARTY-NOTICES.txt, scenarios doc + optional metapackages, package README structure, template bootstrap, template sample data, retrofit doc, compatibility matrix). The most consequential discovery in this session: gpt-5-4's Critical A1 (hermetic pack pipeline) and Gemini Pro's Critical A3 (Stubs sub-package split now, not deferred). Both materially tighten Sessions 6-8 acceptance criteria. The proposal's pre-identified weak points (§11.7) hit 4/5 confirmation from routed reviewers, validating the self-identification discipline. The 3-round verification arc landed clean per feedback_verifier_spiral_doc_sessions's natural-settling-point guidance for documentation-heavy sessions."
 }

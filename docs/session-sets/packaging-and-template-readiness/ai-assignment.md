@@ -304,12 +304,84 @@ High
 | 5 | Apply small-scope adjustments inline. | `route(task_type="refactoring")` |
 
 ### Actuals
-- **Total routed cost:** `TBD`
-- **Session verification:** `TBD`
-- **Session verification notes:**
-  - `TBD`
+- **Orchestrator used:** Claude Code (claude-opus-4-7, high effort) —
+  matched the Session 4 next-orc recommendation; no operator override.
+- **Total routed cost:** ~$0.93 across 6 routed calls.
+  - Tri-provider review (Step 3):
+    - gemini-pro architecture: 1 call, $0.0276 (after a 503 retry; the
+      503 attempt returned no tokens so was ~$0).
+    - gpt-5-4 architecture: 1 call, $0.2105 (reasoning_effort=high,
+      600s timeout headroom unused; 215s elapsed).
+  - Cross-provider session verification (Steps 6-7):
+    - Round 1: gpt-5-4 session-verification, $0.2516 — ISSUES_FOUND
+      (1 Major + 2 Minor).
+    - Round 2: gpt-5-4 session-verification, $0.2327 — ISSUES_FOUND
+      (0 Major + 2 Minor).
+    - Round 3: gpt-5-4 session-verification, $0.2105 — VERIFIED
+      clean (0 / 0 / 0).
+  - Next-orchestrator analysis: gemini-pro, $0.0026 (recommended
+    Opus high; suggested a wrong model id `claude-3-opus-20240229`
+    from training cutoff; orchestrator corrected to `claude-opus-4-7`).
+- **Deviations from recommendation:**
+  - None substantive. Spec Step 3 said
+    `route(task_type="architecture", force_model=...)`; `route()`
+    doesn't support `force_model` and architecture is auto-verified,
+    so the orchestrator bypassed `route()` via direct `call_model()`
+    per the spec's "fallback to the underlying router primitive"
+    allowance. Both calls were recorded via `record_call()`.
+    Same pattern as Session 4 — no new deviation.
+- **Notes for next-session calibration:**
+  - The tri-provider review pattern's cost composition was similar to
+    Session 4: ~$0.24 for the provider review calls vs ~$0.69 for the
+    three verification rounds. Total Session 5 cost is in the same
+    range as Session 4 ($1.06) despite Session 5 only needing 3
+    verification rounds vs Session 4's 4.
+  - The proposal was ~45KB after authoring, ~48KB after the inline
+    edits — comfortably below the 50KB gpt-5-4 xhigh-timeout
+    threshold from Session 4 calibration. `reasoning_effort=high`
+    held with 600s timeout headroom unused (215s actual).
+  - Gemini Pro 503'd once on the first attempt; the 5-minute manual
+    retry landed cleanly. The router's internal 3-retry exponential
+    backoff (2s/4s/8s) is too short for real Google outages; a
+    manual retry after several minutes is the right pattern. (Same
+    pattern as feedback_self_verify_when_no_cross_provider's
+    underlying concern, but specifically about Google's overload
+    bursts.)
+  - 3-round verification arc landed clean per
+    `feedback_verifier_spiral_doc_sessions`: Round 1 surfaced a
+    real Major (carry-over traceability) + 2 Minor; Round 2 dropped
+    the Major and surfaced 2 different Minor; Round 3 clean.
+    Documentation-heavy sessions naturally settle at 2-3 rounds.
+  - The orchestrator-self-contribution pattern
+    (`feedback_orchestrator_self_contributes_to_review_panel`) is
+    holding up — the §11 self-perspective embedded in the proposal
+    was treated cleanly by both routed reviewers and the verifier.
+    The Session 4 spec-ambiguity concern surfaced last session was
+    not re-raised this session (the synthesis disclosed the context
+    asymmetry explicitly in §8.1).
+  - The "weak-points-self-identification" discipline from the proposal's
+    §11.7 paid off: 4/5 pre-identified weak points were independently
+    confirmed by routed reviewers. Useful tactic for future
+    tri-provider sessions.
+- **Session verification:** **VERIFIED** (Round 3 of 3). Rounds 1 and 2
+  ISSUES_FOUND, fixes applied, Round 3 clean.
+- **Adjudications:** 0 (no orchestrator-vs-verifier disagreements
+  routed through `record_adjudication`; all verifier findings were
+  accepted and addressed inline).
 
-**Next-session orchestrator recommendation:** Claude Code (claude-sonnet-4-6)
+**Next-session orchestrator recommendation (routed analysis,
+gemini-pro, $0.0026):** Claude Code (`claude-opus-4-7`, high effort) —
+**continue-current-trajectory**. Rationale: Session 6 formalizes prior
+outputs into frozen contracts and canonical documentation. The work is
+documentation-heavy + metadata-heavy (no new tests, no code beyond
+csproj metadata) but spans many files — Components compat split,
+Security/Security.Blazor metadata, scenarios doc, retrofit doc,
+compatibility matrix, README structure standardization, plus all
+value-review G6/G7/G17/G19 carry-overs. Opus's synthesis precision
+across many files is the right tool. **Note:** the original spec
+ai-assignment for Session 6 suggested Sonnet low; the routed
+analysis upgrades to Opus high citing the cross-file synthesis
+load. Operator may downgrade to Sonnet medium if context permits.
 
 ---
 
