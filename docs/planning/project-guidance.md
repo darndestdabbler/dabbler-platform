@@ -804,6 +804,24 @@ Customers detail pages.
   W2 run does not pass are a session-closeout defect — re-run the
   pipeline before marking the session complete.
 
+  **W0/W2 applies to Blazor web app UI checklists only.** The W0
+  DSL grammar covers Blazor web app interactions (NAVIGATE TO, CLICK
+  BUTTON, VERIFY TEXT, etc.) and the component catalog covers web
+  app routes × roles. For session sets whose UAT items cover
+  **developer experience only** — documentation quality, CLI tooling,
+  NuGet package metadata, VS template UX — the W0 compiler has
+  nothing to compile and the W2 runner has nothing to run. These
+  items should be authored as `IsJudgmentItem: true` with no DSL
+  `Steps[]`. Automated reachability proof comes from prior sessions'
+  tests (e.g., consumer smoke tests, SkippableFact Playwright tests).
+  Document the W0/W2 non-applicability as an explicit scope deviation
+  in `disposition.json`. This exception does NOT apply to mixed
+  sets that include both web app UI items and developer-experience
+  items — those items must be separated, with UI items getting W0/W2
+  coverage and devex items getting the judgment-item treatment.
+  Established in `packaging-and-template-readiness` Session 11
+  (2026-05-15).
+
   **Authoring goes through the router.** Use
   `route(task_type="uat-script-author")` to produce the
   catalog-grounded DSL checklist from the session set's spec, the

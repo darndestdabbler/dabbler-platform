@@ -101,6 +101,50 @@ Use this structure for new entries:
   contention appears, use `dotnet build-server shutdown` plus conservative
   build settings before retrying.
 
+## Tri-Provider Review — Orchestrator Contribution Uses Full Context, Not An Isolated Prompt
+
+- **Context:** Tri-provider platform value review (packaging-and-template-readiness Session 4)
+  and packaging approach review (Session 5)
+- **Failure or friction:** The GPT-5.4 cross-provider verifier flagged (Round 4) that the
+  Opus orchestrator's own review assessment was written with full in-session context, while the
+  spec step said "identical and self-contained prompt for all providers." The verifier treated
+  the context asymmetry as a protocol defect. The operator deferred it as a spec-authoring
+  ambiguity rather than a session defect.
+- **Lesson:** When a spec calls for a tri-provider review, the "self-contained prompt" clause
+  applies to the external providers only — they receive a prompt that stands on its own without
+  prior session context. The orchestrator's direct contribution (written in-session rather than
+  via `route()`) legitimately uses its fully-loaded context because routing to the orchestrator's
+  own model is wasteful and the loaded context is the whole point. The synthesis document must
+  explicitly disclose this asymmetry (e.g., "Opus assessment written with full session context;
+  GPT-5.4 and Gemini Pro received self-contained prompts") so future verifiers do not flag it
+  as a defect. Specs should pre-empt the ambiguity by saying "orchestrator contributes directly
+  using its loaded context" rather than "identical prompt for all three."
+- **Action for future sessions:** In any tri-provider session where the orchestrator writes its
+  own perspective directly: (1) note the context asymmetry in the synthesis document, and (2)
+  include a disclosure in the end-of-session verification prompt so the verifier has explicit
+  context before evaluating the output. Promotes the `feedback_orchestrator_self_contributes_to_review_panel`
+  memory to a documented lesson.
+
+## Author Template Content And Consumer Smoke Test In The Same Session
+
+- **Context:** VS template authoring (packaging-and-template-readiness Session 8) and consumer
+  validation (Session 9)
+- **Failure or friction:** Session 8 authored the `templates/Dabbler.Templates/` content but did
+  not run a consumer smoke build. Session 9's smoke pass (`PackagingSmokeTests`) discovered 7
+  template quality issues: missing using directives, broken syntax, and app-specific references
+  that had leaked into the generic template content. These were all fixable but added a full
+  round of remediation work to Session 9 that would not have been necessary if Session 8 had
+  included a build step against the generated template output.
+- **Lesson:** Template content is code. Like any code, it should be tested in the same session
+  it is written. A pack → install → scaffold → build smoke cycle is the minimal bar; it takes
+  less than five minutes and catches the class of issues (missing namespaces, broken syntax,
+  residual app-specific content) that are invisible to the author but immediately apparent when
+  a real consumer tries to use the template.
+- **Action for future sessions:** Any session that authors or significantly modifies template
+  content must include a build-and-test smoke step before closing. The smoke can be as lightweight
+  as `dotnet new <template-name> -o /tmp/smoke && dotnet build /tmp/smoke` — the goal is to
+  catch render-time issues before they accumulate across sessions.
+
 ## Share Visual Evidence During UI And E2E Work When Practical
 
 - **Context:** UI and browser-driven sessions
