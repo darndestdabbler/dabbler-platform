@@ -69,9 +69,14 @@ rejects each (see `docs/ai-led-session-workflow.md` Step 9, post-notify).
   `UiRestriction` (disabled or hidden page or control). User-type roles
   are configured in JSON; baked-in roles are not.
 - **Role inheritance is not supported.** A user assigned to multiple
-  roles must explicitly switch to operate under each one, and every
-  transactional entity records the `RoleId` under which each write was
-  made (see the `transactional-system-columns` session set).
+  roles must explicitly switch to operate under each one. Recording
+  the active role on transactional writes is deferred: the
+  `transactional-system-columns` set was narrowed to temporal tables
+  only on 2026-05-14 (GPT-5.4 and Gemini Pro both flagged `RoleId` on
+  every business row as a session-attribute that needs a dedicated
+  design before committing it to the schema). Follow-on specs
+  `org-scoping-global-filter` and `actor-audit-columns` will define
+  the correct stamping model.
 - Sensitive-field masking is modelled separately from restrictions as
   platform-wide **Default Masks** plus per-role **Mask Exemptions** with
   optional `ExpiresAt` and explicit authority rules (separation of
