@@ -110,6 +110,50 @@ public static class DatabaseInitializer
             SET [SocialSecurityNumber] = N'123-45-6789'
             WHERE [Id] = 1
               AND [SocialSecurityNumber] IS NULL;");
+
+        await EnableSystemVersioningAsync(context, "Products", "ProductHistory");
+        await EnableSystemVersioningAsync(context, "Customers", "CustomerHistory");
+        await EnableSystemVersioningAsync(context, "Orders", "OrderHistory");
+        await EnableSystemVersioningAsync(context, "OrderItems", "OrderItemHistory");
+        await EnableSystemVersioningAsync(context, "OrderNotes", "OrderNoteHistory");
+    }
+
+    // Converts an existing non-temporal table to a SYSTEM_VERSIONED temporal
+    // table with the named history table. Fresh databases get this from EF's
+    // .IsTemporal() Fluent API during EnsureCreated; this path covers
+    // pre-existing dev/CI databases. Each statement is idempotent — the
+    // temporal_type guard short-circuits when the table is already
+    // system-versioned (temporal_type = 2).
+    private static async Task EnableSystemVersioningAsync(
+        AcmeCoffeeDbContext context,
+        string tableName,
+        string historyTableName)
+    {
+        var sql = $@"
+            IF EXISTS (
+                SELECT 1 FROM sys.tables
+                WHERE object_id = OBJECT_ID(N'[dbo].[{tableName}]')
+                  AND temporal_type <> 2)
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM sys.columns
+                    WHERE object_id = OBJECT_ID(N'[dbo].[{tableName}]')
+                      AND name = N'SysStart')
+                BEGIN
+                    ALTER TABLE [dbo].[{tableName}]
+                        ADD
+                            [SysStart] DATETIME2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL
+                                CONSTRAINT [DF_{tableName}_SysStart] DEFAULT SYSUTCDATETIME(),
+                            [SysEnd]   DATETIME2 GENERATED ALWAYS AS ROW END   HIDDEN NOT NULL
+                                CONSTRAINT [DF_{tableName}_SysEnd]   DEFAULT CONVERT(DATETIME2, '9999-12-31 23:59:59.9999999'),
+                            PERIOD FOR SYSTEM_TIME ([SysStart], [SysEnd]);
+                END
+
+                ALTER TABLE [dbo].[{tableName}]
+                    SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{historyTableName}]));
+            END";
+
+        await context.Database.ExecuteSqlRawAsync(sql);
     }
 
     private static async Task BackfillSecuritySeedDataAsync(

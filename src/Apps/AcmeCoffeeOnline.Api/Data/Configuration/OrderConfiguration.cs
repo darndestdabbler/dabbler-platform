@@ -8,6 +8,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)
     {
+        builder.ToTable("Orders", t => t.IsTemporal(tt =>
+        {
+            tt.HasPeriodStart("SysStart");
+            tt.HasPeriodEnd("SysEnd");
+            tt.UseHistoryTable("OrderHistory");
+        }));
+
         builder.HasKey(o => o.Id);
 
         builder.Property(o => o.CustomerId)

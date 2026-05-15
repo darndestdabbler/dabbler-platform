@@ -8,6 +8,13 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
+        builder.ToTable("Products", t => t.IsTemporal(tt =>
+        {
+            tt.HasPeriodStart("SysStart");
+            tt.HasPeriodEnd("SysEnd");
+            tt.UseHistoryTable("ProductHistory");
+        }));
+
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Name)

@@ -8,6 +8,13 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
+        builder.ToTable("Customers", t => t.IsTemporal(tt =>
+        {
+            tt.HasPeriodStart("SysStart");
+            tt.HasPeriodEnd("SysEnd");
+            tt.UseHistoryTable("CustomerHistory");
+        }));
+
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.Email)
