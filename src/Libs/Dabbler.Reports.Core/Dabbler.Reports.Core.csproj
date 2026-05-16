@@ -7,7 +7,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Dabbler.Reports.Core</PackageId>
-    <Description>Banded report engine with RDF-based definitions: layout composition, grouping, aggregates, running totals, hide duplicates, subreports, PrintWhen expressions, and CanGrow/CanShrink support.</Description>
+    <Description>Banded report engine with RDF-based definitions: layout composition, grouping, aggregates, running totals, hide duplicates, subreports, PrintWhen expressions, and CanGrow/CanShrink support. MIT-licensed. Note: this package takes a transitive dependency on DabblerPdf (LGPL-2.1-only OR MPL-2.0); see THIRD-PARTY-NOTICES.txt for the canonical license text.</Description>
     <PackageTags>blazor;reports;rdf;banded-report;layout-engine;aggregates</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>

@@ -58,10 +58,10 @@ Low
 | 5 | Build and markdown checks | Direct (shell) |
 
 ### Actuals (filled after the session)
-- Orchestrator used: (TBD)
-- Total routed cost: (TBD)
-- Deviations from recommendation: (TBD)
-- Notes for next-session calibration: (TBD)
+- Orchestrator used: `claude-haiku-4-5-20251001` @ effort=low
+- Total routed cost: ~$0.055 (2× gemini-pro documentation, 2× gpt-5-4 verification, 1× gemini-pro analysis)
+- Deviations from recommendation: None; Haiku at low correctly delegated all prose updates to routed documentation calls (Gemini Pro)
+- Notes for next-session calibration: Session 2 was documentation-only; Haiku at low was ideal. Session 3 has test authoring; Sonnet at medium is correctly sized.
 
 **Next-session orchestrator recommendation (Session 3):**
 `claude-sonnet-4-6` @ effort=`medium`
@@ -91,14 +91,14 @@ Medium
 | 7 | Build and test | Direct (shell) |
 
 ### Actuals (filled after the session)
-- Orchestrator used: (TBD)
-- Total routed cost: (TBD)
-- Deviations from recommendation: (TBD)
-- Notes for next-session calibration: (TBD)
+- Orchestrator used: `claude-sonnet-4-6` @ effort=medium
+- Total routed cost: ~$0.091 (2× gpt-5-4 verification rounds, 1× gemini-pro next-session analysis)
+- Deviations from recommendation: None; Sonnet at medium was appropriate for the scoped code + test authoring
+- Notes for next-session calibration: Session 3 work was all mechanical (3 csproj description lines, 1 tiny Program.cs block, 2 test files under ~90 lines total). Sonnet at medium was fine; Haiku at low would have managed equally well for Session 4 which is pure routing with no novel coding.
 
 **Next-session orchestrator recommendation (Session 4):**
-`claude-sonnet-4-6` @ effort=`medium`
-Rationale: Session 4 authors a UAT checklist (routed via `uat-plan-generation`) and change-log (routed via `summarization`). Sonnet orchestrates both calls and drives the W2 runner + validation steps at reasonable cost.
+`claude-haiku-4-5-20251001` @ effort=`low`
+Rationale: Session 4 orchestrates uat-plan-generation and summarization routes with no coding — a lightweight orchestrator is the right fit (routed via gemini-pro analysis, 2026-05-16).
 
 ---
 

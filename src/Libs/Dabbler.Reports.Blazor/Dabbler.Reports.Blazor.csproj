@@ -7,7 +7,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Dabbler.Reports.Blazor</PackageId>
-    <Description>Blazor components for rendering and interacting with Dabbler Reports: ReportViewer, ParameterPromptForm, and PDF export integration.</Description>
+    <Description>Blazor components for rendering and interacting with Dabbler Reports: ReportViewer, ParameterPromptForm, and PDF export integration. MIT-licensed. Note: this package takes a transitive dependency on DabblerPdf (LGPL-2.1-only OR MPL-2.0) via Dabbler.Reports.Core and Dabbler.Reports.Export; see THIRD-PARTY-NOTICES.txt for the canonical license text.</Description>
     <PackageTags>blazor;reports;report-viewer;parameter-form;rdf</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>

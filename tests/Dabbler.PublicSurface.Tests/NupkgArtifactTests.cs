@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Xml.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -136,6 +137,31 @@ public class NupkgArtifactTests
         zip.Entries.Should().Contain(
             e => e.FullName == "THIRD-PARTY-NOTICES.txt",
             $"{packageId} must contain THIRD-PARTY-NOTICES.txt (DabblerPdf LGPL-2.1-only OR MPL-2.0 disclosure)");
+    }
+
+    [SkippableTheory]
+    [MemberData(nameof(ReportsPackagesOnly))]
+    public void ReportsNupkg_DescriptionSurfacesDabblerPdfLicense(string packageId)
+    {
+        var nupkg = FindNupkgs(packageId).FirstOrDefault();
+        Skip.If(nupkg is null, $"Pack output not found for {packageId}. Run tools/pack.ps1 first.");
+
+        using var zip = ZipFile.OpenRead(nupkg);
+        var nuspecEntry = zip.Entries.FirstOrDefault(e => e.Name.EndsWith(".nuspec", StringComparison.OrdinalIgnoreCase));
+        nuspecEntry.Should().NotBeNull($"{packageId}.nuspec must exist");
+
+        using var stream = nuspecEntry!.Open();
+        var doc = XDocument.Load(stream);
+        XNamespace ns = doc.Root?.Name.Namespace ?? XNamespace.None;
+        var description = doc.Root
+            ?.Element(ns + "metadata")
+            ?.Element(ns + "description")
+            ?.Value ?? string.Empty;
+
+        description.Should().Contain("DabblerPdf",
+            $"{packageId} <description> must mention DabblerPdf so license-sensitive adopters see the transitive dependency");
+        description.Should().Contain("LGPL",
+            $"{packageId} <description> must mention LGPL so adopters see the transitive license constraint");
     }
 
     [SkippableTheory]
