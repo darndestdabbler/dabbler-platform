@@ -1,0 +1,153 @@
+{
+  "sessionSetName": "crud-scaffolding",
+  "createdDate": "2026-05-16T11:32:34.854069-04:00",
+  "totalSessions": 5,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/required-reading",
+      "dateTime": "2026-05-16T11:35:34.512885-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, ai-led-session-workflow.md, spike proposal + tri-provider review, helper-and-pattern-inventory. Verified API keys. Registered session start.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-05-16T11:35:34.514383-04:00",
+      "description": "Routed analysis (Gemini Pro) authored ai-assignment.md per workflow Step 3.5 schema. Recommends Sonnet 4.6 for Session 1 (current orchestrator is Opus 4.7). Saved to docs/session-sets/crud-scaffolding/ai-assignment.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2062,
+          "outputTokens": 2147,
+          "costUsd": 0.024
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/contract-analysis",
+      "dateTime": "2026-05-16T11:57:48.646357-04:00",
+      "description": "Routed contract unification analysis (Gemini Pro). Decision: GridQueryRequest + supporting types in AcmeCoffeeOnline.Shared.DTOs; POST /api/{entity}s/query [FromBody]. New file: src/Apps/AcmeCoffeeOnline.Shared/DTOs/GridQueryRequest.cs.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1439,
+          "outputTokens": 946,
+          "costUsd": 0.0113
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/qbe-helper-inventory",
+      "dateTime": "2026-05-16T11:57:48.647381-04:00",
+      "description": "Confirmed no IQueryable extension exists. Routed implementation (Gemini Pro refactoring). Authored QueryableExtensions.cs in AcmeCoffeeOnline.Api.Infrastructure with ApplyGridCompositeFilter + ApplyGridQuerySorts. Fixed null-constant bug for non-nullable value types.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "refactoring",
+          "inputTokens": 1385,
+          "outputTokens": 1771,
+          "costUsd": 0.0194
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/transport-decision",
+      "dateTime": "2026-05-16T11:57:48.647887-04:00",
+      "description": "Transport decision documented: POST /api/{entity}s/query [FromBody] (nested CompositeFilter cannot serialize to URL query string). Authored request-contract-decision.md and qbe-helper-api.md. Unit test QueryableExtensionsTests.cs \u2014 9 tests, all passing.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/build-test",
+      "dateTime": "2026-05-16T11:57:48.647887-04:00",
+      "description": "dotnet build Dabbler.Platform.sln \u2014 0 errors, 257 pre-existing warnings. dotnet test (non-integration filter): 9 + 57 + 130 + 16 + 132 = 344 tests passed, 0 failed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification-r1",
+      "dateTime": "2026-05-16T12:08:32.071752-04:00",
+      "description": "Round 1 verification (GPT-5.4): ISSUES_FOUND. Critical: object? Value deserialises as JsonElement over HTTP. Major: nullable value-type constant expression invalid. Minor: doc inconsistency on 'internal' vs 'public'.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 5683,
+          "outputTokens": 7579,
+          "costUsd": 0.1279
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification-r2",
+      "dateTime": "2026-05-16T12:08:32.072753-04:00",
+      "description": "Round 2 verification (GPT-5.4): ISSUES_FOUND. Nullable fix insufficient \u2014 Expression.Equal between Nullable<T> member and T constant throws without Expression.Convert lift.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 4059,
+          "outputTokens": 8866,
+          "costUsd": 0.1431
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/verification-r3",
+      "dateTime": "2026-05-16T12:08:32.073417-04:00",
+      "description": "Round 3 verification (GPT-5.4): VERIFIED. All three issues resolved. BuildTypedConstant now wraps with Expression.Convert for nullable types. JsonElement path proven by 2 new tests. 13/13 tests passing.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1785,
+          "outputTokens": 616,
+          "costUsd": 0.0197
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/closeout",
+      "dateTime": "2026-05-16T12:11:38.830000-04:00",
+      "description": "Cost report, ai-assignment actuals, next-session recommendation (Opus @ effort=low for Session 2), disposition.json authored.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 325,
+          "outputTokens": 89,
+          "costUsd": 0.0015
+        }
+      ]
+    }
+  ]
+}
