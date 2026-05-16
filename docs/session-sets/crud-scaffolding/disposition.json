@@ -91,8 +91,8 @@
     "model": "claude-opus-4-7",
     "effort": "max",
     "reason": {
-      "code": "complexity-elevated",
-      "specifics": "Session 3's core challenge is schema-driven property iteration in Razor + C# templates, a complex task not natively supported by dotnet new. Given that Opus @ high still required three verification rounds for Session 2, the most capable model with maximum effort is appropriate to generate the novel templating logic, aiming to reduce verification cycles. Routed analysis (Gemini Pro, $0.003)."
+      "code": "continue-current-trajectory",
+      "specifics": "Stay on Opus 4.7 (same engine/provider/model as Session 2) but bump effort high -> max for Session 3. Session 3's core challenge is schema-driven property iteration in Razor + C# templates, which dotnet new doesn't natively support; Opus @ high still required 3 verification rounds for Session 2, so maximum effort is appropriate to generate the novel templating logic and reduce verification cycles. Routed analysis (Gemini Pro, $0.003)."
     }
   },
   "blockers": []
