@@ -1,12 +1,17 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "crud-scaffolding-spike",
-  "currentSession": "3 of 3",
+  "currentSession": 3,
   "totalSessions": 3,
   "status": "in-progress",
   "lifecycleState": "session-3-pending",
   "startedAt": "2026-05-16T00:00:00Z",
   "completedAt": null,
   "verificationVerdict": null,
-  "orchestrator": "Claude Opus 4.7"
+  "orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-opus-4-7",
+    "effort": "high"
+  }
 }
