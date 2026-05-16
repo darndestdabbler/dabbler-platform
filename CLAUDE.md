@@ -29,6 +29,35 @@ explicitly requires an import from a sibling repo.
   so the human is not blocking the completion signal), **the Delegation
   Discipline rules (when to route vs. handle directly)**, and the mandatory
   rules list. Do not duplicate that content here.
+- [`docs/session-state-schema.md`](https://github.com/darndestdabbler/dabbler-ai-orchestration/blob/master/docs/session-state-schema.md)
+  (canonical, lives in `dabbler-ai-orchestration`) — the authoritative
+  schema for `session-state.json`. Required reading before hand-editing
+  any state file. Touching a state file without having read this doc is
+  the most common cause of N−1/N drift in the Session Set Explorer.
+
+### State-file rules every orchestrator must follow
+
+These are inlined here so the orchestrator does not need to fetch the
+canonical doc to get the must-knows. Read the linked schema for the
+full invariant and worked examples.
+
+- `completedSessions: [<int>, ...]` is the canonical "X done out of N"
+  ledger. Append `currentSession` to it (sorted, unique) on every
+  successful close. Without this array, the extension cannot reliably
+  derive completion count and will display N−1/N.
+- On **Full tier**, `close_session` writes `completedSessions[]`
+  automatically — the orchestrator never edits it directly.
+- On **Lightweight tier**, the orchestrator (or human) maintains
+  `completedSessions[]` **by hand** on every close. There is no router
+  writer and no events-ledger fallback; this array is the only
+  authoritative count signal.
+- Canonical `status` values are `"not-started"`, `"in-progress"`,
+  `"complete"`, `"cancelled"`. Never `"completed"` or `"done"` on a
+  new write. Final close pairs `status: "complete"` with
+  `lifecycleState: "closed"` and a populated `completedAt`.
+- The "in flight" predicate is `currentSession not in
+  completedSessions[]`. The extension uses this to distinguish a
+  fresh-start row from a between-sessions row — keep it accurate.
 
 The human starts a session with one of the trigger phrases listed in
 `docs/ai-led-session-workflow.md` → **Trigger Phrases** (sequential,
