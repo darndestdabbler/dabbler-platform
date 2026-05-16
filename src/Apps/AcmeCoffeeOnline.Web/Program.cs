@@ -99,6 +99,7 @@ builder.Services.AddDabblerSecurity(options =>
         pages.Add("/products", "Products", "Product catalog");
         pages.Add("/customers", "Customers", "Customer management");
         pages.Add("/orders", "Orders", "Order management");
+        pages.Add("/suppliers", "Suppliers", "Supplier management");
         pages.Add("/admin/users", "User Administration", "Manage backoffice users and roles");
         pages.Add("/admin/products", "Product Administration", "Manage product lists and pricing");
         pages.Add("/admin/security", "Security Dashboard", "Runtime security configuration");
@@ -150,6 +151,14 @@ builder.Services.AddDabblerSecurity(options =>
             fields.Add("NoteDate", "Note Date");
             fields.Add("Author", "Author");
         });
+        entities.Add("Supplier", "Supplier", fields =>
+        {
+            fields.Add("Name", "Name");
+            fields.Add("City", "City");
+            fields.Add("Country", "Country");
+            fields.Add("ContactEmail", "Contact Email");
+            fields.Add("IsActive", "Is Active");
+        });
     });
 
     // ── Protectable API endpoints ────────────────────────────────────────
@@ -176,6 +185,11 @@ builder.Services.AddDabblerSecurity(options =>
         endpoints.Add("CreateOrderNote", "Create Order Note", "POST", "/api/orders/{orderId}/notes");
         endpoints.Add("UpdateOrderNote", "Update Order Note", "PUT", "/api/orders/{orderId}/notes/{noteId}");
         endpoints.Add("DeleteOrderNote", "Delete Order Note", "DELETE", "/api/orders/{orderId}/notes/{noteId}");
+        endpoints.Add("QuerySuppliers", "Query Suppliers", "POST", "/api/suppliers/query");
+        endpoints.Add("GetSupplierById", "GET Supplier by ID", "GET", "/api/suppliers/{id}");
+        endpoints.Add("CreateSupplier", "Create Supplier", "POST", "/api/suppliers");
+        endpoints.Add("UpdateSupplier", "Update Supplier", "PUT", "/api/suppliers/{id}");
+        endpoints.Add("DeleteSupplier", "Delete Supplier", "DELETE", "/api/suppliers/{id}");
     });
 
     // ── Protectable UI controls ──────────────────────────────────────────
@@ -308,6 +322,12 @@ builder.Services.AddHttpClient<OrganizationOptionsApiClient>(client =>
     client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
 }).AddHttpMessageHandler<UserIdentityHandler>();
 
+builder.Services.AddHttpClient<SupplierApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+}).AddHttpMessageHandler<UserIdentityHandler>();
+
 builder.Services.AddScoped<ShellSessionStateLoader>();
 builder.Services.AddScoped<OrderDetailState>();
 
@@ -315,6 +335,7 @@ builder.Services.AddScoped<OrderDetailState>();
 builder.Services.AddTransient<IGridDataProvider<ProductDto>, ProductDataProvider>();
 builder.Services.AddTransient<IGridDataProvider<CustomerDto>, CustomerDataProvider>();
 builder.Services.AddTransient<IGridDataProvider<OrderDto>, OrderDataProvider>();
+builder.Services.AddTransient<IGridDataProvider<SupplierDto>, SupplierGridDataProvider>();
 builder.Services.AddTransient<OrderItemDataProvider>();
 builder.Services.AddTransient<OrderNoteDataProvider>();
 

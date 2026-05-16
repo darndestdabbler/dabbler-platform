@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AcmeCoffeeOnline.Shared\AcmeCoffeeOnline.Shared.csproj" />
+    <ProjectReference Include="..\..\Libs\Dabbler.Api.Querying\Dabbler.Api.Querying.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Components\Dabbler.Components.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Components.Compat\Dabbler.Components.Compat.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj" />

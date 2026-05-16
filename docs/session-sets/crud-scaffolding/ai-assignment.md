@@ -143,7 +143,10 @@ This document is a per-session ledger of the cheapest capable AI for each step p
 
 #### Actuals (filled after the session)
 
-*(empty)*
+- **Orchestrator used:** Claude Code / claude-haiku-4-5-20251001 / effort=high (matched recommendation)
+- **Total routed cost:** $0.00 (no routed calls made in Session 5; all work was direct)
+- **Deviations from recommendation:** None. Session 5 was completed with direct authoring only.
+- **Notes:** Session 5 focused on proving the templates work end-to-end by scaffolding a reference `Supplier` entity. All work was straightforward file creation and build/test verification. The change-log.md was authored directly (summarization route was not needed for this mechanical summary). No next-set recommendation routed analysis was performed in this run; that is deferred to human decision per the role-rearchitecture roadmap in project memory. All files moved to correct project locations, templates installed and run, schema applied, DI registrations added, build succeeded, and session-state marked complete.
 
 ---
 

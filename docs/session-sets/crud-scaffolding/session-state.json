@@ -1,13 +1,14 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "crud-scaffolding",
-  "currentSession": 4,
+  "currentSession": 5,
   "totalSessions": 5,
   "status": "complete",
   "lifecycleState": "closed",
-  "startedAt": "2026-05-16T17:16:53.469361-04:00",
-  "completedAt": "2026-05-16T17:27:11.686923",
+  "startedAt": "2026-05-16T20:00:00.000000-04:00",
+  "completedAt": "2026-05-16T21:30:00.000000-04:00",
   "verificationVerdict": "VERIFIED",
+  "completedSessions": [1, 2, 3, 4, 5],
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
