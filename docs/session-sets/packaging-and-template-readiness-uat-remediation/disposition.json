@@ -28,7 +28,10 @@
     "provider": "anthropic",
     "model": "claude-haiku-4-6",
     "effort": "low",
-    "reason": "Session 2 is documentation-only (prose tense-pass + routed documentation calls); a cheap orchestrator suffices."
+    "reason": {
+      "code": "switch-due-to-cost",
+      "specifics": "Session 2 is documentation-only (prose tense-pass + routed documentation calls to Gemini Pro/Flash). A cheaper orchestrator handles the sequencing and routing decisions without Sonnet overhead."
+    }
   },
   "nextSessionSet": null,
   "openIssues": []
