@@ -23,7 +23,10 @@
     "provider": "anthropic",
     "model": "claude-opus-4-7",
     "effort": "low",
-    "reason": "Session 1 actuals show subtle correctness bugs required 3 verification rounds; Opus at low effort reduces first-pass error rate on template authoring."
+    "reason": {
+      "code": "continue-current-trajectory",
+      "specifics": "Session 1 actuals show 3 verification rounds due to subtle expression-tree bugs. Opus at low effort for Session 2 template authoring to improve first-pass correctness on C# code generation."
+    }
   },
   "blockers": []
 }
