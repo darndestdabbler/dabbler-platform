@@ -1,0 +1,82 @@
+[
+  {
+    "session": 1,
+    "totalSessions": 3,
+    "title": "Session 1 of 3: Helper And Pattern Inventory",
+    "steps": [
+      {
+        "step": 1,
+        "description": "Read project-guidance.md, lessons-learned.md, and composition-over-configuration principle",
+        "status": "completed",
+        "notes": "Focused on 'Composition over configuration for CRUD page composites' principle as guidance for generator design"
+      },
+      {
+        "step": 2,
+        "description": "Inventory CRUD helpers in src/Libs/Dabbler.Components/",
+        "status": "completed",
+        "artifacts": [
+          "EditSession<T> (MasterDetail/EditSession.cs) — dirty-state tracking via JSON serialization",
+          "DirtyAwareActionRow (MasterDetail/DirtyAwareActionRow.razor) — Save/Cancel/Delete component with confirmations",
+          "DeclarativeFilterPanel<TEntity> (MasterDetail/DeclarativeFilterPanel.razor) — QBE filter UI",
+          "IGridDataProvider<T> (Data/IGridDataProvider.cs) — server-side data abstraction"
+        ]
+      },
+      {
+        "step": 3,
+        "description": "Inventory service endpoint patterns in src/Apps/AcmeCoffeeOnline.Api/",
+        "status": "completed",
+        "artifacts": [
+          "ProductsController (Controllers/ProductsController.cs) — representative CRUD controller",
+          "IProductService / ProductService — service interface and implementation pattern",
+          "Authorization pattern: [DabblerEndpointAuthorize], TryGetUserId, ApplyFieldPermissionsAsync"
+        ]
+      },
+      {
+        "step": 4,
+        "description": "Inventory CRUD pages in src/Apps/AcmeCoffeeOnline.Web/Components/Pages/",
+        "status": "completed",
+        "artifacts": [
+          "ProductsPage (Products/ProductsPage.razor) — thin route wrapper",
+          "ProductList (Products/ProductList.razor) — reusable grid + filter component",
+          "ProductDetail (Products/ProductDetail.razor) — single-record edit page with EditSession"
+        ]
+      },
+      {
+        "step": 5,
+        "description": "Route structural analysis via AI Router",
+        "status": "completed",
+        "routed": {
+          "task_type": "analysis",
+          "model": "gemini-pro (Tier 2)",
+          "cost_usd": 0.0276,
+          "result": "Comprehensive prescriptive guidance on generator outputs at three granularities"
+        },
+        "artifacts": [
+          "Routed analysis integrated into helper-and-pattern-inventory.md Part II"
+        ]
+      },
+      {
+        "step": 6,
+        "description": "Save inventory as helper-and-pattern-inventory.md",
+        "status": "completed",
+        "artifacts": [
+          "docs/session-sets/crud-scaffolding-spike/helper-and-pattern-inventory.md"
+        ],
+        "coverage": "Part I: Orchestrator inventory with code excerpts and line references; Part II: Routed structural analysis; Part III: Session notes"
+      }
+    ],
+    "creates": [
+      "helper-and-pattern-inventory.md"
+    ],
+    "touches": [
+      "session-state.json"
+    ],
+    "ends_with": "A complete picture of what reference code the generator must match. No design decisions yet — pure inventory and prescriptive guidance on generation patterns.",
+    "verification": {
+      "build": "success (0 errors, 256 warnings — pre-existing obsolescence)",
+      "tests": "running"
+    },
+    "orchestrator": "Claude Haiku 4.5",
+    "timestamp": "2026-05-16"
+  }
+]

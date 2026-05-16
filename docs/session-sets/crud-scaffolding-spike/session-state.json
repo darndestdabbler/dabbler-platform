@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "crud-scaffolding-spike",
-  "currentSession": null,
-  "totalSessions": null,
-  "status": "not-started",
-  "lifecycleState": null,
-  "startedAt": null,
+  "currentSession": "1 of 3",
+  "totalSessions": 3,
+  "status": "in-progress",
+  "lifecycleState": "session-1-in-progress",
+  "startedAt": "2026-05-16T00:00:00Z",
   "completedAt": null,
   "verificationVerdict": null,
-  "orchestrator": null
+  "orchestrator": "Claude Haiku 4.5"
 }
