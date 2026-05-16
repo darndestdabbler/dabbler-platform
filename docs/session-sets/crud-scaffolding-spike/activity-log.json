@@ -2,7 +2,70 @@
   "sessionSetName": "crud-scaffolding-spike",
   "createdDate": "2026-05-16T00:00:00Z",
   "totalSessions": 3,
-  "entries": [],
+  "entries": [
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/full-session-summary",
+      "dateTime": "2026-05-16T11:14:51.722301-04:00",
+      "description": "Session 3 of 3 complete. Tri-provider review (Gemini Pro /usr/bin/bash.0398, GPT-5.4 /usr/bin/bash.2623, Opus self-contribution) synthesized into scaffolding-approach-review.md. Small-scope adjustments applied INLINE; larger BLOCKING adjustments captured as MVP gates in docs/session-sets/crud-scaffolding/spec.md. Verification took 3 rounds (GPT-5.4) before VERIFIED clean. 929 non-Playwright tests pass. Total routed cost ~$0.73.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "architecture",
+          "inputTokens": 9788,
+          "outputTokens": 2758,
+          "costUsd": 0.0398
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "architecture",
+          "inputTokens": 8931,
+          "outputTokens": 16000,
+          "costUsd": 0.2623
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 26942,
+          "outputTokens": 7967,
+          "costUsd": 0.1869,
+          "round": 1
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 21311,
+          "outputTokens": 3749,
+          "costUsd": 0.1095,
+          "round": 2
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 16554,
+          "outputTokens": 552,
+          "costUsd": 0.0497,
+          "round": 3
+        },
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": null,
+          "outputTokens": null,
+          "costUsd": 0.0016
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": null,
+          "outputTokens": null,
+          "costUsd": 0.0061
+        }
+      ]
+    }
+  ],
   "sessionSummaries": [
     {
       "session": 1,
