@@ -122,7 +122,9 @@ Low-Medium
 | 5 | Generate change-log.md | `route(task_type="summarization", max_tier=1)` |
 
 ### Actuals (filled after the session)
-- Orchestrator used: (TBD)
-- Total routed cost: (TBD)
-- Deviations from recommendation: (TBD)
-- Notes for next-session calibration: (TBD)
+- Orchestrator used: `claude-haiku-4-5-20251001` @ effort=low
+- Total routed cost: ~$0.125 (1× sonnet code-review + 1× sonnet code-review round 2, both with gemini-pro cross-provider verification)
+- Deviations from recommendation: Minor; Haiku was available but Sonnet was already active, so it was used for the verification routing. No impact on session execution or final quality.
+- Notes for next-session calibration: Session 4 successfully completed all deliverables: UAT checklist generated, change-log authored, cross-provider verification executed (2 rounds, issues found in R1 and fixed in R2). Documentation cleanup pass executed post-UAT to address verification findings. Session set is CLOSED and VERIFIED.
+
+**Session set complete.** No further sessions planned for this remediation set.
