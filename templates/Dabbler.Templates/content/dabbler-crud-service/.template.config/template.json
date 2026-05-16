@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Dabbler Platform contributors",
+  "classifications": [ "Web", "Api", "CRUD", "Scaffolding" ],
+  "identity": "Dabbler.Templates.CrudService.CSharp",
+  "name": "Dabbler CRUD Service Slice",
+  "shortName": "dabbler-crud-service",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "description": "Item template that scaffolds a CRUD service interface, EF-Core-backed implementation, and POST /query controller for a single entity using the Dabbler.Api.Querying transport contract (GridQueryRequest/Response + QBE helper). Generates Services/I{Entity}Service.cs, Services/{Entity}Service.cs, and Controllers/{EntityPlural}Controller.cs. Pre-stage the EF entity (e.g., Customer.cs) and the DTO ({Entity}Dto.cs) before invoking; the template emits the service trio around them.",
+  "symbols": {
+    "entity": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T1Entity",
+      "fileRename": "T1Entity",
+      "description": "Entity class name (PascalCase). Drives interface/class/file names and the singular-form references inside the controller."
+    },
+    "entityPlural": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T2EntityPlural",
+      "fileRename": "T2EntityPlural",
+      "description": "Entity plural class name (PascalCase). Drives the controller class/file name and the DbSet property name. Auth-policy names are derived from --auth-policy-prefix (which defaults to --entity), NOT from this value."
+    },
+    "apiNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T3ApiNs",
+      "description": "Namespace for the generated service and controller (typically the API project root namespace, e.g., 'AcmeCoffeeOnline.Api')."
+    },
+    "dtoNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T4DtoNs",
+      "description": "Namespace containing {Entity}Dto (typically the Shared project's DTO namespace, e.g., 'AcmeCoffeeOnline.Shared.DTOs')."
+    },
+    "sharedNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T5SharedNs",
+      "description": "Shared project root namespace (e.g., 'AcmeCoffeeOnline.Shared')."
+    },
+    "entityNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T6EntityNs",
+      "description": "Namespace containing the EF entity class (e.g., 'AcmeCoffeeOnline.Shared.Models')."
+    },
+    "dbContextType": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T7DbContext",
+      "description": "DbContext class name (e.g., 'AcmeCoffeeDbContext'). The generated service injects this type."
+    },
+    "dbContextNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T8DbContextNs",
+      "description": "Namespace of the DbContext (e.g., 'AcmeCoffeeOnline.Api.Data')."
+    },
+    "pkType": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "int",
+      "replaces": "T9PkType",
+      "description": "Primary-key CLR type for the entity. Defaults to 'int'. Use 'long', 'Guid', etc. for non-int PKs."
+    },
+    "derivedPkRouteConstraint": {
+      "type": "generated",
+      "generator": "switch",
+      "parameters": {
+        "evaluator": "C++",
+        "datatype": "string",
+        "cases": [
+          { "condition": "(pkType == \"int\")",  "value": ":int" },
+          { "condition": "(pkType == \"long\")", "value": ":long" },
+          { "condition": "(pkType == \"Guid\")", "value": ":guid" },
+          { "condition": "(pkType == \"System.Guid\")", "value": ":guid" },
+          { "condition": "(true)", "value": "" }
+        ]
+      },
+      "replaces": "T10PkRoute"
+    },
+    "authPolicyPrefix": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": false,
+      "description": "Prefix used to derive the [DabblerEndpointAuthorize] policy strings on the generated controller. Defaults to the entity value via the coalesce generator below — e.g., entity='Supplier' yields QuerySupplier / GetSupplier / CreateSupplier / UpdateSupplier / DeleteSupplier. Override to align policy names with an existing authorization convention (e.g., 'BackofficeSupplier')."
+    },
+    "effectiveAuthPolicyPrefix": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "authPolicyPrefix",
+        "fallbackVariableName": "entity"
+      },
+      "replaces": "TplAuthPrefix"
+    },
+    "schema": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": false,
+      "description": "Optional path to a .dabbler-entity.json schema file. Reserved for the dabbler-crud-page template (which enumerates fields for grid columns / form fields / filter config). The service template accepts the parameter for symmetry but does not consume it: the generic QBE helper handles per-property filter/sort dispatch at runtime, so no per-property service code is emitted."
+    }
+  },
+  "primaryOutputs": [
+    { "path": "Services/IT1EntityService.cs" },
+    { "path": "Services/T1EntityService.cs" },
+    { "path": "Controllers/T2EntityPluralController.cs" }
+  ]
+}

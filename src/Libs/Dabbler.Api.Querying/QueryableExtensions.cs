@@ -1,12 +1,11 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
-using AcmeCoffeeOnline.Shared.DTOs;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 
-namespace AcmeCoffeeOnline.Api.Infrastructure;
+namespace Dabbler.Api.Querying;
 
 /// <summary>
 /// Extension methods for applying dynamic grid filtering and sorting to an

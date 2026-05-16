@@ -1,14 +1,20 @@
 # QBE Helper API — `crud-scaffolding` Session 1
 
-> **Status:** Decided and implemented 2026-05-16 (Session 1 of 5)
+> **Status:** Decided and implemented 2026-05-16 (Session 1 of 5); placement amended 2026-05-16 (Session 2 of 5).
 > **Consumed by:** Sessions 2 (service template) and 5 (reference scaffold).
+>
+> **Session 2 amendment:** the helper was promoted into the new packable library
+> `Dabbler.Api.Querying` (alongside the matching transport DTOs from `request-contract-decision.md`)
+> so the scaffolded `dabbler-crud-service` template can call into it as a NuGet package rather
+> than via a per-consumer-app code copy. No API changes; the type was relocated and the namespace
+> rebranded from `AcmeCoffeeOnline.Api.Infrastructure` to `Dabbler.Api.Querying`.
 
 ---
 
 ## Location
 
-**File:** `src/Apps/AcmeCoffeeOnline.Api/Infrastructure/QueryableExtensions.cs`
-**Namespace:** `AcmeCoffeeOnline.Api.Infrastructure`
+**File:** `src/Libs/Dabbler.Api.Querying/QueryableExtensions.cs`
+**Namespace:** `Dabbler.Api.Querying`
 **Class:** `QueryableExtensions` (public static)
 
 ---

@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AcmeCoffeeOnline.Shared\AcmeCoffeeOnline.Shared.csproj" />
     <ProjectReference Include="..\..\Libs\Dabbler.Security\Dabbler.Security.csproj" />
+    <ProjectReference Include="..\..\Libs\Dabbler.Api.Querying\Dabbler.Api.Querying.csproj" />
   </ItemGroup>
 
 </Project>

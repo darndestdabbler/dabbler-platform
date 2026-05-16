@@ -51,10 +51,17 @@ This document is a per-session ledger of the cheapest capable AI for each step p
 
 #### Actuals (filled after the session)
 
-*(empty)*
+- **Orchestrator used:** Claude Code / claude-opus-4-7 / effort=high (recommended: Sonnet 4.6 @ high per spec, OR Opus 4.7 @ low per Session 1 actuals revision; the human chose to keep the active Opus 4.7 @ high before mutating state).
+- **Total routed cost:** ~$0.48 across 3 verification rounds via GPT-5.4 (R1 $0.142 / R2 $0.191 / R3 $0.145) + $0.003 Gemini Pro for Session 3 recommendation.
+- **Deviations from recommendation:** Substantial scope expansion to promote `GridQueryRequest` + `QueryableExtensions` (and a new `GridQueryResponse<T>`) out of `AcmeCoffeeOnline.*` into a new packable library `Dabbler.Api.Querying` (per user direction after the orchestrator surfaced the Session 1/Session 2 placement gap). Also updated `tools/pack.ps1` and `Dabbler.Packaging.Smoke` `requiredIds` to include the new package.
+- **Notes:**
+  - 3 verification rounds is now the empirical baseline for this set (Session 1 also took 3). Round 1: 1 Critical mapping stub + 2 Major spec/doc + 1 Minor test gap. Round 2: 2 Major correctness (non-int PK route constraint, PK-injection via reflection copy) + 1 Major spec (camelCase CLI) + 1 Minor doc. Round 3: 2 Minor docs only — applied inline.
+  - Template-engine learnings landed for next sessions: (a) `replaces` only does content substitution; `fileRename` is required for filename renames; (b) non-overlapping tokens (e.g., `T1Entity` vs `T2EntityPlural`) avoid substring-replace conflicts; (c) `dotnetcli.host.json` with `symbolInfo.longName` provides kebab-case CLI aliases the spec implies but `template.json` alone cannot deliver; (d) the `coalesce` generator pattern (sourceVariableName + fallbackVariableName) replaces a parameter's value with a derived one when omitted; (e) the `switch` generator drives derived values like a route constraint from a parameter (`pkType` → `:int`/`:long`/`:guid`).
+  - Default reflection-based mapping with a `NonCopyablePropertiesFromDto` seam is the safe shape for scaffolded MapToDto / MapToEntity / CopyTo — PK exclusion prevents create-time key injection and update-time key-mismatch confusion.
 
 ---
-**Next-session orchestrator recommendation (Session 3)**: `Anthropic Sonnet 4.6 @ effort=high`
+**Next-session orchestrator recommendation (Session 3)**: `Anthropic claude-opus-4-7 @ effort=max`
+**Rationale (routed analysis, Gemini Pro):** Session 3's core challenge is schema-driven property iteration, a complex task not natively supported by `dotnet new`. Given that Opus @ high still required three verification rounds for Session 2, the most capable model with maximum effort is appropriate to generate the novel templating logic, aiming to reduce verification cycles.
 
 ---
 

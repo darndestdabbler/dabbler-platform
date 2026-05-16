@@ -148,6 +148,114 @@
           "costUsd": 0.0015
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-prior-art",
+      "dateTime": "2026-05-16T15:35:21.229928-04:00",
+      "description": "Read project-guidance, lessons-learned, session-set-authoring-guide, Session 1 outputs (request-contract-decision.md, qbe-helper-api.md), and spec.md Session 2 plan.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/promote-querying-lib",
+      "dateTime": "2026-05-16T15:35:21.230918-04:00",
+      "description": "Promoted GridQueryRequest + QueryableExtensions out of AcmeCoffeeOnline.* into new packable library Dabbler.Api.Querying (per user direction after escalating Session-1/Session-2 placement gap). Added GridQueryResponse<T> for scaffold self-containment. Wired csproj reference into AcmeCoffeeOnline.Api, updated using-statement in QueryableExtensionsTests.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/packaging-wiring",
+      "dateTime": "2026-05-16T15:35:21.230918-04:00",
+      "description": "Added Dabbler.Api.Querying to solution, tools/pack.ps1 InRepoPackageIds + LibraryProjects, and Dabbler.Packaging.Smoke PackagingSmokeTests required-IDs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/update-session-1-docs",
+      "dateTime": "2026-05-16T15:35:21.231918-04:00",
+      "description": "Updated request-contract-decision.md + qbe-helper-api.md with Session 2 amendment notes recording the placement promotion.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/template-author",
+      "dateTime": "2026-05-16T15:35:21.232918-04:00",
+      "description": "Authored templates/Dabbler.Templates/content/dabbler-crud-service/: .template.config/template.json declaring 11 parameters (entity, entityPlural, apiNamespace, dtoNamespace, sharedNamespace, entityNamespace, dbContextType, dbContextNamespace, pkType, pkRouteConstraint, schema (forward-compat)); Services/IT1EntityService.cs (interface \u2014 Query/GetById/Create/Update/Delete using GridQueryRequest+Response); Services/T1EntityService.cs (EF Core impl calling ApplyGridCompositeFilter/ApplyGridQuerySorts, ApplyScope hook, MapToDto/MapToEntity/CopyTo seams, ClampPaging); Controllers/T2EntityPluralController.cs (POST /query + GET/POST/PUT/DELETE with [DabblerEndpointAuthorize] attributes before mutations). Non-overlapping T1..T10 substitution tokens; replaces + fileRename declared on entity/entityPlural to rename files.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/smoke-test",
+      "dateTime": "2026-05-16T15:35:21.232918-04:00",
+      "description": "Authored tests/Dabbler.Templates.Tests/: csproj with Fixtures content-include (no compile); CrudServiceTemplateTests.cs SkippableFact covering install + scaffold + restore + build; Fixtures/SmokeApi/ skeleton (SmokeApi.csproj with explicit versions, Smoke.cs entity, SmokeDto.cs, Data/SmokeDbContext.cs, Program.cs); Fixtures/smoke.dabbler-entity.json schema fixture.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/build-test",
+      "dateTime": "2026-05-16T15:35:21.233918-04:00",
+      "description": "dotnet build solution \u2192 0 errors. tools/pack.ps1 produced 15 nupkgs including Dabbler.Api.Querying. dotnet test Dabbler.Templates.Tests \u2192 1 passed (scaffold + build smoke).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verify-round-1",
+      "dateTime": "2026-05-16T16:16:03.800211-04:00",
+      "description": "Cross-provider verification round 1 via gpt-5-4 ($0.142). ISSUES_FOUND: 1 Critical mapping stub, 2 Major spec/doc, 1 Minor test gap.",
+      "status": "fixed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verify-round-2",
+      "dateTime": "2026-05-16T16:16:03.801218-04:00",
+      "description": "Cross-provider verification round 2 via gpt-5-4 ($0.191). ISSUES_FOUND: 2 Major correctness + 1 Major spec + 1 Minor doc.",
+      "status": "fixed",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/verify-round-3",
+      "dateTime": "2026-05-16T16:16:03.802221-04:00",
+      "description": "Cross-provider verification round 3 via gpt-5-4 ($0.145). ISSUES_FOUND: 2 Minor docs only \u2014 fixed inline per workflow rule 6 (Minor does not block commit). Net VERIFIED_WITH_INLINE_MINOR_FIXES.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 11,
+      "stepKey": "session-2/next-orchestrator-recommendation",
+      "dateTime": "2026-05-16T16:16:03.802221-04:00",
+      "description": "Routed analysis via Gemini Pro ($0.003) recommended Opus 4.7 @ max effort for Session 3. Updated ai-assignment.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 12,
+      "stepKey": "session-2/disposition",
+      "dateTime": "2026-05-16T16:16:03.803218-04:00",
+      "description": "Authored disposition.json: VERIFIED_WITH_INLINE_MINOR_FIXES, 3 verification rounds, files_changed list, Session 3 next-orchestrator recommendation.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

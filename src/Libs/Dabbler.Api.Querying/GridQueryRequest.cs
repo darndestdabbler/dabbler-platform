@@ -1,4 +1,4 @@
-namespace AcmeCoffeeOnline.Shared.DTOs;
+namespace Dabbler.Api.Querying;
 
 /// <summary>
 /// Transport DTO for server-side grid queries — carries sort descriptors, a composite QBE
@@ -34,3 +34,19 @@ public class GridCompositeFilter
 
 /// <summary>Logical operator that combines conditions in a <see cref="GridCompositeFilter"/>.</summary>
 public enum GridFilterLogic { And, Or }
+
+/// <summary>
+/// Paged response shape emitted by scaffolded controller POST /query endpoints. Pairs with
+/// <see cref="GridQueryRequest"/>: <c>PageIndex</c> is zero-based, mirroring the request;
+/// <c>TotalCount</c> is the unpaged row count.
+/// </summary>
+public class GridQueryResponse<T>
+{
+    public List<T> Items { get; set; } = [];
+    public int TotalCount { get; set; }
+    public int PageIndex { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages => PageSize <= 0 ? 0 : (int)Math.Ceiling((double)TotalCount / PageSize);
+    public bool HasPreviousPage => PageIndex > 0;
+    public bool HasNextPage => PageIndex + 1 < TotalPages;
+}

@@ -51,6 +51,7 @@ public class PackagingSmokeTests
 
         var requiredIds = new[]
         {
+            "Dabbler.Api.Querying",
             "Dabbler.Components",
             "Dabbler.Components.Compat",
             "Dabbler.Platform.Stubs",

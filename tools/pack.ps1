@@ -38,6 +38,7 @@ $ErrorActionPreference = "Stop"
 # Canonical in-repo package allowlist (ledger §6.3)
 # ---------------------------------------------------------------------------
 $InRepoPackageIds = @(
+    "Dabbler.Api.Querying"
     "Dabbler.Components"
     "Dabbler.Components.Compat"
     "Dabbler.Platform.Stubs"
@@ -58,6 +59,7 @@ $InRepoPackageIds = @(
 # Packable library projects (in dependency order)
 # ---------------------------------------------------------------------------
 $LibraryProjects = @(
+    "src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj"
     "src/Libs/Dabbler.Components/Dabbler.Components.csproj"
     "src/Libs/Dabbler.Components.Compat/Dabbler.Components.Compat.csproj"
     "src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj"
