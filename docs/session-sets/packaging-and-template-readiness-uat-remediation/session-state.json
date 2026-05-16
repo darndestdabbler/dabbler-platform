@@ -1,12 +1,17 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "packaging-and-template-readiness-uat-remediation",
-  "currentSession": null,
-  "totalSessions": null,
-  "status": "not-started",
-  "lifecycleState": null,
-  "startedAt": null,
+  "currentSession": 1,
+  "totalSessions": 4,
+  "status": "in-progress",
+  "lifecycleState": "work_in_progress",
+  "startedAt": "2026-05-16T03:08:48.849600-04:00",
   "completedAt": null,
   "verificationVerdict": null,
-  "orchestrator": null
+  "orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-6",
+    "effort": "high"
+  }
 }

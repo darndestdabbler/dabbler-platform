@@ -1,5 +1,7 @@
 using FluentAssertions;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Text;
 using Xunit;
 
@@ -216,9 +218,161 @@ public class PackagingSmokeTests
     [Fact(Skip = "Session 10: sample report PDF export requires running app docker stack; covered by Playwright E2E in Session 10")]
     public void DabblerApp_SampleReport_PdfExportSucceeds() { }
 
+    /// <summary>
+    /// Regression gate for B1 (packaging-and-template-readiness-uat-remediation Session 1):
+    /// the scaffolded dabbler-app host must respond with a non-5xx status on the first
+    /// HTTP request to the root path.
+    ///
+    /// Root cause: security-config.json shipped with <c>"BakedInRoleAliasOverrides": []</c>
+    /// (JSON array) while the runtime deserializes the property as
+    /// <c>Dictionary&lt;string, string&gt;</c> (JSON object). On the first request the
+    /// authorization handler calls <c>SecurityConfigurationManager.EnsureLoadedAsync()</c>,
+    /// which calls <c>JsonFileSecurityStore.LoadAsync()</c>, which throws
+    /// <c>JsonException</c> — producing an HTTP 500 before the login page can render.
+    ///
+    /// This test is intentionally <c>[Fact]</c>, not <c>[SkippableFact]</c>, because the
+    /// existing SkippableFacts silently skipped in CI (pack-output/ was absent) and allowed
+    /// the B1 regression to reach human UAT. CI must run <c>tools/pack.ps1</c> before
+    /// <c>dotnet test</c> for this gate to fire.
+    ///
+    /// Requires: <c>pack-output/</c> (run <c>tools/pack.ps1</c> first) and SQL Server
+    /// LocalDB (standard on Windows development machines).
+    /// </summary>
+    [Fact]
+    public async Task DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest()
+    {
+        Assert.True(Directory.Exists(PackOutputDir),
+            $"Pack output directory not found at '{PackOutputDir}'. Run tools/pack.ps1 first. " +
+            "This test is a required regression gate for B1 (security-config.json deserialization fix) " +
+            "and must not be silently skipped.");
+
+        var templateNupkg = FindExactNupkg(PackOutputDir, "Dabbler.Templates");
+        Assert.True(templateNupkg is not null,
+            "Dabbler.Templates nupkg not found in pack-output/. Run tools/pack.ps1 first.");
+
+        var tempDir = Path.Combine(Path.GetTempPath(), $"dabbler-runtime-smoke-{Guid.NewGuid():N}");
+        var hiveDir = Path.Combine(Path.GetTempPath(), $"dabbler-hive-runtime-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+
+        Process? hostProcess = null;
+        try
+        {
+            var (installExit, installOut) = RunTool("dotnet",
+                $"new install \"{templateNupkg}\" --debug:custom-hive \"{hiveDir}\"");
+            Assert.True(installExit == 0, $"Template install failed:\n{installOut}");
+
+            var (scaffoldExit, scaffoldOut) = RunTool("dotnet",
+                $"new dabbler-app -o \"{tempDir}\" --name DabblerApp --force --debug:custom-hive \"{hiveDir}\"");
+            Assert.True(scaffoldExit == 0, $"Scaffold failed:\n{scaffoldOut}");
+
+            var projDir = Path.Combine(tempDir, "DabblerApp");
+            var projPath = Path.Combine(projDir, "DabblerApp.csproj");
+            WriteLocalNugetConfig(tempDir, PackOutputDir);
+
+            var (restoreExit, restoreOut) = RunTool("dotnet",
+                $"restore \"{projPath}\" --source \"{PackOutputDir}\" --source \"https://api.nuget.org/v3/index.json\"");
+            Assert.True(restoreExit == 0, $"Restore failed:\n{restoreOut}");
+
+            var (buildExit, buildOut) = RunTool("dotnet",
+                $"build \"{projPath}\" --no-restore --nologo -v q");
+            Assert.True(buildExit == 0, $"Build failed:\n{buildOut}");
+
+            // Start the host on a free ephemeral port.
+            // Override the DB name so migration creates an isolated database and does not
+            // overwrite the developer's DabblerApp_Dev instance.
+            var port = FindFreePort();
+            var listenUrl = $"http://localhost:{port}";
+            var smokeConnStr = "Server=(localdb)\\mssqllocaldb;Database=DabblerApp_SmokeTest;" +
+                               "Trusted_Connection=True;MultipleActiveResultSets=true";
+
+            var startupOutput = new StringBuilder();
+            bool serverStarted = false;
+
+            var psi = new ProcessStartInfo("dotnet", $"run --no-build --urls \"{listenUrl}\"")
+            {
+                WorkingDirectory = projDir,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+            };
+            psi.Environment["ConnectionStrings__DefaultConnection"] = smokeConnStr;
+            psi.Environment["ASPNETCORE_ENVIRONMENT"] = "Development";
+
+            hostProcess = Process.Start(psi)!;
+            hostProcess.OutputDataReceived += (_, e) =>
+            {
+                if (e.Data is null) return;
+                lock (startupOutput) startupOutput.AppendLine(e.Data);
+                if (e.Data.Contains("Now listening on:", StringComparison.OrdinalIgnoreCase))
+                    serverStarted = true;
+            };
+            hostProcess.ErrorDataReceived += (_, e) =>
+            {
+                if (e.Data is not null)
+                    lock (startupOutput) startupOutput.AppendLine("[err] " + e.Data);
+            };
+            hostProcess.BeginOutputReadLine();
+            hostProcess.BeginErrorReadLine();
+
+            // Allow up to 90 seconds for LocalDB migration + Kestrel startup.
+            var deadline = DateTime.UtcNow.AddSeconds(90);
+            while (!serverStarted && !hostProcess.HasExited && DateTime.UtcNow < deadline)
+                await Task.Delay(250);
+
+            if (hostProcess.HasExited)
+            {
+                Assert.Fail(
+                    $"Scaffolded host exited before signalling startup (exit code {hostProcess.ExitCode}). " +
+                    $"Ensure SQL Server LocalDB is available.\n" +
+                    $"Output:\n{startupOutput}");
+            }
+
+            Assert.True(serverStarted,
+                $"Host did not emit 'Now listening on:' within 90 seconds.\n" +
+                $"Output:\n{startupOutput}");
+
+            // GET / — before B1 fix: HTTP 500 (JsonException during auth-config load).
+            //         after B1 fix:  HTTP 302 (redirect to /login).
+            // AllowAutoRedirect=false so we see the raw 302 rather than following it.
+            using var http = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
+            {
+                Timeout = TimeSpan.FromSeconds(15),
+            };
+
+            var response = await http.GetAsync(listenUrl + "/");
+
+            Assert.True((int)response.StatusCode < 500,
+                $"GET / returned HTTP {(int)response.StatusCode} — expected < 500. " +
+                "If 'BakedInRoleAliasOverrides' in the template's security-config.json is " +
+                "'[]' (JSON array) instead of '{}' (JSON object), fix it and rerun " +
+                "tools/pack.ps1 — this is the B1 regression.\n" +
+                $"Server output:\n{startupOutput}");
+        }
+        finally
+        {
+            if (hostProcess is not null)
+            {
+                try { hostProcess.Kill(entireProcessTree: true); } catch { /* best-effort */ }
+                hostProcess.WaitForExit(5000);
+                hostProcess.Dispose();
+            }
+            TryDeleteDirectory(tempDir);
+            TryDeleteDirectory(hiveDir);
+        }
+    }
+
     // ---------------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------------
+
+    private static int FindFreePort()
+    {
+        using var listener = new TcpListener(System.Net.IPAddress.Loopback, 0);
+        listener.Start();
+        var port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
+        return port;
+    }
 
     /// <summary>
     /// Returns the first .nupkg whose filename exactly matches <paramref name="packageId"/>.

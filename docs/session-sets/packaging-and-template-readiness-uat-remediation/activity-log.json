@@ -1,0 +1,103 @@
+{
+  "sessionSetName": "packaging-and-template-readiness-uat-remediation",
+  "createdDate": "2026-05-16T03:08:37.684922-04:00",
+  "totalSessions": 4,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/author-ai-assignment",
+      "dateTime": "2026-05-16T03:09:48.454577-04:00",
+      "description": "Routed analysis to author ai-assignment.md recommendations for all 4 sessions",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 491,
+          "outputTokens": 1048,
+          "costUsd": 0.011093750000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/write-ai-assignment",
+      "dateTime": "2026-05-16T03:11:12.486045-04:00",
+      "description": "Authored ai-assignment.md from routed analysis results",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/reproduce-crash",
+      "dateTime": "2026-05-16T03:23:14.299037-04:00",
+      "description": "Ran new test DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest against buggy nupkg \u2014 confirmed RED. Crash is at AppDbInitializer.InitializeAsync() when store.LoadAsync() throws JsonException on BakedInRoleAliasOverrides: []",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/fix-template-config",
+      "dateTime": "2026-05-16T03:23:14.300276-04:00",
+      "description": "Fixed BakedInRoleAliasOverrides from [] to {} in both dabbler-app and dabbler-min security-config.json. Rebuilt nupkg via tools/pack.ps1.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/add-runtime-test",
+      "dateTime": "2026-05-16T03:23:14.300276-04:00",
+      "description": "Added DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest [Fact] to tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs. Full scaffold+build+run+GET/ cycle. Test confirmed GREEN after fix.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-05-16T03:27:07.311254-04:00",
+      "description": "dotnet build: 0 errors. dotnet test: 609 passed, 2 skipped (intentional: sign-in+pdf require Docker stack), 0 failed across AcmeCoffeeOnline.Web.Tests, Dabbler.Components.Tests, Dabbler.Security.Blazor.Tests, AcmeCoffeeOnline.Api.Tests, Dabbler.Reports.Blazor.Tests, Dabbler.PublicSurface.Tests, Dabbler.Packaging.Smoke (including new DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-05-16T03:28:46.155689-04:00",
+      "description": "Cross-provider session verification via gpt-5-4. Saved to session-reviews/session-001.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1784,
+          "outputTokens": 3246,
+          "costUsd": 0.05315
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/next-orc-recommendation",
+      "dateTime": "2026-05-16T03:29:35.606155-04:00",
+      "description": "Routed next-orchestrator recommendation for Session 2 via gemini-pro.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 459,
+          "outputTokens": 47,
+          "costUsd": 0.00104375
+        }
+      ]
+    }
+  ]
+}

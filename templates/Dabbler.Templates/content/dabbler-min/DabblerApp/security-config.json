@@ -3,5 +3,5 @@
   "OrganizationSwitching": { "AllowedRoles": [] },
   "DefaultMasks": [],
   "MaskExemptions": [],
-  "BakedInRoleAliasOverrides": []
+  "BakedInRoleAliasOverrides": {}
 }
