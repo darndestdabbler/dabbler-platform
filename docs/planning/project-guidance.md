@@ -1060,3 +1060,40 @@ Playwright code.
   fixes for this and related issues; the convention captures the desired
   end-state behavior so future orchestrators can plan around it while the
   config-side fix lands.
+- **Tri-Provider Review — Orchestrator Contribution Uses Full Context.**
+  When a session spec calls for a tri-provider review and the
+  orchestrator's provider is one of the panel members (e.g., Opus
+  orchestrating a panel that includes Anthropic alongside Google and
+  OpenAI), the orchestrator authors its panel contribution **directly**
+  using its loaded session context rather than routing to its own
+  provider. Route-into-own-provider would pay for the same judgment
+  twice. The synthesis document MUST disclose the context asymmetry
+  explicitly (e.g., "Opus contribution written with full session
+  context; routed reviewers got self-contained prompts") so future
+  session-verification verifiers do not flag it as a protocol defect.
+  Specs should pre-empt the ambiguity by saying "orchestrator
+  contributes directly using its loaded context" rather than "identical
+  prompt for all three." Promoted 2026-05-16 from
+  `packaging-and-template-readiness` Sessions 4 & 5 (lesson original
+  context) and `crud-scaffolding-spike` Session 3 (Opus self-contribution
+  to scaffolding-approach-review.md, explicitly endorsed by the GPT-5.4
+  session verifier).
+- **`force_model` is not honored by `route()` — use `call_model()`
+  directly for forced-model tri-provider dispatch.** `route()` picks the
+  cheapest capable model per task type from the router config, which
+  defeats an explicit forced-model assignment. When a session spec
+  requires a specific model (typically because a tri-provider review
+  assigns one review per provider), drop to the `call_model()`
+  primitive: `cfg = load_config(); provider_cfg =
+  cfg["providers"][provider]; api_result = call_model(provider_name,
+  model_id, system_prompt, user_message, max_tokens, provider_cfg,
+  generation_params)`. The installed `call_model` expects the per-
+  provider config slice (with `api_key_env`, `base_url`,
+  `timeout_seconds`, `retry`), not the full config. Compute cost
+  manually from the model's `input_cost_per_1m` / `output_cost_per_1m`
+  fields and record the call via `record_call(cfg, call_type="route",
+  task_type=..., model=..., provider=..., generation_params=...,
+  input_tokens=..., output_tokens=..., cost_usd=..., ...)` so the
+  metrics log still aggregates the call. Applied in
+  `packaging-and-template-readiness` Sessions 4 & 5 and
+  `crud-scaffolding-spike` Session 3.

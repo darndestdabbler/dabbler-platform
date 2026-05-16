@@ -40,7 +40,35 @@ Use this structure for new entries:
 
 ## Current Lessons
 
-## UAT Checklist Files Must Match The Editor Contract
+## `register_session_start()` Overwrites `session-state.json` Without Preserving `completedSessions[]`
+
+- **Context:** `crud-scaffolding-spike` Session 3 of 3, opening a session
+  on a lightweight-tier set that already had `completedSessions: [1, 2]`
+  populated by hand at the close of Session 2.
+- **Failure or friction:** The orchestrator called
+  `register_session_start()` at Step 1 to flip `lifecycleState` to
+  `work_in_progress` for the new session. The router function writes a
+  fresh `session-state.json` snapshot with the canonical schema fields,
+  but it does NOT preserve the existing `completedSessions[]` array —
+  it omits the field entirely. On lightweight-tier sets this array is
+  the only authoritative count signal (no events-ledger fallback, no
+  router writer maintaining it), so losing it forces the VS Code Session
+  Set Explorer to display N−1/N. The user caught the regression mid-
+  session and pointed back to CLAUDE.md's state-file rules section.
+- **Lesson:** Until `register_session_start()` is fixed router-side to
+  preserve `completedSessions[]` across snapshot rewrites, the
+  orchestrator must manually re-add the array immediately after calling
+  it. Read the prior `completedSessions[]` before the call (or from
+  memory of what was committed on the prior session's close), then
+  re-write the array into `session-state.json` right after. The
+  `mark_session_complete()` helper at Step 8 handles appending the
+  closing session for you; only the mid-set `register_session_start()`
+  call needs the manual save-and-restore.
+- **Action for future sessions:** Before calling
+  `register_session_start()`, read `session-state.json` and capture
+  `completedSessions[]`. After the call, edit the new
+  `session-state.json` to restore the array. (Alternative: ask the human
+  whether the router-side fix has landed; if so, skip the workaround.)
 
 - **Collapsed to reference on 2026-04-21** (Step 9 reorganization review
   for the `security-dashboard-uat-remediation-review` session set). The
@@ -103,6 +131,17 @@ Use this structure for new entries:
 
 ## Tri-Provider Review — Orchestrator Contribution Uses Full Context, Not An Isolated Prompt
 
+- **Promoted to Convention on 2026-05-16** (Step 9 reorganization review
+  for the `crud-scaffolding-spike` session set). The same guidance is now
+  captured — with equivalent specificity — in
+  `project-guidance.md` → Conventions → Workflow Expectations:
+  *"Tri-Provider Review: Orchestrator Contribution Uses Full Context."*
+  Two-or-more contexts threshold met across different sets:
+  `packaging-and-template-readiness` Sessions 4 & 5 and
+  `crud-scaffolding-spike` Session 3 (Opus self-contribution disclosed in
+  `scaffolding-approach-review.md` and explicitly endorsed by the
+  GPT-5.4 session verifier). Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** Tri-provider platform value review (packaging-and-template-readiness Session 4)
   and packaging approach review (Session 5)
 - **Failure or friction:** The GPT-5.4 cross-provider verifier flagged (Round 4) that the
