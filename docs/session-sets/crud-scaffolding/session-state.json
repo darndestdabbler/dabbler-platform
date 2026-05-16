@@ -1,17 +1,17 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "crud-scaffolding",
-  "currentSession": 3,
+  "currentSession": 4,
   "totalSessions": 5,
   "status": "complete",
   "lifecycleState": "closed",
-  "startedAt": "2026-05-16T16:31:00.297022-04:00",
-  "completedAt": "2026-05-16T17:13:53.261048-04:00",
+  "startedAt": "2026-05-16T17:16:53.469361-04:00",
+  "completedAt": "2026-05-16T17:27:11.686923",
   "verificationVerdict": "VERIFIED",
   "orchestrator": {
     "engine": "claude-code",
     "provider": "anthropic",
-    "model": "claude-opus-4-7",
-    "effort": "max"
+    "model": "claude-haiku-4-5-20251001",
+    "effort": "high"
   }
 }

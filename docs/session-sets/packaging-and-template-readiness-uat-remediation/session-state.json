@@ -7,6 +7,7 @@
   "lifecycleState": "closed",
   "startedAt": "2026-05-16T04:58:56.861773-04:00",
   "completedAt": "2026-05-16T06:10:00.000000-04:00",
+  "completedSessions": [1, 2, 3, 4],
   "verificationVerdict": "VERIFIED",
   "uatExecutionComplete": true,
   "uatPassedWithMinorDocumentation": true,
