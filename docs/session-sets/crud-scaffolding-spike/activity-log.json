@@ -80,3 +80,62 @@
     "timestamp": "2026-05-16"
   }
 ]
+,
+  {
+    "session": 2,
+    "totalSessions": 3,
+    "title": "Session 2 of 3: Scaffolding Approach Proposal",
+    "steps": [
+      {
+        "step": 1,
+        "description": "Read inventory and open design questions from Session 1",
+        "status": "completed",
+        "notes": "Full context loaded from helper-and-pattern-inventory.md"
+      },
+      {
+        "step": 2,
+        "description": "Draft scaffolding-approach-proposal.md (direct authoring, no routing per spec)",
+        "status": "completed",
+        "artifacts": [
+          "scaffolding-approach-proposal.md — Comprehensive proposal resolving all 6 open design questions"
+        ],
+        "scope": [
+          "Granularities 1 & 2 (MVP) vs 3 (deferred)",
+          "dotnet new templates (CLI shape)",
+          "QBE-only filters (OData deferred)",
+          "No regeneration (generate once, own the code)",
+          "C# reflection for entity discovery (schema files deferred)",
+          "Non-goals documented explicitly",
+          "Generated code samples for both granularities",
+          "Non-MVP roadmap with rationale",
+          "OData re-litigation guard"
+        ]
+      },
+      {
+        "step": 3,
+        "description": "Proposal doubles as Opus contribution to Session 3 tri-provider review",
+        "status": "completed",
+        "notes": "Per feedback_orchestrator_self_contributes_to_review_panel; context asymmetry disclosed explicitly in proposal"
+      },
+      {
+        "step": 4,
+        "description": "Build and run markdown checks if configured",
+        "status": "completed",
+        "notes": "No markdown linters found; skipped"
+      }
+    ],
+    "creates": [
+      "scaffolding-approach-proposal.md",
+      "ai-assignment.md"
+    ],
+    "touches": [
+      "session-state.json"
+    ],
+    "ends_with": "A complete, opinionated proposal ready for tri-provider review. All open design questions resolved. Generated-code samples provided for both MVP granularities.",
+    "orchestrator": "Claude Opus 4.7",
+    "timestamp": "2026-05-16",
+    "routing": {
+      "total_cost_usd": 0.00,
+      "note": "Zero routing per spec: Step 2 was direct orchestrator authoring with full context (no route() call)"
+    }
+  }
