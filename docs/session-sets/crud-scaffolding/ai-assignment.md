@@ -67,9 +67,9 @@ This document is a per-session ledger of the cheapest capable AI for each step p
 
 ## Session 3: `dabbler-crud-page` Template With Bundled ApiClient + GridDataProvider
 
--   **Recommended Orchestrator**: `Anthropic Sonnet 4.6 @ effort=high`
--   **Rationale**: Similar to the previous session, this work involves generating structured template files, this time including a Razor component and C# support classes. Sonnet is fully capable of handling this mix of C# and Razor templating, making it the most cost-effective choice for direct authoring.
--   **Estimated Routed Cost**: Low
+-   **Recommended Orchestrator**: `Anthropic claude-opus-4-7 @ effort=max` (revised at Session 2 close via routed analysis; supersedes the original Session 1 recommendation of Sonnet 4.6 @ effort=high).
+-   **Rationale**: Session 3's core challenge is schema-driven property iteration paired with a Razor + C# templating mix; given Session 2 needed three verification rounds at Opus @ high, Opus @ max is selected to drive first-pass correctness down to one or two verification rounds. The original Sonnet @ high recommendation underweighted both the schema-driven post-process design work and the multi-file blast radius of the page template.
+-   **Estimated Routed Cost**: Moderate
 
 | Step | Action                                                                              | Routing Decision                                                              |
 | :--- | :---------------------------------------------------------------------------------- | :---------------------------------------------------------------------------- |
@@ -81,10 +81,19 @@ This document is a per-session ledger of the cheapest capable AI for each step p
 
 #### Actuals (filled after the session)
 
-*(empty)*
+- **Orchestrator used:** Claude Code / claude-opus-4-7 / effort=max (the human upgraded from Opus@high mid-question after the initial AskUserQuestion; matches the Session 2 close routed revision).
+- **Total routed cost (this session's calls only):** ~$0.56 across 3 verification rounds via GPT-5.4 (R1 $0.2618 / R2 $0.2335 / R3 $0.0605) + ~$0.0012 Gemini Pro for the Session 4 next-orc recommendation. The session-tagged bucket in `router-metrics.jsonl` shows ~$1.21 total but that includes Session 2 close's forward-prep analysis traffic tagged with `session_number=3`.
+- **Deviations from recommendation:** None substantive — actually ran at the recommendation (Opus 4.7 @ max). One mid-session orchestrator-effort upgrade from `high` to `max` via the human's reply to the start-of-session AskUserQuestion.
+- **Notes:**
+  - 3 verification rounds — the empirical baseline for this set holds (Sessions 1+2+3 all needed 3 rounds). Round 1 found 1 Critical + 3 Major + 2 Minor; Round 2 closed 5 of 6 (remaining: DateTime emission compile-safety); Round 3 VERIFIED.
+  - Confirmed the verifier-spiral pattern from `feedback_verifier_spiral_doc_sessions`: each round surfaced previously-uncaught nuance even when substance was sound. Round 3 was the natural settling point at "operator-decision boundary" per the round-3 verifier output itself.
+  - Key design lesson: `dotnet new` cannot iterate over a JSON array of properties. The "schema-file-driven post-process" allowance from spike review gate B5 lets a companion PowerShell script (`Apply-{Entity}Schema.ps1`) carry the per-property iteration. The script is idempotent and uses BEGIN/END placeholder markers in the `.razor` files. This pattern is reusable for any future template that needs schema-driven iteration over a list.
+  - Compile-safety took precedence over UX perfection for the `DateTime` field: `v ?? default` emission compiles for both `DateTime` and `DateTime?` DTO properties; the trade-off (cleared nullable dates become MinValue, not null) is documented inline in the script and the generated code.
+  - Smoke test now exercises `AddSmokeScaffolding(builder.Configuration)` from `Program.cs` so the `dotnet build` is a real DI-resolution proof, not just a "scaffold emitted" proof. Promoted from the Round-1 verifier's recommendation.
 
 ---
-**Next-session orchestrator recommendation (Session 4)**: `Anthropic Haiku 4.5 @ effort=max`
+**Next-session orchestrator recommendation (Session 4)**: `Anthropic Haiku 4.5 @ effort=max` (confirmed via routed Gemini Pro analysis, $0.0012).
+**Rationale (routed analysis):** "The Session 3 actuals are irrelevant as that was a complex coding task, whereas Session 4 is a straightforward documentation task with a built-in review process. A fast, cost-effective model is ideal for generating the initial markdown drafts for human and cross-provider review." This matches the original Session 1 recommendation; no revision needed.
 
 ---
 
