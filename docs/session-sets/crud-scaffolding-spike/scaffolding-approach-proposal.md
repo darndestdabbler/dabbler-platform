@@ -2,7 +2,7 @@
 
 > **Purpose:** Design a code-generation scaffolding system for Dabbler CRUD pages, service endpoints, and feature slices that outputs code indistinguishable from what a careful developer would write by hand.
 
-> **Status:** Proposal ready for tri-provider review (Session 3).
+> **Status:** Tri-provider review applied (Session 3). See [`scaffolding-approach-review.md`](scaffolding-approach-review.md) for the consolidated review. INLINE adjustments below have been applied to this document; larger BLOCKING adjustments (MVP self-sufficiency, request-contract unification, schema-file entity discovery, drop the post-generation reflection hook) are captured as MVP gates in the implementation-set spec at [`../crud-scaffolding/spec.md`](../crud-scaffolding/spec.md) and intentionally not reworked here.
 
 > **Scope:** This document resolves all open design questions from the spike spec and proposes the MVP shape for the first implementation set.
 
@@ -93,24 +93,50 @@ dotnet new dabbler-crud-slice --entity Customer --namespace AcmeCoffeeOnline --w
 
 **Implication:** If a developer needs to re-scaffold (e.g., add a new field), they edit the generated file manually or delete and re-run the template (accepting that they'll need to re-apply their customizations from the prior version).
 
-### 5. Entity Discovery: C# Class Reflection (Primary) + Schema File (Future)
+**Explicit trade-off acknowledgement (added after Session 3 review):** Adding a new field after the initial scaffold currently means hand-editing the Razor list, detail form, filter config, service, DTO, and controller — exactly the boilerplate the scaffolder was designed to reduce. Both tri-provider reviewers flagged this as the design's main rough edge. The MVP accepts the trade-off (in-place regeneration is genuinely worse — composition principle wins), but the implementation set's non-MVP roadmap includes a **Schema Evolution / Drift Support** item: either a generate-to-temp + diff workflow, or a Roslyn analyzer that flags entity properties not represented in the scaffolded surface area. Both options preserve ownership without pretending merge-safe regeneration exists.
 
-**Decision:** MVP uses **C# class reflection** over a loaded assembly. Future sets may add a schema-file option.
+### 5. Entity Discovery: Schema File (Primary, Per-Property) + Explicit Parameters (Identity Basics); Reflection Deferred
 
-**Rationale:**
-- **Simplicity:** The developer has already written (or the platform already defines) the `ProductDto` and `Product` classes. The generator reads them from the compiled assembly via reflection.
-- **Single source of truth:** The class definition IS the schema. No separate `.json` schema file to keep in sync.
-- **Works with EF Core:** The generator can also introspect `DbSet<Product>` via the DbContext to discover all properties and their types.
-- **Familiar to .NET developers:** Reflection-over-metadata is a native .NET pattern.
+**Decision (revised after Session 3 tri-provider review):** MVP entity discovery is split:
+
+- **Explicit CLI parameters** carry the identity / namespace basics that every generated file needs: `--entity`, `--namespace` (and its variants per template), `--pk-type` (default `int`).
+- **A schema file (`--schema <path>`) is the primary per-property input** for any template that enumerates fields — the page template's MudDataGrid columns and MudForm fields, the filter-config field list, the service's per-property filter/sort handling. The schema is a small JSON document (e.g., `customer.dabbler-entity.json`) listing each property with its type and per-surface flags (`IsInGrid`, `IsInForm`, `IsFilterable`, `IsSortable`, `IsReadOnly`). The implementation set ships a JSON-schema document so editors validate it.
+
+Reflection-over-loaded-assembly is **deferred** to a future `dotnet tool` variant; DbContext introspection is **deferred**. The post-generation `ITemplateOperationProvider` reflection hook described in the original proposal is dropped from MVP scope.
+
+**Why the revision:**
+
+Both tri-provider reviewers correctly flagged that reflection-over-loaded-assembly is fragile in the common cases the platform targets:
+
+- **Pre-build scaffolding:** Developers (and AI agents) frequently scaffold *before* the project compiles — design the entity shape first, then generate the code that uses it. Reflection requires a successful build first.
+- **Build order:** Reflection introduces an implicit dependency on the build order that `dotnet new` is otherwise free of.
+- **Multi-assembly solutions:** When entities, DTOs, API project, and web project live in separate assemblies (the common real-world case), an `--entity Customer` short name is ambiguous and the reflection loader needs explicit `--project` / `--assembly` / `--type` inputs to find the type.
+
+Additionally, mixing a post-generation reflection hook into `dotnet new` straddles two CLI shapes: `dotnet new` is good at deterministic file emission from declared parameters, while reflection-driven discovery is `dotnet tool` territory. The hybrid produces a `dotnet new` template that internally behaves like a tool — confusing to maintain and harder for AI agents to invoke reliably.
 
 **How it works (MVP):**
-1. The developer has already created `Product` (EF entity) and `ProductDto` (DTO).
-2. They run: `dotnet new dabbler-crud-service --entity Customer --dto CustomerDto`
-3. The template's post-generation script (via `ITemplateOperationProvider`) or a setup hook loads the project's assembly, reflects over `Customer` and `CustomerDto`, and emits the service interface/implementation, controller, and tests.
 
-**Alternative (deferred):** A schema-file option (e.g., `--schema customers.dabbler-entity.json`) would allow scaffolding without a compiled assembly. This is valuable for teams who want to design the entity shape first, then code-gen without building. Deferred to a follow-on set after the MVP validates the core scaffold workflow.
+1. The developer (or AI agent) authors a schema file for the entity, then runs both templates with the schema as input:
+   ```bash
+   # Schema file: customer.dabbler-entity.json (authored once per entity)
+   dotnet new dabbler-crud-service \
+     --entity Customer \
+     --api-namespace AcmeCoffeeOnline.Api \
+     --dto-namespace AcmeCoffeeOnline.Shared.DTOs \
+     --shared-namespace AcmeCoffeeOnline.Shared \
+     --pk-type int \
+     --schema customer.dabbler-entity.json
+   dotnet new dabbler-crud-page \
+     --entity Customer \
+     --web-namespace AcmeCoffeeOnline.Web \
+     --shared-namespace AcmeCoffeeOnline.Shared \
+     --schema customer.dabbler-entity.json
+   ```
+2. The templates use the schema to drive their per-property loops: PropertyColumns in the grid, MudTextField/MudNumericField/MudCheckBox in the detail form, filter fields in the FilterConfig, and (in the service) per-property filter/sort handling. The schema is the canonical entity-shape input; the explicit CLI parameters cover only the identity/namespace basics that the schema does not encode.
 
-**DbContext introspection (future):** A more automated option would introspect the AppDbContext directly to discover the entity graph. This is powerful but requires the DbContext to be in the same solution, which is not always the case. Deferred.
+**Alternatives (deferred to follow-on sets):**
+
+- **Reflection-over-loaded-assembly + DbContext introspection:** A future `dotnet tool` variant (`dabbler scaffold crud-service --entity Customer`) can pull the property list from a compiled assembly or a live DbContext. The tool CLI has the affordances (explicit project selection, multi-assembly resolution, runtime metadata access) that `dotnet new` lacks. This is the right home for reflection-driven discovery, not the `dotnet new` template.
 
 ### 6. Non-Goals (Explicit)
 
@@ -129,15 +155,16 @@ dotnet new dabbler-crud-slice --entity Customer --namespace AcmeCoffeeOnline --w
 ### What Lands in Set `crud-scaffolding` (Implementation Set 1)
 
 **Templates:**
-1. `dabbler-crud-page` — Granularity 1 (list + detail pages)
-2. `dabbler-crud-service` — Granularity 2 (service + controller)
+1. `dabbler-crud-page` — Granularity 1 (list + detail pages + the **minimal `ProductApiClient` + `ProductGridDataProvider`** needed for the pages to run; this is the post-Session-3 adjustment — see [`scaffolding-approach-review.md`](scaffolding-approach-review.md) Adjustment B1).
+2. `dabbler-crud-service` — Granularity 2 (service interface + service implementation + controller).
+3. **Combined invocation:** running `dabbler-crud-service Customer` followed by `dabbler-crud-page Customer` (or the future `dabbler-crud-slice Customer` shorthand) produces a self-contained, compiling, runnable CRUD slice.
 
 **Delivery:**
 - `Dabbler.Templates` project gets two new template folders: `templates/dabbler-crud-page/` and `templates/dabbler-crud-service/`.
 - Each folder contains:
-  - `.template.config/template.json` (variables: EntityName, Namespace, DtoNamespace, Route, PluralName, etc.)
-  - Generated file templates (`.razor`, `.cs`, `.csproj.user` or a hook for DI registration).
-- Tooling: A post-generation hook (`ITemplateOperationProvider`) that calls reflection to discover the entity and DTO, then fills in method bodies and field bindings.
+  - `.template.config/template.json` (variables: EntityName, Namespace, DtoNamespace, Route, PluralName, primary-key type, etc.)
+  - Generated file templates (`.razor`, `.cs`, plus optional DI-snippet output) parameterized by `dotnet new`'s standard substitution.
+- **No post-generation reflection hook in MVP.** The original proposal had an `ITemplateOperationProvider` hook that loaded the project's assembly and reflected over the entity type to fill in field bindings. That was dropped after Session 3 review because (a) `dotnet new` + assembly-reflection is an incoherent CLI shape — the reflection workflow belongs in a `dotnet tool` if it ever ships, and (b) reflection-over-loaded-assembly is fragile in the common pre-build / multi-assembly cases. See Section 5 for the revised entity-discovery model.
 
 **Documentation:**
 - `docs/scaffolding-templates/crud-page-template.md` — Usage guide, customization patterns, examples.
@@ -146,14 +173,17 @@ dotnet new dabbler-crud-slice --entity Customer --namespace AcmeCoffeeOnline --w
 
 ### What's Deferred (Post-MVP)
 
-**Granularity 3 (full slice):**
-- Requires Granularities 1 & 2 to be proven via real usage in implementation set.
-- Adds ProductGridDataProvider, ProductApiClient, DI registration, smoke tests, navigation, security policy definitions.
+**Granularity 3 (full slice — what's left after MVP absorbs the runnable-slice essentials):**
+- The minimal `ApiClient` and `GridDataProvider` previously sketched for Granularity 3 moved into MVP after Session 3 review (Adjustment B1). What remains for Granularity 3:
+  - DI registration *automation* (the MVP emits the DI snippet as a separate text file; G3 wires it into `Program.cs` automatically).
+  - Navigation menu entry registration.
+  - Security policy registration (the policy names already appear on the generated controllers; G3 registers them with `IAuthorizationOptions`).
+  - Smoke-test scaffolding (`{Entity}ServiceTests.cs`, `{Entity}sControllerTests.cs`).
 - Dedicated set after `crud-scaffolding` completes.
 
 **OData variant:**
-- A separate template or configuration option supporting OData queries (e.g., `--filter-mode odata`).
-- Requires reconciliation of how OData coexists with (or replaces) QBE in the generated endpoints.
+- A **separate template suite** (e.g., `dabbler-crud-page-odata`, `dabbler-crud-service-odata`) supporting OData queries. **Never** a flag on the existing templates; the variation-axis trap that wording was a re-litigation of is rejected throughout this proposal.
+- Requires reconciliation of how OData coexists with (or replaces) QBE in the generated endpoints if both ever ship side-by-side in the same solution.
 - Deferred pending real demand signals.
 
 **Multi-entity slices (one-to-many, master-detail):**
@@ -170,6 +200,8 @@ dotnet new dabbler-crud-slice --entity Customer --namespace AcmeCoffeeOnline --w
 ## Generated-Code Samples
 
 ### Granularity 1 Sample: ProductList.razor (Generated)
+
+> Required `using` directives are emitted by the template; the imports list below is illustrative. The `IGridDataProvider<ProductDto>` and `ProductApiClient` types are generated alongside this page in MVP — see the implementation-set spec for the unified MVP scope (the original proposal's plan to defer those to Granularity 3 was reversed after Session 3 review since it produced non-runnable G1 output).
 
 ```razor
 @page "/products"
@@ -323,6 +355,8 @@ dotnet new dabbler-crud-slice --entity Customer --namespace AcmeCoffeeOnline --w
 
 ### Granularity 1 Sample: ProductDetail.razor (Generated)
 
+> Required `using` directives are emitted by the template; the imports list below is illustrative. Generated form fields use the explicit `Value` / `ValueChanged` binding the platform mandates so that `EditSession<T>.NotifyChanged()` is called on every edit (see `project-guidance.md` → Conventions → CRUD Form Conventions — `@bind-Value` is forbidden because it bypasses dirty tracking).
+
 ```razor
 @page "/products/{Id:int}"
 @page "/products/new"
@@ -357,35 +391,35 @@ else if (_session != null)
 
             <MudItem xs="12" sm="6">
                 <MudTextField
-                    @bind-Value="_record.Name"
+                    Value="@_record.Name"
+                    ValueChanged="@((string v) => { _record.Name = v; _session.NotifyChanged(); })"
                     Label="Name"
                     Placeholder="Product name"
                     Required="true"
                     RequiredError="Name is required"
                     For="@(() => _record.Name)"
                     Immediate="true"
-                    Validation="@(new Func<string, IEnumerable<string>>(ValidateName))"
-                    ValueChanged="@(() => _session.NotifyChanged())" />
+                    Validation="@(new Func<string, IEnumerable<string>>(ValidateName))" />
             </MudItem>
 
             <MudItem xs="12" sm="6">
-                <MudNumericField
-                    @bind-Value="_record.Price"
+                <MudNumericField T="decimal"
+                    Value="@_record.Price"
+                    ValueChanged="@((decimal v) => { _record.Price = v; _session.NotifyChanged(); })"
                     Label="Price"
                     Format="C2"
                     Required="true"
                     RequiredError="Price is required"
                     For="@(() => _record.Price)"
-                    Min="0"
-                    ValueChanged="@(() => _session.NotifyChanged())" />
+                    Min="0" />
             </MudItem>
 
             <MudItem xs="12" sm="6">
-                <MudCheckBox
-                    @bind-Value="_record.IsAvailable"
+                <MudCheckBox T="bool"
+                    Value="@_record.IsAvailable"
+                    ValueChanged="@((bool v) => { _record.IsAvailable = v; _session.NotifyChanged(); })"
                     Label="Available for Sale"
-                    For="@(() => _record.IsAvailable)"
-                    ValueChanged="@(() => _session.NotifyChanged())" />
+                    For="@(() => _record.IsAvailable)" />
             </MudItem>
         </MudGrid>
     </MudForm>
@@ -439,8 +473,11 @@ else
 
     private async Task HandleSaveAsync()
     {
-        if (_form is not null && !await _form.Validate())
-            return;
+        if (_form is not null)
+        {
+            await _form.Validate();
+            if (!_formValid) return;
+        }
 
         _saving = true;
         try
@@ -495,15 +532,12 @@ else
             yield return "Name cannot exceed 200 characters";
     }
 
-    private RenderFragment CustomActionsFragment => builder =>
-    {
-        builder.OpenComponent<MudButton>(0);
-        builder.AddAttribute(1, "Variant", Variant.Text);
-        builder.AddAttribute(2, "OnClick", EventCallback.Factory.Create(this, () => _session.Undo()));
-        builder.AddAttribute(3, "StartIcon", Icons.Material.Filled.Undo);
-        builder.AddAttribute(4, "ChildContent", new RenderFragment(b => b.AddContent(5, "Undo")));
-        builder.CloseComponent();
-    };
+    private RenderFragment CustomActionsFragment => @<MudButton
+        Variant="Variant.Text"
+        StartIcon="@Icons.Material.Filled.Undo"
+        OnClick="@(() => _session.Undo())">
+        Undo
+    </MudButton>;
 }
 ```
 
@@ -516,6 +550,8 @@ else
 ---
 
 ### Granularity 2 Sample: Service and Controller (Generated)
+
+> Required `using` directives (ASP.NET Core, EF Core, AutoMapper, Dabbler permission service, Dabbler authorization attributes, DTO namespaces) are emitted by the template; omitted from these samples for clarity. The MVP also generates the matching `ProductApiClient` and `ProductGridDataProvider` so Granularity 1 + Granularity 2 together produce a runnable slice.
 
 **IProductService.cs:**
 ```csharp
@@ -533,6 +569,9 @@ namespace AcmeCoffeeOnline.Api.Services
 ```
 
 **ProductService.cs:**
+
+> Required `using` directives (ASP.NET Core, EF Core, AutoMapper, Dabbler filter engine, DTO namespaces) are emitted by the template; omitted from this sample for clarity. The implementation set's MVP will lock the exact QBE→LINQ helper API; the call site shown below is illustrative.
+
 ```csharp
 namespace AcmeCoffeeOnline.Api.Services
 {
@@ -549,21 +588,37 @@ namespace AcmeCoffeeOnline.Api.Services
 
         public async Task<PagedResponse<ProductDto>> GetAsync(PagedRequest request, CancellationToken cancellationToken = default)
         {
-            var query = _db.Products.AsNoTracking();
+            IQueryable<Product> query = _db.Products.AsNoTracking();
 
-            // Apply filter if present
-            if (request.Filter?.Filters is not null && request.Filter.Filters.Count > 0)
+            // Apply QBE filter via the platform's filter expression engine.
+            // The generated code calls into Dabbler.Components' filter→LINQ helper
+            // so the same expression engine that powers DeclarativeFilterPanel<TEntity>
+            // is applied server-side. The implementation set fixes the exact API.
+            if (request.Filter is not null)
             {
-                // TODO: Apply filter expression here (use QBE filter engine)
+                query = query.ApplyQbeFilter(request.Filter);
             }
 
-            // Apply sort
-            foreach (var sort in request.SortFields ?? Array.Empty<SortField>())
+            // Apply sort: OrderBy → ThenBy chain (repeated OrderBy would reset ordering).
+            var sortFields = request.SortFields ?? Array.Empty<SortField>();
+            IOrderedQueryable<Product>? ordered = null;
+            for (int i = 0; i < sortFields.Length; i++)
             {
-                query = sort.Order == SortOrder.Ascending
-                    ? query.OrderBy(e => EF.Property<object>(e, sort.Property))
-                    : query.OrderByDescending(e => EF.Property<object>(e, sort.Property));
+                var sort = sortFields[i];
+                if (i == 0)
+                {
+                    ordered = sort.Order == SortOrder.Ascending
+                        ? query.OrderBy(e => EF.Property<object>(e, sort.Property))
+                        : query.OrderByDescending(e => EF.Property<object>(e, sort.Property));
+                }
+                else
+                {
+                    ordered = sort.Order == SortOrder.Ascending
+                        ? ordered!.ThenBy(e => EF.Property<object>(e, sort.Property))
+                        : ordered!.ThenByDescending(e => EF.Property<object>(e, sort.Property));
+                }
             }
+            if (ordered != null) query = ordered;
 
             var total = await query.CountAsync(cancellationToken);
             var items = await query
@@ -670,13 +725,12 @@ namespace AcmeCoffeeOnline.Api.Controllers
         [DabblerEndpointAuthorize("CreateProduct")]
         public async Task<ActionResult<ProductDto>> CreateAsync([FromBody] ProductDto dto, CancellationToken cancellationToken = default)
         {
-            var product = await _service.CreateAsync(dto, cancellationToken);
-            
+            // Auth check BEFORE mutation: defense-in-depth even though [DabblerEndpointAuthorize] is the primary gate.
             if (!_currentUserService.TryGetUserId(out var userId))
                 return Unauthorized();
 
+            var product = await _service.CreateAsync(dto, cancellationToken);
             await _permissionService.ApplyFieldPermissionsAsync(product, userId, nameof(Product));
-
             return CreatedAtAction(nameof(GetByIdAsync), new { id = product.Id }, product);
         }
 
@@ -684,15 +738,15 @@ namespace AcmeCoffeeOnline.Api.Controllers
         [DabblerEndpointAuthorize("UpdateProduct")]
         public async Task<ActionResult<ProductDto>> UpdateAsync(int id, [FromBody] ProductDto dto, CancellationToken cancellationToken = default)
         {
+            // Auth check BEFORE mutation.
+            if (!_currentUserService.TryGetUserId(out var userId))
+                return Unauthorized();
+
             var product = await _service.UpdateAsync(id, dto, cancellationToken);
             if (product is null)
                 return NotFound();
 
-            if (!_currentUserService.TryGetUserId(out var userId))
-                return Unauthorized();
-
             await _permissionService.ApplyFieldPermissionsAsync(product, userId, nameof(Product));
-
             return Ok(product);
         }
 
@@ -708,10 +762,10 @@ namespace AcmeCoffeeOnline.Api.Controllers
 ```
 
 **Customization points:**
-- GetAsync filter expression (currently has a TODO; developer fills in QBE → LINQ translation).
-- Business logic and validation (currently smoke-test stubs).
-- Non-standard endpoints (POST /products/{id}/availability to toggle, etc.).
-- Authorization attributes (can be changed from `"CreateProduct"` to a different policy).
+- Filter behavior beyond the platform's QBE expression engine (the generated `GetAsync` already calls `query.ApplyQbeFilter(request.Filter)` — developers extend by wrapping that call with entity-specific predicates, not by re-implementing the filter).
+- Business logic and validation (the generated CRUD method bodies are deliberately minimal — they handle the persistence-layer mechanics; entity-specific rules, side effects, and cross-service calls are the developer's customization surface).
+- Non-standard endpoints (POST /products/{id}/availability to toggle, etc.) — add new controller actions alongside the generated ones.
+- Authorization attributes (the generated policy names like `"CreateProduct"` come from `--auth-policy-prefix`; the developer can rename or layer additional `[Authorize(...)]` constraints).
 
 ---
 
@@ -737,17 +791,17 @@ namespace AcmeCoffeeOnline.Api.Controllers
 
 ### OData Variant
 
-**Scope:** Alternative endpoint and filter representation.
+**Scope:** Alternative template suite with OData query support.
 
 **Decision deferred:**
-- Would require a choice: QBE-only (current design) OR OData-only OR both (anti-pattern).
+- Would require a choice: QBE-only (current design) OR an OData-only sibling template suite. **Not** a `--filter-mode` flag on the existing template — that wording was a variation-axis trap that GPT-5.4's review caught in the original draft, and it has been removed. A flag like `--filter-mode odata` would force the same generator to support all filter representations as enum-style options, which is precisely what the rejected `MasterDetailsConfig<TEntity>` did.
 - Demand signal needed: Is there a use case that QBE cannot serve?
-- Implementation complexity: QBE → LINQ is straightforward; OData requires URI parsing and validation.
+- Implementation complexity: QBE → LINQ is straightforward via the existing `Dabbler.Components` expression engine; OData requires URI parsing, operator validation, and a separate server-side stack.
 
 **If demand emerges:**
-- A follow-on set `crud-scaffolding-odata` authors a separate template suite with OData endpoints.
-- Documentation clarifies: "Use QBE templates for simple filtering. Use OData templates for complex queries and third-party tool integration."
-- The two templates are NOT mixed in one generated artifact.
+- A follow-on set `crud-scaffolding-odata` authors a **separate template suite** (`dabbler-crud-page-odata`, `dabbler-crud-service-odata`) with OData endpoints. Different template names; different generated code; same explicit-composition philosophy.
+- Documentation clarifies: "Use the QBE templates for simple filtering. Use the OData templates for complex queries and third-party tool integration."
+- The two template suites are NEVER mixed in one generated artifact, and there is no shared template with a mode switch.
 
 ### Multi-Entity Slices (One-to-Many, Master-Detail)
 
@@ -810,14 +864,15 @@ Until then, QBE is the filter representation. No OData in MVP or Granularity 3.
 
 ## Conclusion
 
-This proposal resolves all six open design questions and charts a course for a simple, straightforward implementation:
+This proposal resolves all six open design questions and charts a course for a simple, straightforward implementation (as adjusted after Session 3 tri-provider review):
 
-- **Granularities 1 & 2** (single page, service endpoints) ship in the MVP, leaving Granularity 3 (full slice) for a later set.
-- **`dotnet new` templates** keep scaffolding consistent with .NET tooling, discoverable, and customizable.
-- **QBE-only filters** avoid duplicating what the platform already offers and sidestep the runtime-configuration trap.
-- **No regeneration story** enforces ownership; developers scaffold once and customize.
-- **C# reflection** over a loaded assembly keeps entity discovery simple and source-of-truth.
-- **Explicit non-goals** document why certain features (OData, source generators, multi-entity slices) are deferred, not forgotten.
+- **Granularities 1 & 2 ship a runnable slice in MVP** — the minimal `{Entity}ApiClient` and `{Entity}GridDataProvider` move into MVP scope so scaffolded pages are self-sufficient. What remains for Granularity 3 (DI/nav/policy/test automation) lands in a follow-on set.
+- **Pure `dotnet new` templates** with no post-generation reflection hook keep scaffolding consistent with .NET tooling, deterministic, and within the CLI shape `dotnet new` was designed for.
+- **QBE-only filters with a working `query.ApplyQbeFilter(...)` call** in the generated service code (not a TODO). The platform's existing expression engine does the QBE→LINQ translation server-side.
+- **No regeneration story** enforces ownership; developers scaffold once and customize. The non-MVP roadmap includes Schema Evolution / Drift Support tooling for the "add a new field" workflow that both tri-provider reviewers correctly flagged as the design's main rough edge.
+- **Schema-file as the per-property input** for templates that enumerate fields, with explicit `--entity` / `--namespace` / `--pk-type` parameters limited to identity and namespace basics. **Reflection-over-loaded-assembly is deferred** to a future `dotnet tool` variant where its CLI affordances (explicit project selection, multi-assembly resolution, runtime metadata access) actually fit.
+- **OData remains a separate-template-suite roadmap item** — never a `--filter-mode` flag — explicitly to avoid re-introducing the variation-axis trap that abandoned the runtime composite.
+- **Explicit non-goals** document why certain features (OData mixing, runtime composites, source generators, multi-entity slices) are deferred, not forgotten.
 
 Generated code is **indistinguishable from hand-written code**. The scaffold is the starting point; customization and ownership are the developer's responsibility. This aligns with the composition-over-configuration principle and ensures the scaffolding system remains maintainable and focused.
 

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "crud-scaffolding-spike",
-  "completedSessions": [1, 2],
+  "completedSessions": [1, 2, 3],
   "currentSession": 3,
   "totalSessions": 3,
   "status": "in-progress",
-  "lifecycleState": "session-3-in-progress",
-  "startedAt": "2026-05-16T00:00:00Z",
+  "lifecycleState": "work_in_progress",
+  "startedAt": "2026-05-16T09:57:34.650042-04:00",
   "completedAt": null,
   "verificationVerdict": null,
   "orchestrator": {
