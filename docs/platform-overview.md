@@ -562,18 +562,20 @@ contract continues to harden. Project-guidance principles explicitly
 direct new work to use the integrated source path rather than
 sibling-repo coupling.
 
-### Future: NuGet packages
+### How NuGet packages work
 
-Publishing the libraries as versioned NuGet packages, plus a Visual
-Studio template that scaffolds a new consuming app, is **planned work**
-— it is the explicit deliverable of the
-`packaging-and-template-readiness` session set this overview was
-authored under. **It has not shipped yet.** When it does, this section
-will be updated with the package names, versioning policy, and the
-template scaffold story. Until then, integrated source is the only
-supported model.
+Publishing the libraries as versioned NuGet packages, along with Visual
+Studio templates that scaffold new consuming apps, shipped in Sessions
+7-9 of the `packaging-and-template-readiness` workstream. This delivered
+two main components:
+*   Versioned NuGet packages for each platform library.
+*   Two Visual Studio templates (`dabbler-app` and `dabbler-min`) for
+    bootstrapping new applications.
 
-The packaging work is intentionally cautious: it must not silently
+While packages are now available, integrated source remains the
+currently recommended adoption path.
+
+The packaging work was intentionally cautious: it must not silently
 reintroduce historical defaults that the rebuild retired (broader
 abstractions, metadata-driven UI generation, role inheritance, etc.).
 Future generated apps and the Access metadata-harvesting CLI are

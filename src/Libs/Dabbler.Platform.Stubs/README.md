@@ -14,15 +14,15 @@ Teams who want the same component code to run against both real
 providers (production) and in-memory stubs (tests, demos, design
 review) without conditional branches inside the components themselves.
 
-> **Sub-package split coming in Session 7 (per ledger A3).** This
-> package will become a **meta-package** that references three focused
+> **Sub-package split (Session 7).** This
+> package is now structured as a **meta-package** that references three focused
 > sub-packages: `Dabbler.Platform.Stubs.Components`,
 > `Dabbler.Platform.Stubs.Reports`, `Dabbler.Platform.Stubs.Security`.
 > Consumers who want only the component stubs (bUnit-only test wiring)
-> will be able to install
+> can install
 > `Dabbler.Platform.Stubs.Components` and avoid the transitive
 > `Dabbler.Reports.Core` (and therefore `DabblerPdf` LGPL/MPL) dependency
-> that the current single-package shape imposes. The meta-package
+> that the single-package shape would impose. The meta-package
 > documented below continues to provide the umbrella experience for
 > consumers who want everything wired at once.
 
@@ -38,13 +38,12 @@ review) without conditional branches inside the components themselves.
 
 ## Install
 
-> **Adoption note (Session 5 packaging-and-template-readiness):**
-> Supported adoption today is **integrated source** under
-> `src/Libs/Dabbler.Platform.Stubs/`. NuGet preview lands at end of
-> Session 7 as part of the meta-package + three sub-packages shape;
-> the future install reads
+> **Adoption note:**
+> The recommended adoption model for internal projects is **integrated source** under
+> `src/Libs/Dabbler.Platform.Stubs/`. NuGet packages are available as a meta-package plus three sub-packages;
+> to install:
 > `dotnet add package Dabbler.Platform.Stubs --prerelease` for the
-> umbrella, or `dotnet add package Dabbler.Platform.Stubs.<sub> --prerelease`
+> umbrella, or `dotnet add package Dabbler.Platform.Stubs.<Sub> --prerelease`
 > for one sub-package only.
 
 ## Minimal registration

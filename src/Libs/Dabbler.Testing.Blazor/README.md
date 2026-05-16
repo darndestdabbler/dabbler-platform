@@ -26,11 +26,11 @@ hardest E2E synchronization problems on Blazor Server.
 
 ## Install
 
-> **Adoption note (Session 5 packaging-and-template-readiness):**
-> Supported adoption today is **integrated source** under
-> `src/Libs/Dabbler.Testing.Blazor/`. NuGet preview lands at end of
-> Session 7; the future install reads
-> `dotnet add package Dabbler.Testing.Blazor --prerelease`.
+> **Adoption note:**
+> The recommended adoption model for internal projects is **integrated source** under
+> `src/Libs/Dabbler.Testing.Blazor/`. NuGet packages are available;
+> to install the package:
+> `dotnet add package Dabbler.Testing.Blazor --prerelease`
 
 ## Minimal registration
 

@@ -32,11 +32,11 @@ re-implementing it page by page.
 
 ## Install
 
-> **Adoption note (Session 5 packaging-and-template-readiness):**
-> Supported adoption today is **integrated source** under
-> `src/Libs/Dabbler.Reports.Blazor/`. NuGet preview lands at end of
-> Session 7; the future install reads
-> `dotnet add package Dabbler.Reports.Blazor --prerelease`.
+> **Adoption note:**
+> The recommended adoption model for internal projects is **integrated source** under
+> `src/Libs/Dabbler.Reports.Blazor/`. NuGet packages are available;
+> to install the package:
+> `dotnet add package Dabbler.Reports.Blazor --prerelease`
 
 ## Minimal registration
 

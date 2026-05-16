@@ -31,11 +31,11 @@ sensitive-field masking story — without rolling their own.
 
 ## Install
 
-> **Adoption note (Session 5 packaging-and-template-readiness):**
-> Supported adoption today is **integrated source** under
-> `src/Libs/Dabbler.Security/`. NuGet preview lands at end of
-> Session 7; the future install reads
-> `dotnet add package Dabbler.Security --prerelease`.
+> **Adoption note:**
+> The recommended adoption model for internal projects is **integrated source** under
+> `src/Libs/Dabbler.Security/`. NuGet packages are available;
+> to install the package:
+> `dotnet add package Dabbler.Security --prerelease`
 
 ## Minimal registration
 

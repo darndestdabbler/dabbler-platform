@@ -26,16 +26,14 @@ The helpers are à-la-carte: each page wires only the helpers it needs.
 
 ## Install
 
-> **Adoption note (Session 5 packaging-and-template-readiness):**
-> The supported adoption model today is **integrated source** —
+> **Adoption note:**
+> The recommended adoption model for internal projects is **integrated source** —
 > add a `<ProjectReference>` from your app csproj to
-> `src/Libs/Dabbler.Components/`. NuGet packages have not shipped
-> yet; the first preview release (`0.1.0-preview.1`) lands at the
-> end of Session 7 per the
-> [packaging-readiness-ledger §3.6](../../docs/session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#36-versioning-policy-final).
-> The future packaged install will read:
-> `dotnet add package Dabbler.Components --prerelease`. Until then,
-> use the integrated-source path.
+> `src/Libs/Dabbler.Components/`. NuGet packages are available (first preview release
+> `0.1.0-preview.1` shipped in Session 7 per
+> [packaging-readiness-ledger §3.6](../../docs/session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#36-versioning-policy-final)).
+> To install via NuGet:
+> `dotnet add package Dabbler.Components --prerelease`
 
 ## Minimal registration
 

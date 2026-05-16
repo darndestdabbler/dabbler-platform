@@ -26,11 +26,11 @@ packages for export and Blazor UI.
 
 ## Install
 
-> **Adoption note (Session 5 packaging-and-template-readiness):**
-> Supported adoption today is **integrated source** under
-> `src/Libs/Dabbler.Reports.Core/`. NuGet preview lands at end of
-> Session 7; the future install reads
-> `dotnet add package Dabbler.Reports.Core --prerelease`.
+> **Adoption note:**
+> The recommended adoption model for internal projects is **integrated source** under
+> `src/Libs/Dabbler.Reports.Core/`. NuGet packages are available;
+> to install the package:
+> `dotnet add package Dabbler.Reports.Core --prerelease`
 
 ## Minimal registration
 
