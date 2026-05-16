@@ -25,9 +25,10 @@
   "w0W2NotApplicableReason": "Session 1 has no UAT checklist (requiresUAT is per-set; checklist generated in Session 4). No Blazor web UI changes; no component catalog interaction needed.",
   "next_orchestrator": {
     "engine": "claude-code",
+    "provider": "anthropic",
     "model": "claude-haiku-4-6",
     "effort": "low",
-    "rationale": "Session 2 is documentation-only (prose tense-pass + routed documentation calls); a cheap orchestrator suffices."
+    "reason": "Session 2 is documentation-only (prose tense-pass + routed documentation calls); a cheap orchestrator suffices."
   },
   "nextSessionSet": null,
   "openIssues": []
