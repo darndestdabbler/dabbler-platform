@@ -105,8 +105,7 @@ for the full schema reference and one worked example.
   [OpenPDF](https://github.com/LibrePDF/OpenPDF) and is
   **dual-licensed LGPL-2.1-only OR MPL-2.0** — not MIT. Consumers whose
   distribution policy requires non-copyleft licenses for transitive
-  PDF dependencies should review this before adopting. A
-  `THIRD-PARTY-NOTICES.txt` file ships in the package once NuGet
-  preview lands (Session 7 deliverable per A7).
+  PDF dependencies should review this before adopting. The
+  `THIRD-PARTY-NOTICES.txt` file is included in the NuGet package.
 - **License (this library): MIT** (see
   [LICENSE](https://licenses.nuget.org/MIT)).

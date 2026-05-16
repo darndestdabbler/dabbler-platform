@@ -14,17 +14,17 @@ Teams who want the same component code to run against both real
 providers (production) and in-memory stubs (tests, demos, design
 review) without conditional branches inside the components themselves.
 
-> **Sub-package split (Session 7).** This
-> package is now structured as a **meta-package** that references three focused
+> **Sub-package structure.** This
+> package is structured as a **meta-package** that references three focused
 > sub-packages: `Dabbler.Platform.Stubs.Components`,
 > `Dabbler.Platform.Stubs.Reports`, `Dabbler.Platform.Stubs.Security`.
 > Consumers who want only the component stubs (bUnit-only test wiring)
 > can install
 > `Dabbler.Platform.Stubs.Components` and avoid the transitive
 > `Dabbler.Reports.Core` (and therefore `DabblerPdf` LGPL/MPL) dependency
-> that the single-package shape would impose. The meta-package
-> documented below continues to provide the umbrella experience for
-> consumers who want everything wired at once.
+> that a single-package shape would require. The meta-package
+> documented below provides the umbrella experience for consumers who want
+> everything wired at once.
 
 ## Prerequisites and stack constraints
 
@@ -33,8 +33,8 @@ review) without conditional branches inside the components themselves.
 - .NET 10 (current LTS)
 - Reference to
   [`Dabbler.Components`](../Dabbler.Components/README.md) and
-  [`Dabbler.Reports.Core`](../Dabbler.Reports.Core/README.md) (until
-  the Session 7 split — see note above)
+  [`Dabbler.Reports.Core`](../Dabbler.Reports.Core/README.md) (required by
+  the meta-package; see sub-package note above for selective alternatives)
 
 ## Install
 
@@ -121,22 +121,22 @@ Per ledger §4.2, stub mode is **explicit opt-in**:
 - [`Dabbler.Components`](../Dabbler.Components/README.md) — the surfaces
   these stubs back.
 - [`Dabbler.Reports.Core`](../Dabbler.Reports.Core/README.md) — backs
-  `StubReportDataProvider`. (Will move to sub-package
-  `Dabbler.Platform.Stubs.Reports` in Session 7.)
+  `StubReportDataProvider`. (Now available as sub-package
+  `Dabbler.Platform.Stubs.Reports`.)
 - [`Dabbler.Security`](../Dabbler.Security/README.md) — backs
-  `StubAuthentication`. (Will move to sub-package
-  `Dabbler.Platform.Stubs.Security` in Session 7.)
+  `StubAuthentication`. (Now available as sub-package
+  `Dabbler.Platform.Stubs.Security`.)
 - [`Dabbler.Testing.Blazor`](../Dabbler.Testing.Blazor/README.md) —
   pairs with the stub providers for Playwright watermark
   synchronization during E2E tests.
 
 ## Warnings and caveats
 
-- **DabblerPdf transitive license (current single-package shape) —
-  non-MIT.** Through `Dabbler.Reports.Core`, this package transitively
-  pulls in `DabblerPdf` (LGPL-2.1-only OR MPL-2.0). The Session 7 split
-  resolves this for consumers who only need
-  `Dabbler.Platform.Stubs.Components`.
+- **DabblerPdf transitive license (meta-package shape) — non-MIT.** Through
+  `Dabbler.Reports.Core`, this package (meta-package) transitively pulls in
+  `DabblerPdf` (LGPL-2.1-only OR MPL-2.0). Consumers who need only
+  `Dabbler.Platform.Stubs.Components` can avoid this dependency by installing
+  that sub-package directly.
 - **Stubs are not a production posture.** Per ledger §4.2, accidental
   use of stubs in production is prevented by requiring explicit
   registration — but the package is named "Stubs" for a reason; do

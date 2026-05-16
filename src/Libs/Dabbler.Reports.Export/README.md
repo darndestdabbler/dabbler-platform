@@ -74,9 +74,8 @@ download affordance directly.
   C# port of [OpenPDF](https://github.com/LibrePDF/OpenPDF) and is
   **dual-licensed LGPL-2.1-only OR MPL-2.0** — not MIT. Consumers whose
   distribution policy requires non-copyleft licenses for transitive
-  PDF dependencies should review this before adopting. A
-  `THIRD-PARTY-NOTICES.txt` file ships in the package once NuGet
-  preview lands (Session 7 deliverable per A7).
+  PDF dependencies should review this before adopting. The
+  `THIRD-PARTY-NOTICES.txt` file is included in the NuGet package.
 - **PDF font subsetting and embedding** is handled by DabblerPdf;
   consumers do not need to register fonts at the .NET level if their
   RDF references standard system fonts. Custom fonts require providing

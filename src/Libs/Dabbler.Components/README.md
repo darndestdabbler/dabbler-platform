@@ -29,9 +29,8 @@ The helpers are à-la-carte: each page wires only the helpers it needs.
 > **Adoption note:**
 > The recommended adoption model for internal projects is **integrated source** —
 > add a `<ProjectReference>` from your app csproj to
-> `src/Libs/Dabbler.Components/`. NuGet packages are available (first preview release
-> `0.1.0-preview.1` shipped in Session 7 per
-> [packaging-readiness-ledger §3.6](../../docs/session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#36-versioning-policy-final)).
+> `src/Libs/Dabbler.Components/`. NuGet packages are also available
+> (current preview release `0.1.0-preview.1`).
 > To install via NuGet:
 > `dotnet add package Dabbler.Components --prerelease`
 

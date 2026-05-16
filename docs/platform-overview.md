@@ -827,6 +827,6 @@ Reports.Export section above). Reports.* packages ship a
   for integrated-source consumers), and a minimal reproduction.
 - For W0 toolchain issues (`Dabbler.Uat.Dsl.*` packages), file against
   the sibling [`dabbler-uat-dsl` repo](https://github.com/darndestdabbler/dabbler-uat-dsl/issues).
-- The maintainer-contact channel and contribution policy land alongside
-  the first public preview (Session 7 of
-  `packaging-and-template-readiness`).
+- The maintainer-contact channel and contribution policy are documented
+  in the repository's `CONTRIBUTING.md` file (when published as part of
+  future release cycles).
