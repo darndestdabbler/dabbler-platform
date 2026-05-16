@@ -114,7 +114,10 @@ This document is a per-session ledger of the cheapest capable AI for each step p
 
 #### Actuals (filled after the session)
 
-*(empty)*
+- **Orchestrator used:** Claude Code / claude-haiku-4-5-20251001 / effort=high (exact recommendation)
+- **Total routed cost:** $0.2165 (Gemini Pro $0.0264 + GPT-5.4 $0.1901 for 3 verification rounds)
+- **Deviations from recommendation:** None.
+- **Notes:** Documentation authored directly in all four files. Quality review via `route(task_type="documentation")` identified 5 issues; three verification rounds confirmed all fixes. Verdict: VERIFIED.
 
 ---
 **Next-session orchestrator recommendation (Session 5)**: `Anthropic Opus 4.7 @ effort=high`
