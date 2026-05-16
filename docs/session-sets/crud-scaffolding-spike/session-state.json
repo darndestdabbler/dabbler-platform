@@ -1,10 +1,11 @@
 {
   "schemaVersion": 2,
   "sessionSetName": "crud-scaffolding-spike",
+  "completedSessions": [1, 2],
   "currentSession": 3,
   "totalSessions": 3,
   "status": "in-progress",
-  "lifecycleState": "session-3-pending",
+  "lifecycleState": "session-3-in-progress",
   "startedAt": "2026-05-16T00:00:00Z",
   "completedAt": null,
   "verificationVerdict": null,
