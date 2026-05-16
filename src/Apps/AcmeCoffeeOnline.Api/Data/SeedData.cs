@@ -144,6 +144,42 @@ public static class SeedData
         return customers;
     }
 
+    public static List<Supplier> GetSuppliers()
+    {
+        var random = CreateRandom();
+        var now = DateTime.UtcNow;
+
+        var supplierNames = new[]
+        {
+            "International Coffee Corp", "Highland Roasters Ltd", "Tropical Beans Inc",
+            "Fair Trade Imports", "Mountain Peak Supply", "Ethical Sourcing Co",
+            "Premium Distributors", "Global Trade Partners", "Specialty Suppliers LLC",
+            "Quality First Imports", "Sustainable Beans Co", "Direct Source Trading"
+        };
+
+        var countries = new[] { "Brazil", "Colombia", "Ethiopia", "Vietnam", "India", "Peru", "Uganda", "Indonesia", "Mexico", "Guatemala" };
+
+        var suppliers = new List<Supplier>();
+        for (int i = 0; i < supplierNames.Length; i++)
+        {
+            var location = Locations[random.Next(Locations.Length)];
+            var createdDate = now.AddDays(-random.Next(30, 730));
+
+            suppliers.Add(new Supplier
+            {
+                Name = supplierNames[i],
+                City = location.City,
+                Country = countries[i % countries.Length],
+                ContactEmail = $"contact@{supplierNames[i].ToLower().Replace(" ", "")}@example.com",
+                IsActive = i < supplierNames.Length - 2,
+                CreatedDate = createdDate,
+                ModifiedDate = createdDate.AddDays(random.Next(0, 30))
+            });
+        }
+
+        return suppliers;
+    }
+
     public static List<Order> GetOrders(List<Customer> customers, List<Product> products)
     {
         var random = CreateRandom();

@@ -91,6 +91,16 @@ builder.Services.AddDabblerSecurity(options =>
             fields.Add("NoteDate", "Note Date");
             fields.Add("Author", "Author");
         });
+        entities.Add("Supplier", "Supplier", fields =>
+        {
+            fields.Add("Name", "Name");
+            fields.Add("City", "City");
+            fields.Add("Country", "Country");
+            fields.Add("ContactEmail", "Contact Email");
+            fields.Add("IsActive", "Is Active");
+            fields.Add("CreatedDate", "Created Date");
+            fields.Add("ModifiedDate", "Modified Date");
+        });
     });
 
     // -- Protectable API endpoints --
@@ -121,6 +131,12 @@ builder.Services.AddDabblerSecurity(options =>
         endpoints.Add("CreateOrderNote", "Create Order Note", "POST", "/api/orders/{orderId}/notes");
         endpoints.Add("UpdateOrderNote", "Update Order Note", "PUT", "/api/orders/{orderId}/notes/{noteId}");
         endpoints.Add("DeleteOrderNote", "Delete Order Note", "DELETE", "/api/orders/{orderId}/notes/{noteId}");
+        // Suppliers
+        endpoints.Add("QuerySupplier", "Query Suppliers", "POST", "/api/suppliers/query");
+        endpoints.Add("GetSupplier", "GET Supplier by ID", "GET", "/api/suppliers/{id}");
+        endpoints.Add("CreateSupplier", "Create Supplier", "POST", "/api/suppliers");
+        endpoints.Add("UpdateSupplier", "Update Supplier", "PUT", "/api/suppliers/{id}");
+        endpoints.Add("DeleteSupplier", "Delete Supplier", "DELETE", "/api/suppliers/{id}");
     });
 
     // -- Protectable UI controls --
@@ -143,6 +159,7 @@ builder.Services.AddScoped<IOrganizationOptionsService, OrganizationOptionsServi
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

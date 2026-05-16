@@ -21,11 +21,13 @@ public static class DatabaseInitializer
 
         if (!await context.Products.AnyAsync())
         {
-            // Phase 1: Products and Customers (no FK dependencies)
+            // Phase 1: Products, Customers, and Suppliers (no FK dependencies)
             var products = SeedData.GetProducts();
             var customers = SeedData.GetCustomers();
+            var suppliers = SeedData.GetSuppliers();
             context.Products.AddRange(products);
             context.Customers.AddRange(customers);
+            context.Suppliers.AddRange(suppliers);
             await context.SaveChangesAsync();
 
             // Phase 2: Orders with items and notes (needs product/customer IDs)
