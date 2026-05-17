@@ -65,14 +65,36 @@ try
     Console.WriteLine("[4/4] emitting registration helpers (Web + API)");
     EmitRegistrationFiles(opts);
 
+    // 3b. Emit the {Entity}Registrations.g.cs copy-paste reference for the
+    //     consumer to paste into their Api/Program.cs and Web/Program.cs
+    //     AddDabblerSecurity(...) lambdas. The wrapper does NOT edit Program.cs;
+    //     this is a reference file (#if false wrapped, never compiles).
+    if (!opts.SkipRegistrations)
+    {
+        EmitRegistrationsReferenceFile(opts);
+    }
+    else
+    {
+        Console.WriteLine("   --skip-registrations: skipping {Entity}Registrations.g.cs reference emit.");
+    }
+
     Console.WriteLine();
     Console.WriteLine($"Done. Dabbler.CrudSlice scaffolded {opts.Entity} / {opts.EntityPlural}.");
     Console.WriteLine($"  Web extension: {Path.Combine(opts.WebRoot, "Data", $"{opts.Entity}ScaffoldingExtensions.cs")}");
     Console.WriteLine($"  API extension: {Path.Combine(opts.ApiRoot, "Services", $"{opts.Entity}ApiRegistrationExtensions.cs")}");
+    if (!opts.SkipRegistrations)
+    {
+        Console.WriteLine($"  Registrations: {Path.Combine(opts.WebRoot, "Data", $"{opts.Entity}Registrations.g.cs")} (copy-paste reference)");
+    }
     Console.WriteLine();
     Console.WriteLine("Next step — wire into Program.cs:");
     Console.WriteLine($"  Web/Program.cs: builder.Services.Add{opts.Entity}Scaffolding(builder.Configuration);");
     Console.WriteLine($"  Api/Program.cs: builder.Services.Add{opts.Entity}ApiServices();");
+    if (!opts.SkipRegistrations)
+    {
+        Console.WriteLine($"  Then copy each block from {opts.Entity}Registrations.g.cs into the matching");
+        Console.WriteLine($"  lambda inside AddDabblerSecurity(...) on each side.");
+    }
     return 0;
 }
 catch (Exception ex)
@@ -96,4 +118,16 @@ static void EmitRegistrationFiles(CliOptions opts)
     var apiExtensionPath = Path.Combine(apiServicesDir, $"{opts.Entity}ApiRegistrationExtensions.cs");
     File.WriteAllText(apiExtensionPath, RegistrationEmitter.RenderApiRegistrationExtensions(opts), utf8NoBom);
     Console.WriteLine($"   wrote {apiExtensionPath}");
+}
+
+static void EmitRegistrationsReferenceFile(CliOptions opts)
+{
+    var utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+    var schema = RegistrationReferenceEmitter.LoadSchemaOrEmpty(opts.SchemaPath);
+
+    var webDataDir = Path.Combine(opts.WebRoot, "Data");
+    Directory.CreateDirectory(webDataDir);
+    var referencePath = Path.Combine(webDataDir, $"{opts.Entity}Registrations.g.cs");
+    File.WriteAllText(referencePath, RegistrationReferenceEmitter.Render(opts, schema), utf8NoBom);
+    Console.WriteLine($"   wrote {referencePath}  (copy-paste reference, wrapped in #if false)");
 }

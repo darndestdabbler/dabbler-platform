@@ -82,10 +82,34 @@ moderate
 | 5 | Wire the registration generator into the wrapper pipeline | Orchestrator |
 
 ### Actuals (filled after the session)
-- Orchestrator used: <fill at session close>
-- Total routed cost: <fill at session close>
-- Deviations from recommendation: <fill at session close>
-- Notes for next-session calibration: <fill at session close>
+- Orchestrator used: claude-code Opus 4.7 @ effort=high (DEVIATION — see below)
+- Total routed cost: ~$0.21 across 3 verification rounds + $0.0036 next-session
+  recommendation ($0.0036 gemini-pro analysis). Detail: Round 1 verification
+  gpt-5-4 $0.1457 (ISSUES_FOUND — 1 Major endpoint-shape gap, 1 Minor CLI shape
+  + Templates/ placement); Round 2 verification gpt-5-4 $0.0417 (Issue 1 fixed
+  accepted, Issue 2(a) accepted, Issue 2(b) maintained); Round 3 verification
+  gpt-5-4 $0.0192 (VERIFIED after Templates/ extraction + emitter refactor).
+- Deviations from recommendation: Ran on Opus 4.7 instead of recommended
+  Sonnet 4.6. Per `feedback_honor_spec_sized_orchestrator.md` the human was
+  offered the swap at session start and explicitly chose to continue on Opus
+  (active context, calibration notes from Sessions 1+2 said Opus overhead was
+  modest for mechanical .NET work). Step 1 shape extraction + Step 4 duplicate
+  page-fix were handled in-conversation per Delegation Discipline (mechanical,
+  single-file, well under the 50-line threshold).
+- Notes for next-session calibration: Session 3 cost a 3-round verifier spiral
+  despite the substance being mechanical. The Round-1 endpoint-shape gap
+  (verifier-caught: Api/Program.cs:135-139 uses singular `QuerySupplier`/`GetSupplier`
+  but my single-block emit used the Web-side plural/ById shape) was a real
+  correctness defect a closer pre-emission self-review would have caught.
+  Sonnet would likely have made the same mistake. The Round-2 → Round-3 spin
+  was a literal-spec compliance question (Templates/ directory vs. inline
+  string interpolation) the verifier maintained at Minor severity; human
+  adjudicated to accept the finding, so the Templates/ refactor + embedded-
+  resource loader landed before Round-3 VERIFIED. The verifier-spiral lesson
+  (`feedback_verifier_spiral_doc_sessions`) applies: 3 rounds was the
+  settling point. Session 4 is documentation + end-to-end proof; the
+  Markdown-edit half should route to Sonnet, the proof half handled by the
+  orchestrator. Recommendation below.
 
 ## Session 4: Documentation reconciliation, section-8 additions, and end-to-end proof
 
@@ -122,3 +146,26 @@ Rationale: Session 2's task is primarily mechanical orchestration and convention
 **Next-session orchestrator recommendation (Session 3):**
 Claude Sonnet 4.6 @ effort=medium
 Rationale (routed gemini-pro analysis): Session 3 is pattern extraction + string-template emission + unit tests + a one-line Program.cs bugfix — mechanical work that a cost-effective workhorse model handles well; Opus would be overkill. Per the established pattern across Sessions 1 and 2, the human may still choose to swap to Opus 4.7 @ high if Claude Code is already active — that decision belongs at session-start time.
+
+**Next-session orchestrator recommendation (Session 4):**
+Claude Sonnet 4.6 @ effort=medium
+Rationale (routed gemini-pro analysis, 2026-05-17, $0.0036): Session 4 consists
+of documentation edits (3 doc-accuracy reconciliations + 3 doc additions per
+the spec's Section-8 list) and one final end-to-end proof run of the wrapper
+pipeline against Supplier. These tasks do not require Opus-class reasoning;
+Sonnet is highly capable of precise text manipulation and following an
+execution checklist, making it the most cost-effective choice for this final
+reconciliation and proof session. (Note: the routed recommendation literally
+said "sonnet-3.5"; substitute the in-repo Sonnet 4.6.) Per the established
+pattern across Sessions 1–3, the human may still choose to swap to Opus 4.7
+@ high if Claude Code is already active.
+
+This is the LAST session of the set, so Session 4 also runs:
+1. **Generate change-log.md** via `route(task_type="summarization")` (per
+   the `change-log.md is end-of-set, not per-session` memory + lessons-learned).
+2. **Next-session-set recommendation** routed via analysis. The pre-existing
+   master-plan roadmap memory (`project_role_rearchitecture_roadmap`) and the
+   `project_uat_truthful_pipeline` 3-set plan are candidate inputs for the
+   next-set choice.
+3. **Step 9 reorganization review** of project-guidance.md + lessons-learned.md
+   after notify (per the end-of-session-set reorg memory).

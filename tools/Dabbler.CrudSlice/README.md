@@ -19,6 +19,22 @@ a convention-correct one, and additionally emits an API-side
 `{Entity}ApiRegistrationExtensions.cs` for the `Add{Entity}ApiServices()`
 one-liner.
 
+Session 3 added a third emit: `{Entity}Registrations.g.cs`, a copy-paste reference
+file containing four clearly-commented blocks the consumer pastes into the
+`AddDabblerSecurity(...)` lambdas in `Api/Program.cs` and `Web/Program.cs` (API
+entity + endpoints, Web page + endpoints). Shapes match the host's real Supplier
+wiring at `Api/Program.cs:94-103, :135-139` and `Web/Program.cs:155-162, :189-194`,
+including the pre-existing identifier drift between Api side
+(`Query{Entity}`/`Get{Entity}` — singular) and Web side
+(`Query{EntityPlural}`/`Get{Entity}ById` — plural/ById). The file body is wrapped
+in `#if false` so it never compiles even if accidentally included in a csproj
+compile glob.
+
+Block shapes live as embedded resources under
+[`Templates/`](Templates/README.md) and are substituted at render time with
+`{{Entity}}` / `{{EntityPlural}}` / `{{PathPlural}}` / `{{FieldRows}}` placeholders.
+Edit a `.template` file → next wrapper run picks up the change.
+
 ## Usage
 
 ```bash
@@ -78,3 +94,4 @@ out of scope — see `docs/scaffolding-templates/non-mvp-roadmap.md`.)
 | `--template-hive` | (none) | Forwarded as `--debug:custom-hive` to `dotnet new`. |
 | `--skip-templates` | off | Skip the `dotnet new` invocations (emit registrations only). |
 | `--skip-schema-applicator` | off | Skip the schema-applicator pass. |
+| `--skip-registrations` | off | Skip emitting the `{Entity}Registrations.g.cs` copy-paste reference file. |

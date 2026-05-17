@@ -100,7 +100,6 @@ builder.Services.AddDabblerSecurity(options =>
         pages.Add("/customers", "Customers", "Customer management");
         pages.Add("/suppliers", "Suppliers", "Supplier management");
         pages.Add("/orders", "Orders", "Order management");
-        pages.Add("/suppliers", "Suppliers", "Supplier management");
         pages.Add("/admin/users", "User Administration", "Manage backoffice users and roles");
         pages.Add("/admin/products", "Product Administration", "Manage product lists and pricing");
         pages.Add("/admin/security", "Security Dashboard", "Runtime security configuration");

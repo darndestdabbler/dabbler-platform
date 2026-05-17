@@ -13,4 +13,11 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Dabbler.CrudSlice.Tests" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Registration block templates. Loaded as embedded resources at render time
+         by RegistrationReferenceEmitter. Edit a .template file → next wrapper run
+         picks up the change. -->
+    <EmbeddedResource Include="Templates\*.template" />
+  </ItemGroup>
 </Project>

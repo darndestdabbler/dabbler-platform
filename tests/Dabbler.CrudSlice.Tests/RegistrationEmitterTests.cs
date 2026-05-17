@@ -40,7 +40,8 @@ public class RegistrationEmitterTests
             InternalApiKeyDefault: "dev-internal-key-acme",
             TemplateHive: null,
             SkipTemplates: false,
-            SkipSchemaApplicator: false);
+            SkipSchemaApplicator: false,
+            SkipRegistrations: false);
 
     [Fact]
     public void Web_extension_uses_correct_config_key_internal_api_key_and_user_identity_handler()

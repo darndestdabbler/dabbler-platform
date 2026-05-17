@@ -22,7 +22,8 @@ internal sealed record CliOptions(
     string InternalApiKeyDefault,
     string? TemplateHive,
     bool SkipTemplates,
-    bool SkipSchemaApplicator)
+    bool SkipSchemaApplicator,
+    bool SkipRegistrations)
 {
     public static CliOptions Parse(string[] args)
     {
@@ -48,6 +49,7 @@ internal sealed record CliOptions(
         string? templateHive = null;
         bool skipTemplates = false;
         bool skipApplicator = false;
+        bool skipRegistrations = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -77,6 +79,12 @@ internal sealed record CliOptions(
                 case "--template-hive":                   templateHive = Next(); break;
                 case "--skip-templates":                  skipTemplates = true; break;
                 case "--skip-schema-applicator":          skipApplicator = true; break;
+                case "--skip-registrations":              skipRegistrations = true; break;
+                // --emit-registrations is a no-op alias for the default behavior (the
+                // registration reference file is emitted by default; this flag just makes
+                // the intent explicit on the command line for symmetry with --skip-*).
+                // Pair with --skip-templates --skip-schema-applicator for emit-only mode.
+                case "--emit-registrations":              skipRegistrations = false; break;
                 case "-h":
                 case "--help":
                     PrintUsage();
@@ -105,7 +113,7 @@ internal sealed record CliOptions(
             dbCtxType!, dbCtxNs!, pkType, authPolicyPrefix,
             apiBaseUrlKey, apiBaseUrlFallback, apiBaseUrlDefault,
             internalApiKey, internalApiKeyDefault,
-            templateHive, skipTemplates, skipApplicator);
+            templateHive, skipTemplates, skipApplicator, skipRegistrations);
     }
 
     public static void PrintUsage()
@@ -137,6 +145,8 @@ internal sealed record CliOptions(
                 [--template-hive <path>]        (forwarded to dotnet new as --debug:custom-hive)
                 [--skip-templates]              (emit registration helpers only)
                 [--skip-schema-applicator]      (skip schema-driven substitution)
+                [--skip-registrations]          (skip emitting {Entity}Registrations.g.cs copy-paste reference)
+                [--emit-registrations]          (explicit no-op alias for default-on registrations emit)
             """);
     }
 }

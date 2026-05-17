@@ -150,6 +150,128 @@
           "costUsd": 0.0022
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/registration-shapes-extracted",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Catalogued the four registration shapes from Api/Program.cs (entity 94-103, endpoints 135-139) and Web/Program.cs (page line for /suppliers, endpoints 189-194); handled in-conversation by orchestrator (mechanical read).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/registration-generator-impl",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Implemented RegistrationReferenceEmitter writing {Entity}Registrations.g.cs with four clearly-commented blocks (API entities, API endpoints, Web page, Web endpoints). Body wrapped in #if false / #endif so the file never compiles even if added to a csproj compile glob. Schema-driven field rows derived from .dabbler-entity.json, with PrettifyCamelCase helper for display labels. Added --skip-registrations CLI flag and wired the emit into Program.cs after EmitRegistrationFiles.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/registration-generator-tests",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Added RegistrationReferenceEmitterTests (13 facts) asserting: four block headers present, #if false fence wraps the body, entity block matches Api/Program.cs:94-103 shape, endpoint block matches :135-139 shape, page block matches the Web/Program.cs supplier line, paths are lowercased plural, endpoint block appears twice (once per side), empty schema still emits valid C#, header documents shape source line ranges, PrettifyCamelCase parameterized cases, LoadSchemaOrEmpty tolerates missing/unparseable files. Added Skip_registrations_flag_suppresses_reference_file_emit orchestration test and extended EmitRegistrationsOnly + FullPipeline tests to verify the new file.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/duplicate-page-fix",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Removed the duplicate pages.Add(\"/suppliers\", ...) line at Web/Program.cs:103. The line at :101 is retained as the canonical registration.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/registration-generator-pipeline",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Reference emitter is on by default in the wrapper pipeline (Program.cs step 3b). --skip-registrations opt-out exercised by Skip_registrations_flag_suppresses_reference_file_emit. README updated with the new flag and the Session 3 emit description.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/build-test",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "dotnet build Dabbler.Platform.sln succeeded (0 errors, 273 pre-existing warnings). dotnet test (non-Playwright filter): 978 passed, 2 skipped (PackagingSmokeTests gated on pack-output), 0 failed across 13 test assemblies. CrudSlice.Tests: 28/28 pass (includes the SkippableFact FullPipeline against the smoke fixture). Per the saved feedback rule, Playwright is excluded from full-solution runs; this session set has requiresE2E:false so no Playwright work is in scope.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/cross-provider-verification",
+      "dateTime": "2026-05-17T17:55:28.471996-04:00",
+      "description": "Routed session-verification to gpt-5-4 (cross-provider, orchestrator is Anthropic/Opus). ~18351 in, ~6657 out, $0.1457. Saved raw verifier output to session-reviews/session-003.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 18351,
+          "outputTokens": 6657,
+          "costUsd": 0.1457325
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/cross-provider-verification-r2",
+      "dateTime": "2026-05-17T18:00:27.094844-04:00",
+      "description": "Round 2 verification routed to gpt-5-4. ~8149 in, ~1425 out, $0.0417. Saved as session-003.r2.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 8149,
+          "outputTokens": 1425,
+          "costUsd": 0.04174750000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/cross-provider-verification-r3",
+      "dateTime": "2026-05-17T18:20:37.577244-04:00",
+      "description": "Round 3 verification routed to gpt-5-4 on the Templates/ refactor. ~4459 in, ~538 out, $0.0192.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 4459,
+          "outputTokens": 538,
+          "costUsd": 0.0192175
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 10,
+      "stepKey": "session-3/next-orchestrator-recommendation",
+      "dateTime": "2026-05-17T18:22:43.582553-04:00",
+      "description": "Routed Session 4 orchestrator recommendation to gemini-pro. $0.0036.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2134,
+          "outputTokens": 98,
+          "costUsd": 0.0036475
+        }
+      ]
     }
   ]
 }

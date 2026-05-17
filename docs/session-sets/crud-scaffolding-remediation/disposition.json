@@ -1,24 +1,28 @@
 {
   "status": "completed",
-  "summary": "Session 2 of 4 (Repo-aware dabbler-crud-slice wrapper command). Delivers tools/Dabbler.CrudSlice/ — a console-app wrapper that orchestrates dotnet new dabbler-crud-service + dotnet new dabbler-crud-page (as child processes) plus the Session 1 Dabbler.SchemaApplicator (in-process via ProjectReference), and then emits two convention-correct registration helpers: {Entity}ScaffoldingExtensions.cs (Web side: reads Services:ApiBaseUrl first / ApiBaseUrl fallback / hard default, sets X-Internal-Api-Key from DabblerSecurity:InternalApiKey, attaches AddHttpMessageHandler<UserIdentityHandler>, registers typed HttpClient + IGridDataProvider) and {Entity}ApiRegistrationExtensions.cs (API side: AddScoped<I{Entity}Service, {Entity}Service>). Wrapper-as-overwrite design: the dabbler-crud-page template still emits its wrong-convention scaffolding extension, and the wrapper replaces it post-template. The wrapper does NOT modify Program.cs / DbContext / nav menus per anti-pattern #1. tests/Dabbler.CrudSlice.Tests/ adds 5 unit tests against the pure RegistrationEmitter (verifying Services:ApiBaseUrl, X-Internal-Api-Key, UserIdentityHandler, namespace shape, and absence of Api:BaseUrl), 2 orchestration tests (emit-only mode + missing-args usage), and 1 SkippableFact full-pipeline end-to-end test against the SmokeApp fixture that DID run (pack-output present) and exercised dotnet new + schema applicator + emitters end-to-end. Live Supplier slice updated: SupplierScaffoldingExtensions.cs replaced with wrapper output (now reads Services:ApiBaseUrl, sets X-Internal-Api-Key, attaches UserIdentityHandler); new SupplierApiRegistrationExtensions.cs emitted (currently dormant — Web/Program.cs:326-330 and Api/Program.cs:162 still wire Supplier directly; Session 4's end-to-end re-scaffold will adopt the one-liner extensions). Build: clean, 0 errors. Tests: 8/8 CrudSlice, 7/7 SchemaApplicator, 4/4 Templates, 133/133 Web, 51/51 Api (Playwright not run per the one-at-a-time convention). 1 cross-provider verification round via gpt-5-4 ($0.0895): Pass with two explicit non-blocker observations (template-still-wrong-by-default acknowledged, wrapper-unconditional-overwrite acceptable). Plus $0.0022 routed Gemini Pro next-session-recommendation. Session total: $0.09.",
+  "summary": "Session 3 of 4 (Security/catalog registration generator). Adds tools/Dabbler.CrudSlice/RegistrationReferenceEmitter.cs which renders a {Entity}Registrations.g.cs reference file containing four clearly-commented copy-paste blocks (API entity, API endpoints, Web page, Web endpoints) that the consumer pastes into their AddDabblerSecurity(...) lambdas in Api/Program.cs and Web/Program.cs. The block shapes match the host's real Supplier wiring at Api/Program.cs:94-103 (entity), :135-139 (endpoints), Web/Program.cs:155-162 (entity/pages) and :189-194 (endpoints), including the pre-existing host-side identifier drift (Api uses singular Query{Entity}/Get{Entity}; Web uses plural/ById Query{EntityPlural}/Get{Entity}ById). Block shapes live as .template files under tools/Dabbler.CrudSlice/Templates/ (ApiEntityBlock, EntityFieldRow, ApiEndpointBlock, WebPageBlock, WebEndpointBlock) loaded as embedded resources via <EmbeddedResource Include=\"Templates\\*.template\" /> and applied via a {{Placeholder}}-substitution helper inside the emitter. The whole emitted file body is wrapped in #if false / #endif so the reference never compiles even if accidentally included in a csproj compile glob (the wrapper does NOT edit Program.cs per anti-pattern #1). Added --emit-registrations CLI alias (no-op opt-in for default-on emit) + --skip-registrations opt-out. Tests: tests/Dabbler.CrudSlice.Tests/RegistrationReferenceEmitterTests.cs adds 14 facts (4 block-header presence, #if false fence, Api/Web per-side endpoint shape assertions, page-block shape, lowercased plural paths, both-endpoint-blocks emit, empty-schema valid emit, header-documents-shape-source-line-ranges, PrettifyCamelCase parameterized cases, LoadSchemaOrEmpty missing/unparseable tolerance). WrapperOrchestrationTests.Skip_registrations_flag_suppresses_reference_file_emit added; EmitRegistrationsOnly + FullPipeline tests extended to verify the new reference file. Web/Program.cs:103 duplicate /suppliers page registration removed (Web/Program.cs:101 retained as canonical). Build green; 984 tests pass (978 non-Playwright + 6 Testing.Blazor), 2 skipped (PackagingSmoke gated on pack-output), 0 failed. 3 verification rounds via gpt-5-4 ($0.1457 + $0.0417 + $0.0192 = $0.2066): Round 1 ISSUES_FOUND (Major endpoint-shape gap + Minor CLI shape + Minor Templates/ placement); Round 2 Major fixed accepted, Minor 2(a) accepted, Minor 2(b) maintained; human adjudicated to accept verifier finding on 2(b) — Templates/ extraction landed before Round 3 VERIFIED. Plus $0.0036 routed gemini-pro Session 4 orchestrator recommendation. Session total: ~$0.21.",
   "files_changed": [
     "tools/Dabbler.CrudSlice/Dabbler.CrudSlice.csproj",
     "tools/Dabbler.CrudSlice/CliOptions.cs",
-    "tools/Dabbler.CrudSlice/RegistrationEmitter.cs",
-    "tools/Dabbler.CrudSlice/TemplateRunner.cs",
-    "tools/Dabbler.CrudSlice/SchemaApplicatorRunner.cs",
     "tools/Dabbler.CrudSlice/Program.cs",
+    "tools/Dabbler.CrudSlice/RegistrationReferenceEmitter.cs",
     "tools/Dabbler.CrudSlice/README.md",
-    "tests/Dabbler.CrudSlice.Tests/Dabbler.CrudSlice.Tests.csproj",
+    "tools/Dabbler.CrudSlice/Templates/ApiEntityBlock.template",
+    "tools/Dabbler.CrudSlice/Templates/EntityFieldRow.template",
+    "tools/Dabbler.CrudSlice/Templates/ApiEndpointBlock.template",
+    "tools/Dabbler.CrudSlice/Templates/WebPageBlock.template",
+    "tools/Dabbler.CrudSlice/Templates/WebEndpointBlock.template",
+    "tools/Dabbler.CrudSlice/Templates/README.md",
     "tests/Dabbler.CrudSlice.Tests/RegistrationEmitterTests.cs",
+    "tests/Dabbler.CrudSlice.Tests/RegistrationReferenceEmitterTests.cs",
     "tests/Dabbler.CrudSlice.Tests/WrapperOrchestrationTests.cs",
-    "src/Apps/AcmeCoffeeOnline.Web/Data/SupplierScaffoldingExtensions.cs",
-    "src/Apps/AcmeCoffeeOnline.Api/Services/SupplierApiRegistrationExtensions.cs",
-    "Dabbler.Platform.sln",
+    "src/Apps/AcmeCoffeeOnline.Web/Program.cs",
     "docs/session-sets/crud-scaffolding-remediation/ai-assignment.md",
     "docs/session-sets/crud-scaffolding-remediation/session-state.json",
     "docs/session-sets/crud-scaffolding-remediation/session-events.jsonl",
-    "docs/session-sets/crud-scaffolding-remediation/session-reviews/session-002.md",
+    "docs/session-sets/crud-scaffolding-remediation/activity-log.json",
+    "docs/session-sets/crud-scaffolding-remediation/session-reviews/session-003.md",
+    "docs/session-sets/crud-scaffolding-remediation/issue-logs/session-003.json",
     "docs/session-sets/crud-scaffolding-remediation/disposition.json",
     "ai_router/router-metrics.jsonl"
   ],
@@ -31,7 +35,7 @@
     "effort": "medium",
     "reason": {
       "code": "continue-current-trajectory",
-      "specifics": "Session 3 (security/catalog registration generator) is pattern extraction + string-template emission + unit tests + a one-line Program.cs bugfix — mechanical work that the cheapest capable model handles well. Routed Gemini Pro analysis confirms Sonnet-class @ medium is the right tier; Opus would be overkill. Per the established pattern, the human may still choose to swap to Opus 4.7 @ high if Claude Code is already active when starting Session 3."
+      "specifics": "Session 4 is documentation reconciliation (3 doc-accuracy items per the spec's Section-8 list) + 3 doc additions (applicability note, reauthorization gate, recipe) + 1 end-to-end proof re-scaffold via dabbler-crud-slice. These tasks do not require Opus-class reasoning; Sonnet 4.6 is highly capable of precise Markdown editing and following an execution checklist, making it the most cost-effective choice. Routed gemini-pro analysis ($0.0036) confirms Sonnet-class @ medium is the right tier. This is the LAST session of the set, so Session 4 must also generate change-log.md (route to summarization, not documentation, per change-log-template lesson), author the next-session-set recommendation (route to analysis; consider the role-rearchitecture roadmap and the UAT-truthful-pipeline 3-set plan as candidate inputs), and run the Step 9 reorganization review of project-guidance.md + lessons-learned.md after notify."
     }
   },
   "blockers": []

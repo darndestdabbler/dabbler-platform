@@ -69,6 +69,59 @@ public class WrapperOrchestrationTests
             apiSrc.Should().Contain("public static IServiceCollection AddWidgetApiServices(");
             apiSrc.Should().Contain("services.AddScoped<IWidgetService, WidgetService>();");
             apiSrc.Should().Contain("namespace SampleApp.Api.Services;");
+
+            // Session 3: the wrapper now also emits {Entity}Registrations.g.cs as a
+            // copy-paste reference next to the Web extension. Verify the four block
+            // headers, the #if false / #endif fence, and the page + endpoint lines.
+            var refPath = Path.Combine(webRoot, "Data", "WidgetRegistrations.g.cs");
+            File.Exists(refPath).Should().BeTrue("Registrations.g.cs reference file should be emitted");
+            var refSrc = File.ReadAllText(refPath);
+            refSrc.Should().Contain("#if false");
+            refSrc.Should().Contain("#endif");
+            refSrc.Should().Contain("// ── Copy into Api/Program.cs RegisterEntities(...) ");
+            refSrc.Should().Contain("// ── Copy into Api/Program.cs RegisterEndpoints(...) ");
+            refSrc.Should().Contain("// ── Copy into Web/Program.cs RegisterPages(...) ");
+            refSrc.Should().Contain("// ── Copy into Web/Program.cs RegisterEndpoints(...) ");
+            refSrc.Should().Contain("pages.Add(\"/widgets\", \"Widgets\", \"Widget management\");");
+            refSrc.Should().Contain("endpoints.Add(\"CreateWidget\", \"Create Widget\", \"POST\", \"/api/widgets\");");
+        }
+        finally
+        {
+            TryDeleteDirectory(tempDir);
+        }
+    }
+
+    [Fact]
+    public void Skip_registrations_flag_suppresses_reference_file_emit()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"crud-slice-skip-reg-{Guid.NewGuid():N}");
+        var webRoot = Path.Combine(tempDir, "Web");
+        var apiRoot = Path.Combine(tempDir, "Api");
+        Directory.CreateDirectory(webRoot);
+        Directory.CreateDirectory(apiRoot);
+        var schemaPath = Path.Combine(tempDir, "widget.dabbler-entity.json");
+        File.WriteAllText(schemaPath, "{\"entity\":\"Widget\",\"properties\":[]}");
+
+        try
+        {
+            var args = new StringBuilder();
+            args.Append($"--entity Widget --entity-plural Widgets ");
+            args.Append($"--schema \"{schemaPath}\" ");
+            args.Append($"--web-root \"{webRoot}\" --api-root \"{apiRoot}\" ");
+            args.Append($"--web-namespace SampleApp.Web --api-namespace SampleApp.Api ");
+            args.Append($"--shared-namespace SampleApp.Shared --dto-namespace SampleApp.Shared.DTOs ");
+            args.Append($"--entity-namespace SampleApp.Shared.Models ");
+            args.Append($"--dbcontext-type SampleDbContext --dbcontext-namespace SampleApp.Api.Data ");
+            args.Append($"--skip-templates --skip-schema-applicator --skip-registrations");
+
+            var (exit, output) = RunCrudSlice(args.ToString());
+            exit.Should().Be(0, $"Dabbler.CrudSlice should exit 0 in skip-registrations mode. Output:\n{output}");
+
+            // The two convention-correct helpers still emit; only the reference file is suppressed.
+            File.Exists(Path.Combine(webRoot, "Data", "WidgetScaffoldingExtensions.cs")).Should().BeTrue();
+            File.Exists(Path.Combine(apiRoot, "Services", "WidgetApiRegistrationExtensions.cs")).Should().BeTrue();
+            File.Exists(Path.Combine(webRoot, "Data", "WidgetRegistrations.g.cs")).Should().BeFalse(
+                "--skip-registrations must suppress the {Entity}Registrations.g.cs emit");
         }
         finally
         {
@@ -167,6 +220,16 @@ public class WrapperOrchestrationTests
             var apiExt = File.ReadAllText(Path.Combine(tempDir, "Services", "SmokeApiRegistrationExtensions.cs"));
             apiExt.Should().Contain("public static IServiceCollection AddSmokeApiServices(");
             apiExt.Should().Contain("services.AddScoped<ISmokeService, SmokeService>();");
+
+            // e. Session 3 — registrations reference file is also emitted, schema-driven.
+            //    The smoke schema includes a Name property, so the entity block should list it.
+            var refPath = Path.Combine(tempDir, "Data", "SmokeRegistrations.g.cs");
+            File.Exists(refPath).Should().BeTrue("Session 3 reference emit should produce SmokeRegistrations.g.cs");
+            var refSrc = File.ReadAllText(refPath);
+            refSrc.Should().Contain("#if false");
+            refSrc.Should().Contain("entities.Add(\"Smoke\", \"Smoke\", fields =>");
+            refSrc.Should().Contain("pages.Add(\"/smokes\", \"Smokes\", \"Smoke management\");");
+            refSrc.Should().Contain("endpoints.Add(\"CreateSmoke\", \"Create Smoke\", \"POST\", \"/api/smokes\");");
         }
         finally
         {
