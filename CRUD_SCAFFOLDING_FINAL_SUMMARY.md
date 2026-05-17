@@ -179,16 +179,16 @@ Per spec, only four documented integration points required (though Granularity 3
    - Supplier ↔ SupplierDto mapping profile added to existing mapper configuration
 
 3. **DI Registration** (`src/Apps/AcmeCoffeeOnline.Web/Program.cs`):
-   - Option A: Use the generated convenience extension:
-     ```csharp
-     builder.Services.AddSupplierScaffolding();
-     ```
-   - Option B: Wire services directly:
-     ```csharp
-     builder.Services.AddScoped<HttpClient<SupplierApiClient>>();
-     builder.Services.AddScoped<IGridDataProvider<SupplierDto>, SupplierGridDataProvider>();
-     ```
-   - The template generates `SupplierScaffoldingExtensions.cs` for Option A; both approaches are valid.
+
+   The wrapper-generated `SupplierScaffoldingExtensions.cs` (output of `dabbler-crud-slice`, replacing the earlier hand-authored convention-drifting version) is the single source of truth for integration wiring:
+
+   ```csharp
+   builder.Services.AddSupplierScaffolding(builder.Configuration);
+   ```
+
+   The generated extension reads `Services:ApiBaseUrl` (matching `Web/Program.cs` host wiring), sets the `X-Internal-Api-Key` header, and attaches `UserIdentityHandler` — so a consumer that calls it gets convention-correct wiring with no further hand-edits. Manual DI wiring (`AddScoped<...>` calls in `Program.cs`) is no longer the documented integration mechanism; the generated extension is.
+
+   The `crud-scaffolding-remediation` session set replaced the original hand-authored `SupplierScaffoldingExtensions.cs` (which read the wrong config key `Api:BaseUrl`, omitted the `X-Internal-Api-Key` header, and omitted `UserIdentityHandler`) with the wrapper's convention-correct output.
 
 4. **Navigation menu** (e.g., `src/Apps/AcmeCoffeeOnline.Web/Components/Layout/Sidebar.razor`):
    - **Status:** Deferred to Granularity 3 automation (not included in reference scaffold)
@@ -401,7 +401,7 @@ Generated form fields use `Value`/`ValueChanged` binding to enable `EditSession<
 | `Dabbler.Templates.Tests` (smoke) | ✓ Pass | ✓ Pass |
 | `AcmeCoffeeOnline.Api.Tests` (unit) | ✓ Pass | ✓ Pass |
 | `AcmeCoffeeOnline.Web.Tests` (unit) | ✓ Pass | ✓ Pass |
-| `AcmeCoffeeOnline.Playwright` (E2E) | N/A | ✓ Green (manual verification of `/suppliers` route) |
+| `AcmeCoffeeOnline.Playwright` (E2E) | N/A | Deferred per spec — no automated Playwright suite run for this set; `/suppliers` reachability confirmed via the `CrudServiceTemplateTests` / `CrudPageTemplateTests` smoke fixtures and manual URL navigation. End-to-end browser verification remains deferred until a Playwright suite is authored. |
 | Build (`Dabbler.Platform.sln`) | ✓ Clean | ✓ Clean |
 
 ### Documentation Completeness

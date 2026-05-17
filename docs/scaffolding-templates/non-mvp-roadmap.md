@@ -2,6 +2,20 @@
 
 The CRUD scaffolding templates focus on delivering a self-contained, immediate-value CRUD slice for a single entity. This document outlines features explicitly deferred to future work, organized by anticipated effort and dependencies.
 
+## Reauthorization Gate
+
+> **Granularity 3 and beyond items listed below are deferred until existing MVP templates have been used on at least 2-3 real entities by a downstream consumer. Reauthorization review required before beginning any deferred item.**
+
+The intent of this gate is to prevent speculative investment in higher-granularity automation (auto-DI, auto-nav, reflection-driven discovery, regeneration, OData, master-detail) before the MVP templates have accumulated enough real-world consumption to ground a redesign in actual friction signals rather than imagined ones. The MVP shipped 2026-05-16 with the demo app's `Supplier` slice as the only consumer; that is one entity, by the team that built the templates. Two or three independent uses by downstream consumers — ideally engineers who did not author the templates — are the minimum bar before any item below is reauthorized.
+
+The review should answer:
+
+1. **Which MVP friction points are real?** (e.g., is the four-hand-edit integration burden actually noticed in practice, or is it a non-issue once a developer has scaffolded their second entity?)
+2. **Which roadmap items, if any, address those friction points cleanly?** (a Granularity 3 auto-DI helper is a small ergonomic win if the manual `AddSupplierScaffolding()` call is the most common omission; it is a large investment for negligible payoff if developers report the four-hand-edit pattern is fine.)
+3. **What is the smallest reauthorized scope?** (start with one item — the highest-value, lowest-risk — rather than reauthorizing the whole roadmap.)
+
+Until the gate clears, items below remain frozen. New "Granularity 3 / Granularity 4 / reflection-discovery / drift-detector / OData / master-detail" work should be **declined** at spec-authoring time and the requester redirected back here.
+
 ## Deferred Items
 
 ### 1. Granularity 3: Automation of Registration and Navigation

@@ -272,6 +272,164 @@
           "costUsd": 0.0036475
         }
       ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/doc-accuracy-item-1-wiring",
+      "dateTime": "2026-05-17T19:21:51.133249-04:00",
+      "description": "Reconciled doc-accuracy item 1: updated CRUD_SCAFFOLDING_FINAL_SUMMARY.md + docs/scaffolding-templates/README.md to establish wrapper-generated SupplierScaffoldingExtensions.cs as single source of truth for integration wiring.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/doc-accuracy-item-2-nav-menu",
+      "dateTime": "2026-05-17T19:21:51.134256-04:00",
+      "description": "Reconciled doc-accuracy item 2: updated docs/scaffolding-templates/crud-page-template.md to clarify nav menu wiring is NOT generated (deferred to Granularity 3). Integration points reduced from 3 to 2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/doc-accuracy-item-3-playwright",
+      "dateTime": "2026-05-17T19:21:51.134256-04:00",
+      "description": "Reconciled doc-accuracy item 3: corrected Testing Matrix row in CRUD_SCAFFOLDING_FINAL_SUMMARY.md to state Playwright suite is deferred (smoke tests are the only automated proof).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/applicability-note-added",
+      "dateTime": "2026-05-17T19:21:51.135250-04:00",
+      "description": "Added harvester 8a applicability note to top of docs/scaffolding-templates/README.md ('For: single-entity CRUD/admin slices; Not for: workflow-driven flows').",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/reauthorization-gate-added",
+      "dateTime": "2026-05-17T19:21:51.136248-04:00",
+      "description": "Added harvester 8c reauthorization gate to top of docs/scaffolding-templates/non-mvp-roadmap.md ('Granularity 3+ deferred until 2-3 downstream uses').",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/recipe-added",
+      "dateTime": "2026-05-17T19:21:51.137247-04:00",
+      "description": "Created harvester 8d new file docs/scaffolding-templates/recipes/extend-crud-page-with-workflow-action.md - worked example of partial-class extension + custom action service + endpoint + API client method + CustomActions slot button.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/e2e-proof-complete",
+      "dateTime": "2026-05-17T19:21:51.138250-04:00",
+      "description": "End-to-end proof: ran dabbler-crud-slice against a temp directory; output byte-identical to the committed Supplier slice (non-destructive interpretation; verifier accepted deviation). 40/40 scaffolding-set tests pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/feedback-remediation-resolved",
+      "dateTime": "2026-05-17T19:21:51.138250-04:00",
+      "description": "Updated FEEDBACK_REMEDIATION_SUMMARY.md to mark all three doc-accuracy items as Resolved with cross-links; top-of-document status flipped from Partial to Fully Remediated.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-05-17T19:21:51.140090-04:00",
+      "description": "dotnet build Dabbler.Platform.sln SUCCESS (0 errors). Dabbler.Templates.Tests 4/4 + Dabbler.SchemaApplicator.Tests 7/7 + Dabbler.CrudSlice.Tests 29/29 = 40/40 PASS.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/verification-round-1",
+      "dateTime": "2026-05-17T19:21:51.141300-04:00",
+      "description": "Cross-provider session-verification Round 1 via gpt-5-4. Verdict: FAIL with 1 MEDIUM finding (recipe path/namespace bug). 7/8 requirements PASS; Step 4.7 deviation accepted.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 28000,
+          "outputTokens": 1100,
+          "costUsd": 0.182385
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 11,
+      "stepKey": "session-4/recipe-path-fix",
+      "dateTime": "2026-05-17T19:21:51.142310-04:00",
+      "description": "Fixed recipe Step 4 to point to Web/Data/SupplierApiClient.cs with namespace <WebRoot>.Data (matches template-generated output).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 12,
+      "stepKey": "session-4/verification-round-2",
+      "dateTime": "2026-05-17T19:21:51.143299-04:00",
+      "description": "Cross-provider session-verification Round 2 via gpt-5-4. Verdict: PASS for Step 4.6. All other steps unchanged from Round 1 PASS.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3500,
+          "outputTokens": 300,
+          "costUsd": 0.057045
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 13,
+      "stepKey": "session-4/change-log-authored",
+      "dateTime": "2026-05-17T19:21:51.144310-04:00",
+      "description": "Authored change-log.md via routed summarization (last session of set).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 2500,
+          "outputTokens": 600,
+          "costUsd": 0.0011
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 14,
+      "stepKey": "session-4/next-set-recommendation",
+      "dateTime": "2026-05-17T19:21:51.145309-04:00",
+      "description": "Routed next-session-set recommendation via gemini-pro: security-dashboard composite migration.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 750,
+          "outputTokens": 175,
+          "costUsd": 0.0027
+        }
+      ]
     }
   ]
 }

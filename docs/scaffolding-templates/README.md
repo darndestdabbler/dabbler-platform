@@ -2,6 +2,34 @@
 
 The Dabbler CRUD scaffolding templates reduce the effort of adding a new entity to a Dabbler-platform application from hand-authoring six+ files to a two-command invocation that produces a self-contained, compiling, runnable CRUD slice.
 
+## When To Use This Scaffolder
+
+**For:** single-entity CRUD and admin slices — suppliers, shippers, payment methods, lookup tables, reference data, and similarly shaped entity-maintenance surfaces. The templates produce one list page, one detail/edit page, and the supporting service tier for a single entity.
+
+**Not for:** workflow-driven flows with status state machines, transition gates, multi-entity orchestration, or domain-specific commands (e.g., order placement, return-merchandise authorization, payment authorization). Author those pages by hand. The scaffolder is appropriate for entity-maintenance surfaces *adjacent* to a workflow (e.g., the supplier or product catalog the order workflow consumes), but not for the workflow itself.
+
+If a candidate page expresses a sequence of business operations rather than CRUD over a single row shape, the scaffolder is the wrong tool — start from a hand-authored page and adopt the platform's composable helpers (`EditSession<T>`, `<DirtyAwareActionRow>`, `<DeclarativeFilterPanel>`, `MasterDetailExpansionShell`) à la carte.
+
+## The `dabbler-crud-slice` Wrapper
+
+For new work, prefer the repo-aware `dabbler-crud-slice` wrapper CLI over invoking the two underlying templates by hand. The wrapper:
+
+- Invokes `dabbler-crud-service` and `dabbler-crud-page` in one command
+- Runs the cross-platform `Dabbler.SchemaApplicator` post-process (no PowerShell dependency)
+- Emits convention-correct registration helpers that match the real host wiring (config keys, `X-Internal-Api-Key` header, `UserIdentityHandler`)
+- Emits a copy-paste `{Entity}Registrations.g.cs` file with the security/catalog blocks for `Api/Program.cs` and `Web/Program.cs`
+
+Usage:
+
+```bash
+dotnet run --project tools/Dabbler.CrudSlice -- \
+  --entity Supplier --plural Suppliers \
+  --schema supplier.dabbler-entity.json \
+  --output src/Apps/AcmeCoffeeOnline.Web
+```
+
+The two underlying templates (`dabbler-crud-service`, `dabbler-crud-page`) remain documented in [crud-service-template.md](crud-service-template.md) and [crud-page-template.md](crud-page-template.md) for users who need finer-grained control. The wrapper is the recommended entry point for end-to-end onboarding.
+
 ## Prerequisites
 
 - `.NET 8` or later

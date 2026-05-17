@@ -1,9 +1,9 @@
 # CRUD Scaffolding Session Sets (4 & 5) — Feedback Remediation Summary
 
-**Date:** 2026-05-16  
-**Prepared by:** Claude Code orchestrator (Haiku 4.5)  
-**Feedback Source:** Gemini Pro & GPT-5.4 final evaluation  
-**Status:** 🟡 Partial Remediation (Critical DI gaps fixed; design concerns documented)
+**Date:** 2026-05-16 (initial); 2026-05-17 (doc-accuracy items resolved in `crud-scaffolding-remediation` Session 4)
+**Prepared by:** Claude Code orchestrator (Haiku 4.5)
+**Feedback Source:** Gemini Pro & GPT-5.4 final evaluation
+**Status:** ✅ Fully Remediated — Critical DI gaps fixed (2026-05-16); design concerns documented; three doc-accuracy items resolved by the follow-on `crud-scaffolding-remediation` session set
 
 ---
 
@@ -218,12 +218,9 @@ builder.Services.AddScoped<HttpClient<SupplierApiClient>>();
 builder.Services.AddScoped<IGridDataProvider<SupplierDto>, SupplierGridDataProvider>();
 ```
 
-**Status:** ℹ️ **CLARIFICATION NEEDED**
+**Status:** ✅ **RESOLVED** (2026-05-17, `crud-scaffolding-remediation` Sessions 2 + 4)
 
-**Correction:**
-The reference scaffold in the demo app does NOT use `AddSupplierScaffolding()`. Instead, it demonstrates the **traditional** DI wiring pattern. The template **generates** the `SupplierScaffoldingExtensions.cs` file, but consuming the demo app chose to hand-wire instead.
-
-**Updated Claim:** "The `SupplierScaffoldingExtensions.cs` file is generated and available for use; the demo app demonstrates both patterns (direct wiring and the convenience extension)."
+**Resolution:** The original dual-pattern ambiguity was eliminated. Session 2 of `crud-scaffolding-remediation` replaced the hand-authored `SupplierScaffoldingExtensions.cs` with the convention-correct wrapper-generated version (reading `Services:ApiBaseUrl`, setting `X-Internal-Api-Key`, attaching `UserIdentityHandler`). Session 4 updated [`CRUD_SCAFFOLDING_FINAL_SUMMARY.md`](CRUD_SCAFFOLDING_FINAL_SUMMARY.md) and [`docs/scaffolding-templates/README.md`](docs/scaffolding-templates/README.md) so the wrapper-generated extension is documented as the single source of truth for integration wiring. The four-Option-A-vs-Option-B paragraph is gone; the canonical instruction is now one line: `builder.Services.AddSupplierScaffolding(builder.Configuration);`.
 
 ---
 
@@ -234,11 +231,9 @@ The reference scaffold in the demo app does NOT use `AddSupplierScaffolding()`. 
 
 But no entry is found in Components/Layout/ or Sidebar.
 
-**Status:** ❌ **MISSING**
+**Status:** ✅ **RESOLVED** (2026-05-17, `crud-scaffolding-remediation` Session 4)
 
-**Root Cause:** Granularity 3 automation (menu registration) was explicitly deferred to a follow-on set. The summary text was aspirational, not actual.
-
-**Correction:** Remove the claim that nav entry was added. State instead: "Granularity 3 automation (navigation registration) is deferred to a follow-on set; the demo app does not yet have a menu entry, and users navigate directly to `/suppliers` by URL."
+**Resolution:** [`docs/scaffolding-templates/crud-page-template.md`](docs/scaffolding-templates/crud-page-template.md) now explicitly states the template does **not** generate a navigation menu entry; the menu wiring section is labeled "Navigation Menu (NOT Generated)" and explains that automated nav registration is deferred to Granularity 3, gated by the reauthorization clause in [`non-mvp-roadmap.md`](docs/scaffolding-templates/non-mvp-roadmap.md). Integration points in `crud-page-template.md` reduced from three to two (DI registration + schema application); nav wiring is documented separately as a manual hand-edit.
 
 ---
 
@@ -248,11 +243,9 @@ But no entry is found in Components/Layout/ or Sidebar.
 - Line 215: "Playwright E2E: deferred to consuming app's test cycle per spec"
 - Line 676: "✓ Playwright E2E verified"
 
-**Status:** ❌ **CONTRADICTORY**
+**Status:** ✅ **RESOLVED** (2026-05-17, `crud-scaffolding-remediation` Session 4)
 
-**Fact:** Playwright tests were NOT run in Session 5 because the spec explicitly defers them ("not run in Session 5 per spec"). The reference scaffold is proven via build and URL navigation, not automated E2E tests.
-
-**Correction:** Remove the "Playwright E2E verified" claim. Replace with "Playwright E2E: deferred per spec; manual URL verification of `/suppliers` route completed."
+**Resolution:** The Testing Matrix row in [`CRUD_SCAFFOLDING_FINAL_SUMMARY.md`](CRUD_SCAFFOLDING_FINAL_SUMMARY.md) that previously claimed "✓ Green" for the Playwright suite was rewritten to state explicitly: smoke tests via `CrudServiceTemplateTests` / `CrudPageTemplateTests` are automated; end-to-end Playwright browser verification remains deferred until a dedicated Playwright suite is authored. The contradiction with the earlier deferred-per-spec note is gone — both statements now agree.
 
 ---
 
@@ -270,9 +263,9 @@ But no entry is found in Components/Layout/ or Sidebar.
 | 4-artifact sync burden | MEDIUM | 🟡 By Design | Granularity 3 automation deferred |
 | Manual integration runtime fragility | MEDIUM | ✅ Mitigated | Documented with smoke test example |
 | Value/ValueChanged verbosity | MEDIUM | 🟡 By Design | Platform convention; custom component future work |
-| Claimed AddSupplierScaffolding() usage | MEDIUM | ❌ Fix Docs | Summary to clarify dual-pattern approach |
-| Missing nav menu entry | MEDIUM | ❌ Fix Docs | Summary to clarify Granularity 3 deferral |
-| Playwright claim contradiction | MEDIUM | ❌ Fix Docs | Summary to remove false verification claim |
+| Claimed AddSupplierScaffolding() usage | MEDIUM | ✅ Resolved (2026-05-17) | `crud-scaffolding-remediation` Sessions 2 + 4 — wrapper-generated extension is single source of truth |
+| Missing nav menu entry | MEDIUM | ✅ Resolved (2026-05-17) | `crud-scaffolding-remediation` Session 4 — `crud-page-template.md` clarifies nav is NOT generated |
+| Playwright claim contradiction | MEDIUM | ✅ Resolved (2026-05-17) | `crud-scaffolding-remediation` Session 4 — Testing Matrix rewritten |
 
 ---
 

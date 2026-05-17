@@ -1,41 +1,30 @@
 {
   "status": "completed",
-  "summary": "Session 3 of 4 (Security/catalog registration generator). Adds tools/Dabbler.CrudSlice/RegistrationReferenceEmitter.cs which renders a {Entity}Registrations.g.cs reference file containing four clearly-commented copy-paste blocks (API entity, API endpoints, Web page, Web endpoints) that the consumer pastes into their AddDabblerSecurity(...) lambdas in Api/Program.cs and Web/Program.cs. The block shapes match the host's real Supplier wiring at Api/Program.cs:94-103 (entity), :135-139 (endpoints), Web/Program.cs:155-162 (entity/pages) and :189-194 (endpoints), including the pre-existing host-side identifier drift (Api uses singular Query{Entity}/Get{Entity}; Web uses plural/ById Query{EntityPlural}/Get{Entity}ById). Block shapes live as .template files under tools/Dabbler.CrudSlice/Templates/ (ApiEntityBlock, EntityFieldRow, ApiEndpointBlock, WebPageBlock, WebEndpointBlock) loaded as embedded resources via <EmbeddedResource Include=\"Templates\\*.template\" /> and applied via a {{Placeholder}}-substitution helper inside the emitter. The whole emitted file body is wrapped in #if false / #endif so the reference never compiles even if accidentally included in a csproj compile glob (the wrapper does NOT edit Program.cs per anti-pattern #1). Added --emit-registrations CLI alias (no-op opt-in for default-on emit) + --skip-registrations opt-out. Tests: tests/Dabbler.CrudSlice.Tests/RegistrationReferenceEmitterTests.cs adds 14 facts (4 block-header presence, #if false fence, Api/Web per-side endpoint shape assertions, page-block shape, lowercased plural paths, both-endpoint-blocks emit, empty-schema valid emit, header-documents-shape-source-line-ranges, PrettifyCamelCase parameterized cases, LoadSchemaOrEmpty missing/unparseable tolerance). WrapperOrchestrationTests.Skip_registrations_flag_suppresses_reference_file_emit added; EmitRegistrationsOnly + FullPipeline tests extended to verify the new reference file. Web/Program.cs:103 duplicate /suppliers page registration removed (Web/Program.cs:101 retained as canonical). Build green; 984 tests pass (978 non-Playwright + 6 Testing.Blazor), 2 skipped (PackagingSmoke gated on pack-output), 0 failed. 3 verification rounds via gpt-5-4 ($0.1457 + $0.0417 + $0.0192 = $0.2066): Round 1 ISSUES_FOUND (Major endpoint-shape gap + Minor CLI shape + Minor Templates/ placement); Round 2 Major fixed accepted, Minor 2(a) accepted, Minor 2(b) maintained; human adjudicated to accept verifier finding on 2(b) — Templates/ extraction landed before Round 3 VERIFIED. Plus $0.0036 routed gemini-pro Session 4 orchestrator recommendation. Session total: ~$0.21.",
+  "summary": "Session 4 of 4 (LAST — Documentation reconciliation + harvester section-8 additions + end-to-end proof). Reconciled the three doc-accuracy items from FEEDBACK_REMEDIATION_SUMMARY.md (Item 1: wiring single-source-of-truth in CRUD_SCAFFOLDING_FINAL_SUMMARY.md + docs/scaffolding-templates/README.md — the wrapper-generated SupplierScaffoldingExtensions.cs is the documented integration mechanism, replacing the prior Option-A/Option-B dual-pattern ambiguity; Item 2: nav-menu correction in docs/scaffolding-templates/crud-page-template.md — added explicit 'Navigation Menu (NOT Generated)' section explaining the menu wiring is a manual hand-edit deferred to Granularity 3, and reduced integration points from 3 to 2; Item 3: Playwright/manual-verification contradiction in CRUD_SCAFFOLDING_FINAL_SUMMARY.md Testing Matrix row corrected to state Playwright suite is deferred — smoke tests via CrudServiceTemplateTests / CrudPageTemplateTests are the only automated proof). Added applicability note to top of docs/scaffolding-templates/README.md ('For: single-entity CRUD/admin slices; Not for: workflow-driven flows with status state machines, transition gates, multi-entity orchestration, domain-specific commands'). Added reauthorization gate to top of docs/scaffolding-templates/non-mvp-roadmap.md ('Granularity 3+ items deferred until existing MVP templates have been used on 2-3 real entities by a downstream consumer; reauthorization review required before beginning any deferred item'). Created docs/scaffolding-templates/recipes/extend-crud-page-with-workflow-action.md (new file) — worked example of adding a 'Send Onboarding Email' workflow-adjacent action to a generated CRUD page via narrow ISupplierWorkflowService + endpoint + API-client-partial-class + CustomActions slot button + page-partial-class handler; explicitly bounds the recipe's applicability ('adjacent domain actions on a single CRUD entity; NOT for workflow-driven flows'). Updated FEEDBACK_REMEDIATION_SUMMARY.md top-of-document status from 'Partial Remediation' to 'Fully Remediated' with all three doc-accuracy items marked Resolved with cross-links to the resolving file changes. End-to-end re-scaffold proof: ran `dotnet run --project tools/Dabbler.CrudSlice` against a temp directory mirroring the Web+Api project structure; wrapper completed all four pipeline phases (service template, page template, schema applicator, registration emit); SupplierScaffoldingExtensions.cs and SupplierApiRegistrationExtensions.cs from the temp dir are BYTE-IDENTICAL to the committed Supplier slice — proves wrapper regeneration determinism + convention correctness; SupplierRegistrations.g.cs (wrapped in #if false) contains all four blocks; convention checks verified (Services:ApiBaseUrl, X-Internal-Api-Key, UserIdentityHandler present; no occurrences of the wrong key Api:BaseUrl); no duplicate /suppliers page registration in Web/Program.cs (Session 3 fix in place). Non-destructive proof interpretation (temp-dir diff vs. deleting the live demo app's Supplier code) explicitly disclosed to the verifier; deviation accepted. Build green; Dabbler.Templates.Tests 4/4, Dabbler.SchemaApplicator.Tests 7/7, Dabbler.CrudSlice.Tests 29/29 = 40/40 scaffolding-set tests pass. Verification: 2 rounds via gpt-5-4 ($0.1824 Round 1 ISSUES_FOUND + $0.0570 Round 2 PASS). Round 1 finding (MEDIUM): recipe Step 4 told the reader to extend src/Apps/.../Web/Services/SupplierApiClient.cs with namespace AcmeCoffeeOnline.Web.Services; the dabbler-crud-page template actually generates the file at Web/Data/SupplierApiClient.cs with namespace <WebRoot>.Data. Recipe path + namespace corrected to match the template's generated output; Round 2 PASS. Plus $0.0011 summarization (gemini-flash) for change-log.md and $0.0027 analysis (gemini-pro) for next-session-set recommendation. Session 4 total: ~$0.24. Set total: ~$0.74.",
   "files_changed": [
-    "tools/Dabbler.CrudSlice/Dabbler.CrudSlice.csproj",
-    "tools/Dabbler.CrudSlice/CliOptions.cs",
-    "tools/Dabbler.CrudSlice/Program.cs",
-    "tools/Dabbler.CrudSlice/RegistrationReferenceEmitter.cs",
-    "tools/Dabbler.CrudSlice/README.md",
-    "tools/Dabbler.CrudSlice/Templates/ApiEntityBlock.template",
-    "tools/Dabbler.CrudSlice/Templates/EntityFieldRow.template",
-    "tools/Dabbler.CrudSlice/Templates/ApiEndpointBlock.template",
-    "tools/Dabbler.CrudSlice/Templates/WebPageBlock.template",
-    "tools/Dabbler.CrudSlice/Templates/WebEndpointBlock.template",
-    "tools/Dabbler.CrudSlice/Templates/README.md",
-    "tests/Dabbler.CrudSlice.Tests/RegistrationEmitterTests.cs",
-    "tests/Dabbler.CrudSlice.Tests/RegistrationReferenceEmitterTests.cs",
-    "tests/Dabbler.CrudSlice.Tests/WrapperOrchestrationTests.cs",
-    "src/Apps/AcmeCoffeeOnline.Web/Program.cs",
+    "docs/scaffolding-templates/README.md",
+    "docs/scaffolding-templates/crud-page-template.md",
+    "docs/scaffolding-templates/non-mvp-roadmap.md",
+    "docs/scaffolding-templates/recipes/extend-crud-page-with-workflow-action.md",
+    "CRUD_SCAFFOLDING_FINAL_SUMMARY.md",
+    "FEEDBACK_REMEDIATION_SUMMARY.md",
     "docs/session-sets/crud-scaffolding-remediation/ai-assignment.md",
     "docs/session-sets/crud-scaffolding-remediation/session-state.json",
     "docs/session-sets/crud-scaffolding-remediation/session-events.jsonl",
     "docs/session-sets/crud-scaffolding-remediation/activity-log.json",
-    "docs/session-sets/crud-scaffolding-remediation/session-reviews/session-003.md",
-    "docs/session-sets/crud-scaffolding-remediation/issue-logs/session-003.json",
+    "docs/session-sets/crud-scaffolding-remediation/session-reviews/session-004.md",
+    "docs/session-sets/crud-scaffolding-remediation/issue-logs/session-004.json",
     "docs/session-sets/crud-scaffolding-remediation/disposition.json",
+    "docs/session-sets/crud-scaffolding-remediation/change-log.md",
     "ai_router/router-metrics.jsonl"
   ],
   "verification_method": "api",
   "verification_message_ids": [],
-  "next_orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "medium",
+  "next_session_set": {
+    "slug": "security-dashboard-composite-migration",
     "reason": {
-      "code": "continue-current-trajectory",
-      "specifics": "Session 4 is documentation reconciliation (3 doc-accuracy items per the spec's Section-8 list) + 3 doc additions (applicability note, reauthorization gate, recipe) + 1 end-to-end proof re-scaffold via dabbler-crud-slice. These tasks do not require Opus-class reasoning; Sonnet 4.6 is highly capable of precise Markdown editing and following an execution checklist, making it the most cost-effective choice. Routed gemini-pro analysis ($0.0036) confirms Sonnet-class @ medium is the right tier. This is the LAST session of the set, so Session 4 must also generate change-log.md (route to summarization, not documentation, per change-log-template lesson), author the next-session-set recommendation (route to analysis; consider the role-rearchitecture roadmap and the UAT-truthful-pipeline 3-set plan as candidate inputs), and run the Step 9 reorganization review of project-guidance.md + lessons-learned.md after notify."
+      "code": "next-from-backlog-no-master-plan",
+      "specifics": "Routed gemini-pro analysis (2026-05-17, $0.0027) recommends Security-dashboard composite migration as the next session set. Prerequisite `unified-master-details-composite` is closed; the work is unblocked. Scope: migrate the security dashboard's tabs (currently a bespoke composite shell) onto the new generic MasterDetailExpansionShell, reducing UI-architecture drift and consolidating composite shells. Estimated 3-4 sessions; requiresUAT=true (UI surface). Preferred over the pre-orchestration-routing-plan (still conceptual; needs spec authoring first) and the UAT-truthful-pipeline W2 (ambiguous closure status under the literal slug). Spec authoring is the next prerequisite step before kickoff."
     }
   },
   "blockers": []

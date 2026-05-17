@@ -134,10 +134,44 @@ moderate
 | 8 | Update `FEEDBACK_REMEDIATION_SUMMARY.md` | route(Sonnet) |
 
 ### Actuals (filled after the session)
-- Orchestrator used: <fill at session close>
-- Total routed cost: <fill at session close>
-- Deviations from recommendation: <fill at session close>
-- Notes for next-session calibration: <fill at session close>
+- Orchestrator used: claude-code Opus 4.7 @ effort=high (DEVIATION — see below)
+- Total routed cost: ~$0.27 across the session
+  ($0.1824 Round 1 session-verification gpt-5-4 + $0.0570 Round 2 gpt-5-4
+  + $0.0011 summarization gemini-flash for change-log
+  + $0.0027 analysis gemini-pro for next-set recommendation
+  + ~$0.03 misc activity-log routed calls if any)
+- Deviations from recommendation: Ran on Opus 4.7 instead of recommended Sonnet 4.6.
+  Per `feedback_honor_spec_sized_orchestrator.md` the human was offered the swap at session
+  start and explicitly chose to continue on Opus (active context, established pattern
+  across Sessions 1-3). All eight implementation steps handled in-conversation by the
+  orchestrator (single-file edits and narrow file additions under the delegation threshold).
+  No routed reasoning required beyond verification + change-log + next-set rec.
+  Step 4.7 deviation: re-scaffolded into a temp directory and diffed against the committed
+  Supplier slice rather than literally "delete the existing Supplier scaffold outputs"
+  per the spec's literal reading — the verifier accepted the non-destructive interpretation.
+- Notes for next-session calibration: Session 4 was checklist-driven Markdown editing plus
+  one new recipe file plus a regenerability proof. Sonnet would almost certainly have
+  produced the same output for less; Opus's premium added no value on the mechanical
+  edits. The verifier's one MEDIUM finding (recipe path/namespace) was a real correctness
+  defect — the recipe pointed to `Web/Services/SupplierApiClient.cs` with namespace
+  `Web.Services` when the template generates to `Web/Data/SupplierApiClient.cs` with
+  namespace `Web.Data`. A closer pre-emission self-review (or cheaper authoring with a
+  catalog-of-template-output-paths attached) would have caught it. Round 2 verification
+  cost $0.057 to confirm the fix.
+
+**Next-session-set recommendation (routed gemini-pro analysis, 2026-05-17, $0.0027):**
+
+The recommended next session set is the **Security-dashboard composite migration**. With
+its prerequisite `unified-master-details-composite` now closed, this work is unblocked and
+represents a logical next step in unifying the platform's UI architecture. This 3-4
+session effort will migrate the security dashboard's tabs from a bespoke composite shell
+to the new generic `MasterDetailExpansionShell`, reducing technical debt and improving
+long-term maintainability. This candidate is favored over the `pre-orchestration-routing-plan`
+because it is a fully scoped product enhancement ready for implementation, whereas the
+routing plan is conceptual and requires a planning/specification phase. It is also
+preferred over the `UAT-truthful-pipeline` workstream, as the status of its second
+component is ambiguous and requires clarification before it can be scheduled. This choice
+prioritizes executing clear, prepared work to maintain project momentum.
 
 **Next-session orchestrator recommendation (Session 2):**
 Claude Sonnet 4.6 @ effort=medium

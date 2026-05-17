@@ -311,22 +311,33 @@ Add buttons beyond the default Create/Edit/Delete:
 
 ## Integration Points
 
-After generation, three required integration points need hand-edits:
+After generation, two required integration points need hand-edits:
 
 1. **DI Registration** (in `Program.cs`):
    ```csharp
    builder.Services.AddSupplierScaffolding(builder.Configuration);
    ```
 
-2. **Navigation Menu** (in your layout or nav component):
-   ```razor
-   <NavLink href="/suppliers">Suppliers</NavLink>
+2. **Schema Application** (one-time, after generation):
+   ```bash
+   dotnet run --project tools/Dabbler.SchemaApplicator -- \
+     --entity Supplier \
+     --directory src/Apps/MyApp.Web/Components/Pages/Suppliers
    ```
 
-3. **Schema Application** (one-time, after generation):
-   ```powershell
-   .\Components\Pages\Suppliers\Apply-SupplierSchema.ps1 -schema supplier.dabbler-entity.json
-   ```
+   The deprecated `Apply-{Entity}Schema.ps1` script is still generated for backwards compatibility but is no longer the recommended path; new work uses the cross-platform C# applicator.
+
+### Navigation Menu (NOT Generated)
+
+This template does **not** generate a navigation menu entry. The `dabbler-crud-page` template emits route wrappers and components only; wiring the route into your application's nav menu (`<NavLink>`, `<MudNavLink>`, or your own menu component) is a manual hand-edit. Automated navigation registration is part of the **Granularity 3** roadmap (see [non-mvp-roadmap.md](non-mvp-roadmap.md)) and is deferred until the Granularity 1+2 templates have been used on 2-3 real entities by a downstream consumer.
+
+To add the menu entry manually after scaffolding, edit your layout or nav component:
+
+```razor
+<NavLink href="/suppliers">Suppliers</NavLink>
+```
+
+Until Granularity 3 ships, the developer is expected to make this edit alongside the DI registration above.
 
 ### Optional: Seed Data
 
