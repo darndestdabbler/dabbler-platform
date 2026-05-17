@@ -1,0 +1,58 @@
+{
+  "sessionSetName": "crud-scaffolding-remediation",
+  "createdDate": "2026-05-17T14:42:35.561318-04:00",
+  "totalSessions": 4,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 0,
+      "stepKey": "session-1/ai-assignment-authored",
+      "dateTime": "2026-05-17T14:43:50.012170-04:00",
+      "description": "Authored ai-assignment.md via routed analysis (Step 3.5).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 6180,
+          "outputTokens": 1275,
+          "costUsd": 0.020475
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/cross-provider-verification",
+      "dateTime": "2026-05-17T15:01:47.831893-04:00",
+      "description": "End-of-session verification via gpt-5-4: ISSUES_FOUND",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 9869,
+          "outputTokens": 8609,
+          "costUsd": 0.15380749999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/cross-provider-verification-r2",
+      "dateTime": "2026-05-17T15:03:10.850174-04:00",
+      "description": "Round 2 verification via gpt-5-4: VERIFIED",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1438,
+          "outputTokens": 1399,
+          "costUsd": 0.02458
+        }
+      ]
+    }
+  ]
+}

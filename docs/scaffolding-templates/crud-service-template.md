@@ -42,7 +42,7 @@ The generated code is self-contained, compiles immediately, and requires zero ha
 |-----------|------|---------|-------------|
 | `--pk-type` | string | `int` | Primary-key CLR type (e.g., `int`, `long`, `Guid`, `System.Guid`). |
 | `--auth-policy-prefix` | string | `{entity}` | Prefix for policy names in `[DabblerEndpointAuthorize]` attributes. If not specified, defaults to the `--entity` value. |
-| `--schema` | string | (none) | Optional path to a `.dabbler-entity.json` schema file. The service template does not consume this parameter (it is accepted for symmetry with the page template). |
+| `--schema` | string | (none) | Optional path to a `.dabbler-entity.json` schema file. The service template does not consume this parameter (it is accepted for symmetry with the page template, which uses the schema to drive `Dabbler.SchemaApplicator` for per-property grid columns and form fields — see [crud-page-template.md → Schema Application](crud-page-template.md#schema-application)). |
 
 ## Usage
 
@@ -289,8 +289,35 @@ public async Task GetAsync_WithValidId_ReturnsSupplier()
 }
 ```
 
+## Related Tooling
+
+The service template itself has no per-property post-process step — the
+controller, service, and DTO are stamped fully by `dotnet new`. However,
+the companion `dabbler-crud-page` template uses
+**`Dabbler.SchemaApplicator`** (a cross-platform .NET 10 console app) as the
+recommended post-process for stamping per-property MudDataGrid columns,
+MudForm fields, and `DeclarativeFilterPanel` `FilterProperty` entries from
+the same `.dabbler-entity.json` schema this template accepts (for
+symmetry) but does not consume. When you scaffold the service slice you
+will almost always pair it with the page slice; run the applicator after
+the page template completes:
+
+```bash
+dotnet run --project tools/Dabbler.SchemaApplicator -- \
+  --entity Supplier \
+  --directory src/Apps/MyApp.Web/Components/Pages/Suppliers
+```
+
+The legacy per-entity `Apply-{Entity}Schema.ps1` PowerShell script
+remains in the page template and in closed scaffolds for backwards
+compatibility, but it is **deprecated** — new work uses the C# applicator
+exclusively. See [crud-page-template.md → Schema Application](crud-page-template.md#schema-application)
+for full details (substitution contract, supported types, byte-identity
+guarantee).
+
 ## See Also
 
 - [README](README.md)
 - [CRUD Page Template Documentation](crud-page-template.md)
 - [Non-MVP Roadmap](non-mvp-roadmap.md)
+- [`Dabbler.SchemaApplicator` README](../../tools/Dabbler.SchemaApplicator/README.md)
