@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Dabbler.CrudSlice</RootNamespace>
+    <AssemblyName>Dabbler.CrudSlice</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dabbler.SchemaApplicator\Dabbler.SchemaApplicator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dabbler.CrudSlice.Tests" />
+  </ItemGroup>
+</Project>

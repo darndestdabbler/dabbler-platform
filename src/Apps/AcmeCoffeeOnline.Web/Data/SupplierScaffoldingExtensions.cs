@@ -1,4 +1,5 @@
 using Dabbler.Components.Data;
+using Dabbler.Security.Blazor.Extensions;
 using AcmeCoffeeOnline.Shared.DTOs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,44 +14,32 @@ namespace AcmeCoffeeOnline.Web.Data;
 /// builder.Services.AddSupplierScaffolding(builder.Configuration);
 /// </code>
 ///
-/// Registers:
-///   * <see cref="SupplierApiClient"/> as a typed HttpClient (base address read from
-///     configuration at key "Api:BaseUrl", default "http://localhost:5011").
-///   * <see cref="IGridDataProvider{SupplierDto}"/> bound to
-///     <see cref="SupplierGridDataProvider"/>, which adapts the MudDataGrid
-///     <c>ServerData</c> contract to the QBE POST /query endpoint.
-///
-/// For multi-tenant / per-request authorization header injection, layer
-/// <c>.AddHttpMessageHandler&lt;YourIdentityHandler&gt;()</c> onto the
-/// returned <see cref="IHttpClientBuilder"/> at the call site.
+/// Emitted by Dabbler.CrudSlice — matches the host's real production wiring:
+///   * Base URL: configuration["Services:ApiBaseUrl"]
+///         ?? configuration["ApiBaseUrl"]
+///         ?? "http://localhost:5011"
+///   * Header X-Internal-Api-Key: configuration["DabblerSecurity:InternalApiKey"]
+///         ?? "dev-internal-key-acme"
+///   * AddHttpMessageHandler&lt;UserIdentityHandler&gt;() for per-request user identity forwarding
 /// </summary>
 public static class SupplierScaffoldingExtensions
 {
-    /// <summary>
-    /// Registers the scaffolded Supplier slice's API client and grid data provider.
-    /// </summary>
-    /// <param name="services">The application's service collection.</param>
-    /// <param name="configuration">
-    /// Configuration source consulted for the API base URL (key "Api:BaseUrl").
-    /// </param>
-    /// <param name="apiBaseUrlOverride">
-    /// Optional explicit base URL — wins over configuration when supplied.
-    /// </param>
-    /// <returns>The <see cref="IHttpClientBuilder"/> for the typed client, so callers can
-    /// chain additional <c>.AddHttpMessageHandler</c> / <c>.ConfigureHttpClient</c> calls.</returns>
+    /// <summary>Registers the scaffolded Supplier slice's API client and grid data provider.</summary>
     public static IHttpClientBuilder AddSupplierScaffolding(
         this IServiceCollection services,
-        IConfiguration configuration,
-        string? apiBaseUrlOverride = null)
+        IConfiguration configuration)
     {
-        var baseUrl = apiBaseUrlOverride
-            ?? configuration["Api:BaseUrl"]
+        var baseUrl = configuration["Services:ApiBaseUrl"]
+            ?? configuration["ApiBaseUrl"]
             ?? "http://localhost:5011";
+        var internalApiKey = configuration["DabblerSecurity:InternalApiKey"]
+            ?? "dev-internal-key-acme";
 
         var httpBuilder = services.AddHttpClient<SupplierApiClient>(client =>
         {
             client.BaseAddress = new Uri(baseUrl);
-        });
+            client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+        }).AddHttpMessageHandler<UserIdentityHandler>();
 
         services.AddTransient<IGridDataProvider<SupplierDto>, SupplierGridDataProvider>();
 

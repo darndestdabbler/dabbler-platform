@@ -46,10 +46,21 @@ low
 | 6 | Delete or deprecate `SupplierScaffoldingExtensions.cs` | Orchestrator |
 
 ### Actuals (filled after the session)
-- Orchestrator used: <fill at session close>
-- Total routed cost: <fill at session close>
-- Deviations from recommendation: <fill at session close>
-- Notes for next-session calibration: <fill at session close>
+- Orchestrator used: claude-code Opus 4.7 @ effort=high (DEVIATION — see below)
+- Total routed cost: ~$0.09 (single cross-provider gpt-5-4 session-verification round, $0.0895)
+  plus ~$0.002 next-session-recommendation routing (gemini-pro). Sub-$0.10 session total.
+- Deviations from recommendation: Ran on Opus 4.7 instead of recommended Sonnet 4.6. Per
+  `feedback_honor_spec_sized_orchestrator.md` the human was offered the swap and explicitly
+  chose to continue on Opus (active context, Session 1 calibration note said Opus overhead
+  was modest for mechanical .NET work). All six implementation steps handled in-conversation
+  by the orchestrator (single-file edits and mechanical C# generation under the delegation
+  threshold). No routed reasoning required beyond cross-provider verification.
+- Notes for next-session calibration: Session 3 is similar shape (pattern extraction + string
+  template emission + unit tests + a one-line Program.cs bugfix). The verifier's only
+  non-blocker observation about the wrapper unconditionally overwriting the scaffolding
+  extension suggests regeneration-safety might be worth surfacing as a potential Session 4
+  follow-up — but it is explicitly out of Session 3's scope. The FullPipeline SkippableFact
+  actually ran (pack-output present) and gave end-to-end coverage essentially for free.
 
 ## Session 3: Security/catalog registration generator
 
@@ -107,3 +118,7 @@ moderate
 **Next-session orchestrator recommendation (Session 2):**
 Claude Sonnet 4.6 @ effort=medium
 Rationale: Session 2's task is primarily mechanical orchestration and convention-based code generation, which does not justify the architectural reasoning overhead of Opus used in Session 1, making the cheaper Sonnet model the most efficient capable choice.
+
+**Next-session orchestrator recommendation (Session 3):**
+Claude Sonnet 4.6 @ effort=medium
+Rationale (routed gemini-pro analysis): Session 3 is pattern extraction + string-template emission + unit tests + a one-line Program.cs bugfix — mechanical work that a cost-effective workhorse model handles well; Opus would be overkill. Per the established pattern across Sessions 1 and 2, the human may still choose to swap to Opus 4.7 @ high if Claude Code is already active — that decision belongs at session-start time.
