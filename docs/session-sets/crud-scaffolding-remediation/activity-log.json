@@ -53,6 +53,103 @@
           "costUsd": 0.02458
         }
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/crud-slice-csproj-and-cli",
+      "dateTime": "2026-05-17T16:33:38.190866-04:00",
+      "description": "Created tools/Dabbler.CrudSlice/ console app (Dabbler.CrudSlice.csproj, CliOptions.cs, Program.cs).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/template-runner",
+      "dateTime": "2026-05-17T16:33:38.191858-04:00",
+      "description": "Wired dotnet new dabbler-crud-service + dabbler-crud-page invocation via TemplateRunner.cs as child processes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/schema-applicator-runner",
+      "dateTime": "2026-05-17T16:33:38.191858-04:00",
+      "description": "Wired Session 1 Dabbler.SchemaApplicator in-process via ProjectReference and SchemaApplicatorRunner.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/registration-emitter-web-and-api",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Implemented RegistrationEmitter (Web {Entity}ScaffoldingExtensions.cs with Services:ApiBaseUrl + X-Internal-Api-Key + UserIdentityHandler, and API {Entity}ApiRegistrationExtensions.cs with AddScoped<I{Entity}Service, {Entity}Service>).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/crud-slice-tests",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Added tests/Dabbler.CrudSlice.Tests/ \u2014 5 RegistrationEmitter unit tests + 2 orchestration tests + 1 SkippableFact full-pipeline e2e against SmokeApp fixture. All 8 pass (pack-output present, SkippableFact ran not skipped).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/supplier-extension-fixed",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Replaced src/Apps/AcmeCoffeeOnline.Web/Data/SupplierScaffoldingExtensions.cs via the wrapper itself (--skip-templates --skip-schema-applicator mode). Emitted src/Apps/AcmeCoffeeOnline.Api/Services/SupplierApiRegistrationExtensions.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/sln-and-build-and-test",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Patched Dabbler.Platform.sln to register CrudSlice + CrudSlice.Tests (dotnet sln add was silently no-op on this sln; edited manually with deterministic GUIDs). Build: clean. Tests: 8/8 CrudSlice, 7/7 SchemaApplicator, 4/4 Templates, 133/133 Web, 51/51 Api.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/cross-provider-verification-r1",
+      "dateTime": "2026-05-17T16:33:38.194286-04:00",
+      "description": "Round 1 cross-provider session-verification via gpt-5-4: Pass with two explicit non-blocker observations (template-still-wrong-by-default acknowledged; wrapper-unconditional-overwrite acceptable).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 13010,
+          "outputTokens": 3796,
+          "costUsd": 0.0895
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/next-session-recommendation",
+      "dateTime": "2026-05-17T16:33:38.194286-04:00",
+      "description": "Routed next-session orchestrator recommendation via gemini-pro: Claude Sonnet 4.6 @ medium for Session 3.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 950,
+          "outputTokens": 95,
+          "costUsd": 0.0022
+        }
+      ]
     }
   ]
 }
