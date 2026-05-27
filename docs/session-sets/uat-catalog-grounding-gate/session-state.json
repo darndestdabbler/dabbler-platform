@@ -1,17 +1,30 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "uat-catalog-grounding-gate",
-  "currentSession": 2,
-  "totalSessions": 2,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": "2026-05-12T17:00:00.000000-04:00",
-  "completedAt": "2026-05-12T18:30:00.000000-04:00",
-  "verificationVerdict": "VERIFIED",
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "low"
-  }
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Session 1",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Session 2",
+      "status": "complete",
+      "startedAt": "2026-05-12T17:00:00.000000-04:00",
+      "completedAt": "2026-05-12T18:30:00.000000-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "effort": "low"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
 }

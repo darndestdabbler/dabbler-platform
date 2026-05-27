@@ -1,12 +1,16 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "post-rebuild-uat",
-  "currentSession": null,
-  "totalSessions": null,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": null,
-  "completedAt": "2026-04-17T01:13:22.536Z",
-  "verificationVerdict": null,
-  "orchestrator": null
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Generate UAT Checklist and Hand Off",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-17T01:13:22.536Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
 }

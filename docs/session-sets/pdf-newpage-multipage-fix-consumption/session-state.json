@@ -1,12 +1,16 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "pdf-newpage-multipage-fix-consumption",
-  "currentSession": null,
-  "totalSessions": null,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": null,
-  "completedAt": "2026-04-23T07:30:03.678Z",
-  "verificationVerdict": null,
-  "orchestrator": null
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Upgrade, caller coverage, Playwright coverage, close Finding 2",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-23T07:30:03.678Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
 }

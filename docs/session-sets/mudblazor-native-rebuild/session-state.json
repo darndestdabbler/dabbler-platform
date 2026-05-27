@@ -1,12 +1,79 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "mudblazor-native-rebuild",
-  "currentSession": null,
-  "totalSessions": null,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": null,
-  "completedAt": "2026-04-16T18:14:48.238Z",
-  "verificationVerdict": null,
-  "orchestrator": null
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Architecture Decisions and Layout Foundation",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Grid, Filter, and Query Page Patterns",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Form Patterns and Detail Pages",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Complete App Page Rebuild",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "Security and Reports UI Alignment",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 6,
+      "title": "Test Suite Rebuild",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 7,
+      "title": "E2E Test Updates and Integration Verification",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 8,
+      "title": "Cleanup, Documentation, and Closeout",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-16T18:14:48.238Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
 }

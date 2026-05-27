@@ -1,22 +1,48 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "crud-scaffolding-remediation",
-  "currentSession": 4,
-  "totalSessions": 4,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": "2026-05-17T19:01:15.084419-04:00",
-  "completedAt": "2026-05-17T19:23:06.634063-04:00",
-  "verificationVerdict": "VERIFIED",
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-opus-4-7",
-    "effort": "high"
-  },
-  "completedSessions": [
-    1,
-    2,
-    3
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Cross-platform schema applicator",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Repo-aware `dabbler-crud-slice` wrapper command",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Security/catalog registration generator",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Documentation reconciliation, section-8 additions, and end-to-end proof",
+      "status": "complete",
+      "startedAt": "2026-05-17T19:01:15.084419-04:00",
+      "completedAt": "2026-05-17T19:23:06.634063-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
   ]
 }

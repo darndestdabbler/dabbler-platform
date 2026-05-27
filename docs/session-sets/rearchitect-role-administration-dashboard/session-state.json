@@ -1,12 +1,79 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "rearchitect-role-administration-dashboard",
-  "currentSession": null,
-  "totalSessions": null,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": null,
-  "completedAt": "2026-04-19T23:29:37.923Z",
-  "verificationVerdict": null,
-  "orchestrator": null
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Flesh out this spec",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Delete seven legacy tabs and stub the five-tab layout with authorization gating",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Role Master Details tab",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Default Masks tab + sensitive-name safety net",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "Data-bound control restriction enforcement seam",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 6,
+      "title": "Organization Master Details tab + EF org-scope query filter",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 7,
+      "title": "Users and Role Assignment tab",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 8,
+      "title": "Role Documentation tab + UAT checklist + change log + Step 9 reorganization",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-19T23:29:37.923Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
 }

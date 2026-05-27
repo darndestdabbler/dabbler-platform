@@ -1,17 +1,39 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "admin-user-creation-flow",
-  "currentSession": 3,
-  "totalSessions": 3,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": "2026-05-11T15:00:00.000000-04:00",
-  "completedAt": "2026-05-14T19:43:55.692768-04:00",
-  "verificationVerdict": "VERIFIED",
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "high"
-  }
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Design + spec fleshing-out (this session)",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "API + service layer + unit tests",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Razor surface + UAT checklist + W2 + close",
+      "status": "complete",
+      "startedAt": "2026-05-11T15:00:00.000000-04:00",
+      "completedAt": "2026-05-14T19:43:55.692768-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
 }

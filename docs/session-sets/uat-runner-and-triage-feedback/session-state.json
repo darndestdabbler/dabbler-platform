@@ -1,16 +1,48 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 4,
   "sessionSetName": "uat-runner-and-triage-feedback",
-  "currentSession": 4,
-  "totalSessions": 4,
   "status": "complete",
-  "startedAt": "2026-04-28T19:27:31.058175-04:00",
-  "completedAt": "2026-04-28T19:55:41.147389-04:00",
-  "verificationVerdict": "VERIFIED (after redo)",
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-opus-4-7",
-    "effort": "high"
-  }
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Runner scaffold, fixture adapter, happy-path execution",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Triage stage and four-class taxonomy",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Remediations (auto-apply for catalog-stale; human-review for the rest)",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Workflow integration, backfill, change log, Step 9 reorg",
+      "status": "complete",
+      "startedAt": "2026-04-28T19:27:31.058175-04:00",
+      "completedAt": "2026-04-28T19:55:41.147389-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED (after redo)"
+    }
+  ]
 }

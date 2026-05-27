@@ -1,16 +1,30 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 4,
   "sessionSetName": "restore-devidp",
-  "currentSession": 2,
-  "totalSessions": 2,
   "status": "complete",
-  "startedAt": "2026-04-27T18:56:10.384223-04:00",
-  "completedAt": "2026-04-27T19:17:36.196977-04:00",
-  "verificationVerdict": "VERIFIED",
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-opus-4-7",
-    "effort": "high"
-  }
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Restore project and verify it builds and runs",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Wire up SSO, enable in Dev/Test, add Playwright coverage",
+      "status": "complete",
+      "startedAt": "2026-04-27T18:56:10.384223-04:00",
+      "completedAt": "2026-04-27T19:17:36.196977-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
 }

@@ -1,18 +1,57 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "crud-scaffolding",
-  "currentSession": 5,
-  "totalSessions": 5,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": "2026-05-16T20:00:00.000000-04:00",
-  "completedAt": "2026-05-16T21:30:00.000000-04:00",
-  "verificationVerdict": "VERIFIED",
-  "completedSessions": [1, 2, 3, 4, 5],
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-haiku-4-5-20251001",
-    "effort": "high"
-  }
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Contract And QBE Helper Foundation",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "`dabbler-crud-service` Template",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "`dabbler-crud-page` Template With Bundled ApiClient + GridDataProvider",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Documentation, Examples, Roadmap Markers",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "End-To-End Reference Scaffold + Closeout",
+      "status": "complete",
+      "startedAt": "2026-05-16T20:00:00.000000-04:00",
+      "completedAt": "2026-05-16T21:30:00.000000-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
 }

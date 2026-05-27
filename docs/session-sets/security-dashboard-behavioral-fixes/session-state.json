@@ -1,12 +1,34 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "security-dashboard-behavioral-fixes",
-  "currentSession": null,
-  "totalSessions": null,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": null,
-  "completedAt": "2026-04-17T19:58:49.894Z",
-  "verificationVerdict": null,
-  "orchestrator": null
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Orders visibility for BackofficeUser",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Order edit path for SystemAdmin",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "SystemAdmin role elevation",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-17T19:58:49.894Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
 }

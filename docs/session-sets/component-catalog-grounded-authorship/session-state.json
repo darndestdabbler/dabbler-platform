@@ -1,16 +1,30 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 4,
   "sessionSetName": "component-catalog-grounded-authorship",
-  "currentSession": 2,
-  "totalSessions": 2,
   "status": "complete",
-  "startedAt": "2026-04-28T07:51:28.586732-04:00",
-  "completedAt": "2026-04-28T08:37:33.082879-04:00",
-  "verificationVerdict": "VERIFIED",
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-opus-4-7",
-    "effort": "high"
-  }
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Crawler scaffold, catalog schema, first manifest",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "ai-router task type, re-author remediation checklist, change log, Step 9 reorg",
+      "status": "complete",
+      "startedAt": "2026-04-28T07:51:28.586732-04:00",
+      "completedAt": "2026-04-28T08:37:33.082879-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
 }

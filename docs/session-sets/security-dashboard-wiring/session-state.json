@@ -1,12 +1,25 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "sessionSetName": "security-dashboard-wiring",
-  "currentSession": null,
-  "totalSessions": null,
   "status": "complete",
-  "lifecycleState": "closed",
-  "startedAt": null,
-  "completedAt": "2026-04-17T01:51:59.759Z",
-  "verificationVerdict": null,
-  "orchestrator": null
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Registration and Configuration Wiring",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Runtime Enforcement Verification and Testing",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-17T01:51:59.759Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
 }

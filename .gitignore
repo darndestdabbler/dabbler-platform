@@ -23,3 +23,9 @@ src/Libs/Dabbler.Security.DevIdp/devidp.db-wal
 # Fresh clones / CI install from Directory.Packages.props or the
 # sibling repo's pack-output).
 .tools/
+
+# Session-state migrator rollback artifacts (one-cycle backups).
+# git history is the canonical rollback path; .bak files are
+# short-window cruft. See ../dabbler-ai-orchestration/docs/v3-to-v4-rollback-procedure.md.
+docs/session-sets/*/session-state.v3.bak.json
+docs/session-sets/*/session-state.lwbak.json

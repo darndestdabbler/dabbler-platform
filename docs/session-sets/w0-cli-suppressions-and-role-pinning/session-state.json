@@ -1,16 +1,39 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 4,
   "sessionSetName": "w0-cli-suppressions-and-role-pinning",
-  "currentSession": 3,
-  "totalSessions": 3,
   "status": "complete",
-  "startedAt": "2026-04-29T21:39:37.549742-04:00",
-  "completedAt": "2026-04-29T22:13:02.778478-04:00",
-  "verificationVerdict": "VERIFIED",
-  "orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-opus-4-7",
-    "effort": "high"
-  }
+  "sessions": [
+    {
+      "number": 1,
+      "title": "W0 CLI `--suppressions` flag",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Validator role context",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Re-run the watermark smoke (the deferred 5/5 proof)",
+      "status": "complete",
+      "startedAt": "2026-04-29T21:39:37.549742-04:00",
+      "completedAt": "2026-04-29T22:13:02.778478-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
 }
