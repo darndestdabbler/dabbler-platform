@@ -1,12 +1,20 @@
 # DabblerApp
 
-Generated from the **dabbler-app** template — a full Blazor Server app with Dabbler platform libraries.
+Generated from the **dabbler-app** template — a multi-project starter with a Blazor Server web app, a Web API starter, a shared library, and bUnit tests.
+
+## Solution layout
+
+- `DabblerApp.slnx` — solution file
+- `src/DabblerApp.Web/` — Blazor Server host with Dabbler security, sample CRUD UI, and sample report
+- `src/DabblerApp.Api/` — starter Web API host for app-specific endpoints
+- `src/DabblerApp.Shared/` — shared contracts and models
+- `tests/DabblerApp.Web.Tests/` — bUnit smoke tests
 
 ## Before you run
 
 ### 1. Database
 
-Update the connection string in `appsettings.json` to point to your SQL Server instance:
+Update the connection string in `src/DabblerApp.Web/appsettings.json` to point to your SQL Server instance:
 
 ```json
 "ConnectionStrings": {
@@ -42,7 +50,7 @@ On first run, the app seeds **admin@local.test** in the security database. To si
 
 ## Before you deploy to production
 
-Replace these settings in `appsettings.json` before any production deployment:
+Replace these settings in `src/DabblerApp.Web/appsettings.json` before any production deployment:
 
 | Setting | What to do |
 |---------|------------|
@@ -55,16 +63,18 @@ Replace these settings in `appsettings.json` before any production deployment:
 
 | Feature | Location |
 |---------|----------|
-| Magic-link sign-in | `Components/Pages/Login.razor` |
-| Sample query-list page (server-paged grid) | `Components/Pages/SampleItems.razor` |
-| Sample report (with PDF export) | `Components/Pages/SampleReport.razor` |
+| Magic-link sign-in | `src/DabblerApp.Web/Components/Pages/Login.razor` |
+| Sample query-list page (server-paged grid) | `src/DabblerApp.Web/Components/Pages/SampleItems.razor` |
+| Sample report (with PDF export) | `src/DabblerApp.Web/Components/Pages/SampleReport.razor` |
 | Security dashboard | `/admin/security` (Dabbler.Security.Blazor) |
-| In-memory sample data | `Data/SampleItemSeed.cs` |
+| In-memory sample data | `src/DabblerApp.Web/Data/SampleItemSeed.cs` |
+| Starter API host | `src/DabblerApp.Api/Program.cs` |
+| Shared contracts library | `src/DabblerApp.Shared/` |
 
 ## Running tests
 
 ```bash
-dotnet test DabblerApp.Tests/
+dotnet test tests/DabblerApp.Web.Tests/
 ```
 
 Tests use `Dabbler.Platform.Stubs` for DI stub providers — no running app needed.

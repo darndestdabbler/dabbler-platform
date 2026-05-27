@@ -1,4 +1,5 @@
 using Dabbler.Components.Data;
+using Dabbler.Security.Blazor.Extensions;
 using T5DtoNs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,14 +16,14 @@ namespace T3WebNs.Data;
 ///
 /// Registers:
 ///   * <see cref="T1EntityApiClient"/> as a typed HttpClient (base address read from
-///     configuration at key "T6ApiBaseUrlKey", default "http://localhost:5011").
+///     configuration at key "T6ApiBaseUrlKey", falling back to "ApiBaseUrl",
+///     then defaulting to "http://localhost:5011").
+///   * Header <c>X-Internal-Api-Key</c> from <c>DabblerSecurity:InternalApiKey</c>,
+///     defaulting to <c>dev-internal-key-acme</c>.
+///   * <c>AddHttpMessageHandler&lt;UserIdentityHandler&gt;()</c> for per-request identity forwarding.
 ///   * <see cref="IGridDataProvider{T1EntityDto}"/> bound to
 ///     <see cref="T1EntityGridDataProvider"/>, which adapts the MudDataGrid
 ///     <c>ServerData</c> contract to the QBE POST /query endpoint.
-///
-/// For multi-tenant / per-request authorization header injection, layer
-/// <c>.AddHttpMessageHandler&lt;YourIdentityHandler&gt;()</c> onto the
-/// returned <see cref="IHttpClientBuilder"/> at the call site.
 /// </summary>
 public static class T1EntityScaffoldingExtensions
 {
@@ -45,12 +46,16 @@ public static class T1EntityScaffoldingExtensions
     {
         var baseUrl = apiBaseUrlOverride
             ?? configuration["T6ApiBaseUrlKey"]
+            ?? configuration["ApiBaseUrl"]
             ?? "http://localhost:5011";
+        var internalApiKey = configuration["DabblerSecurity:InternalApiKey"]
+            ?? "dev-internal-key-acme";
 
         var httpBuilder = services.AddHttpClient<T1EntityApiClient>(client =>
         {
             client.BaseAddress = new Uri(baseUrl);
-        });
+            client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+        }).AddHttpMessageHandler<UserIdentityHandler>();
 
         services.AddTransient<IGridDataProvider<T1EntityDto>, T1EntityGridDataProvider>();
 

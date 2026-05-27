@@ -23,10 +23,21 @@ Usage:
 
 ```bash
 dotnet run --project tools/Dabbler.CrudSlice -- \
-  --entity Supplier --plural Suppliers \
+  --entity Supplier --entity-plural Suppliers \
   --schema supplier.dabbler-entity.json \
-  --output src/Apps/AcmeCoffeeOnline.Web
+  --web-root src/Apps/AcmeCoffeeOnline.Web \
+  --api-root src/Apps/AcmeCoffeeOnline.Api \
+  --web-namespace AcmeCoffeeOnline.Web \
+  --api-namespace AcmeCoffeeOnline.Api \
+  --shared-namespace AcmeCoffeeOnline.Shared \
+  --dto-namespace AcmeCoffeeOnline.Shared.DTOs \
+  --entity-namespace AcmeCoffeeOnline.Shared.Models \
+  --dbcontext-type AcmeCoffeeDbContext \
+  --dbcontext-namespace AcmeCoffeeOnline.Api.Data
 ```
+
+For single-project or minimal consumers, point both `--web-root` and `--api-root`
+at the same project root.
 
 The two underlying templates (`dabbler-crud-service`, `dabbler-crud-page`) remain documented in [crud-service-template.md](crud-service-template.md) and [crud-page-template.md](crud-page-template.md) for users who need finer-grained control. The wrapper is the recommended entry point for end-to-end onboarding.
 
@@ -155,6 +166,7 @@ dotnet new dabbler-crud-service \
 This generates:
 - `Services/ISupplierService.cs` — service interface
 - `Services/SupplierService.cs` — service implementation with QBE filtering
+- `Services/SupplierApiRegistrationExtensions.cs` — one-line DI helper for `Program.cs`
 - `Controllers/SuppliersController.cs` — ASP.NET Core controller with CRUD endpoints
 
 ### 4. Scaffold the Page
@@ -175,7 +187,7 @@ This generates:
 - `Components/Pages/Suppliers/` — Blazor pages and helper components
 - `Data/SupplierApiClient.cs` — typed HTTP client
 - `Data/SupplierGridDataProvider.cs` — grid data binding
-- `Data/SupplierScaffoldingExtensions.cs` — DI registration
+- `Data/SupplierScaffoldingExtensions.cs` — convention-correct typed-client + DI registration
 - `Components/Pages/Suppliers/Apply-SupplierSchema.ps1` — post-process script to fill in per-property details
 
 ### 5. Post-Process (Page Template Only)
@@ -204,7 +216,7 @@ The generated code requires four hand-edits to integrate into your application:
 3. **DI registration** (in `Program.cs`):
    ```csharp
    // Service tier (from the API project)
-   builder.Services.AddScoped<ISupplierService, SupplierService>();
+  builder.Services.AddSupplierApiServices();
 
    // Web tier (from the Web project)
    builder.Services.AddSupplierScaffolding(builder.Configuration);

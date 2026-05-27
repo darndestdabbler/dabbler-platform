@@ -1,4 +1,4 @@
-namespace DabblerApp.Data;
+namespace DabblerApp.Web.Data;
 
 /// <summary>
 /// In-memory seed data for the sample query page (A13).

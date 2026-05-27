@@ -1,9 +1,9 @@
 using System.Data;
-using DabblerApp.Data;
+using DabblerApp.Web.Data;
 using Dabbler.Reports.Core.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace DabblerApp.Reports;
+namespace DabblerApp.Web.Reports;
 
 /// <summary>
 /// Returns SampleItem data as a DataTable for the sample report.

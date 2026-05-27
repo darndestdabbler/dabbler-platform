@@ -1,4 +1,4 @@
-namespace DabblerApp.Data;
+namespace DabblerApp.Web.Data;
 
 public class SampleItem
 {

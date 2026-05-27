@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DabblerApp\DabblerApp.csproj" />
+    <ProjectReference Include="..\..\src\DabblerApp.Web\DabblerApp.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

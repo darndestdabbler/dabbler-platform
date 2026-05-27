@@ -52,9 +52,9 @@
       "type": "parameter",
       "datatype": "text",
       "isRequired": false,
-      "defaultValue": "Api:BaseUrl",
+      "defaultValue": "Services:ApiBaseUrl",
       "replaces": "T6ApiBaseUrlKey",
-      "description": "Configuration key consulted by the generated AddT1EntityScaffolding extension to resolve the API base URL. Defaults to 'Api:BaseUrl'."
+      "description": "Configuration key consulted by the generated AddT1EntityScaffolding extension to resolve the API base URL. Defaults to 'Services:ApiBaseUrl' and falls back to 'ApiBaseUrl' before the hardcoded localhost default."
     },
     "pkType": {
       "type": "parameter",

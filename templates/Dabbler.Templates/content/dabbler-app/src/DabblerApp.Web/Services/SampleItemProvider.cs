@@ -1,8 +1,8 @@
-using DabblerApp.Data;
+using DabblerApp.Web.Data;
 using Dabbler.Components.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace DabblerApp.Services;
+namespace DabblerApp.Web.Services;
 
 public class SampleItemProvider(AppDbContext db) : IGridDataProvider<SampleItem>
 {

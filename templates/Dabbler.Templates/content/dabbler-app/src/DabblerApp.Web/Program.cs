@@ -1,7 +1,7 @@
 using System.Globalization;
-using DabblerApp.Data;
-using DabblerApp.Reports;
-using DabblerApp.Services;
+using DabblerApp.Web.Data;
+using DabblerApp.Web.Reports;
+using DabblerApp.Web.Services;
 using Dabbler.Components.Data;
 using Dabbler.Security.Extensions;
 using Dabbler.Security.Blazor.Extensions;
@@ -175,7 +175,7 @@ app.MapGet("/auth/logout", async (HttpContext http) =>
 });
 
 app.MapStaticAssets();
-app.MapRazorComponents<DabblerApp.Components.App>()
+app.MapRazorComponents<DabblerApp.Web.Components.App>()
     .AddInteractiveServerRenderMode();
 
 // ── Seed: admin@local.test (A12) + sample data (A13) ─────────────────────────

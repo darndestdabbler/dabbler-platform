@@ -53,6 +53,9 @@ dotnet run --project tools/Dabbler.CrudSlice -- \
   --dbcontext-namespace AcmeCoffeeOnline.Api.Data
 ```
 
+For single-project consumers, pass the same directory to both `--web-root`
+and `--api-root`.
+
 After running, wire the generated extensions into your `Program.cs`:
 
 ```csharp

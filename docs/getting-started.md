@@ -1,6 +1,6 @@
 # Getting Started with the Dabbler Platform
 
-This tutorial walks you from zero to a running Blazor Server application in under 30 minutes. You will scaffold a complete app with magic-link authentication, restriction-based authorization, a CRUD data grid, a report with PDF export, and stub-backed bUnit tests — all from a single `dotnet new` command.
+This tutorial walks you from zero to a running Dabbler starter solution in under 30 minutes. You will scaffold a multi-project app with magic-link authentication, restriction-based authorization, a CRUD data grid, a report with PDF export, and stub-backed bUnit tests — all from a single `dotnet new` command.
 
 ---
 
@@ -19,6 +19,8 @@ The `dabbler-app` template scaffolds:
 | bUnit tests with stub DI providers | `Dabbler.Platform.Stubs` |
 
 The `dabbler-min` template is a lighter alternative — security only, no reports, no test project. Use it when you want to adopt Dabbler security incrementally.
+
+The full `dabbler-app` template scaffolds a solution with separate Web, API, Shared, and test projects.
 
 ---
 
@@ -50,17 +52,17 @@ dotnet new list dabbler
 Expected output:
 
 ```
-Template Name            Short Name    Language  Tags
------------------------  ------------  --------  ----------------------
-Dabbler App              dabbler-app   C#        Web/Blazor/Server
-Dabbler App (minimal)    dabbler-min   C#        Web/Blazor/Server
+Template Name               Short Name    Language  Tags
+--------------------------  ------------  --------  ----------------------------------
+Dabbler App                 dabbler-app   [C#]      Web/Blazor/Server/Security/Reports
+Dabbler App (minimal)       dabbler-min   [C#]      Web/Blazor/Server/Security
 ```
 
 ---
 
 ## Step 2 — Scaffold your app
 
-Use `dotnet new dabbler-app` to generate a full-platform starter app. Replace `MyApp` with your project name:
+Use `dotnet new dabbler-app` to generate a multi-project starter solution. Replace `MyApp` with your project name:
 
 ```bash
 dotnet new dabbler-app -o MyApp
@@ -71,38 +73,43 @@ The generated tree:
 
 ```
 MyApp/
-  MyApp/                  # Blazor Server web project
-    Components/
-      Layout/             # MudBlazor shell layout
-      Pages/
-        Home.razor
-        SampleItems.razor # CRUD list page
-        SampleReport.razor# Report page with PDF export
-        Login.razor       # Magic-link sign-in
-    Data/
-      AppDbContext.cs     # EF Core in-memory DB for sample data
-      SampleItem.cs
-      SampleItemSeed.cs   # 5 seeded rows (A13)
-      AppDbInitializer.cs # Seeds admin@local.test on first run (A12)
-    Reports/
-      SampleReportDataProvider.cs
-      sample-items.rdf.json
-    Services/
-      SampleItemProvider.cs
-    Program.cs
-    appsettings.json
-    appsettings.Development.json
-    security-config.json  # JSON file store (roles, restrictions, masks)
-    README.md
-  MyApp.Tests/            # bUnit test project
-    SampleItemListTests.cs
+  MyApp.slnx
+  README.md
+  src/
+    MyApp.Web/              # Blazor Server web project
+      Components/
+        Layout/             # MudBlazor shell layout
+        Pages/
+          Home.razor
+          SampleItems.razor # CRUD list page
+          SampleReport.razor# Report page with PDF export
+          Login.razor       # Magic-link sign-in
+      Data/
+        AppDbContext.cs     # EF Core in-memory DB for sample data
+        SampleItem.cs
+        SampleItemSeed.cs   # 5 seeded rows (A13)
+        AppDbInitializer.cs # Seeds admin@local.test on first run (A12)
+      Reports/
+        SampleReportDataProvider.cs
+        sample-items.rdf.json
+      Services/
+        SampleItemProvider.cs
+      Program.cs
+      appsettings.json
+      appsettings.Development.json
+      security-config.json  # JSON file store (roles, restrictions, masks)
+    MyApp.Api/              # Starter Web API host for app-specific endpoints
+    MyApp.Shared/           # Shared contracts / models library
+  tests/
+    MyApp.Web.Tests/        # bUnit test project
+      SampleItemListTests.cs
 ```
 
 ---
 
 ## Step 3 — Configure the SQL Server connection
 
-The security database (users, roles, organizations) stores in SQL Server. Update the connection string in `MyApp/appsettings.json`:
+The security database (users, roles, organizations) stores in SQL Server. Update the connection string in `src/MyApp.Web/appsettings.json`:
 
 ```json
 {
@@ -147,7 +154,7 @@ Browse the email inbox at **<http://localhost:8025>** after starting the contain
 ## Step 5 — Run the app
 
 ```bash
-dotnet run --project MyApp/
+dotnet run --project src/MyApp.Web/
 ```
 
 The console shows the URL (typically `https://localhost:7001` or `http://localhost:5000`). Open it in your browser.
@@ -218,7 +225,7 @@ The dashboard is provided by `Dabbler.Security.Blazor` — no custom code needed
 ## Step 10 — Run the scaffolded bUnit tests
 
 ```bash
-dotnet test MyApp.Tests/
+dotnet test tests/MyApp.Web.Tests/
 ```
 
 Expected output:

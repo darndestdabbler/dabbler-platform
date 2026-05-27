@@ -1,0 +1,121 @@
+{
+  "sessionSetName": "template-scaffolding-followup-fixes",
+  "createdDate": "2026-05-27T16:47:05.423167-04:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/author-ai-assignment",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Read planning docs and confirmed the landed remediation scope for Session 1, then authored ai-assignment.md via routed analysis for the new template-scaffolding-followup-fixes set; regenerated once to align with the current orchestrator/model schema and current model names.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 3013,
+          "outputTokens": 1290,
+          "costUsd": 0.016666249999999997
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 3179,
+          "outputTokens": 1737,
+          "costUsd": 0.02134375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/backfill-dabbler-app-contract",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Backfilled dabbler-app contract fixes: aligned root/adopter/generated docs with the split scaffold, updated template metadata, pinned scaffolded Api/Shared projects to net10.0, and excluded template bin/obj content from package inputs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/harden-packaging-smoke",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Backfilled the split-topology regression gate in PackagingSmokeTests.cs so dabbler-app smoke checks now assert the web/api/shared/tests solution layout rather than only proving a build.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/backfill-crud-remediation",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Backfilled CRUD remediation: public wrapper docs now use the real Dabbler.CrudSlice CLI flags, the native page template emits Services:ApiBaseUrl + ApiBaseUrl fallback + X-Internal-Api-Key + UserIdentityHandler, and the native service template emits {Entity}ApiRegistrationExtensions.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/focused-validation",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Focused validation already re-run and green: fresh dotnet pack of Dabbler.Templates, custom-hive native CRUD template smoke, PackagingSmokeTests.cs (5/5), and WrapperOrchestrationTests.cs (4/4).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/cross-provider-verification",
+      "dateTime": "2026-05-27T16:56:34.656897-04:00",
+      "description": "Routed cross-provider session verification rounds 1-3 and saved the raw reviews. Rounds 1-2 surfaced artifact-level documentation/ledger issues; Round 3 VERIFIED after those fixes landed.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.23028
+        },
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.28506
+        },
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.196905
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/next-session-recommendation",
+      "dateTime": "2026-05-27T16:54:27.648375-04:00",
+      "description": "Routed next-session orchestrator recommendation for Session 2. The first gemini-pro call returned a non-JSON wrapper and was retried; the second call produced the persisted claude-code / claude-opus-4-6 / medium recommendation.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.005216
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.005156
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/closeout-gate",
+      "dateTime": "2026-05-27T16:59:42.287760-04:00",
+      "description": "Attempted helper-driven closeout after Round 3 VERIFIED. mark_session_complete() was blocked by workflow gates requiring a clean working tree and a pushed branch; per higher-priority instructions no commit/push was created in this conversation, so Session 1 remains open in session-state.json.",
+      "status": "blocked",
+      "routedApiCalls": []
+    }
+  ]
+}

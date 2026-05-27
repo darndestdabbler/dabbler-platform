@@ -1,0 +1,47 @@
+{
+  "status": "blocked",
+  "summary": "Session 1 of 3 (template-scaffolding-followup-fixes): backfilled the split dabbler-app scaffold contract and the CRUD wrapper/native-template remediation into the session-set workflow. Recorded the new spec, ai-assignment, activity log, session state, and 3-round raw verifier review. Session 1 documents the already-landed code changes from 2026-05-27: dabbler-app docs/template metadata now describe the split web/api/shared/tests topology; scaffolded Api/Shared target frameworks were corrected to net10.0; template package inputs now exclude content/**/bin and obj; PackagingSmokeTests asserts the split topology; public CRUD wrapper docs now match the real CLI; the native crud-page template emits Services:ApiBaseUrl + ApiBaseUrl fallback + X-Internal-Api-Key + UserIdentityHandler; and the native crud-service template emits the API DI helper file. Focused validation already passed before the backfill (fresh Dabbler.Templates pack, custom-hive native CRUD template smoke, PackagingSmokeTests 5/5, WrapperOrchestrationTests 4/4). Verification required 3 rounds: Round 1 found 2 Minor artifact issues (blank Session 1 actuals; missing read/confirm step in the activity log); Round 2 found 1 Major + 1 Minor bookkeeping issues (activity-log cost mismatch and missing step 6 entry); Round 3 VERIFIED after reconciling the ledger and cost accounting. Total routed cost recorded for Session 1: $0.7606. Helper closeout was attempted after Round 3 VERIFIED but the workflow gate rejected closure because the worktree is still dirty and the current branch is ahead of origin; no commit/push was created because this conversation did not include permission to commit.",
+  "files_changed": [
+    "docs/session-sets/template-scaffolding-followup-fixes/spec.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/ai-assignment.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/activity-log.json",
+    "docs/session-sets/template-scaffolding-followup-fixes/session-state.json",
+    "docs/session-sets/template-scaffolding-followup-fixes/session-events.jsonl",
+    "docs/session-sets/template-scaffolding-followup-fixes/session-reviews/session-001.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/issue-logs/session-001.json",
+    "docs/session-sets/template-scaffolding-followup-fixes/disposition.json",
+    "README.md",
+    "docs/getting-started.md",
+    "docs/scaffolding-templates/README.md",
+    "tools/Dabbler.CrudSlice/README.md",
+    "templates/Dabbler.Templates/Dabbler.Templates.csproj",
+    "templates/Dabbler.Templates/content/dabbler-app/.template.config/template.json",
+    "templates/Dabbler.Templates/content/dabbler-app/README.md",
+    "templates/Dabbler.Templates/content/dabbler-app/src/DabblerApp.Api/DabblerApp.Api.csproj",
+    "templates/Dabbler.Templates/content/dabbler-app/src/DabblerApp.Shared/DabblerApp.Shared.csproj",
+    "templates/Dabbler.Templates/content/dabbler-app/tests/DabblerApp.Web.Tests/SampleItemListTests.cs",
+    "templates/Dabbler.Templates/content/dabbler-crud-page/.template.config/template.json",
+    "templates/Dabbler.Templates/content/dabbler-crud-page/Data/T1EntityScaffoldingExtensions.cs",
+    "templates/Dabbler.Templates/content/dabbler-crud-service/.template.config/template.json",
+    "templates/Dabbler.Templates/content/dabbler-crud-service/Services/T1EntityApiRegistrationExtensions.cs",
+    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs",
+    "tests/Dabbler.CrudSlice.Tests/WrapperOrchestrationTests.cs",
+    "ai_router/router-metrics.jsonl"
+  ],
+  "verification_method": "api",
+  "verification_message_ids": [],
+  "next_orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-opus-4-6",
+    "effort": "medium",
+    "reason": {
+      "code": "other",
+      "specifics": "Session 2 is the dabbler-min contract decision. It needs stronger architectural reasoning than Session 1 because it must decide whether the minimal template remains intentionally single-project or moves to a split topology, then carry that decision through docs, template metadata, and smoke coverage."
+    }
+  },
+  "blockers": [
+    "Session 1 closeout is blocked until the working tree is committed and the branch is pushed, which the helper gate enforces before mark_session_complete() will flip session-state.json to complete.",
+    "No commit or push was performed in this conversation because that requires explicit user instruction."
+  ]
+}

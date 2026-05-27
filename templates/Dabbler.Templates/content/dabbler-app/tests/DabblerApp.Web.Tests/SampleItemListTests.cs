@@ -1,6 +1,6 @@
 using Bunit;
-using DabblerApp.Components.Pages;
-using DabblerApp.Data;
+using DabblerApp.Web.Components.Pages;
+using DabblerApp.Web.Data;
 using Dabbler.Platform.Stubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,11 +8,11 @@ using MudBlazor;
 using MudBlazor.Services;
 using Xunit;
 
-namespace DabblerApp.Tests;
+namespace DabblerApp.Web.Tests;
 
 /// <summary>
 /// bUnit smoke test for the SampleItems page using stub providers (§4.4).
-/// Proves the component renders without an API or database.
+/// Proves the component renders without the API host or a running SQL database.
 /// </summary>
 public sealed class SampleItemListTests : TestContext, IDisposable
 {
@@ -35,9 +35,9 @@ public sealed class SampleItemListTests : TestContext, IDisposable
         Services.AddDabblerPlatformStubs(new StubPlatformDefinition());
 
         // Register the grid data provider backed by the in-memory DB
-        Services.AddTransient<DabblerApp.Services.SampleItemProvider>();
+        Services.AddTransient<DabblerApp.Web.Services.SampleItemProvider>();
         Services.AddTransient<Dabbler.Components.Data.IGridDataProvider<SampleItem>,
-            DabblerApp.Services.SampleItemProvider>();
+            DabblerApp.Web.Services.SampleItemProvider>();
     }
 
     [Fact]

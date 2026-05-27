@@ -25,8 +25,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Include all template content as package content, not as build inputs -->
-    <Content Include="content\**\*" PackagePath="content" />
+    <!-- Include template sources, but never package generated bin/obj artifacts. -->
+    <Content Include="content\**\*"
+             Exclude="content\**\bin\**;content\**\obj\**"
+             PackagePath="content" />
     <!-- Ensure .cs files in content are not compiled -->
     <Compile Remove="content\**\*" />
     <EmbeddedResource Remove="content\**\*" />

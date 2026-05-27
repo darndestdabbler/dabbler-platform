@@ -106,13 +106,15 @@ public class PackagingSmokeTests
                 $"new install \"{templateNupkg}\" --debug:custom-hive \"{hiveDir}\"");
             installExit.Should().Be(0, $"template install should succeed. Output:\n{installOut}");
 
-            // --name DabblerApp preserves the sourceName so the project directory
-            // stays DabblerApp/ rather than being renamed to the temp dir's basename.
+            // --name DabblerApp preserves the sourceName so solution and project
+            // names stay consistent inside src/ and tests/.
             var (scaffoldExit, scaffoldOut) = RunTool("dotnet",
                 $"new dabbler-app -o \"{tempDir}\" --name DabblerApp --force --debug:custom-hive \"{hiveDir}\"");
             scaffoldExit.Should().Be(0, $"dabbler-app scaffold should succeed. Output:\n{scaffoldOut}");
 
-            var projPath = Path.Combine(tempDir, "DabblerApp", "DabblerApp.csproj");
+            AssertDabblerAppSplitTopology(tempDir, "DabblerApp");
+
+            var projPath = Path.Combine(tempDir, "DabblerApp.slnx");
 
             // Restore explicitly with the local feed so Dabbler.* packages resolve
             var (restoreExit, restoreOut) = RunTool("dotnet",
@@ -193,14 +195,16 @@ public class PackagingSmokeTests
                 $"new dabbler-app -o \"{tempDir}\" --name DabblerApp --force --debug:custom-hive \"{hiveDir}\"");
             scaffoldExit.Should().Be(0, $"dabbler-app scaffold should succeed. Output:\n{scaffoldOut}");
 
-            var testProjPath = Path.Combine(tempDir, "DabblerApp.Tests", "DabblerApp.Tests.csproj");
+            AssertDabblerAppSplitTopology(tempDir, "DabblerApp");
+
+            var testProjPath = Path.Combine(tempDir, "DabblerApp.slnx");
 
             // Write nuget.config at the solution root so auto-restore finds local Dabbler.* packages.
             WriteLocalNugetConfig(tempDir, PackOutputDir);
 
             var (testExit, testOut) = RunTool("dotnet",
                 $"test \"{testProjPath}\" --nologo -v q");
-            testExit.Should().Be(0, $"scaffolded DabblerApp.Tests should pass. Output:\n{testOut}");
+            testExit.Should().Be(0, $"scaffolded dabbler-app solution tests should pass. Output:\n{testOut}");
             testOut.Should().ContainEquivalentOf("passed",
                 because: "at least one bUnit test must have run and passed");
         }
@@ -266,8 +270,9 @@ public class PackagingSmokeTests
                 $"new dabbler-app -o \"{tempDir}\" --name DabblerApp --force --debug:custom-hive \"{hiveDir}\"");
             Assert.True(scaffoldExit == 0, $"Scaffold failed:\n{scaffoldOut}");
 
-            var projDir = Path.Combine(tempDir, "DabblerApp");
-            var projPath = Path.Combine(projDir, "DabblerApp.csproj");
+            AssertDabblerAppSplitTopology(tempDir, "DabblerApp");
+
+            var projPath = Path.Combine(tempDir, "DabblerApp.slnx");
             WriteLocalNugetConfig(tempDir, PackOutputDir);
 
             var (restoreExit, restoreOut) = RunTool("dotnet",
@@ -289,9 +294,10 @@ public class PackagingSmokeTests
             var startupOutput = new StringBuilder();
             bool serverStarted = false;
 
+            var webProjDir = Path.Combine(tempDir, "src", "DabblerApp.Web");
             var psi = new ProcessStartInfo("dotnet", $"run --no-build --urls \"{listenUrl}\"")
             {
-                WorkingDirectory = projDir,
+                WorkingDirectory = webProjDir,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -373,6 +379,25 @@ public class PackagingSmokeTests
         var port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
         listener.Stop();
         return port;
+    }
+
+    private static void AssertDabblerAppSplitTopology(string rootDir, string appName)
+    {
+        File.Exists(Path.Combine(rootDir, $"{appName}.slnx")).Should().BeTrue(
+            "the full template should scaffold a solution file at the root");
+        File.Exists(Path.Combine(rootDir, "src", $"{appName}.Web", $"{appName}.Web.csproj")).Should().BeTrue(
+            "the full template should scaffold a Blazor Server web project under src/");
+        File.Exists(Path.Combine(rootDir, "src", $"{appName}.Api", $"{appName}.Api.csproj")).Should().BeTrue(
+            "the full template should scaffold a Web API project under src/");
+        File.Exists(Path.Combine(rootDir, "src", $"{appName}.Shared", $"{appName}.Shared.csproj")).Should().BeTrue(
+            "the full template should scaffold a shared library project under src/");
+        File.Exists(Path.Combine(rootDir, "tests", $"{appName}.Web.Tests", $"{appName}.Web.Tests.csproj")).Should().BeTrue(
+            "the full template should scaffold a test project under tests/");
+
+        File.Exists(Path.Combine(rootDir, appName, $"{appName}.csproj")).Should().BeFalse(
+            "the legacy monolithic app project should no longer be emitted by dabbler-app");
+        File.Exists(Path.Combine(rootDir, $"{appName}.Tests", $"{appName}.Tests.csproj")).Should().BeFalse(
+            "the legacy top-level test project should no longer be emitted by dabbler-app");
     }
 
     /// <summary>

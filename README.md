@@ -31,7 +31,8 @@ The repo currently includes:
 
 **New external adopter?** Start with
 [`docs/getting-started.md`](docs/getting-started.md) — scaffold a
-full Blazor Server app with security, reports, and tests in under 30
+multi-project starter (Blazor Server web + Web API + shared library + tests)
+with security and reports in under 30
 minutes using `dotnet new dabbler-app`.
 
 **New here (contributor)?** Start with

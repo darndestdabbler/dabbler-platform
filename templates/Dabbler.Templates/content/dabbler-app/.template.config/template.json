@@ -11,7 +11,7 @@
   },
   "sourceName": "DabblerApp",
   "preferNameDirectory": true,
-  "description": "Full Blazor Server app with Dabbler security (magic-link, cookie auth, restriction-based authz), one sample CRUD entity, one sample report, and a bUnit test project with stub providers.",
+  "description": "Multi-project starter solution with a Blazor Server web app, a Web API starter, a shared contracts library, one sample CRUD entity, one sample report, and a bUnit test project with stub providers.",
   "symbols": {
     "Framework": {
       "type": "parameter",

@@ -4,7 +4,7 @@ using Dabbler.Security.Data;
 using Dabbler.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace DabblerApp.Data;
+namespace DabblerApp.Web.Data;
 
 /// <summary>
 /// Seeds admin@local.test with SystemAdmin role (A12) and sample data (A13) on first run.

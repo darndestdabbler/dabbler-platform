@@ -1,0 +1,12 @@
+[
+  {
+    "severity": "Major",
+    "description": "The ai-assignment actuals claim a total routed cost of $0.2734, but the activity log's three recorded routed API calls sum to only ~$0.0432. The activity log is the authoritative cost ledger, so either it is missing entries or the ai-assignment figure is wrong. This undermines the cost-tracking traceability the session-set framework is designed to provide.",
+    "suggestion": "Reconcile the two figures. If additional routed calls occurred (e.g., during ai-assignment drafting iterations beyond the two logged calls), add them to the activity log. If $0.2734 includes non-routed orchestrator token spend, change the ai-assignment label from 'Total routed cost' to 'Total session cost' and add a breakdown note, or correct the figure to match the activity log sum."
+  },
+  {
+    "severity": "Minor",
+    "description": "Activity log step numbering skips from 5 to 7. Step 6 in the ai-assignment routing table is 'Cross-provider session verification and review save', which is pending\u2014but step 7 (next-session recommendation) was recorded as complete before step 6 executed. This is an out-of-order execution that leaves a gap in the sequential step record.",
+    "suggestion": "Either renumber step 7 to step 6 (since verification will become the final step) or add a placeholder step 6 entry with status 'pending' to preserve the ai-assignment's routing-table numbering. When verification completes, fill in the entry and ensure final step numbers are contiguous."
+  }
+]

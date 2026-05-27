@@ -9,7 +9,7 @@
     "language": "C#",
     "type": "item"
   },
-  "description": "Item template that scaffolds a CRUD service interface, EF-Core-backed implementation, and POST /query controller for a single entity using the Dabbler.Api.Querying transport contract (GridQueryRequest/Response + QBE helper). Generates Services/I{Entity}Service.cs, Services/{Entity}Service.cs, and Controllers/{EntityPlural}Controller.cs. Pre-stage the EF entity (e.g., Customer.cs) and the DTO ({Entity}Dto.cs) before invoking; the template emits the service trio around them.",
+  "description": "Item template that scaffolds a CRUD service interface, EF-Core-backed implementation, a one-line DI helper, and a POST /query controller for a single entity using the Dabbler.Api.Querying transport contract (GridQueryRequest/Response + QBE helper). Generates Services/I{Entity}Service.cs, Services/{Entity}Service.cs, Services/{Entity}ApiRegistrationExtensions.cs, and Controllers/{EntityPlural}Controller.cs. Pre-stage the EF entity (e.g., Customer.cs) and the DTO ({Entity}Dto.cs) before invoking; the template emits the service quartet around them.",
   "symbols": {
     "entity": {
       "type": "parameter",
@@ -117,6 +117,7 @@
   "primaryOutputs": [
     { "path": "Services/IT1EntityService.cs" },
     { "path": "Services/T1EntityService.cs" },
+    { "path": "Services/T1EntityApiRegistrationExtensions.cs" },
     { "path": "Controllers/T2EntityPluralController.cs" }
   ]
 }
