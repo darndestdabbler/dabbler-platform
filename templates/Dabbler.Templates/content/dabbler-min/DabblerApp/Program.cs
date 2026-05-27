@@ -1,3 +1,7 @@
+// This is a single-project Dabbler Security starter (dabbler-min template).
+// Auth endpoints live here alongside Blazor components by design.
+// For a split Web/API/Shared/Tests topology, use the dabbler-app template.
+
 using System.Globalization;
 using Dabbler.Security.Extensions;
 using Dabbler.Security.Blazor.Extensions;

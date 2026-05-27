@@ -18,9 +18,24 @@ The `dabbler-app` template scaffolds:
 | Playwright watermark for async UI synchronization | `Dabbler.Testing.Blazor` |
 | bUnit tests with stub DI providers | `Dabbler.Platform.Stubs` |
 
-The `dabbler-min` template is a lighter alternative — security only, no reports, no test project. Use it when you want to adopt Dabbler security incrementally.
+## Pick the right template
 
-The full `dabbler-app` template scaffolds a solution with separate Web, API, Shared, and test projects.
+The platform ships two templates with intentionally different topologies. Pick by use case before scaffolding:
+
+| | `dabbler-app` | `dabbler-min` |
+|---|---|---|
+| Topology | **Multi-project solution:** Web + API + Shared + Tests | **Single project:** one `.csproj` containing the Blazor Server host *and* the auth endpoints |
+| Project layout | `src/MyApp.Web/`, `src/MyApp.Api/`, `src/MyApp.Shared/`, `tests/MyApp.Web.Tests/` | `MyApp/MyApp.csproj` (everything inside) |
+| Web Application vs. Web API separation | **Physically separated** (separate `.csproj`s, separate deployable assemblies) | **Colocated** (Blazor components + `/auth/*` minimal-API endpoints in the same project) |
+| Packages | `Dabbler.Security`, `Dabbler.Security.Blazor`, `Dabbler.Components`, `Dabbler.Reports.*`, `Dabbler.Platform.Stubs` | `Dabbler.Security`, `Dabbler.Security.Blazor`, `Dabbler.Components` |
+| Sample CRUD page + report | ✓ | — |
+| Test project | bUnit (scaffolded) | None (add your own) |
+| `Dabbler.CrudSlice` wrapper invocation | `--web-root src/MyApp.Web --api-root src/MyApp.Api` | `--web-root .` and `--api-root .` (same directory) |
+| Use when | Starting a real application — especially under an architecture standard that requires Web Application and Web API layers in separate projects | Adopting Dabbler Security incrementally — prototypes, spikes, internal single-tier tools, or evaluation work where one runnable project is the entire goal |
+
+> **Architecture-board constraint?** If your organization requires physically separate Web Application and Web API projects (a common rule for line-of-business applications), use `dabbler-app`. `dabbler-min` is intentionally single-project and will **not** satisfy that rule — it is the incremental-adoption path, not a production-application starter.
+
+When a `dabbler-min` adopter outgrows the single-project shape, the supported migration path is to scaffold a fresh `dabbler-app` solution and move code across — not to evolve the `dabbler-min` template in place. The two templates are durable separate entry points, not two waypoints on one ladder.
 
 ---
 

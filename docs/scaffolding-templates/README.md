@@ -37,7 +37,12 @@ dotnet run --project tools/Dabbler.CrudSlice -- \
 ```
 
 For single-project or minimal consumers, point both `--web-root` and `--api-root`
-at the same project root.
+at the same project root. This is the expected invocation for `dabbler-min`
+adopters — the template scaffolds one project that hosts both the Blazor
+Server UI and the `/auth/*` API endpoints, so the wrapper's emitted
+`{Entity}Controller.cs` and `{Entity}ScaffoldingExtensions.cs` both land
+inside that single project. `WrapperOrchestrationTests.FullPipeline_endToEnd_against_smoke_fixture`
+is the standing regression gate for this same-root pattern.
 
 The two underlying templates (`dabbler-crud-service`, `dabbler-crud-page`) remain documented in [crud-service-template.md](crud-service-template.md) and [crud-page-template.md](crud-page-template.md) for users who need finer-grained control. The wrapper is the recommended entry point for end-to-end onboarding.
 

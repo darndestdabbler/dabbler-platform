@@ -42,8 +42,11 @@ scaffolded projects that build clean:
 | Dabbler App (minimal) | `dabbler-min` | ✅ installs, restores, builds clean (0 errors) |
 
 Validation method: `PackagingSmokeTests.DabblerApp_Template_InstallsAndBuildsClean`
-and `DabblerMin_Template_InstallsAndBuildsClean` (see
-`tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs`).
+and `DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape` (see
+`tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs`). The `dabbler-min`
+test was renamed in 2026-05-27 (`template-scaffolding-followup-fixes`
+Session 2) when it gained explicit single-project shape assertions; the
+build-clean contract is unchanged.
 
 ### Scaffolded bUnit Tests
 

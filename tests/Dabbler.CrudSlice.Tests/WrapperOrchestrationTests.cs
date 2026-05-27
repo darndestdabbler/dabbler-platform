@@ -138,6 +138,21 @@ public class WrapperOrchestrationTests
         output.Should().Contain("Usage:");
     }
 
+    /// <summary>
+    /// Full end-to-end run of <c>Dabbler.CrudSlice</c> against the SmokeApp fixture
+    /// where the web project and API project are the same directory.
+    ///
+    /// <para>
+    /// This is also the standing regression gate for the <c>dabbler-min</c>
+    /// single-project consumer pattern (codified in
+    /// <c>template-scaffolding-followup-fixes</c> Session 2): a `dabbler-min`
+    /// adopter passes the same path to both <c>--web-root</c> and <c>--api-root</c>,
+    /// and the wrapper's emitted controllers, services, and pages all land
+    /// inside that single project. If this test ever needs to be split into
+    /// separate same-root and separate-root coverage, do that without removing
+    /// the same-root assertions.
+    /// </para>
+    /// </summary>
     [SkippableFact]
     public void FullPipeline_endToEnd_against_smoke_fixture()
     {

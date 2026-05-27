@@ -133,8 +133,14 @@ public class PackagingSmokeTests
     }
 
     [SkippableFact]
-    public void DabblerMin_Template_InstallsAndBuildsClean()
+    public void DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape()
     {
+        // Session 2 of template-scaffolding-followup-fixes:
+        // dabbler-min is intentionally single-project. This test is the regression gate
+        // that protects that contract: any accidental split into Web/Api/Shared/Tests
+        // breaks this test. The matching positive contract for dabbler-app's split
+        // topology lives in AssertDabblerAppSplitTopology above.
+
         Skip.If(!Directory.Exists(PackOutputDir),
             "Pack output not found. Run tools/pack.ps1 first.");
 
@@ -154,6 +160,8 @@ public class PackagingSmokeTests
             var (scaffoldExit, scaffoldOut) = RunTool("dotnet",
                 $"new dabbler-min -o \"{tempDir}\" --name DabblerApp --force --debug:custom-hive \"{hiveDir}\"");
             scaffoldExit.Should().Be(0, $"dabbler-min scaffold should succeed. Output:\n{scaffoldOut}");
+
+            AssertDabblerMinSingleProjectShape(tempDir, "DabblerApp");
 
             var projPath = Path.Combine(tempDir, "DabblerApp", "DabblerApp.csproj");
 
@@ -379,6 +387,40 @@ public class PackagingSmokeTests
         var port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
         listener.Stop();
         return port;
+    }
+
+    /// <summary>
+    /// Asserts the dabbler-min single-project contract: exactly one csproj under
+    /// the scaffolded root, located at &lt;rootDir&gt;/&lt;appName&gt;/&lt;appName&gt;.csproj,
+    /// and no split-topology artifacts. A scaffolded README is also asserted so
+    /// future adopters open into a project-level README rather than only the
+    /// out-of-band docs at <c>docs/getting-started.md</c>.
+    /// </summary>
+    private static void AssertDabblerMinSingleProjectShape(string rootDir, string appName)
+    {
+        var csprojFiles = Directory.GetFiles(rootDir, "*.csproj", SearchOption.AllDirectories);
+        csprojFiles.Should().ContainSingle(
+            "the minimal template must scaffold exactly one .csproj — any split into multiple projects breaks the single-project contract");
+
+        File.Exists(Path.Combine(rootDir, appName, $"{appName}.csproj")).Should().BeTrue(
+            "the single project must live at the conventional <rootDir>/<appName>/<appName>.csproj path");
+
+        // Negative shape assertions — if any of these appear, dabbler-min has drifted
+        // toward the dabbler-app topology and the contract is broken.
+        Directory.GetFiles(rootDir, "*.Api.csproj", SearchOption.AllDirectories).Should().BeEmpty(
+            "dabbler-min must not emit an Api project — that's dabbler-app's job");
+        Directory.GetFiles(rootDir, "*.Shared.csproj", SearchOption.AllDirectories).Should().BeEmpty(
+            "dabbler-min must not emit a Shared library project — that's dabbler-app's job");
+        Directory.GetFiles(rootDir, "*.Tests.csproj", SearchOption.AllDirectories).Should().BeEmpty(
+            "dabbler-min must not emit a Tests project — adopters add their own");
+        Directory.Exists(Path.Combine(rootDir, "tests")).Should().BeFalse(
+            "dabbler-min must not emit a tests/ directory");
+        Directory.Exists(Path.Combine(rootDir, "src")).Should().BeFalse(
+            "dabbler-min must not emit a src/ directory — its single project lives directly under <rootDir>/<appName>/");
+
+        // Positive: README emitted alongside the csproj.
+        File.Exists(Path.Combine(rootDir, appName, "README.md")).Should().BeTrue(
+            "dabbler-min must emit a project-level README so adopters open into clear template positioning");
     }
 
     private static void AssertDabblerAppSplitTopology(string rootDir, string appName)
