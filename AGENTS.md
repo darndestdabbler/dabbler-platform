@@ -16,15 +16,20 @@ explicitly requires an import from a sibling repo.
 - `docs/planning/project-guidance.md` -- durable principles + conventions
 - `docs/planning/lessons-learned.md` -- repo-specific failure patterns and
   tactics learned from prior sessions
-- `docs/planning/session-set-authoring-guide.md` -- how to author or update a
+- [`session-set-authoring-guide.md`](https://github.com/darndestdabbler/dabbler-ai-orchestration/blob/master/docs/planning/session-set-authoring-guide.md)
+  (canonical, lives in `dabbler-ai-orchestration`) -- how to author or update a
   session-set spec, including the Session Set Configuration block
-  (`requiresUAT` / `requiresE2E` / `uatScope`), When-UAT-Is-Required and
-  When-E2E-Is-Required heuristics, slug naming, sizing, deliverables, and
-  anti-patterns
-- `docs/ai-led-session-workflow.md` -- the authoritative session-set
-  workflow. This is the single source of truth for the step-by-step
-  procedure, the AI router usage, cross-provider verification, UAT checklist
-  handling (now conditional on the spec's `requiresUAT` flag),
+  (`requiresUAT` / `requiresE2E` / `uatScope` / `tier` / `prerequisites`),
+  When-UAT-Is-Required and When-E2E-Is-Required heuristics, slug naming,
+  sizing, deliverables, and anti-patterns. Pair with the local
+  `docs/planning/session-set-authoring-guide.platform-addendum.md` for the
+  dabbler-platform-specific extensions (Blazor / MudBlazor / Playwright /
+  AcmeCoffeeOnline conventions).
+- [`ai-led-session-workflow.md`](https://github.com/darndestdabbler/dabbler-ai-orchestration/blob/master/docs/ai-led-session-workflow.md)
+  (canonical, lives in `dabbler-ai-orchestration`) -- the authoritative
+  session-set workflow. This is the single source of truth for the
+  step-by-step procedure, the AI router usage, cross-provider verification,
+  UAT checklist handling (now conditional on the spec's `requiresUAT` flag),
   **the Step 7 verifier-disagreement resolution procedure (four human
   options, disagreement logging)**, the Step 9 reorganization review (run
   after the Step 8 notify so the human is not blocking the completion

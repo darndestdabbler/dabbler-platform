@@ -42,6 +42,16 @@ Use this structure for new entries:
 
 ## `register_session_start()` Overwrites `session-state.json` Without Preserving `completedSessions[]`
 
+> **RESOLVED — v4 schema (Set 047, 2026-05-26).** This lesson is
+> obsolete. The on-disk v4 shape no longer carries a top-level
+> `completedSessions[]` field; readers derive completion count from
+> `sessions[]` at read time. There is nothing to preserve across
+> `register_session_start()` snapshot rewrites because the field
+> doesn't exist on disk. The historical context below is preserved
+> for audit — do NOT follow the "Action for future sessions" bullet.
+> See `docs/session-state-schema.md` (canonical, in
+> `dabbler-ai-orchestration`) for the v4 shape.
+
 - **Context:** `crud-scaffolding-spike` Session 3 of 3, opening a session
   on a lightweight-tier set that already had `completedSessions: [1, 2]`
   populated by hand at the close of Session 2.

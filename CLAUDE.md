@@ -15,49 +15,62 @@ explicitly requires an import from a sibling repo.
 - `docs/planning/project-guidance.md` — durable principles + conventions
 - `docs/planning/lessons-learned.md` — repo-specific failure patterns and
   tactics learned from prior sessions
-- `docs/planning/session-set-authoring-guide.md` — how to author or update a
+- [`session-set-authoring-guide.md`](https://github.com/darndestdabbler/dabbler-ai-orchestration/blob/master/docs/planning/session-set-authoring-guide.md)
+  (canonical, lives in `dabbler-ai-orchestration`) — how to author or update a
   session-set spec, including the Session Set Configuration block
-  (`requiresUAT` / `requiresE2E` / `uatScope`), When-UAT-Is-Required and
-  When-E2E-Is-Required heuristics, slug naming, sizing, deliverables, and
-  anti-patterns
-- `docs/ai-led-session-workflow.md` — the authoritative session-set workflow.
-  This is the single source of truth for the step-by-step procedure, the AI
-  router usage, cross-provider verification, UAT checklist handling (now
-  conditional on the spec's `requiresUAT` flag), **the Step 7
-  verifier-disagreement resolution procedure (four human options, disagreement
-  logging)**, the Step 9 reorganization review (run after the Step 8 notify
-  so the human is not blocking the completion signal), **the Delegation
-  Discipline rules (when to route vs. handle directly)**, and the mandatory
-  rules list. Do not duplicate that content here.
+  (`requiresUAT` / `requiresE2E` / `uatScope` / `tier` / `prerequisites`),
+  When-UAT-Is-Required and When-E2E-Is-Required heuristics, slug naming,
+  sizing, deliverables, and anti-patterns. Pair with the local
+  `docs/planning/session-set-authoring-guide.platform-addendum.md` for the
+  dabbler-platform-specific extensions (Blazor / MudBlazor / Playwright /
+  AcmeCoffeeOnline conventions).
+- [`ai-led-session-workflow.md`](https://github.com/darndestdabbler/dabbler-ai-orchestration/blob/master/docs/ai-led-session-workflow.md)
+  (canonical, lives in `dabbler-ai-orchestration`) — the authoritative
+  session-set workflow. This is the single source of truth for the
+  step-by-step procedure, the AI router usage, cross-provider verification,
+  UAT checklist handling (now conditional on the spec's `requiresUAT` flag),
+  **the Step 7 verifier-disagreement resolution procedure (four human
+  options, disagreement logging)**, the Step 9 reorganization review (run
+  after the Step 8 notify so the human is not blocking the completion
+  signal), **the Delegation Discipline rules (when to route vs. handle
+  directly)**, and the mandatory rules list. Do not duplicate that content
+  here.
 - [`docs/session-state-schema.md`](https://github.com/darndestdabbler/dabbler-ai-orchestration/blob/master/docs/session-state-schema.md)
   (canonical, lives in `dabbler-ai-orchestration`) — the authoritative
   schema for `session-state.json`. Required reading before hand-editing
   any state file. Touching a state file without having read this doc is
   the most common cause of N−1/N drift in the Session Set Explorer.
 
-### State-file rules every orchestrator must follow
+### State-file rules every orchestrator must follow (v4 shape; Set 047)
 
 These are inlined here so the orchestrator does not need to fetch the
 canonical doc to get the must-knows. Read the linked schema for the
 full invariant and worked examples.
 
-- `completedSessions: [<int>, ...]` is the canonical "X done out of N"
-  ledger. Append `currentSession` to it (sorted, unique) on every
-  successful close. Without this array, the extension cannot reliably
-  derive completion count and will display N−1/N.
-- On **Full tier**, `close_session` writes `completedSessions[]`
-  automatically — the orchestrator never edits it directly.
+- `sessions: [{ number, title, status, startedAt, completedAt, ... }, ...]`
+  is the canonical per-session ledger. Legacy top-level fields
+  (`currentSession`, `totalSessions`, `completedSessions`,
+  `lifecycleState`, `startedAt`, `completedAt`) are NOT written to
+  disk in v4 — readers derive them at read time from `sessions[]`
+  via the `normalize_to_v4_shape` shim. Without per-session entries
+  carrying accurate `status` + `completedAt`, the extension cannot
+  reliably derive completion count and will display N−1/N.
+- On **Full tier**, `close_session` writes the per-session entry
+  (`status: "complete"` + `completedAt`) automatically — the
+  orchestrator never edits the array directly.
 - On **Lightweight tier**, the orchestrator (or human) maintains
-  `completedSessions[]` **by hand** on every close. There is no router
-  writer and no events-ledger fallback; this array is the only
-  authoritative count signal.
-- Canonical `status` values are `"not-started"`, `"in-progress"`,
-  `"complete"`, `"cancelled"`. Never `"completed"` or `"done"` on a
-  new write. Final close pairs `status: "complete"` with
-  `lifecycleState: "closed"` and a populated `completedAt`.
-- The "in flight" predicate is `currentSession not in
-  completedSessions[]`. The extension uses this to distinguish a
-  fresh-start row from a between-sessions row — keep it accurate.
+  `sessions[i]` **by hand** on every close: set the matching entry's
+  `status` to `"complete"` and populate its `completedAt`. There is
+  no router writer; this per-session ledger is the only authoritative
+  completion signal.
+- Canonical per-session `status` values are `"not-started"`,
+  `"in-progress"`, `"complete"`, `"cancelled"`. Never `"completed"`
+  or `"done"` on a new write. The set's top-level `status` flips to
+  `"complete"` on the final close (Full: `close_session`; Lightweight:
+  the orchestrator).
+- The "in flight" predicate is: any `sessions[i].status` is
+  `"in-progress"`. The extension uses this to distinguish a fresh-start
+  row from a between-sessions row — keep `sessions[]` accurate.
 
 The human starts a session with one of the trigger phrases listed in
 `docs/ai-led-session-workflow.md` → **Trigger Phrases** (sequential,
@@ -139,6 +152,16 @@ and let the router handle the rest.
 See `docs/ai-led-session-workflow.md` → **Delegation Discipline** for the
 full criteria, the human-tunable thresholds (in `ai_router/router-config.yaml`
 under `delegation:`), and the rationale.
+
+### Decision-time consensus (pointer)
+
+When you hit an in-session design / architecture / process question
+that has more than one plausible answer, route it through cross-
+provider consensus *before* falling back to `AskUserQuestion`. The
+opt-in (`delegation.decision_consensus.enabled`), category gates,
+journal format, and the human-only vs consensus-eligible split are
+documented in `docs/ai-led-session-workflow.md` → **Decision-time
+consensus**.
 
 ## Building & Testing
 
