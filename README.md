@@ -33,7 +33,10 @@ The repo currently includes:
 [`docs/getting-started.md`](docs/getting-started.md) — scaffold a
 multi-project starter (Blazor Server web + Web API + shared library + tests)
 with security and reports in under 30
-minutes using `dotnet new dabbler-app`.
+minutes using `dotnet new dabbler-app`. The generated solution ships a
+`docker/` folder with a split compose stack (SQL Server + Mailpit infra,
+plus Web + Api app services) so you can run the full stack with two
+`docker compose` commands.
 
 **New here (contributor)?** Start with
 [`docs/platform-overview.md`](docs/platform-overview.md) — the

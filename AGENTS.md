@@ -146,6 +146,12 @@ images instead of orphaning dangling layers. Playwright is intentionally
 - `src/Libs/` -- integrated Dabbler libraries
 - `tests/` -- xUnit, bUnit, and Playwright tests
 - `docker/` -- local and CI-like compose stack
+- `templates/Dabbler.Templates/` -- `dotnet new` template package (`dabbler-app`,
+  `dabbler-min`). The `dabbler-app` template ships a `docker/` subfolder with a
+  split compose stack (SQL Server + Mailpit infra + Web + Api app services),
+  per-project Dockerfiles, `appsettings.Docker.json`, and a `packages/` local
+  NuGet feed for Dabbler.* packages. Consumers copy `pack-output/*.nupkg` into
+  `packages/` and run two `docker compose` commands to bring the full stack up.
 - `ai_router/` -- operator-tuned `router-config.yaml` and the
   append-only `router-metrics.jsonl` cost telemetry; the router
   itself is `pip install dabbler-ai-router` (declared in
