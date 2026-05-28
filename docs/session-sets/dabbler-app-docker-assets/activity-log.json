@@ -29,6 +29,60 @@
       "description": "Smoke proof PASSED. Generated SmokeTest via dotnet new dabbler-app --name SmokeTest. Infra stack (SQL Server + Mailpit) came up cleanly. App stack built from Dockerfiles (both images: smoketest-api:local, smoketest-web:local). API healthcheck passed before web started. Both GET http://localhost:5010/_health and http://localhost:5020/_health returned {status:healthy}. Mailpit UI on :8025 returned 200. Issue resolved: Dabbler.* packages not on nuget.org \u2014 resolved by adding nuget.config + packages/ local feed to template. NameLower template symbol added for lowercase Docker image names.",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "read-session1-review-and-docs",
+      "dateTime": "2026-05-28T06:56:16.667086-04:00",
+      "description": "Read Session 1 review, spec, project-guidance.md, lessons-learned.md, and README.md. Session 1 VERIFIED by gpt-5-4.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "doc-updates",
+      "dateTime": "2026-05-28T06:56:16.667086-04:00",
+      "description": "Updated template README.md with dual-path startup section (Docker Compose + dotnet run). Updated top-level README.md, CLAUDE.md, AGENTS.md, GEMINI.md with templates/ Solution Structure entry documenting dabbler-app docker assets.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "smoke-proof",
+      "dateTime": "2026-05-28T06:56:16.667086-04:00",
+      "description": "Smoke proof passed after fixing .dockerignore bug (packages/*.nupkg exclusions prevented local NuGet feed from reaching Docker build context, causing NU1101). After fix: smoketest-api:local and smoketest-web:local built, both /_health returned {status:healthy}, Mailpit UI :8025 returned 200. Stack torn down cleanly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "build-and-test",
+      "dateTime": "2026-05-28T06:56:16.668066-04:00",
+      "description": "dotnet build: 0 errors. dotnet test (non-Playwright): 336 passed, 0 failed. dotnet test PackagingSmoke: 5 passed, 2 skipped.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "verification",
+      "dateTime": "2026-05-28T06:56:16.668066-04:00",
+      "description": "Cross-provider verification via gpt-5-4. Verdict: VERIFIED. No Critical or Major findings. Minor: README should explain source of pack-output nupkg. Fixed post-verification by adding one sentence to README Prerequisites.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "closeout",
+      "dateTime": "2026-05-28T06:56:16.668957-04:00",
+      "description": "Authored disposition.json (status: complete), change-log.md, session-002.md review. Committed and pushed. Calling mark_session_complete.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }
