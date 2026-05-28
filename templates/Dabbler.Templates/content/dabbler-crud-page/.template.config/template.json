@@ -97,6 +97,15 @@
       "description": "Path (relative to the working directory at template-invocation time) to a .dabbler-entity.json schema file. Stamped into the generated Apply-{Entity}Schema.ps1 as its default schema location, so re-running the script picks the same file automatically. Required per the crud-scaffolding spec — the page template enumerates fields on the grid, in the form, and in the filter config, and the schema is the per-property input. The schema file lists each property's name + type + per-surface flags (isInGrid, isInForm, isFilterable, isSortable, isReadOnly)."
     }
   },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "rename": {
+        "Components/Pages/T2EntityPlural/Apply-T1EntitySchema.dabbler-ps": "Components/Pages/T2EntityPlural/Apply-T1EntitySchema.ps1"
+      }
+    }
+  ],
   "primaryOutputs": [
     { "path": "Components/Pages/T2EntityPlural/T2EntityPluralPage.razor" },
     { "path": "Components/Pages/T2EntityPlural/T1EntityDetailPage.razor" },

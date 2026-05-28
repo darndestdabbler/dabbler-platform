@@ -1,40 +1,22 @@
 {
   "status": "completed",
-  "summary": "Session 2 of 3 (template-scaffolding-followup-fixes): Resolved the dabbler-min consumer contract. Routed architecture review verdict was Option A (keep single-project, codify it). Operator surfaced an architecture-review-board constraint mid-session requiring physically separate Web Application and Web API projects; concluded the routed verdict still stands because dabbler-app already provides the board-compliant four-project topology and dabbler-min is positioned as the incremental-adoption path. Implementation across template source, metadata, public docs, and smoke tests: new dabbler-min/DabblerApp/README.md with board-constraint callout; 4-line comment block atop Program.cs; rewritten template description and added Framework choice symbol mirroring dabbler-app; getting-started.md Pick-the-right-template comparison table with architecture-board callout; expanded scaffolding-templates README same-root paragraph; renamed PackagingSmokeTests.DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape with positive+negative shape assertions; XML doc-comment above WrapperOrchestrationTests.FullPipeline_endToEnd_against_smoke_fixture declaring it as the standing dabbler-min same-root regression gate; consumer-readiness.md test-name reference fixed. Operator-clarification postscript added below the raw routed verdict in dabbler-min-contract-review.md per the never-edit-verifier-output rule. Mid-session, the dabbler-ai-router was upgraded from 0.1.1 (writes schemaVersion v2) to 0.10.0 (writes v4) after the v2 writer collapsed the just-migrated v4 state file; the v4 file was restored from git HEAD and register_session_start re-run cleanly. Validation: pack via pwsh + targeted dotnet test pass — PackagingSmokeTests 4/4 (dabbler-app split, dabbler-min single-project shape, required-libs, scaffolded bUnit) and Dabbler.CrudSlice.Tests 29/29 including FullPipeline_endToEnd_against_smoke_fixture. Cross-provider session-verification by GPT-5.4 VERIFIED on Round 1 with zero findings. Total Session 2 routed cost $0.6282 (architecture review $0.21 first attempt + $0.21 re-call + $0.057 + $0.069 automatic architecture-verify, $0.075 session-verification, $0.002 next-session recommendation).",
+  "summary": "Session 3 of 3 (template-scaffolding-followup-fixes): Removed NU5110/NU5111 pack warnings from Dabbler.Templates and authored the set's change-log.md. Root cause: NuGet flags any .ps1 file anywhere in a package with NU5110/NU5111; Apply-T1EntitySchema.ps1 is a post-scaffolding developer helper, not a NuGet install script — a false-positive for template packages. Fix: renamed Apply-T1EntitySchema.ps1 to Apply-T1EntitySchema.dabbler-ps in the template source directory; added a sources[].rename entry to dabbler-crud-page/.template.config/template.json mapping the .dabbler-ps source path to Apply-T1EntitySchema.ps1 on scaffold output. The existing entity/entityPlural fileRename symbols apply token substitution to the rename target, producing Apply-{Entity}Schema.ps1 in the developer's project. No NoWarn added to Dabbler.Templates.csproj — warnings are eliminated by removing the .ps1 from the package, not by suppressing detection. Full validation bundle: dotnet pack (zero NU5110/NU5111), nupkg inspection (Apply-T1EntitySchema.dabbler-ps present; no .ps1 in package), scaffold smoke (Apply-ProductSchema.ps1 correctly emitted), tools/pack.ps1 (30 packages, no warnings), PackagingSmokeTests 4/4, Dabbler.CrudSlice.Tests 29/29. change-log.md authored covering all 3 sessions with deferred items listed. Cross-provider session-verification by Gemini Pro (cross-provider against Claude Sonnet / Anthropic) VERIFIED on Round 1 with zero findings. Total Session 3 routed cost $0.1298 (first Opus verification call $0.126045 — result lost to UnicodeEncodeError in print path, call itself completed; second Gemini Pro call $0.003729 — VERIFIED). This is the final session; the session set closes as complete.",
   "files_changed": [
     "docs/session-sets/template-scaffolding-followup-fixes/spec.md",
     "docs/session-sets/template-scaffolding-followup-fixes/ai-assignment.md",
     "docs/session-sets/template-scaffolding-followup-fixes/activity-log.json",
     "docs/session-sets/template-scaffolding-followup-fixes/session-state.json",
-    "docs/session-sets/template-scaffolding-followup-fixes/session-events.jsonl",
-    "docs/session-sets/template-scaffolding-followup-fixes/dabbler-min-contract-review.md",
-    "docs/session-sets/template-scaffolding-followup-fixes/session-reviews/session-002.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/change-log.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/session-reviews/session-003.md",
     "docs/session-sets/template-scaffolding-followup-fixes/disposition.json",
-    "docs/getting-started.md",
-    "docs/scaffolding-templates/README.md",
-    "docs/packaging/consumer-readiness.md",
-    "templates/Dabbler.Templates/content/dabbler-min/.template.config/template.json",
-    "templates/Dabbler.Templates/content/dabbler-min/DabblerApp/Program.cs",
-    "templates/Dabbler.Templates/content/dabbler-min/DabblerApp/README.md",
-    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs",
-    "tests/Dabbler.CrudSlice.Tests/WrapperOrchestrationTests.cs",
+    "templates/Dabbler.Templates/content/dabbler-crud-page/.template.config/template.json",
+    "templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/Apply-T1EntitySchema.dabbler-ps",
     "ai_router/router-metrics.jsonl",
     "pack-output/Dabbler.Templates.0.1.0-preview.1.nupkg",
-    "pack-output/Dabbler.Templates.0.1.0-preview.1.snupkg",
-    "pack-output/Dabbler.Security.DevIdp.Tool.0.1.0-preview.1.nupkg",
-    "pack-output/Dabbler.Security.DevIdp.Tool.0.1.0-preview.1.snupkg"
+    "pack-output/Dabbler.Templates.0.1.0-preview.1.snupkg"
   ],
   "verification_method": "api",
   "verification_message_ids": [],
-  "next_orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "low",
-    "reason": {
-      "code": "other",
-      "specifics": "Session 3 (Remove Template Pack Warning And Close Out) is a focused packaging fix (NU5110/NU5111 root-cause + warning-free relocation of Apply-T1EntitySchema.ps1) plus routine closeout authoring (change-log.md, final ai-assignment actuals, disposition.json). Mechanical work that does not require Opus-tier reasoning. Sonnet at low effort is the cheapest capable choice from the engine that just completed a clean Session 2. Updated from the original Session-1-author-time recommendation of Codex / gpt-5.4 / medium."
-    }
-  },
+  "next_orchestrator": null,
   "blockers": []
 }

@@ -85,7 +85,7 @@ Low to moderate
 | 6 | Cross-provider session verification and review save. | `route(task_type="session-verification", max_tier=2)` |
 
 ### Actuals (filled after the session)
-- Orchestrator used:
-- Total routed cost:
-- Deviations from recommendation:
-- Notes for next-session calibration:
+- Orchestrator used: Claude Code (`claude-sonnet-4-6`, `low`) — matched the recommendation.
+- Total routed cost: $0.1298 — two verification routing calls: first escalated to Opus ($0.126045, result lost to UnicodeEncodeError in the print path); second completed at Gemini Pro ($0.003729, VERIFIED). No routing for Steps 1–3 (fix path was obvious from inspection; analysis routing skipped per spec conditional).
+- Deviations from recommendation: None for the fix steps. Step 2 (route analysis) was not needed — the warning root cause was immediately clear from `dotnet pack` output (NU5110/NU5111 fires on any `.ps1` in the nupkg; no architectural ambiguity). The fix (rename source extension + template.json `sources[].rename`) was implemented directly in ~10 min without routing.
+- Notes for next-session calibration: N/A — this is the final session of the set.

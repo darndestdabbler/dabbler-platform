@@ -224,6 +224,63 @@
           "costUsd": 0.002269
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/inspect-warning-path",
+      "dateTime": "2026-05-27T21:15:00.000000-04:00",
+      "description": "Read Sessions 1-2 artifacts plus the ai-assignment. Ran `dotnet pack` on Dabbler.Templates to capture the exact warning text: NU5110 (script outside tools/ folder) and NU5111 (script not named install/uninstall/init.ps1) both fired against content/dabbler-crud-page/Components/Pages/T2EntityPlural/Apply-T1EntitySchema.ps1. Root cause: NuGet's pack task flags any .ps1 file in the package with these warnings regardless of the package type; the file is not a NuGet install script but a post-scaffolding developer helper. No architecture review routing needed — the fix path was immediately clear from the error text.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/implement-warning-cleanup",
+      "dateTime": "2026-05-27T21:20:00.000000-04:00",
+      "description": "Renamed Apply-T1EntitySchema.ps1 to Apply-T1EntitySchema.dabbler-ps in the template source directory (templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/). Added a sources[].rename entry to dabbler-crud-page/.template.config/template.json mapping the .dabbler-ps source path to Apply-T1EntitySchema.ps1 on scaffold output. The existing entity/entityPlural fileRename symbols apply token substitution to the rename target path, producing Apply-{Entity}Schema.ps1 in the developer's project. Verified nupkg contents: Apply-T1EntitySchema.dabbler-ps present, no .ps1 files in package. Verified scaffold output: dotnet new dabbler-crud-page for entity=Product emits Apply-ProductSchema.ps1 with correct entity name substitution.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/full-template-validation",
+      "dateTime": "2026-05-27T21:25:00.000000-04:00",
+      "description": "Re-ran the full template validation bundle: dotnet pack (Dabbler.Templates — zero NU5110/NU5111 warnings), PackagingSmokeTests (all pass), Dabbler.CrudSlice.Tests (29/29 pass including FullPipeline_endToEnd_against_smoke_fixture).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-05-27T21:30:00.000000-04:00",
+      "description": "Authored change-log.md summarizing all three sessions: Session 1 dabbler-app split + CRUD remediation backfill, Session 2 dabbler-min single-project contract codification, Session 3 NU5110/NU5111 warning elimination. Deferred items documented: scaffolded API host completeness, UserIdentityHandler registration scaffolding, NuGet readme advisory, NETSDK1057 preview warning.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/cross-provider-verification",
+      "dateTime": "2026-05-27T21:40:00.000000-04:00",
+      "description": "Routed cross-provider session verification. First call escalated to Opus ($0.126045) but result was lost to a UnicodeEncodeError in the print path (non-repeating infrastructure issue — the routing call itself completed successfully). Second call completed at Gemini Pro without escalation ($0.003729). Gemini Pro returned VERIFIED on Round 1 with zero findings across all severities. Review saved to session-reviews/session-003.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.126045,
+          "note": "escalated from gemini-pro; result lost to UnicodeEncodeError in print path — routing completed but response was not captured"
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "costUsd": 0.003729
+        }
+      ]
     }
   ]
 }
