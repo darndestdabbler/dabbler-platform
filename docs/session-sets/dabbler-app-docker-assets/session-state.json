@@ -6,9 +6,9 @@
     {
       "number": 1,
       "title": "Session 1",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-05-28T05:54:57.032272-04:00",
-      "completedAt": null,
+      "completedAt": "2026-05-28T06:21:53.955282-04:00",
       "orchestrator": {
         "engine": "claude",
         "provider": null,
@@ -18,7 +18,7 @@
         "checkedOutAt": "2026-05-28T05:54:57.032272-04:00",
         "lastActivityAt": "2026-05-28T05:54:57.032272-04:00"
       },
-      "verificationVerdict": null
+      "verificationVerdict": "VERIFIED"
     },
     {
       "number": 2,
