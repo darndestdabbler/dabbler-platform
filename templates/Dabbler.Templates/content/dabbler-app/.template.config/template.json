@@ -13,6 +13,12 @@
   "preferNameDirectory": true,
   "description": "Multi-project starter solution with a Blazor Server web app, a Web API starter, a shared contracts library, one sample CRUD entity, one sample report, and a bUnit test project with stub providers.",
   "symbols": {
+    "NameLower": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "lowerCaseInvariant",
+      "replaces": "dabblerapp"
+    },
     "Framework": {
       "type": "parameter",
       "description": "Target framework",

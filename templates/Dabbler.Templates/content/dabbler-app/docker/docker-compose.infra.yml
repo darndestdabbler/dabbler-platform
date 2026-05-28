@@ -1,0 +1,54 @@
+# Always-running dev dependencies.
+# Start once and leave up:   docker compose -f docker/docker-compose.infra.yml up -d
+# Stop (rarely needed):       docker compose -f docker/docker-compose.infra.yml down
+#
+# Requires docker/.env — copy docker/.env.example to docker/.env and fill in values.
+# Docker Compose resolves .env from the compose file's directory (docker/), so no
+# explicit --env-file flag is needed when running from the solution root.
+
+name: dabblerapp-infra
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: DabblerApp-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - db-data:/var/opt/mssql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          /opt/mssql-tools18/bin/sqlcmd
+          -S localhost -U sa -P "${MSSQL_SA_PASSWORD}"
+          -Q 'SELECT 1' -C -l 5
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    networks:
+      - DabblerApp-dev
+
+  mail:
+    image: axllent/mailpit:latest
+    container_name: DabblerApp-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"   # Web UI:  http://localhost:8025
+      - "1025:1025"   # SMTP (app containers use mail:1025 on the internal network)
+    networks:
+      - DabblerApp-dev
+
+networks:
+  DabblerApp-dev:
+    name: DabblerApp-dev
+    driver: bridge
+
+volumes:
+  db-data:
+    name: DabblerApp-sqlserver-data

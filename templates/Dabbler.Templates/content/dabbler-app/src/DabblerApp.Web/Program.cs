@@ -111,6 +111,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
+// Health probe — anonymous, used by Docker compose healthcheck and integration tests
+app.MapGet("/_health", () => Results.Ok(new { status = "healthy" }))
+   .AllowAnonymous();
+
 // Auth endpoints (magic-link flow)
 app.MapPost("/auth/send-magic-link", async (
     MagicLinkRequest req,

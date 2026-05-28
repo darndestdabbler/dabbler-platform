@@ -1,0 +1,68 @@
+# Application services (web + api).
+# Requires docker/docker-compose.infra.yml to be up first (db + mail + DabblerApp-dev network).
+#
+# Build + run:   docker compose -f docker/docker-compose.app.yml up --build -d
+# Rebuild one:   docker compose -f docker/docker-compose.app.yml build web
+# Tear down:     docker compose -f docker/docker-compose.app.yml down
+#
+# explicit image: tags mean rebuilds REPLACE the tagged image instead of orphaning
+# dangling <none> layers. Keep image: names in sync with any CI push targets.
+#
+# Playwright is intentionally NOT a compose service. Run tests from the host
+# (dotnet test) against http://localhost:5010.
+
+name: dabblerapp-app
+
+services:
+  api:
+    image: dabblerapp-api:local
+    build:
+      context: ..
+      dockerfile: src/DabblerApp.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=DabblerApp_Dev;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
+    ports:
+      - "5020:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/_health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    networks:
+      - DabblerApp-dev
+
+  web:
+    image: dabblerapp-web:local
+    build:
+      context: ..
+      dockerfile: src/DabblerApp.Web/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+      # Container-internal self URL so server-side Blazor can POST to its own
+      # auth endpoints without resolving the browser-visible host port.
+      Services__WebSelfBaseUrl: http://localhost:8080
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=DabblerApp_Dev;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
+    ports:
+      - "5010:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/_health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    networks:
+      - DabblerApp-dev
+
+networks:
+  # Created by docker-compose.infra.yml. external: true means this file won't
+  # create it — it expects infra-first startup.
+  DabblerApp-dev:
+    name: DabblerApp-dev
+    external: true
