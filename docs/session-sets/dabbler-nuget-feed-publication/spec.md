@@ -10,9 +10,10 @@
 > **Prerequisite:** `packaging-and-template-readiness` complete (the packable
 > surface + `tools/pack.ps1` + versioning baseline this set publishes).
 > **Workflow:** Orchestrator -> AI Router -> Cross-provider verification.
-> **Status of this document:** **DRAFT authored by a downstream consumer**
-> (`Dabbler.NorthwindToBlazor`, Set 001 Session 3). The platform team
-> finalizes it here — see *Finalization checklist* — before scheduling.
+> **Status of this document:** **FINALIZED & SCHEDULED** (platform team, 2026-05-29).
+> Originally drafted by a downstream consumer (`Dabbler.NorthwindToBlazor`, Set 001
+> Session 3); the platform team finalized it (see *Finalization checklist*) and Session 1
+> recorded the feed/versioning/auth decision — see `feed-publication-decision.md`.
 
 ---
 
@@ -143,12 +144,13 @@ from the feed; the vendoring workaround is documented as removable downstream.
 4. Whether to keep the local `packages/` fallback in the template at all once
    the feed exists.
 
-## Finalization checklist (platform team, in this repo)
+## Finalization checklist (platform team, in this repo) — COMPLETE (2026-05-29)
 
-- [ ] Confirm/adjust slug, `totalSessions`, Session Set Configuration block.
-- [ ] Author `ai-assignment.md` (per-session orchestrator + routing).
-- [ ] Create the `session-state.json` stub (v4 shape, omit-null).
-- [ ] Add a ROADMAP row if this repo keeps a session-set ROADMAP.
+- [x] Confirm/adjust slug, `totalSessions`, Session Set Configuration block. (3 sessions, config unchanged.)
+- [x] Author `ai-assignment.md` (per-session orchestrator + routing). (Routed analysis → Gemini 2.5 Pro.)
+- [x] Create the `session-state.json` stub (v4 shape, omit-null). (Present; Session 1 now complete/VERIFIED.)
+- [x] ~~Add a ROADMAP row~~ — N/A: this repo does not keep a session-set ROADMAP
+      (`phase-3-platform-roadmap.md` tracks platform phases, not session sets).
 
 ---
 
