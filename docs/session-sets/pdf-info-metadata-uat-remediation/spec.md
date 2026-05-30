@@ -73,8 +73,14 @@ The remediation MUST include a caller-level test that drives the
 production export path against the real RDF file, not a synthetic
 fixture. Otherwise the next UAT catches the next drift.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 1 — Wire the caller, investigate Finding 2, close the coverage gap
 
 **Location of work:** this repo only.

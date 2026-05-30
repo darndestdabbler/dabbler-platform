@@ -140,8 +140,14 @@ Four findings, drawn from the disposition artifact:
 
 ---
 
-## Session Plan (draft)
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 1: Diagnose + fix + regression tests + new UAT checklist
 
 **Steps (to be fleshed out at the start of Session 1):**

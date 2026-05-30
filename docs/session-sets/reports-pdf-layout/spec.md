@@ -75,8 +75,14 @@ Session 1 confirms the hypothesis before any fix lands.
 - `DabblerReportPage` with `ShowPdfExport="true"` is the common host
   component wrapping both reports.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 2: Diagnose and decide
 
 **Steps:**

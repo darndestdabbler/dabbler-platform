@@ -165,8 +165,14 @@ Reuse:
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 5: Generify the shell + migrate `RoleMasterDetailsTab` (Scenario 2 baseline)
 
 **Steps:**

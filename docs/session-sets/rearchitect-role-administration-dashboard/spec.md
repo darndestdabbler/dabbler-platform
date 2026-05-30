@@ -293,8 +293,14 @@ section:
 8. Legacy files are deleted progressively within this set, not in a
    final sweep. Each session's log captures its removals.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 Eight sessions total. **Session 1 (this one) fleshes out the spec
 itself** so the human can review the full plan before implementation
 begins. Sessions 2–8 execute the seven-item dashboard rebuild from

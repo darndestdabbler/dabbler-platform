@@ -68,7 +68,7 @@ Inside this set:
   NuGet smoke proof (Session 7) and template wiring (Session 8) can proceed
   in parallel across disjoint paths.
 
-## Session Plan
+## Session Set Configuration
 
 ### Session 1 of 11: Repository Cleanup (Residuals)
 

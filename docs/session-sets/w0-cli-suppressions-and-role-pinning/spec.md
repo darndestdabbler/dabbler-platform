@@ -159,8 +159,7 @@ sibling commit SHAs.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 3: W0 CLI `--suppressions` flag
 
 > **Code work happens in `dabbler-uat-dsl`.** Spec/activity-log work

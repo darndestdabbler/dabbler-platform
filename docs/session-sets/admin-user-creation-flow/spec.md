@@ -291,7 +291,7 @@ Constraints from the disposition:
 
 ---
 
-## UAT scope
+## Session Set Configuration
 
 ```yaml
 requiresUAT: true

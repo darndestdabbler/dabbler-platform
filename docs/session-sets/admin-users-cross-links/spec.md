@@ -127,7 +127,7 @@ see [docs/session-sets/admin-user-creation-flow/spec.md](../admin-user-creation-
 
 ---
 
-## UAT scope
+## Session Set Configuration
 
 ```yaml
 requiresUAT: true
@@ -135,13 +135,13 @@ requiresE2E: true
 uatScope: full
 ```
 
-Reasoning: Components 2 and 3 affect the SAME human-equivalent flows
-that the masking-audit UAT exercises (role-switching across orgs,
-clicking through to user-admin surfaces). The UAT must verify the
-canonical-surface change empirically — e.g., a SystemAdmin attempting
-to grant UserAdmin from the dashboard tab now sees the read-only chip,
-and the cross-link successfully lands them on `/admin/users` for the
-correct org.
+> Rationale: Components 2 and 3 affect the SAME human-equivalent flows
+> that the masking-audit UAT exercises (role-switching across orgs,
+> clicking through to user-admin surfaces). The UAT must verify the
+> canonical-surface change empirically — e.g., a SystemAdmin attempting
+> to grant UserAdmin from the dashboard tab now sees the read-only chip,
+> and the cross-link successfully lands them on `/admin/users` for the
+> correct org.
 
 ---
 

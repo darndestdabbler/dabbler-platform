@@ -75,8 +75,14 @@ so SSO can be turned back on in Dev and Test.
 - Re-organization of the `Dabbler.Security` library surface itself.
 - Any new features in the DevIdp beyond what commit `8730107^` contained.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 2: Restore project and verify it builds and runs
 
 **Steps:**

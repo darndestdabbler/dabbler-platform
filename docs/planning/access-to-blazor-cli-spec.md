@@ -672,7 +672,7 @@ src/
 
 ---
 
-## Session Plan
+## Sessions
 
 **Note:** Each session ends with a **mandatory verification step** where all changed files are routed to a cross-provider verifier. The verifier's raw output is saved to `session-reviews/session-NNN.md`. If issues are found, the orchestrator fixes them and tracks each issue in `issue-logs/session-NNN.json`. This is handled automatically per the CLAUDE.md workflow — it is not listed as a separate step below but is always performed.
 

@@ -289,8 +289,14 @@ future regression in the router between UI and grid would surface.
    Playwright tests stay green after Session 2 once the Users-tab
    crash is fixed.
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 10: Planning and Scoping
 
 **Steps:**

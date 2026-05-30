@@ -46,8 +46,14 @@ note for items that can fold into adjacent planned sets.
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 1: Classify + Disposition + Queue Next Action
 
 **Steps:**

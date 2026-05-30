@@ -157,8 +157,7 @@ reference the Session 2 DSL commit SHA.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 3: Catalog crawler — flag watermarked routes
 
 **Steps:**

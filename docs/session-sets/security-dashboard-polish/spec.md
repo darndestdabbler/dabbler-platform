@@ -81,8 +81,14 @@ git (see `git status`). Each session below wires the ones it needs.
 
 ---
 
-## Session Plan
+## Session Set Configuration
 
+```yaml
+requiresUAT: false
+requiresE2E: false
+```
+
+## Sessions
 ### Session 1 of 8: Access-denied flow
 
 **Steps:**

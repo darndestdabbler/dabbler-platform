@@ -107,8 +107,7 @@ these surfaces and writes up a disposition.
 
 ---
 
-## Session Plan
-
+## Sessions
 ### Session 1 of 2: Real-login UAT remediation
 
 **Purpose:** Make the Set D masking/audit UAT actually executable by a
