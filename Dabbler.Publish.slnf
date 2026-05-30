@@ -1,0 +1,22 @@
+{
+  "solution": {
+    "path": "Dabbler.Platform.sln",
+    "projects": [
+      "src\\Libs\\Dabbler.Api.Querying\\Dabbler.Api.Querying.csproj",
+      "src\\Libs\\Dabbler.Components\\Dabbler.Components.csproj",
+      "src\\Libs\\Dabbler.Components.Compat\\Dabbler.Components.Compat.csproj",
+      "src\\Libs\\Dabbler.Reports.Core\\Dabbler.Reports.Core.csproj",
+      "src\\Libs\\Dabbler.Security\\Dabbler.Security.csproj",
+      "src\\Libs\\Dabbler.Security.Blazor\\Dabbler.Security.Blazor.csproj",
+      "src\\Libs\\Dabbler.Testing.Blazor\\Dabbler.Testing.Blazor.csproj",
+      "src\\Libs\\Dabbler.Platform.Stubs\\Dabbler.Platform.Stubs.csproj",
+      "src\\Libs\\Dabbler.Platform.Stubs.Components\\Dabbler.Platform.Stubs.Components.csproj",
+      "src\\Libs\\Dabbler.Platform.Stubs.Reports\\Dabbler.Platform.Stubs.Reports.csproj",
+      "src\\Libs\\Dabbler.Platform.Stubs.Security\\Dabbler.Platform.Stubs.Security.csproj",
+      "tools\\Dabbler.Security.DevIdp.Tool\\Dabbler.Security.DevIdp.Tool.csproj",
+      "templates\\Dabbler.Templates\\Dabbler.Templates.csproj",
+      "tests\\Dabbler.PublicSurface.Tests\\Dabbler.PublicSurface.Tests.csproj",
+      "tests\\Dabbler.Packaging.Smoke\\Dabbler.Packaging.Smoke.csproj"
+    ]
+  }
+}

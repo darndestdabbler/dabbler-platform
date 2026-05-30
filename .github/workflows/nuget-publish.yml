@@ -85,12 +85,19 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Build solution once
+      - name: Build publish surface once
         shell: pwsh
         env:
           DABBLER_VERSION: ${{ needs.resolve-context.outputs.version }}
         run: |
-          dotnet build Dabbler.Platform.sln `
+          # Build only the publish-relevant projects via a solution filter
+          # (the 15 packable projects + the two validation test projects).
+          # Building the full Dabbler.Platform.sln drags in app/E2E projects such
+          # as AcmeCoffeeOnline.Playwright, which restores Dabbler.Uat.Dsl.* from a
+          # sibling-repo local feed (../dabbler-uat-dsl/pack-output) that does not
+          # exist on the CI runner -> NU1301. The release pipeline must not depend
+          # on the app/E2E graph or sibling-repo feeds.
+          dotnet build Dabbler.Publish.slnf `
             --configuration Release `
             --nologo `
             -v minimal `
