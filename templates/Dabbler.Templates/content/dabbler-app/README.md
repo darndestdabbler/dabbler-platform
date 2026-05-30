@@ -26,7 +26,7 @@ The template ships a `docker/` folder with a split compose stack — infrastruct
 #### Prerequisites
 
 - Docker Desktop (or Docker Engine + Compose plugin)
-- The Dabbler.* NuGet packages. These ship in the **dabbler-platform** repo's `pack-output/` folder and are produced by running `dotnet pack` in that repo. Copy the `.nupkg` and `.snupkg` files from `<dabbler-platform>/pack-output/` into `packages/` at the root of this solution before building the Docker images. The `packages/` directory is a local NuGet feed wired into `nuget.config`; it must be populated before `docker compose ... up --build` runs the Docker build.
+- Internet access on first build — the `Dabbler.*` platform packages restore from **nuget.org** (anonymous; no auth token). They are pinned to an exact preview version in the `.csproj` files, and the Docker build restores them inside the image. No local `packages/` feed or `pack-output/` copy step is required.
 
 #### Start
 
@@ -35,14 +35,10 @@ The template ships a `docker/` folder with a split compose stack — infrastruct
 cp docker/.env.example docker/.env
 #   Edit docker/.env and replace the placeholder SA password with a strong value.
 
-# 2. Populate the local NuGet feed (one-time, or after a dabbler-platform update)
-cp <dabbler-platform>/pack-output/*.nupkg  packages/
-cp <dabbler-platform>/pack-output/*.snupkg packages/
-
-# 3. Start the persistent infrastructure (SQL Server + Mailpit)
+# 2. Start the persistent infrastructure (SQL Server + Mailpit)
 docker compose -f docker/docker-compose.infra.yml up -d
 
-# 4. Build and start the app services
+# 3. Build and start the app services (restores Dabbler.* from nuget.org)
 docker compose -f docker/docker-compose.app.yml up --build -d
 ```
 
@@ -110,6 +106,27 @@ On first run, the app seeds **admin@local.test** in the security database. To si
 2. Enter `admin@local.test`
 3. Click **Send sign-in link**
 4. Open Mailpit at <http://localhost:8025>, find the email, and click the link
+
+## NuGet packages & versions
+
+The `Dabbler.*` platform packages restore from **nuget.org** (anonymous read — no auth token in this repo or its CI). Each `Dabbler.*` reference is **pinned to an exact preview version** (e.g. `0.1.0-preview.1`) in the `.csproj` files — never a floating `0.1.0-preview.*` — so restore is reproducible.
+
+**Upgrading:** bump every `Dabbler.*` `<PackageReference>` to the next published preview in lockstep (all platform packages share one version), then `dotnet restore`. A rebuild is required between preview versions — the preview packages are not guaranteed binary-compatible until a stable `1.0`.
+
+### Offline restore (opt-in)
+
+The default `nuget.config` is feed-only. For an air-gapped build, create a local feed and pass an override config explicitly — do **not** commit it to git:
+
+```bash
+# On a machine that has the packages, populate a local feed
+mkdir packages
+cp <source>/Dabbler.*.nupkg packages/
+
+# Restore against an override config that adds the local source
+dotnet restore --configfile nuget.offline.config
+```
+
+where `nuget.offline.config` adds `<add key="local" value="./packages" />` alongside nuget.org. The populated `packages/` folder is already git-ignored (`*.nupkg`/`*.snupkg`).
 
 ## Before you deploy to production
 

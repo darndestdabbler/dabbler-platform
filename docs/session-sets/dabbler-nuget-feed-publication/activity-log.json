@@ -196,6 +196,60 @@
           "verdict": "ISSUES_FOUND"
         }
       ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/template-feed-only",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "dabbler-app nuget.config -> feed-only (<clear/> + nuget.org); removed local ./packages source + packages/.gitkeep; Web Dockerfile dropped COPY packages/ (kept COPY nuget.config).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/docs",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Rewrote template README (NuGet packages & versions + Offline restore) and consumer-readiness.md (status->published; Local-Feed-Only limitation RESOLVED; consumer next-steps reframed). getting-started.md already feed-based. .gitignore comment refreshed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/consumer-gate",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Clean-machine consumer-validation gate GREEN: packed updated template, installed, scaffolded dabbler-app outside repo, confirmed feed-only nuget.config + no packages/ dir, cleared http-cache + built with isolated NUGET_PACKAGES; 12 Dabbler.* (+DabblerPdf) restored from nuget.org; build + scaffolded bUnit test passed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Cross-provider session-verification (Gemini 2.5 Pro, cross-provider to Opus orchestrator): VERIFIED, zero Critical/Major.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-2.5-pro",
+          "taskType": "session-verification",
+          "inputTokens": 3923,
+          "outputTokens": 832,
+          "costUsd": 0.0132,
+          "verdict": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/closeout",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Authored end-of-set change-log.md; noted downstream Dabbler.NorthwindToBlazor vendoring cleanup unblocked. Final session: set status flips to complete.",
+      "status": "complete",
+      "routedApiCalls": []
     }
   ]
 }

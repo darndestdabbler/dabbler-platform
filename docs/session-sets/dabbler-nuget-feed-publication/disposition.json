@@ -1,29 +1,22 @@
 {
   "status": "completed",
-  "summary": "Session 2 of 3 built the deterministic tag-triggered NuGet publish pipeline and PUBLISHED the first version. tools/pack.ps1 gained CleanOutput/TreatWarningsAsErrors; .github/workflows/build.yml (renamed from nuget-publish.yml) builds the publish surface via Dabbler.Publish.slnf, packs the 15-ID allowlist, runs surface + consumer smoke tests, and pushes to nuget.org via OIDC TRUSTED PUBLISHING (NuGet/login@v1, id-token: write; no long-lived secret) - superseding the Decision 5 scoped-API-key mechanic. Four CI-only failures were debugged and fixed (regex, sibling-repo build scope, transitive-build pack, .slnx restore). All 15 Dabbler.* packages (+ snupkg symbols) published at 0.1.0-preview.1; owner reviewed and accepted the full public set. No env approval gate is possible (private repo / plan without protection rules). Cross-provider verification (Gemini 2.5 Pro): ISSUES_FOUND, no Critical; dispositioned to no blocking defects (1 false-positive rejected, 1 hardening deferred, minors resolved).",
+  "summary": "Session 3 of 3 (final) wired consumers to the live nuget.org feed and removed the vendoring hack. dabbler-app nuget.config is now feed-only (<clear/> + nuget.org, anonymous); local ./packages source + packages/.gitkeep removed; Web Dockerfile drops COPY packages/ (keeps COPY nuget.config for deterministic in-image restore). Docs updated for feed-based restore + exact-version pin/upgrade + opt-in offline (template README, consumer-readiness.md; getting-started.md already feed-based). Acceptance gate GREEN: clean-machine scaffold of the packed template restored 12 Dabbler.* (+DabblerPdf) from nuget.org with an isolated cache + cleared http-cache, built, and passed the scaffolded bUnit test (session-3-review/consumer-gate.log). Cross-provider verification (Gemini 2.5 Pro): VERIFIED, zero Critical/Major. End-of-set change-log.md authored; downstream Dabbler.NorthwindToBlazor vendoring cleanup noted as unblocked. Final session: set status -> complete.",
   "files_changed": [
-    "tools/pack.ps1",
-    ".github/workflows/build.yml",
-    "Dabbler.Publish.slnf",
-    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs",
-    "docs/session-sets/dabbler-nuget-feed-publication/feed-publication-decision.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/ai-assignment.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/session-2-review/session-verification.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/session-reviews/session-002.md",
+    "templates/Dabbler.Templates/content/dabbler-app/nuget.config",
+    "templates/Dabbler.Templates/content/dabbler-app/src/DabblerApp.Web/Dockerfile",
+    "templates/Dabbler.Templates/content/dabbler-app/.gitignore",
+    "templates/Dabbler.Templates/content/dabbler-app/README.md",
+    "templates/Dabbler.Templates/content/dabbler-app/packages/.gitkeep",
+    "docs/packaging/consumer-readiness.md",
+    "docs/session-sets/dabbler-nuget-feed-publication/change-log.md",
+    "docs/session-sets/dabbler-nuget-feed-publication/session-3-review/consumer-gate.log",
+    "docs/session-sets/dabbler-nuget-feed-publication/session-3-review/session-verification.md",
+    "docs/session-sets/dabbler-nuget-feed-publication/session-reviews/session-003.md",
     "docs/session-sets/dabbler-nuget-feed-publication/session-state.json",
     "docs/session-sets/dabbler-nuget-feed-publication/disposition.json"
   ],
   "verification_method": "api",
   "verification_message_ids": [],
-  "next_orchestrator": {
-    "engine": "claude-code",
-    "provider": "anthropic",
-    "model": "claude-sonnet-4-6",
-    "effort": "medium",
-    "reason": {
-      "code": "switch-due-to-cost",
-      "specifics": "Session 3 (consumer wiring) is template nuget.config edits + docs + a clean-machine scaffold validation against the now-live feed; a tier-2 model handles it well below Opus cost. Per the routed ai-assignment analysis."
-    }
-  },
+  "next_orchestrator": null,
   "blockers": []
 }

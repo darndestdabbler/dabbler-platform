@@ -11,6 +11,7 @@ docker/.env
 .vs/
 .idea/
 
-# NuGet (local packages feed — copy .nupkg files here from pack-output/, but don't commit binaries)
+# NuGet — Dabbler.* packages restore from nuget.org by default. If you opt into
+# an offline local feed (see README "Offline restore"), keep its binaries out of git:
 packages/*.nupkg
 packages/*.snupkg

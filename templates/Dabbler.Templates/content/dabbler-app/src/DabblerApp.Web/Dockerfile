@@ -1,10 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy nuget.config and local packages feed before restore so the restore
-# layer can reach Dabbler.* packages from the solution-local packages/ directory.
+# Copy the feed-only nuget.config before restore so the restore layer resolves
+# Dabbler.* packages from nuget.org deterministically (<clear/> drops ambient
+# sources). No local packages/ feed is copied — the packages restore from the feed.
 COPY nuget.config .
-COPY packages/ packages/
 
 # Copy csproj first for layer-cache-friendly restore.
 COPY src/DabblerApp.Web/DabblerApp.Web.csproj src/DabblerApp.Web/
