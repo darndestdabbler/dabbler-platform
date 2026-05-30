@@ -184,6 +184,7 @@ jobs:
     environment: ${{ vars.NUGET_PUBLISH_ENVIRONMENT || 'nuget-publish' }}
     permissions:
       contents: read
+      id-token: write          # required: lets GitHub mint the OIDC token nuget.org trusted publishing exchanges for a short-lived API key
     steps:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
@@ -196,10 +197,20 @@ jobs:
           name: ${{ needs.resolve-context.outputs.artifact_name }}
           path: ${{ runner.temp }}\dabbler-nuget-publish
 
+      # Trusted publishing: exchange the GitHub OIDC token for a short-lived (1 h)
+      # nuget.org API key via the trusted-publishing policy. No long-lived secret.
+      # Requested immediately before the push because the key expires in one hour.
+      - name: NuGet login (OIDC -> temporary API key)
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          # nuget.org profile name (NOT an email) that owns the trusted-publishing policy.
+          user: darndestdabbler
+
       - name: Push packages to NuGet.org
         shell: pwsh
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
           PACKAGE_SOURCE: ${{ needs.resolve-context.outputs.package_source }}
         run: |
           $publishDir = Join-Path $env:RUNNER_TEMP 'dabbler-nuget-publish'
