@@ -104,6 +104,24 @@ jobs:
             /p:ContinuousIntegrationBuild=true `
             /p:DabblerVersion=$env:DABBLER_VERSION
 
+          # Dabbler.Reports.Export and Dabbler.Reports.Blazor are NOT direct members
+          # of Dabbler.Platform.sln; the filter only pulls them in transitively via
+          # Dabbler.PublicSurface.Tests, which does not lay down their own bin/Release
+          # output (the DLL and, for the Blazor RCL, the staticwebassets manifest) that
+          # `dotnet pack --no-build` requires. Build them directly so the pack step
+          # finds complete output (otherwise: NU5026 / missing staticwebassets manifest).
+          foreach ($proj in @(
+              'src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj',
+              'src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj')) {
+              dotnet build $proj `
+                --configuration Release `
+                --nologo `
+                -v minimal `
+                /p:ContinuousIntegrationBuild=true `
+                /p:DabblerVersion=$env:DABBLER_VERSION
+              if ($LASTEXITCODE -ne 0) { throw "Direct build failed: $proj" }
+          }
+
       - id: pack
         name: Pack public package set
         shell: pwsh
