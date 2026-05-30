@@ -38,10 +38,13 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         run: |
-          $semVerPattern = '^(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z-]+)*)?)$'
+          # Unanchored core so it can be embedded after the nuget-v prefix.
+          # Anchors are applied at each use site (the previous '^nuget-v' + an
+          # already-anchored pattern produced a stray mid-string '^', which never matched).
+          $semVerCore = '(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z-]+)*)?)'
 
           if ($env:EVENT_NAME -eq 'push') {
-              if ($env:REF_NAME -notmatch "^nuget-v$semVerPattern") {
+              if ($env:REF_NAME -notmatch "^nuget-v$semVerCore$") {
                   throw "Tag '$($env:REF_NAME)' must match nuget-v<semver>, e.g. nuget-v0.1.0-preview.1"
               }
 
@@ -50,7 +53,7 @@ jobs:
               $packageSource = 'https://api.nuget.org/v3/index.json'
           }
           elseif ($env:EVENT_NAME -eq 'workflow_dispatch') {
-              if ($env:INPUT_VERSION -notmatch $semVerPattern) {
+              if ($env:INPUT_VERSION -notmatch "^$semVerCore$") {
                   throw "Input version '$($env:INPUT_VERSION)' must be a SemVer value such as 0.1.0-preview.1"
               }
 
