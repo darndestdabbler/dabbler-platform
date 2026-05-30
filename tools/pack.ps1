@@ -22,13 +22,22 @@
     Isolated NuGet package cache used during the pack run.
     Default: ./pack-output/.nuget-cache
 
+.PARAMETER CleanOutput
+    Removes existing package artifacts and the hermetic config from OutputDir,
+    and resets the scratch cache. Recommended for CI publication runs.
+
+.PARAMETER TreatWarningsAsErrors
+    Fails the pack when dotnet pack emits warnings. Recommended for publish CI.
+
 .EXAMPLE
     pwsh tools/pack.ps1 -Version 0.1.0-preview.2
 #>
 param(
     [string] $Version       = "0.1.0-preview.1",
     [string] $OutputDir     = "pack-output",
-    [string] $ScratchCacheDir = "pack-output/.nuget-cache"
+    [string] $ScratchCacheDir = "pack-output/.nuget-cache",
+    [switch] $CleanOutput,
+    [switch] $TreatWarningsAsErrors
 )
 
 Set-StrictMode -Version Latest
@@ -86,8 +95,21 @@ try {
     $OutputAbsolute      = [IO.Path]::GetFullPath($OutputDir,     $RepoRoot)
     $ScratchCacheAbsolute = [IO.Path]::GetFullPath($ScratchCacheDir, $RepoRoot)
 
+    if ($CleanOutput -and (Test-Path $ScratchCacheAbsolute)) {
+        Remove-Item -Path $ScratchCacheAbsolute -Recurse -Force
+    }
+
     New-Item -ItemType Directory -Path $OutputAbsolute      -Force | Out-Null
     New-Item -ItemType Directory -Path $ScratchCacheAbsolute -Force | Out-Null
+
+    if ($CleanOutput) {
+        Get-ChildItem -Path $OutputAbsolute -File |
+            Where-Object {
+                $_.Name -eq "hermetic.nuget.config" -or
+                $_.Extension -in @(".nupkg", ".snupkg")
+            } |
+            Remove-Item -Force
+    }
 
     Write-Host "==> Pack version : $Version"
     Write-Host "==> Output dir   : $OutputAbsolute"
@@ -144,13 +166,24 @@ $InRepoMappings
         }
 
         Write-Host "--- Packing: $Project"
-        $Result = dotnet pack $ProjectPath `
-            --configuration Release `
-            --no-build `
-            --output $OutputAbsolute `
-            /p:DabblerVersion=$Version `
-            /p:ContinuousIntegrationBuild=false `
-            2>&1
+        $PackArgs = @(
+            "pack"
+            $ProjectPath
+            "--configuration"
+            "Release"
+            "--no-build"
+            "--output"
+            $OutputAbsolute
+            "/p:DabblerVersion=$Version"
+            "/p:PackAsDependency=true"
+            "/p:ContinuousIntegrationBuild=false"
+        )
+
+        if ($TreatWarningsAsErrors) {
+            $PackArgs += "/p:TreatWarningsAsErrors=true"
+        }
+
+        $Result = dotnet @PackArgs 2>&1
 
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "FAILED: $Project"

@@ -1,0 +1,231 @@
+name: NuGet Publish
+
+on:
+  push:
+    tags:
+      - nuget-v*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: SemVer to validate and dry-run against GitHub Packages
+        required: true
+        type: string
+
+concurrency:
+  group: nuget-publish-${{ github.ref_name || inputs.version }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  CI: true
+
+jobs:
+  resolve-context:
+    name: Resolve Version And Target
+    runs-on: windows-latest
+    outputs:
+      artifact_name: ${{ steps.context.outputs.artifact_name }}
+      package_source: ${{ steps.context.outputs.package_source }}
+      publish_target: ${{ steps.context.outputs.publish_target }}
+      version: ${{ steps.context.outputs.version }}
+    steps:
+      - id: context
+        name: Parse version source
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          $semVerPattern = '^(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z-]+)*)?)$'
+
+          if ($env:EVENT_NAME -eq 'push') {
+              if ($env:REF_NAME -notmatch "^nuget-v$semVerPattern") {
+                  throw "Tag '$($env:REF_NAME)' must match nuget-v<semver>, e.g. nuget-v0.1.0-preview.1"
+              }
+
+              $version = $Matches.version
+              $publishTarget = 'nuget.org'
+              $packageSource = 'https://api.nuget.org/v3/index.json'
+          }
+          elseif ($env:EVENT_NAME -eq 'workflow_dispatch') {
+              if ($env:INPUT_VERSION -notmatch $semVerPattern) {
+                  throw "Input version '$($env:INPUT_VERSION)' must be a SemVer value such as 0.1.0-preview.1"
+              }
+
+              $version = $Matches.version
+              $publishTarget = 'github-packages'
+              $packageSource = "https://nuget.pkg.github.com/$($env:REPOSITORY_OWNER)/index.json"
+          }
+          else {
+              throw "Unsupported event '$($env:EVENT_NAME)'"
+          }
+
+          "artifact_name=dabbler-nuget-packages-$version" >> $env:GITHUB_OUTPUT
+          "package_source=$packageSource" >> $env:GITHUB_OUTPUT
+          "publish_target=$publishTarget" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+  validate:
+    name: Validate And Pack
+    needs: resolve-context
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build solution once
+        shell: pwsh
+        env:
+          DABBLER_VERSION: ${{ needs.resolve-context.outputs.version }}
+        run: |
+          dotnet build Dabbler.Platform.sln `
+            --configuration Release `
+            --nologo `
+            -v minimal `
+            /p:ContinuousIntegrationBuild=true `
+            /p:DabblerVersion=$env:DABBLER_VERSION
+
+      - id: pack
+        name: Pack public package set
+        shell: pwsh
+        env:
+          DABBLER_VERSION: ${{ needs.resolve-context.outputs.version }}
+        run: |
+          $packOutput = Join-Path $env:RUNNER_TEMP 'dabbler-nuget-pack'
+          $scratchCache = Join-Path $env:RUNNER_TEMP 'dabbler-nuget-cache'
+
+          pwsh ./tools/pack.ps1 `
+            -Version $env:DABBLER_VERSION `
+            -OutputDir $packOutput `
+            -ScratchCacheDir $scratchCache `
+            -CleanOutput `
+            -TreatWarningsAsErrors
+
+          "pack_output=$packOutput" >> $env:GITHUB_OUTPUT
+          "DABBLER_PACK_OUTPUT=$packOutput" >> $env:GITHUB_ENV
+
+      - name: Run nupkg artifact checks
+        shell: pwsh
+        env:
+          DABBLER_PACK_OUTPUT: ${{ steps.pack.outputs.pack_output }}
+        run: |
+          dotnet test tests/Dabbler.PublicSurface.Tests/Dabbler.PublicSurface.Tests.csproj `
+            --configuration Release `
+            --no-build `
+            --nologo `
+            -v minimal
+
+      - name: Run consumer smoke tests
+        shell: pwsh
+        env:
+          DABBLER_PACK_OUTPUT: ${{ steps.pack.outputs.pack_output }}
+        run: |
+          dotnet test tests/Dabbler.Packaging.Smoke/Dabbler.Packaging.Smoke.csproj `
+            --configuration Release `
+            --no-build `
+            --nologo `
+            -v minimal `
+            --filter "FullyQualifiedName!=Dabbler.Packaging.Smoke.PackagingSmokeTests.DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest"
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ needs.resolve-context.outputs.artifact_name }}
+          path: |
+            ${{ steps.pack.outputs.pack_output }}\*.nupkg
+            ${{ steps.pack.outputs.pack_output }}\*.snupkg
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-nuget-org:
+    name: Publish To NuGet.org
+    if: ${{ needs.resolve-context.outputs.publish_target == 'nuget.org' }}
+    needs:
+      - resolve-context
+      - validate
+    runs-on: windows-latest
+    environment: ${{ vars.NUGET_PUBLISH_ENVIRONMENT || 'nuget-publish' }}
+    permissions:
+      contents: read
+    steps:
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.resolve-context.outputs.artifact_name }}
+          path: ${{ runner.temp }}\dabbler-nuget-publish
+
+      - name: Push packages to NuGet.org
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          PACKAGE_SOURCE: ${{ needs.resolve-context.outputs.package_source }}
+        run: |
+          $publishDir = Join-Path $env:RUNNER_TEMP 'dabbler-nuget-publish'
+          $packages = Get-ChildItem -Path $publishDir -Filter '*.nupkg' | Sort-Object Name
+
+          if (-not $packages) {
+              throw "No .nupkg artifacts found in $publishDir"
+          }
+
+          foreach ($package in $packages) {
+              dotnet nuget push $package.FullName `
+                --api-key $env:NUGET_API_KEY `
+                --source $env:PACKAGE_SOURCE `
+                --skip-duplicate
+          }
+
+  dry-run-github-packages:
+    name: Dry-Run Publish To GitHub Packages
+    if: ${{ needs.resolve-context.outputs.publish_target == 'github-packages' }}
+    needs:
+      - resolve-context
+      - validate
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.resolve-context.outputs.artifact_name }}
+          path: ${{ runner.temp }}\dabbler-nuget-publish
+
+      - name: Push packages to GitHub Packages
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PACKAGE_SOURCE: ${{ needs.resolve-context.outputs.package_source }}
+        run: |
+          $publishDir = Join-Path $env:RUNNER_TEMP 'dabbler-nuget-publish'
+          $packages = Get-ChildItem -Path $publishDir -Filter '*.nupkg' | Sort-Object Name
+
+          if (-not $packages) {
+              throw "No .nupkg artifacts found in $publishDir"
+          }
+
+          foreach ($package in $packages) {
+              dotnet nuget push $package.FullName `
+                --api-key $env:GITHUB_TOKEN `
+                --source $env:PACKAGE_SOURCE `
+                --skip-duplicate
+          }
