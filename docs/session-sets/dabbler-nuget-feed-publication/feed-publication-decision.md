@@ -149,3 +149,33 @@ Row numbers match the **Decision N** headings above.
 4. (Post-first-publish) apply for **`Dabbler` ID-prefix reservation**.
 
 These are surfaced here so Session 2 can open by confirming they exist before any pipeline work.
+
+---
+
+## Addendum — what actually happened in Session 2 execution (2026-05-30)
+
+The decisions above stand; two of the **Decision 5** mechanics changed during execution and are
+recorded here without rewriting the verified original:
+
+- **Auth model: scoped API key → OIDC trusted publishing.** At the owner's request the publish job
+  switched from a long-lived `NUGET_API_KEY` secret to **nuget.org trusted publishing** (GitHub
+  OIDC → short-lived 1 h key via `NuGet/login@v1`, `permissions: id-token: write`). No long-lived
+  secret exists. This strictly improves on the Decision 5 key-storage mechanic. The publish
+  workflow file is `.github/workflows/build.yml` (renamed from `nuget-publish.yml` to match the
+  trusted-publishing policy's *Workflow File* field).
+- **No approval gate is available.** Decision 5 called for a "protected Environment + required
+  reviewers." GitHub rejected the required-reviewers rule (HTTP 422) because this is a **private
+  repo on a plan without environment protection rules**. The `nuget-publish` environment is still
+  used (for the OIDC environment claim) but cannot gate. Net effect: a `nuget-v…` tag push
+  **auto-publishes** with no manual checkpoint. A real gate would need GitHub Pro or a public repo.
+- **Outcome:** all **15** `Dabbler.*` packages (+ `.snupkg` symbols) published to nuget.org at
+  `0.1.0-preview.1` via trusted publishing on 2026-05-30 (every push returned `Created`). The
+  trusted-publishing policy is now permanently active. Owner reviewed the full published set and
+  accepted it as-is.
+- **Build-scoping correction (not anticipated in Decision 5):** the publish build runs against a
+  solution filter (`Dabbler.Publish.slnf`), not the full solution, because the full
+  `Dabbler.Platform.sln` pulls in app/E2E projects that restore from a sibling-repo local feed
+  absent on CI runners.
+
+Deferred follow-up (Gemini Session-2 verification, Major): pin GitHub Action `uses:` to commit
+SHAs for supply-chain hardening of the publish workflow.

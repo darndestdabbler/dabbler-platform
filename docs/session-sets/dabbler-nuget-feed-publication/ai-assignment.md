@@ -61,19 +61,35 @@ configuration and script files.
 
 | Step | Action | Routing Decision |
 | :--- | :--- | :--- |
-| 2.1 | Confirm owner prerequisites exist (nuget.org account, scoped API key, GitHub Environment secret). | `human_action` (gate before pipeline work) |
-| 2.2 | Parameterize `tools/pack.ps1` to stamp the tag version and pack the public allowlist. | direct work |
-| 2.3 | Draft `nuget-publish.yml`: trigger on `nuget-v*` tag, parse version, pack, build-once/promote, push with `--skip-duplicate`. | direct work |
-| 2.4 | Add protected Environment + required reviewers, scoped API-key secret, `.snupkg` symbols, deterministic build + Source Link. | direct work |
-| 2.5 | Pre-first-push guardrails: GH-Packages dry-run, package-validation, license/metadata completeness (incl. DabblerPdf copyleft notice). | direct work |
-| 2.6 | Owner pushes tag `nuget-v0.1.0-preview.1` and approves the first run; verify restorability. | `human_action` |
-| 2.7 | Mandatory cross-provider session verification. | `route(task_type="session-verification")` (cross-provider) |
+| 2.1 | Confirm owner prerequisites exist (nuget.org account, auth). | `human_action` (gate before pipeline work) |
+| 2.2 | Parameterize `tools/pack.ps1` (CleanOutput, TreatWarningsAsErrors); pack the 15-ID allowlist. | direct work |
+| 2.3 | Author the tag-triggered publish workflow (`build.yml`): parse version, build via filter, pack, push. | direct work |
+| 2.4 | Switch auth to OIDC **trusted publishing** (`NuGet/login@v1`, `id-token: write`); no long-lived secret. | direct work |
+| 2.5 | CI-debug 4 environment-only failures (regex, sibling-feed build scope, transitive-build pack, `.slnx` restore). | direct work |
+| 2.6 | Owner created the trusted-publishing policy, pushed the tag; all 15 published. | `human_action` |
+| 2.7 | Mandatory cross-provider session verification. | `call_model("gemini-2.5-pro")` (cross-provider to both OpenAI + Anthropic) |
 
 ### Actuals (filled after the session)
-- Orchestrator used:
-- Total routed cost:
-- Deviations from recommendation:
-- Notes for next-session calibration:
+- **Orchestrator used:** registered **Codex (`gpt-5.4`, medium)** for the initial pipeline authoring;
+  **Claude Opus 4.8 (high)** took over for the CI debugging, the OIDC trusted-publishing switch, the
+  first publish, and the closeout.
+- **Total routed cost (Opus-side):** Gemini 2.5 Pro session-verification ~$0.0105. The remaining work
+  was direct (CI iteration + git/tag/run orchestration); GPT-side authoring costs are not in this
+  repo's metrics.
+- **Deviations from recommendation:** Large. Recommended `gpt-5-4-mini`/medium; actual was GPT-5.4
+  authoring + Opus 4.8 takeover. Cause: the pipeline hit **four CI-environment-only failures**
+  invisible to local runs (tag-regex double-anchor; full-solution build pulling
+  `AcmeCoffeeOnline.Playwright`'s sibling-repo feed → solution filter; two packable libs not being
+  `.sln` members so `pack --no-build` failed → direct builds; a `.slnx` + inline `--source <url>`
+  restore quirk → `nuget.config`), plus an owner-driven auth-model change (API key → trusted
+  publishing) and a missing-secret 401. Six CI iterations.
+- **Notes for next-session calibration:** A publish-pipeline session is **not** "low" — CI-only
+  failures dominate and require an agentic orchestrator that can drive `gh run`/re-tag loops (a
+  chat-only surface cannot close it). Verifier note: Gemini returned ISSUES_FOUND but Major #2
+  ("downgrade SDK to 8.0.x") was a **false positive** from its pre-.NET-10 knowledge cutoff (the
+  platform targets `net10.0`); Major #1 (SHA-pin actions) is a valid deferred hardening follow-up.
+  Session 3 (`claude-sonnet-4-6`/medium) recommendation stands — it's edits + docs + a clean-machine
+  scaffold, now runnable against the live feed.
 
 **Next-session orchestrator recommendation (Session 3):** Claude Code / `claude-sonnet-4-6` / medium
 Rationale: Session 3 is straightforward template edits + docs + a consumer-validation scaffold and

@@ -160,6 +160,42 @@
       "description": "Validated the publish path locally: tools/pack.ps1 succeeded against tmp/nuget-publish-validation, Dabbler.PublicSurface.Tests passed, and Dabbler.Packaging.Smoke passed against the staged artifacts (excluding the runtime LocalDB smoke gate).",
       "status": "complete",
       "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/takeover-ci-fixes",
+      "dateTime": "2026-05-29T22:14:18.204522-04:00",
+      "description": "Opus took over and fixed 4 CI-environment-only failures: tag-regex double-anchor; full-solution build pulling AcmeCoffeeOnline.Playwright's sibling-repo feed (added Dabbler.Publish.slnf solution filter); two packable libs not .sln members so pack --no-build failed (direct builds); .slnx + inline --source URL restore quirk (nuget.config).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/trusted-publishing-and-publish",
+      "dateTime": "2026-05-29T22:14:18.204522-04:00",
+      "description": "Switched auth from NUGET_API_KEY secret to OIDC trusted publishing (NuGet/login@v1, id-token: write); renamed workflow to build.yml to match the policy. Owner created the trusted-publishing policy and pushed the tag; all 15 Dabbler.* packages (+ snupkg) published to nuget.org at 0.1.0-preview.1 (every push Created). Owner accepted the full set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-05-29T22:14:18.204522-04:00",
+      "description": "Cross-provider session-verification by Gemini 2.5 Pro: ISSUES_FOUND, no Critical. Dispositioned: Major#2 (downgrade SDK to 8.0.x) REJECTED as false positive (platform targets net10.0; pre-.NET-10 knowledge cutoff); Major#1 (SHA-pin actions) accepted as deferred hardening follow-up; Minor#2 (workflow name) applied; Minor#1 (loop vs wildcard) declined. No blocking defects.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-2.5-pro",
+          "taskType": "session-verification",
+          "inputTokens": 3604,
+          "outputTokens": 603,
+          "costUsd": 0.0105,
+          "verdict": "ISSUES_FOUND"
+        }
+      ]
     }
   ]
 }

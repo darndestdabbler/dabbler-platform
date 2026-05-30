@@ -1,27 +1,28 @@
 {
   "status": "completed",
-  "summary": "Session 1 of 3 recorded the feed/versioning/auth architecture decision for publishing the Dabbler.* packages, via architecture + tri-provider review (Opus direct contribution + GPT-5.4 + Gemini 2.5 Pro). Owner locked the crux: public/open audience, permanent public IDs acceptable, anonymous-read required -> feed = nuget.org. Decisions: versioning 0.1.0-preview.<n> tag-sourced (pin exact, no padding); publish all 15 package IDs (Platform.Stubs* included because the dabbler-app template hard-depends on Dabbler.Platform.Stubs); remove the local packages/ fallback from the default template (feed-only nuget.config with <clear/>); tag-triggered publish pipeline with build-once/promote, --skip-duplicate, .snupkg symbols, protected GitHub Environment + scoped Dabbler.* push-only key, GH-Packages dry-run, and license/metadata guardrails (DabblerPdf LGPL/MPL copyleft transitive note). No code. Verified VERIFIED by GPT-5.4 (cross-provider), no Critical/Major; 3 Minor presentation findings addressed.",
+  "summary": "Session 2 of 3 built the deterministic tag-triggered NuGet publish pipeline and PUBLISHED the first version. tools/pack.ps1 gained CleanOutput/TreatWarningsAsErrors; .github/workflows/build.yml (renamed from nuget-publish.yml) builds the publish surface via Dabbler.Publish.slnf, packs the 15-ID allowlist, runs surface + consumer smoke tests, and pushes to nuget.org via OIDC TRUSTED PUBLISHING (NuGet/login@v1, id-token: write; no long-lived secret) - superseding the Decision 5 scoped-API-key mechanic. Four CI-only failures were debugged and fixed (regex, sibling-repo build scope, transitive-build pack, .slnx restore). All 15 Dabbler.* packages (+ snupkg symbols) published at 0.1.0-preview.1; owner reviewed and accepted the full public set. No env approval gate is possible (private repo / plan without protection rules). Cross-provider verification (Gemini 2.5 Pro): ISSUES_FOUND, no Critical; dispositioned to no blocking defects (1 false-positive rejected, 1 hardening deferred, minors resolved).",
   "files_changed": [
-    "docs/session-sets/dabbler-nuget-feed-publication/ai-assignment.md",
+    "tools/pack.ps1",
+    ".github/workflows/build.yml",
+    "Dabbler.Publish.slnf",
+    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs",
     "docs/session-sets/dabbler-nuget-feed-publication/feed-publication-decision.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/session-1-review/opus.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/session-1-review/gpt-5-4.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/session-1-review/gemini-pro.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/session-1-review/session-verification.md",
-    "docs/session-sets/dabbler-nuget-feed-publication/session-reviews/session-001.md",
+    "docs/session-sets/dabbler-nuget-feed-publication/ai-assignment.md",
+    "docs/session-sets/dabbler-nuget-feed-publication/session-2-review/session-verification.md",
+    "docs/session-sets/dabbler-nuget-feed-publication/session-reviews/session-002.md",
     "docs/session-sets/dabbler-nuget-feed-publication/session-state.json",
     "docs/session-sets/dabbler-nuget-feed-publication/disposition.json"
   ],
   "verification_method": "api",
   "verification_message_ids": [],
   "next_orchestrator": {
-    "engine": "codex",
-    "provider": "openai",
-    "model": "gpt-5-4-mini",
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-6",
     "effort": "medium",
     "reason": {
       "code": "switch-due-to-cost",
-      "specifics": "Session 2 is standard CI/CD engineering (GitHub Actions YAML + pack.ps1 parameterization + one-time publish guardrails); a tier-2 model handles it at a fraction of Opus cost. Per the routed ai-assignment analysis."
+      "specifics": "Session 3 (consumer wiring) is template nuget.config edits + docs + a clean-machine scaffold validation against the now-live feed; a tier-2 model handles it well below Opus cost. Per the routed ai-assignment analysis."
     }
   },
   "blockers": []
