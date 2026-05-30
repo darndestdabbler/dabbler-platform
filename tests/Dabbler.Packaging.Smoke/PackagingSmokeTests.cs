@@ -116,13 +116,19 @@ public class PackagingSmokeTests
 
             var projPath = Path.Combine(tempDir, "DabblerApp.slnx");
 
-            // Restore explicitly with the local feed so Dabbler.* packages resolve
-            var (restoreExit, restoreOut) = RunTool("dotnet",
-                $"restore \"{projPath}\" --source \"{PackOutputDir}\" --source \"https://api.nuget.org/v3/index.json\"");
-            restoreExit.Should().Be(0, $"restore should succeed. Output:\n{restoreOut}");
+            // Write a local nuget.config (Dabbler.* resolve from pack-output; everything
+            // else from the inherited nuget.org) and let the build auto-restore, matching
+            // the DabblerApp_ScaffoldedBUnit / runtime smoke tests. Passing inline
+            // `--source "https://api.nuget.org/v3/index.json"` to `dotnet restore` of a
+            // **.slnx** is mishandled by the .NET 10 SDK: the URL is resolved as a path
+            // relative to the solution directory, producing
+            // `<appdir>\https:\api.nuget.org\v3\index.json` and a spurious NU1301. The
+            // sibling .csproj restore (DabblerMin) is unaffected by the same args, which
+            // isolates the fault to .slnx + inline --source.
+            WriteLocalNugetConfig(tempDir, PackOutputDir);
 
             var (buildExit, buildOut) = RunTool("dotnet",
-                $"build \"{projPath}\" --no-restore --nologo -v q");
+                $"build \"{projPath}\" --nologo -v q");
             buildExit.Should().Be(0, $"scaffolded dabbler-app should build clean. Output:\n{buildOut}");
         }
         finally
