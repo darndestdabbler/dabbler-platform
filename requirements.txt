@@ -14,4 +14,10 @@
 #
 # Pin to a minimum version rather than an exact version: 0.x signals API
 # may change between minor versions, so adopters bump intentionally.
-dabbler-ai-router>=0.1.0
+#
+# Floor raised to >=0.26.0 (2026-06-20, canonical Set 075 S2): this repo is
+# the LEAD signal in the greenfield finding-power pilot. The provider×surface
+# verification matrix + the verification-only application mode
+# (`python -m ai_router.verification_only_app`) the pilot runs at Step 6 first
+# ship in 0.26.0. See the greenfield-matrix-protocol referenced from CLAUDE.md.
+dabbler-ai-router>=0.26.0
