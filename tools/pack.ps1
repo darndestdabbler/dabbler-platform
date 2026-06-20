@@ -60,6 +60,7 @@ $InRepoPackageIds = @(
     "Dabbler.Security"
     "Dabbler.Security.Blazor"
     "Dabbler.Security.DevIdp.Tool"
+    "Dabbler.CrudSlice.Tool"
     "Dabbler.Testing.Blazor"
     "Dabbler.Templates"
 )
@@ -83,6 +84,8 @@ $LibraryProjects = @(
     "src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj"
     # Session 8 deliverables
     "tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj"
+    # access-migration-generator-consumption Session 2: CrudSlice as a `dotnet tool`
+    "tools/Dabbler.CrudSlice/Dabbler.CrudSlice.csproj"
     "templates/Dabbler.Templates/Dabbler.Templates.csproj"
 )
 

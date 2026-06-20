@@ -1,33 +1,37 @@
 {
   "status": "completed",
-  "summary": "Session 1 (architecture decision, no code): recorded the generator-acquisition decision for Dabbler.CrudSlice / Dabbler.SchemaApplicator with a tri-provider verdict (Opus full-context + GPT-5.4 + Gemini 2.5 Pro, self-contained prompts). DECISION: Option A -- publish as a `dotnet tool` on nuget.org (unanimous A), mirroring the existing Dabbler.Security.DevIdp.Tool precedent and reusing the locked single DabblerVersion + pack.ps1 + trusted-publishing path unchanged. Surface: ONE tool now (Dabbler.CrudSlice.Tool / `dabbler-crud-slice`), with Dabbler.SchemaApplicator.Tool pre-named and deferred until a standalone consumer exists (reversibility; CrudSlice bundles SchemaApplicator in-process). Runner-up: Option C (formalize source checkout). Rejected B (library-shape invites <PackageReference>, dragging build-time code into runtime restore -- permanent on public IDs). Key Session-2-binding finding (flagged independently by both routed reviewers): CrudSlice shells out to `dotnet new dabbler-crud-service/-page`, so acquisition is TWO installs at the same pinned version (Dabbler.Templates + the tool) and the clean-machine consumer-validation gate MUST install both. Cross-provider verification (gpt-5-4): VERIFIED, Round 1, no substantive issues. Greenfield pilot: session-start ref aac874e noted; Step-6 matrix correctly deferred to source-bearing Session 2 (operator-confirmed). Owner ratification of the permanent public IDs/commands recommended before Session 2 implements them.",
+  "summary": "Session 2 of 2 (implementation, final session). Shipped the Session 1 decision: published the build-time CRUD generator as a `dotnet tool` (`Dabbler.CrudSlice.Tool`, command `dabbler-crud-slice`) by flipping tools/Dabbler.CrudSlice/Dabbler.CrudSlice.csproj from IsPackable=false to PackAsTool=true + full package metadata, adding it to pack.ps1's two lists (15->16) and Dabbler.Publish.slnf, with no new versioning scheme (rides the single shared DabblerVersion). Verified pack.ps1 produces the `.Tool` nupkg with Command Name=dabbler-crud-slice and bundles Dabbler.SchemaApplicator.dll in-process. Added the Decision-5 templates fail-fast preflight (TemplatePreflight.cs + a Program.cs hook) that prints the exact version-matched `dotnet new install Dabbler.Templates::<ver>` command. ACCEPTANCE PROOF: new permanent consumer-validation gate (PackagingSmokeTests.CrudSliceTool_AcquiredFromFeed_GeneratesSliceThatBuildsClean) installs the templates into an isolated hive, installs the tool from the local feed checkout-free via `dotnet tool install --tool-path --add-source --version <pinned>` (not a project reference), runs `dabbler-crud-slice` against the SmokeApp consumer fixture + a sample .dabbler-entity.json, and builds the result GREEN -- test passes. Cross-repo follow-up (deliverable 3): rewrote the orchestrator playbook Step 00 generator bullet from 'source checkout (not on NuGet)' to the two-command packaged acquisition, and noted in platform-output-contract.md that its tools/... anchors stay valid against the packaged tool. Greenfield pilot (LEAD signal): ran the Step-6 provider x surface matrix on the frozen pre-remediation source diff -- adjudicated 0 TP / 7 FP (all push-elision + pull-out-of-sandbox) against the fixed rubric; frozen reports + adjudication.md + metadata.json shipped to the canonical Set 075 telemetry corpus (committed in dabbler-ai-orchestration). Cross-provider session verification (GPT-5.4): VERIFIED, Round 1, all four deliverables met, no defects. Step 9 reorg review: promoted the consumer-smoke-in-same-session lesson to a project-guidance convention (2-context threshold) and captured a new greenfield-matrix-operations lesson.",
   "files_changed": [
-    "docs/session-sets/access-migration-generator-consumption/generator-acquisition-decision.md",
-    "docs/session-sets/access-migration-generator-consumption/session-1-review/_prompt.md",
-    "docs/session-sets/access-migration-generator-consumption/session-1-review/opus.md",
-    "docs/session-sets/access-migration-generator-consumption/session-1-review/gpt-5-4.md",
-    "docs/session-sets/access-migration-generator-consumption/session-1-review/gemini-pro.md",
-    "docs/session-sets/access-migration-generator-consumption/session-1-review/verification-round-1.md",
-    "docs/session-sets/access-migration-generator-consumption/session-state.json"
+    "tools/Dabbler.CrudSlice/Dabbler.CrudSlice.csproj",
+    "tools/Dabbler.CrudSlice/TemplatePreflight.cs",
+    "tools/Dabbler.CrudSlice/Program.cs",
+    "tools/pack.ps1",
+    "Dabbler.Publish.slnf",
+    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs",
+    "docs/planning/project-guidance.md",
+    "docs/planning/lessons-learned.md",
+    "docs/session-sets/access-migration-generator-consumption/change-log.md",
+    "docs/session-sets/access-migration-generator-consumption/reorganization-review.md",
+    "docs/session-sets/access-migration-generator-consumption/disposition.json",
+    "docs/session-sets/access-migration-generator-consumption/activity-log.json",
+    "docs/session-sets/access-migration-generator-consumption/session-state.json",
+    "docs/session-sets/access-migration-generator-consumption/session-events.jsonl",
+    "docs/session-sets/access-migration-generator-consumption/session-2-review/verification-round-1.md",
+    "docs/session-sets/access-migration-generator-consumption/matrix-run/verification-matrix-report.json",
+    "docs/session-sets/access-migration-generator-consumption/matrix-run/remediation-report.json",
+    "docs/session-sets/access-migration-generator-consumption/matrix-run/remediation-report.md",
+    "docs/session-sets/access-migration-generator-consumption/matrix-run/adjudication.md"
   ],
   "verification_method": "api",
   "verification_message_ids": [],
-  "next_orchestrator": {
-    "engine": "claude",
-    "provider": "anthropic",
-    "model": "opus",
-    "effort": "high",
-    "reason": {
-      "code": "continue-current-trajectory",
-      "specifics": "Session 2 is source-bearing (PackAsTool on CrudSlice, pack.ps1 two-list + solution-filter edits, a checkout-free clean-machine consumer-validation gate, and a cross-repo orchestrator note) AND is the greenfield finding-power pilot LEAD: it runs the Step-6 provider x surface verification matrix before remediation and adjudicates findings against the fixed rubric. A strong orchestrator for that adjudication is warranted; the mechanical packaging portions can still be routed/handled at sonnet-class cost."
-    }
-  },
+  "next_orchestrator": null,
   "blockers": [],
   "verification_verdict": "VERIFIED",
   "lessons_cited": [
-    "feedback_orchestrator_self_contributes_to_review_panel",
     "feedback_disposition_json_closeout_gate",
     "reference_provider_keys_dabbler_prefix",
-    "project-guidance Convention: Tri-Provider Review -- Orchestrator Contribution Uses Full Context"
+    "feedback_change_log_end_of_set_only",
+    "feedback_end_of_session_set_reorg",
+    "feedback_send_related_files_to_verifier"
   ]
 }

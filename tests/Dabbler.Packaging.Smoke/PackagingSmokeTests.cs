@@ -67,6 +67,8 @@ public class PackagingSmokeTests
             // Session 8 deliverables
             "Dabbler.Security.DevIdp.Tool",
             "Dabbler.Templates",
+            // access-migration-generator-consumption Session 2: CrudSlice generator as a `dotnet tool`
+            "Dabbler.CrudSlice.Tool",
         };
 
         static bool HasExactPackage(ISet<string> nupkgs, string packageId)
@@ -382,9 +384,182 @@ public class PackagingSmokeTests
         }
     }
 
+    /// <summary>
+    /// Consumer-validation gate for the access-migration-generator-consumption set
+    /// (Session 2 acceptance proof). Proves that, with <b>no platform source
+    /// checkout</b>, a consumer can acquire the CRUD generator purely from packaged
+    /// artifacts and generate a slice that builds green:
+    /// <list type="number">
+    ///   <item>install the <c>Dabbler.Templates</c> <c>dotnet new</c> templates
+    ///         (install #1 of the two-install acquisition story, Decision 5);</item>
+    ///   <item>install <c>Dabbler.CrudSlice.Tool</c> as a <c>dotnet tool</c> from the
+    ///         local feed at the pinned version (install #2) — acquired via
+    ///         <c>dotnet tool install --tool-path</c> + <c>--add-source</c>, NOT via a
+    ///         project reference or source build;</item>
+    ///   <item>run the installed <c>dabbler-crud-slice</c> command against the SmokeApp
+    ///         consumer fixture + a sample <c>.dabbler-entity.json</c>;</item>
+    ///   <item><c>dotnet build</c> the consumer project — the slice must compile.</item>
+    /// </list>
+    /// The local <c>pack-output/</c> feed and the isolated tool-path / hive stand in for
+    /// nuget.org and the consumer's global state; on a real clean machine the same two
+    /// commands are <c>dotnet new install Dabbler.Templates::&lt;ver&gt;</c> and
+    /// <c>dotnet tool install --global Dabbler.CrudSlice.Tool --version &lt;ver&gt;</c>.
+    /// Skipped when <c>pack-output/</c> is absent (run <c>tools/pack.ps1</c> first).
+    /// </summary>
+    [SkippableFact]
+    public void CrudSliceTool_AcquiredFromFeed_GeneratesSliceThatBuildsClean()
+    {
+        Skip.If(!Directory.Exists(PackOutputDir),
+            "Pack output not found. Run tools/pack.ps1 first.");
+
+        var toolNupkg = FindExactNupkg(PackOutputDir, "Dabbler.CrudSlice.Tool");
+        Skip.If(toolNupkg is null,
+            "Dabbler.CrudSlice.Tool nupkg not found in pack-output/. Run tools/pack.ps1 first.");
+
+        var templateNupkg = FindExactNupkg(PackOutputDir, "Dabbler.Templates");
+        Skip.If(templateNupkg is null,
+            "Dabbler.Templates nupkg not found in pack-output/. Run tools/pack.ps1 first.");
+
+        var smokeFixtureDir = LocateSmokeAppFixture();
+        Skip.If(smokeFixtureDir is null,
+            "SmokeApp fixture not found under tests/Dabbler.Templates.Tests/Fixtures/SmokeApp.");
+        var smokeSchema = LocateSmokeSchema();
+        Skip.If(smokeSchema is null,
+            "smoke.dabbler-entity.json fixture not found under tests/Dabbler.Templates.Tests/Fixtures.");
+
+        // The pinned version comes from the artifact filename — tool and templates ride
+        // the same single DabblerVersion (Decision 4), so version-skew cannot occur here.
+        var version = ExtractVersion(toolNupkg!, "Dabbler.CrudSlice.Tool");
+        version.Should().NotBeNullOrEmpty("the tool nupkg filename must carry a version");
+
+        var tempDir = Path.Combine(Path.GetTempPath(), $"dabbler-crudslice-gate-{Guid.NewGuid():N}");
+        var hiveDir = Path.Combine(Path.GetTempPath(), $"dabbler-crudslice-gate-hive-{Guid.NewGuid():N}");
+        var toolPath = Path.Combine(Path.GetTempPath(), $"dabbler-crudslice-gate-tool-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            CopyDirectory(smokeFixtureDir!, tempDir);
+            File.Copy(smokeSchema!, Path.Combine(tempDir, "smoke.dabbler-entity.json"), overwrite: true);
+            WriteLocalNugetConfig(tempDir, PackOutputDir);
+
+            // Install #1: the dotnet new templates (into an isolated hive).
+            var (tInstallExit, tInstallOut) = RunTool("dotnet",
+                $"new install \"{templateNupkg}\" --debug:custom-hive \"{hiveDir}\"");
+            tInstallExit.Should().Be(0, $"template install should succeed. Output:\n{tInstallOut}");
+
+            // Install #2: the generator tool from the local feed at the pinned version,
+            // into an isolated tool-path. This is the checkout-free acquisition under test.
+            var (toolInstallExit, toolInstallOut) = RunTool("dotnet",
+                $"tool install Dabbler.CrudSlice.Tool --tool-path \"{toolPath}\" " +
+                $"--add-source \"{PackOutputDir}\" --version {version}");
+            toolInstallExit.Should().Be(0,
+                $"`dotnet tool install Dabbler.CrudSlice.Tool` from the local feed should succeed. Output:\n{toolInstallOut}");
+
+            var toolExe = Path.Combine(toolPath, OperatingSystem.IsWindows() ? "dabbler-crud-slice.exe" : "dabbler-crud-slice");
+            File.Exists(toolExe).Should().BeTrue(
+                $"`dotnet tool install --tool-path` should place the dabbler-crud-slice executable at {toolExe}");
+
+            // Run the installed command to generate the slice into the consumer project.
+            // SmokeApp is a single-project consumer, so --web-root and --api-root are the
+            // same directory (mirrors the dabbler-min adopter pattern). --template-hive
+            // points the in-process `dotnet new` shell-out at the isolated hive above.
+            var schemaPath = Path.Combine(tempDir, "smoke.dabbler-entity.json");
+            var genArgs = new StringBuilder();
+            genArgs.Append("--entity Smoke --entity-plural Smokes ");
+            genArgs.Append($"--schema \"{schemaPath}\" ");
+            genArgs.Append($"--web-root \"{tempDir}\" --api-root \"{tempDir}\" ");
+            genArgs.Append("--web-namespace SmokeApp --api-namespace SmokeApp.Api ");
+            genArgs.Append("--shared-namespace SmokeApp.Shared --dto-namespace SmokeApp.Shared.DTOs ");
+            genArgs.Append("--entity-namespace SmokeApp.Shared.Models ");
+            genArgs.Append("--dbcontext-type SmokeDbContext --dbcontext-namespace SmokeApp.Api.Data ");
+            genArgs.Append($"--template-hive \"{hiveDir}\"");
+
+            var (genExit, genOut) = RunTool(toolExe, genArgs.ToString());
+            genExit.Should().Be(0,
+                $"dabbler-crud-slice should generate the slice and exit 0. Output:\n{genOut}");
+
+            // Sanity: the wrapper produced template output + the convention-correct
+            // overwrite (proves the bundled SchemaApplicator + template shell-out both ran).
+            File.Exists(Path.Combine(tempDir, "Controllers", "SmokesController.cs")).Should().BeTrue();
+            File.Exists(Path.Combine(tempDir, "Data", "SmokeScaffoldingExtensions.cs")).Should().BeTrue();
+
+            // The acceptance bar: the generated slice compiles against the consumer.
+            // Restore resolves Dabbler.* from the local feed and framework packages from
+            // nuget.org via the nuget.config written into tempDir above (NuGet discovers
+            // it by walking up from the project dir). Inline `--source <url>` is avoided:
+            // the .NET 10 SDK mis-resolves an inline source URL as a path relative to the
+            // project directory, yielding a spurious NU1301.
+            var projPath = Path.Combine(tempDir, "SmokeApp.csproj");
+            var (restoreExit, restoreOut) = RunTool("dotnet", $"restore \"{projPath}\"");
+            restoreExit.Should().Be(0, $"restore should succeed. Output:\n{restoreOut}");
+
+            var (buildExit, buildOut) = RunTool("dotnet",
+                $"build \"{projPath}\" --no-restore --nologo -v q");
+            buildExit.Should().Be(0,
+                $"the feed-acquired generator's slice must build clean in the consumer. Output:\n{buildOut}");
+        }
+        finally
+        {
+            // Best-effort uninstall keeps the isolated tool-path from lingering on failure.
+            try { RunTool("dotnet", $"tool uninstall Dabbler.CrudSlice.Tool --tool-path \"{toolPath}\""); }
+            catch { /* best-effort */ }
+            TryDeleteDirectory(tempDir);
+            TryDeleteDirectory(hiveDir);
+            TryDeleteDirectory(toolPath);
+        }
+    }
+
     // ---------------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------------
+
+    private static string? LocateSmokeAppFixture()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            var candidate = Path.Combine(dir.FullName, "tests", "Dabbler.Templates.Tests", "Fixtures", "SmokeApp");
+            if (Directory.Exists(candidate)) return candidate;
+            dir = dir.Parent;
+        }
+        return null;
+    }
+
+    private static string? LocateSmokeSchema()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            var candidate = Path.Combine(dir.FullName, "tests", "Dabbler.Templates.Tests", "Fixtures", "smoke.dabbler-entity.json");
+            if (File.Exists(candidate)) return candidate;
+            dir = dir.Parent;
+        }
+        return null;
+    }
+
+    /// <summary>Extracts the version segment from "&lt;packageId&gt;.&lt;version&gt;.nupkg".</summary>
+    private static string ExtractVersion(string nupkgPath, string packageId)
+    {
+        var name = Path.GetFileNameWithoutExtension(nupkgPath); // strips .nupkg
+        var prefix = packageId + ".";
+        return name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+            ? name[prefix.Length..]
+            : name;
+    }
+
+    private static void CopyDirectory(string source, string destination)
+    {
+        Directory.CreateDirectory(destination);
+        foreach (var file in Directory.GetFiles(source))
+            File.Copy(file, Path.Combine(destination, Path.GetFileName(file)), overwrite: true);
+        foreach (var d in Directory.GetDirectories(source))
+        {
+            var name = Path.GetFileName(d);
+            // Don't carry a stale bin/obj from the fixture into the temp build.
+            if (name is "bin" or "obj") continue;
+            CopyDirectory(d, Path.Combine(destination, name));
+        }
+    }
 
     private static int FindFreePort()
     {

@@ -3,7 +3,22 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Dabbler.CrudSlice</RootNamespace>
     <AssemblyName>Dabbler.CrudSlice</AssemblyName>
-    <IsPackable>false</IsPackable>
+
+    <!-- dotnet tool packaging (access-migration-generator-consumption Session 2;
+         decision: publish as a `dotnet tool`, mirroring Dabbler.Security.DevIdp.Tool). -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dabbler-crud-slice</ToolCommandName>
+    <IsPackable>true</IsPackable>
+
+    <!-- NuGet package identity. `.Tool` suffix marks "never a <PackageReference>";
+         the build-time generator is acquired via `dotnet tool install`, not restore. -->
+    <PackageId>Dabbler.CrudSlice.Tool</PackageId>
+    <Description>Repo-aware CRUD slice generator for the Dabbler platform Access-migration pipeline. Run `dabbler-crud-slice` to scaffold a convention-correct CRUD slice (service + page + controller + registration helpers) from a reviewed .dabbler-entity.json. Bundles the Dabbler.SchemaApplicator transformer in-process and shells out to the Dabbler.Templates `dotnet new` templates, which must be installed at the same version (`dotnet new install Dabbler.Templates::&lt;version&gt;`).</Description>
+    <PackageTags>dotnet-tool;crud;scaffolding;code-generation;access-migration;dabbler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Exclude from solution-level build by default (tool, not a library). -->
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,5 +34,6 @@
          by RegistrationReferenceEmitter. Edit a .template file → next wrapper run
          picks up the change. -->
     <EmbeddedResource Include="Templates\*.template" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

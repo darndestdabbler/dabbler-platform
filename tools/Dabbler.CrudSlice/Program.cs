@@ -39,6 +39,11 @@ try
     // 1. Run the API-side template (service + interface + controller).
     if (!opts.SkipTemplates)
     {
+        // Fail fast with the exact version-matched install command if the
+        // Dabbler.Templates `dotnet new` templates are not installed — the
+        // tool and templates are a two-install pair at the same DabblerVersion.
+        TemplatePreflight.EnsureTemplatesInstalled(opts);
+
         Console.WriteLine($"[1/4] dotnet new dabbler-crud-service  (in {opts.ApiRoot})");
         TemplateRunner.RunCrudServiceTemplate(opts);
 

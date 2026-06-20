@@ -174,8 +174,42 @@ Use this structure for new entries:
   context before evaluating the output. Promotes the `feedback_orchestrator_self_contributes_to_review_panel`
   memory to a documented lesson.
 
+## Greenfield Matrix Runs: Pre-Create `matrix-run/` And Restore Committed Golden Output Before Measuring
+
+- **Context:** The Step-6 greenfield finding-power matrix on a source-bearing build
+  session (`access-migration-generator-consumption` Session 2 — this repo is the LEAD
+  pilot signal).
+- **Failure or friction:** Two avoidable stumbles, each costing a full re-run of paid
+  provider calls: (1) `python -m ai_router.verification_only_app run --out
+  docs/.../matrix-run/...json` does **not** create the output directory — it raised
+  `FileNotFoundError` only *after* every push/pull provider call had been spent,
+  persisting nothing. (2) `pack-output/` is committed golden output; a `tools/pack.ps1`
+  run earlier in the session rewrote its binary nupkgs, so `git diff <session-start-ref>`
+  was dominated by binary noise + `session5`→`preview.1` renames — poisoning the
+  source-only diff the matrix is supposed to measure (protocol §8).
+- **Lesson:** Before invoking the matrix: `mkdir -p docs/session-sets/<slug>/matrix-run/`,
+  and restore any committed generated/golden output the session regenerated back to the
+  session-start ref (`git checkout <ref> -- pack-output/`) so the measured diff is source
+  only. New source files must be intent-added (`git add -N <file>`) so they appear in the
+  working-tree diff the matrix reads.
+- **Action for future sessions:** Make `mkdir` + golden-output-restore + `git add -N` a
+  pre-flight checklist for every Step-6 matrix run in this repo. Verify the diff stat
+  (`git diff --stat <ref> -- . ':(exclude)pack-output/' ':(exclude)tmp/'`) is clean source
+  before paying for the run.
+
 ## Author Template Content And Consumer Smoke Test In The Same Session
 
+- **Promoted to Convention on 2026-06-20** (Step 9 reorganization review for the
+  `access-migration-generator-consumption` session set), generalized beyond templates to
+  **any distributable artifact**. The same guidance is now captured — broadened to cover
+  `dotnet tool` / NuGet acquisition — in `project-guidance.md` → Conventions → Workflow
+  Expectations: *"Ship a checkout-free consumer-acquisition smoke gate in the same session
+  that publishes or changes a distributable artifact."* Two-context threshold met:
+  `packaging-and-template-readiness` Sessions 8 & 9 (templates) and
+  `access-migration-generator-consumption` Session 2 (the `Dabbler.CrudSlice.Tool`
+  consumer-validation gate acquired the packaged tool checkout-free and built a generated
+  slice green). Follow the convention.
+- **Original entry preserved below for context.**
 - **Context:** VS template authoring (packaging-and-template-readiness Session 8) and consumer
   validation (Session 9)
 - **Failure or friction:** Session 8 authored the `templates/Dabbler.Templates/` content but did

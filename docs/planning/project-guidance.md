@@ -1097,3 +1097,25 @@ Playwright code.
   metrics log still aggregates the call. Applied in
   `packaging-and-template-readiness` Sessions 4 & 5 and
   `crud-scaffolding-spike` Session 3.
+- **Ship a checkout-free consumer-acquisition smoke gate in the same
+  session that publishes or changes a distributable artifact.** When a
+  session makes a `Dabbler.*` artifact externally consumable (a `dotnet
+  new` template, a `dotnet tool`, a NuGet library) or changes how one is
+  acquired, prove it from a real consumer's position **in the same
+  session**: acquire the artifact exactly the way an external consumer
+  would — template install into an isolated `--debug:custom-hive`; `dotnet
+  tool install --tool-path <dir> --add-source <feed> --version <pinned>`;
+  package restore from the local pack feed — then generate/build against a
+  consumer fixture and assert it **builds green**. A pack→install→use→build
+  smoke cycle catches acquisition-time and render-time breakage (missing
+  packaged files, wrong `ToolCommandName`, version skew between paired
+  artifacts, un-bundled project-reference dependencies) that unit tests on
+  the source project structurally cannot see — they exercise the source
+  tree, not the published artifact. Promoted 2026-06-20 (Step 9
+  reorganization review) from `packaging-and-template-readiness` Sessions 8
+  & 9 (template content authored without a consumer smoke; 7 quality issues
+  found late) and `access-migration-generator-consumption` Session 2 (the
+  `Dabbler.CrudSlice.Tool` consumer-validation gate acquired the packaged
+  tool checkout-free via `--tool-path`/`--add-source` and built a generated
+  CRUD slice green in the same session). Generalizes the former
+  template-only lesson to any distributable artifact.
