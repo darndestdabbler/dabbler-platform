@@ -1,0 +1,5 @@
+# Generated UAT test files written by ai-router/uat_runner.
+# Regenerated on every runner invocation. The .gitignore itself is
+# committed so the directory exists for the runner.
+*
+!.gitignore

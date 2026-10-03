@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Dabbler Platform contributors",
+  "classifications": [ "Web", "Blazor", "Server", "Security", "Reports" ],
+  "identity": "Dabbler.Templates.App.CSharp",
+  "name": "Dabbler App",
+  "shortName": "dabbler-app",
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "sourceName": "DabblerApp",
+  "preferNameDirectory": true,
+  "description": "Multi-project starter solution with a Blazor Server web app, a Web API starter, a shared contracts library, one sample CRUD entity, one sample report, and a bUnit test project with stub providers.",
+  "symbols": {
+    "NameLower": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "lowerCaseInvariant",
+      "replaces": "dabblerapp"
+    },
+    "Framework": {
+      "type": "parameter",
+      "description": "Target framework",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "net10.0", "description": ".NET 10.0 (LTS)" }
+      ],
+      "defaultValue": "net10.0",
+      "replaces": "net10.0"
+    }
+  }
+}

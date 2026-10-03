@@ -1,0 +1,70 @@
+{
+  "sessionSetName": "post-rebuild-uat",
+  "createdDate": "2026-04-16T19:30:00.000000+00:00",
+  "totalSessions": 1,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/checklist-generation",
+      "dateTime": "2026-04-16T19:36:57.000000+00:00",
+      "description": "Generated post-rebuild-uat-checklist.json with 29 items across 9 functional areas: Shell and Navigation, Dashboard, Products, Retail Businesses, Orders, Reports, Admin, Authentication, Cross-Cutting Quality. Each item includes HumanAction, Expectation, and Other rows for open-ended feedback.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/dev-quick-signin",
+      "dateTime": "2026-04-16T19:45:00.000000+00:00",
+      "description": "Created Dev Quick Sign-In feature on the login page: dropdown of 6 test personas with JS interop to call the seeded-session endpoint. Gated by SeededSession.Enabled config. Files: Login.razor, dev-quick-signin.js.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/human-uat-execution",
+      "dateTime": "2026-04-16T20:30:00.000000+00:00",
+      "description": "Human executed the full UAT checklist. Results: 13 passed, 16 failed. Key findings: content hidden behind app bar (systemic), dashboard search discards input, product filter panel issues, Undo button disabled, reports no data, user management inaccessible for org-scoped admins, currency/date alignment, Security Dashboard duplicate headers and empty tabs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/remediation-session-1",
+      "dateTime": "2026-04-16T21:00:00.000000+00:00",
+      "description": "Layout and styling fixes: (1) Added pt-16 to MudMainContent for app bar offset, (2) right-aligned currency/date columns with max-width:130px, (3) added Bordered=true to all 7 MudDataGrid instances, (4) removed duplicate h1 header from DabblerSecurityDashboard.razor.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/remediation-session-2",
+      "dateTime": "2026-04-16T21:30:00.000000+00:00",
+      "description": "Functional bug fixes: (1) Product Detail Undo — added ValueChanged callbacks to 5 fields missing dirty-state tracking, (2) Dashboard search — pass search term as query param, added InitialSearchTerm parameter to list components, (3) Report date pickers — added Editable=true with DateFormat and Placeholder, (4) Admin visibility — isAdmin check now considers org-scoped BackofficeUserAdmin across all memberships.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/report-column-widths",
+      "dateTime": "2026-04-16T21:45:00.000000+00:00",
+      "description": "Spread report columns to full landscape width (9.5\") in both orders-by-customer.rdf.json and sales-by-product.rdf.json. Previous layout used only ~6\" of available width.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/lessons-learned",
+      "dateTime": "2026-04-16T22:00:00.000000+00:00",
+      "description": "Added 5 lessons learned: UAT checklists need explicit test data, navigation must pass user input, fixed app bars need content offset, ValueChanged callbacks must cover all fields, currency/date columns should be right-aligned. Updated guiding-principles.md with grid styling convention.",
+      "status": "complete",
+      "routedApiCalls": []
+    }
+  ]
+}

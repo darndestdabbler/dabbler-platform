@@ -1,0 +1,139 @@
+@page "/admin/order-item-tuner"
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using MudBlazor
+@attribute [DabblerPageAuthorize("/dashboard")]
+@inject ISnackbar Snackbar
+
+<PageTitle>Order item tuner — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-4" data-testid="order-item-tuner-page">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudText Typo="Typo.h4" data-testid="order-item-tuner-title">Order item tuner</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            Scenario 4a — both the target product and the link payload are
+            editable. Edits to either flip the primary action button to
+            "Save and Use".
+        </MudText>
+    </MudStack>
+
+    <MasterDetailExpansionShell TRow="ProductDto" TEntity="ProductDto" TLink="OrderItemDto"
+                                @ref="_shell"
+                                TestId="order-item-tuner-shell"
+                                ShowGrid="false"
+                                ShowAddAction="false"
+                                ShowLinkData="true"
+                                LinkDataHeading="Line details"
+                                TargetEditability="TargetEditability.Editable"
+                                SaveLabel="Save changes"
+                                OnSaveRequested="HandleSaveAsync"
+                                OnCancelRequested="HandleCancelAsync">
+        <DetailsContent>
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField T="string"
+                                  Value="@_target.Name"
+                                  ValueChanged="@(v => OnTargetChanged(() => _target.Name = v))"
+                                  Label="Product name"
+                                  Required="true"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  data-testid="order-item-tuner-product-name" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField T="decimal"
+                                     Value="@_target.UnitPrice"
+                                     ValueChanged="@(v => OnTargetChanged(() => _target.UnitPrice = v))"
+                                     Label="Unit price"
+                                     Format="N2"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     data-testid="order-item-tuner-product-unit-price" />
+                </MudItem>
+            </MudGrid>
+        </DetailsContent>
+        <LinkDataContent>
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudNumericField T="int"
+                                     Value="@_link.Quantity"
+                                     ValueChanged="@(v => OnLinkChanged(() => _link.Quantity = v))"
+                                     Label="Quantity"
+                                     Min="1"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     data-testid="order-item-tuner-quantity" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField T="decimal"
+                                     Value="@_link.Discount"
+                                     ValueChanged="@(v => OnLinkChanged(() => _link.Discount = v))"
+                                     Label="Discount %"
+                                     Min="0"
+                                     Max="100"
+                                     Format="N2"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     data-testid="order-item-tuner-discount" />
+                </MudItem>
+            </MudGrid>
+        </LinkDataContent>
+    </MasterDetailExpansionShell>
+
+    <MudPaper Class="pa-3 mt-4" Outlined="true">
+        <MudText Typo="Typo.caption">
+            Demo state (UI walkthrough; no API write):
+            <strong>EntityDirty</strong>=@(_shell?.DetailsContext.IsDirty ?? false)
+            · <strong>LinkDirty</strong>=@(_shell?.LinkContext.IsLinkDirty ?? false)
+            · <strong>PrimaryActionLabel</strong>=@(_shell?.PrimaryActionLabel ?? "—")
+        </MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MasterDetailExpansionShell<ProductDto, ProductDto, OrderItemDto>? _shell;
+    private ProductDto _target = new()
+    {
+        Id = 1,
+        Name = "Espresso Beans (1 lb)",
+        UnitPrice = 18.50m,
+        Description = "Sample product",
+        IsAvailable = true,
+    };
+    private OrderItemDto _link = new()
+    {
+        ProductId = 1,
+        ProductName = "Espresso Beans (1 lb)",
+        Quantity = 2,
+        UnitPrice = 18.50m,
+        Discount = 5m,
+    };
+
+    private void OnTargetChanged(Action mutate)
+    {
+        mutate();
+        _shell?.DetailsContext.SetDirty();
+    }
+
+    private void OnLinkChanged(Action mutate)
+    {
+        mutate();
+        _shell?.LinkContext.SetLinkDirty();
+    }
+
+    private Task HandleSaveAsync(SaveRequest<ProductDto, OrderItemDto> request)
+    {
+        var parts = new List<string>();
+        if (request.EntityDirty) parts.Add("product");
+        if (request.LinkDirty) parts.Add("line details");
+        var what = parts.Count == 0 ? "(nothing changed)" : string.Join(" + ", parts);
+        Snackbar.Add($"Saved {what} (demo mode).", Severity.Success);
+        return Task.CompletedTask;
+    }
+
+    private Task HandleCancelAsync()
+    {
+        Snackbar.Add("Cancelled.", Severity.Normal);
+        return Task.CompletedTask;
+    }
+}

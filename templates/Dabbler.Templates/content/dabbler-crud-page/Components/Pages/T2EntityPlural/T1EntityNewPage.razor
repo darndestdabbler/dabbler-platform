@@ -1,0 +1,32 @@
+@page "/T9RouteName/new"
+@attribute [DabblerPageAuthorize("/T9RouteName")]
+@using T5DtoNs
+@using Dabbler.Security.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+<PageTitle>New T1Entity</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/T9RouteName"))"
+                           aria-label="Back to T2EntityPlural" />
+            <MudText Typo="Typo.h4" data-testid="t1entity-new-title">New T1Entity</MudText>
+        </MudStack>
+    </MudStack>
+
+    <T1EntityDetail IsNew="true" OnSaved="@HandleSavedAsync" />
+</MudContainer>
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private Task HandleSavedAsync()
+    {
+        NavigationManager.NavigateTo("/T9RouteName");
+        return Task.CompletedTask;
+    }
+}

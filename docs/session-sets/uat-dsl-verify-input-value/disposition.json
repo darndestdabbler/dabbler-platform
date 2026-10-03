@@ -1,0 +1,31 @@
+{
+  "sessionSet": "uat-dsl-verify-input-value",
+  "session": 1,
+  "status": "complete",
+  "verificationVerdict": "VERIFIED",
+  "progressKeys": {
+    "session-1/ai-assignment": "complete",
+    "session-1/language-reference-update": "complete",
+    "session-1/verification": "complete",
+    "session-1/verification-round2": "complete"
+  },
+  "deliverables": {
+    "grammarTokensAdded": "HAS, VALUE, MATCHING, NO added to DabblerUatDsl.g4; verifyInputStep rule added before verifyFreeFormStep",
+    "astNodesAdded": "VerifyInputValueMatchingStep and VerifyInputNoValueStep records in Nodes.cs",
+    "visitorMethodAdded": "VisitVerifyInputStep in UatDslVisitor.cs — distinguishes NO() token",
+    "validatorProbesAdded": "Both new step types probe catalog as elementRole=Input in SemanticValidator.cs",
+    "emitterCasesAdded": "ToHaveValueAsync(new Regex(...)) for value-matching, ToHaveValueAsync(\"\") for no-value",
+    "openDropdownRetryFix": "EmitOpenDropdown uses 3-attempt retry with WaitForAsync(Attached) guard; catches PlaywrightException",
+    "testsAdded": "18 new tests across grammar, AST, validator, emitter. Total: 199 -> 217 tests",
+    "languageReferenceUpdated": "Both verbs documented in structured-VERIFY section; VERIFY TEXT vs VERIFY INPUT guidance; bare keywords updated",
+    "maskingChecklistUpdated": "sensitive-field-masking-audit-uat-remediation UAT-3 step 14: VERIFY ELEMENT visible -> VERIFY INPUT has value matching"
+  },
+  "nextSessionSet": "unified-master-details-composite",
+  "openIssues": [
+    {
+      "severity": "Minor",
+      "description": "VerifyInputValueMatchingStep emitter uses fully-qualified System.Text.RegularExpressions.Regex while VerifyTextMatchesStep uses short form Regex. Both compile correctly; the discrepancy is cosmetic.",
+      "deferredTo": "Next DSL maintenance set if one is scheduled; or accept as-is since EmitClickLocator also uses fully-qualified form"
+    }
+  ]
+}

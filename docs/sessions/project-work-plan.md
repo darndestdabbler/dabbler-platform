@@ -1,0 +1,22 @@
+# Project work plan — sessions
+
+**Written by `dabbler` as a fold of `activity-log.json`.**
+Hand edits are overwritten by the next append. The record is the log;
+this page is one view of it.
+
+---
+
+## Sessions
+
+The numbered sessions are declared from `session-plan.md`; each one's task is what its own plan step declared.
+
+| # | Session | Releasable | Declared |
+| ---: | --- | --- | --- |
+| 1 | Author or import the solution plan | no | 2026-10-03 |
+| 2 | Challenge the plan, then break it into numbered sessions | — | not declared |
+
+### Session 1 — Author or import the solution plan
+
+**Releasable: no.**
+
+Author docs/planning/solution-plan.md for dabbler-platform, importing the plan material this repository already holds (docs/planning/brief.md as the operator's substance, docs/platform-overview.md, docs/planning/phase-3-platform-roadmap.md and docs/planning/project-status.md) into one plan a reader can act on. The file states the objective; the Production split the brief already answers (a generated application is a Blazor Server web tier calling a Web API tier, and only the API tier reaches SQL Server -- the platform's own reference app, AcmeCoffeeOnline, is built that way); the Handoff artifacts each separately running part is delivered as, with the standard command for its form (NuGet packages via tools/pack.ps1 for the libraries, templates and dotnet tools; dotnet publish IIS site packages for the Web and Api tiers of the reference app; dotnet ef migrations script --idempotent for the database); the modules -- the Dabbler.* libraries under src/Libs, the Dabbler.Templates package, the two dotnet tools under tools/ and the AcmeCoffeeOnline reference app under src/Apps -- with what each is responsible for, the contract it exposes (preconditions, guarantees, failure mode), the dependency direction, the reason for each cut and the cuts left deferred, and how each is a .csproj listed in Dabbler.Platform.sln reaching its siblings by <ProjectReference>; and the phases or feature areas with their key deliverables, each scoped to a handful of focused AI sessions and ordered so publishing Dabbler.CrudSlice.Tool unblocks the Access-migration consumer first. The six open decisions the brief lists (uat_runner, the Playwright and Packaging.Smoke manual gates, the CrudSlice.Tool release, the stale planning docs, the legacy branches and the dabbler-uat-dsl feed) are carried into the plan as deferred cuts with their options and the operator's leaning, for Session 2 to challenge and decide.

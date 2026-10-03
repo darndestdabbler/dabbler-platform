@@ -1,0 +1,457 @@
+{
+  "sessionSetName": "unified-master-details-composite",
+  "createdDate": "2026-05-11T20:08:24.705598-04:00",
+  "totalSessions": 5,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-05-11T20:10:00.957436-04:00",
+      "description": "Routed analysis to author ai-assignment.md for all 5 sessions",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 8556,
+          "outputTokens": 2296,
+          "costUsd": 0.033655
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/bunit-tests",
+      "dateTime": "2026-05-11T20:20:36.572099-04:00",
+      "description": "Routed test-generation for new shell slots + RoleMasterGrid filter parameter; merged into MasterDetailExpansionShellTests.cs and new RoleMasterGridTests.cs",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 11676,
+          "outputTokens": 1490,
+          "costUsd": 0.029495
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-05-11T20:22:24.231309-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, and ai-led-session-workflow.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/explore-consumers",
+      "dateTime": "2026-05-11T20:22:24.232309-04:00",
+      "description": "Pre-flight explore: found 4 shell consumers (RoleMasterDetailsTab, OrganizationMasterDetailsTab, DefaultMasksTab, UsersAndRoleAssignmentTab) plus existing MasterDetailExpansionShellTests",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/shell-generify",
+      "dateTime": "2026-05-11T20:22:24.232952-04:00",
+      "description": "Rewrote MasterDetailExpansionShell as MasterDetailExpansionShell<TRow,TEntity,TLink> with all new parameters and slots declared (ShowGrid, ShowAddAction, ShowRowUseAction, AllowLinkOnly, Mode, TargetEditability, ShowLinkData, LinkDataHeading, FilterContent, GridContent, RowUseAction, DetailsContent, LinkDataContent, DetailsActions, CollapsedSummaryContent, SessionSummaryContent plus all callbacks)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/contexts-file",
+      "dateTime": "2026-05-11T20:22:24.233270-04:00",
+      "description": "Created MasterDetailShellContexts.cs with ShellMode enum, TargetEditability enum, DetailsContext<TEntity>, LinkContext<TLink>, DetailsActionsContext<TEntity,TLink>, SaveRequest<TEntity,TLink>, SaveAndUseResult<TEntity,TLink>",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/migrate-role-tab",
+      "dateTime": "2026-05-11T20:22:24.233270-04:00",
+      "description": "Migrated RoleMasterDetailsTab to full slot pattern: FilterPanel extracted to tab-level FilterContent slot, RoleMasterGrid stripped of FilterPanel and given external Filter parameter, RoleDetailsSection moved to DetailsContent slot",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/migrate-other-consumers",
+      "dateTime": "2026-05-11T20:22:24.233270-04:00",
+      "description": "Minimal migration of OrganizationMasterDetailsTab, DefaultMasksTab, UsersAndRoleAssignmentTab: ResultsContent renamed to GridContent with TRow/TEntity/TLink=\"object\" type arguments. RoleMasterDetailsTabTests updated to use tab-level FilterPanel for filter-change simulation.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-05-11T20:36:52.450224-04:00",
+      "description": "dotnet build: succeeded (0 errors). dotnet test: 217 Security.Blazor.Tests pass, 305 Security.Tests pass, 43 Components.Tests pass, 16 Reports.Blazor.Tests pass, 27 Api.Tests pass, 6 Testing.Blazor.Tests pass. 5 pre-existing failures in AcmeCoffeeOnline.Web.Tests (TemplateSeedSmokeTests + WorkflowAssetSmokeTests, unrelated to this session).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-05-11T20:38:27.700285-04:00",
+      "description": "Cross-provider verification: model=opus",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8204,
+          "outputTokens": 3093,
+          "costUsd": 0.355035
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-05-12T02:47:59.339242-04:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/showgrid-false",
+      "dateTime": "2026-05-12T02:48:56.379087-04:00",
+      "description": "Implemented ShowGrid=false layout: MudPaper wrapping DetailsContent, MudAlert for SessionSummaryContent<int>, default Save/Cancel buttons when DetailsActions is null. Moved DetailsContent rendering inside ShowGrid branch.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/session-counter",
+      "dateTime": "2026-05-12T02:48:56.380087-04:00",
+      "description": "Added _sessionCount field; HandleDefaultSaveAsync increments after successful OnSaveRequested (catches OperationCanceledException for consumer-cancelled saves). SessionSummaryContent changed from RenderFragment? to RenderFragment<int>?.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/demo-page",
+      "dateTime": "2026-05-12T02:49:28.697837-04:00",
+      "description": "Created CustomerBatchEntryPage.razor at /customers/batch-entry: shell with ShowGrid=false, ShowAddAction=false; SessionSummaryContent renders count; DetailsContent is a MudForm for CustomerDto; OnSaveRequested validates, creates customer via API, clears form.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/bunit-tests",
+      "dateTime": "2026-05-12T02:51:52.527939-04:00",
+      "description": "Routed test-generation for ShowGrid=false bUnit tests via gemini-pro; 5 new test methods generated",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 10172,
+          "outputTokens": 986,
+          "costUsd": 0.022574999999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/playwright",
+      "dateTime": "2026-05-12T02:54:12.969622-04:00",
+      "description": "Routed test-generation for CustomerBatchEntryWorkflowTests Playwright tests via gemini-pro",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 3140,
+          "outputTokens": 1285,
+          "costUsd": 0.016774999999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-05-12T02:56:43.303342-04:00",
+      "description": "dotnet build: 0 errors. dotnet test (non-Playwright): 222 Security.Blazor.Tests (5 new shell tests pass), 305 Security.Tests, 43 Components.Tests, 16 Reports.Blazor.Tests, 27 Api.Tests, 6 Testing.Blazor.Tests all pass. 5 pre-existing failures in AcmeCoffeeOnline.Web.Tests (TemplateSeedSmokeTests + WorkflowAssetSmokeTests, unchanged).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-05-12T03:01:12.221793-04:00",
+      "description": "Cross-provider verification: model=opus",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8905,
+          "outputTokens": 4948,
+          "costUsd": 0.504675
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/bunit-tests",
+      "dateTime": "2026-05-12T04:08:49.277375-04:00",
+      "description": "Routed test-generation for PickOrAddDialog dialog-close + shell dirty-state/label-swap bUnit tests",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 14154,
+          "outputTokens": 2326,
+          "costUsd": 0.0409525
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/bunit-tests",
+      "dateTime": "2026-05-12T04:10:35.861198-04:00",
+      "description": "Routed test-generation for PickOrAddDialog dialog-close + shell dirty-state/label-swap bUnit tests",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 14057,
+          "outputTokens": 2956,
+          "costUsd": 0.04713125
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/playwright",
+      "dateTime": "2026-05-12T04:16:42.423862-04:00",
+      "description": "Routed test-generation for Order -> Customer picker Playwright tests",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 9216,
+          "outputTokens": 1632,
+          "costUsd": 0.027840000000000004
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-05-12T04:23:40.270389-04:00",
+      "description": "Cross-provider verification: model=opus",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 36090,
+          "outputTokens": 11978,
+          "costUsd": 1.4397000000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/bunit-tests",
+      "dateTime": "2026-05-12T07:26:41.729759-04:00",
+      "description": "Routed test-generation for Session 4 shell tests (ShowLinkData, TargetEditability, LinkContext, label-flip with link dirty, toggle-without-change)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 13562,
+          "outputTokens": 1911,
+          "costUsd": 0.0360625
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/playwright",
+      "dateTime": "2026-05-12T07:28:27.785844-04:00",
+      "description": "Routed test-generation for Session 4 Playwright tests (4a tuner, 4b product-line picker, Scenario 3 inspect-to-decide)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 10274,
+          "outputTokens": 3033,
+          "costUsd": 0.0431725
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-05-12T07:37:44.435440-04:00",
+      "description": "Cross-provider verification: model=gpt-5-4",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 27095,
+          "outputTokens": 7281,
+          "costUsd": 0.1769525
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/uat-checklist",
+      "dateTime": "2026-05-12T08:21:26.235169-04:00",
+      "description": "Routed uat-plan-generation to author unified-master-details-composite-uat-checklist.json: 23 items across all 4 scenarios + inspect-to-decide + 4b subscenarios. Three opus authoring passes with gpt-5-4 verification (final pass accepted; first two had ISSUES_FOUND from verifier and were re-routed). Suppressions for CATALOG_STALE added to tools/uat-suppressions.json.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 7374,
+          "outputTokens": 21190,
+          "costUsd": 1.69986
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 11300,
+          "outputTokens": 5965,
+          "costUsd": 0.117725
+        },
+        {
+          "model": "opus",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 7278,
+          "outputTokens": 13611,
+          "costUsd": 1.129995
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 10342,
+          "outputTokens": 5570,
+          "costUsd": 0.109405
+        },
+        {
+          "model": "opus",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 7397,
+          "outputTokens": 12384,
+          "costUsd": 1.039755
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "uat-plan-generation",
+          "inputTokens": 11159,
+          "outputTokens": 6046,
+          "costUsd": 0.118588
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/uat-runner",
+      "dateTime": "2026-05-12T10:30:00.000000-04:00",
+      "description": "W0 compiled the DSL checklist to 360+ lines of Playwright; W2 runner executed with --skip-dotnet-test per the SeededSignInAsync/DSL conflict (same pattern as admin-user-creation-flow). All suppressed errors are CATALOG_STALE class (new routes not yet in catalog). Authoritative coverage remains the hand-authored Playwright tests from Sessions 1-4.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-05-12T11:00:00.000000-04:00",
+      "description": "Build PASS (0 errors). Unit+bUnit PASS: 633/633 across 6 suites. Playwright: 148/159 pass; 9 failures (8 pre-existing from prior sessions, 1 new W0 UnifiedMasterDetailsCompositeUatTests SeededSignInAsync conflict in the same class as AdminUsersCrossLinksUatTests). Five app bugs found and fixed during the run: CustomersController + OrdersController CreatedAtActionResult → Ok(created); OrderDetailState AddTransient → AddScoped; CustomerPickerDialog Immediate=true + local _isTargetReadOnly; ProductLinePickerDialog StateHasChanged after row selection; test assertions updated for MudBlazor 8.x ReadOnly + data-testid placement.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-05-12T11:14:50.769421-04:00",
+      "description": "Cross-provider session-verification: model=gpt-5-4. Verdict VERIFIED with no blocking issues.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2431,
+          "outputTokens": 5753,
+          "costUsd": 0.092373
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 214,
+          "outputTokens": 335,
+          "costUsd": 0.005560
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/change-log",
+      "dateTime": "2026-05-12T11:15:30.000000-04:00",
+      "description": "Authored change-log.md as set-level summary covering shell capabilities, all 4 scenarios, Session 5 bug fixes, and known follow-up items (keyboard navigation deferred; full migration audit deferred; catalog re-crawl needed for new routes).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/commit-push-notify",
+      "dateTime": "2026-05-12T11:18:02.000000-04:00",
+      "description": "Closeout commit 1c459bf: change-log.md, UAT checklist, disposition.json, session-state.json, 5 app bug fixes, and 3 updated Playwright tests in a single commit. Push + Pushover notify completed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 9,
+      "stepKey": "session-5/reorganization",
+      "dateTime": "2026-05-12T11:20:00.000000-04:00",
+      "description": "Step 9 reorganization review: scanned project-guidance.md and lessons-learned.md for promotion candidates. No reorganization proposed for this set.",
+      "status": "complete",
+      "routedApiCalls": []
+    }
+  ]
+}
