@@ -1,3 +1,5 @@
+> **Note (2026-10-03):** this document predates the Dabbler AI Orchestration v3 rebuild. Where it mentions `route()`, `ai_router`, `session-state.json`, `ai-assignment.md`, tiers or session sets, read `AGENTS.md` and `docs/sessions/session-plan.md` instead; the engineering, testing, UAT and style rules still apply.
+
 # Lessons Learned
 
 > **Purpose:** Capture durable tactics, failure patterns, and workflow lessons

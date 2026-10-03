@@ -25,8 +25,8 @@ The repo currently includes:
 - Docker Compose for web, api, sql server, MailHog, and Playwright
 - xUnit, bUnit, and Playwright coverage including conformance tests, filter
   panel interaction tests, accessibility assertions, and browser workflows
-- repo-root AI workflow assets: `requirements.txt`, `ai_router/`,
-  `uat_runner/`, `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
+- repo-root Dabbler AI Orchestration declaration: `dabbler.yaml`,
+  `solution-dependencies.json`, `AGENTS.md` (managed body) and `CLAUDE.md`
 - durable cutover/guardrail docs
 
 **New external adopter?** Start with
@@ -43,9 +43,9 @@ plus Web + Api app services) so you can run the full stack with two
 canonical entry-point doc describing what the platform is, the
 libraries it ships, and how to adopt them.
 
-The single source of truth for the AI-led workflow is
-[`docs/ai-led-session-workflow.md`](docs/ai-led-session-workflow.md)
-(execution mechanics; it links onward to the spec-authoring guide).
+Work runs through the Dabbler AI Orchestration VS Code extension; the
+session plan is `docs/sessions/session-plan.md` and the managed instructions
+are in `AGENTS.md`. `docs/session-sets/` is the completed v1 history.
 Per-library READMEs live under [`src/Libs/`](src/Libs/); the W0
 toolchain ↔ catalog ↔ W2 runner compatibility matrix lives at
 [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md).
@@ -61,17 +61,10 @@ toolchain ↔ catalog ↔ W2 runner compatibility matrix lives at
 - `tools/Dabbler.Security.DevIdp.Tool/` — `dotnet tool` that runs the DevIdp OIDC provider locally (`dabbler-devidp`)
 - `tests/` — xUnit, bUnit, and Playwright coverage
 - `docker/` — compose and container definitions
-- `ai_router/` — operator-tuned `router-config.yaml` and the
-  append-only `router-metrics.jsonl` cost telemetry. The router
-  itself is `pip install dabbler-ai-router` (declared in
-  `requirements.txt`); the canonical source lives at
-  [darndestdabbler/dabbler-ai-orchestration](https://github.com/darndestdabbler/dabbler-ai-orchestration)
-  and the canonical extension's **Dabbler: Install ai-router**
-  command handles the install for new clones.
-- `uat_runner/` — platform-specific UAT runner package (CLI, triage,
-  remediations, test cases). Calls into the canonical router via
-  `import ai_router`.
-- `docs/` — workflow docs and session-set artifacts
+- `uat_runner/` — v1 Python UAT runner (checklist → generated Playwright
+  tests → triage); not runnable since the v1 router was retired, kept
+  pending a port-or-retire decision
+- `docs/` — planning docs, `sessions/` (current workflow) and `session-sets/` (v1 history)
 
 ## Local commands
 

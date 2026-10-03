@@ -34,3 +34,12 @@ docs/session-sets/*/session-state.lwbak.json
 # verification round after the tree it describes, so committing it
 # makes verified work look like it changed post-verification.
 .dabbler/
+
+# v3 Dabbler: machine-only overlay
+local-overrides.yaml
+# packed artifacts come from tools/pack.ps1 or `dabbler packaging`, never from git
+pack-output/
+tmp/
+.tmp/
+# DevIdp dev database at the repo root
+/devidp.db*

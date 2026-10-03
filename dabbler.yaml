@@ -3,84 +3,45 @@
 # Tracked, unlike local-overrides.yaml, because CI reads these facts and so
 # does the next machine to pick up a session. Precedence is the packaged
 # router-config.yaml, then this file, then local-overrides.yaml. Providers,
-# models, roles and transports are deliberately absent: those are
-# distribution facts, and a repository that restated them here would fork
-# the model registry in order to say how to run a test suite.
+# models, roles and transports are deliberately absent.
 schema_version: 1
 
-# Which tests answer for which path, and what proves the suite was green.
-# Nothing runs the selected tests before verification: the tests that run
-# are each step's own checks, and the complete suite is recorded once,
-# against the final verified tree. The Primary Reviewer reviews without
-# or running one. The selection is what the record NAMES as affected by a
-# change, and what `dabbler affected` prints.
-#
-# One suite per ecosystem whose root build file says how its tests run, so
-# a repository that is Java and .NET at once hands each runner its own
-# tests. Check the command before you rely on it: it is read from what this
-# repository already carries, and a repository can carry a runner it does
-# not actually use. One field is the scaffold's, not yours to keep:
-#
-#   covers      claims the whole repository, because setup cannot know this
-#               layout. The failure direction is fixed -- run a suite you
-#               did not need rather than skip one you did -- so narrow it as
-#               the layout settles.
-#
-# A source file's tests are the tests named after it, and two fields say
-# how that reads here:
-#
-#   test_name   the name a source file's tests take, `{name}` standing for
-#               its stem: CsvSerializer.cs is tested by CsvSerializerTests.cs.
-#   select      the command that runs a selection: `{names}` the selected
-#               test classes joined by `select_separator`, `{paths}` their
-#               files. A suite without it runs whole.
-#
-# Beside the suites, `controls` are the deterministic checks that run
-# before every verification round, one entry per kind -- compile,
-# typecheck, lint, analyzer -- each a `command` (argv for `node`, never a
-# shim like `npm`) whose exit code is the fact; `required: true` sends a red
-# result back to the author instead of buying a reviewer's opinion on it:
-#
-#   controls:
-#     - kind: typecheck
-#       command: node scripts/typecheck.mjs
-#       required: true
+# One suite: the unit, bUnit and in-process API/Web tests, through a solution
+# filter that leaves out the two projects that need infrastructure:
+#   - tests/AcmeCoffeeOnline.Playwright  needs the Docker stack (no skip guard)
+#   - tests/Dabbler.Packaging.Smoke       needs packed nupkgs and SQL LocalDB
+# Both stay manual gates; see AGENTS.md "Building and testing". Tests in
+# PublicSurface / Templates / CrudSlice that need nupkgs skip themselves when
+# pack-output/ is absent and DABBLER_PACK_OUTPUT is unset.
 testing:
   suites:
-    - name: dotnet
-      command: dotnet test
+    - name: unit
+      # -m:1 runs the test projects one at a time: Templates.Tests and
+      # CrudSlice.Tests both `dotnet new install` into the same template cache
+      # and fail intermittently when they overlap.
+      command: dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m
       expensive: true
       covers:
-        - "."
+        - "src"
+        - "templates"
+        - "tools"
+        - "tests"
       test_roots:
         - "tests"
       test_glob: "*Tests.cs"
       test_name: "{name}Tests.cs"
-      select: dotnet test --filter {names}
+      select: dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter {names}
       select_separator: "|"
 
-  # A source file with no test named after it is shown to the reviewer,
-  # and runs the smoke tests where the repository declares some -- a few
-  # broad tests that notice a structural break:
-  #
-  #   selection:
-  #     smoke:
-  #       - tests/Csv.Tests/SmokeTests.cs
-
-# Step (f) of the lifecycle: pack, then push to a feed. A session that
-# declared itself releasable publishes through these -- both argv, never
-# shell strings, and `push` naming the credential rather than holding it.
-# This repository declares none, and that is the declaration: it publishes
-# to no feed today. A feed that is a folder on disk -- a drive path, a UNC
-# path or file:// -- takes no credential: leave `secret` out, and the push
-# runs without one. `dabbler packaging --dry-run` rehearses the block and
-# exits 0 when it loads, in a session that may not publish too.
+# Step (f), packaging. Deliberately NOT declared yet: the managed instructions
+# say a packaging block is added only by the release session that publishes,
+# and a declared release that does not publish refuses to close. When that
+# session comes (bump DabblerVersion, publish Dabbler.CrudSlice.Tool), it adds:
 #
 #   packaging:
 #     pack:
-#       argv: ["dotnet", "pack", "-c", "Release", "-o", "{output}"]
-#     push:
-#       argv: ["dotnet", "nuget", "push", "{artifact}",
-#              "--source", "{feed}", "--api-key", "{secret}"]
-#       feed: https://pkgs.dev.azure.com/<org>/_packaging/<feed>/nuget/v3/index.json
-#       secret: DABBLER_FEED_PAT
+#       argv: ["pwsh", "-NoProfile", "-File", "tools/pack.ps1", "-OutputDir", "{output}", "-CleanOutput"]
+#
+# with no push block: nuget.org publishing stays with .github/workflows/build.yml
+# on an annotated `nuget-v<version>` tag via trusted publishing, so no
+# credential lives on a developer machine.
