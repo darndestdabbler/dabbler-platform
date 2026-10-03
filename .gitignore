@@ -29,3 +29,8 @@ src/Libs/Dabbler.Security.DevIdp/devidp.db-wal
 # short-window cruft. See ../dabbler-ai-orchestration/docs/v3-to-v4-rollback-procedure.md.
 docs/session-sets/*/session-state.v3.bak.json
 docs/session-sets/*/session-state.lwbak.json
+
+# Dabbler router machine-side state: the run ledger records each
+# verification round after the tree it describes, so committing it
+# makes verified work look like it changed post-verification.
+.dabbler/

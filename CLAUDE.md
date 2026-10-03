@@ -232,3 +232,17 @@ repo only. Each category is also runnable on its own
 `kill-conhost`). Source lives in the canonical
 `dabbler-ai-orchestration` repo at `ai_router/utils.py` Section 5;
 the same code is what gets pip-installed into `.venv`.
+
+<!-- dabbler:managed:start -->
+@AGENTS.md
+
+---
+
+## Engine tail (Claude Code)
+
+You are **Claude Code**. The managed body above arrived through the
+`@AGENTS.md` import, which Claude Code expands at load time — `AGENTS.md`
+is the one copy, so nothing here can drift from what the other engines
+read.
+
+<!-- dabbler:managed:end -->
