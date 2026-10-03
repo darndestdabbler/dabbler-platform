@@ -1,0 +1,66 @@
+[
+  {
+    "id": "R1-001",
+    "severity": "Major",
+    "category": "Session Sequencing",
+    "title": "Session 3 Mask Exemptions sub-tab depends on Session 4 Default Masks data",
+    "status": "fixed",
+    "fix": "Added Session 3 Step 9 that seeds at least one DefaultMaskRule (Customer.SocialSecurityNumber / XXX-XX-{last4}) in security-config.json so the cascading dropdown is populated with real source data before Session 4 ships the full Default Masks tab. Updated Session 3 Ends-with to scope the Mask Exemptions sub-tab to structural completeness against the seeded row; richer interaction coverage (add-many, filter-across-many) defers to Session 4. Added security-config.json to Session 3 Touches list. New progress key: session-3/seed-default-mask-rule."
+  },
+  {
+    "id": "R1-002",
+    "severity": "Minor",
+    "category": "Completeness",
+    "title": "Set A Follow-up says [Obsolete] deletion = Set C but spec reassigns to Set B without explicit flagging",
+    "status": "fixed",
+    "fix": "Expanded the \"What Set A explicitly deferred to Set B (or later)\" item 3 to explicitly flag the reassignment as a correction of the Set A change-log, state the rationale (consumers go away here, not in Set C), and offer the Step 9 reorganization review as the human's opportunity to weigh in."
+  },
+  {
+    "id": "R1-003",
+    "severity": "Minor",
+    "category": "Feasibility",
+    "title": "Session 2 Step 5 deletion scope overambitious; Ends-with does not echo the hedge",
+    "status": "fixed",
+    "fix": "Updated Session 2 Ends-with to explicitly state that [Obsolete] type deletions are best-effort, as many as cleanly cascade, with the session log enumerating what landed vs. what stayed."
+  },
+  {
+    "id": "R1-004",
+    "severity": "Minor",
+    "category": "Completeness",
+    "title": "BakedInPrivilegesPanel not in Session 3 bUnit test list",
+    "status": "fixed",
+    "fix": "Updated Session 3 Step 10 (previously Step 9) to explicitly include BakedInPrivilegesPanel.razor in the bUnit test list (read-only rendering + alias-override display)."
+  },
+  {
+    "id": "R1-005",
+    "severity": "Minor",
+    "category": "Risk",
+    "title": "Session 6 global EF query filter blast radius not in Risk Notes",
+    "status": "fixed",
+    "fix": "Added a Session 6 risk note detailing the blast radius: every integration test that touches a transactional DbSet, the need for a TestAuthSessionBuilder/IOrganizationContextAccessor double, and verification of baked-in role escape."
+  },
+  {
+    "id": "R1-006",
+    "severity": "Minor",
+    "category": "Completeness",
+    "title": "Playwright coverage is orphaned exit criterion with no session owning delivery",
+    "status": "fixed",
+    "fix": "Assigned Playwright coverage to specific sessions: Session 2 (five-tab smoke + role gating), Session 5 (restriction form/grid reference integration), Session 7 (role-assignment workflow), Session 8 (full dashboard sweep: arrow-key nav, safety-net flow, Role Documentation rendering). Progress keys added for each."
+  },
+  {
+    "id": "R1-007",
+    "severity": "Minor",
+    "category": "Completeness",
+    "title": "PermissionResolver.cs mentioned in file list but not assigned to any session",
+    "status": "fixed",
+    "fix": "Added Session 2 Step 7a explicitly assigning PermissionResolver.cs fate (delete if only-legacy consumers; retain + note surviving consumer otherwise). New progress key: session-2/delete-permission-resolver."
+  },
+  {
+    "id": "R1-008",
+    "severity": "Minor",
+    "category": "Efficiency",
+    "title": "8-session count (Session 1 spec-only) creates marginal overhead",
+    "status": "deferred",
+    "fix": "Accepted as design tradeoff. The human explicitly instructed Session 1 to flesh out the spec as its sole deliverable, giving the human a review checkpoint before code changes. The marginal one-session overhead is the cost of that checkpoint."
+  }
+]

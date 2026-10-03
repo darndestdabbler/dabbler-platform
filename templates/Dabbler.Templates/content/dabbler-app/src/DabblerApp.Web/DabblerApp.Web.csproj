@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Platform core -->
+    <PackageReference Include="Dabbler.Components" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Security" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Security.Blazor" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Reports.Core" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Reports.Export" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Reports.Blazor" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Testing.Blazor" Version="0.1.0-preview.1" />
+
+    <!-- UI -->
+    <PackageReference Include="MudBlazor" Version="8.15.0" />
+
+    <!-- Data -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,130 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Components
+@using Dabbler.Components.Data.Metadata
+@using MudBlazor
+@inject OrderApiClient OrderClient
+
+<MudDialog @bind-Visible="_visible" Options="_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_isEdit ? "Edit Note" : "Add Note")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudTextField T="string"
+                          @bind-Value="_noteText"
+                          Label="Note"
+                          Lines="4"
+                          Required="true"
+                          RequiredError="Note text is required"
+                          Variant="Variant.Outlined"
+                          Class="mb-3" />
+            <MudTextField T="string"
+                          @bind-Value="_author"
+                          Label="Author"
+                          Required="true"
+                          RequiredError="Author is required"
+                          Variant="Variant.Outlined" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="SaveAsync"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="_saving">
+            @(_isEdit ? "Update" : "Add")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter]
+    public int OrderId { get; set; }
+
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private MudForm? _form;
+    private bool _visible;
+    private bool _isEdit;
+    private bool _saving;
+    private int _editingNoteId;
+    private string _noteText = string.Empty;
+    private string _author = string.Empty;
+
+    private readonly DialogOptions _dialogOptions = new()
+    {
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+        CloseOnEscapeKey = true
+    };
+
+    public void ShowNew()
+    {
+        _isEdit = false;
+        _editingNoteId = 0;
+        _noteText = string.Empty;
+        _author = string.Empty;
+        _visible = true;
+        StateHasChanged();
+    }
+
+    public void ShowEdit(OrderNoteDto note)
+    {
+        _isEdit = true;
+        _editingNoteId = note.Id;
+        _noteText = note.NoteText;
+        _author = note.Author;
+        _visible = true;
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        _visible = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_form is not null)
+        {
+            await _form.Validate();
+            if (!_form.IsValid) return;
+        }
+
+        _saving = true;
+        try
+        {
+            if (_isEdit)
+            {
+                var dto = new OrderNoteDto
+                {
+                    Id = _editingNoteId,
+                    OrderId = OrderId,
+                    NoteText = _noteText,
+                    Author = _author
+                };
+                await OrderClient.UpdateNoteAsync(OrderId, _editingNoteId, dto);
+            }
+            else
+            {
+                var dto = new OrderNoteDto
+                {
+                    OrderId = OrderId,
+                    NoteText = _noteText,
+                    Author = _author,
+                    NoteDate = DateTime.UtcNow
+                };
+                await OrderClient.AddNoteAsync(OrderId, dto);
+            }
+
+            _visible = false;
+            await OnSaved.InvokeAsync();
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}
