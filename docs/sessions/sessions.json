@@ -113,9 +113,9 @@
     {
       "number": 6,
       "title": "Move Expressions into Dabbler.Reports.Core",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-07T11:54:21.549000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-07T12:11:01.333000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
