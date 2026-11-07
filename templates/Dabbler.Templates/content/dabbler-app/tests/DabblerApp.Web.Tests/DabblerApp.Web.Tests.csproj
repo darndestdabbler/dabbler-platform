@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DabblerApp.Web\DabblerApp.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Platform stubs: bUnit opt-in (§4.4 ledger). One package holds the
+         Components, Reports and Security stub providers. -->
+    <PackageReference Include="Dabbler.Platform.Stubs" Version="0.1.0-preview.1" />
+
+    <!-- bUnit and test framework -->
+    <PackageReference Include="bunit" Version="1.37.7" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="MudBlazor" Version="8.15.0" />
+  </ItemGroup>
+
+</Project>

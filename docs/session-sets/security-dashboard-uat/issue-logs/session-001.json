@@ -1,0 +1,30 @@
+[
+  {
+    "id": "round1-major-1",
+    "severity": "Major",
+    "summary": "User Assignments Tab 'Seeded users appear with their roles' expectation used vague labels ('dual internal/retail membership', 'regional rep').",
+    "status": "fixed",
+    "resolution": "Rewrote Expectation with explicit per-user role-to-organization mapping from SeedData.cs: admin=SystemAdmin; jdoe/asmith/mwilson=BackofficeUser; kbrown/tjones=BackofficeUserAdmin; sloane.reyes=BackofficeUser+BackofficeUserAdmin across 3 retail orgs; casey.hart=BackofficeUser internal + Customer retail; @example.com=Customer. Expanded HumanAction to list all seeded emails."
+  },
+  {
+    "id": "round1-minor-1",
+    "severity": "Minor",
+    "summary": "'BackofficeUserAdmin cannot reach the dashboard' HumanAction did not name a seeded BackofficeUserAdmin email.",
+    "status": "fixed",
+    "resolution": "Specified kbrown@acmecoffee.com as the sign-in email (seeded BackofficeUserAdmin) and noted tjones@acmecoffee.com as an alternate."
+  },
+  {
+    "id": "round1-minor-2",
+    "severity": "Minor",
+    "summary": "'Shell and Access' and 'Tab Strip' FunctionalAreas lacked IsOtherItem open-feedback rows; every other area had one.",
+    "status": "fixed",
+    "resolution": "Added an IsOtherItem=true open-feedback row to each of 'Shell and Access' and 'Tab Strip'. All 10 FunctionalAreas now have one."
+  },
+  {
+    "id": "round1-minor-3",
+    "severity": "Minor",
+    "summary": "'All 21 registered endpoints are shown' Expectation listed a partial endpoint set while asserting all 21 are present.",
+    "status": "fixed",
+    "resolution": "Enumerated the full 21 endpoint keys matching security-config.json: GetProducts, GetProductById, CreateProduct, UpdateProduct, ToggleProductAvailability, GetCustomers, GetCustomerById, CreateCustomer, UpdateCustomer, SearchCustomers, GetOrders, GetOrderById, GetOrdersByCustomer, CreateOrder, UpdateOrderStatus, AddOrderItem, RemoveOrderItem, GetOrderNotes, CreateOrderNote, UpdateOrderNote, DeleteOrderNote."
+  }
+]

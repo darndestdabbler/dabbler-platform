@@ -1,0 +1,4 @@
+{"timestamp": "2026-06-20T22:28:28.225712Z", "session_number": 1, "event_type": "work_started"}
+{"timestamp": "2026-06-20T22:45:12.966669Z", "session_number": 1, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "VERIFIED"}
+{"timestamp": "2026-06-20T22:54:25.802888Z", "session_number": 2, "event_type": "work_started"}
+{"timestamp": "2026-06-20T23:40:54.468174Z", "session_number": 2, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "VERIFIED"}

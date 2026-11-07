@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+
+    <!-- Template package identity (ledger §3.1 package #13) -->
+    <PackageId>Dabbler.Templates</PackageId>
+    <PackageType>Template</PackageType>
+    <Description>Dotnet new templates for the Dabbler platform: dabbler-app (full Blazor Server app with security + reports) and dabbler-min (minimal security-only app). Both reference published Dabbler NuGet packages and are designed as the canonical external-adopter starting point.</Description>
+    <PackageTags>dotnet-template;blazor;server;security;dabbler</PackageTags>
+
+    <!--
+      Exclude template content files from compilation and default item
+      discovery — they are template source, not project source.
+      NoDefaultExcludes is set to true so that .template.config
+      directories (starting with a dot) are picked up by the Content
+      item below. The explicit Compile exclusion covers the .cs files.
+    -->
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);content\**\*</DefaultItemExcludes>
+
+    <!-- Content items land in the /content folder inside the nupkg -->
+    <ContentTargetFolders>content</ContentTargetFolders>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include template sources, but never package generated bin/obj artifacts. -->
+    <Content Include="content\**\*"
+             Exclude="content\**\bin\**;content\**\obj\**"
+             PackagePath="content" />
+    <!-- Ensure .cs files in content are not compiled -->
+    <Compile Remove="content\**\*" />
+    <EmbeddedResource Remove="content\**\*" />
+    <None Remove="content\**\*" />
+  </ItemGroup>
+
+</Project>

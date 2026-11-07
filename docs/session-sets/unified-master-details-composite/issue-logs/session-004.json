@@ -1,0 +1,23 @@
+[
+  {
+    "severity": "Major",
+    "description": "ProductLinePickerDialog.HandleUsePickedAsync only called NotifyRowSelected and returned null without populating the target/link buffers. The flow worked only if the row-use icon click bubbled into MudDataGrid.RowClick (brittle DOM-bubble dependence). When it didn't, the dialog showed an empty target card and a default link payload, and Save-and-Use built an OrderItem with ProductId=0.",
+    "location": "ProductLinePickerDialog.razor — HandleUsePickedAsync",
+    "status": "fixed",
+    "fix": "HandleUsePickedAsync now awaits HandleRowSelectedAsync(row) before calling NotifyRowSelected, so target/link buffers are hydrated explicitly regardless of DOM event ordering."
+  },
+  {
+    "severity": "Major",
+    "description": "OrderDetail's Review-line (Scenario 4b-toggle) button passed the clicked OrderItemDto in via title only — ProductLinePickerDialog had no parameter for the existing line. The dialog opened with empty _target and default _link (Quantity=1, Discount=0), so 'review' never surfaced the actual line. Comment in code claimed otherwise, masking the bug.",
+    "location": "ProductLinePickerDialog.razor — missing ExistingLine parameter; OrderDetail.razor — OpenProductLineInspectorAsync passed no payload.",
+    "status": "fixed",
+    "fix": "Added ExistingLine parameter to ProductLinePickerDialog; OnInitializedAsync populates _target (from ExistingLine fields) + _link (from the full payload) before LoadAsync. OrderDetail.OpenProductLineInspectorAsync now passes the clicked OrderItemDto into the parameter."
+  },
+  {
+    "severity": "Minor",
+    "description": "MasterDetailExpansionShell's ShowGrid=false branch rendered the link card but skipped the edit-toggle button when TargetEditability=ReadOnlyWithToggle. ShowGrid=true rendered the toggle (either inside the target card header or as a standalone button); ShowGrid=false didn't. /admin/order-item-tuner uses Editable so the gap isn't observable in the current demos, but the asymmetry blocked ReadOnlyWithToggle in Add-Only layouts.",
+    "location": "MasterDetailExpansionShell.razor — ShowGrid=false branch",
+    "status": "fixed",
+    "fix": "Added the toggle-button rendering to ShowGrid=false's details body when TargetEditability=ReadOnlyWithToggle (mirrors the ShowGrid=true non-target-card branch). The button surfaces above DetailsContent with the same EditRecordLabel / LockRecordLabel state."
+  }
+]

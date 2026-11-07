@@ -1,0 +1,119 @@
+{
+  "sessionSetName": "transactional-system-columns",
+  "createdDate": "2026-05-15T02:57:44.416666-04:00",
+  "totalSessions": 1,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-05-15T02:59:24.832071-04:00",
+      "description": "Read project-guidance.md, ai-led-session-workflow.md; confirmed API keys and ai_router import; verified AcmeCoffeeDbContext uses EnsureCreated (not EF migrations) and consulted human, who chose to keep the EnsureCreated + raw-SQL-DDL pattern.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-05-15T02:59:24.832071-04:00",
+      "description": "Routed analysis to author ai-assignment.md (Gemini Pro recommendation; actual orchestrator is Claude Opus 4.7).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2985,
+          "outputTokens": 519,
+          "costUsd": 0.0089
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/temporal-config",
+      "dateTime": "2026-05-15T03:14:48.102581-04:00",
+      "description": "Added .IsTemporal() with named period (SysStart/SysEnd) and history tables (ProductHistory, CustomerHistory, OrderHistory, OrderItemHistory, OrderNoteHistory) to all five entity configurations.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/schema-upgrade-ddl",
+      "dateTime": "2026-05-15T03:14:48.102581-04:00",
+      "description": "Extended EnsureAcmeCoffeeSchemaAsync with EnableSystemVersioningAsync \u2014 idempotent ALTER TABLE DDL that adds HIDDEN period columns and turns on SYSTEM_VERSIONING for the 5 tables, guarded by temporal_type<>2 check.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/integration-tests",
+      "dateTime": "2026-05-15T03:14:48.103558-04:00",
+      "description": "Authored TemporalTablesTests.cs covering: system-versioning verdict, history-table presence, Product update creates history row (probe pattern), Product delete preserves row in history, Customer TemporalAsOf returns prior-time value, Order TemporalAll returns historical versions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/build-test",
+      "dateTime": "2026-05-15T03:14:48.103558-04:00",
+      "description": "dotnet build clean. dotnet test full solution (non-Playwright): 864 pass, 5 pre-existing TemplateSeedSmokeTests failures unrelated to this session (confirmed via git stash baseline). All 38 Api.Tests pass including the 6 new temporal tests.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-05-15T03:17:16.606209-04:00",
+      "description": "Cross-provider session verification via route(task_type='session-verification'). GPT-5.4 (OpenAI) verified Anthropic Opus orchestrator work. Verdict: VERIFIED, no issues. Saved to session-reviews/session-001.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.1014
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/change-log-commit-notify",
+      "dateTime": "2026-05-15T03:21:25.769249-04:00",
+      "description": "Wrote disposition.json, change-log.md (routed summarization, gemini-flash, $0.0003), updated ai-assignment.md actuals, routed next-set recommendation (gemini-pro, $0.0049). Committed (a47043a) and pushed to migrate/dabbler-ai-router-pip.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0003
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0049
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/reorganization",
+      "dateTime": "2026-05-15T03:23:58.825046-04:00",
+      "description": "Step 9 reorganization review: NO move candidates for project-guidance.md or lessons-learned.md (no Lesson\u2192Convention promotions with \u22652-context evidence, no demotions, no relocations identified). Separately, per rule #14, added a new lesson to lessons-learned.md about test-time Customer rows racing the security-seed backfill under xUnit parallelism.",
+      "status": "complete",
+      "routedApiCalls": []
+    }
+  ]
+}

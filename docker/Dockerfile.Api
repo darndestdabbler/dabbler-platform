@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY Directory.Build.props Directory.Packages.props Dabbler.Platform.sln ./
+COPY src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj         src/Apps/AcmeCoffeeOnline.Api/
+COPY src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj   src/Apps/AcmeCoffeeOnline.Shared/
+COPY src/Libs/Dabbler.Security/Dabbler.Security.csproj                 src/Libs/Dabbler.Security/
+
+RUN dotnet restore src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj
+
+COPY . .
+RUN dotnet publish src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj -c Release -o /app/publish --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "AcmeCoffeeOnline.Api.dll"]

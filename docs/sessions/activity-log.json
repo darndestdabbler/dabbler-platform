@@ -1,0 +1,55 @@
+{
+  "createdDate": "2026-10-03T07:26:50.341000-04:00",
+  "totalSessions": 0,
+  "entries": [
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 1,
+      "dateTime": "2026-10-03T07:26:50.416000-04:00",
+      "task": "Author docs/planning/solution-plan.md for dabbler-platform, importing the plan material this repository already holds (docs/planning/brief.md as the operator's substance, docs/platform-overview.md, docs/planning/phase-3-platform-roadmap.md and docs/planning/project-status.md) into one plan a reader can act on. The file states the objective; the Production split the brief already answers (a generated application is a Blazor Server web tier calling a Web API tier, and only the API tier reaches SQL Server -- the platform's own reference app, AcmeCoffeeOnline, is built that way); the Handoff artifacts each separately running part is delivered as, with the standard command for its form (NuGet packages via tools/pack.ps1 for the libraries, templates and dotnet tools; dotnet publish IIS site packages for the Web and Api tiers of the reference app; dotnet ef migrations script --idempotent for the database); the modules -- the Dabbler.* libraries under src/Libs, the Dabbler.Templates package, the two dotnet tools under tools/ and the AcmeCoffeeOnline reference app under src/Apps -- with what each is responsible for, the contract it exposes (preconditions, guarantees, failure mode), the dependency direction, the reason for each cut and the cuts left deferred, and how each is a .csproj listed in Dabbler.Platform.sln reaching its siblings by <ProjectReference>; and the phases or feature areas with their key deliverables, each scoped to a handful of focused AI sessions and ordered so publishing Dabbler.CrudSlice.Tool unblocks the Access-migration consumer first. The six open decisions the brief lists (uat_runner, the Playwright and Packaging.Smoke manual gates, the CrudSlice.Tool release, the stale planning docs, the legacy branches and the dabbler-uat-dsl feed) are carried into the plan as deferred cuts with their options and the operator's leaning, for Session 2 to challenge and decide.",
+      "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 2,
+      "dateTime": "2026-11-07T09:29:50.773000-05:00",
+      "task": "Challenge docs/planning/solution-plan.md and turn it into numbered sessions. Step one adds a Session 2 rationale section to the plan. It covers each module: whether it should exist, whether its contract is a promise a test can prove, and whether its dependency direction hides the decisions most likely to change. It also records what the tree shows that the plan got wrong. Reports.Core takes DabblerPdf directly, so the stated reason for the Reports.Export cut is false. Dabbler.Security carries the EF Core SqlServer provider into every web tier. Stubs.Reports uses Dabbler.Components.Data.Metadata. The pack allowlist has 16 IDs, not 17. Router 3.29.0 still hard-wires release tags to vsix-v, and a pack-only release would push a tag build.yml ignores. The section then decides each of the thirteen deferred cuts or says why it stays deferred. Step two appends Sessions 3 to 14 to docs/sessions/session-plan.md. Session 3 is the skeleton, adapted to the existing solution: it adds AcmeCoffeeOnline.Shared to Dabbler.Platform.sln and adds the production-split architecture test under the unit suite that is already declared. Then come the packaging-only session and the 0.1.0-preview.2 version bump that unblocks Dabbler.CrudSlice.Tool. Next are the Expressions move, surface reduction (ordered before MudBlazor 9 so the deleted Compat package is never migrated), the two MudBlazor 9 sessions, the maintainer guide with the gate rule and support policy, the 0.2.0 bump, retirement of what does not run, pruning of the v1 guidance, and the 1.0.0 bump. Each version is proposed as patch, minor or major for the operator to approve. Because of cut 12, each release is a version-bump session followed by the operator's hand tag on nuget-v<version>, not a release-headed session.",
+      "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 3,
+      "dateTime": "2026-11-07T10:08:32.609000-05:00",
+      "task": "Complete the existing solution skeleton and prove the production split. List the already-existing src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj in Dabbler.Platform.sln at the solution root (alongside AcmeCoffeeOnline.Web and AcmeCoffeeOnline.Api, which are not nested in a solution folder), adopting every other project, reference and the existing unit suite as they are. Then add tests/AcmeCoffeeOnline.Web.Tests/ProductionSplitTests.cs, an xUnit architecture test in the existing AcmeCoffeeOnline.Web.Tests project (so it runs in the unit suite), asserting that no type in the AcmeCoffeeOnline.Web assembly derives from Microsoft.EntityFrameworkCore.DbContext and that AcmeCoffeeOnline.Web.csproj names no Microsoft.EntityFrameworkCore* package reference.",
+      "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 4,
+      "dateTime": "2026-11-07T10:22:19.293000-05:00",
+      "task": "Declare packaging in dabbler.yaml: replace the commented-out packaging intent at the end of the file with a live `packaging:` block whose `pack.argv` is [\"pwsh\", \"-NoProfile\", \"-File\", \"tools/pack.ps1\", \"-Version\", \"{version}\", \"-OutputDir\", \"{output}\", \"-CleanOutput\"], with no `push` and no `release:` member because CI publishes to nuget.org from the operator's annotated `nuget-v*` tag through trusted publishing. The step is proven by `dabbler packaging --rehearse --version 0.1.0-preview.2`.",
+      "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 5,
+      "dateTime": "2026-11-07T10:51:12.244000-05:00",
+      "task": "Bump the single repository version to 0.1.0-preview.2 ahead of the operator-tagged release: set DabblerVersion in Directory.Build.props to 0.1.0-preview.2, change the -Version parameter default (and its help text) in tools/pack.ps1 to match, and create the root CHANGELOG.md with a 0.1.0-preview.2 entry stating that it changes no API and that Dabbler.CrudSlice.Tool is published for the first time.",
+      "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 6,
+      "dateTime": "2026-11-07T11:59:50.988000-05:00",
+      "task": "Move the report expression engine out of Dabbler.Components into Dabbler.Reports.Core, its only consumer. The nine files in src/Libs/Dabbler.Components/Expressions/ move (git mv) to src/Libs/Dabbler.Reports.Core/Expressions/ with their namespace changed from Dabbler.Components.Expressions to Dabbler.Reports.Core.Expressions and no other change; BandLayoutEngine.cs and LayoutEvaluationContext.cs, the only callers (no test references the namespace), have their usings fixed. Dabbler.Reports.Core.csproj then drops both Dabbler.Components references (the development ProjectReference and the pack-time PackageReference) and the now-unneeded InternalsVisibleTo Dabbler.Components.Tests (that test project references no Reports project). The dependency statements are updated: the Reports.Core README no longer lists Dabbler.Components as a prerequisite or related package and says the expression engine is its own, docs/platform-overview.md stops attributing the expression engine to Dabbler.Components, and the stale ExpressionEngine row is removed from the Dabbler.Components README surface table.",
+      "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 7,
+      "dateTime": "2026-11-07T12:40:57.503000-05:00",
+      "task": "Reduce the published surface from sixteen package IDs to twelve. Delete Dabbler.Components.Compat together with its tests (DabblerShellTests, CompatibilitySurfaceTests) and every reference to it: Dabbler.Components.Tests, Dabbler.PublicSurface.Tests, Dabbler.Platform.sln, Dabbler.Publish.slnf. The reference web app references Compat too: its /platform/stub demo page renders DabblerShell. That page is rebuilt from plain MudBlazor (the title, the stub customer grid and the stub sales report in MudTabs), and PlatformStubDetail.razor, which only DabblerShell used, is deleted. WebGuardrailTests keeps covering the route unchanged. Then fold the source of Dabbler.Platform.Stubs.Components, .Reports and .Security into src/Libs/Dabbler.Platform.Stubs. The files keep the Dabbler.Platform.Stubs namespace they already have, so registration calls compile unchanged. The merged project references Dabbler.Components, Dabbler.Reports.Core and the Microsoft.AspNetCore.App framework. The three projects are deleted, and the solution, the publish filter, the test project that referenced them and the template comment are updated. Finally, bring pack.ps1's allowlist and project list, the PublicSurface and Packaging.Smoke expectations, the release-checklist publish order, docs/platform-overview.md and every other live document that names a retired ID to the twelve IDs.",
+      "releasable": false
+    }
+  ]
+}
