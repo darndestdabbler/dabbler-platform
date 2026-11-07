@@ -91,9 +91,9 @@
     {
       "number": 5,
       "title": "Bump to 0.1.0-preview.2",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-07T10:49:53.698000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-07T10:56:16.214000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
