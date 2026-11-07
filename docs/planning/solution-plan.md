@@ -538,3 +538,194 @@ here.
 One release per phase that changes a published package, patch-level while the
 platform is at `0.1.0-preview.*`. Phase 1 proposes `0.1.0-preview.2`; Session 2
 proposes the rest with the numbered sessions, for the operator to approve.
+
+---
+
+## Rationale — Session 2 challenge (2026-11-07)
+
+Session 2 read this plan against the tree. Where this section disagrees with
+the text above, this section is the decision; the numbered sessions in
+`docs/sessions/session-plan.md` (Sessions 3–14) carry it out.
+
+### What the tree says that the plan did not
+
+- **`Dabbler.Reports.Core` already depends on DabblerPdf.** It references the
+  `DabblerPdf` package directly, and `OpenPdfTextMeasurer.cs` uses its font
+  metrics for CanGrow/CanShrink. So the reason given above for cutting
+  `Dabbler.Reports.Export` — sparing on-screen consumers the PDF
+  dependency — is false today.
+- **`Dabbler.Security` brings EF Core and its SqlServer provider into every
+  web tier.** The package references `Microsoft.EntityFrameworkCore`,
+  `.SqlServer` and `.Design` for its EF store. A web tier that references
+  `Dabbler.Security` (through `Dabbler.Security.Blazor`) loads the provider
+  even though it never uses it. So the production split does not hold at the
+  assembly level. It holds only at the level of the web tier's own project
+  and code.
+- **`Dabbler.Platform.Stubs.Reports` needs `Dabbler.Components` for more than
+  Expressions.** Three of its files use `Dabbler.Components.Data.Metadata`.
+  That settles the open question in cut 8: Stubs.Reports keeps the
+  reference.
+- **The pack allowlist has 16 package IDs, not 17.** Retiring
+  `Dabbler.Components.Compat` and the three `Dabbler.Platform.Stubs.*`
+  providers leaves **12**.
+- **`docs/session-sets/` holds 47 directories.** That is neither the 45 in
+  `AGENTS.md` nor the "fifty-plus" in cut 13.
+- **`ComponentCatalogCrawler` belongs to the UAT pipeline, not to
+  maintainers in general.** Its README says it produces the runtime component
+  catalog that `Dabbler.Uat.Dsl`'s `SemanticValidator` consumes.
+- **Router 3.29.0 still cannot make a `nuget-v*` tag.** `tagsFor` returns
+  `vsix-v<version>`. A pack-only declaration with no `push` releases by
+  pushing `v<version>` (from `version.json`, which this repository does not
+  keep) or `session-<N>`. `.github/workflows/build.yml` refuses any tag that
+  is not `nuget-v<semver>`. So a release-headed session here would push a
+  tag CI ignores.
+- **Two contracts are only partly proven.** `Dabbler.Api.Querying` has no
+  test project. One file in `AcmeCoffeeOnline.Api.Tests` exercises it.
+  `Dabbler.Reports.Core` and `Dabbler.Reports.Export` are proven only through
+  `Dabbler.Reports.Blazor.Tests` (layout tests and the PDF export
+  regressions). No test is named after the expression engine.
+- **The template and CrudSlice contracts are not proven by the run of record
+  on a clean checkout.** The `Dabbler.Templates.Tests` and
+  `Dabbler.CrudSlice.Tests` cases that instantiate templates skip when
+  `pack-output/` is absent. They are proven where the packages exist: in CI's
+  packaging job, or locally after `pwsh tools/pack.ps1 -OutputDir pack-output
+  -CleanOutput`.
+
+### Each module, challenged
+
+| Module | Keep? | Contract provable — and proven by | Does the dependency direction hide a likely change? |
+|---|---|---|---|
+| `Dabbler.Components` | Keep | Yes: registration throws on a missing service. `Dabbler.Components.Tests` (bUnit). | **Yes, MudBlazor.** It is the root of every UI package, and it carried the report engine with it. Cut 8 removes that edge, and cut 9 keeps the MudBlazor pin current. |
+| `Dabbler.Components.Compat` | **Retire** (cut 10) | — | It exists only for a retired surface that no consumer references. |
+| `Dabbler.Api.Querying` | Keep | Yes: unknown operators are rejected and queries never evaluate client-side. Today only `AcmeCoffeeOnline.Api.Tests` proves it, in one file. | No. It is a leaf. **Decision:** no session of its own; the first session that changes a file in it adds that file's tests to a new `tests/Dabbler.Api.Querying.Tests`. |
+| `Dabbler.Security` | Keep | Yes: it fails closed when configuration is unreadable. `Dabbler.Security.Tests`. | **Yes.** The EF store's SqlServer provider rides into the web tier (see above). **Decision:** do not split out a `Dabbler.Security.EfCore` now, because it would add a package against cut 10's direction. Session 3's architecture test proves the split where the rule is defined. *Reopens when* a consumer's web tier wants the EF store, or a security review objects to the provider being loaded in the web process. |
+| `Dabbler.Reports.Core` | Keep | Yes: it names the offending definition node. Today only `Dabbler.Reports.Blazor.Tests` proves it. | **Yes, both MudBlazor and DabblerPdf.** Cut 8 removes MudBlazor. DabblerPdf stays, because text measurement needs real font metrics. |
+| `Dabbler.Reports.Export` | Keep, **for a corrected reason** | Yes: the PDF writer's errors surface. The PDF tests in `Dabbler.Reports.Blazor.Tests`. | The real reason for the cut: it holds the PDF writer (`PdfExporter`, `PdfPageRenderer`, `PdfStyleResolver`), a different job from layout. Folding it into Core would be breaking churn that no consumer has asked for. Moving `OpenPdfTextMeasurer` out of Core, which would make the old reason true, stays deferred. *Reopens when* a consumer needs Core without DabblerPdf. |
+| `Dabbler.Reports.Blazor` | Keep | `Dabbler.Reports.Blazor.Tests` | MudBlazor (cut 9). |
+| `Dabbler.Security.Blazor` | Keep | `Dabbler.Security.Blazor.Tests` | MudBlazor. It has the most exposure to 9.x (cut 9). |
+| `Dabbler.Testing.Blazor` | Keep | `Dabbler.Testing.Blazor.Tests` | No. It references only `Microsoft.AspNetCore.Components.Web`. |
+| `Dabbler.Platform.Stubs` + 3 providers | Keep one; **fold the providers in** (cut 10) | Yes: it is never the default. `Dabbler.Components.Tests` and `Dabbler.PublicSurface.Tests`. | One-package-per-subsystem guarded a cost nobody pays: Stubs are a test- and demo-time dependency, and the only Stubs ID any consumer references is the umbrella. |
+| `Dabbler.Security.DevIdp` | Keep, inside the tool | Its contract is not stated. It is a development identity provider and is never in production. | No. Not worth a test project until something changes it. |
+| `Dabbler.Templates` | Keep | Yes: a generated solution builds. `Dabbler.Templates.Tests`, **only with `pack-output/` present**. | Yes, the templates carry MudBlazor (cut 9, Session 9). |
+| `Dabbler.CrudSlice.Tool` (+ SchemaApplicator) | Keep | Yes: it refuses to overwrite. `Dabbler.CrudSlice.Tests` and `Dabbler.SchemaApplicator.Tests`. | Its scaffolding templates carry MudBlazor (Session 9). |
+| `Dabbler.Security.DevIdp.Tool` | Keep | — | No. |
+| `ComponentCatalogCrawler` | Keep for now | `ComponentCatalogCrawler.Tests` | Its consumer is `dabbler-uat-dsl`, so its fate goes with cut 6. *Reopens* with cut 6. |
+| `AcmeCoffeeOnline.*` | Keep | The E2E run (manual, cut 2), `AcmeCoffeeOnline.Web.Tests` and `AcmeCoffeeOnline.Api.Tests` | No. Session 3 lists `Shared` in the solution file and adds the split's architecture test. |
+
+### The production-split architecture test — kept, in the skeleton
+
+Session 3 adds it to `AcmeCoffeeOnline.Web.Tests`, inside the existing `unit`
+suite. The test asserts two things. No type in the `AcmeCoffeeOnline.Web`
+assembly derives from `DbContext`. And `AcmeCoffeeOnline.Web.csproj` names no
+`Microsoft.EntityFrameworkCore*` package. It does **not** assert anything
+about transitive assemblies: `Dabbler.Security` makes that assertion false by
+design (see above).
+
+### Deferred cuts, decided
+
+- **Cut 1 — `uat_runner/`.** **Decided: retire it from this repository in
+  Session 12**, and keep the six generated Playwright files as ordinary
+  tests. Retirement does not wait on `dabbler-uat-dsl`: a port belongs to that
+  repository and can start from git history.
+- **Cut 2 — Playwright and Packaging.Smoke.** **Decided: neither joins
+  `dabbler.yaml`.** An environment-gated skip would let the run of record pass
+  on tests that never ran, which is evidence of nothing. `Dabbler.Packaging.Smoke`
+  is already CI's gate: `build.yml` runs it on every `nuget-v*` tag before
+  publishing. The Playwright E2E run is a **manual gate**. It runs against the
+  compose stack rebuilt from the tree, in every session that changes the
+  reference app's UI or the MudBlazor pin, and before each release tag.
+  Session 10 writes the rule into `docs/MAINTAINING.md` and the project
+  section of `AGENTS.md`, where a session author meets it.
+- **Cut 3 — Publish `Dabbler.CrudSlice.Tool`.** **Decided: yes, as
+  `0.1.0-preview.2`.** Session 5 bumps the version, and then the operator hand
+  tags (cut 12). The skeleton (Session 3) and the packaging declaration
+  (Session 4) come first. Both are small, and the framework requires the
+  skeleton to be the first numbered session.
+- **Cut 4 — Stale docs.** **Decided:** Session 12 moves these to
+  `docs/planning/_archived/`:
+  - `access-to-blazor-cli-spec.md` and `project-status.md`;
+  - the two v1 summaries at the root, `CRUD_SCAFFOLDING_FINAL_SUMMARY.md` and
+    `FEEDBACK_REMEDIATION_SUMMARY.md` (2026-05-17).
+
+  Session 13 prunes the v1 sections of `project-guidance.md` and
+  `lessons-learned.md` (together about 200 KB, which is why that work gets a
+  session of its own) and drops the banner that `AGENTS.md`'s required reading
+  carries.
+- **Cut 5 — Safety-net branches.** **Decided: delete both**,
+  `pre-role-rearchitecture` and `archive/pre-role-cleanup-master`, locally and
+  on `origin`. **This is the operator's action, not a session's**: deleting a
+  ref changes no file, so no session diff can carry or prove it.
+- **Cut 6 — The `dabbler-uat-dsl` feed.** **Stays deferred.** The fix needs
+  `Dabbler.Uat.Dsl.*` on nuget.org, and `dabbler-uat-dsl` has no remote
+  today. *Reopens when* that repository publishes. One session is then
+  inserted here: the Playwright project restores the published version, the
+  local source leaves `tests/AcmeCoffeeOnline.Playwright/nuget.config`,
+  `solution-dependencies.json` follows, and `dabbler deps check` comes back
+  clean. `1.0.0` does not wait for it, because the Playwright project is not a
+  package.
+- **Cut 7 — `AcmeCoffeeOnline.Shared` in the solution.** **Decided: add it in
+  Session 3** (the skeleton).
+- **Cut 8 — Expressions.** **Decided: move the nine files** into
+  `Dabbler.Reports.Core` as `Dabbler.Reports.Core.Expressions`, with no new
+  package (Session 6). `Reports.Core` drops both its `Dabbler.Components`
+  references, the project reference and the pack-time package reference.
+  `Stubs.Reports` keeps its own reference (see above).
+- **Cut 9 — MudBlazor 9.** **Decided: yes.**
+  - Session 8: the libraries.
+  - Session 9: the reference app, the `dotnet new` templates and the CrudSlice
+    scaffolding templates.
+  - Session 10: the policy ("adopt a new MudBlazor major within one quarter of
+    its release") and `.github/dependabot.yml`.
+
+  These run **after** surface reduction (Session 7), so Compat is deleted
+  rather than migrated first.
+- **Cut 10 — Surface reduction.** **Decided: 16 → 12 IDs in Session 7.**
+  Delete `Dabbler.Components.Compat` and fold the three Stubs providers into
+  `Dabbler.Platform.Stubs`. After `0.2.0` is on nuget.org, the operator
+  unlists (never deletes) the four retired IDs.
+- **Cut 11 — Versioning.** **Decided, for the operator to approve:**
+  - `0.1.0-preview.2`: a pre-release patch. It changes no API and only adds
+    `Dabbler.CrudSlice.Tool` (Session 5).
+  - `0.2.0`: a minor release, which is where breaking changes go under 0.x. It
+    carries the Expressions namespace, the MudBlazor 9 floor with
+    `IGridDataProvider`'s `CancellationToken`, and the four retired IDs
+    (Session 11).
+  - `1.0.0`: a major release. It states that the surface, the gates and the
+    maintainer guide are what the operator stands behind (Session 14).
+
+  There are no further previews.
+- **Cut 12 — The `nuget-v*` tag.** **Decided: every release in this plan is a
+  version-bump session followed by the operator's hand tag**: `git tag -a
+  nuget-v<version> -m "Release <version>"` and `git push origin
+  nuget-v<version>`, after the bump session has pushed. Releases are not
+  release-headed sessions, for the reason verified above. Never widen
+  `build.yml`. *Reopens when* the framework can name a `nuget-v{version}` tag
+  and read the version from `DabblerVersion` in `Directory.Build.props`. A plan
+  session then turns Sessions 11 and 14 into release sessions, and rewrites
+  Session 4's block into the form the framework takes.
+- **Cut 13 — Legacy `docs/session-sets/`.** **Decided: leave the 47
+  directories in place.** Session 12 adds a one-paragraph
+  `docs/session-sets/README.md` saying they are read-only history, and
+  corrects the count in `AGENTS.md`.
+
+### Why there is a packaging session when releases are hand tagged
+
+Where *Handoff artifacts* are named, the framework asks for one packaging
+session. A pack-only block (`tools/pack.ps1 -Version {version} -OutputDir
+{output} -CleanOutput`, no `push`) also lets `dabbler packaging --rehearse
+--version <v>` prove the hermetic pack of record through the framework before
+each hand tag. Session 4 does that and nothing else.
+
+### Release order
+
+The releases are Sessions 5, 11 and 14: `0.1.0-preview.2` → `0.2.0` → `1.0.0`.
+
+- Sessions 3–4 come before 5.
+- Session 6 comes before 8.
+- Session 7 comes before 8 and 9.
+- Sessions 6–10 come before 11.
+- Sessions 12–13 come before 14.
+
+Phase 3 is absorbed into other sessions: the gate rule goes to Session 10, the
+architecture test to Session 3, and the feed stays deferred (cut 6). Phase 6
+stays unplanned, by design.
