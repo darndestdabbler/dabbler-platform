@@ -1,0 +1,55 @@
+# Always-running dev dependencies.
+# Start once and leave up:  docker compose -f docker-compose.infra.yml up -d
+# Stop (rarely needed):      docker compose -f docker-compose.infra.yml down
+#
+# This creates an external network (dabbler-dev) that docker-compose.app.yml
+# attaches to, so the api/web containers can resolve `sqlserver` and `mailhog`
+# by hostname.
+
+name: dabbler-infra
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: dabbler-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "DabblerPlatform_2026!"
+    ports:
+      - "14333:1433"
+    volumes:
+      # Persist databases across restarts so you don't re-seed every morning.
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          /opt/mssql-tools18/bin/sqlcmd
+          -S localhost -U sa -P 'DabblerPlatform_2026!'
+          -Q 'SELECT 1' -C -l 5
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    networks:
+      - dabbler-dev
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: dabbler-mailhog
+    restart: unless-stopped
+    ports:
+      - "18025:8025"   # Web UI:  http://localhost:18025
+      - "11025:1025"   # SMTP from the host (apps inside the network use mailhog:1025)
+    networks:
+      - dabbler-dev
+
+networks:
+  dabbler-dev:
+    name: dabbler-dev
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+    name: dabbler-sqlserver-data

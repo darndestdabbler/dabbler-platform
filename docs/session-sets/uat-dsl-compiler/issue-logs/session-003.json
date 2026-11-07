@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "category": "Correctness",
+    "severity": "Minor",
+    "title": "Dead code: unused labelIndex in BuildIndex",
+    "status": "fixed",
+    "fixSummary": "Removed labelIndex Dictionary and its loop body in JsonCatalogAdapter.BuildIndex; the dictionary was populated but never returned in CatalogIndex and exactly duplicated byRouteRole."
+  },
+  {
+    "id": 2,
+    "category": "Correctness",
+    "severity": "Minor",
+    "title": "SemanticValidator couples to concrete JsonCatalogAdapter.AnyRole",
+    "status": "fixed",
+    "fixSummary": "Introduced public static class CatalogRoles with const string AnyRole = \"*\" in ICatalogAdapter.cs. JsonCatalogAdapter and SemanticValidator now reference CatalogRoles.AnyRole; the constant no longer lives on a concrete adapter."
+  }
+]

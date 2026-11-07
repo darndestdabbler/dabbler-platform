@@ -1,0 +1,117 @@
+@page "/customers/batch-entry"
+@attribute [DabblerPageAuthorize("/customers")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using MudBlazor
+@inject CustomerApiClient CustomerClient
+@inject ISnackbar Snackbar
+
+<PageTitle>Batch Customer Entry — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudText Typo="Typo.h4" Class="mb-2" data-testid="batch-entry-title">
+        Batch Customer Entry
+    </MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+        Fill in the form and click Save to record each customer. The form clears after
+        each save so you can add the next entry immediately.
+    </MudText>
+
+    <MasterDetailExpansionShell TRow="CustomerDto" TEntity="CustomerDto" TLink="object"
+        TestId="batch-entry-shell"
+        ShowGrid="false"
+        ShowAddAction="false"
+        OnSaveRequested="HandleSaveAsync"
+        OnCancelRequested="HandleCancel">
+
+        <SessionSummaryContent>
+            <MudText data-testid="batch-entry-session-count">
+                Records added this session: <strong>@context</strong>
+            </MudText>
+        </SessionSummaryContent>
+
+        <DetailsContent>
+            <MudForm @ref="_form" Model="_newCustomer">
+                <MudGrid>
+                    <MudItem xs="12" md="4">
+                        <MudTextField T="string"
+                                      @bind-Value="_newCustomer.FirstName"
+                                      Label="First Name"
+                                      Required="true"
+                                      RequiredError="First name is required"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      data-testid="batch-first-name" />
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudTextField T="string"
+                                      @bind-Value="_newCustomer.LastName"
+                                      Label="Last Name"
+                                      Required="true"
+                                      RequiredError="Last name is required"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      data-testid="batch-last-name" />
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudTextField T="string"
+                                      @bind-Value="_newCustomer.Email"
+                                      Label="Email"
+                                      Required="true"
+                                      RequiredError="Email is required"
+                                      InputType="InputType.Email"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      data-testid="batch-email" />
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudTextField T="string"
+                                      @bind-Value="_newCustomer.Phone"
+                                      Label="Phone"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      data-testid="batch-phone" />
+                    </MudItem>
+                    <MudItem xs="12" md="8">
+                        <MudTextField T="string"
+                                      @bind-Value="_newCustomer.City"
+                                      Label="City"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      data-testid="batch-city" />
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        </DetailsContent>
+
+    </MasterDetailExpansionShell>
+</MudContainer>
+
+@code {
+    private MudForm? _form;
+    private CustomerDto _newCustomer = NewCustomer();
+
+    private static CustomerDto NewCustomer() => new() { IsActive = true };
+
+    private async Task HandleSaveAsync(SaveRequest<CustomerDto, object> request)
+    {
+        if (_form is not null)
+        {
+            await _form.ValidateAsync();
+            if (!_form.IsValid)
+                throw new OperationCanceledException("Form validation failed.");
+        }
+
+        await CustomerClient.CreateAsync(_newCustomer);
+        _newCustomer = NewCustomer();
+        if (_form is not null) await _form.ResetAsync();
+        Snackbar.Add("Customer added.", Severity.Success);
+    }
+
+    private async Task HandleCancel()
+    {
+        _newCustomer = NewCustomer();
+        if (_form is not null) await _form.ResetAsync();
+    }
+}

@@ -1,0 +1,35 @@
+THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+============================================
+
+This package (Dabbler.Reports.Core) carries the following third-party
+software dependency:
+
+--------------------------------------------------------------------------------
+
+DabblerPdf (transitive dependency via Dabbler.Reports.Core)
+
+  License: LGPL-2.1-only OR MPL-2.0
+
+  DabblerPdf is a C# port of OpenPDF (https://github.com/LibrePDF/OpenPDF),
+  which is itself derived from iText. It is licensed under either the
+  GNU Lesser General Public License version 2.1 (LGPL-2.1) or the
+  Mozilla Public License version 2.0 (MPL-2.0), at your option.
+
+  Copies of both licenses are available at:
+    https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+    https://www.mozilla.org/en-US/MPL/2.0/
+
+  If you distribute software that links against DabblerPdf under the LGPL-2.1,
+  you must allow end-users to replace the DabblerPdf library with a modified
+  version. Static linking is permitted provided re-linking is possible.
+  If you choose MPL-2.0, the file-level copyleft requirements of that license
+  apply to the DabblerPdf source files themselves.
+
+  The Dabbler Platform project (MIT) is a separate work and is not a
+  "covered work" under either license solely by virtue of calling DabblerPdf's
+  public API at runtime.
+
+--------------------------------------------------------------------------------
+
+No other third-party components with license obligations are included in
+this package.

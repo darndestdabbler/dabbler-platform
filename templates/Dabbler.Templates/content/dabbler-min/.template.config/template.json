@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Dabbler Platform contributors",
+  "classifications": [ "Web", "Blazor", "Server", "Security" ],
+  "identity": "Dabbler.Templates.Min.CSharp",
+  "name": "Dabbler App (minimal)",
+  "shortName": "dabbler-min",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "DabblerApp",
+  "preferNameDirectory": true,
+  "description": "Single-project Blazor Server starter with Dabbler Security (magic-link auth, cookie auth, role-based authorization). No reports, no sample CRUD page, no test project. For a multi-project (Web + API + Shared + Tests) solution, use dabbler-app.",
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "Target framework",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "net10.0", "description": ".NET 10.0 (LTS)" }
+      ],
+      "defaultValue": "net10.0",
+      "replaces": "net10.0"
+    }
+  }
+}

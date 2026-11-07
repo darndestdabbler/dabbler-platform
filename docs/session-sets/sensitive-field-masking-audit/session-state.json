@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "sensitive-field-masking-audit",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Field mask rendering service, Customer.SSN field, placement decision locked in",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "`AppSensitiveAccessLog` schema + RoleSwitch and exemption-lifecycle audit",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "FieldUnmaskedRead interception with per-render `CorrelationId` batching",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Compliance Review viewer (6th dashboard tab) + CSV export",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "UAT checklist + 1:1 Playwright coverage + change log + Step 9 reorg",
+      "status": "complete",
+      "startedAt": "2026-04-27T13:15:06.094255-04:00",
+      "completedAt": "2026-04-27T14:38:28.211099-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": null,
+        "model": "claude-sonnet-4-6",
+        "effort": "medium"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

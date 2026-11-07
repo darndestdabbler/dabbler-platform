@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "severity": "Major",
+    "title": "Dual-source disabled semantics on MudLink (Disabled + aria-disabled)",
+    "source": "verifier-round-1",
+    "status": "deferred",
+    "notes": "Verifier self-downgraded this to 'may be acceptable' after noting tests pass. The UserAttributes aria-disabled is what the bUnit tests assert against; MudLink.Disabled provides visual styling. Working correctly; fragility only surfaces on a MudBlazor major upgrade."
+  },
+  {
+    "id": 2,
+    "severity": "Major",
+    "title": "_roleLinkAttributes aria-label coverage concern",
+    "source": "verifier-round-1",
+    "status": "deferred",
+    "notes": "Verifier explicitly downgraded: 'no real issue here on re-analysis'. Session 3 accessibility spec is already covered by current aria-label implementation."
+  },
+  {
+    "id": 3,
+    "severity": "Minor",
+    "title": "FormatRoleName does not split acronym-to-word transitions",
+    "source": "verifier-round-1",
+    "status": "deferred",
+    "notes": "Acceptable for current role set (SystemAdmin, BackofficeUserAdmin, BackofficeUser, Customer). No acronym-prefixed role names exist."
+  },
+  {
+    "id": 4,
+    "severity": "Minor",
+    "title": "Role menu shows current active role as a clickable option",
+    "source": "verifier-round-1",
+    "status": "deferred",
+    "notes": "Matches DabblerRoleSwitcher pattern; user can click their active role for a no-op. '-- My roles --' item handles clearing a switch. Not a behavior defect."
+  },
+  {
+    "id": 5,
+    "severity": "Minor",
+    "title": "Sign-out test used markup string search; no test for confirm-navigation flow",
+    "source": "verifier-round-1",
+    "status": "fixed",
+    "notes": "Replaced Assert.Contains('signout-confirmation-dialog', cut.Markup) with cut.Find(\"[data-testid='signout-confirmation-dialog']\"). Added ConfirmingSignOut_NavigatesToLogoutWithForceLoad and CancelingSignOut_DoesNotNavigate tests."
+  },
+  {
+    "id": 6,
+    "severity": "Minor",
+    "title": "Test service registration ordering fragility",
+    "source": "verifier-round-1",
+    "status": "deferred",
+    "notes": "Each test gets a fresh TestContext; Services registration ordering is correct and safe. No actual defect."
+  },
+  {
+    "id": 7,
+    "severity": "Minor",
+    "title": "Dispose lacks null-check for subscription state",
+    "source": "verifier-round-1",
+    "status": "fixed",
+    "notes": "Added _subscribed flag set in OnInitializedAsync after Notifier.Subscribe. Dispose only unsubscribes when _subscribed is true."
+  }
+]
