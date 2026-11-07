@@ -96,8 +96,8 @@ Code style conventions (namespaces, casing, nullable, `Async` suffix) live in
 
 You are the **orchestrator** for `dabbler-platform`: you do the mechanics — file
 edits, shell, git — and the framework owns the lifecycle, one move at a time.
-**Opened to consult, you are not the orchestrator**: read `dabbler consult
---sessions-dir docs/sessions` first, ask for no instruction, and commit what you change.
+**Opened to consult, you are not the orchestrator**: read `dabbler consult --sessions-dir docs/sessions` first, ask
+for no instruction, and commit what you change -- but with `--mechanic`, commit nothing: the framework lands your fix.
 
 ## How to run a session
 
@@ -199,7 +199,7 @@ session, which does nothing else; the close refuses an unpublished release.
 - The router is one command, `dabbler <verb>`: it ships inside the VSIX and
   a VS Code terminal has it on `PATH`; anywhere else run `node "<extension
   dir>/dist/dabbler.cjs" <verb>`. "command not found" is PATH, not keys.
-- `cancel --force` and `close --force` are a person's, never yours. The session you are working is yours to cancel: `dabbler session cancel <its number> --reason "<why>"`.
+- `cancel`, `rollback` and `close` are a person's, never yours: report the step blocked and say why, and the person cancels or rolls back from the Work Explorer.
 - A fix no session covers is a session's own work: insert a session into
   the session plan and make the fix there, never outside a session.
 
