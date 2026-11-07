@@ -28,7 +28,7 @@
     <PackageVersion Include="Dabbler.Uat.Dsl.Emitters.Playwright.CSharp" Version="1.1.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="DabblerPdf" Version="1.1.2" />
-    <PackageVersion Include="MudBlazor" Version="8.15.0" />
+    <PackageVersion Include="MudBlazor" Version="9.12.0" />
     <PackageVersion Include="OpenIddict.AspNetCore" Version="7.4.0" />
     <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="7.4.0" />
     <PackageVersion Include="Otp.NET" Version="1.4.0" />

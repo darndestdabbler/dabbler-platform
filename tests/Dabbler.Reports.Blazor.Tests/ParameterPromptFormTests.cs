@@ -52,7 +52,7 @@ public class ParameterPromptFormTests
         cut.Instance.GetCurrentValues().Should().Contain(new KeyValuePair<string, object?>("Customer", "ada"));
         cut.Markup.Should().Contain("aria-required=\"true\"");
 
-        await cut.InvokeAsync(() => cut.FindComponent<MudForm>().Instance.Validate());
+        await cut.InvokeAsync(() => cut.FindComponent<MudForm>().Instance.ValidateAsync());
         cut.WaitForAssertion(() =>
             cut.FindAll("button").Single(button => button.TextContent.Contains("Run Report", StringComparison.Ordinal))
                 .HasAttribute("disabled").Should().BeFalse());
@@ -95,7 +95,7 @@ public class ParameterPromptFormTests
             ])
             .Add(x => x.OnRunReport, values => submittedValues = values));
 
-        await cut.InvokeAsync(() => cut.FindComponent<MudForm>().Instance.Validate());
+        await cut.InvokeAsync(() => cut.FindComponent<MudForm>().Instance.ValidateAsync());
 
         cut.WaitForAssertion(() =>
         {

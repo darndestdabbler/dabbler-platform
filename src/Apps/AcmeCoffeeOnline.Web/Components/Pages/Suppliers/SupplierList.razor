@@ -86,7 +86,7 @@
             // DABBLER-SCAFFOLD:FILTER-PROPERTIES:END
         });
 
-    private async Task<GridData<SupplierDto>> ServerDataFuncAsync(GridState<SupplierDto> state)
+    private async Task<GridData<SupplierDto>> ServerDataFuncAsync(GridState<SupplierDto> state, CancellationToken cancellationToken)
     {
         _isLoading = true;
         _error = null;
@@ -104,7 +104,7 @@
                     .ToList(),
             };
 
-            var response = await DataProvider.FetchAsync(request);
+            var response = await DataProvider.FetchAsync(request, cancellationToken);
 
             _currentTotal = response.TotalCount;
             _statusText = $"{_currentTotal:N0} records";
@@ -114,6 +114,10 @@
                 Items = response.Items,
                 TotalItems = response.TotalCount,
             };
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

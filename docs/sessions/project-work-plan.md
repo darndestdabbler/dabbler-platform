@@ -19,7 +19,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 5 | Bump to 0.1.0-preview.2 | no | 2026-11-07 |
 | 6 | Move Expressions into Dabbler.Reports.Core | no | 2026-11-07 |
 | 7 | Surface reduction — 16 package IDs to 12 | no | 2026-11-07 |
-| 8 | MudBlazor 9 — libraries and the reference app compile | — | not declared |
+| 8 | MudBlazor 9 — libraries and the reference app compile | no | 2026-11-07 |
 | 9 | MudBlazor 9 — templates, scaffolding and the E2E gate | — | not declared |
 | 10 | Maintainer guide, gate rule and support policy | — | not declared |
 | 11 | Bump to 0.2.0 | — | not declared |
@@ -68,3 +68,13 @@ Move the report expression engine out of Dabbler.Components into Dabbler.Reports
 **Releasable: no.**
 
 Reduce the published surface from sixteen package IDs to twelve. Delete Dabbler.Components.Compat together with its tests (DabblerShellTests, CompatibilitySurfaceTests) and every reference to it: Dabbler.Components.Tests, Dabbler.PublicSurface.Tests, Dabbler.Platform.sln, Dabbler.Publish.slnf. The reference web app references Compat too: its /platform/stub demo page renders DabblerShell. That page is rebuilt from plain MudBlazor (the title, the stub customer grid and the stub sales report in MudTabs), and PlatformStubDetail.razor, which only DabblerShell used, is deleted. WebGuardrailTests keeps covering the route unchanged. Then fold the source of Dabbler.Platform.Stubs.Components, .Reports and .Security into src/Libs/Dabbler.Platform.Stubs. The files keep the Dabbler.Platform.Stubs namespace they already have, so registration calls compile unchanged. The merged project references Dabbler.Components, Dabbler.Reports.Core and the Microsoft.AspNetCore.App framework. The three projects are deleted, and the solution, the publish filter, the test project that referenced them and the template comment are updated. Finally, bring pack.ps1's allowlist and project list, the PublicSurface and Packaging.Smoke expectations, the release-checklist publish order, docs/platform-overview.md and every other live document that names a retired ID to the twelve IDs.
+
+### Session 8 — MudBlazor 9 — libraries and the reference app compile
+
+**Releasable: no.**
+
+Move the central MudBlazor pin in Directory.Packages.props from 8.15.0 to 9.12.0 and fix every project in Dabbler.Unit.slnf so that it compiles and its tests pass. A probe build of this tree under 9.12.0 found the following breaks. GridDataProviderExtensions.ToServerDataFunc must return MudDataGrid's new ServerData delegate, Func<GridState<T>, CancellationToken, Task<GridData<T>>>, and pass the token to IGridDataProvider.FetchAsync. That interface already declares the token, so it and its implementers stay as they are; the public API change is the adapter's delegate type, and it gets a new GridDataProviderExtensionsTests. IDialogService.ShowMessageBox becomes ShowMessageBoxAsync, in DirtyAwareActionRow and in the reference app. MudForm.Validate() becomes ValidateAsync(), in ParameterPromptForm and its tests, in the Security.Blazor dialogs and forms, and in the reference app. MudTabs PanelClass becomes TabPanelsClass. The hand-written ServerData callbacks, in ComplianceReviewTab and in the reference app's four list pages, take the CancellationToken and pass it through. In the probe, FilterPanel, DeclarativeFilterPanel, the Security.Blazor ShowAsync dialog calls, OrganizationDetailsForm's reset, and ParameterPromptForm's SelectedValues (passed as a component parameter, never assigned) compiled and passed their tests under 9.12.0 with no source change. They are proven by the builds and tests in each step's checks, and nothing is changed in them for its own sake.
+
+**Amended after acceptance:**
+
+- 2026-11-07 — step 'components-reports': its files: The MudBlazor pin is central and the named-test run builds all of Dabbler.Unit.slnf, so this step must also carry the compile-only fixes the 9.12.0 bump forces downstream: the ServerData callback signatures (ComplianceReviewTab and four list pages) and ShowMessageBox->ShowMessageBoxAsync in two reference-app pages. Steps security-blazor and reference-app keep the ValidateAsync/TabPanelsClass renames and the token pass-through. (claude-code (anthropic, claude-opus-5-5))

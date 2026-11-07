@@ -166,7 +166,7 @@ else
     {
         if (_record is null) return;
 
-        var confirmed = await DialogService.ShowMessageBox(
+        var confirmed = await DialogService.ShowMessageBoxAsync(
             "Delete Supplier",
             $"Delete Supplier #{_record.Id}? This cannot be undone.",
             yesText: "Delete",
@@ -193,7 +193,7 @@ else
     {
         if (_form is not null)
         {
-            await _form.Validate();
+            await _form.ValidateAsync();
             if (!_form.IsValid) return;
         }
 

@@ -22,11 +22,11 @@ public static class GridDataProviderExtensions
     /// <returns>
     /// A function matching MudDataGrid's <c>ServerData</c> delegate signature.
     /// </returns>
-    public static Func<GridState<T>, Task<GridData<T>>> ToServerDataFunc<T>(
+    public static Func<GridState<T>, CancellationToken, Task<GridData<T>>> ToServerDataFunc<T>(
         this IGridDataProvider<T> provider,
         Func<CompositeFilterDescriptor?>? compositeFilter = null)
     {
-        return async (gridState) =>
+        return async (gridState, cancellationToken) =>
         {
             var request = new GridDataRequest
             {
@@ -38,7 +38,7 @@ public static class GridDataProviderExtensions
                     .ToList(),
             };
 
-            var response = await provider.FetchAsync(request);
+            var response = await provider.FetchAsync(request, cancellationToken);
 
             return new GridData<T>
             {

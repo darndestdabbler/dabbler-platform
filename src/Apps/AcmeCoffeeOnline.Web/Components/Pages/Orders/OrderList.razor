@@ -146,7 +146,7 @@
         return new Dictionary<string, object?> { ["CustomerName"] = InitialSearchTerm.Trim() };
     }
 
-    private async Task<GridData<OrderDto>> ServerDataFuncAsync(GridState<OrderDto> state)
+    private async Task<GridData<OrderDto>> ServerDataFuncAsync(GridState<OrderDto> state, CancellationToken cancellationToken)
     {
         _isLoading = true;
         _error = null;
@@ -164,7 +164,7 @@
                     .ToList(),
             };
 
-            var response = await DataProvider.FetchAsync(request);
+            var response = await DataProvider.FetchAsync(request, cancellationToken);
 
             _currentTotal = response.TotalCount;
             if (_currentFilter is null || !HasActiveFilters(_currentFilter))
@@ -178,6 +178,10 @@
                 Items = response.Items,
                 TotalItems = response.TotalCount,
             };
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

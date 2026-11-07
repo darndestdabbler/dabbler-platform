@@ -57,7 +57,7 @@ public partial class ParameterPromptForm : ComponentBase
             // MudForm treats untouched required fields as valid until something
             // triggers validation. Force an initial pass so the Run Report button
             // starts disabled whenever required parameters are empty.
-            await _form.Validate();
+            await _form.ValidateAsync();
         }
     }
 
@@ -345,7 +345,7 @@ public partial class ParameterPromptForm : ComponentBase
     private async Task OnRunReportClicked()
     {
         if (_form is not null)
-            await _form.Validate();
+            await _form.ValidateAsync();
 
         if (!_isFormValid) return;
 

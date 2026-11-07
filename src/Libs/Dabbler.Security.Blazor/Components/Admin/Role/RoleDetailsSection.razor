@@ -17,7 +17,7 @@
 
     @if (Selection.IsBakedIn && Selection.BakedInRole is { } bakedInRole)
     {
-        <MudTabs Elevation="0" Rounded="false" PanelClass="pa-3" Position="Position.Top"
+        <MudTabs Elevation="0" Rounded="false" TabPanelsClass="pa-3" Position="Position.Top"
                  @bind-ActivePanelIndex="_activeBakedInTabIndex">
             <MudTabPanel Text="Mask Exemptions">
                 <MaskExemptionsSubTab TargetRoleName="@bakedInRole.Name"
@@ -31,7 +31,7 @@
     }
     else if (Selection.UserTypeRole is { } userTypeRole)
     {
-        <MudTabs Elevation="0" Rounded="false" PanelClass="pa-3" Position="Position.Top"
+        <MudTabs Elevation="0" Rounded="false" TabPanelsClass="pa-3" Position="Position.Top"
                  @bind-ActivePanelIndex="_activeUserTypeTabIndex">
             <MudTabPanel Text="Data Column Restrictions">
                 <ColumnRestrictionsSubTab Role="userTypeRole"

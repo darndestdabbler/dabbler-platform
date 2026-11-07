@@ -241,13 +241,13 @@
         },
     ];
 
-    private async Task<GridData<AppSensitiveAccessLog>> ServerDataFuncAsync(GridState<AppSensitiveAccessLog> state)
+    private async Task<GridData<AppSensitiveAccessLog>> ServerDataFuncAsync(GridState<AppSensitiveAccessLog> state, CancellationToken cancellationToken)
     {
         _isLoading = true;
         StateHasChanged();
         try
         {
-            await using var db = await DbFactory.CreateDbContextAsync();
+            await using var db = await DbFactory.CreateDbContextAsync(cancellationToken);
             IQueryable<AppSensitiveAccessLog> q = db.AppSensitiveAccessLogs.AsNoTracking();
             q = ApplyFilter(q, _filter);
 
@@ -266,11 +266,11 @@
                 if (ordered is not null) q = ordered;
             }
 
-            _totalCount = await q.CountAsync();
+            _totalCount = await q.CountAsync(cancellationToken);
             _currentPage = await q
                 .Skip(state.Page * state.PageSize)
                 .Take(state.PageSize)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             _statusText = $"{_currentPage.Count} of {_totalCount} events";
             return new GridData<AppSensitiveAccessLog>

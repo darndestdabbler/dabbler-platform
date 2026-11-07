@@ -210,7 +210,7 @@
 
     private async Task RemoveProductAsync(ProductDto product)
     {
-        var confirmed = await DialogService.ShowMessageBox(
+        var confirmed = await DialogService.ShowMessageBoxAsync(
             "Remove Product",
             $"Are you sure you want to remove \"{product.Name}\" from the catalog? This will mark it as unavailable.",
             yesText: "Remove", cancelText: "Cancel");
@@ -253,7 +253,7 @@
     private async Task SaveProductAsync()
     {
         if (_form is not null)
-            await _form.Validate();
+            await _form.ValidateAsync();
 
         if (!_formValid)
             return;

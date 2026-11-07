@@ -188,7 +188,7 @@
     {
         if (IsDirty)
         {
-            var confirmed = await DialogService.ShowMessageBox(
+            var confirmed = await DialogService.ShowMessageBoxAsync(
                 CancelDialogTitle,
                 CancelDialogMessage,
                 yesText: CancelDialogConfirmLabel,
@@ -208,7 +208,7 @@
 
     private async Task HandleDeleteAsync()
     {
-        var confirmed = await DialogService.ShowMessageBox(
+        var confirmed = await DialogService.ShowMessageBoxAsync(
             DeleteDialogTitle,
             DeleteDialogMessage,
             yesText: DeleteDialogConfirmLabel,

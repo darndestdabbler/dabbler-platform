@@ -45,7 +45,7 @@
     private async Task ConfirmAsync()
     {
         if (_form is null) return;
-        await _form.Validate();
+        await _form.ValidateAsync();
         if (!_form.IsValid) return;
         Dialog.Close(DialogResult.Ok(_model));
     }
