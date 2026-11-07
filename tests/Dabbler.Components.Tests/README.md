@@ -14,7 +14,6 @@ simplification sessions should add direct coverage for:
   `DabblerMultiComboBox<T>`
 - `DabblerDetailForm<T>`
 - `DabblerRecordPopup<T>`
-- `DabblerShell`
 - `DabblerDashboardPage` core behavior
 
 Session 4 adds direct shell/dashboard contract coverage so catalog plumbing and

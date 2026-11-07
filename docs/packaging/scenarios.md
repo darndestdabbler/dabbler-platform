@@ -1,7 +1,7 @@
 # Dabbler Platform — Adoption Scenarios
 
 > **Companion doc:** [`packaging-readiness-ledger.md`](../session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md)
-> §3 (packable surface) and §4 (Stubs sub-package split).
+> §3 (packable surface) and §4 (Stubs opt-in contract).
 > **Purpose:** Translate the library matrix into common adoption shapes
 > so a prospective consumer can answer "what should I install?" in under
 > two minutes.
@@ -29,7 +29,7 @@ sets.
 | Security only (Blazor app, no business CRUD) | Admin / governance dashboards | `Dabbler.Security` + `Dabbler.Security.Blazor` + `Dabbler.Components` (transitive) | Pulls in Components for the form/grid primitives the dashboard uses. |
 | Testing utility only | Teams using the Playwright watermark on a non-Dabbler Blazor Server app | `Dabbler.Testing.Blazor` | No Dabbler.* dependencies — drops in cleanly. |
 | Retrofit existing Blazor Server app | Teams incrementally adopting Dabbler.* into a brownfield app | See [`retrofit-existing-app.md`](./retrofit-existing-app.md) | Step-by-step recipe with registration order. |
-| bUnit-only test wiring | Teams adopting only Dabbler.Components and writing bUnit tests against it | `Dabbler.Platform.Stubs.Components` (Session 7 sub-package; uses the meta-package today) | Avoids the transitive DabblerPdf dependency the umbrella Stubs package currently carries. |
+| bUnit-only test wiring | Teams adopting only Dabbler.Components and writing bUnit tests against it | `Dabbler.Platform.Stubs` | Carries DabblerPdf transitively through `Dabbler.Reports.Core`. |
 
 ## 1. Just CRUD helpers
 
@@ -268,18 +268,15 @@ recipe.
 ## 8. bUnit-only test wiring
 
 A team adopts only `Dabbler.Components` (e.g., scenario #1) and writes
-bUnit tests against it. They want the stub providers without pulling
-in the Reports stack (and therefore DabblerPdf).
+bUnit tests against it, using the stub providers.
 
-**Install (post-Session 7):**
+**Install:**
 
 ```xml
-<PackageReference Include="Dabbler.Platform.Stubs.Components" />
+<PackageReference Include="Dabbler.Platform.Stubs" />
 ```
 
-Until the Session 7 sub-package split lands, the only option is the
-single `Dabbler.Platform.Stubs` package, which transitively pulls
-`Dabbler.Reports.Core` and `DabblerPdf`. See
+The package transitively pulls `Dabbler.Reports.Core` and `DabblerPdf`. See
 [ledger §4](../session-sets/packaging-and-template-readiness/packaging-readiness-ledger.md#4-stubs-opt-in-contract-frozen).
 
 **Register (bUnit test setup):**
@@ -320,8 +317,7 @@ shortcut?", the metapackages ship. Otherwise they don't.
   expect this; the package's NuGet metadata calls it out, and a
   `THIRD-PARTY-NOTICES.txt` file ships in the package (Session 7
   deliverable per A7).
-- `Dabbler.Components`, `Dabbler.Security`, `Dabbler.Security.Blazor`,
-  `Dabbler.Platform.Stubs.Components`, `Dabbler.Platform.Stubs.Security`,
+- `Dabbler.Components`, `Dabbler.Security`, `Dabbler.Security.Blazor`
   and `Dabbler.Testing.Blazor` carry **no copyleft transitive
   dependencies** — scenarios that exclude Reports avoid the
   LGPL/MPL license question entirely.

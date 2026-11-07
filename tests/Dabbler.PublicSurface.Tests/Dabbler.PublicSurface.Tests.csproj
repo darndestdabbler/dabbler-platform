@@ -19,7 +19,6 @@
   <ItemGroup>
     <!-- References all packable library projects so nupkg assertions can locate produced artifacts. -->
     <ProjectReference Include="..\..\src\Libs\Dabbler.Components\Dabbler.Components.csproj" />
-    <ProjectReference Include="..\..\src\Libs\Dabbler.Components.Compat\Dabbler.Components.Compat.csproj" />
     <ProjectReference Include="..\..\src\Libs\Dabbler.Reports.Core\Dabbler.Reports.Core.csproj" />
     <ProjectReference Include="..\..\src\Libs\Dabbler.Reports.Export\Dabbler.Reports.Export.csproj" />
     <ProjectReference Include="..\..\src\Libs\Dabbler.Reports.Blazor\Dabbler.Reports.Blazor.csproj" />
@@ -27,9 +26,6 @@
     <ProjectReference Include="..\..\src\Libs\Dabbler.Security.Blazor\Dabbler.Security.Blazor.csproj" />
     <ProjectReference Include="..\..\src\Libs\Dabbler.Testing.Blazor\Dabbler.Testing.Blazor.csproj" />
     <ProjectReference Include="..\..\src\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj" />
-    <ProjectReference Include="..\..\src\Libs\Dabbler.Platform.Stubs.Components\Dabbler.Platform.Stubs.Components.csproj" />
-    <ProjectReference Include="..\..\src\Libs\Dabbler.Platform.Stubs.Reports\Dabbler.Platform.Stubs.Reports.csproj" />
-    <ProjectReference Include="..\..\src\Libs\Dabbler.Platform.Stubs.Security\Dabbler.Platform.Stubs.Security.csproj" />
   </ItemGroup>
 
 </Project>

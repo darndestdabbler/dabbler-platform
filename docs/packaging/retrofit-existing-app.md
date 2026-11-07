@@ -250,21 +250,19 @@ the test side).
 - Playwright tests replace ad-hoc `await page.WaitForTimeoutAsync(1000)`
   with `await Assertions.Expect(page.Locator("html")).ToHaveAttributeAsync("data-actions-in-flight", "[]")`.
 
-## Step 5 — Add stub sub-packages for bUnit tests
+## Step 5 — Add the stub providers for bUnit tests
 
 For bUnit tests of components that depend on Dabbler.Components'
-data-provider abstractions, the focused stub providers eliminate the
+data-provider abstractions, the stub providers eliminate the
 need for hand-rolled in-memory test doubles.
 
-**Install (post-Session 7):**
+**Install:**
 
 ```xml
-<PackageReference Include="Dabbler.Platform.Stubs.Components" />
+<PackageReference Include="Dabbler.Platform.Stubs" />
 ```
 
-Until the Session 7 sub-package split lands, the only option is the
-single `Dabbler.Platform.Stubs` package (with the transitive Reports
-stack).
+The package carries the Reports stack (and DabblerPdf) transitively.
 
 **Register (test setup):**
 

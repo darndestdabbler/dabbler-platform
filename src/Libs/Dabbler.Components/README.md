@@ -115,12 +115,7 @@ The library's surface, organized by role:
   consumes the expression engine for report parameter prompts.
 - [`Dabbler.Platform.Stubs`](../Dabbler.Platform.Stubs/README.md) —
   provides in-memory `StubGridDataProvider<T>` and friends for bUnit
-  tests and demo hosts. Will split into focused sub-packages in
-  Session 7.
-- [`Dabbler.Components.Compat`](../Dabbler.Components.Compat/README.md) —
-  pre-MudBlazor-native compatibility surfaces (shell, navigation,
-  workspace, menu, catalog page) carved out into a deprecated overlay
-  package. See ledger §3.4 for the sunset schedule (0.4.0).
+  tests and demo hosts.
 
 ## Warnings and caveats
 

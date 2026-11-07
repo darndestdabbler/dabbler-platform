@@ -318,4 +318,4 @@ Magic links expire after 15 minutes (configurable via `options.MagicLinkExpiry`)
 The sample data is in-memory and re-seeded on every app restart. If you clear the database or the app crashed before seeding, restart the app.
 
 **bUnit tests fail with DI errors**  
-Make sure `DabblerApp.Tests.csproj` references both `Dabbler.Platform.Stubs` (meta-package) and `Dabbler.Platform.Stubs.Components` (for `AddStubGridDataProvider`). Check the generated csproj.
+Make sure `DabblerApp.Tests.csproj` references `Dabbler.Platform.Stubs`, which provides `AddStubGridDataProvider` and the other stub providers. Check the generated csproj.

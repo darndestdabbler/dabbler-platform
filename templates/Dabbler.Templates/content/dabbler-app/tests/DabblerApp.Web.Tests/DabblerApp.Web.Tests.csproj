@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Stubs meta-package: bUnit opt-in (§4.4 ledger). The meta-package transitively
-         includes Dabbler.Platform.Stubs.Components, .Reports, and .Security. -->
+    <!-- Platform stubs: bUnit opt-in (§4.4 ledger). One package holds the
+         Components, Reports and Security stub providers. -->
     <PackageReference Include="Dabbler.Platform.Stubs" Version="0.1.0-preview.1" />
 
     <!-- bUnit and test framework -->

@@ -754,8 +754,6 @@ platform itself (bottom).
 - [`Dabbler.Components`](../src/Libs/Dabbler.Components/README.md) —
   filter UI, CRUD helpers, data-provider
   abstractions.
-- [`Dabbler.Components.Compat`](../src/Libs/Dabbler.Components.Compat/README.md) —
-  deprecated pre-MudBlazor-native compatibility surfaces (sunset 0.4.0).
 - [`Dabbler.Platform.Stubs`](../src/Libs/Dabbler.Platform.Stubs/README.md) —
   opt-in stub providers for tests, demos, and future generated apps.
 - [`Dabbler.Reports.Core`](../src/Libs/Dabbler.Reports.Core/README.md) —

@@ -27,7 +27,7 @@ All Playwright tests green.
 pwsh tools/pack.ps1 -Version <next-version>
 ```
 
-- All 12 library packages + Compat + Stubs sub-packages + Stubs meta-package produce `.nupkg` in `pack-output/`.
+- All 12 packages in the `tools/pack.ps1` allowlist produce `.nupkg` in `pack-output/`.
 - `Tools/pack.ps1` exits 0 (no hermetic-check failures).
 - Template + DevIdp.Tool (Session 8 deliverables) also packed before publishing those packages.
 
@@ -56,12 +56,12 @@ describing what changed since the last published version.
 
 ## Publish order (staged — per ledger §6.4)
 
-1. `Dabbler.Components`
-2. `Dabbler.Security` · `Dabbler.Reports.Core` · `Dabbler.Platform.Stubs.Components`
-3. `Dabbler.Security.Blazor` · `Dabbler.Reports.Export` · `Dabbler.Platform.Stubs.Reports` · `Dabbler.Platform.Stubs.Security`
-4. `Dabbler.Reports.Blazor` · `Dabbler.Components.Compat` · `Dabbler.Platform.Stubs`
+1. `Dabbler.Components` · `Dabbler.Api.Querying`
+2. `Dabbler.Security` · `Dabbler.Reports.Core`
+3. `Dabbler.Security.Blazor` · `Dabbler.Reports.Export`
+4. `Dabbler.Reports.Blazor` · `Dabbler.Platform.Stubs`
 5. `Dabbler.Testing.Blazor`
-6. `Dabbler.Templates` · `Dabbler.Security.DevIdp.Tool`
+6. `Dabbler.Templates` · `Dabbler.Security.DevIdp.Tool` · `Dabbler.CrudSlice.Tool`
 
 Validate install from staging feed after each batch before pushing the next.
 

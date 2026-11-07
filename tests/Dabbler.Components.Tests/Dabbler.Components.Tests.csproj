@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Libs\Dabbler.Components\Dabbler.Components.csproj" />
-    <ProjectReference Include="..\..\src\Libs\Dabbler.Components.Compat\Dabbler.Components.Compat.csproj" />
     <ProjectReference Include="..\..\src\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj" />
   </ItemGroup>
 

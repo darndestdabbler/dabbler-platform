@@ -42,8 +42,8 @@ public class PackagingSmokeTests
         Skip.If(!Directory.Exists(PackOutputDir),
             "Pack output directory not found. Run tools/pack.ps1 first.");
 
-        // Use a digit guard after the packageId prefix so Dabbler.Components.Compat from
-        // satisfying a lookup for Dabbler.Components (and similar sub-package ambiguities).
+        // Use a digit guard after the packageId prefix so Dabbler.Security.Blazor does not
+        // satisfy a lookup for Dabbler.Security (and similar sub-package ambiguities).
         var nupkgs = Directory.GetFiles(PackOutputDir, "*.nupkg")
             .Select(Path.GetFileName)
             .OfType<string>()
@@ -53,11 +53,7 @@ public class PackagingSmokeTests
         {
             "Dabbler.Api.Querying",
             "Dabbler.Components",
-            "Dabbler.Components.Compat",
             "Dabbler.Platform.Stubs",
-            "Dabbler.Platform.Stubs.Components",
-            "Dabbler.Platform.Stubs.Reports",
-            "Dabbler.Platform.Stubs.Security",
             "Dabbler.Reports.Core",
             "Dabbler.Reports.Export",
             "Dabbler.Reports.Blazor",

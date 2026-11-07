@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 
     <PackageId>Dabbler.Platform.Stubs</PackageId>
-    <Description>Meta-package: full Dabbler platform stub coverage for bUnit and demo hosts. References Dabbler.Platform.Stubs.Components, .Reports, and .Security. Install this package when you want the complete stub surface, including AddDabblerPlatformStubs(definition) and the ctx.AddDabblerStubs(definition) bUnit shortcut.</Description>
+    <Description>Opt-in stub providers for Dabbler bUnit and demo hosts: grid-data, combo-box, entity-metadata and navigation providers for Dabbler.Components; report-data, artifact-catalog and usage-tracking providers for Dabbler.Reports.Core; and a stub authentication-state provider. Includes AddDabblerPlatformStubs(definition) and the focused per-provider helpers. Carries a transitive dependency on DabblerPdf (LGPL-2.1-only OR MPL-2.0) via Dabbler.Reports.Core.</Description>
     <PackageTags>blazor;stubs;testing;bunit;demo-mode;dabbler</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
@@ -14,12 +14,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Meta-package: references all three focused sub-packages. -->
-    <ProjectReference Include="..\Dabbler.Platform.Stubs.Components\Dabbler.Platform.Stubs.Components.csproj" />
-    <ProjectReference Include="..\Dabbler.Platform.Stubs.Reports\Dabbler.Platform.Stubs.Reports.csproj" />
-    <ProjectReference Include="..\Dabbler.Platform.Stubs.Security\Dabbler.Platform.Stubs.Security.csproj" />
-    <!-- Direct reference for StubPlatformDefinition (uses Dabbler.Components types). -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
+    <ProjectReference Include="..\Dabbler.Reports.Core\Dabbler.Reports.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

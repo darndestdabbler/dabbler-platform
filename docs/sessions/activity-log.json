@@ -43,6 +43,13 @@
       "dateTime": "2026-11-07T11:59:50.988000-05:00",
       "task": "Move the report expression engine out of Dabbler.Components into Dabbler.Reports.Core, its only consumer. The nine files in src/Libs/Dabbler.Components/Expressions/ move (git mv) to src/Libs/Dabbler.Reports.Core/Expressions/ with their namespace changed from Dabbler.Components.Expressions to Dabbler.Reports.Core.Expressions and no other change; BandLayoutEngine.cs and LayoutEvaluationContext.cs, the only callers (no test references the namespace), have their usings fixed. Dabbler.Reports.Core.csproj then drops both Dabbler.Components references (the development ProjectReference and the pack-time PackageReference) and the now-unneeded InternalsVisibleTo Dabbler.Components.Tests (that test project references no Reports project). The dependency statements are updated: the Reports.Core README no longer lists Dabbler.Components as a prerequisite or related package and says the expression engine is its own, docs/platform-overview.md stops attributing the expression engine to Dabbler.Components, and the stale ExpressionEngine row is removed from the Dabbler.Components README surface table.",
       "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 7,
+      "dateTime": "2026-11-07T12:40:57.503000-05:00",
+      "task": "Reduce the published surface from sixteen package IDs to twelve. Delete Dabbler.Components.Compat together with its tests (DabblerShellTests, CompatibilitySurfaceTests) and every reference to it: Dabbler.Components.Tests, Dabbler.PublicSurface.Tests, Dabbler.Platform.sln, Dabbler.Publish.slnf. The reference web app references Compat too: its /platform/stub demo page renders DabblerShell. That page is rebuilt from plain MudBlazor (the title, the stub customer grid and the stub sales report in MudTabs), and PlatformStubDetail.razor, which only DabblerShell used, is deleted. WebGuardrailTests keeps covering the route unchanged. Then fold the source of Dabbler.Platform.Stubs.Components, .Reports and .Security into src/Libs/Dabbler.Platform.Stubs. The files keep the Dabbler.Platform.Stubs namespace they already have, so registration calls compile unchanged. The merged project references Dabbler.Components, Dabbler.Reports.Core and the Microsoft.AspNetCore.App framework. The three projects are deleted, and the solution, the publish filter, the test project that referenced them and the template comment are updated. Finally, bring pack.ps1's allowlist and project list, the PublicSurface and Packaging.Smoke expectations, the release-checklist publish order, docs/platform-overview.md and every other live document that names a retired ID to the twelve IDs.",
+      "releasable": false
     }
   ]
 }
