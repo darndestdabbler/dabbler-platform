@@ -36,6 +36,13 @@
       "dateTime": "2026-11-07T10:51:12.244000-05:00",
       "task": "Bump the single repository version to 0.1.0-preview.2 ahead of the operator-tagged release: set DabblerVersion in Directory.Build.props to 0.1.0-preview.2, change the -Version parameter default (and its help text) in tools/pack.ps1 to match, and create the root CHANGELOG.md with a 0.1.0-preview.2 entry stating that it changes no API and that Dabbler.CrudSlice.Tool is published for the first time.",
       "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 6,
+      "dateTime": "2026-11-07T11:59:50.988000-05:00",
+      "task": "Move the report expression engine out of Dabbler.Components into Dabbler.Reports.Core, its only consumer. The nine files in src/Libs/Dabbler.Components/Expressions/ move (git mv) to src/Libs/Dabbler.Reports.Core/Expressions/ with their namespace changed from Dabbler.Components.Expressions to Dabbler.Reports.Core.Expressions and no other change; BandLayoutEngine.cs and LayoutEvaluationContext.cs, the only callers (no test references the namespace), have their usings fixed. Dabbler.Reports.Core.csproj then drops both Dabbler.Components references (the development ProjectReference and the pack-time PackageReference) and the now-unneeded InternalsVisibleTo Dabbler.Components.Tests (that test project references no Reports project). The dependency statements are updated: the Reports.Core README no longer lists Dabbler.Components as a prerequisite or related package and says the expression engine is its own, docs/platform-overview.md stops attributing the expression engine to Dabbler.Components, and the stale ExpressionEngine row is removed from the Dabbler.Components README surface table.",
+      "releasable": false
     }
   ]
 }

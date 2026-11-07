@@ -104,7 +104,6 @@ The library's surface, organized by role:
 | `FilterGroupCollection` / `FilterGroup` | AND/OR group model for composable filter expressions. |
 | `CompositeFilterDescriptor` / `FilterDescriptor` | Filter expression descriptors consumed by the expression engine. |
 | `FilterSummaryBuilder` | Generates human-readable filter summary text. |
-| `ExpressionEngine` | Expression-based query and report support infrastructure. |
 | `IGridDataProvider<T>` | Data provider abstraction with `ToServerDataFunc` for MudDataGrid ServerData callbacks. |
 
 ## Related packages

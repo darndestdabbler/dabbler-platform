@@ -1,4 +1,4 @@
-namespace Dabbler.Components.Expressions;
+namespace Dabbler.Reports.Core.Expressions;
 
 /// <summary>
 /// A token produced by the expression lexer.

@@ -1,4 +1,4 @@
-namespace Dabbler.Components.Expressions;
+namespace Dabbler.Reports.Core.Expressions;
 
 /// <summary>
 /// Provides values for expression evaluation: field values, parameters,

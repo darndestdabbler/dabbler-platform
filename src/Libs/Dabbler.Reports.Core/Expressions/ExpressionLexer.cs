@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Dabbler.Components.Expressions;
+namespace Dabbler.Reports.Core.Expressions;
 
 /// <summary>
 /// Tokenizes report expression strings into a sequence of <see cref="ExpressionToken"/> values.

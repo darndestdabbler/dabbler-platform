@@ -1,5 +1,5 @@
 using System.Data;
-using Dabbler.Components.Expressions;
+using Dabbler.Reports.Core.Expressions;
 using Dabbler.Reports.Core.Data;
 using Dabbler.Reports.Core.Rdf;
 

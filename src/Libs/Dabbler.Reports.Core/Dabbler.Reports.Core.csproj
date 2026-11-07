@@ -18,18 +18,7 @@
   <!-- No UI references — this project must remain platform-agnostic -->
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Dabbler.Components.Tests" />
     <InternalsVisibleTo Include="Dabbler.Reports.Export" />
-  </ItemGroup>
-
-  <!-- Development: use ProjectReference for inner-loop builds -->
-  <ItemGroup Condition="'$(PackAsDependency)' != 'true'">
-    <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
-  </ItemGroup>
-
-  <!-- NuGet pack: use PackageReference so consumers resolve via NuGet -->
-  <ItemGroup Condition="'$(PackAsDependency)' == 'true'">
-    <PackageReference Include="Dabbler.Components" Version="$(DabblerVersion)" />
   </ItemGroup>
 
   <ItemGroup>

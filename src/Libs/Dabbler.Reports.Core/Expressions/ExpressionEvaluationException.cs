@@ -1,4 +1,4 @@
-namespace Dabbler.Components.Expressions;
+namespace Dabbler.Reports.Core.Expressions;
 
 /// <summary>
 /// Exception thrown when an expression cannot be evaluated.

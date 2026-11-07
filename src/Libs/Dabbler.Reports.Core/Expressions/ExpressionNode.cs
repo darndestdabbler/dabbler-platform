@@ -1,4 +1,4 @@
-namespace Dabbler.Components.Expressions;
+namespace Dabbler.Reports.Core.Expressions;
 
 /// <summary>
 /// Base class for all expression AST nodes.

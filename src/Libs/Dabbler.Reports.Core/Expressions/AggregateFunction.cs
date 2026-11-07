@@ -1,4 +1,4 @@
-namespace Dabbler.Components.Expressions;
+namespace Dabbler.Reports.Core.Expressions;
 
 /// <summary>
 /// Aggregate functions available in report expressions.

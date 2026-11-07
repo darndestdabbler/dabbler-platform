@@ -17,7 +17,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 3 | Skeleton — complete the existing solution and prove the production split | no | 2026-11-07 |
 | 4 | Declare packaging | no | 2026-11-07 |
 | 5 | Bump to 0.1.0-preview.2 | no | 2026-11-07 |
-| 6 | Move Expressions into Dabbler.Reports.Core | — | not declared |
+| 6 | Move Expressions into Dabbler.Reports.Core | no | 2026-11-07 |
 | 7 | Surface reduction — 16 package IDs to 12 | — | not declared |
 | 8 | MudBlazor 9 — libraries and the reference app compile | — | not declared |
 | 9 | MudBlazor 9 — templates, scaffolding and the E2E gate | — | not declared |
@@ -56,3 +56,9 @@ Declare packaging in dabbler.yaml: replace the commented-out packaging intent at
 **Releasable: no.**
 
 Bump the single repository version to 0.1.0-preview.2 ahead of the operator-tagged release: set DabblerVersion in Directory.Build.props to 0.1.0-preview.2, change the -Version parameter default (and its help text) in tools/pack.ps1 to match, and create the root CHANGELOG.md with a 0.1.0-preview.2 entry stating that it changes no API and that Dabbler.CrudSlice.Tool is published for the first time.
+
+### Session 6 — Move Expressions into Dabbler.Reports.Core
+
+**Releasable: no.**
+
+Move the report expression engine out of Dabbler.Components into Dabbler.Reports.Core, its only consumer. The nine files in src/Libs/Dabbler.Components/Expressions/ move (git mv) to src/Libs/Dabbler.Reports.Core/Expressions/ with their namespace changed from Dabbler.Components.Expressions to Dabbler.Reports.Core.Expressions and no other change; BandLayoutEngine.cs and LayoutEvaluationContext.cs, the only callers (no test references the namespace), have their usings fixed. Dabbler.Reports.Core.csproj then drops both Dabbler.Components references (the development ProjectReference and the pack-time PackageReference) and the now-unneeded InternalsVisibleTo Dabbler.Components.Tests (that test project references no Reports project). The dependency statements are updated: the Reports.Core README no longer lists Dabbler.Components as a prerequisite or related package and says the expression engine is its own, docs/platform-overview.md stops attributing the expression engine to Dabbler.Components, and the stale ExpressionEngine row is removed from the Dabbler.Components README surface table.

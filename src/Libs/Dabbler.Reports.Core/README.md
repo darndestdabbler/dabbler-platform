@@ -19,8 +19,6 @@ packages for export and Blazor UI.
 ## Prerequisites and stack constraints
 
 - .NET 10 (current LTS)
-- Reference to [`Dabbler.Components`](../Dabbler.Components/README.md)
-  for the expression engine
 - Reference to `DabblerPdf` for text measurement (see warnings below for
   the license implication)
 
@@ -78,7 +76,8 @@ var pages = layoutEngine.Compose(data);
 - **Styles** — Named styles with font, color, alignment, borders, and
   padding.
 - **Expression evaluation** — Field references, parameters, built-in
-  functions, and aggregate calculations.
+  functions, and aggregate calculations. The expression engine ships in
+  this package (`Dabbler.Reports.Core.Expressions`).
 
 ## RDF format
 
@@ -93,9 +92,6 @@ for the full schema reference and one worked example.
   exporter that consumes composed pages from this library.
 - [`Dabbler.Reports.Blazor`](../Dabbler.Reports.Blazor/README.md) —
   Blazor UI for the parameter-prompt → run → view lifecycle.
-- [`Dabbler.Components`](../Dabbler.Components/README.md) — provides the
-  expression engine this library uses for `PrintWhen` and aggregate
-  evaluation.
 
 ## Warnings and caveats
 

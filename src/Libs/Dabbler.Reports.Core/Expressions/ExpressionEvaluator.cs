@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Dabbler.Components.Expressions;
+namespace Dabbler.Reports.Core.Expressions;
 
 /// <summary>
 /// Evaluates a parsed expression AST against an <see cref="IEvaluationContext"/>.

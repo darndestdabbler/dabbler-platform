@@ -178,7 +178,6 @@ available directly when a page needs finer control):
 | `FilterGroupCollection` / `FilterGroup` | AND/OR group model for composable filter expressions. |
 | `CompositeFilterDescriptor` / `FilterDescriptor` | Filter expression descriptors consumed by the expression engine. |
 | `FilterSummaryBuilder` | Generates human-readable filter summary text. |
-| `ExpressionEngine` | Expression-based query and report support infrastructure. |
 | `IGridDataProvider<T>` | Data provider abstraction with `ToServerDataFunc` for MudDataGrid `ServerData` callbacks. |
 
 A typical query page wires these together explicitly:
@@ -245,7 +244,8 @@ Supported capabilities:
 - **CanGrow / CanShrink** for dynamic element sizing based on content.
 - **Named styles** for font, color, alignment, borders, and padding.
 - **Expression evaluation** for field references, parameters,
-  built-in functions, and aggregate calculations.
+  built-in functions, and aggregate calculations, by the package's own
+  expression engine (`Dabbler.Reports.Core.Expressions`).
 
 [Deep dive: `Dabbler.Reports.Core` README](../src/Libs/Dabbler.Reports.Core/README.md)
 
@@ -752,7 +752,7 @@ platform itself (bottom).
 **Per-library deep dives:**
 
 - [`Dabbler.Components`](../src/Libs/Dabbler.Components/README.md) —
-  filter UI, expression engine, CRUD helpers, data-provider
+  filter UI, CRUD helpers, data-provider
   abstractions.
 - [`Dabbler.Components.Compat`](../src/Libs/Dabbler.Components.Compat/README.md) —
   deprecated pre-MudBlazor-native compatibility surfaces (sunset 0.4.0).
