@@ -1,0 +1,294 @@
+@inherits Dabbler.Testing.Blazor.Components.TrackedComponentBase
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Shared.Enums
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Components.MasterDetail
+@using Dabbler.Security.Blazor.Components.Restriction
+@using MudBlazor
+@inject ProductApiClient ProductClient
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="ma-4" />
+}
+else if (_record is not null && _session is not null)
+{
+    @* ── Toolbar (DirtyAwareActionRow + page-specific actions in CustomActions) ── *@
+    <DirtyAwareActionRow IsDirty="@_session.IsDirty"
+                         Saving="@_saving"
+                         ShowCancel="false"
+                         OnSave="HandleSaveAsync"
+                         Class="mb-4"
+                         CustomActionsPosition="ActionRowSlot.End">
+        <CustomActions>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.Undo"
+                       OnClick="HandleUndo"
+                       Disabled="@(!_session.IsDirty)"
+                       data-testid="undo-button">
+                Undo
+            </MudButton>
+            @if (!IsNew)
+            {
+                <MudSpacer />
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           StartIcon="@(_record.IsAvailable ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                           OnClick="HandleToggleAvailabilityAsync"
+                           Disabled="@_saving"
+                           data-testid="toggle-availability-button">
+                    @(_record.IsAvailable ? "Deactivate" : "Activate")
+                </MudButton>
+            }
+        </CustomActions>
+    </DirtyAwareActionRow>
+
+    @* ── Form ─────────────────────────────────────────────────────── *@
+    <MudForm @ref="_form" Model="_record">
+        <MudGrid>
+            @* Column 1 *@
+            <MudItem xs="12" md="6">
+                <MudTextField T="string"
+                              Value="_record.Name"
+                              ValueChanged="@((string v) => { _record.Name = v; _session.NotifyChanged(); })"
+                              Label="Name"
+                              Required="true"
+                              RequiredError="Product name is required"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              data-testid="field-name" />
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <RestrictedFormField EntityKey="Product" ColumnKey="UnitPrice">
+                    <ChildContent Context="restriction">
+                        <MudNumericField T="decimal"
+                                         Value="_record.UnitPrice"
+                                         ValueChanged="@((decimal v) => { _record.UnitPrice = v; _session.NotifyChanged(); })"
+                                         Label="Unit Price"
+                                         Min="0.01m"
+                                         Max="9999.99m"
+                                         Format="N2"
+                                         Adornment="Adornment.Start"
+                                         AdornmentText="$"
+                                         Variant="Variant.Outlined"
+                                         Immediate="true"
+                                         Disabled="@(restriction.Editability == ColumnEditability.ReadOnly)"
+                                         ReadOnly="@(restriction.Editability == ColumnEditability.ReadOnly)"
+                                         data-testid="field-unit-price" />
+                    </ChildContent>
+                </RestrictedFormField>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudSelect T="RoastLevel"
+                           Value="_record.RoastLevel"
+                           ValueChanged="@((RoastLevel v) => { _record.RoastLevel = v; _session.NotifyChanged(); })"
+                           Label="Roast Level"
+                           Variant="Variant.Outlined"
+                           data-testid="field-roast-level">
+                    @foreach (var level in Enum.GetValues<RoastLevel>())
+                    {
+                        <MudSelectItem T="RoastLevel" Value="level">@level</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudSelect T="CaffeineContent"
+                           Value="_record.CaffeineContent"
+                           ValueChanged="@((CaffeineContent v) => { _record.CaffeineContent = v; _session.NotifyChanged(); })"
+                           Label="Caffeine Content"
+                           Variant="Variant.Outlined"
+                           data-testid="field-caffeine-content">
+                    @foreach (var content in Enum.GetValues<CaffeineContent>())
+                    {
+                        <MudSelectItem T="CaffeineContent" Value="content">@content</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudSelect T="GrindType"
+                           Value="_record.GrindType"
+                           ValueChanged="@((GrindType v) => { _record.GrindType = v; _session.NotifyChanged(); })"
+                           Label="Grind Type"
+                           Variant="Variant.Outlined"
+                           data-testid="field-grind-type">
+                    @foreach (var grind in Enum.GetValues<GrindType>())
+                    {
+                        <MudSelectItem T="GrindType" Value="grind">@grind</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudCheckBox T="bool"
+                             Value="_record.IsAvailable"
+                             ValueChanged="@((bool v) => { _record.IsAvailable = v; _session.NotifyChanged(); })"
+                             Label="Available"
+                             Color="Color.Primary"
+                             data-testid="field-is-available" />
+            </MudItem>
+
+            @* Full-width fields *@
+            <MudItem xs="12">
+                <MudTextField T="string"
+                              Value="_record.Description"
+                              ValueChanged="@((string v) => { _record.Description = v; _session.NotifyChanged(); })"
+                              Label="Description"
+                              Lines="3"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              data-testid="field-description" />
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudTextField T="string"
+                              Value="_record.ImageUrl"
+                              ValueChanged="@((string v) => { _record.ImageUrl = v; _session.NotifyChanged(); })"
+                              Label="Image URL"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              data-testid="field-image-url" />
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+
+    @* ── Timestamps ───────────────────────────────────────────────── *@
+    @if (!IsNew)
+    {
+        <MudStack Row="true" Spacing="4" Class="mt-4">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Created: @_record.CreatedDate.ToString("g")
+            </MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Modified: @_record.ModifiedDate.ToString("g")
+            </MudText>
+        </MudStack>
+    }
+}
+else
+{
+    <MudAlert Severity="Severity.Warning" Class="ma-4" data-testid="product-not-found">
+        Product not found.
+    </MudAlert>
+}
+
+@code {
+    [Parameter]
+    public int? ProductId { get; set; }
+
+    [Parameter]
+    public bool IsNew { get; set; }
+
+    [Parameter]
+    public bool IsReadOnly { get; set; }
+
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    [Parameter]
+    public EventCallback OnDeleted { get; set; }
+
+    private MudForm? _form;
+    private ProductDto? _record;
+    private EditSession<ProductDto>? _session;
+    private bool _loading = true;
+    private bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsNew)
+        {
+            _record = new ProductDto
+            {
+                IsAvailable = true,
+                CreatedDate = DateTime.UtcNow,
+                ModifiedDate = DateTime.UtcNow
+            };
+            _session = new EditSession<ProductDto>(_record);
+            _loading = false;
+        }
+        else if (ProductId is not null)
+        {
+            _record = await ProductClient.GetByIdAsync(ProductId.Value);
+            if (_record is not null)
+            {
+                _session = new EditSession<ProductDto>(_record);
+            }
+            _loading = false;
+        }
+        else
+        {
+            _loading = false;
+        }
+    }
+
+    private Task HandleSaveAsync() => TrackAction("save", async () =>
+    {
+        if (_form is not null)
+        {
+            await _form.Validate();
+            if (!_form.IsValid) return;
+        }
+
+        if (_record is null || _session is null) return;
+
+        _saving = true;
+        try
+        {
+            if (IsNew)
+            {
+                var created = await ProductClient.CreateAsync(_record);
+                if (created is not null)
+                {
+                    _session.CommitFrom(created);
+                    IsNew = false;
+                }
+            }
+            else
+            {
+                var updated = await ProductClient.UpdateAsync(_record.Id, _record);
+                if (updated is not null)
+                {
+                    _session.CommitFrom(updated);
+                }
+                else
+                {
+                    _session.Commit();
+                }
+            }
+
+            await OnSaved.InvokeAsync();
+        }
+        finally
+        {
+            _saving = false;
+        }
+    });
+
+    private void HandleUndo()
+    {
+        _session?.Undo();
+    }
+
+    private Task HandleToggleAvailabilityAsync() => TrackAction("toggle-availability", async () =>
+    {
+        if (_record is null || _session is null) return;
+
+        _saving = true;
+        try
+        {
+            await ProductClient.ToggleAvailabilityAsync(_record.Id);
+            _record.IsAvailable = !_record.IsAvailable;
+            _session.Commit();
+            await OnDeleted.InvokeAsync();
+        }
+        finally
+        {
+            _saving = false;
+        }
+    });
+}

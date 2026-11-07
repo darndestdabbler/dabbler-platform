@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "transactional-system-columns",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Temporal configuration, migration, and integration tests",
+      "status": "complete",
+      "startedAt": "2026-05-15T02:57:56.126627-04:00",
+      "completedAt": "2026-05-15T03:21:25.902028-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

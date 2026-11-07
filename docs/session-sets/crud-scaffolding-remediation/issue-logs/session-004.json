@@ -1,0 +1,13 @@
+[
+  {
+    "id": "S4-001",
+    "severity": "MEDIUM",
+    "type": "documentation",
+    "file": "docs/scaffolding-templates/recipes/extend-crud-page-with-workflow-action.md",
+    "title": "Wrong SupplierApiClient path and namespace in new recipe (Step 4)",
+    "details": "Round 1 verifier (gpt-5-4) flagged that Step 4 told the reader to edit src/Apps/AcmeCoffeeOnline.Web/Services/SupplierApiClient.cs with namespace AcmeCoffeeOnline.Web.Services. The dabbler-crud-page template generates the file at Data/SupplierApiClient.cs with namespace <WebRoot>.Data. Recipe path and namespace updated to match template output; Round 2 verification PASS.",
+    "status": "fixed",
+    "round": 1,
+    "verifier_model": "gpt-5-4"
+  }
+]

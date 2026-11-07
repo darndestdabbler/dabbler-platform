@@ -1,0 +1,34 @@
+{
+  "ProjectName": "AcmeCoffeeOnline - W0 suppressions and role pinning smoke",
+  "Review": [
+    {
+      "FunctionalArea": "W0 Suppressions And Role Pinning Smoke",
+      "Subarea": "Toggle availability on /admin/products",
+      "ItemLabel": "SMOKE-1: Exercise watermark on /admin/products; verify quiet completion",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.W0SuppressionsAndRolePinningSmokeTests.Smoke1_WatermarkAsync",
+      "Feedback": "Persona is signed in via PlaywrightFixture.SeededSignInAsync from the runner-emitted test wrapper (admin@acmecoffee.com -> SystemAdmin). The DSL has no primitives for the magic-link OTP-code paste flow used by the real /login page (link text in /dev/email-inbox is \"Open\" which opens a new tab; the real flow requires reading a 6-digit code from the inbox row and pasting into /login). Sign-in is test setup, out-of-scope of the watermark UAT being smoked here. The Available column header click (compiled from CLICK SWITCH in column with header \"Available\") triggers a sort which exercises the same async re-render path the watermark mechanism guards; the W0 emitter's ClickSwitchInColumnStep currently lowers to a Columnheader click rather than a per-row Switch click (W0 follow-on; tracked in change-log).",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/products\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "VERIFY TEXT contains \"Product Administration\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK SWITCH in column with header \"Available\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "WAIT FOR ACTIONS QUIET"
+        },
+        {
+          "StepNumber": 5,
+          "Action": "VERIFY TEXT contains \"Available\""
+        }
+      ]
+    }
+  ]
+}

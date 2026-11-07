@@ -1,0 +1,20 @@
+@* Signals test readiness to Playwright via DOM watermark attributes. *@
+@using Dabbler.Testing.Blazor.Configuration
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Options
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@inject IOptions<TrackedActionsOptions> Options
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender && Options.Value.Enabled)
+        {
+            await JS.InvokeVoidAsync("dabbler.setReady");
+        }
+    }
+}

@@ -1,0 +1,435 @@
+{
+  "sessionSetName": "crud-scaffolding-remediation",
+  "createdDate": "2026-05-17T14:42:35.561318-04:00",
+  "totalSessions": 4,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 0,
+      "stepKey": "session-1/ai-assignment-authored",
+      "dateTime": "2026-05-17T14:43:50.012170-04:00",
+      "description": "Authored ai-assignment.md via routed analysis (Step 3.5).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 6180,
+          "outputTokens": 1275,
+          "costUsd": 0.020475
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/cross-provider-verification",
+      "dateTime": "2026-05-17T15:01:47.831893-04:00",
+      "description": "End-of-session verification via gpt-5-4: ISSUES_FOUND",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 9869,
+          "outputTokens": 8609,
+          "costUsd": 0.15380749999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/cross-provider-verification-r2",
+      "dateTime": "2026-05-17T15:03:10.850174-04:00",
+      "description": "Round 2 verification via gpt-5-4: VERIFIED",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1438,
+          "outputTokens": 1399,
+          "costUsd": 0.02458
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/crud-slice-csproj-and-cli",
+      "dateTime": "2026-05-17T16:33:38.190866-04:00",
+      "description": "Created tools/Dabbler.CrudSlice/ console app (Dabbler.CrudSlice.csproj, CliOptions.cs, Program.cs).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/template-runner",
+      "dateTime": "2026-05-17T16:33:38.191858-04:00",
+      "description": "Wired dotnet new dabbler-crud-service + dabbler-crud-page invocation via TemplateRunner.cs as child processes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/schema-applicator-runner",
+      "dateTime": "2026-05-17T16:33:38.191858-04:00",
+      "description": "Wired Session 1 Dabbler.SchemaApplicator in-process via ProjectReference and SchemaApplicatorRunner.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/registration-emitter-web-and-api",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Implemented RegistrationEmitter (Web {Entity}ScaffoldingExtensions.cs with Services:ApiBaseUrl + X-Internal-Api-Key + UserIdentityHandler, and API {Entity}ApiRegistrationExtensions.cs with AddScoped<I{Entity}Service, {Entity}Service>).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/crud-slice-tests",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Added tests/Dabbler.CrudSlice.Tests/ \u2014 5 RegistrationEmitter unit tests + 2 orchestration tests + 1 SkippableFact full-pipeline e2e against SmokeApp fixture. All 8 pass (pack-output present, SkippableFact ran not skipped).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/supplier-extension-fixed",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Replaced src/Apps/AcmeCoffeeOnline.Web/Data/SupplierScaffoldingExtensions.cs via the wrapper itself (--skip-templates --skip-schema-applicator mode). Emitted src/Apps/AcmeCoffeeOnline.Api/Services/SupplierApiRegistrationExtensions.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/sln-and-build-and-test",
+      "dateTime": "2026-05-17T16:33:38.192858-04:00",
+      "description": "Patched Dabbler.Platform.sln to register CrudSlice + CrudSlice.Tests (dotnet sln add was silently no-op on this sln; edited manually with deterministic GUIDs). Build: clean. Tests: 8/8 CrudSlice, 7/7 SchemaApplicator, 4/4 Templates, 133/133 Web, 51/51 Api.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/cross-provider-verification-r1",
+      "dateTime": "2026-05-17T16:33:38.194286-04:00",
+      "description": "Round 1 cross-provider session-verification via gpt-5-4: Pass with two explicit non-blocker observations (template-still-wrong-by-default acknowledged; wrapper-unconditional-overwrite acceptable).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 13010,
+          "outputTokens": 3796,
+          "costUsd": 0.0895
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/next-session-recommendation",
+      "dateTime": "2026-05-17T16:33:38.194286-04:00",
+      "description": "Routed next-session orchestrator recommendation via gemini-pro: Claude Sonnet 4.6 @ medium for Session 3.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 950,
+          "outputTokens": 95,
+          "costUsd": 0.0022
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/registration-shapes-extracted",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Catalogued the four registration shapes from Api/Program.cs (entity 94-103, endpoints 135-139) and Web/Program.cs (page line for /suppliers, endpoints 189-194); handled in-conversation by orchestrator (mechanical read).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/registration-generator-impl",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Implemented RegistrationReferenceEmitter writing {Entity}Registrations.g.cs with four clearly-commented blocks (API entities, API endpoints, Web page, Web endpoints). Body wrapped in #if false / #endif so the file never compiles even if added to a csproj compile glob. Schema-driven field rows derived from .dabbler-entity.json, with PrettifyCamelCase helper for display labels. Added --skip-registrations CLI flag and wired the emit into Program.cs after EmitRegistrationFiles.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/registration-generator-tests",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Added RegistrationReferenceEmitterTests (13 facts) asserting: four block headers present, #if false fence wraps the body, entity block matches Api/Program.cs:94-103 shape, endpoint block matches :135-139 shape, page block matches the Web/Program.cs supplier line, paths are lowercased plural, endpoint block appears twice (once per side), empty schema still emits valid C#, header documents shape source line ranges, PrettifyCamelCase parameterized cases, LoadSchemaOrEmpty tolerates missing/unparseable files. Added Skip_registrations_flag_suppresses_reference_file_emit orchestration test and extended EmitRegistrationsOnly + FullPipeline tests to verify the new file.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/duplicate-page-fix",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Removed the duplicate pages.Add(\"/suppliers\", ...) line at Web/Program.cs:103. The line at :101 is retained as the canonical registration.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/registration-generator-pipeline",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "Reference emitter is on by default in the wrapper pipeline (Program.cs step 3b). --skip-registrations opt-out exercised by Skip_registrations_flag_suppresses_reference_file_emit. README updated with the new flag and the Session 3 emit description.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/build-test",
+      "dateTime": "2026-05-17T17:51:41.853186-04:00",
+      "description": "dotnet build Dabbler.Platform.sln succeeded (0 errors, 273 pre-existing warnings). dotnet test (non-Playwright filter): 978 passed, 2 skipped (PackagingSmokeTests gated on pack-output), 0 failed across 13 test assemblies. CrudSlice.Tests: 28/28 pass (includes the SkippableFact FullPipeline against the smoke fixture). Per the saved feedback rule, Playwright is excluded from full-solution runs; this session set has requiresE2E:false so no Playwright work is in scope.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/cross-provider-verification",
+      "dateTime": "2026-05-17T17:55:28.471996-04:00",
+      "description": "Routed session-verification to gpt-5-4 (cross-provider, orchestrator is Anthropic/Opus). ~18351 in, ~6657 out, $0.1457. Saved raw verifier output to session-reviews/session-003.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 18351,
+          "outputTokens": 6657,
+          "costUsd": 0.1457325
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/cross-provider-verification-r2",
+      "dateTime": "2026-05-17T18:00:27.094844-04:00",
+      "description": "Round 2 verification routed to gpt-5-4. ~8149 in, ~1425 out, $0.0417. Saved as session-003.r2.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 8149,
+          "outputTokens": 1425,
+          "costUsd": 0.04174750000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/cross-provider-verification-r3",
+      "dateTime": "2026-05-17T18:20:37.577244-04:00",
+      "description": "Round 3 verification routed to gpt-5-4 on the Templates/ refactor. ~4459 in, ~538 out, $0.0192.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 4459,
+          "outputTokens": 538,
+          "costUsd": 0.0192175
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 10,
+      "stepKey": "session-3/next-orchestrator-recommendation",
+      "dateTime": "2026-05-17T18:22:43.582553-04:00",
+      "description": "Routed Session 4 orchestrator recommendation to gemini-pro. $0.0036.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2134,
+          "outputTokens": 98,
+          "costUsd": 0.0036475
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/doc-accuracy-item-1-wiring",
+      "dateTime": "2026-05-17T19:21:51.133249-04:00",
+      "description": "Reconciled doc-accuracy item 1: updated CRUD_SCAFFOLDING_FINAL_SUMMARY.md + docs/scaffolding-templates/README.md to establish wrapper-generated SupplierScaffoldingExtensions.cs as single source of truth for integration wiring.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/doc-accuracy-item-2-nav-menu",
+      "dateTime": "2026-05-17T19:21:51.134256-04:00",
+      "description": "Reconciled doc-accuracy item 2: updated docs/scaffolding-templates/crud-page-template.md to clarify nav menu wiring is NOT generated (deferred to Granularity 3). Integration points reduced from 3 to 2.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/doc-accuracy-item-3-playwright",
+      "dateTime": "2026-05-17T19:21:51.134256-04:00",
+      "description": "Reconciled doc-accuracy item 3: corrected Testing Matrix row in CRUD_SCAFFOLDING_FINAL_SUMMARY.md to state Playwright suite is deferred (smoke tests are the only automated proof).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/applicability-note-added",
+      "dateTime": "2026-05-17T19:21:51.135250-04:00",
+      "description": "Added harvester 8a applicability note to top of docs/scaffolding-templates/README.md ('For: single-entity CRUD/admin slices; Not for: workflow-driven flows').",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/reauthorization-gate-added",
+      "dateTime": "2026-05-17T19:21:51.136248-04:00",
+      "description": "Added harvester 8c reauthorization gate to top of docs/scaffolding-templates/non-mvp-roadmap.md ('Granularity 3+ deferred until 2-3 downstream uses').",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/recipe-added",
+      "dateTime": "2026-05-17T19:21:51.137247-04:00",
+      "description": "Created harvester 8d new file docs/scaffolding-templates/recipes/extend-crud-page-with-workflow-action.md - worked example of partial-class extension + custom action service + endpoint + API client method + CustomActions slot button.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/e2e-proof-complete",
+      "dateTime": "2026-05-17T19:21:51.138250-04:00",
+      "description": "End-to-end proof: ran dabbler-crud-slice against a temp directory; output byte-identical to the committed Supplier slice (non-destructive interpretation; verifier accepted deviation). 40/40 scaffolding-set tests pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/feedback-remediation-resolved",
+      "dateTime": "2026-05-17T19:21:51.138250-04:00",
+      "description": "Updated FEEDBACK_REMEDIATION_SUMMARY.md to mark all three doc-accuracy items as Resolved with cross-links; top-of-document status flipped from Partial to Fully Remediated.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-05-17T19:21:51.140090-04:00",
+      "description": "dotnet build Dabbler.Platform.sln SUCCESS (0 errors). Dabbler.Templates.Tests 4/4 + Dabbler.SchemaApplicator.Tests 7/7 + Dabbler.CrudSlice.Tests 29/29 = 40/40 PASS.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/verification-round-1",
+      "dateTime": "2026-05-17T19:21:51.141300-04:00",
+      "description": "Cross-provider session-verification Round 1 via gpt-5-4. Verdict: FAIL with 1 MEDIUM finding (recipe path/namespace bug). 7/8 requirements PASS; Step 4.7 deviation accepted.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 28000,
+          "outputTokens": 1100,
+          "costUsd": 0.182385
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 11,
+      "stepKey": "session-4/recipe-path-fix",
+      "dateTime": "2026-05-17T19:21:51.142310-04:00",
+      "description": "Fixed recipe Step 4 to point to Web/Data/SupplierApiClient.cs with namespace <WebRoot>.Data (matches template-generated output).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 12,
+      "stepKey": "session-4/verification-round-2",
+      "dateTime": "2026-05-17T19:21:51.143299-04:00",
+      "description": "Cross-provider session-verification Round 2 via gpt-5-4. Verdict: PASS for Step 4.6. All other steps unchanged from Round 1 PASS.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3500,
+          "outputTokens": 300,
+          "costUsd": 0.057045
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 13,
+      "stepKey": "session-4/change-log-authored",
+      "dateTime": "2026-05-17T19:21:51.144310-04:00",
+      "description": "Authored change-log.md via routed summarization (last session of set).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 2500,
+          "outputTokens": 600,
+          "costUsd": 0.0011
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 14,
+      "stepKey": "session-4/next-set-recommendation",
+      "dateTime": "2026-05-17T19:21:51.145309-04:00",
+      "description": "Routed next-session-set recommendation via gemini-pro: security-dashboard composite migration.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 750,
+          "outputTokens": 175,
+          "costUsd": 0.0027
+        }
+      ]
+    }
+  ]
+}
