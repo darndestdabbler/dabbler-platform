@@ -1,0 +1,573 @@
+{
+  "ProjectName": "AcmeCoffeeOnline",
+  "RequiresAppStateReset": true,
+  "Review": [
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "New User Creation - Happy Path",
+      "ItemLabel": "UAT-1: SystemAdmin creates new Backoffice User via Add User dialog and new user signs in via magic link",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"/login\"",
+          "Verifications": [
+            {
+              "Text": "Login page is displayed with the Email address input and Send sign-in link button visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": [
+            {
+              "Text": "Email address field contains \"admin@acmecoffee.com\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON \"Send sign-in link\"",
+          "Verifications": [
+            {
+              "Text": "Page displays confirmation text containing \"We sent a sign-in code to\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"/dev/email-inbox\"",
+          "Verifications": [
+            {
+              "Text": "Email inbox page loads and at least one email entry is present for admin@acmecoffee.com."
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK \"Open\"",
+          "Verifications": [
+            {
+              "Text": "SystemAdmin (admin@acmecoffee.com) is signed in and the application is accessible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"/admin/security\"",
+          "Verifications": [
+            {
+              "Text": "Security Dashboard page is displayed."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK TAB \"USERS AND ROLE ASSIGNMENT\"",
+          "Verifications": [
+            {
+              "Text": "USERS AND ROLE ASSIGNMENT tab is active and the user grid is visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON \"Add User\"",
+          "Verifications": [
+            {
+              "Text": "Add User dialog opens and displays the Display Name input, Email input, Initial Role dropdown, Initial Organization dropdown, Create User button, and Cancel button."
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT \"Display Name\" and enter \"New Backoffice User\"",
+          "Verifications": [
+            {
+              "Text": "Display Name field contains \"New Backoffice User\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK INPUT \"Email\" and enter \"newboffice@test.local\"",
+          "Verifications": [
+            {
+              "Text": "Email field contains \"newboffice@test.local\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK SELECT \"Initial Role\" and select \"Backoffice User (BackofficeUser)\"",
+          "Verifications": [
+            {
+              "Text": "Initial Role dropdown shows \"Backoffice User (BackofficeUser)\" as the selected value."
+            }
+          ]
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK SELECT \"Initial Organization\" and select \"Internal Org\"",
+          "Verifications": [
+            {
+              "Text": "Initial Organization dropdown shows \"Internal Org\" as the selected value."
+            }
+          ]
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK BUTTON \"Create User\"",
+          "Verifications": [
+            {
+              "Text": "Dialog closes without displaying any error and a row for \"New Backoffice User\" with email \"newboffice@test.local\" is visible in the user grid."
+            }
+          ]
+        },
+        {
+          "StepNumber": 14,
+          "Action": "NAVIGATE TO \"/dev/email-inbox\"",
+          "Verifications": [
+            {
+              "Text": "Email inbox displays a new magic-link email destined for newboffice@test.local."
+            }
+          ]
+        },
+        {
+          "StepNumber": 15,
+          "Action": "CLICK LINK \"Open\"",
+          "Verifications": [
+            {
+              "Text": "The new user (newboffice@test.local) is signed in successfully."
+            },
+            {
+              "Text": "The user interface reflects the assigned role \"Backoffice User\"."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "SuccessfulCreate_SystemAdmin_HappyPath",
+      "Passes": true,
+      "IsOtherItem": false
+    },
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "UserAdmin Role Dropdown Restriction",
+      "ItemLabel": "UAT-2: UserAdmin Initial Role dropdown excludes SystemAdmin and CrossOrgUserAdmin options",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"/login\"",
+          "Verifications": [
+            {
+              "Text": "Login page is displayed with the Email address input and Send sign-in link button visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT \"Email address\" and enter \"manager@acmecoffee.com\"",
+          "Verifications": [
+            {
+              "Text": "Email address field contains \"manager@acmecoffee.com\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON \"Send sign-in link\"",
+          "Verifications": [
+            {
+              "Text": "Page displays confirmation text containing \"We sent a sign-in code to\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"/dev/email-inbox\"",
+          "Verifications": [
+            {
+              "Text": "Email inbox page loads and at least one email entry is present for manager@acmecoffee.com."
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK \"Open\"",
+          "Verifications": [
+            {
+              "Text": "UserAdmin (manager@acmecoffee.com) is signed in and the application is accessible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"/admin/security\"",
+          "Verifications": [
+            {
+              "Text": "Security Dashboard page is displayed."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK TAB \"USERS AND ROLE ASSIGNMENT\"",
+          "Verifications": [
+            {
+              "Text": "USERS AND ROLE ASSIGNMENT tab is active and the user grid is visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON \"Add User\"",
+          "Verifications": [
+            {
+              "Text": "Add User dialog opens and the Initial Role dropdown is present."
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK SELECT \"Initial Role\"",
+          "Verifications": [
+            {
+              "Text": "Initial Role dropdown is open and lists only roles assignable within the UserAdmin's organizations."
+            },
+            {
+              "Text": "The option \"SystemAdmin\" is NOT present in the Initial Role dropdown list."
+            },
+            {
+              "Text": "The option \"CrossOrgUserAdmin\" is NOT present in the Initial Role dropdown list."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "UserAdmin_CrossOrgRejection",
+      "IsJudgmentItem": true,
+      "Feedback": "I don't see manager@acmecoffee.com as a selection in the Dev Email Inbox",
+      "Passes": true,
+      "IsOtherItem": false
+    },
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "Duplicate Email Validation",
+      "ItemLabel": "UAT-3: SystemAdmin receives inline validation error when submitting Add User form with an already-registered email",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"/login\"",
+          "Verifications": [
+            {
+              "Text": "Login page is displayed with the Email address input and Send sign-in link button visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": [
+            {
+              "Text": "Email address field contains \"admin@acmecoffee.com\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON \"Send sign-in link\"",
+          "Verifications": [
+            {
+              "Text": "Page displays confirmation text containing \"We sent a sign-in code to\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"/dev/email-inbox\"",
+          "Verifications": [
+            {
+              "Text": "Email inbox page loads and at least one email entry is present for admin@acmecoffee.com."
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK \"Open\"",
+          "Verifications": [
+            {
+              "Text": "SystemAdmin (admin@acmecoffee.com) is signed in and the application is accessible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"/admin/security\"",
+          "Verifications": [
+            {
+              "Text": "Security Dashboard page is displayed."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK TAB \"USERS AND ROLE ASSIGNMENT\"",
+          "Verifications": [
+            {
+              "Text": "USERS AND ROLE ASSIGNMENT tab is active and the user grid is visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON \"Add User\"",
+          "Verifications": [
+            {
+              "Text": "Add User dialog opens and displays all required form fields."
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT \"Display Name\" and enter \"Dup Test\"",
+          "Verifications": [
+            {
+              "Text": "Display Name field contains \"Dup Test\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK INPUT \"Email\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": [
+            {
+              "Text": "Email field contains \"admin@acmecoffee.com\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK SELECT \"Initial Role\" and select \"Backoffice User (BackofficeUser)\"",
+          "Verifications": [
+            {
+              "Text": "Initial Role dropdown shows \"Backoffice User (BackofficeUser)\" as the selected value."
+            }
+          ]
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK SELECT \"Initial Organization\" and select \"Internal Org\"",
+          "Verifications": [
+            {
+              "Text": "Initial Organization dropdown shows \"Internal Org\" as the selected value."
+            }
+          ]
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK BUTTON \"Create User\"",
+          "Verifications": [
+            {
+              "Text": "Dialog remains open and does not close."
+            },
+            {
+              "Text": "Dialog displays the error message \"A user with this email already exists.\"."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "DuplicateEmail_ShowsValidationError",
+      "Passes": true,
+      "IsOtherItem": false
+    },
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "Audit Event Emission on User Creation",
+      "ItemLabel": "UAT-4: SystemAdmin creates user and a UserCreated audit event is recorded in the Compliance Review tab",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"/login\"",
+          "Verifications": [
+            {
+              "Text": "Login page is displayed with the Email address input and Send sign-in link button visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": [
+            {
+              "Text": "Email address field contains \"admin@acmecoffee.com\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON \"Send sign-in link\"",
+          "Verifications": [
+            {
+              "Text": "Page displays confirmation text containing \"We sent a sign-in code to\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"/dev/email-inbox\"",
+          "Verifications": [
+            {
+              "Text": "Email inbox page loads and at least one email entry is present for admin@acmecoffee.com."
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK \"Open\"",
+          "Verifications": [
+            {
+              "Text": "SystemAdmin (admin@acmecoffee.com) is signed in and the application is accessible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"/admin/security\"",
+          "Verifications": [
+            {
+              "Text": "Security Dashboard page is displayed."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK TAB \"USERS AND ROLE ASSIGNMENT\"",
+          "Verifications": [
+            {
+              "Text": "USERS AND ROLE ASSIGNMENT tab is active and the user grid is visible."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON \"Add User\"",
+          "Verifications": [
+            {
+              "Text": "Add User dialog opens and displays all required form fields."
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT \"Display Name\" and enter \"Audit Test User\"",
+          "Verifications": [
+            {
+              "Text": "Display Name field contains \"Audit Test User\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK INPUT \"Email\" and enter \"audit-uat-v2@test.local\"",
+          "Verifications": [
+            {
+              "Text": "Email field contains \"audit-uat-v2@test.local\"."
+            }
+          ]
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK SELECT \"Initial Role\" and select \"Backoffice User (BackofficeUser)\"",
+          "Verifications": [
+            {
+              "Text": "Initial Role dropdown shows \"Backoffice User (BackofficeUser)\" as the selected value."
+            }
+          ]
+        },
+        {
+          "StepNumber": 12,
+          "Action": "CLICK SELECT \"Initial Organization\" and select \"Internal Org\"",
+          "Verifications": [
+            {
+              "Text": "Initial Organization dropdown shows \"Internal Org\" as the selected value."
+            }
+          ]
+        },
+        {
+          "StepNumber": 13,
+          "Action": "CLICK BUTTON \"Create User\"",
+          "Verifications": [
+            {
+              "Text": "Dialog closes without error and a row for \"Audit Test User\" with email \"audit-uat-v2@test.local\" is visible in the user grid."
+            }
+          ]
+        },
+        {
+          "StepNumber": 14,
+          "Action": "CLICK TAB \"COMPLIANCE REVIEW\"",
+          "Verifications": [
+            {
+              "Text": "COMPLIANCE REVIEW tab is active and the audit log table is displayed."
+            },
+            {
+              "Text": "A row with event type \"UserCreated\" referencing the email \"audit-test@test.local\" is present in the audit log."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "AuditEmission_UserCreated",
+      "Passes": true,
+      "IsOtherItem": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "New User Creation - Happy Path",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "UserAdmin Role Dropdown Restriction",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "Duplicate Email Validation",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin User Management",
+      "Subarea": "Audit Event Emission on User Creation",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    }
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  },
+  "DocumentDate": "5/11/2026, 5:46:49 PM"
+}
