@@ -16,7 +16,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 2 | Challenge the plan, then break it into numbered sessions | no | 2026-11-07 |
 | 3 | Skeleton — complete the existing solution and prove the production split | no | 2026-11-07 |
 | 4 | Declare packaging | no | 2026-11-07 |
-| 5 | Bump to 0.1.0-preview.2 | — | not declared |
+| 5 | Bump to 0.1.0-preview.2 | no | 2026-11-07 |
 | 6 | Move Expressions into Dabbler.Reports.Core | — | not declared |
 | 7 | Surface reduction — 16 package IDs to 12 | — | not declared |
 | 8 | MudBlazor 9 — libraries and the reference app compile | — | not declared |
@@ -50,3 +50,9 @@ Complete the existing solution skeleton and prove the production split. List the
 **Releasable: no.**
 
 Declare packaging in dabbler.yaml: replace the commented-out packaging intent at the end of the file with a live `packaging:` block whose `pack.argv` is ["pwsh", "-NoProfile", "-File", "tools/pack.ps1", "-Version", "{version}", "-OutputDir", "{output}", "-CleanOutput"], with no `push` and no `release:` member because CI publishes to nuget.org from the operator's annotated `nuget-v*` tag through trusted publishing. The step is proven by `dabbler packaging --rehearse --version 0.1.0-preview.2`.
+
+### Session 5 — Bump to 0.1.0-preview.2
+
+**Releasable: no.**
+
+Bump the single repository version to 0.1.0-preview.2 ahead of the operator-tagged release: set DabblerVersion in Directory.Build.props to 0.1.0-preview.2, change the -Version parameter default (and its help text) in tools/pack.ps1 to match, and create the root CHANGELOG.md with a 0.1.0-preview.2 entry stating that it changes no API and that Dabbler.CrudSlice.Tool is published for the first time.

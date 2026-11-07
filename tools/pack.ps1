@@ -13,7 +13,7 @@
 
 .PARAMETER Version
     The DabblerVersion to stamp across all packages (e.g. 0.1.0-preview.2).
-    Defaults to the current Directory.Build.props value (0.1.0-preview.1).
+    Defaults to the current Directory.Build.props value (0.1.0-preview.2).
 
 .PARAMETER OutputDir
     Directory for produced .nupkg files. Default: ./pack-output
@@ -33,7 +33,7 @@
     pwsh tools/pack.ps1 -Version 0.1.0-preview.2
 #>
 param(
-    [string] $Version       = "0.1.0-preview.1",
+    [string] $Version       = "0.1.0-preview.2",
     [string] $OutputDir     = "pack-output",
     [string] $ScratchCacheDir = "pack-output/.nuget-cache",
     [switch] $CleanOutput,

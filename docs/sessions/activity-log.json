@@ -29,6 +29,13 @@
       "dateTime": "2026-11-07T10:22:19.293000-05:00",
       "task": "Declare packaging in dabbler.yaml: replace the commented-out packaging intent at the end of the file with a live `packaging:` block whose `pack.argv` is [\"pwsh\", \"-NoProfile\", \"-File\", \"tools/pack.ps1\", \"-Version\", \"{version}\", \"-OutputDir\", \"{output}\", \"-CleanOutput\"], with no `push` and no `release:` member because CI publishes to nuget.org from the operator's annotated `nuget-v*` tag through trusted publishing. The step is proven by `dabbler packaging --rehearse --version 0.1.0-preview.2`.",
       "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 5,
+      "dateTime": "2026-11-07T10:51:12.244000-05:00",
+      "task": "Bump the single repository version to 0.1.0-preview.2 ahead of the operator-tagged release: set DabblerVersion in Directory.Build.props to 0.1.0-preview.2, change the -Version parameter default (and its help text) in tools/pack.ps1 to match, and create the root CHANGELOG.md with a 0.1.0-preview.2 entry stating that it changes no API and that Dabbler.CrudSlice.Tool is published for the first time.",
+      "releasable": false
     }
   ]
 }
