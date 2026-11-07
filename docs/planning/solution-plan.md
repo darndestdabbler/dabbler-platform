@@ -51,6 +51,24 @@ Success, stated so a reader can act on it:
    stays readable and overridable by the human developer who owns it.
 5. The planning documents in `docs/planning/` describe what exists. Specs for
    things that were never built are archived, not left to mislead.
+6. *(Added 2026-11-07.)* The source of every published package is public and
+   the project URL each package carries resolves. `dabbler-platform` and
+   `dabbler-pdf` were made public on 2026-11-07; this plan records it so the
+   next reader does not re-check.
+7. *(Added 2026-11-07.)* The libraries compile and test against the current
+   MudBlazor major (9.x; 9.12.0 on nuget.org as of 2026-10-29), and a written
+   support policy says how quickly a new MudBlazor major is adopted.
+8. *(Added 2026-11-07.)* The published surface is the set the operator will
+   stand behind, at a 1.0 version: no package carries a permanent preview
+   label, no deprecated package is still listed, and the Stubs ship as one
+   package.
+9. *(Added 2026-11-07.)* `Dabbler.Reports.Core` and `Dabbler.Reports.Export`
+   reference no UI framework, so the report engine and PDF export survive any
+   UI churn.
+10. *(Added 2026-11-07.)* A maintainer who has never seen this repository can
+    build, test, pack and release it from one document, and every consumer is
+    told that the fallback for a stalled library is to copy its MIT source
+    into their own application.
 
 Out of scope for this repository: the Access metadata extractor and the
 migration workflow itself (they live in `dabbler-access-migration`), the UAT
@@ -138,6 +156,21 @@ Notes a reader needs:
   `Dabbler.CrudSlice.Tool`. `Dabbler.SchemaApplicator` and
   `ComponentCatalogCrawler` are `IsPackable=false` — the first is bundled into
   `Dabbler.CrudSlice.Tool`, the second is a dev helper.
+- *(Added 2026-11-07.)* `Directory.Packages.props` pins MudBlazor at `8.15.0`
+  while nuget.org serves `9.12.0`. The published packages declare a floor
+  (`MudBlazor >= 8.15.0`), not a pin, so a consumer on 9.x restores cleanly
+  and runs binaries that were never compiled or tested against 9.x. MudBlazor
+  9 removed the obsolete synchronous APIs (`DialogService.Show<T>`,
+  `Validate()`, `Reset()`, `MudSelect.Clear`), changed `MudDataGrid.ServerData`
+  to take a `CancellationToken`, retired `MudGlobal` theming defaults and
+  renamed the `MudTabs` class parameters. `Dabbler.Security.Blazor` (36 razor
+  files) carries most of the exposure; `Dabbler.Components` exposes the
+  `ServerData` shape through `IGridDataProvider`.
+- *(Added 2026-11-07.)* The framework's `release: tag` declaration makes a
+  `vsix-v<version>` tag and a `pack`-only declaration names its tag from
+  `version.json`; `.github/workflows/build.yml` publishes on `nuget-v*`. Until
+  the framework can name the tag, a release here is an operator's hand tag
+  after an ordinary session bumps `DabblerVersion` (deferred cut 12).
 
 ---
 
@@ -195,7 +228,12 @@ and is the real direction in the project files today.
   subreports, conditional visibility).
   *Contract:* in — a valid report definition and a data source; out — a
   paginated layout model; fails — by reporting the offending definition node,
-  not by rendering a blank page. *Depends on:* `Dabbler.Components`.
+  not by rendering a blank page. *Depends on:* `Dabbler.Components` — and
+  *(found 2026-11-07)* only for the nine files under
+  `Dabbler.Components/Expressions/`, used by `BandLayoutEngine` and
+  `LayoutEvaluationContext`. Nothing else in `Dabbler.Components` uses that
+  folder. The reference drags MudBlazor into a package this plan calls
+  tier-neutral; deferred cut 8 moves the folder.
 - **`Dabbler.Reports.Export`** — PDF export of a composed layout.
   *Contract:* in — a layout from `Reports.Core`; out — a PDF byte stream;
   fails — by surfacing the underlying PDF error. *Depends on:*
@@ -270,7 +308,7 @@ The library cuts above are settled and in the tree. What is still open is
 whether two of them should survive — `Dabbler.Components.Compat` once no
 consumer references the retired surface, and `Dabbler.Platform.Stubs` as four
 packages rather than one — and whether the production-split rule gets an
-architecture test. Session 2 decides each, along with the six below.
+architecture test. Session 2 decides each, along with those below.
 
 ---
 
@@ -328,6 +366,59 @@ each**, and nothing here is settled by writing it down.
    **`AcmeCoffeeOnline.Shared` is missing from `Dabbler.Platform.sln`.** It is
    reached only by project reference. Add it, or say why the solution leaves
    it out.
+8. *(Added 2026-11-07 — sustainment.)* **`Dabbler.Reports.Core` depends on
+   `Dabbler.Components`** solely for `Dabbler.Components.Expressions`.
+   *Options:* move the nine files into `Dabbler.Reports.Core` under
+   `Dabbler.Reports.Core.Expressions` and drop the reference (a namespace
+   change; neither `Dabbler.NorthwindToBlazor` nor the migration solution
+   references the old namespace directly), or cut a new tier-neutral
+   `Dabbler.Expressions` package. *Operator leans:* move; no new package.
+   `Dabbler.Platform.Stubs.Reports` keeps its `Dabbler.Components` reference
+   only if something other than Expressions needs it.
+9. *(Added 2026-11-07 — sustainment.)* **MudBlazor 9.** Bump the central pin
+   to `9.12.0` and fix what breaks, libraries first (`Dabbler.Components`,
+   `.Compat`, `Dabbler.Reports.Blazor`, `Dabbler.Security.Blazor`), then the
+   reference app, the `dotnet new` templates and the CrudSlice scaffolding
+   templates. The `IGridDataProvider` contract gains a `CancellationToken`,
+   which is a public API change. *Operator leans:* do it now, and write the
+   policy as "adopt a new MudBlazor major within one quarter of its release",
+   enforced by a `.github/dependabot.yml` that watches MudBlazor and the
+   `Microsoft.*` 10.x line.
+10. *(Added 2026-11-07 — sustainment.)* **Surface reduction.** Seventeen
+    package IDs are published; the operator will stand behind twelve.
+    `Dabbler.Components.Compat` is already marked deprecated and no consumer
+    references it (`Dabbler.NorthwindToBlazor` references eight runtime
+    packages, none of them Compat; the migration solution consumes
+    `Dabbler.Templates` and `Dabbler.CrudSlice.Tool`). The three
+    `Dabbler.Platform.Stubs.*` providers fold into the one
+    `Dabbler.Platform.Stubs` package, which is the only Stubs ID a consumer
+    references today. `Dabbler.Templates` stays: it is the migration
+    consumer's entry point. *Operator leans:* delete Compat, fold the Stubs,
+    unlist the four retired IDs on nuget.org after the next release (unlist,
+    never delete).
+11. *(Added 2026-11-07 — sustainment.)* **Versioning.** `0.1.0-preview.2`
+    now, to ship `Dabbler.CrudSlice.Tool` (cut 3). `0.2.0` once cuts 8, 9 and
+    10 have landed — those are the breaking changes, and the preview label
+    retires with them. `1.0.0` once Phase 3 (honest gates) and the maintainer
+    guide are in. *Operator leans:* exactly that sequence; no further preview
+    releases.
+12. *(Added 2026-11-07 — sustainment.)* **The framework cannot yet make a
+    `nuget-v*` tag.** `release: tag` is hard-wired to `vsix-v<version>`
+    (`packages/router/src/packaging.ts`, `tagsFor`) and a `pack`-only
+    declaration takes its version from `version.json`, which this repository
+    does not keep. *Options:* the operator hand-tags `nuget-v<version>` after
+    an ordinary version-bump session (works today; the framework records no
+    `published` row); or a session in `dabbler-ai-orchestration` lets
+    `release: tag` name its tag (for example `tag: "nuget-v{version}"`) so a
+    release session here publishes through the framework; or `build.yml`
+    accepts a second tag pattern. *Operator leans:* hand-tag `0.1.0-preview.2`
+    now; land the framework change before `0.2.0`; never widen `build.yml`.
+13. *(Added 2026-11-07 — sustainment.)* **Legacy `docs/session-sets/`.**
+    Fifty-plus v1 session-set directories remain beside the v3 record.
+    *Options:* fold them with `dabbler session migrate --from <dir>` one by
+    one, move them under `docs/session-sets/_archived/`, or leave them and add
+    a one-paragraph README that says they are history. *Operator leans:*
+    leave them, add the README; migration buys nothing a reader needs.
 
 ---
 
@@ -351,7 +442,42 @@ The Access-migration walking skeleton is waiting on one package.
 *Done when:* `dotnet tool install --global Dabbler.CrudSlice.Tool --version
 0.1.0-preview.2` succeeds from a clean machine.
 
-### Phase 2 — Make the repository honest about its gates
+### Phase 2 — Sustainment (added 2026-11-07)
+
+The operator retires in roughly four years and the staff who inherit these
+libraries must be able to keep them alive, or copy them in and own them. This
+phase is what makes either outcome possible. Cuts 8 through 11 decide it; the
+packaging and `0.1.0-preview.2` sessions of Phase 1 come first because the
+migration consumer is waiting and the work is small.
+
+- **Move Expressions into `Dabbler.Reports.Core`** and drop the
+  `Dabbler.Components` reference from the report engine (cut 8).
+- **MudBlazor 9, libraries.** Bump the central pin, fix the four UI
+  libraries, run `Dabbler.Unit.slnf` (cut 9, first half).
+- **MudBlazor 9, reference app and templates.** Fix `AcmeCoffeeOnline.Web`,
+  `templates/Dabbler.Templates/content` and `tools/Dabbler.CrudSlice/Templates`;
+  `Dabbler.Templates.Tests` and `Dabbler.CrudSlice.Tests` prove the generated
+  apps still build; the Playwright run is a recorded manual gate until Phase 3
+  settles cut 2 (cut 9, second half).
+- **Surface reduction.** Delete `Dabbler.Components.Compat`; fold the three
+  Stubs providers into `Dabbler.Platform.Stubs`; update `tools/pack.ps1`'s
+  allowlist, `Dabbler.Publish.slnf`, the publish order in
+  `docs/packaging/release-checklist.md`, `Dabbler.PublicSurface.Tests` and
+  `Dabbler.Packaging.Smoke` to the twelve IDs (cut 10).
+- **Support policy and maintainer guide.** `docs/MAINTAINING.md` (clone, build,
+  test, pack, release by tag, the MudBlazor policy, where every gate lives),
+  `.github/dependabot.yml`, and an "If this library stops being maintained"
+  section in the root README and every package README that names the
+  fallback: copy the MIT source into your application and own it.
+- **Release `0.2.0`.** The preview label retires; the change-log names the
+  three breaking changes. Hand-tagged or framework-tagged per cut 12.
+
+*Done when:* `Directory.Packages.props` names MudBlazor 9.x, `0.2.0` of twelve
+package IDs is on nuget.org, the four retired IDs are unlisted, `dotnet test
+Dabbler.Unit.slnf` is green, and a reader can release the next patch from
+`docs/MAINTAINING.md` alone.
+
+### Phase 3 — Make the repository honest about its gates
 
 Decisions 2 and 6, which together decide whether a clean checkout on a second
 machine can run everything this repository claims to run.
@@ -370,7 +496,7 @@ machine can run everything this repository claims to run.
 repository names, and `dabbler deps check` is clean or its remaining report is
 explained in `solution-dependencies.json`.
 
-### Phase 3 — Retire what does not run
+### Phase 4 — Retire what does not run
 
 Decisions 1, 4 and 5 — removing dead weight so the next reader is not misled.
 
@@ -386,7 +512,13 @@ Decisions 1, 4 and 5 — removing dead weight so the next reader is not misled.
 *Done when:* nothing in the repository describes a workflow that cannot be
 run, and no document needs a banner to be read correctly.
 
-### Phase 4 — Platform work the consumer asks for
+### Phase 5 — Release `1.0.0`
+
+One release session, after Phases 2 through 4. Nothing else changes: `1.0.0`
+is the statement that the surface, the gates and the maintainer guide are
+what the operator will stand behind, and that staff can pin it.
+
+### Phase 6 — Platform work the consumer asks for
 
 Open-ended, and deliberately unplanned beyond its first session: the
 Access-migration solution is the customer, and its needs — CRUD slice
