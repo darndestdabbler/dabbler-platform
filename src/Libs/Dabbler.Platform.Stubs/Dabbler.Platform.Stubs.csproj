@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <PackageId>Dabbler.Platform.Stubs</PackageId>
+    <Description>Meta-package: full Dabbler platform stub coverage for bUnit and demo hosts. References Dabbler.Platform.Stubs.Components, .Reports, and .Security. Install this package when you want the complete stub surface, including AddDabblerPlatformStubs(definition) and the ctx.AddDabblerStubs(definition) bUnit shortcut.</Description>
+    <PackageTags>blazor;stubs;testing;bunit;demo-mode;dabbler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Meta-package: references all three focused sub-packages. -->
+    <ProjectReference Include="..\Dabbler.Platform.Stubs.Components\Dabbler.Platform.Stubs.Components.csproj" />
+    <ProjectReference Include="..\Dabbler.Platform.Stubs.Reports\Dabbler.Platform.Stubs.Reports.csproj" />
+    <ProjectReference Include="..\Dabbler.Platform.Stubs.Security\Dabbler.Platform.Stubs.Security.csproj" />
+    <!-- Direct reference for StubPlatformDefinition (uses Dabbler.Components types). -->
+    <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

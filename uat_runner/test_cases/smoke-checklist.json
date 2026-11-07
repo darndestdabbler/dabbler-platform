@@ -1,0 +1,20 @@
+{
+  "ProjectName": "UAT Runner Smoke Checklist",
+  "Review": [
+    {
+      "FunctionalArea": "Runner Smoke",
+      "Subarea": "Compile + Emit",
+      "ItemLabel": "Smoke: navigate to /login and verify the URL",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "VERIFY URL matches \"/login\""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using MudBlazor
+@inject ProductApiClient ProductClient
+
+<MudAutocomplete T="ProductDto"
+                 Value="Value"
+                 ValueChanged="OnValueChanged"
+                 SearchFunc="SearchProductsAsync"
+                 ToStringFunc="@(p => p?.Name ?? string.Empty)"
+                 Label="@Label"
+                 Placeholder="Search products…"
+                 Variant="Variant.Outlined"
+                 MaxItems="10"
+                 DebounceInterval="300"
+                 Clearable="true"
+                 Dense="true"
+                 Required="Required"
+                 RequiredError="Product is required"
+                 ResetValueOnEmptyText="true">
+    <ItemTemplate Context="product">
+        <MudStack Row="true" Spacing="2" Class="align-center">
+            <MudText Style="width: 200px;">@product.Name</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Style="width: 100px;">@product.RoastLevel</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Style="width: 80px;">@product.UnitPrice.ToString("C2")</MudText>
+        </MudStack>
+    </ItemTemplate>
+</MudAutocomplete>
+
+@code {
+    [Parameter]
+    public ProductDto? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<ProductDto?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Label { get; set; } = "Product";
+
+    [Parameter]
+    public bool Required { get; set; }
+
+    private async Task<IEnumerable<ProductDto>> SearchProductsAsync(
+        string? searchText, CancellationToken cancellationToken)
+    {
+        var request = new PagedRequest
+        {
+            Page = 1,
+            PageSize = 10,
+            SearchTerm = searchText,
+            SortBy = "Name"
+        };
+        var response = await ProductClient.GetAllAsync(request, cancellationToken);
+        return response.Items;
+    }
+
+    private async Task OnValueChanged(ProductDto? value)
+    {
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+    }
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "round": 1,
+    "category": "Completeness",
+    "severity": "Major",
+    "description": "crud-service-template.md was only updated with a cross-link; both template docs must explicitly reference the new applicator + deprecation status of the .ps1.",
+    "status": "fixed",
+    "fix_summary": "Added a 'Related Tooling' section near the end of crud-service-template.md that names Dabbler.SchemaApplicator, shows the invocation, and states the .ps1 deprecation. Also added a See Also pointer to the applicator README."
+  }
+]
