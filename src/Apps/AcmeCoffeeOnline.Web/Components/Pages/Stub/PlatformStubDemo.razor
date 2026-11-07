@@ -1,0 +1,97 @@
+@page "/platform/stub"
+@layout Layout.StandaloneLayout
+@using AcmeCoffeeOnline.Web.StubMode
+@using Dabbler.Platform.Stubs
+@using Microsoft.Extensions.DependencyInjection
+@inject IConfiguration Configuration
+@inject IServiceProvider Services
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Distributor Stub Demo</PageTitle>
+
+@if (!_isEnabled)
+{
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+        Stub mode is only available when `PlatformStubMode:Enabled` is true in a Development or Test host.
+    </MudAlert>
+}
+else if (_definition is null || _metadataProvider is null || _navigationProvider is null)
+{
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+        The stub mode route is enabled, but the stub services were not registered.
+    </MudAlert>
+}
+else
+{
+    <MudStack Spacing="2">
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+            This demo uses the reusable platform stubs to present an AcmeCoffeeDistributors workspace without the app's real metadata, navigation, query, or report providers.
+        </MudAlert>
+
+        <DabblerShell MetadataProvider="_metadataProvider"
+                      NavigationDataProvider="_navigationProvider"
+                      DetailFormFactory="CreateDetailForm"
+                      SearchPageFactory="CreateSearchPage"
+                      NewRecordFactory="CreateNewRecordPage"
+                      ReportPageFactory="CreateReportPage"
+                      Title="Distributor Demo"
+                      UserRoles="_userRoles"
+                      HomePageConfiguration="_definition.HomePageConfiguration"
+                      DashboardConfigurationResolver="ResolveDashboard"
+                      ReportItems="_definition.ReportItems" />
+    </MudStack>
+}
+
+@code {
+    private bool _isEnabled;
+    private StubPlatformDefinition? _definition;
+    private StubEntityMetadataProvider? _metadataProvider;
+    private StubNavigationDataProvider? _navigationProvider;
+    private readonly string[] _userRoles = ["BackofficeUser"];
+
+    protected override void OnInitialized()
+    {
+        _isEnabled = (Environment.IsDevelopment() || Environment.IsEnvironment("Test"))
+            && Configuration.GetValue("PlatformStubMode:Enabled", false);
+
+        if (!_isEnabled)
+        {
+            return;
+        }
+
+        _definition = Services.GetService<StubPlatformDefinition>();
+        _metadataProvider = Services.GetService<StubEntityMetadataProvider>();
+        _navigationProvider = Services.GetService<StubNavigationDataProvider>();
+    }
+
+    private RenderFragment CreateSearchPage(string entityName, SmartFilterDefinition? preFilter) => builder =>
+    {
+        builder.OpenComponent<PlatformStubCustomerSearch>(0);
+        builder.CloseComponent();
+    };
+
+    private RenderFragment CreateDetailForm(string entityName, object primaryKey) => builder =>
+    {
+        builder.OpenComponent<PlatformStubDetail>(0);
+        builder.AddAttribute(1, nameof(PlatformStubDetail.EntityName), entityName);
+        builder.AddAttribute(2, nameof(PlatformStubDetail.PrimaryKey), primaryKey);
+        builder.CloseComponent();
+    };
+
+    private RenderFragment CreateNewRecordPage(string entityName) => builder =>
+    {
+        builder.OpenComponent<PlatformStubDetail>(0);
+        builder.AddAttribute(1, nameof(PlatformStubDetail.EntityName), entityName);
+        builder.AddAttribute(2, nameof(PlatformStubDetail.PrimaryKey), "new");
+        builder.CloseComponent();
+    };
+
+    private RenderFragment CreateReportPage(string reportName) => builder =>
+    {
+        builder.OpenComponent<PlatformStubSalesReport>(0);
+        builder.CloseComponent();
+    };
+
+    private DashboardConfiguration? ResolveDashboard(string dashboardId) =>
+        _definition?.Dashboards.TryGetValue(dashboardId, out var dashboard) == true ? dashboard : null;
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "solution": "dabbler",
+  "repositoryId": "dabbler-platform",
+  "consumes": [
+    {
+      "id": "Dabbler.Uat.Dsl.Core",
+      "kind": "nuget",
+      "producedBy": {
+        "id": "dabbler-uat-dsl",
+        "remote": null,
+        "path": "../dabbler-uat-dsl"
+      },
+      "feed": "dabbler-uat-dsl-local",
+      "resolve": "feed"
+    },
+    {
+      "id": "Dabbler.Uat.Dsl.Emitters.Playwright.CSharp",
+      "kind": "nuget",
+      "producedBy": {
+        "id": "dabbler-uat-dsl",
+        "remote": null,
+        "path": "../dabbler-uat-dsl"
+      },
+      "feed": "dabbler-uat-dsl-local",
+      "resolve": "feed"
+    }
+  ]
+}

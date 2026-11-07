@@ -1,0 +1,9 @@
+[
+  {
+    "severity": "Minor",
+    "description": "Shell's HandlePrimaryActionAsync resets _detailsContext.IsDirty after invoking OnSaveAndUseRequested even when the consumer's save handler returned null (validation failure). The dialog stayed open but the label briefly flipped from 'Save and Use' back to 'Use' until the next field edit.",
+    "location": "PickOrAddDialog.HandleSaveAndUseRequestedAsync (the shell-side reset is correct; the dialog needed to signal cancellation).",
+    "status": "fixed",
+    "fix": "PickOrAddDialog now throws OperationCanceledException when OnSaveAndUse returns null. The shell's existing OperationCanceledException catch preserves dirty state."
+  }
+]
