@@ -22,6 +22,13 @@
       "dateTime": "2026-11-07T10:08:32.609000-05:00",
       "task": "Complete the existing solution skeleton and prove the production split. List the already-existing src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj in Dabbler.Platform.sln at the solution root (alongside AcmeCoffeeOnline.Web and AcmeCoffeeOnline.Api, which are not nested in a solution folder), adopting every other project, reference and the existing unit suite as they are. Then add tests/AcmeCoffeeOnline.Web.Tests/ProductionSplitTests.cs, an xUnit architecture test in the existing AcmeCoffeeOnline.Web.Tests project (so it runs in the unit suite), asserting that no type in the AcmeCoffeeOnline.Web assembly derives from Microsoft.EntityFrameworkCore.DbContext and that AcmeCoffeeOnline.Web.csproj names no Microsoft.EntityFrameworkCore* package reference.",
       "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 4,
+      "dateTime": "2026-11-07T10:22:19.293000-05:00",
+      "task": "Declare packaging in dabbler.yaml: replace the commented-out packaging intent at the end of the file with a live `packaging:` block whose `pack.argv` is [\"pwsh\", \"-NoProfile\", \"-File\", \"tools/pack.ps1\", \"-Version\", \"{version}\", \"-OutputDir\", \"{output}\", \"-CleanOutput\"], with no `push` and no `release:` member because CI publishes to nuget.org from the operator's annotated `nuget-v*` tag through trusted publishing. The step is proven by `dabbler packaging --rehearse --version 0.1.0-preview.2`.",
+      "releasable": false
     }
   ]
 }

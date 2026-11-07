@@ -15,7 +15,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 1 | Author or import the solution plan | no | 2026-10-03 |
 | 2 | Challenge the plan, then break it into numbered sessions | no | 2026-11-07 |
 | 3 | Skeleton — complete the existing solution and prove the production split | no | 2026-11-07 |
-| 4 | Declare packaging | — | not declared |
+| 4 | Declare packaging | no | 2026-11-07 |
 | 5 | Bump to 0.1.0-preview.2 | — | not declared |
 | 6 | Move Expressions into Dabbler.Reports.Core | — | not declared |
 | 7 | Surface reduction — 16 package IDs to 12 | — | not declared |
@@ -44,3 +44,9 @@ Challenge docs/planning/solution-plan.md and turn it into numbered sessions. Ste
 **Releasable: no.**
 
 Complete the existing solution skeleton and prove the production split. List the already-existing src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj in Dabbler.Platform.sln at the solution root (alongside AcmeCoffeeOnline.Web and AcmeCoffeeOnline.Api, which are not nested in a solution folder), adopting every other project, reference and the existing unit suite as they are. Then add tests/AcmeCoffeeOnline.Web.Tests/ProductionSplitTests.cs, an xUnit architecture test in the existing AcmeCoffeeOnline.Web.Tests project (so it runs in the unit suite), asserting that no type in the AcmeCoffeeOnline.Web assembly derives from Microsoft.EntityFrameworkCore.DbContext and that AcmeCoffeeOnline.Web.csproj names no Microsoft.EntityFrameworkCore* package reference.
+
+### Session 4 — Declare packaging
+
+**Releasable: no.**
+
+Declare packaging in dabbler.yaml: replace the commented-out packaging intent at the end of the file with a live `packaging:` block whose `pack.argv` is ["pwsh", "-NoProfile", "-File", "tools/pack.ps1", "-Version", "{version}", "-OutputDir", "{output}", "-CleanOutput"], with no `push` and no `release:` member because CI publishes to nuget.org from the operator's annotated `nuget-v*` tag through trusted publishing. The step is proven by `dabbler packaging --rehearse --version 0.1.0-preview.2`.
