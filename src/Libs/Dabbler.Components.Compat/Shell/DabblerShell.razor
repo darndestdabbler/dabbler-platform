@@ -1,0 +1,59 @@
+@namespace Dabbler.Components.Compat
+@inherits DabblerComponentBase
+@using Dabbler.Components.Data.Metadata
+
+<div class="dabbler-shell @Class" style="@Style" @attributes="UserAttributes">
+
+    @* ── Skip-to-content link (WCAG 2.4.1) ────────────────────── *@
+    <a href="@SkipLinkHref" class="dabbler-skip-link">
+        Skip to main content
+    </a>
+
+    @* ── Top menu bar ────────────────────────────────────────── *@
+    @if (ShowTopMenuBar)
+    {
+        <DabblerTopMenuBar UsageTrackingProvider="UsageTrackingProvider!"
+                           CatalogProvider="CatalogProvider!"
+                           UserId="@UserId"
+                           AppTitle="@Title"
+                           OnArtifactSelected="HandleMenuArtifactSelectedAsync"
+                           OnCatalogRequested="HandleCatalogRequestedAsync"
+                           TrailingContent="MenuBarTrailingContent" />
+    }
+
+    @* ── Body: nav panel + workspace side by side ────────────── *@
+    <div class="dabbler-shell-body">
+
+        @* ── Navigation panel ────────────────────────────────── *@
+        <DabblerNavigationPanel MetadataProvider="MetadataProvider"
+                                NavigationDataProvider="NavigationDataProvider"
+                                ReportItems="ReportItems"
+                                Title="@Title"
+                                OnRecordSelected="HandleRecordSelectedAsync"
+                                OnSearchRequested="HandleSearchRequestedAsync"
+                                OnNewRequested="HandleNewRequestedAsync"
+                                OnEntitySelected="HandleEntitySelectedAsync"
+                                OnReportSelected="HandleReportSelectedAsync"
+                                IsCollapsed="_isNavCollapsed"
+                                IsCollapsedChanged="(collapsed) => { _isNavCollapsed = collapsed; }"
+                                FocusedEntityName="@_focusedEntityName"
+                                FocusedRecordKey="@_focusedRecordKey" />
+
+        @* ── Tabbed workspace (WCAG landmark: <main>) ─────────── *@
+        <main id="dabbler-main-content" class="dabbler-shell-workspace"
+              aria-label="@(Title != null ? $"{Title} workspace" : "Workspace")">
+            <DabblerTabbedWorkspace @ref="_workspace"
+                                    Tabs="_tabs"
+                                    ActiveTabId="@_activeTabId"
+                                    ActiveTabIdChanged="HandleActiveTabChangedAsync"
+                                    MaxTabs="MaxTabs"
+                                    OnTabClose="HandleTabClose"
+                                    OnTabOpen="HandleTabOpen"
+                                    OnTabReorder="HandleTabReorder"
+                                    OnDirtyTabCloseConfirmed="HandleDirtyTabCloseConfirmed"
+                                    EmptyStateTemplate="EmptyStateTemplate" />
+        </main>
+
+    </div>
+
+</div>

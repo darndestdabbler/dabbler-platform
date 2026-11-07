@@ -1,0 +1,255 @@
+{
+  "sessionSetName": "dabbler-nuget-feed-publication",
+  "createdDate": "2026-05-29T16:48:39.501198-04:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/lock-crux",
+      "dateTime": "2026-05-29T17:23:12.653383-04:00",
+      "description": "Locked feed crux with owner via AskUserQuestion: public/open audience, permanent public IDs acceptable, anonymous-read required, GitHub Packages available but no nuget.org account yet.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/ground-truth",
+      "dateTime": "2026-05-29T17:23:12.653383-04:00",
+      "description": "Extracted package surface (15 IDs), internal dependency graph, confirmed DabblerPdf 1.1.2 already public on nuget.org (Reports.* closure resolves anonymously; LGPL/MPL copyleft transitive), template nuget.config no-source-mapping footgun, template hard-depends on Dabbler.Platform.Stubs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/opus-contribution",
+      "dateTime": "2026-05-29T17:23:12.653383-04:00",
+      "description": "Authored orchestrator (Opus) panel contribution directly with full repo context (session-1-review/opus.md).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/tri-provider-review",
+      "dateTime": "2026-05-29T17:23:12.653383-04:00",
+      "description": "Dispatched self-contained architecture prompt to GPT-5.4 and Gemini 2.5 Pro via call_model.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5.4",
+          "taskType": "architecture",
+          "inputTokens": 1352,
+          "outputTokens": 11867,
+          "costUsd": 0.1814
+        },
+        {
+          "model": "gemini-2.5-pro",
+          "taskType": "architecture",
+          "inputTokens": 1395,
+          "outputTokens": 2633,
+          "costUsd": 0.0281
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/record-decision",
+      "dateTime": "2026-05-29T17:23:12.653383-04:00",
+      "description": "Synthesized the tri-provider verdict into feed-publication-decision.md; resolved the one divergence (GPT-5.4 stub exclusion) via local ground truth (template hard-dependency).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-05-29T17:23:12.659971-04:00",
+      "description": "Authored ai-assignment.md from routed analysis.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-2.5-pro",
+          "taskType": "analysis",
+          "inputTokens": 887,
+          "outputTokens": 1439,
+          "costUsd": 0.0155
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-05-29T17:27:29.796584-04:00",
+      "description": "Cross-provider session-verification by GPT-5.4: VERDICT VERIFIED, no Critical/Major; 3 Minor (presentation) findings addressed in the decision doc.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5.4",
+          "taskType": "session-verification",
+          "inputTokens": 3080,
+          "outputTokens": 7792,
+          "costUsd": 0.12458,
+          "verdict": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-05-29T17:27:57.666437-04:00",
+      "description": "Cross-provider session-verification by GPT-5.4: VERDICT VERIFIED, no Critical/Major; 3 Minor (presentation) findings addressed in the decision doc.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5.4",
+          "taskType": "session-verification",
+          "inputTokens": 3080,
+          "outputTokens": 7792,
+          "costUsd": 0.12458,
+          "verdict": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/prerequisites",
+      "dateTime": "2026-05-29T20:19:17.516670-04:00",
+      "description": "Confirmed Session 2 prerequisites with the owner: nuget.org publisher account exists, scoped Dabbler.* API key exists, and a protected GitHub Environment contains NUGET_API_KEY.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/pack-script",
+      "dateTime": "2026-05-29T20:19:17.516670-04:00",
+      "description": "Updated tools/pack.ps1 for publish CI: clean-output mode, scratch-cache reset, optional warnings-as-errors, and explicit PackAsDependency packing.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/publish-workflow",
+      "dateTime": "2026-05-29T20:19:17.516670-04:00",
+      "description": "Authored .github/workflows/nuget-publish.yml: nuget-v* tag trigger for nuget.org publication with artifact promotion plus workflow_dispatch dry-run publication to GitHub Packages.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/guardrails",
+      "dateTime": "2026-05-29T20:19:17.516670-04:00",
+      "description": "Carried forward the Session 1 guardrails in the workflow: SemVer tag parsing, clean temp package output, package artifact checks, consumer smoke tests, protected publish environment, and --skip-duplicate pushes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/validation",
+      "dateTime": "2026-05-29T20:19:17.519331-04:00",
+      "description": "Validated the publish path locally: tools/pack.ps1 succeeded against tmp/nuget-publish-validation, Dabbler.PublicSurface.Tests passed, and Dabbler.Packaging.Smoke passed against the staged artifacts (excluding the runtime LocalDB smoke gate).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/takeover-ci-fixes",
+      "dateTime": "2026-05-29T22:14:18.204522-04:00",
+      "description": "Opus took over and fixed 4 CI-environment-only failures: tag-regex double-anchor; full-solution build pulling AcmeCoffeeOnline.Playwright's sibling-repo feed (added Dabbler.Publish.slnf solution filter); two packable libs not .sln members so pack --no-build failed (direct builds); .slnx + inline --source URL restore quirk (nuget.config).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/trusted-publishing-and-publish",
+      "dateTime": "2026-05-29T22:14:18.204522-04:00",
+      "description": "Switched auth from NUGET_API_KEY secret to OIDC trusted publishing (NuGet/login@v1, id-token: write); renamed workflow to build.yml to match the policy. Owner created the trusted-publishing policy and pushed the tag; all 15 Dabbler.* packages (+ snupkg) published to nuget.org at 0.1.0-preview.1 (every push Created). Owner accepted the full set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-05-29T22:14:18.204522-04:00",
+      "description": "Cross-provider session-verification by Gemini 2.5 Pro: ISSUES_FOUND, no Critical. Dispositioned: Major#2 (downgrade SDK to 8.0.x) REJECTED as false positive (platform targets net10.0; pre-.NET-10 knowledge cutoff); Major#1 (SHA-pin actions) accepted as deferred hardening follow-up; Minor#2 (workflow name) applied; Minor#1 (loop vs wildcard) declined. No blocking defects.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-2.5-pro",
+          "taskType": "session-verification",
+          "inputTokens": 3604,
+          "outputTokens": 603,
+          "costUsd": 0.0105,
+          "verdict": "ISSUES_FOUND"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/template-feed-only",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "dabbler-app nuget.config -> feed-only (<clear/> + nuget.org); removed local ./packages source + packages/.gitkeep; Web Dockerfile dropped COPY packages/ (kept COPY nuget.config).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/docs",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Rewrote template README (NuGet packages & versions + Offline restore) and consumer-readiness.md (status->published; Local-Feed-Only limitation RESOLVED; consumer next-steps reframed). getting-started.md already feed-based. .gitignore comment refreshed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/consumer-gate",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Clean-machine consumer-validation gate GREEN: packed updated template, installed, scaffolded dabbler-app outside repo, confirmed feed-only nuget.config + no packages/ dir, cleared http-cache + built with isolated NUGET_PACKAGES; 12 Dabbler.* (+DabblerPdf) restored from nuget.org; build + scaffolded bUnit test passed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Cross-provider session-verification (Gemini 2.5 Pro, cross-provider to Opus orchestrator): VERIFIED, zero Critical/Major.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-2.5-pro",
+          "taskType": "session-verification",
+          "inputTokens": 3923,
+          "outputTokens": 832,
+          "costUsd": 0.0132,
+          "verdict": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/closeout",
+      "dateTime": "2026-05-29T22:57:56.958593-04:00",
+      "description": "Authored end-of-set change-log.md; noted downstream Dabbler.NorthwindToBlazor vendoring cleanup unblocked. Final session: set status flips to complete.",
+      "status": "complete",
+      "routedApiCalls": []
+    }
+  ]
+}

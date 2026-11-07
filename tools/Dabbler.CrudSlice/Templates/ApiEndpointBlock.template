@@ -1,0 +1,6 @@
+// {{EntityPlural}}
+endpoints.Add("Query{{Entity}}", "Query {{EntityPlural}}", "POST", "/api/{{PathPlural}}/query");
+endpoints.Add("Get{{Entity}}", "GET {{Entity}} by ID", "GET", "/api/{{PathPlural}}/{id}");
+endpoints.Add("Create{{Entity}}", "Create {{Entity}}", "POST", "/api/{{PathPlural}}");
+endpoints.Add("Update{{Entity}}", "Update {{Entity}}", "PUT", "/api/{{PathPlural}}/{id}");
+endpoints.Add("Delete{{Entity}}", "Delete {{Entity}}", "DELETE", "/api/{{PathPlural}}/{id}");

@@ -1,0 +1,230 @@
+@page "/admin/users/{UserId:int}/roles"
+@using System.Security.Claims
+@using Dabbler.Security.Entities
+@using Dabbler.Security.Abstractions
+@using Dabbler.Security.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
+@using MudBlazor
+@attribute [Authorize(Roles = "UserAdministrator")]
+@inject IUserService UserService
+@inject DabblerSecurityDbContext DbContext
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthStateProvider
+
+@*
+/// <summary>
+/// Manages role assignments for a specific user. Allows administrators to add or remove roles.
+/// This page is restricted to users with the "UserAdministrator" role.
+/// </summary>
+*@
+
+<PageTitle>Role Assignments</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+    <MudText Typo="Typo.h1" Class="mb-4">Role Assignments</MudText>
+    <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">@_statusMessage</div>
+    <div class="visually-hidden" role="alert" aria-live="assertive" aria-atomic="true">@_errorMessage</div>
+
+    @if (_loading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else if (_user == null)
+    {
+        <MudAlert Severity="Severity.Error">User not found.</MudAlert>
+    }
+    else
+    {
+        <MudPaper Elevation="3" Class="pa-8">
+            <MudText Typo="Typo.h5" Class="mb-2">User: @_user.DisplayName (@_user.Email)</MudText>
+            <MudDivider Class="mb-6" />
+
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-4">Available Roles</MudText>
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var role in _availableRoles)
+                        {
+                            <MudButton Variant="Variant.Outlined" Color="Color.Success"
+                                       StartIcon="@Icons.Material.Filled.Add"
+                                       OnClick="@(() => AssignRole(role))"
+                                       FullWidth="true">
+                                @role.Name
+                            </MudButton>
+                        }
+                        @if (!_availableRoles.Any())
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">No more roles available to assign.</MudText>
+                        }
+                    </div>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-4">Assigned Roles</MudText>
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var role in _assignedRoles)
+                        {
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error"
+                                       StartIcon="@Icons.Material.Filled.Remove"
+                                       OnClick="@(() => RemoveRole(role))"
+                                       FullWidth="true">
+                                @role.Name
+                            </MudButton>
+                        }
+                        @if (!_assignedRoles.Any())
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">No roles assigned.</MudText>
+                        }
+                    </div>
+                </MudItem>
+            </MudGrid>
+
+            <div class="d-flex justify-end mt-6">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Done">Done</MudButton>
+            </div>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    /// <summary>
+    /// Gets or sets the unique identifier of the user whose roles are being managed.
+    /// This value is supplied by the route parameter.
+    /// </summary>
+    [Parameter]
+    public int UserId { get; set; }
+
+    private bool _loading = true;
+    private AppUser? _user;
+    private List<AppRole> _allRoles = new();
+    private List<AppRole> _assignedRoles = new();
+    private List<AppRole> _availableRoles = new();
+    private int _currentUserId;
+    private string _statusMessage = string.Empty;
+    private string _errorMessage = string.Empty;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(userIdClaim, out var uid))
+        {
+            _currentUserId = uid;
+        }
+
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        try
+        {
+            _user = await UserService.GetByIdCachedAsync(UserId);
+            if (_user == null) return;
+
+            _allRoles = await DbContext.AppRoles.Where(r => r.DeletedAt == null).ToListAsync();
+            
+            var assignedRoleIds = _user.Roles.Select(r => r.RoleId).ToList();
+            _assignedRoles = _allRoles.Where(r => assignedRoleIds.Contains(r.Id)).ToList();
+            _availableRoles = _allRoles.Where(r => !assignedRoleIds.Contains(r.Id)).ToList();
+        }
+        catch
+        {
+            Announce("Error loading data. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task AssignRole(AppRole role)
+    {
+        try
+        {
+            var userRole = new AppUserRole
+            {
+                UserId = UserId,
+                RoleId = role.Id,
+                AssignedBy = _currentUserId,
+                AssignedAt = DateTime.UtcNow
+            };
+
+            DbContext.AppUserRoles.Add(userRole);
+            await DbContext.SaveChangesAsync();
+
+            _availableRoles.Remove(role);
+            _assignedRoles.Add(role);
+            
+            Announce($"Role '{role.Name}' assigned.", Severity.Success);
+        }
+        catch
+        {
+            Announce("Error assigning role. Please try again.", Severity.Error);
+        }
+    }
+
+    private async Task RemoveRole(AppRole role)
+    {
+        try
+        {
+            // Prevent removing the last UserAdministrator
+            if (role.Name == "UserAdministrator")
+            {
+                var adminCount = await DbContext.AppUserRoles
+                    .CountAsync(ur => ur.RoleId == role.Id && ur.DeletedAt == null);
+                    
+                if (adminCount <= 1)
+                {
+                    Announce("Cannot remove the last UserAdministrator.", Severity.Warning);
+                    return;
+                }
+            }
+
+            var userRole = await DbContext.AppUserRoles
+                .FirstOrDefaultAsync(ur => ur.UserId == UserId && ur.RoleId == role.Id);
+
+            if (userRole != null)
+            {
+                // Soft delete only — preserve audit trail via temporal tables
+                userRole.DeletedAt = DateTime.UtcNow;
+                userRole.DeletedBy = _currentUserId;
+                await DbContext.SaveChangesAsync();
+
+                _assignedRoles.Remove(role);
+                _availableRoles.Add(role);
+
+                Announce($"Role '{role.Name}' removed.", Severity.Success);
+            }
+        }
+        catch
+        {
+            Announce("Error removing role. Please try again.", Severity.Error);
+        }
+    }
+
+    private void Done()
+    {
+        NavigationManager.NavigateTo("/admin/users");
+    }
+
+    private void Announce(string message, Severity severity)
+    {
+        Snackbar.Add(message, severity);
+
+        if (severity == Severity.Error)
+        {
+            _errorMessage = message;
+            _statusMessage = string.Empty;
+            return;
+        }
+
+        _statusMessage = message;
+        _errorMessage = string.Empty;
+    }
+}

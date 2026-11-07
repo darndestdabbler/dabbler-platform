@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Dabbler Platform contributors",
+  "classifications": [ "Web", "Blazor", "CRUD", "Scaffolding" ],
+  "identity": "Dabbler.Templates.CrudPage.CSharp",
+  "name": "Dabbler CRUD Page Slice",
+  "shortName": "dabbler-crud-page",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "description": "Item template that scaffolds a Blazor Server CRUD slice for a single entity: the list page (MudDataGrid + DeclarativeFilterPanel), the detail/edit page (MudForm + EditSession + DirtyAwareActionRow), and the typed HttpClient + IGridDataProvider that bridge to the dabbler-crud-service endpoints. Pre-stage the DTO ({Entity}Dto.cs) before invoking. Per-property grid columns / form fields / filter properties are filled in by a companion Apply-{Entity}Schema.ps1 post-process script that reads the .dabbler-entity.json schema after generation; without it the slice still emits a compilable Id-only fallback.",
+  "symbols": {
+    "entity": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T1Entity",
+      "fileRename": "T1Entity",
+      "description": "Entity class name (PascalCase). Drives type names, file names, and the singular surfaces inside the generated pages."
+    },
+    "entityPlural": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T2EntityPlural",
+      "fileRename": "T2EntityPlural",
+      "description": "Entity plural class name (PascalCase). Drives the list-page folder + file name and the lowercased route URL."
+    },
+    "webNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T3WebNs",
+      "description": "Web project root namespace (e.g., 'AcmeCoffeeOnline.Web'). Generated namespaces hang off this root."
+    },
+    "sharedNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T4SharedNs",
+      "description": "Shared project root namespace (e.g., 'AcmeCoffeeOnline.Shared'). Accepted for symmetry with the service template; not directly referenced in this template's content."
+    },
+    "dtoNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T5DtoNs",
+      "description": "Namespace containing {Entity}Dto (typically the Shared project's DTO namespace, e.g., 'AcmeCoffeeOnline.Shared.DTOs')."
+    },
+    "apiBaseUrlConfigKey": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": false,
+      "defaultValue": "Services:ApiBaseUrl",
+      "replaces": "T6ApiBaseUrlKey",
+      "description": "Configuration key consulted by the generated AddT1EntityScaffolding extension to resolve the API base URL. Defaults to 'Services:ApiBaseUrl' and falls back to 'ApiBaseUrl' before the hardcoded localhost default."
+    },
+    "pkType": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": false,
+      "defaultValue": "int",
+      "replaces": "T7PkType",
+      "description": "Primary-key CLR type for the entity. Defaults to 'int'. Use 'long', 'Guid', etc. for non-int PKs. Must match the schema file's primaryKey.type and the EF entity's Id property type."
+    },
+    "derivedPkRouteConstraint": {
+      "type": "generated",
+      "generator": "switch",
+      "parameters": {
+        "evaluator": "C++",
+        "datatype": "string",
+        "cases": [
+          { "condition": "(pkType == \"int\")",  "value": ":int" },
+          { "condition": "(pkType == \"long\")", "value": ":long" },
+          { "condition": "(pkType == \"Guid\")", "value": ":guid" },
+          { "condition": "(pkType == \"System.Guid\")", "value": ":guid" },
+          { "condition": "(true)", "value": "" }
+        ]
+      },
+      "replaces": "T8PkRoute"
+    },
+    "routeName": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "entityPlural",
+        "toLower": true
+      },
+      "replaces": "T9RouteName"
+    },
+    "schema": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "T10SchemaPath",
+      "description": "Path (relative to the working directory at template-invocation time) to a .dabbler-entity.json schema file. Stamped into the generated Apply-{Entity}Schema.ps1 as its default schema location, so re-running the script picks the same file automatically. Required per the crud-scaffolding spec — the page template enumerates fields on the grid, in the form, and in the filter config, and the schema is the per-property input. The schema file lists each property's name + type + per-surface flags (isInGrid, isInForm, isFilterable, isSortable, isReadOnly)."
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "rename": {
+        "Components/Pages/T2EntityPlural/Apply-T1EntitySchema.dabbler-ps": "Components/Pages/T2EntityPlural/Apply-T1EntitySchema.ps1"
+      }
+    }
+  ],
+  "primaryOutputs": [
+    { "path": "Components/Pages/T2EntityPlural/T2EntityPluralPage.razor" },
+    { "path": "Components/Pages/T2EntityPlural/T1EntityDetailPage.razor" },
+    { "path": "Components/Pages/T2EntityPlural/T1EntityNewPage.razor" },
+    { "path": "Components/Pages/T2EntityPlural/T1EntityList.razor" },
+    { "path": "Components/Pages/T2EntityPlural/T1EntityDetail.razor" },
+    { "path": "Components/Pages/T2EntityPlural/Apply-T1EntitySchema.ps1" },
+    { "path": "Data/T1EntityApiClient.cs" },
+    { "path": "Data/T1EntityGridDataProvider.cs" },
+    { "path": "Data/T1EntityScaffoldingExtensions.cs" }
+  ]
+}

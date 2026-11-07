@@ -1,0 +1,33 @@
+{
+  "status": "completed",
+  "summary": "Session 1 of 1: implemented Option 1 components 1-5 from the sensitive-field-masking-audit-uat-remediation disposition. Renamed /admin/users to 'Manage Organization Admins'; added ExcludeUserAdminAssignment parameter (default=true) to UserRoleAssignmentDetails.razor that filters UserAdmin from the dashboard role dropdown and renders assigned UserAdmin chips as read-only; added per-org cross-link banner in the details panel pointing to /auth/switch-organization?...&returnUrl=/admin/users; added dashboard cross-link banner on /admin/users for SystemAdmin/CrossOrgUserAdmin/UserAdmin actors (banner URL is /admin/security, corrected from the original /admin/security-dashboard path). Auth-correct gating uses AuthenticationStateProvider for Blazor interactive compatibility. Cross-provider session verification returned VERIFIED with 0 issues. UAT checklist rewritten with 3 self-contained user journeys (each starting from /login) after the first-draft single-VERIFY-item structure was rejected by the human reviewer; W2 compiled-test does not pass due to a structural conflict between the W0-runner-emitted SeededSignInAsync wrapper and the DSL-driven /login flow — documented in upstream-feedback-disposition-gate.md and surfaced to dabbler-ai-orchestration for resolution.",
+  "verification_method": "api",
+  "files_changed": [
+    "src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Admin/UserManagement.razor",
+    "src/Libs/Dabbler.Security.Blazor/Components/Admin/Users/UserRoleAssignmentDetails.razor",
+    "tests/AcmeCoffeeOnline.Web.Tests/Pages/Admin/UserManagementPageTests.cs",
+    "tests/Dabbler.Security.Blazor.Tests/Components/Admin/Users/UserRoleAssignmentDetailsTests.cs",
+    "docs/session-sets/admin-users-cross-links/spec.md",
+    "docs/session-sets/admin-users-cross-links/ai-assignment.md",
+    "docs/session-sets/admin-users-cross-links/change-log.md",
+    "docs/session-sets/admin-users-cross-links/admin-users-cross-links-uat-checklist.json",
+    "docs/session-sets/admin-users-cross-links/session-reviews/session-001.md",
+    "docs/session-sets/admin-users-cross-links/disposition.json",
+    "docs/session-sets/admin-users-cross-links/upstream-feedback-disposition-gate.md",
+    "docs/component-catalog/index.json",
+    "docs/component-catalog/SystemAdmin.json",
+    "docs/component-catalog/CrossOrgUserAdmin.json",
+    "docs/component-catalog/CrossOrgMonitor.json",
+    "docs/component-catalog/BackofficeUser.json",
+    "docs/component-catalog/User.json",
+    "tools/uat-suppressions.json",
+    "uat_runner/runner.py",
+    "docs/planning/project-guidance.md",
+    "docs/planning/lessons-learned.md"
+  ],
+  "verification_message_ids": [],
+  "next_orchestrator": null,
+  "blockers": [
+    "W2 compiled-test does not pass: W0-runner-emitted test wrapper auto-inserts SeededSignInAsync(admin@acmecoffee.com), which collides with the DSL's NAVIGATE TO /login → enter email → click send-link flow (the persona is already signed in before the DSL runs, so the login form is missing and the DSL's CLICK INPUT 'Email address' step times out). Filed upstream as part of upstream-feedback-disposition-gate.md → 'W2 runner wrapper vs DSL-driven login' section. Human UAT (the primary deliverable) is correct; bUnit tests cover the programmatic correctness of dropdown filtering, banner visibility, and cross-link rendering. Resolving the W2 pass is gated on the W0 runner adding a --no-pre-sign-in flag (or equivalent auto-detect)."
+  ]
+}
