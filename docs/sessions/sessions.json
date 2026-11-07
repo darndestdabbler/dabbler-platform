@@ -69,9 +69,9 @@
     {
       "number": 4,
       "title": "Declare packaging",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-07T10:19:23.359000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-07T10:35:29.191000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
