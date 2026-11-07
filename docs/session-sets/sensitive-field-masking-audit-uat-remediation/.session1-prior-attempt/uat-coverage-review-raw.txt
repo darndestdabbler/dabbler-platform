@@ -1,0 +1,58 @@
+## ISSUES_FOUND
+
+### Protocol 4 — `page.GetByTestId` in non-judgment step blocks
+
+| Review Item | Step | Concern |
+|---|---|---|
+| UAT-1 | 001 | `page.GetByTestId("login-page")` — direct test-id assertion inside a human-equivalent step block |
+| UAT-2 | 001 | Same `GetByTestId("login-page")` |
+| UAT-3 | 001 | Same `GetByTestId("login-page")` |
+| UAT-4 | 001 | Same `GetByTestId("login-page")` |
+| UAT-6 | 001 | Same `GetByTestId("login-page")` |
+
+**Fix:** Replace with `page.GetByText("Sign in")` or `page.GetByRole(AriaRole.Heading, ...)` matching visible login-page content.
+
+---
+
+### Protocol 4 — Raw CSS selectors in non-judgment step blocks
+
+| Review Item | Step | Selector | Concern |
+|---|---|---|---|
+| UAT-1 | 006 | `Locator("tbody tr.mud-table-row")`, `Locator("td[data-label='Link'] a")` | Framework-structural CSS, not a visible-label locator |
+| UAT-2 | 006 | Same | Same |
+| UAT-3 | 006 | Same | Same |
+| UAT-4 | 006 | Same | Same |
+| UAT-6 | 006 | Same | Same |
+| UAT-1 | 013 | `page.Locator("tbody tr.mud-table-row").Filter(new() { HasText = SsnCustomerEmail })` | Raw row selector; should use `page.GetByRole(AriaRole.Row, …).Filter(…)` or `page.GetByText(…)` chain |
+| UAT-3 | 013 | Same as UAT-1/013 | Same |
+| UAT-2 | 011 | `page.Locator("tbody tr.mud-table-row").Filter(new() { HasText = "Backoffice User" })` | Same raw row pattern |
+| UAT-2 | 013 | `page.Locator(".mud-popover-open").GetByText(…)` | `.mud-popover-open` is a MudBlazor framework class, not a visible-label locator; use `page.GetByRole(AriaRole.Listbox)` or `page.GetByRole(AriaRole.Option, …)` |
+| UAT-2 | 014 | `page.Locator(".mud-popover-open").GetByText(…)` | Same MudBlazor popover selector |
+| UAT-6 | 016 | `page.Locator(".mud-snackbar").Filter(new() { HasText = "Exported" })` | `.mud-snackbar` is a framework class; use `page.GetByRole(AriaRole.Alert)` or `page.GetByText("Exported")` |
+
+---
+
+### Protocol 4 — Opaque fixture helpers in step blocks (unverifiable)
+
+| Review Item | Step | Helper | Concern |
+|---|---|---|---|
+| UAT-1 | 012 | `_fixture.NavigateViaDrawerAsync(…)` + `PlaywrightFixture.WaitForGridDataAsync(…)` | Implementation not provided; cannot confirm visible-label-only locators are used inside |
+| UAT-3 | 012 | Same | Same |
+| UAT-2 | 009 | `_fixture.NavigateViaDrawerGroupAsync(…)` | Same — opaque helper |
+| UAT-4 | 012 | Same | Same |
+| UAT-6 | 012 | Same | Same |
+
+**Fix:** Either inline the helper code into the step block using `page.GetByRole(AriaRole.Link, new() { Name = "Retail Businesses" })` (or equivalent), or provide the helper source so reviewers can verify visible-label locator compliance.
+
+---
+
+### Summary of passing checks
+
+| Check | Result |
+|---|---|
+| **1 — Method existence** | ✅ All six `E2ETestReference` values resolve to `[Fact]` methods |
+| **2 — Step-block walk** | ✅ All STEP markers are sequential and counts match (UAT-1: 16/16, UAT-2: 16/16, UAT-3: 16/16, UAT-4: 17/17, UAT-5: 17/17, UAT-6: 16/16) |
+| **3 — DSL conformance (UAT side)** | ✅ Every Action parses to a single recognised verb (NAVIGATE TO, CLICK INPUT, CLICK BUTTON, WAIT FOR, CLICK LINK, CLICK ROW, CLICK MENU ITEM, CLICK TAB, OPEN DROPDOWN, VERIFY, EXPAND ROW) |
+| **4 — DSL conformance (E2E side)** | ❌ 16 step blocks use `GetByTestId` or raw CSS selectors; 5 step blocks delegate to opaque helpers |
+| **5 — Per-step reachability** | ✅ Every numbered UAT step is performable by a human through visible UI surfaces; E2E code performs the same logical action (modulo locator strategy) |
+| **6 — Judgment item (UAT-5)** | ✅ `IsJudgmentItem: true`, `Feedback` populated with rationale, method drives UI to the expanded-row judgment state |

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "pdf-info-metadata-uat-remediation",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Wire the caller, investigate Finding 2, close the coverage gap",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-22T08:41:00.754Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
+}

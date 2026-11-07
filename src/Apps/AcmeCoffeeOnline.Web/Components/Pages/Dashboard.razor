@@ -1,0 +1,157 @@
+@page "/dashboard"
+@attribute [DabblerPageAuthorize("/dashboard")]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Dashboard — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudText Typo="Typo.h4" GutterBottom="true">AcmeCoffeeDistributors Dashboard</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+        Distributor operations dashboard with navigation, reports, and focused search
+    </MudText>
+
+    @* ── Row 1: Entity navigation cards ──────────────────────────────── *@
+    <MudGrid Class="mb-4">
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="cursor-pointer" Style="border-left: 4px solid #1976D2;"
+                     @onclick="@(() => NavigationManager.NavigateTo("/orders"))"
+                     data-testid="nav-card-orders">
+                <MudCardContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Primary" Size="Size.Large" />
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.h6">Orders</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Manage distributor orders from retail businesses
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="cursor-pointer" Style="border-left: 4px solid #388E3C;"
+                     @onclick="@(() => NavigationManager.NavigateTo("/customers"))"
+                     data-testid="nav-card-customers">
+                <MudCardContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="@Icons.Material.Filled.People" Color="Color.Secondary" Size="Size.Large" />
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.h6">Retail Businesses</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Review retail-business account contacts and activity
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="cursor-pointer" Style="border-left: 4px solid #F57C00;"
+                     @onclick="@(() => NavigationManager.NavigateTo("/products"))"
+                     data-testid="nav-card-products">
+                <MudCardContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="@Icons.Material.Filled.Inventory" Color="Color.Warning" Size="Size.Large" />
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.h6">Products</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Search and manage distributor catalog records
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    @* ── Row 2: Reports quick links + focused search ─────────────────── *@
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="1" Class="pa-4" Style="height: 100%;">
+                <MudText Typo="Typo.h6" GutterBottom="true">Reports</MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem Icon="@Icons.Material.Filled.Assessment"
+                                 Href="/reports/orders-by-customer"
+                                 data-testid="report-link-orders-by-customer">
+                        Orders by Retail Business
+                    </MudListItem>
+                    <MudListItem Icon="@Icons.Material.Filled.BarChart"
+                                 Href="/reports/sales-by-product"
+                                 data-testid="report-link-sales-by-product">
+                        Sales by Product
+                    </MudListItem>
+                </MudList>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="1" Class="pa-4" Style="height: 100%;">
+                <MudTextField T="string"
+                              @bind-Value="_orderSearchText"
+                              Label="Search Orders"
+                              Placeholder="Search orders by number or retail business..."
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              OnAdornmentClick="@SearchOrdersAsync"
+                              OnKeyUp="@OnOrderSearchKeyUpAsync"
+                              Variant="Variant.Outlined"
+                              data-testid="search-orders" />
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="1" Class="pa-4" Style="height: 100%;">
+                <MudTextField T="string"
+                              @bind-Value="_productSearchText"
+                              Label="Search Products"
+                              Placeholder="Search products by name..."
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              OnAdornmentClick="@SearchProductsAsync"
+                              OnKeyUp="@OnProductSearchKeyUpAsync"
+                              Variant="Variant.Outlined"
+                              data-testid="search-products" />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string? _orderSearchText;
+    private string? _productSearchText;
+
+    private Task SearchOrdersAsync()
+    {
+        var url = string.IsNullOrWhiteSpace(_orderSearchText)
+            ? "/orders"
+            : $"/orders?search={Uri.EscapeDataString(_orderSearchText.Trim())}";
+        NavigationManager.NavigateTo(url);
+        return Task.CompletedTask;
+    }
+
+    private Task SearchProductsAsync()
+    {
+        var url = string.IsNullOrWhiteSpace(_productSearchText)
+            ? "/products"
+            : $"/products?search={Uri.EscapeDataString(_productSearchText.Trim())}";
+        NavigationManager.NavigateTo(url);
+        return Task.CompletedTask;
+    }
+
+    private Task OnOrderSearchKeyUpAsync(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+            return SearchOrdersAsync();
+        return Task.CompletedTask;
+    }
+
+    private Task OnProductSearchKeyUpAsync(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+            return SearchProductsAsync();
+        return Task.CompletedTask;
+    }
+}

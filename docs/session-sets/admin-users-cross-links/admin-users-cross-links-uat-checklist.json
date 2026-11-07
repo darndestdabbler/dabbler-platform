@@ -1,0 +1,250 @@
+{
+  "ProjectName": "AcmeCoffeeOnline - admin-users-cross-links",
+  "ReleaseLabel": "admin-users-cross-links Session 1",
+  "DocumentDate": "5/11/2026, 10:13:55 AM",
+  "RequiresAppStateReset": false,
+  "Review": [
+    {
+      "FunctionalArea": "Manage Organization Admins Page",
+      "Subarea": "Page Heading and Dashboard Banner",
+      "ItemLabel": "UAT-1: SystemAdmin signs in via magic link, navigates to Manage Organization Admins, and sees the renamed page heading plus the dashboard cross-link banner",
+      "Feedback": "",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "VERIFY TEXT contains \"We sent a sign-in code to\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK LINK with text \"User Management\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY TEXT contains \"Manage Organization Admins\"",
+          "Verifications": [
+            {
+              "Text": "Page heading reads 'Manage Organization Admins' (not the old 'User Administration')"
+            }
+          ]
+        },
+        {
+          "StepNumber": 10,
+          "Action": "VERIFY TEXT contains \"Open the Security Dashboard\"",
+          "Verifications": [
+            {
+              "Text": "A blue info banner is visible offering to open the Security Dashboard's Users and Role Assignment tab"
+            }
+          ]
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Cross-Link From /admin/users To Security Dashboard",
+      "Subarea": "Banner Link Click-Through",
+      "ItemLabel": "UAT-2: After signing in, SystemAdmin clicks the dashboard banner link on Manage Organization Admins and lands on the Security Dashboard's Users and Role Assignment tab",
+      "Feedback": "",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK LINK with text \"User Management\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK LINK with text \"Open the Security Dashboard → Users and Role Assignment tab\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY URL matches \"/admin/security\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK TAB with name \"USERS AND ROLE ASSIGNMENT\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 11,
+          "Action": "VERIFY TEXT contains \"Search users by name, email, role, or organization\"",
+          "Verifications": [
+            {
+              "Text": "The Users and Role Assignment tab is active and the user search grid is visible"
+            }
+          ]
+        }
+      ],
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Canonical UserAdmin Surface",
+      "Subarea": "Dashboard Tab Excludes UserAdmin; Cross-Link Back To /admin/users",
+      "ItemLabel": "UAT-3: SystemAdmin signs in, opens the dashboard Users tab, selects a user, confirms UserAdmin is excluded from the role dropdown, and uses the cross-link to navigate back to Manage Organization Admins for the correct org",
+      "IsJudgmentItem": true,
+      "Feedback": "The Role dropdown has no values in it",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "CLICK BUTTON with caption \"Admin\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK LINK with text \"Security Dashboard\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK TAB with name \"USERS AND ROLE ASSIGNMENT\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 9,
+          "Action": "VERIFY TEXT contains \"Search users by name, email, role, or organization\"",
+          "Verifications": [
+            {
+              "Text": "Click any user row in the grid to open the detail panel below"
+            },
+            {
+              "Text": "In the 'Assign role' dropdown, confirm UserAdmin / 'User Administrator (UserAdmin)' is NOT in the options"
+            },
+            {
+              "Text": "Confirm an info banner reads 'To grant or revoke UserAdmin access for this user, use Manage Organization Admins:' followed by at least one 'Manage org admins for <OrgName>' link"
+            },
+            {
+              "Text": "Click one of the 'Manage org admins for <OrgName>' links and confirm you land on /admin/users after the org-switch redirect"
+            }
+          ]
+        }
+      ],
+      "Passes": false
+    },
+    {
+      "FunctionalArea": "Manage Organization Admins Page",
+      "Subarea": "Page Heading and Dashboard Banner",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Link From /admin/users To Security Dashboard",
+      "Subarea": "Banner Link Click-Through",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Canonical UserAdmin Surface",
+      "Subarea": "Dashboard Tab Excludes UserAdmin; Cross-Link Back To /admin/users",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    }
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  }
+}

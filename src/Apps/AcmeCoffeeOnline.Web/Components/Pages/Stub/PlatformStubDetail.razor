@@ -1,0 +1,23 @@
+@using AcmeCoffeeOnline.Web.StubMode
+
+<MudPaper Class="pa-4">
+    <MudText Typo="Typo.h6">@DetailTitle</MudText>
+    <MudText Typo="Typo.body1" Class="mt-2">
+        Distributor demo record key: <strong>@PrimaryKey</strong>
+    </MudText>
+    <MudText Typo="Typo.body2" Class="mt-2">
+        This workspace tab proves shell-to-workspace routing for distributor demo records backed by the reusable stub seams.
+    </MudText>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public string EntityName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public object PrimaryKey { get; set; } = default!;
+
+    private string DetailTitle => EntityName == "Customer"
+        ? "Retail business detail"
+        : $"{EntityName} detail";
+}
