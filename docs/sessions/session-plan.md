@@ -391,3 +391,34 @@ this session's.
 After the session has pushed, the operator runs the Playwright E2E gate and
 hand-tags `nuget-v1.0.0`. If the router can name a `nuget-v*` tag by then
 (cut 12), a plan session first turns this session into a release session.
+
+### Session 15: Build on push
+
+1. Register.
+2. Add `.github/workflows/ci.yml`: on `push` to `master` and on
+   `pull_request`, one `windows-latest` job that sets up the .NET 10 SDK and
+   runs the `unit` suite exactly as `dabbler.yaml` declares it
+   (`dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m`), with a
+   `concurrency` group per ref that cancels in-progress runs and
+   `permissions: contents: read`. `build.yml` (the `nuget-v*` publish) is not
+   touched. The step's check is `dotnet test Dabbler.Unit.slnf -m:1
+   --blame-hang-timeout 5m`, the same command the job runs; the first green
+   run on `master` after the session lands is the operator's confirmation.
+3. Make the change-log honest: under `0.1.0-preview.2` and `0.2.0` in
+   `CHANGELOG.md`, add one line each saying the version was never published
+   to nuget.org and that `1.0.0` is the first release after
+   `0.1.0-preview.1`. In `docs/MAINTAINING.md`, "Where every gate lives"
+   names the push build as the gate on `master` and on Dependabot pull
+   requests, and "Dependencies and the MudBlazor policy" says a Dependabot
+   pull request merges only on a green check.
+4. Cross-provider verification.
+5. The `unit` suite once against the verified tree, recorded as the run of
+   record.
+6. Close-out.
+
+Why now (2026-11-08): `build.yml` runs only on a `nuget-v*` tag or a manual
+dispatch, so every push since May, all fourteen sessions included, was tested
+only on the operator's machine, and the five open Dependabot pull requests
+carry no checks. Requiring the check before merge is a branch-protection
+setting the operator makes on GitHub after the first green run; it is not
+this session's work.
