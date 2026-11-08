@@ -458,3 +458,51 @@ pins, and no local gate covered the gap. A `nuget-v1.0.0` tag would fail the
 same way. After this session lands, the operator re-runs the dry run
 (`gh workflow run build.yml -f version=1.0.0`) and tags only when it is
 green.
+
+### Session 17: Make the push build green on a clean machine
+
+1. Register.
+2. Stop the `AcmeCoffeeOnline.Api.Tests` race on a fresh LocalDB. Every test
+   class in that project owns a `WebApplicationFactory<Program>` that, in the
+   Development environment, runs `DatabaseInitializer.InitializeAsync`
+   (`EnsureCreatedAsync` plus seed) against the single database
+   `AcmeCoffeeOnline_Dev`; xUnit runs those classes in parallel, so on a
+   machine where the database does not yet exist several factories create
+   and seed it at once ("Database 'AcmeCoffeeOnline_Dev' already exists",
+   duplicate-key inserts into Customers, AppOrganizations, AppUsers,
+   AppUserRoles). The operator's machine has had that database since
+   2026-04-13, which is why the suite is green locally. Fix: add
+   `tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json` with
+   `"parallelizeTestCollections": false` (copied to output), so the first
+   class creates and seeds the database and the rest find it. The step's
+   check: drop the database (`sqllocaldb` or `DROP DATABASE
+   AcmeCoffeeOnline_Dev`) and run `dotnet test
+   tests/AcmeCoffeeOnline.Api.Tests` twice; both runs 51/51.
+3. Make the push build run the 46 tests it currently skips.
+   `Dabbler.PublicSurface.Tests` (41), `Dabbler.Templates.Tests` (4) and
+   `Dabbler.CrudSlice.Tests`' `FullPipeline_endToEnd_against_smoke_fixture`
+   (1) are `SkippableFact`/`SkippableTheory` tests that skip when
+   `DABBLER_PACK_OUTPUT` (or the default `pack-output/` folder) holds no
+   nupkgs, so on the runner they report skipped and the job stays green. In
+   `ci.yml`, before the test step, build the package set the way
+   `build.yml`'s *Validate And Pack* job does (`dotnet build
+   Dabbler.Publish.slnf --configuration Release`, then
+   `Dabbler.Reports.Export` and `Dabbler.Reports.Blazor` directly, because
+   `pack.ps1` packs with `--no-build` and the filter does not lay down their
+   output), run `tools/pack.ps1` with `-OutputDir` and `-ScratchCacheDir`
+   under `$env:RUNNER_TEMP`, and export that output folder as
+   `DABBLER_PACK_OUTPUT` for the test step. The check: the run's summary
+   lines for those three projects show `Skipped: 0`, with PublicSurface at
+   41 passed and Templates at 4.
+4. Cross-provider verification.
+5. The `unit` suite once against the verified tree, recorded as the run of
+   record.
+6. Close-out.
+
+Why now (2026-11-08): the first `ci.yml` run on `master` (run 42486813518,
+after Session 15 closed) failed with 10 Api.Tests failures, and the
+pack-dependent tests were silently skipped (41 in PublicSurface, 4 in
+Templates, 1 in CrudSlice). Both are properties of a clean machine, which is
+exactly what the push build exists to represent; until they are fixed the
+check Session 15 added says nothing reliable and cannot be made a
+branch-protection requirement.
