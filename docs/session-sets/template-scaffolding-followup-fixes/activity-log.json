@@ -1,0 +1,286 @@
+{
+  "sessionSetName": "template-scaffolding-followup-fixes",
+  "createdDate": "2026-05-27T16:47:05.423167-04:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/author-ai-assignment",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Read planning docs and confirmed the landed remediation scope for Session 1, then authored ai-assignment.md via routed analysis for the new template-scaffolding-followup-fixes set; regenerated once to align with the current orchestrator/model schema and current model names.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 3013,
+          "outputTokens": 1290,
+          "costUsd": 0.016666249999999997
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 3179,
+          "outputTokens": 1737,
+          "costUsd": 0.02134375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/backfill-dabbler-app-contract",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Backfilled dabbler-app contract fixes: aligned root/adopter/generated docs with the split scaffold, updated template metadata, pinned scaffolded Api/Shared projects to net10.0, and excluded template bin/obj content from package inputs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/harden-packaging-smoke",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Backfilled the split-topology regression gate in PackagingSmokeTests.cs so dabbler-app smoke checks now assert the web/api/shared/tests solution layout rather than only proving a build.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/backfill-crud-remediation",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Backfilled CRUD remediation: public wrapper docs now use the real Dabbler.CrudSlice CLI flags, the native page template emits Services:ApiBaseUrl + ApiBaseUrl fallback + X-Internal-Api-Key + UserIdentityHandler, and the native service template emits {Entity}ApiRegistrationExtensions.cs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/focused-validation",
+      "dateTime": "2026-05-27T16:47:25.907631-04:00",
+      "description": "Focused validation already re-run and green: fresh dotnet pack of Dabbler.Templates, custom-hive native CRUD template smoke, PackagingSmokeTests.cs (5/5), and WrapperOrchestrationTests.cs (4/4).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/cross-provider-verification",
+      "dateTime": "2026-05-27T16:56:34.656897-04:00",
+      "description": "Routed cross-provider session verification rounds 1-3 and saved the raw reviews. Rounds 1-2 surfaced artifact-level documentation/ledger issues; Round 3 VERIFIED after those fixes landed.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.23028
+        },
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.28506
+        },
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.196905
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/next-session-recommendation",
+      "dateTime": "2026-05-27T16:54:27.648375-04:00",
+      "description": "Routed next-session orchestrator recommendation for Session 2. The first gemini-pro call returned a non-JSON wrapper and was retried; the second call produced the persisted claude-code / claude-opus-4-6 / medium recommendation.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.005216
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.005156
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/closeout-gate",
+      "dateTime": "2026-05-27T17:09:28.533314-04:00",
+      "description": "Committed and pushed the Session 1 file surface, then reran the helper-driven closeout. mark_session_complete() passed all gates and flipped Session 1 closed with VERIFIED verdict.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-prerequisites",
+      "dateTime": "2026-05-27T18:35:47.858354-04:00",
+      "description": "Read Session 1 contract-review artifacts plus current dabbler-min template source (15 files), PackagingSmokeTests.cs, WrapperOrchestrationTests.cs, tools/Dabbler.CrudSlice/README.md, and the public docs (docs/getting-started.md, docs/scaffolding-templates/README.md). Confirmed Session 1 closed VERIFIED, dabbler-app already split, dabbler-min currently single-project. Router/state-file schema mismatch discovered: installed router was 0.1.1 (writes v2) while all 41 state files migrated to v4 in commit b4f3870. Operator approved upgrade; installed 0.10.0, restored v4 state from git HEAD, re-ran register_session_start preserving sessions[] history.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/route-architecture-review",
+      "dateTime": "2026-05-27T18:35:47.859550-04:00",
+      "description": "Routed architecture review answering the one explicit question: should dabbler-min stay single-project or split to match dabbler-app. First call returned successfully but the response was lost to an AttributeError during attribute inspection (router 0.10.0 RouteResult shape differs from 0.1.1); re-called against the corrected shape and persisted the response immediately. Verdict: Option A \u2014 keep single-project, codify it. Auto-verification of the architecture task by GPT-5-4 fired twice (advisory only, no escalation; both rounds returned ISSUES_FOUND=1 but the route() return value was unaffected).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "architecture",
+          "costUsd": 0.210225
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "architecture",
+          "costUsd": 0.057168,
+          "note": "auto-verifier of opus call (advisory)"
+        },
+        {
+          "model": "opus",
+          "taskType": "architecture",
+          "costUsd": 0.214725,
+          "note": "re-call after AttributeError"
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "architecture",
+          "costUsd": 0.068937,
+          "note": "auto-verifier of opus re-call (advisory)"
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/save-contract-review",
+      "dateTime": "2026-05-27T18:35:47.860735-04:00",
+      "description": "Saved raw routed verdict + implementation outline to dabbler-min-contract-review.md. Mid-session the operator surfaced an architecture-review-board constraint requiring physically separate Web Application and Web API projects. Walked through whether the routed Option A still stands; concluded yes (because dabbler-app already provides the four-project board-compliant entry point and dabbler-min is positioned as incremental-adoption). Appended an Operator Clarification section below the raw verdict (separator + clearly-labeled) per the never-edit-verifier-output rule.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/implement-contract",
+      "dateTime": "2026-05-27T18:35:47.860735-04:00",
+      "description": "Implemented Option A across the touched surfaces. Template source: new dabbler-min/DabblerApp/README.md (3.5KB, board-constraint callout + project layout + DB/email/sign-in + before-you-deploy + CRUD wrapper same-root usage + outgrowing path), 4-line comment block at top of Program.cs declaring single-project intent. Template metadata: rewrote description, added Framework choice symbol mirroring dabbler-app exactly. Docs: replaced two scattered paragraphs in getting-started.md with a Pick-the-right-template comparison table + architecture-board callout; expanded the scaffolding-templates README same-root paragraph with explicit dabbler-min invocation guidance and a pointer to the FullPipeline_endToEnd_against_smoke_fixture regression gate. Out-of-scope-but-necessary: consumer-readiness.md test-name reference updated to match the renamed PackagingSmokeTests method.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/update-smoke-tests",
+      "dateTime": "2026-05-27T18:35:47.862739-04:00",
+      "description": "Renamed DabblerMin_Template_InstallsAndBuildsClean to DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape and added a new helper AssertDabblerMinSingleProjectShape with positive assertions (exactly one csproj at conventional path, README emitted) and negative assertions (no *.Api.csproj, *.Shared.csproj, *.Tests.csproj, no tests/ dir, no src/ dir). Added XML doc-comment above WrapperOrchestrationTests.FullPipeline_endToEnd_against_smoke_fixture explicitly identifying it as the standing dabbler-min same-root regression gate per the routed review's recommendation.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/run-validation-bundle",
+      "dateTime": "2026-05-27T18:35:47.862739-04:00",
+      "description": "Re-ran the focused validation bundle: tools/pack.ps1 via pwsh (Windows PowerShell 5.1 fails on the #requires PSVersion 7 directive), then targeted dotnet test invocations. Results: PackagingSmokeTests.DabblerApp_Template_InstallsAndBuildsClean PASS (5s), DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape PASS (3s), PackOutput_ContainsAllRequiredLibraryNupkgs PASS, DabblerApp_ScaffoldedBUnit_AllTestsPass PASS. All 29 Dabbler.CrudSlice.Tests pass including FullPipeline_endToEnd_against_smoke_fixture and EmitRegistrationsOnly_writes_both_helper_files_with_convention_correct_content. Inspected the rebuilt Dabbler.Templates nupkg: 74 files / 149KB uncompressed / 0 bin/obj files \u2014 Session 1 exclude finally took effect on rebuild (previous on-disk nupkg was 24MB).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/cross-provider-verification",
+      "dateTime": "2026-05-27T18:35:47.863740-04:00",
+      "description": "Routed session-verification with ~15KB prompt covering spec compliance, implementation faithfulness, smoke-shape strength, doc unambiguity, and missed-items check. Out-of-scope disclosures included for the consumer-readiness.md scope deviation, the operator-clarification postscript discipline, the router 0.1.1 -> 0.10.0 upgrade, the nupkg size delta, and the customer-feedback source. GPT-5.4 (OpenAI, cross-provider against my Anthropic Opus) returned VERIFIED on Round 1 with zero findings across all severities. Review saved to session-reviews/session-002.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "costUsd": 0.074882
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/next-session-recommendation",
+      "dateTime": "2026-05-27T18:35:47.864740-04:00",
+      "description": "Routed next-session orchestrator recommendation for Session 3 (Remove Template Pack Warning And Close Out). Gemini Pro returned: claude-code / claude-sonnet-4-6 / low. Rationale: Session 3 is mechanical packaging cleanup + routine closeout authoring; does not require Opus-tier reasoning. Updated ai-assignment.md Session 3 block with the new recommendation alongside the original (Codex/gpt-5.4/medium) for traceability.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.002269
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/inspect-warning-path",
+      "dateTime": "2026-05-27T21:15:00.000000-04:00",
+      "description": "Read Sessions 1-2 artifacts plus the ai-assignment. Ran `dotnet pack` on Dabbler.Templates to capture the exact warning text: NU5110 (script outside tools/ folder) and NU5111 (script not named install/uninstall/init.ps1) both fired against content/dabbler-crud-page/Components/Pages/T2EntityPlural/Apply-T1EntitySchema.ps1. Root cause: NuGet's pack task flags any .ps1 file in the package with these warnings regardless of the package type; the file is not a NuGet install script but a post-scaffolding developer helper. No architecture review routing needed — the fix path was immediately clear from the error text.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/implement-warning-cleanup",
+      "dateTime": "2026-05-27T21:20:00.000000-04:00",
+      "description": "Renamed Apply-T1EntitySchema.ps1 to Apply-T1EntitySchema.dabbler-ps in the template source directory (templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/). Added a sources[].rename entry to dabbler-crud-page/.template.config/template.json mapping the .dabbler-ps source path to Apply-T1EntitySchema.ps1 on scaffold output. The existing entity/entityPlural fileRename symbols apply token substitution to the rename target path, producing Apply-{Entity}Schema.ps1 in the developer's project. Verified nupkg contents: Apply-T1EntitySchema.dabbler-ps present, no .ps1 files in package. Verified scaffold output: dotnet new dabbler-crud-page for entity=Product emits Apply-ProductSchema.ps1 with correct entity name substitution.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/full-template-validation",
+      "dateTime": "2026-05-27T21:25:00.000000-04:00",
+      "description": "Re-ran the full template validation bundle: dotnet pack (Dabbler.Templates — zero NU5110/NU5111 warnings), PackagingSmokeTests (all pass), Dabbler.CrudSlice.Tests (29/29 pass including FullPipeline_endToEnd_against_smoke_fixture).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-05-27T21:30:00.000000-04:00",
+      "description": "Authored change-log.md summarizing all three sessions: Session 1 dabbler-app split + CRUD remediation backfill, Session 2 dabbler-min single-project contract codification, Session 3 NU5110/NU5111 warning elimination. Deferred items documented: scaffolded API host completeness, UserIdentityHandler registration scaffolding, NuGet readme advisory, NETSDK1057 preview warning.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/cross-provider-verification",
+      "dateTime": "2026-05-27T21:40:00.000000-04:00",
+      "description": "Routed cross-provider session verification. First call escalated to Opus ($0.126045) but result was lost to a UnicodeEncodeError in the print path (non-repeating infrastructure issue — the routing call itself completed successfully). Second call completed at Gemini Pro without escalation ($0.003729). Gemini Pro returned VERIFIED on Round 1 with zero findings across all severities. Review saved to session-reviews/session-003.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "costUsd": 0.126045,
+          "note": "escalated from gemini-pro; result lost to UnicodeEncodeError in print path — routing completed but response was not captured"
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "costUsd": 0.003729
+        }
+      ]
+    }
+  ]
+}

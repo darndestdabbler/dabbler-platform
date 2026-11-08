@@ -1,0 +1,9 @@
+@using AcmeCoffeeOnline.Web.StubMode
+@using Dabbler.Platform.Stubs
+@inject StubReportDataProvider ReportDataProvider
+
+<DabblerReportPage RdfPath="stub://customer-summary.rdf.json"
+                   RdfLoader="@(_ => Task.FromResult(PlatformStubModeRegistration.CustomerSummaryRdf))"
+                   DataProvider="ReportDataProvider"
+                   AutoRunOnLoad="true"
+                   CollapseParametersAfterRun="false" />

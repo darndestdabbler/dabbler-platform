@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "security-dashboard-uat-remediation",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Planning and Scoping",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Users and Role Assignment crash fix",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Per-role tab gating and Security nav visibility",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Organization scope filter and mutation UX",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "Data-bound restriction enforcement reachability",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 6,
+      "title": "Default Masks and Column Restrictions metadata + UI fixes",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 7,
+      "title": "Master-details UX refactor + tab-strip keyboard removal + DisplayAlias width",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 8,
+      "title": "Session 7 remediation and completion cleanup",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 9,
+      "title": "Revise Final Closeout For New Workflow Guidance",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 10,
+      "title": "UAT checklist + change log + Step 9 review",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-21T12:56:31.260Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
+}

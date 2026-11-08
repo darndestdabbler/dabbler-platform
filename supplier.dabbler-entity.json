@@ -1,0 +1,13 @@
+{
+  "$comment": "Schema definition for the Supplier entity scaffold in the AcmeCoffeeOnline demo app (Session 5 reference scaffold).",
+  "entity": "Supplier",
+  "primaryKey": { "name": "Id", "type": "int" },
+  "properties": [
+    { "name": "Id",            "type": "int",    "isInGrid": true,  "isInForm": false, "isFilterable": true,  "isSortable": true,  "isReadOnly": true },
+    { "name": "Name",          "type": "string", "isInGrid": true,  "isInForm": true,  "isFilterable": true,  "isSortable": true,  "isReadOnly": false },
+    { "name": "City",          "type": "string", "isInGrid": true,  "isInForm": true,  "isFilterable": true,  "isSortable": true,  "isReadOnly": false },
+    { "name": "Country",       "type": "string", "isInGrid": true,  "isInForm": true,  "isFilterable": true,  "isSortable": true,  "isReadOnly": false },
+    { "name": "ContactEmail",  "type": "string", "isInGrid": true,  "isInForm": true,  "isFilterable": false, "isSortable": false, "isReadOnly": false },
+    { "name": "IsActive",      "type": "bool",   "isInGrid": true,  "isInForm": true,  "isFilterable": true,  "isSortable": false, "isReadOnly": false }
+  ]
+}
