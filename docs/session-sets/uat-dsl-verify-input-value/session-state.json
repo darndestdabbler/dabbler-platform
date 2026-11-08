@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "uat-dsl-verify-input-value",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "ship the verb",
+      "status": "complete",
+      "startedAt": "2026-05-11T18:16:52.521990-04:00",
+      "completedAt": "2026-05-11T18:35:33.958660-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

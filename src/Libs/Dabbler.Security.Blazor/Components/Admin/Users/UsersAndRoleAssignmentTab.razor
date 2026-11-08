@@ -1,0 +1,130 @@
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Users
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IAdminUserQueryService UserQueryService
+
+<div data-testid="users-and-role-assignment-tab">
+    <div class="d-flex align-center justify-space-between mb-1">
+        <MudText Typo="Typo.h6">Users and Role Assignment</MudText>
+        @if (_canAddUsers)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                       OnClick="OpenAddUserDialogAsync"
+                       data-testid="add-user-button">
+                Add User
+            </MudButton>
+        }
+    </div>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Search users by name, email, role, or organization. Select a user to
+        manage their role assignments. UserAdmin sees only users in their
+        assigned organizations; SystemAdmin and CrossOrgUserAdmin see all users.
+    </MudText>
+
+    <MasterDetailExpansionShell TRow="object"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="users-and-role-assignment-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Users"
+                                CollapsedSummaryText="@_summaryText">
+        <GridContent>
+            <UsersMasterGrid @ref="_grid"
+                             SelectedUserChanged="OnSelectedUserChangedAsync"
+                             FiltersChanged="OnFiltersChangedAsync" />
+        </GridContent>
+    </MasterDetailExpansionShell>
+
+    <UserRoleAssignmentDetails User="@_selectedUser"
+                               RolesChanged="OnRolesChangedAsync" />
+</div>
+
+@code {
+    private UsersMasterGrid? _grid;
+    private AdminUserRow? _selectedUser;
+    private bool _isResultsExpanded = true;
+    private string? _summaryText;
+    private bool _canAddUsers;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var actor = authState.User;
+        var activeRole = UserQueryService.GetActorActiveAdminRole(actor);
+        // CrossOrgMonitor can see the tab but cannot create users.
+        _canAddUsers = activeRole is BakedInRoles.SystemAdmin
+            or BakedInRoles.CrossOrgUserAdmin
+            or BakedInRoles.UserAdmin;
+    }
+
+    private async Task OpenAddUserDialogAsync()
+    {
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateBackofficeUserDialog>("Add User", options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false } && _grid is not null)
+        {
+            await _grid.RefreshAsync(null);
+        }
+    }
+
+    private Task OnSelectedUserChangedAsync(AdminUserRow? row)
+    {
+        _selectedUser = row;
+        if (row is not null)
+        {
+            _isResultsExpanded = false;
+            _summaryText = $"User: {row.DisplayName}";
+        }
+        else
+        {
+            _isResultsExpanded = true;
+            _summaryText = null;
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFiltersChangedAsync()
+    {
+        _isResultsExpanded = true;
+        _summaryText = null;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnRolesChangedAsync(string userId)
+    {
+        // The grid raises SelectedUserChanged with the freshly-projected row
+        // as part of its refresh, which flows back through OnSelectedUserChangedAsync
+        // and updates _selectedUser in the same circuit.
+        if (_grid is not null)
+        {
+            await _grid.RefreshAsync(userId);
+        }
+    }
+}

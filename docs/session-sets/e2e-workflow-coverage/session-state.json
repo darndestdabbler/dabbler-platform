@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "e2e-workflow-coverage",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Infrastructure Extensions and Navigation Proof",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Products and Customers CRUD + Validation",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Orders CRUD, Status Workflow, and Child Grids",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Reports, Admin, and Multi-Step Workflows",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "Edge Cases, Stabilization, and Full Suite Pass",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-16T22:02:17.999Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
+}

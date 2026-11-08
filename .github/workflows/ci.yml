@@ -1,0 +1,37 @@
+name: Build
+
+# The push build: the `unit` suite, exactly as dabbler.yaml declares it, on
+# every push to master and every pull request (Dependabot's included).
+# Publishing stays with build.yml on a nuget-v* tag.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  CI: true
+
+jobs:
+  unit:
+    name: Unit Suite
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run the unit suite
+        run: dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m
