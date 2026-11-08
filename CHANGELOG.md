@@ -15,6 +15,9 @@ published to nuget.org together.
 
 ## 0.2.0
 
+- This version was never published to nuget.org: `1.0.0` is the first
+  release after `0.1.0-preview.1`.
+
 Breaking changes:
 
 - The report expression engine moved from `Dabbler.Components` to
@@ -35,6 +38,8 @@ Breaking changes:
 
 ## 0.1.0-preview.2
 
+- This version was never published to nuget.org: `1.0.0` is the first
+  release after `0.1.0-preview.1`.
 - No API changes.
 - `Dabbler.CrudSlice.Tool` (the `dabbler-crud-slice` .NET tool) is published
   to nuget.org for the first time. Install it at the same version as the

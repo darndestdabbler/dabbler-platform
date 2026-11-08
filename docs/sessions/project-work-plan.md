@@ -26,6 +26,8 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 12 | Retire what does not run | no | 2026-11-08 |
 | 13 | Prune the v1 guidance | no | 2026-11-08 |
 | 14 | Bump to 1.0.0 | no | 2026-11-08 |
+| 15 | Build on push | no | 2026-11-08 |
+| 16 | Templates reference the version being packed | — | not declared |
 
 ### Session 1 — Author or import the solution plan
 
@@ -119,3 +121,9 @@ Prune the retired v1 workflow from the repository's standing guidance. In docs/p
 **Releasable: no.**
 
 Bump the single repository version to 1.0.0: set DabblerVersion in Directory.Build.props and the -Version parameter default in tools/pack.ps1 (with its help text and usage example that name the current version) to 1.0.0, and add a 1.0.0 entry at the top of CHANGELOG.md stating that it changes no API since 0.2.0 and that the twelve packages, the gates and docs/MAINTAINING.md are what the operator stands behind. Verification, the unit suite as the run of record and the close follow as the framework runs them.
+
+### Session 15 — Build on push
+
+**Releasable: no.**
+
+Add a push build: a new .github/workflows/ci.yml that, on push to master and on pull_request, runs one windows-latest job which checks out the repository, sets up the .NET 10 SDK and runs the unit suite exactly as dabbler.yaml declares it (dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m), with a concurrency group per ref that cancels in-progress runs and permissions contents: read. Then make the change-log honest by adding one line each under 0.1.0-preview.2 and 0.2.0 in CHANGELOG.md saying the version was never published to nuget.org and that 1.0.0 is the first release after 0.1.0-preview.1, and update docs/MAINTAINING.md so 'Where every gate lives' names the push build as the gate on master and on Dependabot pull requests, and 'Dependencies and the MudBlazor policy' says a Dependabot pull request merges only on a green check. Verification, the unit suite as the run of record and the close follow as the framework runs them.

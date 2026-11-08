@@ -35,6 +35,7 @@ nupkgs run instead of skipping.
 | Gate | What runs | Where | When |
 |---|---|---|---|
 | `unit` suite | `dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m` | `dabbler.yaml` | Every session, as the run of record |
+| Push build | The same `unit` suite command | CI: `.github/workflows/ci.yml` | Every push to `master` and every pull request, Dependabot's included: the gate on `master` and on Dependabot pull requests |
 | Package surface | `Dabbler.PublicSurface.Tests` against the packed nupkgs | CI: the *Validate And Pack* job in `.github/workflows/build.yml` | Every `nuget-v*` tag and every manual dispatch |
 | Consumer smoke | `Dabbler.Packaging.Smoke` against the packed nupkgs | CI: the same *Validate And Pack* job | Every `nuget-v*` tag and every manual dispatch |
 | Playwright | `tests/AcmeCoffeeOnline.Playwright` against the Docker stack | Manual: run it yourself | Before each release tag, and in every session that changes the reference app's UI or the MudBlazor pin |
@@ -91,7 +92,8 @@ machine: CI publishes through trusted publishing (OIDC).
 
 `.github/dependabot.yml` opens a weekly NuGet update, grouping `MudBlazor`
 in one pull request and the `Microsoft.*` 10.x packages in another (held
-to 10.x).
+to 10.x). A Dependabot pull request merges only on a green check from the
+push build (`.github/workflows/ci.yml`).
 
 **MudBlazor policy:** adopt a new MudBlazor major within one quarter of its
 release. A major move is its own session: move the pin, fix the libraries,
