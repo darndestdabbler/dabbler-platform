@@ -1,5 +1,3 @@
-> **Note (2026-10-03):** this document predates the Dabbler AI Orchestration v3 rebuild. Where it mentions `route()`, `ai_router`, `session-state.json`, `ai-assignment.md`, tiers or session sets, read `AGENTS.md` and `docs/sessions/session-plan.md` instead; the engineering, testing, UAT and style rules still apply.
-
 # Lessons Learned
 
 > **Purpose:** Capture durable tactics, failure patterns, and workflow lessons
@@ -7,14 +5,13 @@
 > **Status:** Start small in one file. If this grows too large, split it into a
 > `lessons-learned/` folder with a short index and topic files.
 
-Review this file before every AI-led session.
+Review this file before every session.
 
 Unlike `project-guidance.md`, which captures durable principles and
 conventions, this file is for practical lessons learned from actual execution
 in this repo. A lesson that has been applied as the right call in at least
 two different contexts is a promotion candidate for Conventions (or, rarely,
-Principles) in `project-guidance.md`. See `docs/ai-led-session-workflow.md`
-Step 9 (run after the Step 8 notify) for the end-of-session-set reorganization review.
+Principles) in `project-guidance.md`.
 
 ## How To Use This File
 
@@ -42,48 +39,10 @@ Use this structure for new entries:
 
 ## Current Lessons
 
-## `register_session_start()` Overwrites `session-state.json` Without Preserving `completedSessions[]`
+## UAT Checklists Must Use The Checklist Editor Schema
 
-> **RESOLVED — v4 schema (Set 047, 2026-05-26).** This lesson is
-> obsolete. The on-disk v4 shape no longer carries a top-level
-> `completedSessions[]` field; readers derive completion count from
-> `sessions[]` at read time. There is nothing to preserve across
-> `register_session_start()` snapshot rewrites because the field
-> doesn't exist on disk. The historical context below is preserved
-> for audit — do NOT follow the "Action for future sessions" bullet.
-> See `docs/session-state-schema.md` (canonical, in
-> `dabbler-ai-orchestration`) for the v4 shape.
-
-- **Context:** `crud-scaffolding-spike` Session 3 of 3, opening a session
-  on a lightweight-tier set that already had `completedSessions: [1, 2]`
-  populated by hand at the close of Session 2.
-- **Failure or friction:** The orchestrator called
-  `register_session_start()` at Step 1 to flip `lifecycleState` to
-  `work_in_progress` for the new session. The router function writes a
-  fresh `session-state.json` snapshot with the canonical schema fields,
-  but it does NOT preserve the existing `completedSessions[]` array —
-  it omits the field entirely. On lightweight-tier sets this array is
-  the only authoritative count signal (no events-ledger fallback, no
-  router writer maintaining it), so losing it forces the VS Code Session
-  Set Explorer to display N−1/N. The user caught the regression mid-
-  session and pointed back to CLAUDE.md's state-file rules section.
-- **Lesson:** Until `register_session_start()` is fixed router-side to
-  preserve `completedSessions[]` across snapshot rewrites, the
-  orchestrator must manually re-add the array immediately after calling
-  it. Read the prior `completedSessions[]` before the call (or from
-  memory of what was committed on the prior session's close), then
-  re-write the array into `session-state.json` right after. The
-  `mark_session_complete()` helper at Step 8 handles appending the
-  closing session for you; only the mid-set `register_session_start()`
-  call needs the manual save-and-restore.
-- **Action for future sessions:** Before calling
-  `register_session_start()`, read `session-state.json` and capture
-  `completedSessions[]`. After the call, edit the new
-  `session-state.json` to restore the array. (Alternative: ask the human
-  whether the router-side fix has landed; if so, skip the workaround.)
-
-- **Collapsed to reference on 2026-04-21** (Step 9 reorganization review
-  for the `security-dashboard-uat-remediation-review` session set). The
+- **Collapsed to reference on 2026-04-21** (reorganization review
+  for `security-dashboard-uat-remediation-review`). The
   same guidance is already captured — with equivalent specificity — in
   `project-guidance.md` → Conventions → Human UAT And Checklist Editor:
   *"Use the UAT checklist editor schema from
@@ -106,18 +65,17 @@ Use this structure for new entries:
 
 ## Pending Human UAT Must Be Called Out Explicitly
 
-- **Collapsed to reference on 2026-04-21** (Step 9 reorganization review
-  for the `security-dashboard-uat-remediation-review` session set). The
+- **Collapsed to reference on 2026-04-21** (reorganization review
+  for `security-dashboard-uat-remediation-review`). The
   same guidance is already captured — with equivalent specificity — in
   `project-guidance.md` → Conventions → Human UAT And Checklist Editor:
   *"Handoff messages for pending UAT must be unmistakable: name the
   checklist path, link the editor, say that the agent is waiting for
   the human response, and keep any optional parallel work low-risk."*
-  Applied as the right call in every session-set closeout that has
-  generated a UAT checklist, and in this UAT Review Session's
-  `disposition.md` + stop message (which names the follow-up set
-  path and queues the next action instead of leaving the human holding
-  the checklist). Follow the convention.
+  Applied as the right call in every closeout that has generated a UAT
+  checklist, and in this UAT review's stop message (which names the
+  follow-up work and queues the next action instead of leaving the human
+  holding the checklist). Follow the convention.
 - **Original entry preserved below for context.**
 - **Context:** Sessions that prepare a UAT checklist for later human review
 - **Failure or friction:** A checklist can exist in the repo without an
@@ -141,68 +99,10 @@ Use this structure for new entries:
   contention appears, use `dotnet build-server shutdown` plus conservative
   build settings before retrying.
 
-## Tri-Provider Review — Orchestrator Contribution Uses Full Context, Not An Isolated Prompt
-
-- **Promoted to Convention on 2026-05-16** (Step 9 reorganization review
-  for the `crud-scaffolding-spike` session set). The same guidance is now
-  captured — with equivalent specificity — in
-  `project-guidance.md` → Conventions → Workflow Expectations:
-  *"Tri-Provider Review: Orchestrator Contribution Uses Full Context."*
-  Two-or-more contexts threshold met across different sets:
-  `packaging-and-template-readiness` Sessions 4 & 5 and
-  `crud-scaffolding-spike` Session 3 (Opus self-contribution disclosed in
-  `scaffolding-approach-review.md` and explicitly endorsed by the
-  GPT-5.4 session verifier). Follow the convention.
-- **Original entry preserved below for context.**
-- **Context:** Tri-provider platform value review (packaging-and-template-readiness Session 4)
-  and packaging approach review (Session 5)
-- **Failure or friction:** The GPT-5.4 cross-provider verifier flagged (Round 4) that the
-  Opus orchestrator's own review assessment was written with full in-session context, while the
-  spec step said "identical and self-contained prompt for all providers." The verifier treated
-  the context asymmetry as a protocol defect. The operator deferred it as a spec-authoring
-  ambiguity rather than a session defect.
-- **Lesson:** When a spec calls for a tri-provider review, the "self-contained prompt" clause
-  applies to the external providers only — they receive a prompt that stands on its own without
-  prior session context. The orchestrator's direct contribution (written in-session rather than
-  via `route()`) legitimately uses its fully-loaded context because routing to the orchestrator's
-  own model is wasteful and the loaded context is the whole point. The synthesis document must
-  explicitly disclose this asymmetry (e.g., "Opus assessment written with full session context;
-  GPT-5.4 and Gemini Pro received self-contained prompts") so future verifiers do not flag it
-  as a defect. Specs should pre-empt the ambiguity by saying "orchestrator contributes directly
-  using its loaded context" rather than "identical prompt for all three."
-- **Action for future sessions:** In any tri-provider session where the orchestrator writes its
-  own perspective directly: (1) note the context asymmetry in the synthesis document, and (2)
-  include a disclosure in the end-of-session verification prompt so the verifier has explicit
-  context before evaluating the output. Promotes the `feedback_orchestrator_self_contributes_to_review_panel`
-  memory to a documented lesson.
-
-## Greenfield Matrix Runs: Pre-Create `matrix-run/` And Restore Committed Golden Output Before Measuring
-
-- **Context:** The Step-6 greenfield finding-power matrix on a source-bearing build
-  session (`access-migration-generator-consumption` Session 2 — this repo is the LEAD
-  pilot signal).
-- **Failure or friction:** Two avoidable stumbles, each costing a full re-run of paid
-  provider calls: (1) `python -m ai_router.verification_only_app run --out
-  docs/.../matrix-run/...json` does **not** create the output directory — it raised
-  `FileNotFoundError` only *after* every push/pull provider call had been spent,
-  persisting nothing. (2) `pack-output/` is committed golden output; a `tools/pack.ps1`
-  run earlier in the session rewrote its binary nupkgs, so `git diff <session-start-ref>`
-  was dominated by binary noise + `session5`→`preview.1` renames — poisoning the
-  source-only diff the matrix is supposed to measure (protocol §8).
-- **Lesson:** Before invoking the matrix: `mkdir -p docs/session-sets/<slug>/matrix-run/`,
-  and restore any committed generated/golden output the session regenerated back to the
-  session-start ref (`git checkout <ref> -- pack-output/`) so the measured diff is source
-  only. New source files must be intent-added (`git add -N <file>`) so they appear in the
-  working-tree diff the matrix reads.
-- **Action for future sessions:** Make `mkdir` + golden-output-restore + `git add -N` a
-  pre-flight checklist for every Step-6 matrix run in this repo. Verify the diff stat
-  (`git diff --stat <ref> -- . ':(exclude)pack-output/' ':(exclude)tmp/'`) is clean source
-  before paying for the run.
-
 ## Author Template Content And Consumer Smoke Test In The Same Session
 
-- **Promoted to Convention on 2026-06-20** (Step 9 reorganization review for the
-  `access-migration-generator-consumption` session set), generalized beyond templates to
+- **Promoted to Convention on 2026-06-20** (reorganization review for
+  `access-migration-generator-consumption`), generalized beyond templates to
   **any distributable artifact**. The same guidance is now captured — broadened to cover
   `dotnet tool` / NuGet acquisition — in `project-guidance.md` → Conventions → Workflow
   Expectations: *"Ship a checkout-free consumer-acquisition smoke gate in the same session
@@ -306,7 +206,7 @@ Use this structure for new entries:
   tokens, and reusable contrast or accessibility guardrails instead of
   scattered visual fixes.
 
-## A Full UI Rebuild Is Achievable In A Structured Session Set
+## A Full UI Rebuild Is Achievable In A Structured Series Of Sessions
 
 - **Context:** The MudBlazor-native rebuild replaced 20+ custom wrapper
   components across 8 sessions while preserving genuine platform value (filter
@@ -355,8 +255,8 @@ Use this structure for new entries:
 
 ## UAT Checklists Must Include Explicit Test Data And Search Terms
 
-- **Collapsed to reference on 2026-04-18** (Step 10b reorganization review
-  for the `security-dashboard-polish` session set). The same guidance is
+- **Collapsed to reference on 2026-04-18** (reorganization review
+  for `security-dashboard-polish`). The same guidance is
   already captured — with equivalent specificity — in
   `project-guidance.md` → Conventions → Human UAT And Checklist Editor:
   *"Include concrete test data (search terms, entity names, order numbers,
@@ -407,8 +307,8 @@ Use this structure for new entries:
 
 ## ValueChanged Callbacks Must Cover All Editable Fields
 
-- **Promoted to Convention on 2026-05-14** (Step 9 reorganization review for the
-  `composable-crud-helpers` session set). The same rule is now captured — with
+- **Promoted to Convention on 2026-05-14** (reorganization review for
+  `composable-crud-helpers`). The same rule is now captured — with
   binding-pattern specificity — in `project-guidance.md` → Conventions → CRUD Form
   Conventions: *"Form fields bind with `Value`/`ValueChanged`, never `@bind-Value`."*
   Applied as the right call in Products (Session 1), Orders (Session 3), and
@@ -497,36 +397,11 @@ Use this structure for new entries:
   box-to-box comparisons when one of the elements uses padding to offset its
   inner content.
 
-## Send Related Files To The Cross-Provider Verifier Or Disclaim What Is Out Of Scope
-
-- **Promoted to:** `project-guidance.md` → Conventions → Workflow Expectations
-  on 2026-04-18 (Step 10b reorganization review for the
-  `security-dashboard-polish` session set). Applied successfully as the right
-  call in two contexts: the original orders/notes incident, and Session 8 of
-  `security-dashboard-polish` where a proactive "Out-of-scope disclosures"
-  section in the round-1 verification prompt kept false positives at zero.
-- **Original entry preserved below for context.**
-- **Context:** End-of-session cross-provider verification via the AI router
-- **Failure or friction:** Round-1 verification produced two false positives
-  (one Critical, one Major) claiming that `GET`, `PUT`, and `DELETE`
-  note-endpoint actions were missing from `OrdersController.cs`. They
-  actually live in a sibling `OrderNotesController.cs` that was not included
-  in the verification prompt.
-- **Lesson:** The verifier only sees what the prompt includes. If the session
-  touches one file in a conceptual area (e.g., orders CRUD), related files
-  in the same area should be supplied too, or the prompt should explicitly
-  say "notes CRUD lives in `OrderNotesController.cs` and is not being
-  changed this session" so the verifier does not hallucinate missing code.
-- **Action for future sessions:** Before calling the router for verification,
-  list related files the verifier might reasonably look for and either
-  include them or add a "files not in scope but present in the repo"
-  section to the prompt.
-
 ## Hard-Asserted Disabled-State Tests Become Regressions When The Feature Gets Enabled
 
 - **Promoted to:** `project-guidance.md` → Conventions → Testing Conventions
-  on 2026-04-19 (Step 9 reorganization review for the
-  `rearchitect-role-administration-foundations` session set). Applied
+  on 2026-04-19 (reorganization review for
+  `rearchitect-role-administration-foundations`). Applied
   successfully as the right call in two contexts: the original
   security-dashboard-polish incident (SystemAdmin "no order edit" tests
   inverted when `IsReadOnly` flipped), and Session 3 of
@@ -558,8 +433,8 @@ Use this structure for new entries:
 ## Mark `[Obsolete]` Instead Of Deleting Cascading Types When A Future Session Already Owns The Consumer Rewrite
 
 - **Promoted to:** `project-guidance.md` → Conventions → Workflow
-  Expectations on 2026-04-19 (Step 9 reorganization review for the
-  `rearchitect-role-administration-dashboard` session set). Applied
+  Expectations on 2026-04-19 (reorganization review for
+  `rearchitect-role-administration-dashboard`). Applied
   successfully as the right call in two contexts: Set A Session 2 (the
   originating incident — physical deletion of seven configuration types
   with ~50 consumer files would have forced Session 3 over its
@@ -589,14 +464,14 @@ Use this structure for new entries:
 - **Action for future sessions:** Before physically deleting a type, count
   consumer files. If a scheduled future session already owns the consumer
   rewrite, mark `[Obsolete]` instead and disclose the deviation in the
-  cross-provider verification prompt. The deletion lands naturally in the
+  step's report notes. The deletion lands naturally in the
   session that rewrites the last consumer.
 
 ## Follow The Spec's Semantic Intent, Not Its Widget Name
 
 - **Promoted to:** `project-guidance.md` → Conventions → MudBlazor Usage
-  on 2026-04-19 (Step 9 reorganization review for the
-  `rearchitect-role-administration-dashboard` session set). Applied
+  on 2026-04-19 (reorganization review for
+  `rearchitect-role-administration-dashboard`). Applied
   successfully as the right call in two contexts: `security-dashboard-polish`
   Session 2 (the originating `MudSwitch` tri-state incident) and Set B
   Session 3 (`ColumnRestriction` ViewOnly|Hidden + `UiRestriction`
@@ -620,8 +495,8 @@ Use this structure for new entries:
   tri-state model explicitly; the widget name was guidance, not a mandate.
 - **Action for future sessions:** When a spec's named control can't
   express the stated semantics, choose the semantically correct control
-  and call out the deviation explicitly in the end-of-session
-  verification prompt (files, reasoning, why the alternative would
+  and call out the deviation explicitly in the step's report notes
+  (files, reasoning, why the alternative would
   regress). Do not silently substitute and do not force the named widget
   into a shape it wasn't designed for.
 
@@ -771,48 +646,6 @@ Use this structure for new entries:
   and the app's `CultureInfo.CurrentCulture` at startup before
   debugging further.
 
-## Align Checklist Wording To The Test's Literal Assertions Early To Avoid uat-coverage-review Round Escalation
-
-- **Context:** The `uat-coverage-review` gate in
-  `security-dashboard-uat-followup-fixes` Session 1. Only 4
-  checklist items, but the gate took 5 rounds to reach VERIFIED
-  and cost ~$3.13 total across the rounds.
-- **Failure or friction:** Most of the round-to-round churn was
-  wording drift between checklist verifications and test
-  assertions rather than functional coverage gaps. Examples the
-  verifier flagged: the checklist said a summary "reads 'New
-  organization'" but the test used `Assert.Equal` on
-  `InnerTextAsync` rather than Playwright's `ToHaveTextAsync`; the
-  checklist asserted a "column header in `.mud-table-head`" but the
-  test asserted a data cell (`td[data-label='Unit Price']`); the
-  checklist positioned an element "below the collapsed summary"
-  but the test only asserted visibility. Each mismatch escalated
-  a round because the verifier is explicitly tuned to prefer
-  false-positive `ISSUES_FOUND` over false-negative `VERIFIED`.
-- **Lesson:** When authoring a UAT checklist for a new finding,
-  write the verification text against the EXACT Playwright
-  assertion you intend to land — same locator scoping, same native
-  API (prefer `Expect(locator).ToContainTextAsync` /
-  `ToHaveTextAsync` over xUnit `Assert.Contains` on
-  `InnerTextAsync`), same positional claims (don't say "below X"
-  unless the test asserts position). Review your own checklist
-  through a "would the verifier accept this as an identical
-  match" lens before the first route call. Alternatively:
-  generate the checklist FROM the finished test rather than the
-  other way around, since the test's language is the
-  mechanically-verifiable ground truth.
-- **Action for future sessions:** Before routing
-  `uat-coverage-review`, do a two-column dry-run in your head:
-  every `Verifications[i].Text` next to the Playwright line that
-  will be paired with it. If the wording diverges, tighten it
-  now — a wording pass costs zero API dollars; a coverage-review
-  round costs ~$0.60. Also, if a task type is paired
-  (generator + gate), revisit whether the mechanical half should
-  be pinned to Sonnet rather than Opus (see the "Mechanical-Gate
-  Task Types Calibrate To Sonnet-Cost For Adequate Quality"
-  lesson — applied in the prior set but NOT yet applied to the
-  actual `task_type_overrides` config).
-
 ## MudTable `<thead>` Rows Also Carry `tr.mud-table-row`
 
 - **Context:** Playwright locator that wanted "the first data row"
@@ -875,7 +708,7 @@ Use this structure for new entries:
 ## Every UAT Checklist Item Must Be Pre-Tested In Playwright Before The Human Runs The Checklist
 
 - **Context:** Human UAT run for the
-  `rearchitect-role-administration-dashboard` session set on 2026-04-19.
+  `rearchitect-role-administration-dashboard` work on 2026-04-19.
 - **Failure or friction:** The checklist was handed to the human without
   an accompanying Playwright suite that drove each item's steps
   end-to-end. The human discovered multiple blocking defects on the first
@@ -910,48 +743,6 @@ Use this structure for new entries:
   For aesthetic/judgment items, the Playwright test still exercises the
   sequence and asserts a reachable live state so the human is rendering
   judgment on a verified-live UI, not debugging exceptions.
-
----
-
-## `route(task_type=documentation)` Wraps Content In A Code-Documentation Template
-
-- **Collapsed to reference on 2026-04-22** (Step 9 reorganization review
-  for the `pdf-info-metadata-api` session set). The same guidance is
-  now captured — with the added Gemini-Pro-400-on-summarization
-  mitigation — in `project-guidance.md` → Conventions → Workflow
-  Expectations: *"Use `route(task_type="summarization")` for narrative
-  prose outputs ... Reserve `route(task_type="documentation")` for
-  code-doc generation ... If a `summarization` call returns Gemini 400
-  on a prompt above ~2KB, pin `max_tier=1`."* Applied as the right
-  call in two contexts: `rearchitect-role-administration-dashboard`
-  Session 8 (originating incident — documentation template produced
-  400s; fell back to direct API) and `pdf-info-metadata-api` Session 3
-  (summarization+gemini-pro 400'd on a 3.5KB prompt; `max_tier=1`
-  routed to Gemini Flash and succeeded for $0.0004). Follow the
-  convention.
-- **Original entry preserved below for context.**
-- **Context:** Session 8 of `rearchitect-role-administration-dashboard`
-  generated the change-log.md through the AI router.
-- **Failure or friction:** The `documentation` prompt template at
-  `ai-router/prompt-templates/task-types/documentation.md` is shaped for
-  "document this code" work (purpose / public API / usage examples /
-  caveats). When the content is narrative meta-prose like a change log,
-  the wrapped prompt produced `Gemini Pro 400 Bad Request` on every
-  retry. The same content sent directly to `generativelanguage.googleapis.com`
-  via raw `httpx` with the repo's `google-system.md` prompt returned 200.
-  Fell back to the direct API call for this session.
-- **Lesson:** The router's per-task-type template meaningfully alters the
-  prompt shape. For narrative docs (change logs, READMEs, summaries,
-  any free-form prose), use `task_type="summarization"` (no template in
-  `prompt-templates/task-types/`, so content passes through raw) rather
-  than `task_type="documentation"`, which is reserved for code
-  documentation. If a mysterious Gemini Pro 400 surfaces in the router
-  but direct API returns 200, suspect the task-template wrapping first.
-- **Action for future sessions:** Reserve `task_type="documentation"`
-  for code-doc generation. For change logs, release notes, session
-  summaries, and similar narrative prose, use `task_type="summarization"`.
-  Consider adding a dedicated `change-log` or `narrative` task type with
-  a no-op template if this pattern recurs.
 
 ## `.NET 10` Publish With `--no-restore` Silently Drops Blazor Framework Assets
 
@@ -1072,54 +863,6 @@ Use this structure for new entries:
   like connection strings so future drift surfaces in one place rather
   than per-service.
 
-## Heuristics That Earn Their Keep: Stop Tuning The Router Complexity Score
-
-- **Context:** AI router complexity scoring (`complexity.weights` and
-  `task_type_scores` in `router-config.yaml`). The 1-100 heuristic
-  maps every incoming task to a tier via four weighted components
-  (context length, keyword signals, task type, explicit hint).
-- **Failure or friction:** None — the heuristic works well enough.
-  The temptation is to invest engineering in tightening it
-  (embeddings, ML-based prediction, per-repo calibration) to squeeze
-  the escalation rate lower.
-- **Lesson:** The current heuristic plus the 2-try escalation safety
-  net is the intended stopping point. When the heuristic misjudges,
-  escalation catches it and the metrics log records the pattern. The
-  engineering time saved is worth more than the handful of retried
-  API calls the tighter heuristic would prevent. Do not introduce ML
-  or embeddings here; it is a false economy and a procurement-
-  complication risk (more dependencies to vendor-review).
-- **Action for future sessions:** If a review surfaces "the router
-  should predict complexity better", point at this entry and the
-  comment block above `complexity:` in `router-config.yaml`. The
-  only acceptable knob changes are adjusting the existing weights or
-  adding keywords to the high/low lists — both of which are data
-  entry, not engineering.
-
-## Verifier Selection Is Rule-Based, Not Map-Based
-
-- **Context:** Cross-provider verifier selection (`verification.py`
-  `pick_verifier_model`, `router-config.yaml` verification section).
-  Originally driven by a static `cross_provider_map`.
-- **Failure or friction:** The static map tied specific models to
-  specific verifier targets, which ran against the architecture's
-  stated vendor-agnosticism goal. Retiring or swapping a model meant
-  hunting through a pairing table in addition to the `models:`
-  section. It also created the appearance of favoritism to procurement
-  reviewers.
-- **Lesson:** Verifier eligibility is a role (different provider,
-  enabled as verifier, tier match, cheapest survivor), not a user-to-
-  user binding. The RBAC analogy holds: assign permissions to the
-  role, not to the named account. Preferred pairings become optional
-  hints that only take effect when they survive the rules.
-- **Action for future sessions:** When adding a model to
-  `router-config.yaml`, add it with `is_enabled_as_verifier: false`
-  until calibration data justifies promoting it. When retiring a
-  model, flip `is_enabled_as_verifier: false` first, confirm the
-  rules-based fallback lands on an acceptable verifier, then remove
-  the entry. Never re-introduce a map-first selection pattern — the
-  rules engine is load-bearing for the governance story.
-
 ## MudNumericField Playwright FillAsync Does Not Commit @bind-Value
 
 - **Context:** `ProductAdministrationWorkflowTests.E2E_WF_05_AddsProductAfterKeyboardAndValidationChecks`
@@ -1222,45 +965,6 @@ Use this structure for new entries:
   `tests/AcmeCoffeeOnline.Playwright/Infrastructure/FlakyPlaywrightCollection.cs`
   for the convention.
 
-## Mechanical-Gate Task Types Calibrate To Sonnet-Cost For Adequate Quality
-
-- **Context:** Session 10's `uat-coverage-review` gate — 34
-  per-Review-item Step-N = Step-N correspondence checks between
-  the generated UAT checklist and
-  `SecurityDashboardUatCoverageTests.cs`. The router's
-  `routing.task_type_overrides` pinned this task type to Opus.
-- **Failure or friction:** Opus at high effort on a tiny per-item
-  prompt (~2–4 KB in, one-word verdict out) is overkill for
-  mechanical pattern matching with placeholder substitution. The
-  full Opus-gate cost would have been ~$8 on this 34-item
-  checklist (~$0.20–$0.30 per item), plus auto-verifier cost.
-  Moreover, the orchestrator is itself Opus — so an Opus-pinned
-  route is paying Anthropic to re-summon another instance of the
-  current judgment.
-- **Lesson:** Before pinning a task type to Opus via
-  `routing.task_type_overrides`, distinguish mechanical
-  correspondence from synthesis:
-  - **Mechanical correspondence** (gate checks, schema
-    validation, step-by-step parity, redaction audits) → Sonnet
-    with cross-provider verify covers it. Cheap-model risk is
-    false-VERIFIED; mitigate with explicit prompt instruction
-    ("prefer false-positive ISSUES_FOUND over false-negative
-    VERIFIED") and keep auto-verify on.
-  - **Synthesis** (plan generation, spec expansion, novel test
-    authoring) → Opus earns its cost.
-  Calibration evidence: Sonnet ran the 34-item gate across three
-  passes for a total of $0.48, produced the same quality
-  verdicts as Opus would have (empirically, the mechanical
-  critiques were correct and the four false-positives were
-  obviously fussy at human review), and reached 34/34 VERIFIED.
-- **Action for future sessions:** When a task type is paired
-  (generator + gate), apply the split: pin the synthesis half to
-  Opus via `task_type_overrides`, let the mechanical half resolve
-  via the router's cost-tier picker (or pin it to Sonnet
-  explicitly). The paired `uat-plan-generation`
-  (synthesis → Opus) and `uat-coverage-review`
-  (mechanical → Sonnet) is the canonical example.
-
 ## Do Not Present An Inferred Root Cause As Fact Without Verifying It
 
 - **Context:** Any user-reported symptom whose explanation depends
@@ -1269,7 +973,7 @@ Use this structure for new entries:
   reachability, which binary version a running process has loaded,
   which URL a test is actually hitting, etc.).
 - **Failure or friction:** During follow-up debugging on the
-  `pdf-newpage-multipage-fix-consumption` session set, the
+  `pdf-newpage-multipage-fix-consumption` work, the
   orchestrator confidently reported "DabblerPdf 1.1.2 is not on
   nuget.org → the Docker build context cannot reach the sibling
   repo's `nupkg/` folder → the container is stuck on 1.1.0,
@@ -1296,175 +1000,6 @@ Use this structure for new entries:
   `.deps.json`, etc.). Run them. Mark any un-verified claim as
   "hypothesis, not verified" in the writing, and never let a
   hypothesis be presented as a verified root cause.
-
-## Truncation Detection: `stop_reason` Alone Is Not Sufficient
-
-- **Context:** Any routed call whose response is consumed
-  programmatically — code generation, test generation, structured
-  data emission, schema-validation reports.
-- **Failure or friction:** Gemini Pro has been observed to return
-  `stop_reason: "end_turn"` on responses that visibly cut off
-  mid-string (e.g., `var sql = "SELECT Reports`). The orchestrator
-  logs the call as successful, the structured consumer sees a
-  malformed JSON / unbalanced brace, and downstream parsing fails —
-  sometimes silently, sometimes with a misleading error far from
-  the truncation point.
-- **Lesson:** Use the `detect_truncation(content, stop_reason)`
-  helper in `ai-router/utils.py`. It returns True when
-  `stop_reason == "max_tokens"` OR when the response shows
-  syntactic incompleteness (odd count of triple-backtick fences,
-  more `{` than `}`). The brace and fence checks reliably catch
-  code-output truncation; parentheses are intentionally NOT
-  checked because prose produces too many false positives.
-- **Action for future sessions:** Call `detect_truncation()` before
-  treating any structured output as canonical. On truncation,
-  halve the batch and retry, fall back in-conversation, or
-  escalate a tier — do not log a successful call.
-
-## Cost Guard On Verification: Skip When Verifier Cost Greatly Exceeds Generator
-
-- **Context:** Any auto-verified task type (`code-review`,
-  `security-review`) where the generator is a cheap tier-1 or
-  tier-2 model and the rule-based verifier picks an expensive
-  tier-3 model from a different provider.
-- **Failure or friction:** A cheap Gemini Flash call routed at
-  $0.0003 can pull a $0.15 GPT-5.4 verification call — a 500x
-  cost ratio that destroys the savings the cheap generation was
-  supposed to deliver. Without a guard, batch jobs that loop over
-  many small routed calls accumulate verifier costs that dwarf
-  the actual work.
-- **Lesson:** The router's verification block in
-  `router-config.yaml` carries `verification.max_cost_multiplier`
-  (default 3.0). When the estimated verifier cost exceeds
-  `max_cost_multiplier × generator cost`, the verification is
-  skipped and the metrics record `verification_skipped:
-  cost_guard`. The session-verification step is exempt from the
-  guard — that one is non-negotiable cross-provider review.
-- **Action for future sessions:** Trust the guard for
-  auto-verification of cheap routed work. If a specific task type
-  must always be verified regardless of cost ratio, raise
-  `max_cost_multiplier` in the YAML or pin the generator to a
-  more expensive model so the ratio drops naturally.
-
-## Persist Routed Output To Disk Before Display Or Logging
-
-- **Context:** Any routed call whose `result.content` is large or
-  contains user-supplied content, on Windows where the default
-  console code page is `cp1252`.
-- **Failure or friction:** `print(result.content)` can crash
-  mid-line when the content contains characters `cp1252` cannot
-  encode (em-dash, non-breaking space, smart quotes from a
-  routed-prose response). The crash kills the script and loses the
-  paid output that has not yet been written anywhere — a $1+ Opus
-  call disappears because of a single non-ASCII character in the
-  response.
-- **Lesson:** Write routed output to a file FIRST, then print or
-  log. The file write uses `encoding="utf-8"` and survives any
-  Unicode in the content. The print step then either succeeds or
-  fails on display only — the underlying output is preserved on
-  disk for human inspection.
-- **Action for future sessions:** The pattern is:
-  ```python
-  with open(out_path, "w", encoding="utf-8") as f:
-      f.write(result.content)
-  print(f"Wrote {out_path} ({len(result.content)} chars)")
-  ```
-  Avoid `print(result.content)` even when the content "looks like
-  ASCII" — the output is generated by an LLM, you don't know
-  what's in it until it's on disk.
-
-## ASCII-Only Glyphs In Cross-Platform Terminal Output
-
-- **Context:** Any helper that prints a status table, summary, or
-  progress indicator to the terminal. Examples:
-  `print_session_set_status()`, `print_metrics_report()`, custom
-  status helpers a session set adds.
-- **Failure or friction:** Emoji glyphs (✅, 🟡, ⏳, etc.) crash
-  Windows `cp1252` consoles mid-line, losing the rest of the
-  report. Some terminal emulators silently drop the unprintable
-  characters; PowerShell and cmd.exe in default Windows
-  configurations raise `UnicodeEncodeError` and abort the script.
-- **Lesson:** Use ASCII-only glyphs in any output that prints to
-  the terminal: `[~]` for in-progress, `[ ]` for not-started,
-  `[x]` for done, `*` for bullets, `-` for dashes. Reserve rich
-  Unicode for files written to disk (`encoding="utf-8"`) where
-  consumers control their own decoding.
-- **Action for future sessions:** When porting or authoring a
-  status helper, follow `print_session_set_status()`'s pattern in
-  `ai-router/__init__.py`. If a richer rendering is desired, write
-  it to a file and tell the user the path; do not assume the
-  terminal will render it.
-
-## Session-State.json Is The Single Source Of Truth For In-Progress Detection
-
-- **Context:** Any external tool that needs to detect which
-  session set is currently being worked on — VS Code Session Set
-  Explorer, manager dashboards, parallel-session coordination.
-- **Failure or friction:** `find_active_session_set()` historically
-  inferred state from `activity-log.json` presence — but the
-  activity log is only created on the first `log_step()` call,
-  which can be 5–10 minutes after a session actually started.
-  External tools showed sets as "not started" while a session was
-  visibly underway, leading to confusion and (in parallel-session
-  scenarios) two orchestrators starting work on the same set.
-- **Lesson:** Call `register_session_start()` at Step 1, before
-  the first `log_step()`. The function writes `session-state.json`
-  with `status: "in-progress"`, the orchestrator metadata, and the
-  start timestamp. External tools watch this file and flip to In
-  Progress immediately. At Step 8, `mark_session_complete()` flips
-  status to `complete` and records the verification verdict.
-- **Action for future sessions:** Always call
-  `register_session_start()` at Step 1 and
-  `mark_session_complete()` at Step 8. Do not rely on activity-log
-  presence as the in-progress signal.
-
-## Always Route `ai-assignment.md` And Next-Orchestrator / Next-Set Recommendations
-
-- **Context:** Authoring `ai-assignment.md` (Step 3.5) or the
-  next-orchestrator / next-session-set recommendations (Step 8).
-- **Failure or friction:** When the orchestrator drafts these
-  documents from its own opinion, the recommendations are
-  systematically biased toward whichever model the orchestrator
-  is. A Claude orchestrator predictably recommends Claude for the
-  next session even when Gemini Flash or Sonnet would have handled
-  it cheaper. The recommendations become useless for cost
-  optimization.
-- **Lesson:** Always produce these via
-  `route(task_type="analysis")`. The router's task-type defaults
-  pick a cheaper model than the orchestrator's own, and the
-  recommendation reflects routing economics rather than the
-  orchestrator's self-image.
-- **Action for future sessions:** Never self-opine on which model
-  could have been cheaper. Rule #17 in the workflow doc makes this
-  explicit. If the routed recommendation surprises you, surface
-  that to the human — that surprise IS the value the
-  recommendation provides.
-
-## Per-Session-Set E2E/UAT Configuration Is Spec-Declared, Not Inferred
-
-- **Context:** Authoring a new session-set spec, or onboarding a
-  set into an upgraded workflow.
-- **Failure or friction:** Earlier workflow versions inferred UAT
-  applicability at runtime from "did this session touch a UI
-  surface?" The orchestrator made the call session-by-session,
-  which led to inconsistency: one session in a set would author a
-  checklist, the next would not, and the human would discover the
-  drift only at handoff.
-- **Lesson:** UAT and E2E gates are now declared once per session
-  set in a YAML configuration block at the top of the spec
-  (`requiresUAT`, `requiresE2E`, `uatScope`). The orchestrator
-  reads the block at Step 2 and obeys it for the rest of the
-  workflow without re-litigating. Authoring-time heuristics
-  (When-UAT-Is-Required, When-E2E-Is-Required) live in
-  `docs/planning/session-set-authoring-guide.md` for the spec
-  author. Runtime mechanics live in `docs/ai-led-session-workflow.md`
-  for the orchestrator. Crossing those wires (asking the
-  orchestrator to second-guess the spec) is the failure pattern.
-- **Action for future sessions:** When authoring a spec, read the
-  authoring guide first and pick the flags deliberately. When
-  executing a session, trust the spec — if a flag is wrong,
-  surface it to the human at the Step 9 reorganization review,
-  not at Step 6 verification.
 
 ## Three-Step UAT Authoring Discipline — Explicit Steps + Step-Level E2E Map + Per-Step Reachability
 
@@ -1493,8 +1028,7 @@ Use this structure for new entries:
   references, same expected text) but did not check that a real
   human, using only what's exposed in a browser, could actually
   perform each step. Test framework can take any shortcut available
-  to the test framework; the human cannot. The current
-  `uat-coverage-review` prompt does not enforce per-step reachability.
+  to the test framework; the human cannot.
 - **Lesson:** UAT authoring is a three-step process, with the third
   step being the missing one:
   1. Write the UAT step with maximally-explicit human action — full
@@ -1509,27 +1043,24 @@ Use this structure for new entries:
      step. Don't paper over a UI gap with a developer shortcut.
 - **Action for future sessions:** Apply the convention from
   `project-guidance.md` → Conventions → Human UAT And Checklist
-  Editor at every UAT-bearing session set. The
-  `route(task_type="uat-coverage-review")` prompt must explicitly
-  request per-step reachability confirmation (a non-trivial change
-  to the prompt — orchestrators must carry this addition forward).
+  Editor in every session that carries UAT.
   When the supported sign-in path is not yet wired up
   (e.g., DevIdp restore deferred), block the UAT and surface this
-  to the human at spec authoring, not after generating an
-  unrunnable checklist.
+  to the human when the session plan is written, not after
+  generating an unrunnable checklist.
 
 ## UAT Checklist Must Be Validated Against The Canonical Schema Before Commit
 
 - **Promoted to:** `project-guidance.md` → Conventions → Human UAT And
-  Checklist Editor on 2026-04-27 (Step 9 follow-up after the human flagged
+  Checklist Editor on 2026-04-27 (follow-up after the human flagged
   a non-loadable checklist for the *second* time). Two contexts:
   `rearchitect-role-administration-dashboard` Session 8 (original
   custom-shape incident) and `sensitive-field-masking-audit` Session 5
-  (regenerated via `route(uat-plan-generation)` against the wrong shape;
+  (regenerated by AI against the wrong shape;
   Opus produced JSON with `SessionSetSlug`/`Title`/`Reviews`/`Id` that the
   editor rejected). Follow the convention.
 - **Original entry preserved below for context.**
-- **Context:** Two separate session sets shipped UAT checklist JSON that
+- **Context:** Two separate efforts shipped UAT checklist JSON that
   did not load in the editor at
   `https://darndestdabbler.github.io/uat-checklist-editor/`.
 - **Failure or friction:** Both incidents stemmed from the orchestrator
@@ -1547,17 +1078,15 @@ Use this structure for new entries:
   vs singular `Review`, string verifications vs object verifications)
   are exactly the kind of structural mistakes that pass eyeball review
   but fail editor parsing.
-- **Action for future sessions:** When generating a UAT checklist
-  (Step 5.2 in the workflow):
+- **Action for future sessions:** When generating a UAT checklist:
   1. Fetch the schema:
      `https://raw.githubusercontent.com/darndestdabbler/uat-checklist-editor/main/checklist-schema.json`
   2. Validate the generated checklist with `jsonschema` (Python) or an
      equivalent validator. Any validation error blocks the commit.
   3. Eyeball-confirm the field names against the schema's
-     `properties` — don't trust the routed `uat-plan-generation`
-     output's shape; the prompt template has occasionally produced
-     non-schema fields.
-  4. If a routed call produces non-schema fields, transform the output
+     `properties` — don't trust a generated checklist's shape; AI
+     generation has occasionally produced non-schema fields.
+  4. If generation produces non-schema fields, transform the output
      to the schema rather than re-prompting (cheaper, deterministic).
 
 ## ICsvExportService Is A Convention Candidate After A Second Admin-Page Reuse
@@ -1609,11 +1138,7 @@ Use this structure for new entries:
   (mask span exists with masked text, AND the input does not exist), not a
   free-text regex that any tooltip/help text could satisfy.
   Playwright-green ≠ UI-correct.
-- **Action for future sessions:** A separate session set is being authored
-  in a parallel Claude conversation to make fundamental changes to how E2E
-  is conducted, with the goal of reducing this kind of misalignment
-  systemically. When that set lands, follow whatever conventions it
-  establishes. Until then, when authoring E2E for a UAT item:
+- **Action for future sessions:** When authoring E2E for a UAT item,
   scope every assertion to the specific control's container (e.g.,
   `page.GetByTestId("field-ssn-wrapper")` for the SSN slot) before
   applying the visible-label/text check inside it; treat a passing
@@ -1629,8 +1154,8 @@ Use this structure for new entries:
   `IRenderCorrelationScope` (per-Blazor-circuit/request Guid, resets on
   `NavigationManager.LocationChanged`), and `TryRecordOnce` dedup per
   `(CorrelationId, EntityKey, EntityId, ColumnKey)`.
-- **Failure or friction:** None — the pattern worked. One session-set
-  application is insufficient for Convention promotion.
+- **Failure or friction:** None — the pattern worked. One application is
+  insufficient for Convention promotion.
 - **Lesson:** The masking-auditor pattern is a candidate platform
   convention for any future auditable feature that needs:
   - Append-only temporal audit rows (`AppSensitiveAccessLog` shape or similar)
@@ -1646,115 +1171,6 @@ Use this structure for new entries:
   and, if applied, promote it to `project-guidance.md` → Conventions.
   Current first use: `sensitive-field-masking-audit` Sessions 2–3.
 
-## Cross-Provider Verification Must Exclude The Orchestrator's Provider, Not Just The Generator's
-
-- **Context:** `uat-dsl-compiler` Session 1 — Claude orchestrator routed
-  grammar authoring to Opus (Anthropic) and tests to Gemini Pro
-  (Google). The `session-verification` task should have run on a
-  non-Anthropic model per Rule 2 (cross-provider verification).
-- **Failure or friction:** The router's preferred verifier (GPT-5.4,
-  OpenAI) returned 429 rate-limited. The fallback selection in
-  `verification.py` excludes the failed provider but does NOT consider
-  the orchestrator's provider, so it picked Opus (Anthropic) — the same
-  provider as the orchestrator. The cross-provider guarantee was
-  silently broken; the verification still ran and returned a verdict,
-  but it was not actually independent of the orchestrator's pool.
-- **Lesson:** The cross-provider rule is anchored to the *orchestrator*,
-  not the *generator of the work being verified*. Verifier candidates
-  must exclude the orchestrator's provider in addition to (or instead
-  of) the generator's provider, especially on `session-verification`
-  where the routed call IS the verification step. With three providers
-  and the orchestrator's provider excluded, the rate-limit fallback
-  still has one valid choice; with two providers excluded the call
-  should hard-fail with a clear "no valid cross-provider verifier"
-  error rather than silently fall back to the orchestrator's pool.
-- **Action for future sessions:**
-  1. Pass the orchestrator's provider into `route()` (e.g., via a
-     `register_session_start()` side-effect or a `route(...,
-     orchestrator_provider=...)` parameter) and have
-     `verification.py` exclude it from the verifier candidate pool
-     for `session-verification` task type.
-  2. Until that lands, the orchestrator should sanity-check the
-     verifier model name against its own provider after every routed
-     verification call and log a `Major` issue if they match — even
-     if the verdict is VERIFIED.
-  3. Surface the same-provider fallback in the manager report
-     (`report.py`) so the rate at which the cross-provider guarantee
-     is actually upheld is observable over time.
-
-## Use The Verification Prompt Template — Don't Hand-Roll The Verifier Prompt
-
-- **Context:** `uat-dsl-compiler` Session 1 — built a custom
-  verification prompt with a "What to verify" checklist and inlined
-  file contents, but did NOT include the structured JSON response
-  schema from `ai-router/prompt-templates/verification.md`.
-- **Failure or friction:** The verifier returned a markdown report
-  ("Verdict: PASS — All session deliverables met. No blocking issues.")
-  with a markdown table breakdown, NOT the
-  `{"verdict": ..., "issues": [...]}` JSON block the workflow expects
-  for mechanical parsing. The verdict was unambiguous and the saved
-  review file was useful, but a downstream tool that parses
-  `session-NNN.md` for routing decisions would have failed or
-  misclassified the result. The workflow doc explicitly calls this out
-  ("bare-paragraph verdicts have caused parser failures and
-  ISSUES_FOUND-misclassified-as-VERIFIED regressions") — exactly the
-  failure mode that nearly happened here.
-- **Lesson:** The structured-JSON requirement at Step 6 is non-
-  negotiable, and the existing template at
-  `ai-router/prompt-templates/verification.md` already enforces it.
-  Hand-rolling the verification prompt to be "more specific" loses the
-  schema enforcement and is the wrong trade.
-- **Action for future sessions:**
-  1. For `session-verification`, build the prompt by reading
-     `ai-router/prompt-templates/verification.md` and substituting
-     `{original_task}`, `{task_type}`, and `{original_response}` with
-     the session's spec excerpt and file contents — do not hand-roll.
-  2. If the prompt has session-specific framing (lists of what to
-     verify, file context), add it as additional content under the
-     template's `Your Instructions` section rather than replacing
-     the response-format block.
-  3. The router could also auto-prepend the JSON schema block when
-     `task_type="session-verification"` regardless of what the caller
-     passes — that's a more robust fix than relying on caller
-     discipline.
-
-## Anthropic Effort Levels Are `low|medium|high|max` — `xhigh` Is Not Valid
-
-- **Context:** `uat-dsl-compiler` Session 1 — first time the
-  `architecture` task type was actually exercised end-to-end against
-  Anthropic. The router-config had `effort: xhigh` for Opus on the
-  architecture task, and `ai-router/providers.py` listed `xhigh` as a
-  valid Anthropic effort level in its docstring.
-- **Failure or friction:** Every architecture-routed call to Opus
-  failed with `400 Bad Request: This model does not support effort
-  level 'xhigh'. Supported levels: high, low, max, medium.` The
-  router has no concept of param-validity per provider, so the call
-  retried 3 times and then raised — costing time and grinding the
-  session to a halt until the cause was diagnosed by direct API call.
-  The bug had been latent in `router-config.yaml` since the
-  architecture task type was added; it never surfaced because no prior
-  session had actually routed an architecture call (sets that needed
-  architecture either skipped routing or used a different task type).
-- **Lesson:** The valid Anthropic effort enum is
-  `{low, medium, high, max}` — `xhigh` is OpenAI-specific
-  (`reasoning_effort: xhigh` is valid for GPT-5.x) and was apparently
-  copy-pasted across providers in both the YAML and the providers.py
-  docstring. Cross-provider param normalization is a real gap in the
-  router.
-- **Action for future sessions:**
-  1. The fix has been applied: `router-config.yaml` line 307 now
-     reads `effort: max` for Opus on the architecture task. The
-     `providers.py` docstring should also be corrected to remove
-     `xhigh` from the Anthropic effort enum (still pending).
-  2. New per-task-type param entries in `router-config.yaml` should
-     be validated against the providers.py docstring (or a future
-     schema check) before merging.
-  3. Consider adding a startup-time validator in the router that
-     loads the YAML and calls each provider's parameter-shape
-     normalizer, surfacing invalid combinations as a clear error
-     message instead of waiting for the first 400 from the API mid-
-     session.
-
 ## Test Infrastructure Must Degrade Silently When JS-Interop Is Not Dispatchable
 
 - **Context:** Wrapping `OnSearchAsync` in `TrackedComponentBase.TrackAction("search-products", ...)` to fix a click-during-search-rerender race in `ProductManagement.razor` (playwright-sync-watermark-and-playbook Session 5).
@@ -1764,24 +1180,24 @@ Use this structure for new entries:
 
 ## Single-Session Spec Sizing Has A Practical Ceiling
 
-- **Context:** Authoring or executing the closing session of a session set, where the closing session combines investigation + drain + full-suite × 5 + change-log + cross-provider verification + Step 9 reorganization review.
-- **Failure or friction:** playwright-sync-watermark-and-playbook Session 5 was authored as one session containing all of the above. In practice the cumulative-flake investigation alone took 4 fix iterations and a routed second-opinion analysis. Mid-session the human floated a Session 6 to bound scope, then relaxed it once iteration 2 hit 20/20, then accepted that iteration 4 was the right landing. Final session length: ~2.5 hours, with several scope-clarification interrupts.
+- **Context:** Authoring or executing the closing session of a multi-session effort, where the closing session combines investigation + drain + full-suite × 5 + change-log + cross-provider verification + reorganization review.
+- **Failure or friction:** playwright-sync-watermark-and-playbook Session 5 was authored as one session containing all of the above. In practice the cumulative-flake investigation alone took 4 fix iterations and a cross-provider second-opinion analysis. Mid-session the human floated a Session 6 to bound scope, then relaxed it once iteration 2 hit 20/20, then accepted that iteration 4 was the right landing. Final session length: ~2.5 hours, with several scope-clarification interrupts.
 - **Lesson:** A closing session that includes both an open investigation AND drain + full-suite × 5 + change-log + reorg risks blowing past any reasonable session boundary. Spec authors should consider splitting the investigation from the close: a "diagnostic + first-fix" session, and a separate "validation + drain + close + reorg" session. The early-bound option also gives the human a natural decision point if the diagnostic reveals a worse-than-expected hypothesis.
-- **Action for future sessions:** When authoring a session-set spec whose final session includes an investigation (cumulative-flake hunt, performance regression, etc.), default to splitting it: investigation gets its own session; drain + close gets the next. The session-set-authoring-guide may be the better long-term home for this guidance once it has been applied in a second context.
+- **Action for future sessions:** When writing a session plan whose final session includes an investigation (cumulative-flake hunt, performance regression, etc.), default to splitting it: investigation gets its own session; drain + close gets the next.
 
 ## SemanticValidator Default `activeRole = "*"` Silently Degrades Catalog-Grounded Checklists
 
-- **Context:** Running a catalog-grounded UAT checklist against `/admin/products` for SystemAdmin via the W2 runner (`w0-cli-suppressions-and-role-pinning` Session 3 — the deferred 5/5 watermark proof).
+- **Context:** Running a catalog-grounded UAT checklist against `/admin/products` for SystemAdmin (`w0-cli-suppressions-and-role-pinning` Session 3 — the deferred 5/5 watermark proof).
 - **Failure or friction:** Without a concrete role pinned at compile time, every label probe on a real route falls through to the validator's `EntriesFor(route, "*")` AnyRole-wildcard fallback and returns zero hits — even when the catalog plainly contains the entries under the concrete role name. Surfaces as cascading `UnknownRoute` for the route the script just navigated to, with a misleading message that tempts diagnosis toward catalog re-crawl rather than role pinning. The failure is silent in the sense that the catalog-grounded labels look correct on visual inspection of both the checklist and the catalog.
 - **Lesson:** Catalog grounding is a `(routePath × role × label)` triple, not a `(routePath × label)` pair. Pinning a concrete role at compile time is mandatory for any post-auth checklist. The mechanism options (W0 `--active-role` flag, runner-side persona inference from the sign-in step's email, or a script-level `AS ROLE "<name>"` directive) are equivalent for correctness; pick whichever path produces the smallest blast radius for the codebase at hand.
-- **Action for future sessions:** When authoring or running a catalog-grounded UAT checklist, always thread a concrete role to the validator — never rely on the AnyRole wildcard. The dabbler-platform runner does this automatically via `ai-router/uat_runner/personas.json` (email → role); explicit override available via `--active-role <name>` on `cli.py` for ad-hoc smoke tests under a non-default persona. If a future spec needs a different role-resolution strategy (e.g., for multi-org tests), evaluate it against the same correctness bar: zero label hits on a real route is a silent failure, not a noisy one.
+- **Action for future sessions:** When authoring or running a catalog-grounded UAT checklist, always thread a concrete role to the validator — never rely on the AnyRole wildcard. Pass W0's `--active-role <name>` on every `validate` and `compile`. If a future session needs a different role-resolution strategy (e.g., for multi-org tests), evaluate it against the same correctness bar: zero label hits on a real route is a silent failure, not a noisy one.
 
 ## Smoke Proofs That Have Never Run Surface Their Own Infrastructure Gaps
 
-- **Context:** Two consecutive session sets needed a runner-driven `python ai-router/uat_runner/cli.py` smoke against the live compose stack: `uat-dsl-watermark-integration` Session 3 (deferred 5/5 proof) and `w0-cli-suppressions-and-role-pinning` Session 3 (the actual 5/5 proof). Each set's smoke was authored optimistically against pieces — DSL primitives, CLI flags, runner-side hooks — that had never actually run end-to-end together.
-- **Failure or friction:** The first set deferred its 5/5 quality bar after surfacing two infrastructure gaps (W0 CLI lacked `--suppressions`; SemanticValidator defaulted `activeRole` to `*`). The second set closed those gaps and ran the smoke for real, where it surfaced *three more* gaps in the magic-link sign-in DSL flow alone: free-form `WAIT FOR "<state>"` mis-emits to `WaitForSelectorAsync(<literal English>)` (Playwright rejects literal English as CSS), `/dev/email-inbox`'s link text is `"Open"` with `target="_blank"` not `"Sign in"`, and the OTP-code paste step has no DSL primitive. Each gap looked like scope creep mid-session; in aggregate they were the smoke proof's primary value.
+- **Context:** Two consecutive efforts needed a runner-driven UAT smoke against the live compose stack: `uat-dsl-watermark-integration` Session 3 (deferred 5/5 proof) and `w0-cli-suppressions-and-role-pinning` Session 3 (the actual 5/5 proof). Each effort's smoke was authored optimistically against pieces — DSL primitives, CLI flags, runner-side hooks — that had never actually run end-to-end together.
+- **Failure or friction:** The first effort deferred its 5/5 quality bar after surfacing two infrastructure gaps (W0 CLI lacked `--suppressions`; SemanticValidator defaulted `activeRole` to `*`). The second closed those gaps and ran the smoke for real, where it surfaced *three more* gaps in the magic-link sign-in DSL flow alone: free-form `WAIT FOR "<state>"` mis-emits to `WaitForSelectorAsync(<literal English>)` (Playwright rejects literal English as CSS), `/dev/email-inbox`'s link text is `"Open"` with `target="_blank"` not `"Sign in"`, and the OTP-code paste step has no DSL primitive. Each gap looked like scope creep mid-session; in aggregate they were the smoke proof's primary value.
 - **Lesson:** A smoke proof that has never actually run is a *test of the infrastructure that supports the smoke*, not a smoke of the application. Expect 1–3 additional infrastructure gaps to surface the first time it runs end-to-end. Budget for them in the spec rather than treating each surfaced gap as scope creep — the smoke's job is to find them. Closing a gap mid-session is not a deviation from the spec; failing to close one and pretending the smoke "passed" against an unrunnable artifact is.
-- **Action for future sessions:** When a session-set spec calls for "the deferred 5/5 proof" or any first end-to-end runtime exercise of an integration, treat the smoke run itself as the work and reserve scope for gap closure. If a surfaced gap is large enough to warrant its own session, surface it explicitly and pause; if small (e.g., a runner-template extension, a structured-VERIFY swap, a test-infra cleanup hook), close it inline and document in the change-log. The smoke is green only when the runner pipeline is actually deterministic — compile-only proof or hand-edited emit doesn't count.
+- **Action for future sessions:** When a session plan calls for "the deferred 5/5 proof" or any first end-to-end runtime exercise of an integration, treat the smoke run itself as the work and reserve scope for gap closure. If a surfaced gap is large enough to warrant its own session, surface it explicitly and pause; if small (e.g., a runner-template extension, a structured-VERIFY swap, a test-infra cleanup hook), close it inline and document in the change-log. The smoke is green only when the compile-and-run pipeline is actually deterministic — compile-only proof or hand-edited emit doesn't count.
 
 ## Restriction-Binder Components Must Render Nothing Until First Resolution Completes
 
@@ -1792,10 +1208,10 @@ Use this structure for new entries:
 
 ## State-Mutating UATs Pollute The Container's Writable Layer Across Runs
 
-- **Context:** The masking-audit checklist's UAT-2 grants a `MaskExemption` row via the live UI. The `SecurityConfigurationManager`'s JSON file store persists this mutation to the container's `/app/security-config.json` — its writable layer, NOT the source-tree file the image was built from. UAT-3 in the same run then verifies the exemption is active. UAT-3 passes correctly. But the exemption stays in the container for any subsequent W2 run.
-- **Failure or friction:** On a re-run without `--build --force-recreate`, the next iteration's UAT-1 (which expects the SSN to render masked because *no* exemption is supposed to be active yet) fails: the persisted exemption from the previous run's UAT-2 is still in place, the binder resolves to `IsMasked=false`, and the editable input renders instead of the masked span. Symptom: 1/5 pass rate on consecutive `cli.py` runs, with the failure mode "looks like a render race" because the page DOES eventually render *something* — just not the masked span. The actual cause is deterministic state pollution. Multiple hours were lost during 2026-05-01 to chasing this as a render-timing race in `RestrictedFormField` (the render-race fix landed and is correct, but it didn't restore reliability — the state-pollution did).
-- **Lesson:** Any UAT that mutates persisted application state must either (a) clean up after itself within the same run, or (b) be paired with a runner-level container reset between runs. Option (b) is more robust — it's the only thing that catches state mutations the test author didn't anticipate. The W2 runner now exposes `--reset-app-state` to force-recreate the web + api containers before the test runs (added 2026-05-01); use it whenever a checklist contains a UAT that grants permissions, writes config, or otherwise persists state. The flag adds ~10 seconds per run; the cost is worth the determinism.
-- **Action for future sessions:** When authoring a session-set spec for a UAT that mutates state, set `requiresUAT: true` AND note in the spec that the runner must be invoked with `--reset-app-state`. When debugging an "intermittent" W2 failure where the failure is deterministic from-first-bad-run-onwards (passes once, then fails), suspect state pollution before suspecting render race or other timing bug. Quickest diagnostic: `docker exec <container> grep <state-key> /app/<config-file>` to compare in-container state to source-tree state.
+- **Context:** The masking-audit checklist's UAT-2 grants a `MaskExemption` row via the live UI. The `SecurityConfigurationManager`'s JSON file store persists this mutation to the container's `/app/security-config.json` — its writable layer, NOT the source-tree file the image was built from. UAT-3 in the same run then verifies the exemption is active. UAT-3 passes correctly. But the exemption stays in the container for any subsequent run.
+- **Failure or friction:** On a re-run without `--build --force-recreate`, the next iteration's UAT-1 (which expects the SSN to render masked because *no* exemption is supposed to be active yet) fails: the persisted exemption from the previous run's UAT-2 is still in place, the binder resolves to `IsMasked=false`, and the editable input renders instead of the masked span. Symptom: 1/5 pass rate on consecutive runs, with the failure mode "looks like a render race" because the page DOES eventually render *something* — just not the masked span. The actual cause is deterministic state pollution. Multiple hours were lost during 2026-05-01 to chasing this as a render-timing race in `RestrictedFormField` (the render-race fix landed and is correct, but it didn't restore reliability — the state-pollution did).
+- **Lesson:** Any UAT that mutates persisted application state must either (a) clean up after itself within the same run, or (b) be paired with a container reset between runs. Option (b) is more robust — it's the only thing that catches state mutations the test author didn't anticipate. Force-recreate the web + api containers (`docker compose -f docker/docker-compose.app.yml up --force-recreate -d web api`) before the test runs whenever a checklist contains a UAT that grants permissions, writes config, or otherwise persists state. The reset adds ~10 seconds per run; the cost is worth the determinism.
+- **Action for future sessions:** When a session plan includes a UAT that mutates state, note in the plan that the app containers must be recreated before each run. When debugging an "intermittent" UAT failure where the failure is deterministic from-first-bad-run-onwards (passes once, then fails), suspect state pollution before suspecting render race or other timing bug. Quickest diagnostic: `docker exec <container> grep <state-key> /app/<config-file>` to compare in-container state to source-tree state.
 
 ## Idempotent Schema Backfills Do Not Replay Seed Data
 
@@ -1807,7 +1223,7 @@ Use this structure for new entries:
 ## Interactive Blazor Server Pages Must Use `AuthenticationStateProvider`, Not `IHttpContextAccessor`, For Role Checks
 
 - **Context:** `admin-users-cross-links` Session 1 added a dashboard cross-link banner to `UserManagement.razor` (the `/admin/users` page). Initial implementation injected `IAdminUserQueryService` and called `GetActorActiveAdminRole()`, which internally reads `IHttpContextAccessor.HttpContext?.User` to resolve the actor's role. The page is hosted under `@rendermode="InteractiveServer"` (App.razor lines 17, 21).
-- **Failure or friction:** The bUnit tests passed (bUnit renders once with a synchronous test context where `HttpContext` is fine). The W2 Playwright run failed at the banner-visibility step. The page rendered the unconditional page heading correctly ("Manage Organization Admins" was visible), but the role-gated banner ("Open the Security Dashboard → Users and Role Assignment tab") was absent. `IHttpContextAccessor.HttpContext` is null in interactive Blazor Server components — Microsoft's documented stance — so `GetActorActiveAdminRole()` returned null, `_showDashboardBanner` was set to false, and the banner never rendered after the circuit took over from prerender. The exact symptom: feature works in unit tests, missing in browser.
+- **Failure or friction:** The bUnit tests passed (bUnit renders once with a synchronous test context where `HttpContext` is fine). The Playwright run failed at the banner-visibility step. The page rendered the unconditional page heading correctly ("Manage Organization Admins" was visible), but the role-gated banner ("Open the Security Dashboard → Users and Role Assignment tab") was absent. `IHttpContextAccessor.HttpContext` is null in interactive Blazor Server components — Microsoft's documented stance — so `GetActorActiveAdminRole()` returned null, `_showDashboardBanner` was set to false, and the banner never rendered after the circuit took over from prerender. The exact symptom: feature works in unit tests, missing in browser.
 - **Lesson:** For Blazor Server interactive components that need the actor's role, claims, or authenticated identity, inject `AuthenticationStateProvider` and call `GetAuthenticationStateAsync()`. Combine with `IRoleSwitcher.EffectiveRoles(authState.User)` and `IBakedInRoleProvider.TryGetBakedInRole(roleName)` to honor any active role switch. This is the pattern `DabblerSecurityDashboard.razor` already uses (lines 14, 129–149) and it works in both prerender and interactive phases because Blazor maintains the auth state synchronously across the circuit boundary. `IAdminUserQueryService.GetActorActiveAdminRole()` is safe from services that run inside an HTTP request (controllers, API endpoints, middleware) — *not* from Blazor components.
 - **Action for future sessions:** When adding role-gated visibility to a Blazor page or component, check the file's render mode. If the component is hosted under `@rendermode="InteractiveServer"` (or `InteractiveAuto`), use `AuthenticationStateProvider` + `IRoleSwitcher`. Avoid `IHttpContextAccessor`-backed services for role resolution from Blazor markup — they appear to work in unit tests but produce a silent "feature absent" defect in production. When reviewing PRs that inject `IAdminUserQueryService.GetActorActiveAdminRole()` into a `.razor` page, ask whether the page is interactive; if yes, recommend the switch.
 
@@ -1817,23 +1233,6 @@ Use this structure for new entries:
 - **Failure or friction:** Integer identity IDs are non-deterministic across environments. `BackfillSecuritySeedDataAsync` inserts new seed users via normal EF `Add()`, which lets SQL Server assign the next available identity value — a value that varies depending on how many test-generated rows exist in the DB. Any `user-roles.json` key authored against a clean-seed environment breaks in a dev environment that has been used for Playwright test runs.
 - **Lesson:** `IUserRoleStore` keys must be stable across environments. Email addresses are the right key for `JsonFileUserRoleStore` because they are immutable, environment-independent, and human-readable. Both call sites (`UserSessionContextService.GetRolesAsync` and `AdminUserQueryService` row projection) must pass `user.Email` rather than `user.Id.ToString()`. This fix also removes the only source of drift between the Api and Web `user-roles.json` files (they were previously not in sync on the jdoe entry). Promotion candidate after a second context confirms the email-key convention.
 - **Action for future sessions:** When adding a baked-in role assignment to `user-roles.json`, always use the persona's email as the key. Never use integer IDs. The `AdminUserRow.UserId` property now holds an email address; a rename to `UserEmail` is a tracked minor clean-up for the next session touching the admin dashboard Blazor components.
-
-## Updated AI Router Enforces A `disposition.json` Closeout Gate
-
-- **Context:** The pip-installed `dabbler-ai-router` (canonical source: dabbler-ai-orchestration repo, post Set 9 Session 3) added a closeout gate at `mark_session_complete()`: every session set must contain a structured `disposition.json` file. The router's `Disposition` dataclass schema requires `status` (one of `completed`/`failed`/`requires_review`), `summary`, `verification_method` (`api` for `outsourceMode: first`, `queue` for `outsourceMode: last`), and optional `files_changed`, `verification_message_ids`, `next_orchestrator`, `blockers`. The router treats this as the canonical structured record of what happened in the session — separate from `change-log.md` (human-narrative) and `session-reviews/session-NNN.md` (raw verifier output).
-- **Failure or friction:** `admin-users-cross-links` Session 1 closeout was blocked by `CloseoutGateFailure` because the workflow doc (`docs/ai-led-session-workflow.md` Step 8) was authored before the gate landed and does not include "author `disposition.json`" as a step. The orchestrator (Sonnet) had no in-context signal that the file was required, so closeout was attempted without it. `force=True` worked but is explicitly scoped to incident recovery — the router's own warning text says "hard-scoped to incident-recovery only", and the closeout logs `forceClosed=true` plus a `closeout_force_used` event. Using `force=True` for a routine closeout would skew the audit signal across the repo.
-- **Lesson:** The `disposition.json` requirement is a real, well-designed structured-record gate — not an arbitrary obstacle. The integration gap is on the platform side: Step 8 of `docs/ai-led-session-workflow.md` needs to call out the disposition-authoring requirement before `mark_session_complete`. Once the workflow doc is updated, this becomes a routine closeout step alongside the cost report and change-log generation. `force=True` is the correct path only when `disposition.json` cannot be authored (e.g., a crashed/incomplete session that needs forensic closure).
-- **Action for future sessions:** Pre-author `docs/session-sets/<slug>/disposition.json` as part of Step 8, just before `mark_session_complete()`. Minimum viable structure for an implementation session:
-  ```json
-  {
-    "status": "completed",
-    "summary": "<one-paragraph close-out summary>",
-    "verification_method": "api",
-    "files_changed": ["<paths created or modified>"],
-    "next_orchestrator": null  // or {"engine": "...", "model": "...", "effort": "..."} for non-final sessions
-  }
-  ```
-  Surface the workflow-doc gap to the orchestration repo (issue draft in change-log) so future agents inherit the corrected procedure. Once Step 8 is updated, this lesson stops being a hazard and stabilizes as routine — at that point it can be retired or promoted to a Convention if a stable disposition-authoring pattern emerges across sessions.
 
 ## Blazor DI Lifetime Mismatch Breaks Parent-Child State Sharing
 
@@ -1855,7 +1254,7 @@ Use this structure for new entries:
 
 - **Context:** `unified-master-details-composite` Session 5 — the AI orchestrator authored UAT checklist steps using fake labels (`CLICK TAB with name "ROLES"`, `CLICK LINK with text "first role row in the grid"`) on `/admin/security` (a fully crawled route). The W0 compiler emitted `UnknownLabel` errors but they were suppressed via `routePathPatterns: ["*"]`. The W2 runner then ran with `--skip-dotnet-test`. The broken compiled test never executed. The human only found the cheating during manual UAT.
 - **Failure or friction:** Any safeguard that requires the AI to voluntarily comply is not a safeguard. The supplemental prompt-side instruction ("use only catalog-grounded labels") was insufficient — the model has a strong incentive to ship the checklist quickly and a weak signal that label fabrication will be caught.
-- **Lesson:** The gate must live in the tooling. The `uat-catalog-grounding-gate` session set added a pre-flight check to `uat_runner/runner.py` (`_check_catalog_grounding`) that fires `CATALOG_GROUNDED_VIOLATION` for any DSL label on a catalog-known route that doesn't exist in the catalog. The violation is hard-coded as not-suppressible by `tools/uat-suppressions.json`. Routes not in the catalog continue to use the existing CATALOG_STALE path (suppressible) so legitimate work on new pages isn't blocked.
+- **Lesson:** The gate must live in the tooling. The `uat-catalog-grounding-gate` work added a pre-flight check to the UAT runner (since retired) that fired `CATALOG_GROUNDED_VIOLATION` for any DSL label on a catalog-known route that doesn't exist in the catalog. The violation was hard-coded as not-suppressible by `tools/uat-suppressions.json`. Routes not in the catalog used the CATALOG_STALE path (suppressible) so legitimate work on new pages wasn't blocked.
 - **Action for future sessions:** Apply the same pattern when an AI shortcut is observed: identify the tooling layer where the bypass occurred, install a hard gate at that layer rather than asking the AI to behave. Trust the AI to be helpful; do not trust the AI to police itself. The `--skip-dotnet-test` flag's existence and the wildcard suppression pattern were both gaps in the safeguard chain — both can be tightened in similar ways when future shortcuts are observed.
 
 ## Component Catalog Has No `Grid` Element Role; `CLICK ROW` DSL Verb Cannot Always Compile
@@ -1863,7 +1262,7 @@ Use this structure for new entries:
 - **Context:** `uat-catalog-grounding-gate` Session 2 — needed to author a checklist step "click the Backoffice User role in the Roles grid" using the W0 DSL `CLICK ROW in "<grid name>" where "<col header>" = "<value>"` verb. The grammar supports the verb but the catalog has no entry that names the role grid (no `elementRole=Grid` or `elementRole=Table` entries crawled).
 - **Failure or friction:** The catalog crawler captures clickable elements (Button, Link, Tab, Input, IconButton), column headers (Column), and section headers (Text, Element). It does not emit a distinct "grid" element with a user-visible name. Without that, `CLICK ROW in "..."` has no catalog-grounded grid name to use.
 - **Lesson:** For grids without a catalog name, prefer either (a) using a catalog-grounded element inside the row (e.g., `CLICK INPUT with label "Backoffice User"` if the row has a unique input value), or (b) marking the row-click item as `IsJudgmentItem: true` and providing the regression coverage via a hand-authored Playwright test using `data-testid`. The hand-authored test is the authoritative coverage; the checklist describes the human's manual spot-check.
-- **Action for future sessions:** When the checklist needs "click a specific row", first check the catalog for catalog-grounded alternatives (Inputs with row-identifying labels, IconButtons inside the row). If none exist, mark `IsJudgmentItem: true` and link a Playwright test in `E2ETestReference`. Do not invent labels like "first role row in the grid" — the catalog grounding gate will reject them.
+- **Action for future sessions:** When the checklist needs "click a specific row", first check the catalog for catalog-grounded alternatives (Inputs with row-identifying labels, IconButtons inside the row). If none exist, mark `IsJudgmentItem: true` and link a Playwright test in `E2ETestReference`. Do not invent labels like "first role row in the grid" — W0 reports them as `UnknownLabel`.
 
 ## `.dockerignore` Must Not Exclude The Local NuGet Feed From The Build Context
 

@@ -14,10 +14,7 @@ today is `dabbler-uat-dsl` (see `solution-dependencies.json`).
 
 - `README.md` -- repo layout and build entry points
 - `docs/platform-overview.md` -- what the platform is and ships
-- `docs/planning/project-guidance.md` -- durable principles and conventions.
-  Its references to `route()`, `session-state.json`, `ai-assignment.md` and
-  session sets describe the retired v1 workflow; the testing, UAT, MudBlazor,
-  CRUD and code-style rules still apply.
+- `docs/planning/project-guidance.md` -- durable principles and conventions
 - `docs/planning/lessons-learned.md` -- repo-specific failure patterns
 - `docs/planning/session-set-authoring-guide.platform-addendum.md` -- Blazor /
   MudBlazor / Playwright / AcmeCoffeeOnline conventions

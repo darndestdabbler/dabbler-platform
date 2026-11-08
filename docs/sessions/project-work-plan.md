@@ -24,7 +24,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 10 | Maintainer guide, gate rule and support policy | no | 2026-11-08 |
 | 11 | Bump to 0.2.0 | no | 2026-11-08 |
 | 12 | Retire what does not run | no | 2026-11-08 |
-| 13 | Prune the v1 guidance | — | not declared |
+| 13 | Prune the v1 guidance | no | 2026-11-08 |
 | 14 | Bump to 1.0.0 | — | not declared |
 
 ### Session 1 — Author or import the solution plan
@@ -107,3 +107,9 @@ Bump the single repository version to 0.2.0 ahead of the operator-tagged release
 **Releasable: no.**
 
 Retire what no longer runs in dabbler-platform. Delete the v1 Python UAT runner under uat_runner/ (cut 1) and remove its entries from the project section of AGENTS.md and from README.md; the Playwright tests under tests/AcmeCoffeeOnline.Playwright/ stay untouched. Move docs/planning/access-to-blazor-cli-spec.md, docs/planning/project-status.md and the two root v1 summaries CRUD_SCAFFOLDING_FINAL_SUMMARY.md and FEEDBACK_REMEDIATION_SUMMARY.md into docs/planning/_archived/ with git mv (cut 4), fix the relative links inside the moved files so they still resolve from their new location, and update the full-path pointers to the moved files in docs/planning/brief.md and docs/planning/solution-plan.md. Add docs/session-sets/README.md, one paragraph stating that its 47 directories are read-only v1 history (cut 13), and correct the session-set count in AGENTS.md from 45 to 47.
+
+### Session 13 — Prune the v1 guidance
+
+**Releasable: no.**
+
+Prune the retired v1 workflow from the repository's standing guidance. In docs/planning/project-guidance.md remove the dated v3 banner and every passage that only describes the retired v1 router and its workflow: route() task types and tiers, ai_router / ai-router and the W2 uat_runner, session-state.json, ai-assignment.md and next-orchestrator recommendations, session sets and their specs, disposition.json, UAT Review Session sets, maxout overrides, and pointers to the deleted docs/ai-led-session-workflow.md and session-set-authoring-guide.md. Keep the Principles (Architecture, Security And Organization Model, UI Philosophy, Testing Hierarchy, Human UAT Philosophy, Precedence) and the testing, UAT, MudBlazor, CRUD, filter, styling and code-style Conventions, rewording a kept rule only where a sentence of it leans on a v1 term (for example 'session set' becomes 'session'). Do the same in docs/planning/lessons-learned.md: drop the banner, delete the lessons that only describe the retired router (register_session_start, route(task_type=documentation), router complexity score, verifier selection, task-type calibration, truncation, verification cost guard, routed-output persistence, session-state.json, ai-assignment.md, verification prompt template, disposition.json gate and the like), keep the repository-specific failure patterns (Blazor, MudBlazor, Playwright, Docker, .NET, UAT authoring, testing), and strip v1 references from the kept entries and the file's preamble. Finally remove the v1 caveat sentence from the Required reading list in AGENTS.md's project section.
