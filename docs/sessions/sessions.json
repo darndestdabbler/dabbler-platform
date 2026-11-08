@@ -333,9 +333,9 @@
     {
       "number": 16,
       "title": "Templates reference the version being packed",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-08T09:28:04.614000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-08T10:38:58.279000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
