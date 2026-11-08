@@ -35,6 +35,7 @@ nupkgs run instead of skipping.
 | Gate | What runs | Where | When |
 |---|---|---|---|
 | `unit` suite | `dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m` | `dabbler.yaml` | Every session, as the run of record |
+| `smoke` suite | `Dabbler.Packaging.Smoke` against `pack-output/` (scaffolds and builds `dabbler-app` and `dabbler-min`) | `dabbler.yaml` | Every bump session, after `pwsh tools/pack.ps1 -OutputDir pack-output -CleanOutput` |
 | Push build | The same `unit` suite command | CI: `.github/workflows/ci.yml` | Every push to `master` and every pull request, Dependabot's included: the gate on `master` and on Dependabot pull requests |
 | Package surface | `Dabbler.PublicSurface.Tests` against the packed nupkgs | CI: the *Validate And Pack* job in `.github/workflows/build.yml` | Every `nuget-v*` tag and every manual dispatch |
 | Consumer smoke | `Dabbler.Packaging.Smoke` against the packed nupkgs | CI: the same *Validate And Pack* job | Every `nuget-v*` tag and every manual dispatch |
@@ -68,7 +69,10 @@ machine: CI publishes through trusted publishing (OIDC).
 
 1. **Bump session.** Run a session whose only work is to set
    `DabblerVersion` in `Directory.Build.props` to the new version. The
-   `unit` suite runs as its run of record.
+   `unit` suite runs as its run of record. The session also packs
+   (`pwsh tools/pack.ps1 -OutputDir pack-output -CleanOutput`) and runs the
+   `smoke` suite, which scaffolds the templates at the new version and
+   builds them: the same consumer smoke CI runs before it publishes.
 2. **Playwright gate.** Run the Playwright suite against the bumped trunk,
    as described above.
 3. **Tag by hand.** Push an annotated tag on that commit:

@@ -109,9 +109,9 @@ On first run, the app seeds **admin@local.test** in the security database. To si
 
 ## NuGet packages & versions
 
-The `Dabbler.*` platform packages restore from **nuget.org** (anonymous read — no auth token in this repo or its CI). Each `Dabbler.*` reference is **pinned to an exact preview version** (e.g. `0.1.0-preview.1`) in the `.csproj` files — never a floating `0.1.0-preview.*` — so restore is reproducible.
+The `Dabbler.*` platform packages restore from **nuget.org** (anonymous read — no auth token in this repo or its CI). Each `Dabbler.*` reference is **pinned to the exact version of the `Dabbler.Templates` package that scaffolded this app** in the `.csproj` files — never a floating range — so restore is reproducible.
 
-**Upgrading:** bump every `Dabbler.*` `<PackageReference>` to the next published preview in lockstep (all platform packages share one version), then `dotnet restore`. A rebuild is required between preview versions — the preview packages are not guaranteed binary-compatible until a stable `1.0`.
+**Upgrading:** bump every `Dabbler.*` `<PackageReference>` to the next published version in lockstep (all platform packages share one version), then `dotnet restore` and rebuild.
 
 ### Offline restore (opt-in)
 

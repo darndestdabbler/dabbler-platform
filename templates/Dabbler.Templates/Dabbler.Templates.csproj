@@ -37,4 +37,25 @@
     <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
+  <!--
+    The template projects reference Dabbler.* at the placeholder version
+    DABBLER_PACKAGE_VERSION. At pack time each template .csproj is copied to
+    obj/ with the placeholder replaced by $(DabblerVersion), and the copy is
+    packed in place of the original, so a scaffolded app references exactly
+    the version this package ships with.
+  -->
+  <Target Name="StampTemplateDabblerVersion" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <_TemplateProject Include="content\**\*.csproj"
+                        Exclude="content\**\bin\**;content\**\obj\**" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)stamped-templates\%(_TemplateProject.RecursiveDir)%(_TemplateProject.Filename)%(_TemplateProject.Extension)"
+                      Lines="$([MSBuild]::Escape($([System.IO.File]::ReadAllText('%(_TemplateProject.FullPath)').Replace('DABBLER_PACKAGE_VERSION', '$(DabblerVersion)'))))"
+                      Overwrite="true" />
+    <ItemGroup>
+      <Content Remove="@(_TemplateProject)" />
+      <Content Include="$(IntermediateOutputPath)stamped-templates\**\*.csproj" PackagePath="content" />
+    </ItemGroup>
+  </Target>
+
 </Project>

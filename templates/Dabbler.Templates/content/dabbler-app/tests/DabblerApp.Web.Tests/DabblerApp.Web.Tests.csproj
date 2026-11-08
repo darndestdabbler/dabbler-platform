@@ -14,7 +14,7 @@
   <ItemGroup>
     <!-- Platform stubs: bUnit opt-in (§4.4 ledger). One package holds the
          Components, Reports and Security stub providers. -->
-    <PackageReference Include="Dabbler.Platform.Stubs" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Platform.Stubs" Version="DABBLER_PACKAGE_VERSION" />
 
     <!-- bUnit and test framework -->
     <PackageReference Include="bunit" Version="1.37.7" />

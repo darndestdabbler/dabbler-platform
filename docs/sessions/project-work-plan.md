@@ -27,7 +27,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 13 | Prune the v1 guidance | no | 2026-11-08 |
 | 14 | Bump to 1.0.0 | no | 2026-11-08 |
 | 15 | Build on push | no | 2026-11-08 |
-| 16 | Templates reference the version being packed | — | not declared |
+| 16 | Templates reference the version being packed | no | 2026-11-08 |
 
 ### Session 1 — Author or import the solution plan
 
@@ -127,3 +127,9 @@ Bump the single repository version to 1.0.0: set DabblerVersion in Directory.Bui
 **Releasable: no.**
 
 Add a push build: a new .github/workflows/ci.yml that, on push to master and on pull_request, runs one windows-latest job which checks out the repository, sets up the .NET 10 SDK and runs the unit suite exactly as dabbler.yaml declares it (dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m), with a concurrency group per ref that cancels in-progress runs and permissions contents: read. Then make the change-log honest by adding one line each under 0.1.0-preview.2 and 0.2.0 in CHANGELOG.md saying the version was never published to nuget.org and that 1.0.0 is the first release after 0.1.0-preview.1, and update docs/MAINTAINING.md so 'Where every gate lives' names the push build as the gate on master and on Dependabot pull requests, and 'Dependencies and the MudBlazor policy' says a Dependabot pull request merges only on a green check. Verification, the unit suite as the run of record and the close follow as the framework runs them.
+
+### Session 16 — Templates reference the version being packed
+
+**Releasable: no.**
+
+Make the dabbler-app (Web and Web.Tests) and dabbler-min templates reference the Dabbler.* version being packed instead of the hard-pinned 0.1.0-preview.1, and bring the scaffolded-app build into a local gate. Each Dabbler.* PackageReference under templates/Dabbler.Templates/content/** carries a single version token; a pack-time target in Dabbler.Templates.csproj copies the template .csproj files to the intermediate directory with the token replaced by $(DabblerVersion) and packs those copies in place of the originals, so Directory.Build.props stays the one source of truth and the template engine needs no new symbol. The two pieces of template prose that name 0.1.0-preview.1 (the dabbler-app README and nuget.config comment) are reworded to say the references are pinned to the exact version of the Dabbler.Templates package that scaffolded the app. Then a `smoke` suite is added to dabbler.yaml (expensive: true, required_for_close: false so only a bump session that packs runs it) that sets DABBLER_PACK_OUTPUT to the resolved pack-output directory -- failing when it is absent rather than letting the tests skip -- and runs tests/Dabbler.Packaging.Smoke with the same ServesBelowFiveHundred exclusion CI's Validate And Pack job uses; docs/MAINTAINING.md says a bump session runs it.

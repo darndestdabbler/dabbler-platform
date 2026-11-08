@@ -8,13 +8,13 @@
 
   <ItemGroup>
     <!-- Platform core -->
-    <PackageReference Include="Dabbler.Components" Version="0.1.0-preview.1" />
-    <PackageReference Include="Dabbler.Security" Version="0.1.0-preview.1" />
-    <PackageReference Include="Dabbler.Security.Blazor" Version="0.1.0-preview.1" />
-    <PackageReference Include="Dabbler.Reports.Core" Version="0.1.0-preview.1" />
-    <PackageReference Include="Dabbler.Reports.Export" Version="0.1.0-preview.1" />
-    <PackageReference Include="Dabbler.Reports.Blazor" Version="0.1.0-preview.1" />
-    <PackageReference Include="Dabbler.Testing.Blazor" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Components" Version="DABBLER_PACKAGE_VERSION" />
+    <PackageReference Include="Dabbler.Security" Version="DABBLER_PACKAGE_VERSION" />
+    <PackageReference Include="Dabbler.Security.Blazor" Version="DABBLER_PACKAGE_VERSION" />
+    <PackageReference Include="Dabbler.Reports.Core" Version="DABBLER_PACKAGE_VERSION" />
+    <PackageReference Include="Dabbler.Reports.Export" Version="DABBLER_PACKAGE_VERSION" />
+    <PackageReference Include="Dabbler.Reports.Blazor" Version="DABBLER_PACKAGE_VERSION" />
+    <PackageReference Include="Dabbler.Testing.Blazor" Version="DABBLER_PACKAGE_VERSION" />
 
     <!-- UI -->
     <PackageReference Include="MudBlazor" Version="9.12.0" />
