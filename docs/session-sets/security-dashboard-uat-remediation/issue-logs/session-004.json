@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "severity": "Minor",
+    "location": "src/Libs/Dabbler.Security/Extensions/ServiceCollectionExtensions.cs:260-275",
+    "summary": "UseEfCoreStore re-registers IDbContextFactory<DabblerSecurityDbContext> with a SQL Server options lambda, which is redundant against the scoped factory AddDabblerSecurity already registered on line 65.",
+    "status": "deferred",
+    "resolution": "Pre-existing from the Session 2 DbContextFactory migration (Session 2 of this set). The UseEfCoreStore registration uses a different options lambda (ConnectionString from DabblerSecurityOptions, vs the lambda captured in AddDabblerSecurity) and is only reached when an app calls UseEfCoreStore() after AddDabblerSecurity() \u2014 last-wins DI semantics make this a deliberate override, not an accidental duplicate. Session 4 did not touch this method. Not a Session 4 regression."
+  },
+  {
+    "id": 2,
+    "severity": "Minor",
+    "location": "tests/Dabbler.Security.Blazor.Tests/Components/Admin/DabblerSecurityDashboardTests.cs:106",
+    "summary": "Test method named Dashboard_CrossOrgUserAdmin_SeesFourTabs but asserts three tabs (TabCount == 3).",
+    "status": "fixed",
+    "resolution": "Renamed to Dashboard_CrossOrgUserAdmin_SeesThreeTabs to match the assertion. Pre-existing naming drift that the Session 3 per-role tab work made more visible; corrected inline."
+  }
+]

@@ -1,0 +1,80 @@
+@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Masks
+@inject SecurityConfigurationManager ConfigManager
+@inject AuthorizationStateNotifier Notifier
+@implements IDisposable
+
+<div data-testid="default-masks-tab">
+    <MudText Typo="Typo.h6" Class="mb-1">Default Masks</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Platform-level sensitive-column declarations. Every role sees these
+        columns rendered through their mask format unless an active Mask
+        Exemption targets the same table + column for the user's active role.
+        The mask renders even when the stored value is null — a visibly empty
+        sensitive field would itself leak information.
+    </MudText>
+
+    <MasterDetailExpansionShell TRow="object"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="default-masks-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Default Masks"
+                                CollapsedSummaryText="@CollapsedSummaryText">
+        <GridContent>
+            <DefaultMasksGrid @ref="_grid"
+                              FiltersChanged="OnFiltersChangedAsync" />
+        </GridContent>
+    </MasterDetailExpansionShell>
+</div>
+
+@code {
+    /// <summary>
+    /// Composer for the Default Masks tab. Applies the shared master-details
+    /// expansion shell as a lighter variant — Default Masks has no separate
+    /// details surface, so the shell's collapse state just condenses the
+    /// management surface into a single compact header summarising the rule
+    /// count. Business operators populate Default Masks directly; the
+    /// internal auditor is the compliance backstop (see project-guidance.md
+    /// → Principles → Security And Organization Model).
+    /// </summary>
+
+    private DefaultMasksGrid? _grid;
+    private bool _isResultsExpanded = true;
+
+    private string CollapsedSummaryText =>
+        $"Default Masks: {ConfigManager.Current.DefaultMasks.Count} declared";
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFiltersChangedAsync()
+    {
+        _isResultsExpanded = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+}

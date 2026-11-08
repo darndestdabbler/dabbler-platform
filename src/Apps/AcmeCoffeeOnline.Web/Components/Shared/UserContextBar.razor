@@ -1,0 +1,86 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+
+<div data-testid="user-context-bar"
+     class="d-flex align-center user-context-bar"
+     role="group"
+     aria-label="User context">
+    <MudLink Color="Color.Inherit"
+             Underline="Underline.Always"
+             OnClick="OpenSignOutDialogAsync"
+             Class="user-context-name"
+             UserAttributes="@_userLinkAttributes">@_userName</MudLink>
+
+    <span class="mx-1 mud-typography mud-typography-body2" aria-hidden="true">as</span>
+
+    @if (_canSwitchRole)
+    {
+        <MudMenu @ref="_roleMenu"
+                 AnchorOrigin="Origin.BottomRight"
+                 TransformOrigin="Origin.TopRight"
+                 Dense="true">
+            <ActivatorContent>
+                <MudLink Color="Color.Inherit"
+                         Underline="Underline.Always"
+                         Class="user-context-role"
+                         OnClick="@context.ToggleAsync"
+                         UserAttributes="@_roleLinkAttributes">@_activeRoleDisplay</MudLink>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Disabled="@(!RoleSwitcher.IsRoleSwitched)"
+                             OnClick="ClearRoleSwitchAsync">
+                    — My roles —
+                </MudMenuItem>
+                @foreach (var role in _allowedSwitchRoles)
+                {
+                    var r = role;
+                    <MudMenuItem OnClick="@(() => ApplyRoleSwitchAsync(r))">
+                        @FormatRoleName(r)
+                    </MudMenuItem>
+                }
+            </ChildContent>
+        </MudMenu>
+    }
+    else
+    {
+        <MudLink Color="Color.Inherit"
+                 Underline="Underline.None"
+                 Disabled="true"
+                 Class="user-context-role"
+                 UserAttributes="@_roleLinkAttributes">@_activeRoleDisplay</MudLink>
+    }
+
+    <span class="mx-1 mud-typography mud-typography-body2" aria-hidden="true">for</span>
+
+    @if (_canSwitchOrg)
+    {
+        <MudMenu @ref="_orgMenu"
+                 AnchorOrigin="Origin.BottomRight"
+                 TransformOrigin="Origin.TopRight"
+                 Dense="true">
+            <ActivatorContent>
+                <MudLink Color="Color.Inherit"
+                         Underline="Underline.Always"
+                         Class="user-context-org"
+                         OnClick="@context.ToggleAsync"
+                         UserAttributes="@_orgLinkAttributes">@_activeOrganizationName</MudLink>
+            </ActivatorContent>
+            <ChildContent>
+                @foreach (var org in OrganizationOptions.Where(o => !o.IsActive))
+                {
+                    var o = org;
+                    <MudMenuItem OnClick="@(() => SwitchOrganization(o.OrganizationId))">
+                        @o.OrganizationName
+                    </MudMenuItem>
+                }
+            </ChildContent>
+        </MudMenu>
+    }
+    else
+    {
+        <MudLink Color="Color.Inherit"
+                 Underline="Underline.None"
+                 Disabled="true"
+                 Class="user-context-org"
+                 UserAttributes="@_orgLinkAttributes">@_activeOrganizationName</MudLink>
+    }
+</div>
