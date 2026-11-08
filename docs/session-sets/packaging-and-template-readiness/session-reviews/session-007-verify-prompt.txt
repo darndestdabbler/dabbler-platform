@@ -1,0 +1,79 @@
+You are reviewing Session 7 of 11 of the packaging-and-template-readiness session set for the Dabbler Platform repo.
+
+## What this session delivered
+
+### A3: Stubs sub-package split
+Created three new library projects:
+- Dabbler.Platform.Stubs.Components (depends on Dabbler.Components)
+  - StubGridDataProvider, StubComboBoxItemProvider, StubEntityMetadataProvider, StubNavigationDataProvider, StubNavigationDataset
+  - New: StubsComponentsServiceCollectionExtensions with focused extension methods
+- Dabbler.Platform.Stubs.Reports (depends on Dabbler.Reports.Core + Dabbler.Components)
+  - StubReportDataProvider, StubArtifactCatalogProvider, StubUsageTrackingProvider
+  - New: StubsReportsServiceCollectionExtensions
+- Dabbler.Platform.Stubs.Security (depends on Microsoft.AspNetCore.App only)
+  - StubAuthenticationStateProvider, StubUserContext
+  - New: StubsSecurityServiceCollectionExtensions with AddStubAuthentication
+
+Dabbler.Platform.Stubs (meta-package) restructured:
+- Now references all 3 sub-packages + Dabbler.Components
+- Retains StubPlatformDefinition.cs (umbrella definition type)
+- DabblerStubServiceCollectionExtensions keeps only AddDabblerPlatformStubs(definition) which forwards to sub-package methods
+
+All moved types retain namespace Dabbler.Platform.Stubs for backward compatibility. Existing consumers (AcmeCoffeeOnline.Web, test projects) need no namespace changes.
+
+### A4: Compat content move
+Moved 10 files from Dabbler.Components/Shell/ and Dabbler.Components/Pages/ to Dabbler.Components.Compat/:
+- DabblerShell.razor/.cs, DabblerNavigationPanel.razor/.cs, DabblerTabbedWorkspace.razor/.cs, DabblerTopMenuBar.razor/.cs (from Shell/)
+- DabblerCatalogPage.razor/.cs (from Pages/)
+- WorkspaceTab.cs, WorkspaceTabType.cs (from Shell/)
+
+Namespace updated from Dabbler.Components to Dabbler.Components.Compat in all files.
+Created Dabbler.Components.Compat/_Imports.razor with MudBlazor + Dabbler.Components using directives.
+
+Consumer updates:
+- AcmeCoffeeOnline.Web.csproj: added ProjectReference to Dabbler.Components.Compat
+- AcmeCoffeeOnline.Web/Components/_Imports.razor: added @using Dabbler.Components.Compat
+- Dabbler.Components.Tests.csproj: added ProjectReference to Dabbler.Components.Compat
+- Dabbler.Components.Tests/_Imports.razor: added @using Dabbler.Components.Compat
+- DabblerShellTests.cs: added explicit using Dabbler.Components.Compat
+- CompatibilitySurfaceTests.cs: added explicit using Dabbler.Components.Compat
+
+### A7: THIRD-PARTY-NOTICES.txt in Reports.*
+Created THIRD-PARTY-NOTICES.txt (DabblerPdf LGPL-2.1-only OR MPL-2.0 disclosure) and added to:
+- Dabbler.Reports.Core.csproj
+- Dabbler.Reports.Export.csproj
+- Dabbler.Reports.Blazor.csproj
+
+### A1: Hermetic pack pipeline
+Created tools/pack.ps1:
+- Packs all 12 library/sub-package NuGet packages in dependency order
+- Writes a hermetic nuget.config with packageSourceMapping pinning in-repo Dabbler.* IDs to local feed
+- Scoped hermeticity: only the allowlist (14 IDs); third-party packages restore normally
+- Post-pack hermeticity check verifies all expected nupkgs are present
+- Templates and DevIdp.Tool skipped (Session 8 deliverables)
+
+### A8 sub-track: optional metapackages
+Decision: deferred. scenarios.md provides install-shape guidance; no pressure observed yet.
+
+### A10 + A2: Test infrastructure
+Created tests/Dabbler.PublicSurface.Tests/ with NupkgArtifactTests (README, icon, MIT license, repo metadata, THIRD-PARTY-NOTICES in Reports.*). Skips if pack-output absent.
+Created tests/Dabbler.Packaging.Smoke/ with baseline PackagingSmokeTests. Template smoke stubs pending Session 8.
+Added Xunit.SkippableFact v1.4.13 to Directory.Packages.props.
+
+### docs/packaging/release-checklist.md
+Pre-push gate (sec 6.5): 6 steps, staged publish order per ledger sec 6.4.
+
+## Build and test results
+- dotnet build: 0 errors, 257 warnings (all pre-existing CS0618)
+- dotnet test (non-Playwright): 868 pass, 51 correctly skipped (PublicSurface without pack output), 0 failures
+
+## Deviations and disclosures
+1. Dabbler.Platform.Stubs namespace preserved in sub-packages -- backward compat, no consumer changes needed.
+2. Dabbler.Platform.Stubs.Reports also references Dabbler.Components because IArtifactCatalogProvider/IUsageTrackingProvider/ArtifactCatalogEntry/ArtifactUsageRecord live in Dabbler.Components. Ledger s4.1 says ".Reports depends on Dabbler.Reports.Core" as the primary dep; the Dabbler.Components reference is a necessary correction for where the interfaces actually live.
+3. Optional metapackages deferred to Session 9 per ledger s3.8 trigger condition.
+4. Packaging.Smoke template tests are stubs only (Session 8 deliverables missing).
+
+## Out of scope (Session 8)
+Dabbler.Templates, Dabbler.Security.DevIdp.Tool, getting-started.md, seeded admin user, full smoke sequence.
+
+Please verify: (1) all deliverables complete and consistent; (2) namespace-preservation defensible; (3) Stubs.Reports + Dabbler.Components reference correct; (4) all spec Session 7 progress keys covered (session-7/package-validation, session-7/package-metadata, session-7/consumer-smoke-tests, session-7/packaged-contract-check). Flag genuine issues.

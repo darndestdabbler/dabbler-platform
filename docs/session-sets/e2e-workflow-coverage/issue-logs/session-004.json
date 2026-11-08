@@ -1,0 +1,20 @@
+[
+  {
+    "issue": "Inconsistent PDF button disabled assertion in SalesByProduct test",
+    "severity": "Minor",
+    "status": "fixed",
+    "fix": "Added pre-report disabled assertion to match OrdersByCustomer test"
+  },
+  {
+    "issue": "Redundant Task.Delay calls before Assertions.Expect auto-retry",
+    "severity": "Minor",
+    "status": "fixed",
+    "fix": "Removed redundant delays where Playwright Assertions.Expect auto-retries"
+  },
+  {
+    "issue": "Fragile CSS locator for notes grid tab panel",
+    "severity": "Minor",
+    "status": "deferred",
+    "fix": "Would require app code changes (adding data-testid) which the spec prohibits. Current locator is pragmatic given the constraint."
+  }
+]

@@ -1,0 +1,471 @@
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Users
+@inject SecurityConfigurationManager ConfigManager
+@inject IBakedInRoleProvider BakedInRoleProvider
+@inject IAdminUserQueryService UserQueryService
+@inject IUserRoleStore UserRoleStore
+@inject AuthorizationStateNotifier Notifier
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+<MudPaper Elevation="1" Class="pa-4 mt-4" data-testid="user-role-assignment-details">
+    @if (User is null)
+    {
+        <MudText Typo="Typo.subtitle1" Class="mb-1">Role Assignments</MudText>
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined"
+                  data-testid="user-role-assignment-empty">
+            Select a user from the grid above to manage their role assignments.
+        </MudAlert>
+    }
+    else
+    {
+        <MudText Typo="Typo.subtitle1" Class="mb-1"
+                 data-testid="user-role-assignment-heading">
+            @($"Role Assignments — {User.DisplayName}")
+        </MudText>
+        <MudText Typo="Typo.body2" Class="mb-3" Color="Color.Secondary">
+            @User.Email · @(User.Organizations.Count == 0
+                ? "No organization memberships"
+                : string.Join(", ", User.Organizations.Select(o => o.OrganizationName)))
+        </MudText>
+
+        <MudText Typo="Typo.subtitle2" Class="mb-2">Current roles</MudText>
+        @if (User.Roles.Count == 0)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary"
+                     data-testid="user-role-assignment-current-empty">
+                This user has no role assignments yet.
+            </MudText>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-1 mb-3"
+                 data-testid="user-role-assignment-current-roles">
+                @foreach (var role in User.Roles)
+                {
+                    var capturedRole = role;
+                    // When UserAdmin assignment is excluded from this surface, render the
+                    // UserAdmin chip as read-only so it is visible but not removable here.
+                    var isUserAdminExcluded = ExcludeUserAdminAssignment
+                        && string.Equals(capturedRole, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase);
+                    var removalResult = isUserAdminExcluded
+                        ? RoleAssignmentAuthorityResult.Denied("UserAdmin is managed via Manage Organization Admins.")
+                        : EvaluateRemovalFor(capturedRole);
+                    if (removalResult.IsAllowed)
+                    {
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="@(BakedInRoles.IsBakedIn(capturedRole) ? Color.Secondary : Color.Primary)"
+                                 Variant="Variant.Outlined"
+                                 OnClose="@(_ => RemoveRoleAsync(capturedRole))"
+                                 data-testid="@($"user-role-assignment-current-{capturedRole}")">
+                            @capturedRole
+                        </MudChip>
+                    }
+                    else
+                    {
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="@(BakedInRoles.IsBakedIn(capturedRole) ? Color.Secondary : Color.Primary)"
+                                 Variant="Variant.Outlined"
+                                 data-testid="@($"user-role-assignment-current-{capturedRole}")">
+                            @capturedRole
+                        </MudChip>
+                    }
+                }
+            </div>
+        }
+
+        @if (ExcludeUserAdminAssignment && _canManageOrgAdmins && User.Organizations.Count > 0)
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="mb-3"
+                      data-testid="user-role-assignment-manage-org-admins-banner">
+                To grant or revoke UserAdmin access for this user, use
+                <strong>Manage Organization Admins</strong>:
+                @foreach (var org in User.Organizations)
+                {
+                    var switchUrl = $"/auth/switch-organization?organizationId={org.OrganizationId}&returnUrl=/admin/users";
+                    <MudLink Href="@switchUrl" Class="ml-1"
+                             data-testid="@($"user-role-assignment-org-admin-link-{org.OrganizationId}")">
+                        Manage org admins for @org.OrganizationName
+                    </MudLink>
+                    @if (org != User.Organizations[^1]) { <span class="mx-1">·</span> }
+                }
+            </MudAlert>
+        }
+
+        <MudDivider Class="my-3" />
+
+        <MudText Typo="Typo.subtitle2" Class="mb-2">Assign role</MudText>
+
+        @if (string.IsNullOrEmpty(_actorActiveRole))
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined"
+                      data-testid="user-role-assignment-no-actor-role">
+                You do not have an active baked-in admin role, so role assignments are read-only.
+            </MudAlert>
+        }
+        else if (_assignableRoles.Count == 0)
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined"
+                      data-testid="user-role-assignment-no-assignable-roles"
+                      data-debug-actor-role="@_actorActiveRole"
+                      data-debug-target-roles="@string.Join(",", User?.Roles ?? [])"
+                      data-debug-actor-orgs="@string.Join(",", _actorOrganizationIds)">
+                No additional roles can be assigned to this user from this surface — this user already
+                holds an admin-class role that cannot be combined with another, or holds every user-type
+                role they are eligible for.
+                @if (ExcludeUserAdminAssignment)
+                {
+                    <span>UserAdmin elevation is managed in <strong>Manage Organization Admins</strong>.</span>
+                }
+            </MudAlert>
+        }
+        else
+        {
+            <div class="d-flex align-center gap-2">
+                <MudSelect T="string"
+                           @bind-Value="_pendingRoleName"
+                           Label="Role"
+                           Margin="Margin.Dense"
+                           Style="min-width:240px"
+                           data-testid="user-role-assignment-role-select">
+                    @foreach (var role in _assignableRoles)
+                    {
+                        <MudSelectItem Value="@role.RoleName"
+                                       data-testid="@($"user-role-assignment-role-option-{role.RoleName}")">
+                            @role.DisplayLabel
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           Disabled="@(!CanSubmitAssignment)"
+                           OnClick="AssignAsync"
+                           data-testid="user-role-assignment-assign-button">
+                    Assign
+                </MudButton>
+            </div>
+
+            @if (!string.IsNullOrEmpty(_assignmentMessage))
+            {
+                <MudAlert Severity="@_assignmentSeverity"
+                          Variant="Variant.Text"
+                          Class="mt-2"
+                          data-testid="user-role-assignment-message">
+                    @_assignmentMessage
+                </MudAlert>
+            }
+        }
+    }
+</MudPaper>
+
+@code {
+    /// <summary>
+    /// The user whose role assignments are being edited. <c>null</c> renders
+    /// the empty-state alert.
+    /// </summary>
+    [Parameter]
+    public AdminUserRow? User { get; set; }
+
+    /// <summary>Fired after a role is assigned or removed so the parent can refresh the grid.</summary>
+    [Parameter]
+    public EventCallback<string> RolesChanged { get; set; }
+
+    /// <summary>
+    /// When <c>true</c> (the default), <see cref="BakedInRoles.UserAdmin"/> is excluded from the
+    /// assignable-role dropdown and rendered as a read-only chip when already assigned. Set to
+    /// <c>false</c> for consumers that manage UserAdmin elevation from this surface directly.
+    /// </summary>
+    [Parameter]
+    public bool ExcludeUserAdminAssignment { get; set; } = true;
+
+    private string? _pendingRoleName;
+    private string? _actorActiveRole;
+    private string _actorUserId = string.Empty;
+    private IReadOnlySet<int> _actorOrganizationIds = new HashSet<int>();
+    private List<AssignableRole> _assignableRoles = [];
+    private string _assignmentMessage = string.Empty;
+    private Severity _assignmentSeverity = Severity.Info;
+    // Cached once on init; true when the actor's role allows managing org admins on /admin/users.
+    private bool _canManageOrgAdmins;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        await RefreshActorContextAsync();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    /// <inheritdoc />
+    protected override async Task OnParametersSetAsync()
+    {
+        // Re-derive assignable roles whenever the selected user changes so the
+        // dropdown reflects per-target authority outcomes.
+        _pendingRoleName = null;
+        _assignmentMessage = string.Empty;
+        await RebuildAssignableRolesAsync();
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        await RebuildAssignableRolesAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RefreshActorContextAsync()
+    {
+        // IHttpContextAccessor.HttpContext is null in interactive Blazor Server,
+        // so IAdminUserQueryService's no-arg methods return null/empty there. Pass
+        // the principal from AuthenticationStateProvider into the overloads so the
+        // actor context resolves correctly in both prerender and interactive phases.
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var actor = authState.User;
+        _actorActiveRole = UserQueryService.GetActorActiveAdminRole(actor);
+        _actorUserId = UserQueryService.GetActorUserId(actor);
+        _actorOrganizationIds = await UserQueryService.GetActorAssignedOrganizationIdsAsync(actor);
+        // Cache once per actor-context refresh. /admin/users is accessible to SystemAdmin and UserAdmin.
+        _canManageOrgAdmins = string.Equals(_actorActiveRole, BakedInRoles.SystemAdmin, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(_actorActiveRole, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase);
+        await RebuildAssignableRolesAsync();
+    }
+
+    private Task RebuildAssignableRolesAsync()
+    {
+        if (User is null || string.IsNullOrEmpty(_actorActiveRole))
+        {
+            _assignableRoles = [];
+            return Task.CompletedTask;
+        }
+
+        var bakedInRoles = BakedInRoleProvider.GetBakedInRoles();
+        var userTypeRoles = ConfigManager.Current.UserTypeRoles;
+
+        var aliasOverrides = ConfigManager.Current.BakedInRoleAliasOverrides;
+        var candidates = new List<AssignableRole>();
+
+        foreach (var bakedIn in bakedInRoles)
+        {
+            if (ExcludeUserAdminAssignment
+                && string.Equals(bakedIn.Name, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var label = aliasOverrides.TryGetValue(bakedIn.Name, out var alias) && !string.IsNullOrWhiteSpace(alias)
+                ? $"{alias} ({bakedIn.Name})"
+                : $"{bakedIn.DefaultDisplayAlias} ({bakedIn.Name})";
+            candidates.Add(new AssignableRole(bakedIn.Name, label, IsBakedIn: true));
+        }
+
+        foreach (var userTypeRole in userTypeRoles)
+        {
+            var label = string.IsNullOrWhiteSpace(userTypeRole.DisplayAlias)
+                ? userTypeRole.RoleName
+                : $"{userTypeRole.DisplayAlias} ({userTypeRole.RoleName})";
+            candidates.Add(new AssignableRole(userTypeRole.RoleName, label, IsBakedIn: false));
+        }
+
+        var targetOrgIds = User.Organizations.Select(o => o.OrganizationId).ToHashSet();
+
+        _assignableRoles = candidates
+            .Where(candidate => RoleAssignmentAuthority.Evaluate(
+                granterRoleName: _actorActiveRole!,
+                granterUserId: _actorUserId,
+                granterAssignedOrganizationIds: _actorOrganizationIds,
+                targetUserId: User.UserId,
+                targetAssignedOrganizationIds: targetOrgIds,
+                targetCurrentRoles: User.Roles,
+                proposedRoleName: candidate.RoleName).IsAllowed)
+            .OrderBy(role => role.IsBakedIn ? 0 : 1)
+            .ThenBy(role => role.DisplayLabel, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (_pendingRoleName is not null
+            && !_assignableRoles.Any(role => string.Equals(role.RoleName, _pendingRoleName, StringComparison.OrdinalIgnoreCase)))
+        {
+            _pendingRoleName = null;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private RoleAssignmentAuthorityResult EvaluateRemovalFor(string role)
+    {
+        if (User is null || string.IsNullOrEmpty(_actorActiveRole))
+        {
+            return RoleAssignmentAuthorityResult.Denied("No active admin role.");
+        }
+
+        var targetOrgIds = User.Organizations.Select(o => o.OrganizationId).ToHashSet();
+
+        return RoleAssignmentAuthority.EvaluateRemoval(
+            granterRoleName: _actorActiveRole!,
+            granterUserId: _actorUserId,
+            granterAssignedOrganizationIds: _actorOrganizationIds,
+            targetUserId: User.UserId,
+            targetAssignedOrganizationIds: targetOrgIds,
+            proposedRoleName: role);
+    }
+
+    private bool CanSubmitAssignment =>
+        !string.IsNullOrEmpty(_pendingRoleName)
+        && !string.IsNullOrEmpty(_actorActiveRole)
+        && User is not null;
+
+    private async Task AssignAsync()
+    {
+        if (User is null || string.IsNullOrEmpty(_pendingRoleName) || string.IsNullOrEmpty(_actorActiveRole))
+        {
+            return;
+        }
+
+        // Defense in depth: never trust UI-bound state alone. Re-validate the
+        // role name exists in the configuration and re-run the authority
+        // evaluator at submit time so a tampered _pendingRoleName cannot
+        // bypass the dropdown filter. Also enforce ExcludeUserAdminAssignment
+        // here so the library's action boundary is consistent with its render boundary.
+        if (ExcludeUserAdminAssignment
+            && string.Equals(_pendingRoleName, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase))
+        {
+            _assignmentSeverity = Severity.Warning;
+            _assignmentMessage = "UserAdmin elevation is managed via Manage Organization Admins.";
+            Snackbar.Add(_assignmentMessage, Severity.Warning);
+            return;
+        }
+
+        if (!IsRecognizedRole(_pendingRoleName))
+        {
+            _assignmentSeverity = Severity.Error;
+            _assignmentMessage = $"Unknown role: {_pendingRoleName}.";
+            Snackbar.Add(_assignmentMessage, Severity.Error);
+            return;
+        }
+
+        var targetOrgIds = User.Organizations.Select(o => o.OrganizationId).ToHashSet();
+        var verdict = RoleAssignmentAuthority.Evaluate(
+            granterRoleName: _actorActiveRole!,
+            granterUserId: _actorUserId,
+            granterAssignedOrganizationIds: _actorOrganizationIds,
+            targetUserId: User.UserId,
+            targetAssignedOrganizationIds: targetOrgIds,
+            targetCurrentRoles: User.Roles,
+            proposedRoleName: _pendingRoleName);
+
+        if (!verdict.IsAllowed)
+        {
+            _assignmentSeverity = Severity.Warning;
+            _assignmentMessage = verdict.Message;
+            Snackbar.Add(_assignmentMessage, Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            await UserRoleStore.AddRoleAsync(User.UserId, _pendingRoleName);
+            _assignmentSeverity = Severity.Success;
+            _assignmentMessage = $"Assigned {_pendingRoleName} to {User.DisplayName}.";
+            Snackbar.Add(_assignmentMessage, Severity.Success);
+
+            _pendingRoleName = null;
+
+            if (RolesChanged.HasDelegate)
+            {
+                // The tab composer refreshes the grid, which raises
+                // SelectedUserChanged with the freshly-projected AdminUserRow;
+                // OnParametersSetAsync then rebuilds the assignable list.
+                await RolesChanged.InvokeAsync(User.UserId);
+            }
+        }
+        catch (Exception ex)
+        {
+            _assignmentSeverity = Severity.Error;
+            _assignmentMessage = $"Failed to assign role: {ex.Message}";
+            Snackbar.Add(_assignmentMessage, Severity.Error);
+        }
+    }
+
+    private async Task RemoveRoleAsync(string roleName)
+    {
+        if (User is null || string.IsNullOrEmpty(_actorActiveRole))
+        {
+            return;
+        }
+
+        // Mirror the AssignAsync defense-in-depth check: re-run the removal
+        // authority evaluator at submit time. The chip's OnClose handler is
+        // already gated by EvaluateRemovalFor, but a tampered DOM event must
+        // not be able to bypass the chip-rendering guard. Also enforce
+        // ExcludeUserAdminAssignment so the library's action boundary matches its render boundary.
+        if (ExcludeUserAdminAssignment
+            && string.Equals(roleName, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase))
+        {
+            Snackbar.Add("UserAdmin elevation is managed via Manage Organization Admins.", Severity.Warning);
+            return;
+        }
+
+        var targetOrgIds = User.Organizations.Select(o => o.OrganizationId).ToHashSet();
+        var verdict = RoleAssignmentAuthority.EvaluateRemoval(
+            granterRoleName: _actorActiveRole!,
+            granterUserId: _actorUserId,
+            granterAssignedOrganizationIds: _actorOrganizationIds,
+            targetUserId: User.UserId,
+            targetAssignedOrganizationIds: targetOrgIds,
+            proposedRoleName: roleName);
+
+        if (!verdict.IsAllowed)
+        {
+            Snackbar.Add(verdict.Message, Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            await UserRoleStore.RemoveRoleAsync(User.UserId, roleName);
+            Snackbar.Add($"Removed {roleName} from {User.DisplayName}.", Severity.Info);
+
+            if (RolesChanged.HasDelegate)
+            {
+                await RolesChanged.InvokeAsync(User.UserId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to remove role: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private bool IsRecognizedRole(string roleName)
+    {
+        // Consult the injected baked-in role provider rather than the static
+        // BakedInRoles.IsBakedIn helper. A deployment may register a custom
+        // IBakedInRoleProvider that exposes only a subset of canonical names
+        // (or adds non-user-type host roles), and the dropdown itself is
+        // already sourced from that provider. Validating through the same
+        // provider keeps the submit-time guard consistent with the dropdown
+        // surface.
+        if (BakedInRoleProvider.TryGetBakedInRole(roleName) is not null)
+        {
+            return true;
+        }
+
+        return ConfigManager.Current.UserTypeRoles.Any(role =>
+            string.Equals(role.RoleName, roleName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+
+    /// <summary>
+    /// Internal projection of one assignable role for the dropdown. Kept here
+    /// to keep the data contract self-contained in the details surface.
+    /// </summary>
+    private sealed record AssignableRole(string RoleName, string DisplayLabel, bool IsBakedIn);
+}

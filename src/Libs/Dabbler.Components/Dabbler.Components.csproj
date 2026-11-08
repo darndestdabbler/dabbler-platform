@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- NuGet package metadata (per ledger §9.3 — description tightened to match the post-rebuild contract) -->
+    <PackageId>Dabbler.Components</PackageId>
+    <Description>MudBlazor-native CRUD primitives for Blazor Server: declarative QBE filter panel, dirty-tracking edit session, master/detail expansion shell, and the underlying expression-engine + data-provider abstractions. Composition-over-configuration: pages declare their own MudDataGrid columns and MudForm fields.</Description>
+    <PackageTags>blazor;mudblazor;qbe;filter-panel;edit-session;master-detail;expression-engine;data-provider</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591 suppression removed — all public members must have XML docs -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Dabbler.Components.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="MudBlazor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
