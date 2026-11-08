@@ -5,6 +5,7 @@ COPY Directory.Build.props Directory.Packages.props Dabbler.Platform.sln ./
 COPY src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj         src/Apps/AcmeCoffeeOnline.Api/
 COPY src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj   src/Apps/AcmeCoffeeOnline.Shared/
 COPY src/Libs/Dabbler.Security/Dabbler.Security.csproj                 src/Libs/Dabbler.Security/
+COPY src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj         src/Libs/Dabbler.Api.Querying/
 
 RUN dotnet restore src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj
 

@@ -22,6 +22,7 @@
                 <MudLink Color="Color.Inherit"
                          Underline="Underline.Always"
                          Class="user-context-role"
+                         OnClick="@context.ToggleAsync"
                          UserAttributes="@_roleLinkAttributes">@_activeRoleDisplay</MudLink>
             </ActivatorContent>
             <ChildContent>
@@ -60,6 +61,7 @@
                 <MudLink Color="Color.Inherit"
                          Underline="Underline.Always"
                          Class="user-context-org"
+                         OnClick="@context.ToggleAsync"
                          UserAttributes="@_orgLinkAttributes">@_activeOrganizationName</MudLink>
             </ActivatorContent>
             <ChildContent>

@@ -17,7 +17,7 @@
     <PackageReference Include="Dabbler.Testing.Blazor" Version="0.1.0-preview.1" />
 
     <!-- UI -->
-    <PackageReference Include="MudBlazor" Version="8.15.0" />
+    <PackageReference Include="MudBlazor" Version="9.12.0" />
 
     <!-- Data -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />

@@ -728,6 +728,14 @@ public sealed class SecurityDashboardUatCoverageTests
         return first.GetProperty("id").GetInt32();
     }
 
+    // FilterPanel debounces text by 300 ms, and under MudBlazor 9 a click that
+    // follows at once lands before the filter does; the filter chip shows the
+    // filter has been applied.
+    private static Task ExpectFilterAppliedAsync(IPage page, string shellTestId, string value) =>
+        Assertions
+            .Expect(page.GetByTestId($"{shellTestId}-body").Locator(".mud-chip", new() { HasText = value }))
+            .ToBeVisibleAsync(new() { Timeout = 10_000 });
+
     // ── Session 6: Default Masks + Column Restrictions metadata + UI fixes ──
 
     // UAT finding 5d: the sensitive-name safety-net feature was removed from
@@ -1234,6 +1242,7 @@ public sealed class SecurityDashboardUatCoverageTests
 
             await page.GetByTestId("role-master-details-shell-header").ClickAsync();
             await page.GetByRole(AriaRole.Textbox, new() { Name = "Canonical name" }).First.FillAsync("System");
+            await ExpectFilterAppliedAsync(page, "role-master-details-shell", "System");
             await page.GetByTestId("role-master-details-shell-header").ClickAsync();
 
             var summary = page.GetByTestId("role-master-details-shell-summary");
@@ -1271,6 +1280,7 @@ public sealed class SecurityDashboardUatCoverageTests
                 .GetByRole(AriaRole.Textbox, new() { Name = "Key" })
                 .First
                 .FillAsync("customer-");
+            await ExpectFilterAppliedAsync(page, "organization-master-details-shell", "customer-");
             await page.GetByTestId("organization-master-details-shell-header").ClickAsync();
 
             var summary = page.GetByTestId("organization-master-details-shell-summary");
@@ -1310,6 +1320,7 @@ public sealed class SecurityDashboardUatCoverageTests
 
             await page.GetByTestId("users-and-role-assignment-shell-header").ClickAsync();
             await page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).First.FillAsync("admin@");
+            await ExpectFilterAppliedAsync(page, "users-and-role-assignment-shell", "admin@");
             await page.GetByTestId("users-and-role-assignment-shell-header").ClickAsync();
 
             var summary = page.GetByTestId("users-and-role-assignment-shell-summary");

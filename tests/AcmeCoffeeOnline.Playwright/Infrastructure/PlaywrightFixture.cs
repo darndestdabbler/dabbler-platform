@@ -406,11 +406,17 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     {
         var drawer = page.GetByTestId("nav-drawer");
 
-        var group = drawer.GetByText(groupTitle, new() { Exact = true }).First;
-        await group.ClickAsync();
-        await Task.Delay(200); // Animation delay: MudBlazor drawer group expand CSS transition.
-
         var navLink = drawer.GetByText(linkText, new() { Exact = true }).First;
+
+        // MudBlazor 9 keeps a group expanded after navigating to one of its own
+        // links, so a second click would collapse it: expand only when hidden.
+        if (!await navLink.IsVisibleAsync())
+        {
+            var group = drawer.GetByText(groupTitle, new() { Exact = true }).First;
+            await group.ClickAsync();
+            await Task.Delay(200); // Animation delay: MudBlazor drawer group expand CSS transition.
+        }
+
         await Assertions.Expect(navLink).ToBeVisibleAsync();
         await navLink.ClickAsync();
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);

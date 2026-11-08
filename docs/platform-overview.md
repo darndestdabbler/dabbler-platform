@@ -35,7 +35,7 @@ even if individual libraries look attractive:
 - **Blazor Server only.** Blazor WebAssembly is out of scope. The
   testing watermark, the secured-rendering components, and the
   CRUD primitives all assume Blazor Server's circuit model.
-- **MudBlazor 8.x coupling.** The CRUD primitives, security UI, and
+- **MudBlazor 9.x coupling.** The CRUD primitives, security UI, and
   reporting UI all consume MudBlazor directly. Apps using a different
   Blazor UI kit will not get value from the UI surfaces.
 - **.NET 10 (current LTS).** The platform follows the current LTS line

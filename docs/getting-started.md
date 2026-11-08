@@ -46,7 +46,7 @@ When a `dabbler-min` adopter outgrows the single-project shape, the supported mi
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) to run MailHog (the local magic-link email catcher)
 - A terminal (PowerShell, bash, or zsh)
 
-> **Stack note:** Dabbler targets Blazor Server + MudBlazor 8.x + .NET 10 + SQL Server. If any of these don't match your project's stack, evaluate whether to adopt Dabbler before proceeding.
+> **Stack note:** Dabbler targets Blazor Server + MudBlazor 9.x + .NET 10 + SQL Server. If any of these don't match your project's stack, evaluate whether to adopt Dabbler before proceeding.
 
 ---
 

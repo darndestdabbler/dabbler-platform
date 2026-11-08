@@ -20,7 +20,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 6 | Move Expressions into Dabbler.Reports.Core | no | 2026-11-07 |
 | 7 | Surface reduction — 16 package IDs to 12 | no | 2026-11-07 |
 | 8 | MudBlazor 9 — libraries and the reference app compile | no | 2026-11-07 |
-| 9 | MudBlazor 9 — templates, scaffolding and the E2E gate | — | not declared |
+| 9 | MudBlazor 9 — templates, scaffolding and the E2E gate | no | 2026-11-07 |
 | 10 | Maintainer guide, gate rule and support policy | — | not declared |
 | 11 | Bump to 0.2.0 | — | not declared |
 | 12 | Retire what does not run | — | not declared |
@@ -78,3 +78,14 @@ Move the central MudBlazor pin in Directory.Packages.props from 8.15.0 to 9.12.0
 **Amended after acceptance:**
 
 - 2026-11-07 — step 'components-reports': its files: The MudBlazor pin is central and the named-test run builds all of Dabbler.Unit.slnf, so this step must also carry the compile-only fixes the 9.12.0 bump forces downstream: the ServerData callback signatures (ComplianceReviewTab and four list pages) and ShowMessageBox->ShowMessageBoxAsync in two reference-app pages. Steps security-blazor and reference-app keep the ValidateAsync/TabPanelsClass renames and the token pass-through. (claude-code (anthropic, claude-opus-5-5))
+
+### Session 9 — MudBlazor 9 — templates, scaffolding and the E2E gate
+
+**Releasable: no.**
+
+Finish the MudBlazor 9 move that session 8 started, for the parts outside Dabbler.Unit.slnf's compile path: the dotnet new templates, the dabbler-crud-slice scaffolding and the Playwright E2E gate. In templates/Dabbler.Templates/content, the explicit MudBlazor 8.15.0 PackageReference pins in dabbler-app's Web and Web.Tests projects and in dabbler-min move to 9.12.0. So does the SmokeApp fixture in tests/Dabbler.Templates.Tests, which the crud-page test builds the scaffolded slice into. The generated dabbler-crud-page code gets the MudBlazor 9 API fixes session 8 found: T1EntityDetail.razor calls ShowMessageBoxAsync and _form.ValidateAsync(), and the ServerData callback in T1EntityList.razor takes the CancellationToken and passes it to IGridDataProvider.FetchAsync. Packing and running Dabbler.Templates.Tests with the packages present proves this. The text templates under tools/Dabbler.CrudSlice/Templates emit only registration lines and contain no MudBlazor API, and the tool's Razor output comes from the dabbler-crud-page template. So the same step also runs Dabbler.CrudSlice.Tests after that pack to show the scaffolding is on MudBlazor 9. The step changes a CrudSlice file only if that run shows one needs it. Then the Playwright E2E manual gate runs against the compose stack rebuilt from this tree, restoring Dabbler.Uat.Dsl.* from ../dabbler-uat-dsl/pack-output. Anything it finds is fixed in AcmeCoffeeOnline.Web, and the result goes in that step's notes. Once the gate has passed on 9.12.0, the two docs that name the platform's MudBlazor major (the coupling bullet in docs/platform-overview.md and the stack note in docs/getting-started.md) say 9.x instead of 8.x.
+
+**Amended after acceptance:**
+
+- 2026-11-07 — step 'e2e-gate': its files: The compose stack cannot be rebuilt from this tree: docker/Dockerfile.Api restores before copying Dabbler.Api.Querying.csproj, which AcmeCoffeeOnline.Api references, so 'dotnet publish --no-restore' fails with NETSDK1004. The gate needs a one-line COPY of that csproj. (claude-code (anthropic, claude-opus-5-5))
+- 2026-11-07 — step 'e2e-gate': its files: The E2E gate on MudBlazor 9.12.0 fails 22 of 178 tests; a fresh-database baseline run of the pre-session-8 tree (MudBlazor 8.15.0) fails the same 12 of them, so 10 are MudBlazor 9 regressions in three causes. (A, 6 tests) MudMenu ActivatorContent now receives a MenuContext and no longer wraps a click handler, so UserContextBar's role and organization activators never open their menus: fix in AcmeCoffeeOnline.Web. (B, 1 test) MudNavGroup now stays expanded after navigating to one of its own links, so PlaywrightFixture.NavigateViaDrawerGroupAsync's unconditional group click collapses it: the helper clicks the group only when the link is hidden. (C, 3 tests) FilterPanel's 300 ms debounced text now lands after an immediate collapse click and re-expands the shell by design: the three FilterChange_ClearsCollapsedSummaryState tests wait for the filter chip before collapsing. (claude-code (anthropic, claude-opus-5-5))
