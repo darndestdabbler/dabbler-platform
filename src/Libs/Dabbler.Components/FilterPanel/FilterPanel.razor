@@ -1,0 +1,146 @@
+@namespace Dabbler.Components
+@typeparam T
+@using Dabbler.Components.Data
+
+<div class="d-flex flex-column gap-2" role="search" aria-label="@(_ariaLabel)">
+    @for (int gi = 0; gi < Coordinator.Groups.Groups.Count; gi++)
+    {
+        var groupIndex = gi;
+
+        @if (groupIndex > 0)
+        {
+            <div class="d-flex align-center gap-2 my-1">
+                <MudDivider FlexItem="true" />
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary">OR</MudChip>
+                <MudDivider FlexItem="true" />
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Size="Size.Small"
+                               OnClick="@(() => RemoveGroup(Coordinator.Groups.Groups[groupIndex]))"
+                               aria-label="Remove filter group" />
+            </div>
+        }
+
+        <MudGrid Spacing="2">
+            @for (int ci = 0; ci < _filterableColumns.Count; ci++)
+            {
+                var col = _filterableColumns[ci];
+                var gIdx = groupIndex;
+                var entry = Coordinator.Groups.Groups[gIdx].GetFilter(col.PropertyName);
+                var currentValue = entry?.Value;
+                var effectiveOp = entry?.Operator ?? col.EffectiveDefaultOperator;
+
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    @if (col.EditorType == FilterEditorType.Text)
+                    {
+                        <MudTextField T="string"
+                                      Label="@col.Header"
+                                      Placeholder="@col.Placeholder"
+                                      Value="@(currentValue as string)"
+                                      ValueChanged="@(v => OnValueChanged(gIdx, col.PropertyName, effectiveOp, v))"
+                                      Immediate="true"
+                                      DebounceInterval="300"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      Clearable="true" />
+                    }
+                    else if (col.EditorType == FilterEditorType.NumericText)
+                    {
+                        <MudNumericField T="decimal?"
+                                         Label="@col.Header"
+                                         Placeholder="@col.Placeholder"
+                                         Value="@(ToNullableDecimal(currentValue))"
+                                         ValueChanged="@(v => OnValueChanged(gIdx, col.PropertyName, effectiveOp, v))"
+                                         Immediate="true"
+                                         DebounceInterval="300"
+                                         Variant="Variant.Outlined"
+                                         Margin="Margin.Dense"
+                                         Clearable="true" />
+                    }
+                    else if (col.EditorType == FilterEditorType.Date)
+                    {
+                        <MudDatePicker Label="@col.Header"
+                                       Placeholder="@col.Placeholder"
+                                       Date="@(ToNullableDateTime(currentValue))"
+                                       DateChanged="@(v => OnValueChanged(gIdx, col.PropertyName, effectiveOp, v))"
+                                       Variant="Variant.Outlined"
+                                       Margin="Margin.Dense"
+                                       Clearable="true"
+                                       DateFormat="MM/dd/yyyy" />
+                    }
+                    else if (col.EditorType == FilterEditorType.CheckBox)
+                    {
+                        <MudCheckBox T="bool?"
+                                     Label="@col.Header"
+                                     Value="@(ToNullableBool(currentValue))"
+                                     ValueChanged="@(v => OnValueChanged(gIdx, col.PropertyName, effectiveOp, v))"
+                                     TriState="true"
+                                     Dense="true"
+                                     Class="mt-3" />
+                    }
+                    else if (col.EditorType == FilterEditorType.ComboBox)
+                    {
+                        <MudSelect T="object"
+                                   Label="@col.Header"
+                                   Placeholder="@col.Placeholder"
+                                   Value="@currentValue"
+                                   ValueChanged="@(v => OnValueChanged(gIdx, col.PropertyName, effectiveOp, v))"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   Clearable="true"
+                                   Dense="true">
+                            @if (col.ItemsSource is not null)
+                            {
+                                @foreach (var item in col.ItemsSource)
+                                {
+                                    <MudSelectItem T="object" Value="@item">@item</MudSelectItem>
+                                }
+                            }
+                        </MudSelect>
+                    }
+                </MudItem>
+            }
+        </MudGrid>
+    }
+
+    @* ── Filter actions ─────────────────────────────────────────────── *@
+    <div class="d-flex align-center gap-2 mt-1">
+        @if (ShowAddGroup)
+        {
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="@AddGroup">
+                Add OR Group
+            </MudButton>
+        }
+        @if (Coordinator.HasFilters)
+        {
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Default"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Clear"
+                       OnClick="@ClearAll">
+                Clear All
+            </MudButton>
+        }
+    </div>
+
+    @* ── Active filter chips ────────────────────────────────────────── *@
+    @if (ShowFilterChips && Coordinator.HasFilters)
+    {
+        <MudChipSet T="string" ReadOnly="false" Class="mt-1">
+            @foreach (var item in _summaryItems)
+            {
+                var propName = item.PropertyName;
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Variant="Variant.Filled"
+                         Color="Color.Primary"
+                         OnClose="@(() => ClearFilter(propName))">
+                    @($"{item.ColumnHeader} {item.OperatorLabel} {item.FormattedValue}".TrimEnd())
+                </MudChip>
+            }
+        </MudChipSet>
+    }
+</div>

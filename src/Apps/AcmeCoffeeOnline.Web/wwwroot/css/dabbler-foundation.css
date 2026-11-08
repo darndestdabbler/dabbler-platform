@@ -1,0 +1,19 @@
+:root {
+    --dabbler-foundation-accent: #6b4f3a;
+    --dabbler-foundation-ink: #2d241f;
+    --dabbler-foundation-surface: #fbf7f1;
+}
+
+[data-testid="main-shell"] .top-row {
+    border-bottom: 1px solid rgba(107, 79, 58, 0.18);
+}
+
+[data-testid="login-page"],
+[data-testid="access-denied-page"] {
+    background: rgba(255, 255, 255, 0.92);
+}
+
+[data-testid="login-delivery-mode"] dt,
+[data-testid="login-delivery-mode"] dd {
+    margin-bottom: 0;
+}

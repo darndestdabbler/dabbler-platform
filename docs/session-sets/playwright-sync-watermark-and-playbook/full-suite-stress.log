@@ -1,0 +1,1026 @@
+=== Full Playwright suite stress: 5 runs ===
+Started: 2026-04-29T07:26:05-04:00
+
+--- Run 1/5 (2026-04-29T07:26:05-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.Generated.UatRunnerSmokeUatTests.RunChecklistAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_NameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_LastNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_FirstNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_EmailRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_UnitPriceBoundary_EnforcesMinimumAsync [6 s]
+  Passed AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync [6 s]
+[xUnit.net 00:00:30.44]     AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [SKIP]
+[xUnit.net 00:00:30.44]       Requires either local-run env vars (see comment above) or the Docker cross-container OIDC issuer wiring planned as a follow-on to the restore-devidp set.
+  Skipped AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [1 ms]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DashboardCards_NavigateToEntityPagesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.SeededSession_EnforcesPermissionsAndRetailBusinessOrderScopingAsync [5 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.HomePage_RedirectsToDashboardWithMudBlazorLayoutAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.MagicLinkFlow_SignsInRetailBusinessUserAndLoadsOrdersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DrawerNavigation_RoutesToAllMainSectionsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.LoginPage_RendersAnonymousAuthShellAsync [1 s]
+[xUnit.net 00:00:57.12]     AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [FAIL]
+[xUnit.net 00:00:57.12]       Browser-side failures were detected:
+[xUnit.net 00:00:57.13]       HTTP 500: GET http://localhost:5010/admin/products
+[xUnit.net 00:00:57.13]       Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[xUnit.net 00:00:57.13]       Stack Trace:
+[xUnit.net 00:00:57.13]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1029,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page)
+[xUnit.net 00:00:57.13]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(192,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page)
+[xUnit.net 00:00:57.13]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs(276,0): at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync()
+[xUnit.net 00:00:57.13]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+  Error Message:
+   Browser-side failures were detected:
+HTTP 500: GET http://localhost:5010/admin/products
+Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1029
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 192
+   at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs:line 276
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync [12 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [16 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv5_RowExpanderRendersCorrelationClusterAsync [15 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv1_BackofficeUserSeesMaskedSsnAsync [7 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv4_CrossOrgMonitorSeesComplianceEventsAsync [17 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync [8 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.Products_BackofficeUser_UnitPriceColumn_ShowsDollarSymbolAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.RoleMasterGrid_FirstColumnCellClick_CollapsesShellOnFirstClickAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.OrgMasterDetails_CreateOrganization_AutoReexpandsShellAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.AdminProducts_BackofficeUser_StillDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_Shell_RendersDeclaredCountSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SafetyNetPanel_AbsentFromTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_RapidRemountDoesNotCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.RoleDocumentationTab_RendersAllFiveBakedInPanelsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "UserAdmin", expectedLabels: ["Users and Role Assignment", "Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "SystemAdmin", expectedLabels: ["Role Master Details", "Default Masks", "Organization Master Details", "Users and Role Assignment", "Role Documentation", ···]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgMonitor", expectedLabels: ["Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "User", expectedLabels: ["Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgUserAdmin", expectedLabels: ["Organization Master Details", "Users and Role Assignment", "Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.UserAdmin_SeesOnlyPermittedTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.SystemAdmin_SeesAllSixTabsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.SystemAdmin_SeesUnitPriceColumnAndEditableFieldAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.WarehouseUserRole_DoesNotSeeUnitPriceFieldOrColumnAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_PdfExport_DownloadMatchesRenderedPageCountAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_PdfExport_TriggersDownloadAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.ReportValidation_MissingDates_RunButtonDisabledAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_LoadsExistingRecord_AllFieldsPopulatedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByRoastLevel_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_ToggleAvailability_VerifiedViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByPriceRange_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsList_LoadsWithDataAndColumnsVisibleAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductGrid_RowClickNavigatesToDetailPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_BackButton_ReturnsToProductsListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_EditProductViaDialog_PersistsViaApiAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_SearchFilter_FiltersGridAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_Pagination_NavigatesCorrectlyAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_LineTotalCalculationCorrectAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_LoadsWithDataAndColumnsVisibleAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesStatusTransitionButtonsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderGrid_RowClickNavigatesToDetailPageAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_StatusChip_DisplaysCurrentStatusAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_NotesTab_SwitchTabShowsNotesGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesItemAndNoteEditControlsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_StatusChips_VisibleOnRowsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_DisplaysItemCountAndGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_BackButton_ReturnsToOrdersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_GridPaging_NavigatesCorrectlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_LoadsHeaderForm_AllFieldsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_FieldsMatchApiData_CrossVerifiedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToProductManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToOrdersByRetailBusinessReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToUserManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.HamburgerToggle_CollapsesAndExpandsDrawerAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToRetailBusinessesAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToSalesByProductReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToDashboardAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.FilterSearchNavigate_ProductsFilterRowClickDetailBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.OrderTabNavigation_DrawerToDetailItemsNotesBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.ProductLifecycle_DrawerToEditSaveBackVerifyGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.CustomerLifecycle_DrawerToEditSaveApiVerifyBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.DashboardToDetail_CardToListToDetailBackToDashboardAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.RoleScopedNavigation_CustomerRole_AdminLinksHiddenAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowTests.E2E_WF_01_RegionalSalesRep_ManagesScopedUserAdminWithoutLeakingAcrossOrganizationsAsync [15 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.OrderNotFound_InvalidId_ShowsNotFoundAlertAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_CustomerRole_BlockedFromCustomersPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.ProductNotFound_InvalidId_ShowsErrorStateAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardReportLink_NavigatesToOrdersByRetailBusinessAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerWorkflowTests.E2E_WF_03_MagicLinkCustomer_OpensScopedOrderDetailAndBlocksForeignOrderAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomersList_LoadsWithDataAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_BackButton_ReturnsToCustomersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_LoadsExistingRecordAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.SystemAdmin_ReachesComplianceReviewViaDrawer_GridRendersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.CrossOrgMonitor_SeesComplianceReviewTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync [6 s]
+[xUnit.net 00:08:33.97]     AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [SKIP]
+[xUnit.net 00:08:33.97]       Organization switch fails deterministically in isolation — see TODO above. Tracked for focused investigation.
+[xUnit.net 00:08:34.02]   Finished:    AcmeCoffeeOnline.Playwright
+  Skipped AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [1 ms]
+
+Test Run Failed.
+Total tests: 138
+     Passed: 135
+     Failed: 1
+    Skipped: 2
+ Total time: 8.5731 Minutes
+Run 1: FAIL (Passed=135 Failed=1 Skipped=2 exit=1)
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+
+--- Run 2/5 (2026-04-29T07:34:40-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.Generated.UatRunnerSmokeUatTests.RunChecklistAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_NameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_LastNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_FirstNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_EmailRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_UnitPriceBoundary_EnforcesMinimumAsync [6 s]
+  Passed AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync [7 s]
+[xUnit.net 00:00:30.22]     AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [SKIP]
+[xUnit.net 00:00:30.22]       Requires either local-run env vars (see comment above) or the Docker cross-container OIDC issuer wiring planned as a follow-on to the restore-devidp set.
+  Skipped AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [1 ms]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DashboardCards_NavigateToEntityPagesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.SeededSession_EnforcesPermissionsAndRetailBusinessOrderScopingAsync [5 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.HomePage_RedirectsToDashboardWithMudBlazorLayoutAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.MagicLinkFlow_SignsInRetailBusinessUserAndLoadsOrdersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DrawerNavigation_RoutesToAllMainSectionsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.LoginPage_RendersAnonymousAuthShellAsync [1 s]
+[xUnit.net 00:00:56.62]     AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [FAIL]
+[xUnit.net 00:00:56.62]       Browser-side failures were detected:
+[xUnit.net 00:00:56.62]       HTTP 500: GET http://localhost:5010/admin/products
+[xUnit.net 00:00:56.62]       Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[xUnit.net 00:00:56.63]       Stack Trace:
+[xUnit.net 00:00:56.63]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1029,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page)
+[xUnit.net 00:00:56.63]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(192,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page)
+[xUnit.net 00:00:56.63]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs(276,0): at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync()
+[xUnit.net 00:00:56.63]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+  Error Message:
+   Browser-side failures were detected:
+HTTP 500: GET http://localhost:5010/admin/products
+Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1029
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 192
+   at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs:line 276
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync [11 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [15 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv5_RowExpanderRendersCorrelationClusterAsync [15 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv1_BackofficeUserSeesMaskedSsnAsync [7 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv4_CrossOrgMonitorSeesComplianceEventsAsync [17 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync [8 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.Products_BackofficeUser_UnitPriceColumn_ShowsDollarSymbolAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.RoleMasterGrid_FirstColumnCellClick_CollapsesShellOnFirstClickAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.OrgMasterDetails_CreateOrganization_AutoReexpandsShellAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.AdminProducts_BackofficeUser_StillDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_Shell_RendersDeclaredCountSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SafetyNetPanel_AbsentFromTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_RapidRemountDoesNotCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.RoleDocumentationTab_RendersAllFiveBakedInPanelsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "UserAdmin", expectedLabels: ["Users and Role Assignment", "Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "SystemAdmin", expectedLabels: ["Role Master Details", "Default Masks", "Organization Master Details", "Users and Role Assignment", "Role Documentation", ···]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgMonitor", expectedLabels: ["Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "User", expectedLabels: ["Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgUserAdmin", expectedLabels: ["Organization Master Details", "Users and Role Assignment", "Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.UserAdmin_SeesOnlyPermittedTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.SystemAdmin_SeesAllSixTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.SystemAdmin_SeesUnitPriceColumnAndEditableFieldAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.WarehouseUserRole_DoesNotSeeUnitPriceFieldOrColumnAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_PdfExport_DownloadMatchesRenderedPageCountAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_PdfExport_TriggersDownloadAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.ReportValidation_MissingDates_RunButtonDisabledAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_LoadsExistingRecord_AllFieldsPopulatedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByRoastLevel_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_ToggleAvailability_VerifiedViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByPriceRange_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsList_LoadsWithDataAndColumnsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductGrid_RowClickNavigatesToDetailPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_BackButton_ReturnsToProductsListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_EditProductViaDialog_PersistsViaApiAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_SearchFilter_FiltersGridAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_Pagination_NavigatesCorrectlyAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_LineTotalCalculationCorrectAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_LoadsWithDataAndColumnsVisibleAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesStatusTransitionButtonsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderGrid_RowClickNavigatesToDetailPageAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_StatusChip_DisplaysCurrentStatusAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_NotesTab_SwitchTabShowsNotesGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesItemAndNoteEditControlsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_StatusChips_VisibleOnRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_DisplaysItemCountAndGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_BackButton_ReturnsToOrdersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_GridPaging_NavigatesCorrectlyAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_LoadsHeaderForm_AllFieldsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_FieldsMatchApiData_CrossVerifiedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToProductManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToOrdersByRetailBusinessReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToUserManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.HamburgerToggle_CollapsesAndExpandsDrawerAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToRetailBusinessesAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToSalesByProductReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToDashboardAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.FilterSearchNavigate_ProductsFilterRowClickDetailBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.OrderTabNavigation_DrawerToDetailItemsNotesBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.ProductLifecycle_DrawerToEditSaveBackVerifyGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.CustomerLifecycle_DrawerToEditSaveApiVerifyBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.DashboardToDetail_CardToListToDetailBackToDashboardAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.RoleScopedNavigation_CustomerRole_AdminLinksHiddenAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowTests.E2E_WF_01_RegionalSalesRep_ManagesScopedUserAdminWithoutLeakingAcrossOrganizationsAsync [15 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.OrderNotFound_InvalidId_ShowsNotFoundAlertAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_CustomerRole_BlockedFromCustomersPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.ProductNotFound_InvalidId_ShowsErrorStateAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardReportLink_NavigatesToOrdersByRetailBusinessAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerWorkflowTests.E2E_WF_03_MagicLinkCustomer_OpensScopedOrderDetailAndBlocksForeignOrderAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomersList_LoadsWithDataAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_BackButton_ReturnsToCustomersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_LoadsExistingRecordAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.SystemAdmin_ReachesComplianceReviewViaDrawer_GridRendersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.CrossOrgMonitor_SeesComplianceReviewTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync [6 s]
+[xUnit.net 00:08:35.00]     AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [SKIP]
+[xUnit.net 00:08:35.00]       Organization switch fails deterministically in isolation — see TODO above. Tracked for focused investigation.
+[xUnit.net 00:08:35.04]   Finished:    AcmeCoffeeOnline.Playwright
+  Skipped AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [1 ms]
+
+Test Run Failed.
+Total tests: 138
+     Passed: 135
+     Failed: 1
+    Skipped: 2
+ Total time: 8.5901 Minutes
+Run 2: FAIL (Passed=135 Failed=1 Skipped=2 exit=1)
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+
+--- Run 3/5 (2026-04-29T07:43:17-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.Generated.UatRunnerSmokeUatTests.RunChecklistAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_NameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_LastNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_FirstNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_EmailRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_UnitPriceBoundary_EnforcesMinimumAsync [6 s]
+  Passed AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync [7 s]
+[xUnit.net 00:00:30.74]     AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [SKIP]
+[xUnit.net 00:00:30.74]       Requires either local-run env vars (see comment above) or the Docker cross-container OIDC issuer wiring planned as a follow-on to the restore-devidp set.
+  Skipped AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [1 ms]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DashboardCards_NavigateToEntityPagesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.SeededSession_EnforcesPermissionsAndRetailBusinessOrderScopingAsync [5 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.HomePage_RedirectsToDashboardWithMudBlazorLayoutAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.MagicLinkFlow_SignsInRetailBusinessUserAndLoadsOrdersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DrawerNavigation_RoutesToAllMainSectionsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.LoginPage_RendersAnonymousAuthShellAsync [1 s]
+[xUnit.net 00:00:58.00]     AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [FAIL]
+[xUnit.net 00:00:58.01]       Browser-side failures were detected:
+[xUnit.net 00:00:58.01]       HTTP 500: GET http://localhost:5010/admin/products
+[xUnit.net 00:00:58.01]       Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[xUnit.net 00:00:58.01]       Stack Trace:
+[xUnit.net 00:00:58.01]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1029,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page)
+[xUnit.net 00:00:58.01]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(192,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page)
+[xUnit.net 00:00:58.01]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs(276,0): at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync()
+[xUnit.net 00:00:58.01]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [7 s]
+  Error Message:
+   Browser-side failures were detected:
+HTTP 500: GET http://localhost:5010/admin/products
+Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1029
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 192
+   at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs:line 276
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync [12 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [16 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv5_RowExpanderRendersCorrelationClusterAsync [16 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv1_BackofficeUserSeesMaskedSsnAsync [7 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv4_CrossOrgMonitorSeesComplianceEventsAsync [17 s]
+[xUnit.net 00:02:21.26]     AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync [FAIL]
+[xUnit.net 00:02:21.26]       Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect "ToBeVisibleAsync" with timeout 5000ms
+  - waiting for Locator(".mud-popover-open").GetByText("Customer", new() { Exact = true }).First
+[xUnit.net 00:02:21.26]       Stack Trace:
+[xUnit.net 00:02:21.26]         /_/src/Playwright/Core/AssertionsBase.cs(85,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:02:21.26]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:02:21.26]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(430,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync()
+[xUnit.net 00:02:21.26]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(461,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync()
+[xUnit.net 00:02:21.26]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync [13 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect "ToBeVisibleAsync" with timeout 5000ms
+  - waiting for Locator(".mud-popover-open").GetByText("Customer", new() { Exact = true }).First
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 430
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 461
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.Products_BackofficeUser_UnitPriceColumn_ShowsDollarSymbolAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.RoleMasterGrid_FirstColumnCellClick_CollapsesShellOnFirstClickAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.OrgMasterDetails_CreateOrganization_AutoReexpandsShellAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.AdminProducts_BackofficeUser_StillDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_Shell_RendersDeclaredCountSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SafetyNetPanel_AbsentFromTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_RapidRemountDoesNotCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.RoleDocumentationTab_RendersAllFiveBakedInPanelsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "UserAdmin", expectedLabels: ["Users and Role Assignment", "Role Documentation"]) [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "SystemAdmin", expectedLabels: ["Role Master Details", "Default Masks", "Organization Master Details", "Users and Role Assignment", "Role Documentation", ···]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgMonitor", expectedLabels: ["Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "User", expectedLabels: ["Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgUserAdmin", expectedLabels: ["Organization Master Details", "Users and Role Assignment", "Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.UserAdmin_SeesOnlyPermittedTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.SystemAdmin_SeesAllSixTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.SystemAdmin_SeesUnitPriceColumnAndEditableFieldAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.WarehouseUserRole_DoesNotSeeUnitPriceFieldOrColumnAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_PdfExport_DownloadMatchesRenderedPageCountAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_PdfExport_TriggersDownloadAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.ReportValidation_MissingDates_RunButtonDisabledAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_LoadsExistingRecord_AllFieldsPopulatedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByRoastLevel_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_ToggleAvailability_VerifiedViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByPriceRange_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsList_LoadsWithDataAndColumnsVisibleAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductGrid_RowClickNavigatesToDetailPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_BackButton_ReturnsToProductsListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_EditProductViaDialog_PersistsViaApiAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_SearchFilter_FiltersGridAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_Pagination_NavigatesCorrectlyAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_LineTotalCalculationCorrectAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_LoadsWithDataAndColumnsVisibleAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesStatusTransitionButtonsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderGrid_RowClickNavigatesToDetailPageAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_StatusChip_DisplaysCurrentStatusAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_NotesTab_SwitchTabShowsNotesGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesItemAndNoteEditControlsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_StatusChips_VisibleOnRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_DisplaysItemCountAndGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_BackButton_ReturnsToOrdersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_GridPaging_NavigatesCorrectlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_LoadsHeaderForm_AllFieldsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_FieldsMatchApiData_CrossVerifiedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToProductManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToOrdersByRetailBusinessReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToUserManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.HamburgerToggle_CollapsesAndExpandsDrawerAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToRetailBusinessesAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToSalesByProductReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToDashboardAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.FilterSearchNavigate_ProductsFilterRowClickDetailBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.OrderTabNavigation_DrawerToDetailItemsNotesBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.ProductLifecycle_DrawerToEditSaveBackVerifyGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.CustomerLifecycle_DrawerToEditSaveApiVerifyBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.DashboardToDetail_CardToListToDetailBackToDashboardAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.RoleScopedNavigation_CustomerRole_AdminLinksHiddenAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowTests.E2E_WF_01_RegionalSalesRep_ManagesScopedUserAdminWithoutLeakingAcrossOrganizationsAsync [15 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.OrderNotFound_InvalidId_ShowsNotFoundAlertAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_CustomerRole_BlockedFromCustomersPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.ProductNotFound_InvalidId_ShowsErrorStateAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardReportLink_NavigatesToOrdersByRetailBusinessAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToOrdersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerWorkflowTests.E2E_WF_03_MagicLinkCustomer_OpensScopedOrderDetailAndBlocksForeignOrderAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomersList_LoadsWithDataAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_BackButton_ReturnsToCustomersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_LoadsExistingRecordAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.SystemAdmin_ReachesComplianceReviewViaDrawer_GridRendersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.CrossOrgMonitor_SeesComplianceReviewTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync [6 s]
+[xUnit.net 00:08:46.14]     AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [SKIP]
+[xUnit.net 00:08:46.14]       Organization switch fails deterministically in isolation — see TODO above. Tracked for focused investigation.
+[xUnit.net 00:08:46.19]   Finished:    AcmeCoffeeOnline.Playwright
+  Skipped AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [1 ms]
+
+Test Run Failed.
+Total tests: 138
+     Passed: 134
+     Failed: 2
+    Skipped: 2
+ Total time: 8.7761 Minutes
+Run 3: FAIL (Passed=134 Failed=2 Skipped=2 exit=1)
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [7 s]
+  Failed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync [13 s]
+
+--- Run 4/5 (2026-04-29T07:52:04-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.14]   Starting:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.Generated.UatRunnerSmokeUatTests.RunChecklistAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_NameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_LastNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_FirstNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_EmailRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_UnitPriceBoundary_EnforcesMinimumAsync [6 s]
+  Passed AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync [7 s]
+[xUnit.net 00:00:31.09]     AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [SKIP]
+[xUnit.net 00:00:31.09]       Requires either local-run env vars (see comment above) or the Docker cross-container OIDC issuer wiring planned as a follow-on to the restore-devidp set.
+  Skipped AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [1 ms]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DashboardCards_NavigateToEntityPagesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.SeededSession_EnforcesPermissionsAndRetailBusinessOrderScopingAsync [5 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.HomePage_RedirectsToDashboardWithMudBlazorLayoutAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.MagicLinkFlow_SignsInRetailBusinessUserAndLoadsOrdersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DrawerNavigation_RoutesToAllMainSectionsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.LoginPage_RendersAnonymousAuthShellAsync [1 s]
+[xUnit.net 00:00:57.96]     AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [FAIL]
+[xUnit.net 00:00:57.96]       Browser-side failures were detected:
+[xUnit.net 00:00:57.96]       HTTP 500: GET http://localhost:5010/admin/products
+[xUnit.net 00:00:57.96]       Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[xUnit.net 00:00:57.96]       Stack Trace:
+[xUnit.net 00:00:57.96]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1029,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page)
+[xUnit.net 00:00:57.96]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(192,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page)
+[xUnit.net 00:00:57.96]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs(276,0): at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync()
+[xUnit.net 00:00:57.96]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+  Error Message:
+   Browser-side failures were detected:
+HTTP 500: GET http://localhost:5010/admin/products
+Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1029
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 192
+   at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs:line 276
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync [12 s]
+[xUnit.net 00:01:36.20]     AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [FAIL]
+[xUnit.net 00:01:36.20]       Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect "ToBeVisibleAsync" with timeout 10000ms
+  - waiting for GetByText("Exported").First
+[xUnit.net 00:01:36.20]       Stack Trace:
+[xUnit.net 00:01:36.20]         /_/src/Playwright/Core/AssertionsBase.cs(85,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:01:36.20]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:01:36.20]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(956,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync()
+[xUnit.net 00:01:36.20]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(963,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync()
+[xUnit.net 00:01:36.20]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [26 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect "ToBeVisibleAsync" with timeout 10000ms
+  - waiting for GetByText("Exported").First
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 956
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 963
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv5_RowExpanderRendersCorrelationClusterAsync [16 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv1_BackofficeUserSeesMaskedSsnAsync [8 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv4_CrossOrgMonitorSeesComplianceEventsAsync [17 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync [8 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.Products_BackofficeUser_UnitPriceColumn_ShowsDollarSymbolAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.RoleMasterGrid_FirstColumnCellClick_CollapsesShellOnFirstClickAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.OrgMasterDetails_CreateOrganization_AutoReexpandsShellAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.AdminProducts_BackofficeUser_StillDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_Shell_RendersDeclaredCountSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SafetyNetPanel_AbsentFromTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_RapidRemountDoesNotCrashAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.RoleDocumentationTab_RendersAllFiveBakedInPanelsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "UserAdmin", expectedLabels: ["Users and Role Assignment", "Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "SystemAdmin", expectedLabels: ["Role Master Details", "Default Masks", "Organization Master Details", "Users and Role Assignment", "Role Documentation", ···]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgMonitor", expectedLabels: ["Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "User", expectedLabels: ["Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgUserAdmin", expectedLabels: ["Organization Master Details", "Users and Role Assignment", "Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.UserAdmin_SeesOnlyPermittedTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.SystemAdmin_SeesAllSixTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.SystemAdmin_SeesUnitPriceColumnAndEditableFieldAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.WarehouseUserRole_DoesNotSeeUnitPriceFieldOrColumnAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_PdfExport_DownloadMatchesRenderedPageCountAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_PdfExport_TriggersDownloadAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.ReportValidation_MissingDates_RunButtonDisabledAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_LoadsExistingRecord_AllFieldsPopulatedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByRoastLevel_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_ToggleAvailability_VerifiedViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByPriceRange_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsList_LoadsWithDataAndColumnsVisibleAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductGrid_RowClickNavigatesToDetailPageAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_BackButton_ReturnsToProductsListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_EditProductViaDialog_PersistsViaApiAsync [4 s]
+[xUnit.net 00:05:59.98]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:05:59.98]       Microsoft.Playwright.PlaywrightException : Locator expected to be checked 
+Call log:
+  - Expect "ToBeCheckedAsync" with timeout 5000ms
+  - waiting for GetByTestId("routed-page-content").GetByTestId("product-availability-17")
+    9 × locator resolved to <input tabindex="0" type="checkbox" aria-readonly="false" class="mud-switch-input" data-testid="product-availability-17"/>
+      - unexpected value "unchecked"
+[xUnit.net 00:05:59.98]       Stack Trace:
+[xUnit.net 00:05:59.98]         /_/src/Playwright/Core/AssertionsBase.cs(85,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:05:59.98]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:05:59.98]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(72,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:05:59.98]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(96,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:05:59.98]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [8 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be checked 
+Call log:
+  - Expect "ToBeCheckedAsync" with timeout 5000ms
+  - waiting for GetByTestId("routed-page-content").GetByTestId("product-availability-17")
+    9 × locator resolved to <input tabindex="0" type="checkbox" aria-readonly="false" class="mud-switch-input" data-testid="product-availability-17"/>
+      - unexpected value "unchecked"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 72
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 96
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_SearchFilter_FiltersGridAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_Pagination_NavigatesCorrectlyAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_LineTotalCalculationCorrectAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_LoadsWithDataAndColumnsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesStatusTransitionButtonsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderGrid_RowClickNavigatesToDetailPageAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_StatusChip_DisplaysCurrentStatusAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_NotesTab_SwitchTabShowsNotesGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesItemAndNoteEditControlsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_StatusChips_VisibleOnRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_DisplaysItemCountAndGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_BackButton_ReturnsToOrdersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_GridPaging_NavigatesCorrectlyAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_LoadsHeaderForm_AllFieldsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_FieldsMatchApiData_CrossVerifiedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToProductManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToOrdersByRetailBusinessReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToUserManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.HamburgerToggle_CollapsesAndExpandsDrawerAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToRetailBusinessesAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToSalesByProductReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToDashboardAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.FilterSearchNavigate_ProductsFilterRowClickDetailBackAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.OrderTabNavigation_DrawerToDetailItemsNotesBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.ProductLifecycle_DrawerToEditSaveBackVerifyGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.CustomerLifecycle_DrawerToEditSaveApiVerifyBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.DashboardToDetail_CardToListToDetailBackToDashboardAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.RoleScopedNavigation_CustomerRole_AdminLinksHiddenAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowTests.E2E_WF_01_RegionalSalesRep_ManagesScopedUserAdminWithoutLeakingAcrossOrganizationsAsync [15 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.OrderNotFound_InvalidId_ShowsNotFoundAlertAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_CustomerRole_BlockedFromCustomersPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.ProductNotFound_InvalidId_ShowsErrorStateAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardReportLink_NavigatesToOrdersByRetailBusinessAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerWorkflowTests.E2E_WF_03_MagicLinkCustomer_OpensScopedOrderDetailAndBlocksForeignOrderAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomersList_LoadsWithDataAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_BackButton_ReturnsToCustomersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_LoadsExistingRecordAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.SystemAdmin_ReachesComplianceReviewViaDrawer_GridRendersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.CrossOrgMonitor_SeesComplianceReviewTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync [6 s]
+[xUnit.net 00:08:58.47]     AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [SKIP]
+[xUnit.net 00:08:58.47]       Organization switch fails deterministically in isolation — see TODO above. Tracked for focused investigation.
+[xUnit.net 00:08:58.52]   Finished:    AcmeCoffeeOnline.Playwright
+  Skipped AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [1 ms]
+
+Test Run Failed.
+Total tests: 138
+     Passed: 133
+     Failed: 3
+    Skipped: 2
+ Total time: 8.9821 Minutes
+Run 4: FAIL (Passed=133 Failed=3 Skipped=2 exit=1)
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+  Failed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [26 s]
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [8 s]
+
+--- Run 5/5 (2026-04-29T08:01:04-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.Generated.UatRunnerSmokeUatTests.RunChecklistAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_NameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_LastNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_FirstNameRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.CustomerDetail_EmailRequired_ShowsValidationErrorAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ValidationTests.ProductDetail_UnitPriceBoundary_EnforcesMinimumAsync [6 s]
+  Passed AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync [7 s]
+[xUnit.net 00:00:31.37]     AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [SKIP]
+[xUnit.net 00:00:31.37]       Requires either local-run env vars (see comment above) or the Docker cross-container OIDC issuer wiring planned as a follow-on to the restore-devidp set.
+  Skipped AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [1 ms]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DashboardCards_NavigateToEntityPagesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.SeededSession_EnforcesPermissionsAndRetailBusinessOrderScopingAsync [5 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.HomePage_RedirectsToDashboardWithMudBlazorLayoutAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.MagicLinkFlow_SignsInRetailBusinessUserAndLoadsOrdersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.DrawerNavigation_RoutesToAllMainSectionsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SmokeTests.LoginPage_RendersAnonymousAuthShellAsync [1 s]
+[xUnit.net 00:00:58.71]     AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [FAIL]
+[xUnit.net 00:00:58.71]       Browser-side failures were detected:
+[xUnit.net 00:00:58.71]       HTTP 500: GET http://localhost:5010/admin/products
+[xUnit.net 00:00:58.71]       Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[xUnit.net 00:00:58.71]       Stack Trace:
+[xUnit.net 00:00:58.72]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1029,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page)
+[xUnit.net 00:00:58.72]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(192,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page)
+[xUnit.net 00:00:58.72]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs(276,0): at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync()
+[xUnit.net 00:00:58.72]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+  Error Message:
+   Browser-side failures were detected:
+HTTP 500: GET http://localhost:5010/admin/products
+Console error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.AssertNoClientErrorsAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1029
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.ClosePageAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 192
+   at AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SmokeTests.cs:line 276
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv3_BackofficeUserWithExemptionSeesUnmaskedSsnAsync [12 s]
+[xUnit.net 00:01:22.88]     AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [FAIL]
+[xUnit.net 00:01:22.88]       Microsoft.Playwright.PlaywrightException : Locator expected to be enabled 
+Call log:
+  - Expect "ToBeEnabledAsync" with timeout 5000ms
+  - waiting for GetByTestId("mask-exemption-add-button")
+    9 × locator resolved to <button disabled type="button" data-testid="mask-exemption-add-button" _bl_9ce20add-f03f-49db-8356-61d691f5d769="" class="mud-button-root mud-button mud-button-filled mud-button-filled-primary mud-button-filled-size-medium mud-ripple">…</button>
+      - unexpected value "disabled"
+[xUnit.net 00:01:22.88]       Stack Trace:
+[xUnit.net 00:01:22.88]         /_/src/Playwright/Core/AssertionsBase.cs(85,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:01:22.88]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:01:22.88]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(136,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.EnsureBackofficeUserExemptionExistsAsync()
+[xUnit.net 00:01:22.88]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(158,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.EnsureBackofficeUserExemptionExistsAsync()
+[xUnit.net 00:01:22.88]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(163,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.EnsureComplianceAuditEventsExistAsync()
+[xUnit.net 00:01:22.88]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs(858,0): at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync()
+[xUnit.net 00:01:22.88]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [11 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be enabled 
+Call log:
+  - Expect "ToBeEnabledAsync" with timeout 5000ms
+  - waiting for GetByTestId("mask-exemption-add-button")
+    9 × locator resolved to <button disabled type="button" data-testid="mask-exemption-add-button" _bl_9ce20add-f03f-49db-8356-61d691f5d769="" class="mud-button-root mud-button mud-button-filled mud-button-filled-primary mud-button-filled-size-medium mud-ripple">…</button>
+      - unexpected value "disabled"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.EnsureBackofficeUserExemptionExistsAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 136
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.EnsureBackofficeUserExemptionExistsAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 158
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.EnsureComplianceAuditEventsExistAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 163
+   at AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\SensitiveFieldMaskingUatCoverageTests.cs:line 858
+--- End of stack trace from previous location ---
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv5_RowExpanderRendersCorrelationClusterAsync [16 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv1_BackofficeUserSeesMaskedSsnAsync [7 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv4_CrossOrgMonitorSeesComplianceEventsAsync [17 s]
+  Passed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv2_SystemAdminGrantsMaskExemptionAsync [8 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.Products_BackofficeUser_UnitPriceColumn_ShowsDollarSymbolAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.RoleMasterGrid_FirstColumnCellClick_CollapsesShellOnFirstClickAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatFollowupCoverageTests.OrgMasterDetails_CreateOrganization_AutoReexpandsShellAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.AdminProducts_BackofficeUser_StillDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_Shell_RendersDeclaredCountSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_SafetyNetPanel_AbsentFromTabAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_RapidRemountDoesNotCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardUatCoverageTests.UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.RoleDocumentationTab_RendersAllFiveBakedInPanelsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "UserAdmin", expectedLabels: ["Users and Role Assignment", "Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "SystemAdmin", expectedLabels: ["Role Master Details", "Default Masks", "Organization Master Details", "Users and Role Assignment", "Role Documentation", ···]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgMonitor", expectedLabels: ["Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "User", expectedLabels: ["Role Documentation"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFullSweepTests.PerRole_TabGatingMatchesCompiledPrivilegesAsync(role: "CrossOrgUserAdmin", expectedLabels: ["Organization Master Details", "Users and Role Assignment", "Role Documentation", "Compliance Review"]) [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.UserAdmin_SeesOnlyPermittedTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.SecurityDashboardFiveTabSmokeTests.SystemAdmin_SeesAllSixTabsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.CustomerRole_SeesUnitPriceFieldButReadOnlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.SystemAdmin_SeesUnitPriceColumnAndEditableFieldAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.RestrictionEnforcementTests.WarehouseUserRole_DoesNotSeeUnitPriceFieldOrColumnAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_PdfExport_DownloadMatchesRenderedPageCountAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.OrdersByCustomer_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_PdfExport_TriggersDownloadAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.ReportValidation_MissingDates_RunButtonDisabledAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ReportsWorkflowTests.SalesByProduct_NavigateAndRunReport_OutputRendersAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_LoadsExistingRecord_AllFieldsPopulatedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByRoastLevel_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_ToggleAvailability_VerifiedViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsFilter_ByPriceRange_FiltersGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductsList_LoadsWithDataAndColumnsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductGrid_RowClickNavigatesToDetailPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductsWorkflowTests.ProductDetail_BackButton_ReturnsToProductsListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_EditProductViaDialog_PersistsViaApiAsync [5 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_SearchFilter_FiltersGridAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_AdminProducts_Pagination_NavigatesCorrectlyAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_LineTotalCalculationCorrectAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_LoadsWithDataAndColumnsVisibleAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesStatusTransitionButtonsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderGrid_RowClickNavigatesToDetailPageAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_StatusChip_DisplaysCurrentStatusAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_NotesTab_SwitchTabShowsNotesGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_SeesItemAndNoteEditControlsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_StatusChips_VisibleOnRowsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_ItemsTab_DisplaysItemCountAndGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_BackButton_ReturnsToOrdersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrdersList_GridPaging_NavigatesCorrectlyAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_LoadsHeaderForm_AllFieldsVisibleAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.OrdersWorkflowTests.OrderDetail_FieldsMatchApiData_CrossVerifiedAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToProductManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToOrdersByRetailBusinessReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToUserManagementAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.HamburgerToggle_CollapsesAndExpandsDrawerAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToRetailBusinessesAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.DrawerGroup_NavigatesToSalesByProductReportAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.NavigationTests.Drawer_NavigatesToDashboardAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.FilterSearchNavigate_ProductsFilterRowClickDetailBackAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.OrderTabNavigation_DrawerToDetailItemsNotesBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.ProductLifecycle_DrawerToEditSaveBackVerifyGridAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.CustomerLifecycle_DrawerToEditSaveApiVerifyBackAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.DashboardToDetail_CardToListToDetailBackToDashboardAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiStepWorkflowTests.RoleScopedNavigation_CustomerRole_AdminLinksHiddenAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowTests.E2E_WF_01_RegionalSalesRep_ManagesScopedUserAdminWithoutLeakingAcrossOrganizationsAsync [16 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.OrderNotFound_InvalidId_ShowsNotFoundAlertAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_CustomerRole_BlockedFromCustomersPageAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.EdgeCaseTests.ProductNotFound_InvalidId_ShowsErrorStateAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToProductsAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardReportLink_NavigatesToOrdersByRetailBusinessAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.DashboardWorkflowTests.DashboardNavCard_NavigatesToOrdersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerWorkflowTests.E2E_WF_03_MagicLinkCustomer_OpensScopedOrderDetailAndBlocksForeignOrderAsync [4 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomersList_LoadsWithDataAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_BackButton_ReturnsToCustomersListAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndUndo_RevertsFieldsAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_LoadsExistingRecordAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.CustomerCrudWorkflowTests.CustomerDetail_EditAndSave_PersistsViaApiAsync [3 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.SystemAdmin_ReachesComplianceReviewViaDrawer_GridRendersAsync [2 s]
+  Passed AcmeCoffeeOnline.Playwright.ComplianceReviewSmokeTests.CrossOrgMonitor_SeesComplianceReviewTabAsync [2 s]
+[xUnit.net 00:08:38.67]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync [FAIL]
+[xUnit.net 00:08:38.67]       Assert.Equal() Failure: Strings differ
+[xUnit.net 00:08:38.67]                  ↓ (pos 0)
+[xUnit.net 00:08:38.67]       Expected: "Name"
+[xUnit.net 00:08:38.67]       Actual:   "Grind Type"
+[xUnit.net 00:08:38.67]                  ↑ (pos 0)
+[xUnit.net 00:08:38.67]       Stack Trace:
+[xUnit.net 00:08:38.67]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowFlakyTests.cs(170,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.TabUntilFocusedFieldAsync(IPage page, String expectedLabel, Int32 maxTabs)
+[xUnit.net 00:08:38.67]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowFlakyTests.cs(69,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync()
+[xUnit.net 00:08:38.67]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowFlakyTests.cs(134,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync()
+[xUnit.net 00:08:38.67]         --- End of stack trace from previous location ---
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync [5 s]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "Name"
+Actual:   "Grind Type"
+           ↑ (pos 0)
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.TabUntilFocusedFieldAsync(IPage page, String expectedLabel, Int32 maxTabs) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowFlakyTests.cs:line 170
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowFlakyTests.cs:line 69
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowFlakyTests.cs:line 134
+--- End of stack trace from previous location ---
+[xUnit.net 00:08:38.67]     AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [SKIP]
+[xUnit.net 00:08:38.67]       Organization switch fails deterministically in isolation — see TODO above. Tracked for focused investigation.
+[xUnit.net 00:08:38.74]   Finished:    AcmeCoffeeOnline.Playwright
+  Skipped AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [1 ms]
+
+Test Run Failed.
+Total tests: 138
+     Passed: 133
+     Failed: 3
+    Skipped: 2
+ Total time: 8.6533 Minutes
+Run 5: FAIL (Passed=133 Failed=3 Skipped=2 exit=1)
+  Failed AcmeCoffeeOnline.Playwright.SmokeTests.AdminNavigation_UsesFocusedProductsEntryAndActualRolePermissionsAsync [6 s]
+  Failed AcmeCoffeeOnline.Playwright.SensitiveFieldMaskingUatCoverageTests.Uatv6_ExportCsvButtonTriggersDownloadAsync [11 s]
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowFlakyTests.E2E_WF_05_SystemAdmin_AddsProductAfterKeyboardAndValidationChecksAsync [5 s]
+
+=== Summary ===
+Iterations: 5
+Pass runs: 0
+Fail runs: 5
+Results: 1:FAIL(P=135,F=1,S=2,exit=1) 2:FAIL(P=135,F=1,S=2,exit=1) 3:FAIL(P=134,F=2,S=2,exit=1) 4:FAIL(P=133,F=3,S=2,exit=1) 5:FAIL(P=133,F=3,S=2,exit=1)
+Finished: 2026-04-29T08:09:45-04:00
