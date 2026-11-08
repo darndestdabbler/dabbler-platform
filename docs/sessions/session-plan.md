@@ -422,3 +422,39 @@ only on the operator's machine, and the five open Dependabot pull requests
 carry no checks. Requiring the check before merge is a branch-protection
 setting the operator makes on GitHub after the first green run; it is not
 this session's work.
+
+### Session 16: Templates reference the version being packed
+
+1. Register.
+2. Every `Dabbler.*` `PackageReference` under
+   `templates/Dabbler.Templates/content/**` (the `dabbler-app` Web and
+   Web.Tests projects and `dabbler-min`) hard-pins `0.1.0-preview.1`. Make
+   them carry the version being packed: a token that the pack target in
+   `templates/Dabbler.Templates/Dabbler.Templates.csproj` rewrites to
+   `$(DabblerVersion)`, or a `.template.config` symbol whose default is
+   stamped the same way, whichever the templating engine supports without a
+   second source of truth. The step's check: `pwsh tools/pack.ps1 -OutputDir
+   pack-output -CleanOutput`, then unzip the packed `Dabbler.Templates`
+   nupkg and search it for `0.1.0-preview.1`; nothing is found.
+3. Bring the scaffolded-app build into a local gate, because
+   `Dabbler.Templates.Tests` builds only the CRUD templates and
+   `tests/Dabbler.Packaging.Smoke` is outside `Dabbler.Unit.slnf`: add a
+   `smoke` suite to `dabbler.yaml` (`dotnet test
+   tests/Dabbler.Packaging.Smoke` with `DABBLER_PACK_OUTPUT` pointing at the
+   pack output, `expensive: true`), and say in `docs/MAINTAINING.md` that a
+   bump session runs it. The step's check is that suite, green against the
+   output of step 2.
+4. Cross-provider verification.
+5. The `unit` suite once against the verified tree, recorded as the run of
+   record.
+6. Close-out.
+
+Why now (2026-11-08): the `workflow_dispatch` dry run of `build.yml` for
+`1.0.0` (run 42482135732) failed in "Run consumer smoke tests": the
+scaffolded `dabbler-app` restored the May `0.1.0-preview.1` binaries from
+nuget.org beside MudBlazor 9.12.0 and failed with `CS0030` on the grid
+delegate. Session 9 moved the templates to MudBlazor 9 but not their package
+pins, and no local gate covered the gap. A `nuget-v1.0.0` tag would fail the
+same way. After this session lands, the operator re-runs the dry run
+(`gh workflow run build.yml -f version=1.0.0`) and tags only when it is
+green.
