@@ -311,9 +311,9 @@
     {
       "number": 15,
       "title": "Build on push",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-08T08:35:23.498000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-08T08:49:18.451000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
