@@ -1,0 +1,7 @@
+# Schema applicator test fixtures must preserve exact byte layout across all
+# platforms: the byte-identity test compares the C# engine's output (CRLF around
+# BEGIN/END markers, LF inside snippets, original-file line endings elsewhere) to
+# these fixtures, and `core.autocrlf` would otherwise rewrite line endings on
+# checkout and break the test deterministically.
+tests/Dabbler.SchemaApplicator.Tests/Fixtures/*.populated -text
+tests/Dabbler.SchemaApplicator.Tests/Fixtures/*.template  -text

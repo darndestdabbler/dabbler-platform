@@ -1,0 +1,10 @@
+{
+  "$comment": "Minimal entity schema fixture for the dabbler-crud-service / dabbler-crud-page smoke tests. The crud-service template accepts --schema as a forward-compatibility hook (the page template in Session 3 will enumerate these fields for grid columns / form fields / filter config).",
+  "entity": "Smoke",
+  "primaryKey": { "name": "Id", "type": "int" },
+  "properties": [
+    { "name": "Id",       "type": "int",    "isInGrid": true,  "isInForm": false, "isFilterable": true, "isSortable": true,  "isReadOnly": true },
+    { "name": "Name",     "type": "string", "isInGrid": true,  "isInForm": true,  "isFilterable": true, "isSortable": true,  "isReadOnly": false },
+    { "name": "IsActive", "type": "bool",   "isInGrid": true,  "isInForm": true,  "isFilterable": true, "isSortable": false, "isReadOnly": false }
+  ]
+}

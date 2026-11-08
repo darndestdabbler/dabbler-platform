@@ -1,0 +1,34 @@
+[
+  {
+    "round": 1,
+    "id": "session-002-issue-1",
+    "severity": "Minor",
+    "title": "ConcurrentCallsDoNotThrow unit test is likely a placebo",
+    "status": "fixed",
+    "resolution": "Replaced with EachPublicMethodResolvesItsOwnDbContext, backed by a CountingDbContextFactory that tracks CreateDbContext invocations. Asserts the factory is actually called per public method \u2014 independent of the EF Core InMemory provider's synchronous scheduling."
+  },
+  {
+    "round": 1,
+    "id": "session-002-issue-2",
+    "severity": "Minor",
+    "title": "UserRoleAssignmentDetails.razor neither shown nor disclaimed",
+    "status": "fixed",
+    "resolution": "Disclosed in round-2 verification prompt: file was NOT modified in Session 2. The data-testids predate this session (shipped in Set B Session 7). The spec's 'Touches' list was pessimistic \u2014 the fix is entirely service-layer."
+  },
+  {
+    "round": 1,
+    "id": "session-002-issue-3",
+    "severity": "Minor",
+    "title": "Full Playwright regression suite not run",
+    "status": "fixed",
+    "resolution": "Full Playwright suite re-run before round-2 verification."
+  },
+  {
+    "round": 1,
+    "id": "session-002-issue-4",
+    "severity": "Minor",
+    "title": "Duplicate DbContext configuration lambda",
+    "status": "fixed",
+    "resolution": "Extracted ConfigureSecurityDbContext local static function and applied to both AddDbContext and AddDbContextFactory registrations."
+  }
+]

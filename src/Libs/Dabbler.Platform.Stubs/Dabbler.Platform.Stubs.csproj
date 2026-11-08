@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <PackageId>Dabbler.Platform.Stubs</PackageId>
+    <Description>Opt-in stub providers for Dabbler bUnit and demo hosts: grid-data, combo-box, entity-metadata and navigation providers for Dabbler.Components; report-data, artifact-catalog and usage-tracking providers for Dabbler.Reports.Core; and a stub authentication-state provider. Includes AddDabblerPlatformStubs(definition) and the focused per-provider helpers. Carries a transitive dependency on DabblerPdf (LGPL-2.1-only OR MPL-2.0) via Dabbler.Reports.Core.</Description>
+    <PackageTags>blazor;stubs;testing;bunit;demo-mode;dabbler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
+    <ProjectReference Include="..\Dabbler.Reports.Core\Dabbler.Reports.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+This release introduces comprehensive sensitive field masking, auditing, and compliance review capabilities, closing major gaps in the role-rearchitecture roadmap. The functionality was developed across five dedicated sessions.
+
+### Session 1: Field Masking Service and `Customer.SocialSecurityNumber`
+This session laid the groundwork for sensitive data handling. We introduced `Customer.SocialSecurityNumber` as a new sensitive field, complete with EF configuration and seed data. A new `IFieldMaskService` was implemented, providing flexible token-based masking (e.g., `{last4}`, `{firstChar}`). This service was integrated into `RestrictedFormField.razor` and `RestrictedGridColumn.razor`, ensuring that sensitive data is masked by default. Robust unit and bUnit tests were included to validate masking behavior.
+
+### Session 2: `AppSensitiveAccessLog` and Core Auditing
+A critical component of this release is the new `AppSensitiveAccessLog` temporal table, designed to record all sensitive access events. This table stores events such as `RoleSwitch`, `FieldUnmaskedRead`, `ExemptionGranted`, and `ExemptionExpired`. An `ISensitiveAccessAuditor` was implemented as a fire-and-forget service to reliably log these events without impacting application performance. Key auditing points were wired up: `AuditingRoleSwitcher` now records role switches, and `MaskExemptionsSubTab` logs the granting and renewal of exemptions. Additionally, `RestrictionBinder.ResolveAsync` now logs `ExemptionExpired` events once per exemption per circuit.
+
+### Session 3: Per-Render `FieldUnmaskedRead` Interception
+To ensure accurate and de-duplicated logging of unmasked field reads, a `IRenderCorrelationScope` service was introduced. This Blazor-scoped service assigns a unique `CorrelationId` per circuit and regenerates it upon location changes, facilitating batching of audit events. `IRestrictionBinder.ResolveAsync` was extended to accept an `entityId` parameter, enabling the de-duplication of `FieldUnmaskedRead` events based on `(CorrelationId, EntityKey, EntityId, ColumnKey)` within a render scope. `RestrictedFormField` and `RestrictedGridColumn` were updated to pass the `EntityId` to the binder.
+
+### Session 4: Compliance Review Viewer and CSV Export
+A new "Compliance Review" tab was added to the Security Dashboard, providing a comprehensive interface for reviewing sensitive access logs. This tab, accessible to `SystemAdmin`, `CrossOrgUserAdmin`, and `CrossOrgMonitor` roles, features a server-data-paged `MudDataGrid` with a filter panel. A row expander allows users to view correlation clusters for specific audit events. The tab also includes an "Export CSV" button, leveraging a new `ICsvExportService` to generate RFC 4180 compliant CSV exports of the audit data.
+
+### Session 5: UAT, Playwright Coverage, and SSN UI Plumbing
+The final session focused on integrating `Customer.SocialSecurityNumber` into the UI, ensuring proper masking and unmasking behavior based on user roles and active exemptions within `CustomerDetail.razor`. A comprehensive Playwright test suite (`SensitiveFieldMaskingUatCoverageTests.cs`) was developed to validate all aspects of the new sensitive field masking and auditing features against a structured UAT checklist. This suite covers scenarios from masked SSN display to exemption grants, unmasked SSN access, Compliance Review event verification, row expander functionality, and CSV export.
+
+### Important Behavioral Change
+The `RestrictedFormField.razor` previously rendered a generic placeholder `********` for masked fields. This behavior has changed. The component now utilizes `IFieldMaskService.RenderMasked(MaskFormat, Value)` to produce a token-substituted masked output. Critically, null stored values will now produce a non-empty masked string (e.g., `XXX-XX-****`), ensuring that the presence or absence of a sensitive field value is never inadvertently leaked through the masked display.

@@ -1,0 +1,227 @@
+@namespace Dabbler.Components.MasterDetail
+@inject IDialogService DialogService
+
+<MudStack Row="true" Spacing="2" Class="@Class" data-testid="@TestId">
+    @if (CustomActionsPosition == ActionRowSlot.Start)
+    {
+        @CustomActions
+    }
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Save"
+               OnClick="HandleSaveAsync"
+               Disabled="@(!IsDirty || Saving)"
+               data-testid="@SaveTestId">
+        @SaveLabel
+    </MudButton>
+
+    @if (ShowCancel)
+    {
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Default"
+                   OnClick="HandleCancelOrCloseAsync"
+                   Disabled="@Saving"
+                   data-testid="@CancelTestId">
+            @(IsDirty ? CancelLabel : CloseLabel)
+        </MudButton>
+    }
+
+    @if (OnDelete.HasDelegate)
+    {
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.Delete"
+                   OnClick="HandleDeleteAsync"
+                   Disabled="@(!CanDelete || Saving)"
+                   data-testid="@DeleteTestId">
+            @DeleteLabel
+        </MudButton>
+    }
+
+    @if (CustomActionsPosition == ActionRowSlot.End)
+    {
+        @CustomActions
+    }
+</MudStack>
+
+@code {
+    /// <summary>Optional CSS class applied to the action-row container.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Root <c>data-testid</c> for the action row. Default <c>action-row</c>.</summary>
+    [Parameter]
+    public string TestId { get; set; } = "action-row";
+
+    /// <summary>
+    /// Whether the entity has unsaved changes. Drives the Save button's
+    /// enabled state and the Close/Cancel label flip.
+    /// </summary>
+    [Parameter]
+    public bool IsDirty { get; set; }
+
+    /// <summary>
+    /// Whether a save is currently in flight. When <c>true</c>, every
+    /// button is disabled so the user cannot double-click or cancel
+    /// mid-flight.
+    /// </summary>
+    [Parameter]
+    public bool Saving { get; set; }
+
+    /// <summary>
+    /// Whether the Cancel/Close button is rendered. Defaults to <c>true</c>.
+    /// Set to <c>false</c> for pages where the existing UX achieves the
+    /// same intent via a Back button or Undo (e.g., legacy
+    /// <c>ProductDetail.razor</c> migration that preserves prior behavior).
+    /// </summary>
+    [Parameter]
+    public bool ShowCancel { get; set; } = true;
+
+    /// <summary>Invoked when the user clicks the Save button.</summary>
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    /// <summary>
+    /// Invoked when the user clicks Cancel/Close. When <see cref="IsDirty"/>
+    /// is <c>true</c>, the confirmation dialog runs first; the callback fires
+    /// only if the user confirms.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>
+    /// Invoked when the user clicks Delete and confirms. When the callback
+    /// has no delegate, the Delete button is not rendered.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    /// <summary>
+    /// Whether the Delete button is enabled. Defaults to <c>true</c>;
+    /// pages can pass a predicate result here to gate by, e.g., row state.
+    /// Ignored when <see cref="OnDelete"/> has no delegate.
+    /// </summary>
+    [Parameter]
+    public bool CanDelete { get; set; } = true;
+
+    /// <summary>Custom buttons (Undo, Toggle, Status workflow, etc.) rendered
+    /// alongside the standard action set.</summary>
+    [Parameter]
+    public RenderFragment? CustomActions { get; set; }
+
+    /// <summary>Where the <see cref="CustomActions"/> content renders relative
+    /// to the standard buttons. Default <see cref="ActionRowSlot.End"/>.</summary>
+    [Parameter]
+    public ActionRowSlot CustomActionsPosition { get; set; } = ActionRowSlot.End;
+
+    /// <summary>Label on the Save button. Default <c>Save</c>.</summary>
+    [Parameter]
+    public string SaveLabel { get; set; } = "Save";
+
+    /// <summary>Label on the Cancel button when <see cref="IsDirty"/> is true.</summary>
+    [Parameter]
+    public string CancelLabel { get; set; } = "Cancel";
+
+    /// <summary>Label on the Close button when <see cref="IsDirty"/> is false.</summary>
+    [Parameter]
+    public string CloseLabel { get; set; } = "Close";
+
+    /// <summary>Label on the Delete button.</summary>
+    [Parameter]
+    public string DeleteLabel { get; set; } = "Delete";
+
+    /// <summary>Dialog title shown when the user cancels while dirty.</summary>
+    [Parameter]
+    public string CancelDialogTitle { get; set; } = "Discard changes?";
+
+    /// <summary>Dialog message shown when the user cancels while dirty.</summary>
+    [Parameter]
+    public string CancelDialogMessage { get; set; } = "You have unsaved changes. Are you sure you want to discard them?";
+
+    /// <summary>Label on the dialog confirm (Yes) button when discarding. Default <c>Discard</c>.</summary>
+    [Parameter]
+    public string CancelDialogConfirmLabel { get; set; } = "Discard";
+
+    /// <summary>Label on the dialog dismiss (No) button when continuing to edit. Default <c>Keep editing</c>.</summary>
+    [Parameter]
+    public string CancelDialogDismissLabel { get; set; } = "Keep editing";
+
+    /// <summary>Dialog title shown when the user clicks Delete.</summary>
+    [Parameter]
+    public string DeleteDialogTitle { get; set; } = "Confirm delete";
+
+    /// <summary>Dialog message shown when the user clicks Delete.</summary>
+    [Parameter]
+    public string DeleteDialogMessage { get; set; } = "Are you sure you want to delete this record? This action cannot be undone.";
+
+    /// <summary>Label on the dialog confirm (Yes) button for Delete. Default <c>Delete</c>.</summary>
+    [Parameter]
+    public string DeleteDialogConfirmLabel { get; set; } = "Delete";
+
+    /// <summary>Label on the dialog dismiss (No) button for Delete. Default <c>Cancel</c>.</summary>
+    [Parameter]
+    public string DeleteDialogDismissLabel { get; set; } = "Cancel";
+
+    /// <summary><c>data-testid</c> for the Save button. Default <c>save-button</c>.</summary>
+    [Parameter]
+    public string SaveTestId { get; set; } = "save-button";
+
+    /// <summary><c>data-testid</c> for the Cancel/Close button. Default <c>cancel-button</c>.</summary>
+    [Parameter]
+    public string CancelTestId { get; set; } = "cancel-button";
+
+    /// <summary><c>data-testid</c> for the Delete button. Default <c>delete-button</c>.</summary>
+    [Parameter]
+    public string DeleteTestId { get; set; } = "delete-button";
+
+    private async Task HandleSaveAsync()
+    {
+        if (OnSave.HasDelegate)
+        {
+            await OnSave.InvokeAsync();
+        }
+    }
+
+    private async Task HandleCancelOrCloseAsync()
+    {
+        if (IsDirty)
+        {
+            var confirmed = await DialogService.ShowMessageBoxAsync(
+                CancelDialogTitle,
+                CancelDialogMessage,
+                yesText: CancelDialogConfirmLabel,
+                cancelText: CancelDialogDismissLabel);
+
+            if (confirmed != true)
+            {
+                return;
+            }
+        }
+
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+
+    private async Task HandleDeleteAsync()
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            DeleteDialogTitle,
+            DeleteDialogMessage,
+            yesText: DeleteDialogConfirmLabel,
+            cancelText: DeleteDialogDismissLabel);
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        if (OnDelete.HasDelegate)
+        {
+            await OnDelete.InvokeAsync();
+        }
+    }
+}
