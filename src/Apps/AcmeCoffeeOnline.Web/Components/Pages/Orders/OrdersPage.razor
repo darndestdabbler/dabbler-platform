@@ -1,0 +1,22 @@
+@page "/orders"
+@attribute [DabblerPageAuthorize("/orders")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Components.Data
+
+<PageTitle>Orders — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">Orders</MudText>
+    </MudStack>
+
+    <OrderList DataProvider="OrderDataProvider" InitialSearchTerm="@Search" />
+</MudContainer>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Search { get; set; }
+
+    [Inject]
+    private IGridDataProvider<OrderDto> OrderDataProvider { get; set; } = default!;
+}

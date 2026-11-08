@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "rearchitect-role-administration-foundations",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Baked-in role constants, privileges, DisplayAlias, Principle",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Restriction-based configuration model + Default Masks + Mask Exemptions",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "New authorization handlers + remove inheritance",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Row restriction enforcement runtime",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "Seed migration + handler test coverage + change log + reorganization",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-19T17:12:44.297Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
+}

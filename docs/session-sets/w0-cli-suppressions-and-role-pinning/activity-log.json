@@ -1,0 +1,298 @@
+{
+  "sessionSetName": "w0-cli-suppressions-and-role-pinning",
+  "createdDate": "2026-04-29T16:48:09.712532+00:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-29T16:50:27.893921+00:00",
+      "description": "Read planning docs (project-guidance, lessons-learned indexed by reference, session-set-authoring-guide indexed by reference) + spec + suppressions schema + W2 runner suppression-matching reference impl",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/cli-audit",
+      "dateTime": "2026-04-29T16:50:27.895426+00:00",
+      "description": "Audited Dabbler.Uat.Dsl.Cli/Program.cs (validate + compile arg parsing, JSON output shape) and tools/uat-suppressions.json (checklists/errorKind/routePathPatterns schema). Reference matcher: ai-router/uat_runner/runner.py:_split_compile_errors_by_suppressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 0,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-04-29T16:50:27.895426+00:00",
+      "description": "Routed analysis to author ai-assignment.md per Step 3.5",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0132
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-29T16:58:07.991153+00:00",
+      "description": "Cross-provider session-verification via opus (cost $0.3962) \u2014 note: router selected same-provider opus per existing config behavior; saved review under session-reviews/session-001.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 10337,
+          "outputTokens": 3215,
+          "costUsd": 0.39618
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-29T16:59:14.248193+00:00",
+      "description": "dotnet build + test in dabbler-uat-dsl: 0 warnings/errors; 150/150 Core tests + 35/35 Emitters tests",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/pack",
+      "dateTime": "2026-04-29T16:59:14.248193+00:00",
+      "description": "Packed Dabbler.Uat.Dsl.Core.1.2.0.nupkg + Dabbler.Uat.Dsl.Cli.1.2.0.nupkg (Emitters unchanged at 1.1.0)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-29T16:59:24.749393+00:00",
+      "description": "dotnet build + test in dabbler-uat-dsl: 0 warnings/errors; 150/150 Core tests + 35/35 Emitters tests",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/pack",
+      "dateTime": "2026-04-29T16:59:24.749393+00:00",
+      "description": "Packed Dabbler.Uat.Dsl.Core.1.2.0.nupkg + Dabbler.Uat.Dsl.Cli.1.2.0.nupkg (Emitters unchanged at 1.1.0)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-29T17:15:46.167422+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, ai-led-session-workflow.md, spec.md, Session 1 review",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/audit",
+      "dateTime": "2026-04-29T17:15:46.167422+00:00",
+      "description": "Audited 5 catalog-grounded checklists (uat-dsl-watermark-integration, sensitive-field-masking-audit-uat-remediation, sensitive-field-masking-audit, security-dashboard-uat-followup-fixes, rearchitect-role-administration-dashboard). Every checklist has CLICK INPUT label='Email address' and enter '<email>' at step 2 after /login. No AS ROLE directive seen. Email->role mapping is authoritative in src/Apps/AcmeCoffeeOnline.Api/Data/SeedData.cs GetUserRoleAssignments. Runner already has auth_email plumbing via cli.py --auth-email default 'admin@acmecoffee.com'.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/decision",
+      "dateTime": "2026-04-29T17:15:46.167422+00:00",
+      "description": "Decided: persona-inference path. Reasoning: (a) every catalog-grounded checklist already has the email-in-step pattern at step ~2 -- no author migration needed; (b) no grammar/AST/visitor change reduces blast radius vs directive path; (c) SemanticValidator.Validate(steps, catalog, activeRole) already accepts the parameter -- only the CLI needs to wire --active-role through; (d) email->role mapping lives once in personas.json, derivable from SeedData.cs. Trade-off accepted: less explicit in artifact (reader looks up persona), mitigated by single-file mapping and explicit --active-role override available.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/impl",
+      "dateTime": "2026-04-29T17:21:04.419055+00:00",
+      "description": "W0 CLI: added --active-role/-r flag to validate+compile in dabbler-uat-dsl/src/Dabbler.Uat.Dsl.Cli/Program.cs and wired it through to SemanticValidator.Validate(steps, catalog, activeRole). Bumped CLI csproj Version to 1.2.1. dabbler-platform: created ai-router/uat_runner/personas.json (email->role map sourced from SeedData.cs GetUserRoleAssignments), added ai-router/uat_runner/personas.py with infer_active_role() helper (5-step lookahead window, returns explicit error for email-not-in-map), wired persona inference into runner.py run_checklist() (new active_role param, _resolve_active_role() helper, --active-role threaded into _invoke_w0_compile cmd), exposed --active-role override on cli.py.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/unit-tests",
+      "dateTime": "2026-04-29T17:21:04.420557+00:00",
+      "description": "Added 2 SemanticValidatorTests: Validate_ActiveRolePinned_FiltersOutOtherRolesEntries (happy path: SystemAdmin sees Available switch but BackofficeUser does not, with concrete-role error reporting), Validate_ActiveRoleNotInCatalog_ProducesUnknownRouteWithRoleInMessage (clear UnknownRoute error rather than silent miss). Pre-existing Validate_ActiveRoleNull_DefaultsToAnyRoleWildcard already covers no-role-context fallback. Added ai-router/uat_runner/test_cases/test_personas.py with 5 tests: happy_path admin->SystemAdmin, no-signin-step returns no-role-no-error, lookahead window skips late email step, ghost-email returns explicit error naming personas.json, persona map smoke check.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/pack",
+      "dateTime": "2026-04-29T17:21:04.420557+00:00",
+      "description": "Packed Dabbler.Uat.Dsl.Cli.1.2.1.nupkg into dabbler-uat-dsl/pack-output/. Core+Emitters unchanged (still 1.2.0/1.1.0 in pack-output).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-29T17:21:04.420557+00:00",
+      "description": "dabbler-uat-dsl: dotnet build clean (0 warnings, 0 errors); dotnet test 187/187 passed (152 Core including 2 new role-pinning tests, 35 Emitters). dabbler-platform: ai-router/uat_runner/test_cases/test_personas.py 5/5 passed. CLI smoke: --active-role SystemAdmin validates the test checklist clean; --active-role GhostRole produces UnknownRoute error with the role name in the message.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-29T17:26:54.057230+00:00",
+      "description": "Cross-provider session verification: routed task_type=session-verification with complexity_hint=70 \u2014 router selected opus (same-provider as orchestrator; same issue noted in Session 1 actuals + lessons-learned 'Cross-provider session-verification needs a fallback ladder, not same-provider escalation'). Cost: $0.7931. Verdict: 'Pass with one cleanup.' All 8 acceptance criteria PASS. Two issues raised; one is a false positive (verifier claims duplicate _invoke_w0_compile but file has exactly one definition at line 171), one is Informational (auth_email vs persona-inference design-debt note, no incorrect behavior). Disagreement on Issue 1 surfaced to human per Step 7 procedure.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.7931
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-30T01:39:37.549742+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md (grep-indexed for w0/playwright-sync/persona/TrackedComponent context), spec.md, ai-assignment.md, Sessions 1-2 reviews + activity log. Persona-inference path won S2 (admin@acmecoffee.com -> SystemAdmin via personas.json); CLI 1.2.1 packed; Core 1.2.0 packed; Directory.Packages.props still pins 1.1.0 (this session bumps).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/nuget-bump",
+      "dateTime": "2026-04-30T01:44:36.495135+00:00",
+      "description": "Bumped Directory.Packages.props Dabbler.Uat.Dsl.Core 1.1.0 -> 1.2.0 (CLI is consumed via dotnet run --project from sibling source, no NuGet pin needed; Emitters unchanged at 1.1.0).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/recrawl",
+      "dateTime": "2026-04-30T01:44:36.495667+00:00",
+      "description": "Re-crawled docs/component-catalog/index.json against running compose stack (web @ :5010, api @ :5011). 2267 elements written across 5 role manifests + index.json. /admin/products [watermarked] confirmed for all 5 roles. Diff stat: 6 files changed, 6 insertions, 6 deletions (timestamp-only churn). SystemAdmin x /admin/products: 32 entries.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/smoke-author",
+      "dateTime": "2026-04-30T02:08:51.604027+00:00",
+      "description": "Routed uat-script-author (sonnet, $0.0636) to author smoke checklist; manually simplified to /admin/products-only flow after discovering 3 W0/DSL gaps in the magic-link sign-in path: (a) free-form WAIT FOR mis-emits to WaitForSelectorAsync (replaced with structured VERIFY TEXT contains), (b) /dev/email-inbox link text is Open not Sign in, (c) the OTP-code paste flow has no DSL primitive. Sign-in moved to runner-emitted test wrapper via PlaywrightFixture.SeededSignInAsync (test setup, out-of-scope of the smoke).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "sonnet",
+          "taskType": "uat-script-author",
+          "inputTokens": 5957,
+          "outputTokens": 3051,
+          "costUsd": 0.0636
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/smoke-compile",
+      "dateTime": "2026-04-30T02:08:51.605083+00:00",
+      "description": "W0 1.2.0 validate clean (valid:true, 0 warnings) and compile success with --active-role SystemAdmin --suppressions tools/uat-suppressions.json. Emitted .cs at docs/session-sets/.../smoke/compiled/W0SuppressionsAndRolePinningSmoke.cs contains await fixture.WaitForQuietAsync(page) at lines 18 and 19 \u2014 double emission (implicit EmitWatermarkWaits + explicit WAIT FOR ACTIONS QUIET) is the acceptable transitional debt per spec.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/smoke-run",
+      "dateTime": "2026-04-30T02:08:51.605601+00:00",
+      "description": "5/5 PASS deterministic via docs/session-sets/.../smoke/run-5x-smoke.py. Per-iteration: 10.0s, 9.6s, 9.6s, 9.8s, 9.5s. Driver wipes Mailhog + dev email inbox before each iteration (test infra). Runner test wrapper template extended to call PlaywrightFixture.SeededSignInAsync(page, auth_email) for sign-in setup; runner.py _invoke_w0_compile now passes --suppressions tools/uat-suppressions.json natively (replaces the legacy post-compile suppression-matching block which is now dead). Spec quality bar met.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-04-30T02:09:51.482922+00:00",
+      "description": "Routed summarization (gemini-flash, $0.0008) wrote change-log.md (3406 bytes).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.0008
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-30T02:11:19.941759+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 pre-existing obsolete warnings (RoleSwitchingPermission, scheduled removal in rearchitect-role-administration-foundations Session 3 \u2014 unrelated to this set). dotnet test --filter !~Playwright: 715/715 pass across Dabbler.Testing.Blazor.Tests (6), Dabbler.Components.Tests (43), Dabbler.Reports.Blazor.Tests (16), Dabbler.Security.Blazor.Tests (200), AcmeCoffeeOnline.Api.Tests (27), Dabbler.Security.Tests (300), AcmeCoffeeOnline.Web.Tests (123).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-30T02:13:02.778478+00:00",
+      "description": "Cross-provider session-verification: routed to gemini-pro (tier 2 cross-provider, max_tier=2 enforced \u2014 finally landed on cross-provider per the lessons-learned fallback ladder discipline). Cost: $0.0135. Verdict: PASS, all 8 acceptance criteria met. No issues raised. Verifier flagged the smoke simplification + ClickSwitchInColumnStep deferral as acceptable.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 7252,
+          "outputTokens": 444,
+          "costUsd": 0.0135
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 10,
+      "stepKey": "session-3/commit-push-notify",
+      "dateTime": "2026-04-30T02:13:47.495970+00:00",
+      "description": "Committed (fdf6489) Session 3 changes \u2014 19 files, 425+/-49. Local-only commit; push deferred to human (project convention is to keep push as a separate confirm-needed step). Notification sent via send_session_complete_notification.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 11,
+      "stepKey": "session-3/step-9-reorg",
+      "dateTime": "2026-04-30T09:26:03.178261+00:00",
+      "description": "Reorganization review: human accepted A, B, C; deferred D (one-context). Applied: (A) lessons-learned entry SemanticValidator Default activeRole=* Silently Degrades Catalog-Grounded Checklists; (B) extended project-guidance.md Catalog-Grounded UAT authoring Convention to mandate --suppressions and --active-role on every W0 invocation, with reference to runner-side personas.json plumbing; (C) lessons-learned entry Smoke Proofs That Have Never Run Surface Their Own Infrastructure Gaps (two-context promotion: uat-dsl-watermark-integration + this set).",
+      "status": "complete",
+      "routedApiCalls": []
+    }
+  ]
+}

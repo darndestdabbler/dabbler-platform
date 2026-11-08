@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>AcmeCoffeeOnline.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AcmeCoffeeOnline.Shared\AcmeCoffeeOnline.Shared.csproj" />
+    <ProjectReference Include="..\..\Libs\Dabbler.Security\Dabbler.Security.csproj" />
+    <ProjectReference Include="..\..\Libs\Dabbler.Api.Querying\Dabbler.Api.Querying.csproj" />
+  </ItemGroup>
+
+</Project>

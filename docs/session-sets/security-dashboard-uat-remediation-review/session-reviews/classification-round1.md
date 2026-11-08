@@ -1,0 +1,27 @@
+> **Editorial note (added 2026-04-21 post-verification):** the summary
+> recommendation at the bottom of this file supersedes the per-finding
+> `fold-into-polish-set` disposition for findings [14] and [49]; the
+> authoritative routing for both is `new-set` (into
+> `security-dashboard-uat-followup-fixes`). See `../disposition.md` for
+> the final disposition and rationale.
+
+### UAT Findings Classification
+
+| Index | FunctionalArea/Subarea                                  | Severity      | Disposition             | Rationale                                                                                                                   | Recommended Action                                                                                                             |
+| :---- | :------------------------------------------------------ | :------------ | :---------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| 2     | Shell / Per-Role Security Nav                           | **Blocker**   | `new-set`               | The finding indicates a regression or incomplete fix for per-role nav visibility, a key deliverable of this set.            | Create a remediation set to investigate and fix nav visibility for the baked-in User role, starting with hypothesis (c).         |
+| 8     | Org Master Details / Org-Scope Filter                   | Out of scope  | `checklist-fix`         | The product feature works as intended; only the UAT checklist step contained an incorrect URL.                              | Update the UAT checklist for item [8] to use the correct URL.                                                                  |
+| 9     | Org Master Details / Org-Scope Filter                   | Out of scope  | `checklist-fix`         | The product feature works as intended; only the UAT checklist step contained an incorrect URL.                              | Update the UAT checklist for item [9] to use the correct URL.                                                                  |
+| 11    | Org Master Details / In-Circuit Refresh                 | **Blocker**   | `new-set`               | This is a regression that breaks a core feature ("in-circuit grid refresh") shipped in the `security-dashboard-uat-remediation` set. | Create a remediation set to restore the expected in-circuit grid refresh behavior upon organization creation.                  |
+| 14    | Restriction Enforcement / Restriction-Seam Reachability | Minor         | `fold-into-polish-set`  | The currency symbol is an incidental and minor cosmetic issue; the primary test for seam reachability was ambiguous.          | Add a task to the next polish/remediation set to correct the currency symbol on the `/products` page.                          |
+| 20    | Restriction Enforcement / ViewOnly Rendering            | Out of scope  | `signoff`               | The feedback raises a valid architectural question for future design, not a bug in the current implementation.            | Document the architectural feedback for consideration in future planning sessions regarding inline editing.                      |
+| 33    | Accessibility / Tab-Strip Arrow-Key Handler             | Out of scope  | `signoff`               | The finding is ambiguous due to empty feedback and requires clarification from the reviewer before any action can be taken. | Contact the UAT reviewer to clarify if this item failed and why, then re-disposition accordingly.                              |
+| 34    | Shell / Per-Role Security Nav                           | Out of scope  | `signoff`               | The feedback is a general UI style suggestion, not a bug related to the features shipped in this set.                       | Add the suggestion for a compact grid format to the product design backlog for future consideration.                           |
+| 35    | Users / Users tab circuit stability                     | Out of scope  | `signoff`               | This feedback pertains to the UAT checklist authoring and process, not a defect in the application's code.                  | Share the process feedback with the team responsible for UAT checklist authoring and tooling.                                  |
+| 49    | Master-Details Expansion Shell / Re-Expand              | Minor         | `fold-into-polish-set`  | This is a minor but real usability defect in the `MasterDetailExpansionShell` component that was refactored in this set.   | Add a task to the next polish/remediation set to fix the double-click-to-collapse behavior in the `MasterDetailExpansionShell`. |
+
+### Summary Recommendation
+
+**(A) A stub spec for a new single-session polish/remediation set.**
+
+Two Blocker-severity regressions ([2], [11]) were found against core deliverables of the `security-dashboard-uat-remediation` set. These must be remediated before starting the planned Set D. A new, single-session remediation set should be created to address these two Blockers, and it should also incorporate the two Minor-severity defects ([14], [49]) as polish. This focused effort will stabilize the product before new feature work commences.
