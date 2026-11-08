@@ -22,7 +22,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 8 | MudBlazor 9 — libraries and the reference app compile | no | 2026-11-07 |
 | 9 | MudBlazor 9 — templates, scaffolding and the E2E gate | no | 2026-11-07 |
 | 10 | Maintainer guide, gate rule and support policy | no | 2026-11-08 |
-| 11 | Bump to 0.2.0 | — | not declared |
+| 11 | Bump to 0.2.0 | no | 2026-11-08 |
 | 12 | Retire what does not run | — | not declared |
 | 13 | Prune the v1 guidance | — | not declared |
 | 14 | Bump to 1.0.0 | — | not declared |
@@ -95,3 +95,9 @@ Finish the MudBlazor 9 move that session 8 started, for the parts outside Dabble
 **Releasable: no.**
 
 Write docs/MAINTAINING.md, the maintainer guide: how to clone, build, run the `unit` suite and pack; how to release (a bump session, then the hand-pushed annotated tag `nuget-v<version>`, then unlisting retired package IDs on nuget.org); where every gate lives (the `unit` suite in dabbler.yaml, PublicSurface and Packaging.Smoke in CI's Validate And Pack job, and the Playwright manual gate before each release tag and in every session that changes the reference app's UI or the MudBlazor pin); and the MudBlazor policy of adopting a new major within one quarter of its release. Point the *Building and testing* part of AGENTS.md (outside the managed fence) and the platform authoring addendum at that gate rule. Add .github/dependabot.yml for nuget, weekly, with MudBlazor in one group and the Microsoft.* packages pinned at 10.x in another (held to 10.x by ignoring their semver-major updates). Add an "If this library stops being maintained" section, naming the fallback of copying the MIT source into your application and owning it, to the root README.md and to the README of each of the twelve packages; ten READMEs exist, so the two packages without one (Dabbler.Security.DevIdp.Tool and Dabbler.Templates) get a short README packed as their PackageReadmeFile, the same way the other packages pack theirs.
+
+### Session 11 — Bump to 0.2.0
+
+**Releasable: no.**
+
+Bump the single repository version to 0.2.0 ahead of the operator-tagged release: set DabblerVersion in Directory.Build.props to 0.2.0, change the -Version parameter default in tools/pack.ps1 (and the help text and example that name the current version) to 0.2.0, and add a 0.2.0 entry at the top of CHANGELOG.md naming the three breaking changes: the report expression engine's namespace is now Dabbler.Reports.Core.Expressions (moved from Dabbler.Components.Expressions); MudBlazor 9 is the floor (pinned at 9.12.0), and GridDataProviderExtensions.ToServerDataFunc now returns MudDataGrid's CancellationToken-taking ServerData delegate and passes that token to IGridDataProvider.FetchAsync; Dabbler.Components.Compat and the three Dabbler.Platform.Stubs.Components/.Reports/.Security providers are retired, the providers folded into Dabbler.Platform.Stubs under the namespace they already had.
