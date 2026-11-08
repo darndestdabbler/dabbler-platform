@@ -1,0 +1,131 @@
+{
+  "sessionSetName": "security-dashboard-uat-remediation-review",
+  "createdDate": "2026-04-21T18:03:31.672214+00:00",
+  "totalSessions": 0,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-guidance",
+      "dateTime": "2026-04-21T18:03:31.680299+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md. Confirmed UAT Review Session (set type) procedure: classify every finding Blocker/Substantive/Minor/Out-of-scope, output either stub-spec / micro-fix / signoff, commit disposition artifact, queue next action. Orchestrator guidance: fits Sonnet cleanly; Opus only when ambiguous.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/parse-checklist",
+      "dateTime": "2026-04-21T18:03:31.680299+00:00",
+      "description": "Parsed docs/session-sets/security-dashboard-uat-remediation/security-dashboard-uat-remediation-uat-checklist.json (54 Review items). Distribution: 26 pass-clean, 1 pass-judgment-with-rationale (#32 DisplayAlias width), 10 substantive findings (fail or non-empty feedback), 17 empty Other auto-rows treated as non-findings.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/route-classification",
+      "dateTime": "2026-04-21T18:06:30.401430+00:00",
+      "description": "Routed classification of 10 substantive UAT findings via route(task_type=analysis). Model: gemini-pro. Tokens in/out: 2102/940. Raw output saved to session-reviews/classification-round1.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2102,
+          "outputTokens": 940,
+          "costUsd": 0.0120275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/disposition-artifact",
+      "dateTime": "2026-04-21T18:09:15.718157+00:00",
+      "description": "Wrote disposition.md summarizing all 10 findings with severity/disposition/rationale; 2 Blockers [2][11], 2 Minor [14][49], 6 Out-of-scope [8][9][20][33][34][35]. Also captured the non-findings count (17 empty Other + 26 pass-clean + 1 judgment).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/next-action-artifact",
+      "dateTime": "2026-04-21T18:09:15.719157+00:00",
+      "description": "Created stub spec for the next set `security-dashboard-uat-followup-fixes` at docs/session-sets/security-dashboard-uat-followup-fixes/spec.md. 1-session set covering the 4 actionable findings (2 Blocker + 2 Minor). Inserted into the roadmap ahead of Set D since the two Blockers are regressions against deliverables Set D plugs into.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-21T18:10:58.413256+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 warnings (all pre-existing [Obsolete] warnings on RoleSwitching types scheduled for removal in Set C). dotnet test (non-Playwright): 661 passed, 0 failed, 0 skipped. Skipped Playwright (Docker) since this session touched no product code.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/session-verification",
+      "dateTime": "2026-04-21T18:16:58.432575+00:00",
+      "description": "Cross-provider verification via route(task_type=session-verification, complexity_hint=70). Model: opus. Tokens in/out: 8314/5804. Raw verdict saved to session-reviews/session-001.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8314,
+          "outputTokens": 5804,
+          "costUsd": 0.56001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/change-log",
+      "dateTime": "2026-04-21T18:19:41.077783+00:00",
+      "description": "Generated change-log.md directly (not routed) since the orchestrator is Opus and the task is a narrative summary of a 1-session UAT Review. Records classification stats, verification verdict, and cost summary.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/commit-and-push",
+      "dateTime": "2026-04-21T18:19:41.078343+00:00",
+      "description": "Committed (f6327ba) and pushed. 8 files changed, 819 insertions. Staged only the two new session-set folders + the router-metrics.jsonl updates from this session; left the human's pre-existing modified files (AGENTS.md/CLAUDE.md/GEMINI.md/README.md/docker/Dockerfile.Playwright/security-config.json/user-roles.json/etc.) untouched for their own commit flow.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/notify",
+      "dateTime": "2026-04-21T18:19:55.169471+00:00",
+      "description": "Session-complete notification sent via send_session_complete_notification (Pushover).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/step9-reorganization",
+      "dateTime": "2026-04-21T18:21:24.529066+00:00",
+      "description": "Step 9 reorganization review: proposed 2 collapse-to-reference candidates in lessons-learned.md (UAT Checklist Files Must Match The Editor Contract; Pending Human UAT Must Be Called Out Explicitly) -- both already fully captured in project-guidance Conventions + applied as the right call across 3+ session sets plus this UAT Review. Waiting on human accept/reject before applying any follow-up commit.",
+      "status": "awaiting-human",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 12,
+      "stepKey": "session-1/step9-reorganization-applied",
+      "dateTime": "2026-04-21T18:26:02.302058+00:00",
+      "description": "Human accepted both Step 9 proposals. Collapsed 'UAT Checklist Files Must Match The Editor Contract' and 'Pending Human UAT Must Be Called Out Explicitly' to reference-style entries in lessons-learned.md pointing at project-guidance.md Conventions -> Human UAT And Checklist Editor (same 2026-04-18 collapse pattern). Committed 24b415c, pushed.",
+      "status": "complete",
+      "routedApiCalls": []
+    }
+  ]
+}

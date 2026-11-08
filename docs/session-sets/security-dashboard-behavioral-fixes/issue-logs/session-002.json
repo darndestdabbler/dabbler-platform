@@ -1,0 +1,51 @@
+[
+  {
+    "number": 1,
+    "title": "Pre-existing Playwright read-only-mode tests now invert the intended UI state",
+    "severity": "Critical",
+    "status": "fixed",
+    "resolution": "Renamed OrderDetail_ReadOnlyMode_StatusTransitionButtonsNotShownAsync to OrderDetail_SystemAdmin_SeesStatusTransitionButtonsAsync and OrderDetail_ReadOnlyMode_ItemAndNoteControlsNotShownAsync to OrderDetail_SystemAdmin_SeesItemAndNoteEditControlsAsync. Inverted the assertions to positive checks that the status-transition buttons (when not in a terminal state), 'Add Product', and 'Add Note' are visible to SystemAdmin."
+  },
+  {
+    "number": 2,
+    "title": "OrderService.UpdateAsync has no IsModifiable status guard",
+    "severity": "Major",
+    "status": "deferred",
+    "resolution": "Intentional. The existing OrderService.UpdateNoteAsync and DeleteNoteAsync also do not check IsModifiable (only AddItem/AddNote/RemoveItem do). The spec requires SystemAdmin to edit header-level Notes and ShipDate on an order; blocking edits on Shipped/Delivered/Cancelled orders would prevent an admin from correcting notes or ship dates after the fact. Keeping behavior consistent with existing note update/delete is the safer choice and can be revisited with explicit product direction."
+  },
+  {
+    "number": 3,
+    "title": "Integration test does not cover Customer endpoint-layer block for their own order",
+    "severity": "Major",
+    "status": "fixed",
+    "resolution": "Added a doc-comment on Customer_CannotUpdateOtherCustomerOrderAsync explaining the two gating layers (security-config.json UpdateOrder.AllowedRoles enforced by the ASP.NET pipeline, plus OrderService.ApplyRowFilter). The endpoint-authorization layer is covered by Dabbler.Security tests; the row-filter layer is covered by this test."
+  },
+  {
+    "number": 4,
+    "title": "Dirty state on header lost without warning when clicking a status transition",
+    "severity": "Minor",
+    "status": "fixed",
+    "resolution": "OrderDetail.razor status-transition buttons now disable whenever _isDirty is true, with a caption 'Save or undo header changes before changing status.' next to them."
+  },
+  {
+    "number": 5,
+    "title": "Missing GET /api/orders/{id}/notes endpoint",
+    "severity": "Critical",
+    "status": "false_positive",
+    "resolution": "Notes CRUD lives in src/Apps/AcmeCoffeeOnline.Api/Controllers/OrderNotesController.cs (HttpGet, HttpPost, HttpPut, HttpDelete for /api/orders/{orderId}/notes/*). The verifier saw only the OrdersController contents I supplied; the separate OrderNotesController file was not in the prompt."
+  },
+  {
+    "number": 6,
+    "title": "Missing PUT/DELETE note endpoints",
+    "severity": "Major",
+    "status": "false_positive",
+    "resolution": "Same as Issue 5 \u2014 all note CRUD is in OrderNotesController.cs."
+  },
+  {
+    "number": 7,
+    "title": "Discount semantics disagree between client and server",
+    "severity": "Minor",
+    "status": "deferred",
+    "resolution": "Pre-existing bug, unrelated to this session's fix. OrderDetailState.CalculateLineTotal (client display) divides Discount by 100, while OrderService.AddItemAsync/RemoveItemAsync (server persisted Total) does not. This is out of scope for the SystemAdmin edit-path fix and should be addressed as a separate session with explicit tests for both layers."
+  }
+]

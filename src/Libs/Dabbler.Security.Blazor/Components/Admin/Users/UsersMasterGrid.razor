@@ -1,0 +1,338 @@
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Users
+@inject IAdminUserQueryService UserQueryService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div data-testid="users-master-grid-container">
+    <FilterPanel T="AdminUserRow"
+                 @ref="_filterPanel"
+                 Columns="_filterColumns"
+                 FilterChanged="OnFilterChanged"
+                 ShowAddGroup="false"
+                 ShowFilterChips="true" />
+
+    <div class="d-flex align-center my-2">
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            @($"{FilteredRows.Count} of {_rows.Count} users")
+        </MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Default"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Refresh"
+                   OnClick="OnRefreshAsync"
+                   data-testid="users-grid-refresh-button">
+            Refresh
+        </MudButton>
+    </div>
+
+    <div class="master-grid-scroll-region" style="max-height:24rem; overflow-y:auto;"
+         data-testid="users-master-grid-scroll-region">
+        <MudDataGrid T="AdminUserRow"
+                     Items="@FilteredRows"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="true"
+                     Striped="true"
+                     ReadOnly="true"
+                     RowClick="@OnRowClickAsync"
+                     SelectedItem="@_selected"
+                     data-testid="users-master-grid">
+            <Columns>
+                <PropertyColumn Property="row => row.DisplayName" Title="Name" Sortable="true" />
+                <PropertyColumn Property="row => row.Email" Title="Email" Sortable="true" />
+                <TemplateColumn Title="Active Roles" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.Roles.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary"
+                                     data-testid="@($"users-row-{context.Item.UserId}-no-roles")">
+                                No roles
+                            </MudText>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-1"
+                                 data-testid="@($"users-row-{context.Item.UserId}-roles")">
+                                @foreach (var role in context.Item.Roles)
+                                {
+                                    <MudChip T="string"
+                                             Size="Size.Small"
+                                             Color="Color.Primary"
+                                             Variant="Variant.Outlined"
+                                             data-testid="@($"users-row-{context.Item.UserId}-role-{role}")">
+                                        @role
+                                    </MudChip>
+                                }
+                            </div>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Organizations" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.Organizations.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary"
+                                     data-testid="@($"users-row-{context.Item.UserId}-no-orgs")">
+                                None
+                            </MudText>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-1"
+                                 data-testid="@($"users-row-{context.Item.UserId}-orgs")">
+                                @foreach (var organization in context.Item.Organizations)
+                                {
+                                    <MudChip T="string"
+                                             Size="Size.Small"
+                                             Color="@(organization.IsDefault ? Color.Secondary : Color.Default)"
+                                             Variant="Variant.Outlined">
+                                        @organization.OrganizationName
+                                    </MudChip>
+                                }
+                            </div>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Status" Sortable="true">
+                    <CellTemplate>
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="@(context.Item.IsActive ? Color.Success : Color.Warning)"
+                                 Variant="Variant.Outlined"
+                                 data-testid="@($"users-row-{context.Item.UserId}-status-chip")">
+                            @(context.Item.IsActive ? "Active" : "Inactive")
+                        </MudChip>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<AdminUserRow?> SelectedUserChanged { get; set; }
+
+    [Parameter]
+    public EventCallback FiltersChanged { get; set; }
+
+    private FilterPanel<AdminUserRow>? _filterPanel;
+    private CompositeFilterDescriptor? _filter;
+    private List<AdminUserRow> _rows = [];
+    private AdminUserRow? _selected;
+
+    private readonly List<FilterColumnDefinition> _filterColumns =
+    [
+        new FilterColumnDefinition
+        {
+            Header = "Name",
+            PropertyName = nameof(AdminUserRow.DisplayName),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Email",
+            PropertyName = nameof(AdminUserRow.Email),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Role",
+            PropertyName = "ActiveRole",
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Organization",
+            PropertyName = "ActiveOrganization",
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Active",
+            PropertyName = nameof(AdminUserRow.IsActive),
+            EditorType = FilterEditorType.CheckBox,
+            DefaultOperator = FilterOperators.Equals,
+        },
+    ];
+
+    private IReadOnlyList<AdminUserRow> FilteredRows => ApplyFilter(_rows, _filter);
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshAsync();
+    }
+
+    /// <summary>
+    /// Reloads users from <see cref="IAdminUserQueryService"/> and preserves
+    /// selection where possible. When <paramref name="selectedUserId"/> is
+    /// supplied the grid resolves the freshly-projected row, raises
+    /// <see cref="SelectedUserChanged"/> with the new instance, and re-renders.
+    /// </summary>
+    public async Task RefreshAsync(string? selectedUserId = null)
+    {
+        // Pass the principal from AuthenticationStateProvider so the actor context
+        // resolves correctly in interactive Blazor Server (where IHttpContextAccessor
+        // returns null per Microsoft's documented stance). Without this, GetUsersAsync's
+        // fail-closed early return treats every actor as unauthenticated and returns
+        // an empty grid.
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _rows = (await UserQueryService.GetUsersAsync(authState.User)).ToList();
+
+        var previousSelectionId = selectedUserId ?? _selected?.UserId;
+
+        if (previousSelectionId is not null)
+        {
+            _selected = _rows.FirstOrDefault(row => string.Equals(
+                row.UserId, previousSelectionId, StringComparison.OrdinalIgnoreCase));
+
+            if (SelectedUserChanged.HasDelegate)
+            {
+                await SelectedUserChanged.InvokeAsync(_selected);
+            }
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnRefreshAsync() => await RefreshAsync();
+
+    internal static IReadOnlyList<AdminUserRow> ApplyFilter(
+        IReadOnlyList<AdminUserRow> rows,
+        CompositeFilterDescriptor? filter)
+    {
+        if (filter is null || filter.Filters.Count == 0)
+        {
+            return rows;
+        }
+
+        return rows.Where(row =>
+        {
+            foreach (var entry in filter.Filters)
+            {
+                switch (entry.PropertyName)
+                {
+                    case nameof(AdminUserRow.DisplayName):
+                    {
+                        var needle = entry.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(needle)
+                            && !row.DisplayName.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false;
+                        }
+
+                        break;
+                    }
+
+                    case nameof(AdminUserRow.Email):
+                    {
+                        var needle = entry.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(needle)
+                            && !row.Email.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false;
+                        }
+
+                        break;
+                    }
+
+                    case "ActiveRole":
+                    {
+                        var needle = entry.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(needle))
+                        {
+                            var match = row.Roles.Any(role =>
+                                role.Contains(needle, StringComparison.OrdinalIgnoreCase));
+                            if (!match)
+                            {
+                                return false;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case "ActiveOrganization":
+                    {
+                        var needle = entry.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(needle))
+                        {
+                            var match = row.Organizations.Any(organization =>
+                                organization.OrganizationName.Contains(needle, StringComparison.OrdinalIgnoreCase)
+                                || organization.OrganizationKey.Contains(needle, StringComparison.OrdinalIgnoreCase));
+                            if (!match)
+                            {
+                                return false;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case nameof(AdminUserRow.IsActive):
+                    {
+                        var expected = ToNullableBool(entry.Value);
+                        if (expected.HasValue && row.IsActive != expected.Value)
+                        {
+                            return false;
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            return true;
+        }).ToList();
+    }
+
+    private static bool? ToNullableBool(object? value)
+    {
+        return value switch
+        {
+            null => null,
+            bool boolean => boolean,
+            string text when bool.TryParse(text, out var parsed) => parsed,
+            _ => null
+        };
+    }
+
+    private async Task OnFilterChanged(CompositeFilterDescriptor? descriptor)
+    {
+        _filter = descriptor;
+        if (FiltersChanged.HasDelegate)
+        {
+            await FiltersChanged.InvokeAsync();
+        }
+        else
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnRowClickAsync(DataGridRowClickEventArgs<AdminUserRow> args)
+    {
+        // See RoleMasterGrid.OnRowClickAsync — finding #49 root cause and fix.
+        await OnSelectionChangedAsync(args.Item);
+    }
+
+    private async Task OnSelectionChangedAsync(AdminUserRow? row)
+    {
+        _selected = row;
+
+        if (SelectedUserChanged.HasDelegate)
+        {
+            await SelectedUserChanged.InvokeAsync(row);
+        }
+    }
+}

@@ -1,0 +1,67 @@
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Role
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" Model="@_model">
+            <MudTextField T="string" Label="Role name (canonical, immutable)"
+                          @bind-Value="_model.RoleName"
+                          Required="true"
+                          RequiredError="Role name is required."
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          data-testid="add-role-dialog-name" />
+            <MudTextField T="string" Label="Display alias (optional)"
+                          @bind-Value="_model.DisplayAlias"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          data-testid="add-role-dialog-alias" />
+            <MudTextField T="string" Label="Description"
+                          @bind-Value="_model.Description"
+                          Lines="3"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          data-testid="add-role-dialog-description" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" data-testid="add-role-dialog-cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                   OnClick="ConfirmAsync"
+                   data-testid="add-role-dialog-confirm">
+            Add
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    /// <summary>
+    /// Small MudDialog that collects a canonical role name + optional alias and
+    /// description for a new user-type role, used by <c>RoleMasterGrid</c>.
+    /// </summary>
+
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    private MudForm? _form;
+    private readonly Result _model = new();
+
+    private async Task ConfirmAsync()
+    {
+        if (_form is null) return;
+        await _form.ValidateAsync();
+        if (!_form.IsValid) return;
+        Dialog.Close(DialogResult.Ok(_model));
+    }
+
+    private void Cancel() => Dialog.Cancel();
+
+    /// <summary>Data returned by the dialog when confirmed.</summary>
+    public sealed class Result
+    {
+        /// <summary>Canonical immutable role name.</summary>
+        public string RoleName { get; set; } = string.Empty;
+
+        /// <summary>Optional display alias.</summary>
+        public string DisplayAlias { get; set; } = string.Empty;
+
+        /// <summary>Human-readable description.</summary>
+        public string Description { get; set; } = string.Empty;
+    }
+}

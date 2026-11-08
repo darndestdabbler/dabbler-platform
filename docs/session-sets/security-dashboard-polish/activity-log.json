@@ -1,0 +1,627 @@
+{
+  "sessionSetName": "security-dashboard-polish",
+  "createdDate": "2026-04-18T04:19:38.787862+00:00",
+  "totalSessions": 8,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-guidance",
+      "dateTime": "2026-04-18T04:19:38.792866+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session; confirmed user direction to start security-dashboard-polish Session 1 despite UAT folder still showing in-progress (it is a single-session UAT-prep spec whose change-log.md was never generated; human UAT results already in the checklist JSON).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/handler-fail",
+      "dateTime": "2026-04-18T04:30:06.860314+00:00",
+      "description": "PageAuthorizationHandler.HandleRequirementAsync now calls context.Fail() with an AuthorizationFailureReason on every denial path (unregistered-fail-closed, explicit Deny, no-allowed-role, scoped-admin missing session context or organization match). Succeeds paths unchanged.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/status-codes",
+      "dateTime": "2026-04-18T04:30:06.860314+00:00",
+      "description": "Replaced app.UseStatusCodePagesWithReExecute(\"/not-found\") with a custom app.UseStatusCodePages handler that only re-executes /not-found for genuine 404 responses. 401/403 are no longer swallowed and can now surface the Blazor <NotAuthorized> fragment.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/not-authorized-fragment",
+      "dateTime": "2026-04-18T04:30:06.861313+00:00",
+      "description": "Created Components/Shared/AccessDeniedCard.razor (centered MudCard with lock icon, approved copy \"You dont have access to this page. If you need access, please request it from your administrator.\", role=alert, aria-live=assertive, Back to dashboard button navigating to /dashboard). Wired Routes.razor <NotAuthorized> to render <AccessDeniedCard />. Updated /access-denied page (AccessDenied.razor) to render the same card while preserving its existing data-testid=\"access-denied-page\" wrapper so existing Playwright/WebGuardrail tests that depend on the redirect path keep passing.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/playwright",
+      "dateTime": "2026-04-18T04:30:06.861313+00:00",
+      "description": "Added AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync Playwright test. Signs in as BackofficeUser jdoe@acmecoffee.com, navigates to /admin/security, asserts URL does not contain /not-found, and asserts access-denied-card, approved copy, and access-denied-back-button are visible.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/bunit",
+      "dateTime": "2026-04-18T04:30:06.862313+00:00",
+      "description": "Added AccessDeniedCardTests bUnit suite (4 tests): approved copy is rendered, Back-to-dashboard button is rendered, clicking the button calls NavigationManager.NavigateTo(\"/dashboard\"), and wrapper has role=alert + aria-live=assertive.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-18T04:30:06.862313+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 1 pre-existing CS8604 warning in WebGuardrailTests.cs. dotnet test (non-Playwright): 575 passed, 1 failed. The single failure is the pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md), identical to UAT session 1 and unrelated to this session. AccessDeniedCardTests: 4/4 passed. No other regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-18T04:32:50.193551+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/session-1-review-1.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 6732,
+          "outputTokens": 1300,
+          "costUsd": 0.19848
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-guidance",
+      "dateTime": "2026-04-18T04:51:05.966988+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session. Confirmed session-1 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/header-svg",
+      "dateTime": "2026-04-18T04:51:05.968492+00:00",
+      "description": "Moved deny-allow-header.svg from project root to src/Libs/Dabbler.Security.Blazor/wwwroot/ so it is served as a Razor-class-library static web asset at _content/Dabbler.Security.Blazor/deny-allow-header.svg. No csproj changes needed \u2014 wwwroot is auto-wired by Microsoft.NET.Sdk.Razor.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/permission-state",
+      "dateTime": "2026-04-18T04:51:05.969099+00:00",
+      "description": "Added PermissionState enum (Unset=0, Allow=1, Deny=2) in src/Libs/Dabbler.Security/Configuration/PermissionState.cs. Mutual exclusion is now a property of the data model itself \u2014 a cell is exactly one of the three values.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/switch-component",
+      "dateTime": "2026-04-18T04:51:05.969536+00:00",
+      "description": "Created shared DenyAllowSwitch.razor in src/Libs/Dabbler.Security.Blazor/Components/Admin/ wrapping MudToggleGroup<PermissionState> with single-selection mode, three items (Deny / \u2014 / Allow), and role-aware color (Error for Deny, Success for Allow, Default for Unset). Exposes Value, ValueChanged, and AriaLabel parameters. Sessions 3 and 4 will reuse it. Chose MudToggleGroup over MudSwitch<bool?> because the three-state decision is fundamentally ternary and toggle-group enforces mutual exclusion visually and structurally.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/switch-control",
+      "dateTime": "2026-04-18T04:51:05.970209+00:00",
+      "description": "Refactored DabblerPagePermissionMatrix.razor: replaced the two MudCheckBox columns (Allow / Deny) with a single column hosting a DenyAllowSwitch per cell. Internal state moved from separate _allowed/_denied HashSet<string> dictionaries to a single nested Dictionary<string, Dictionary<string, PermissionState>>. Save-time projection produces the same PagePermission.AllowedRoles / DeniedRoles shape, so persistence format and handler behavior are unchanged. Legend caption updated to describe the three states.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/widths",
+      "dateTime": "2026-04-18T04:51:05.970209+00:00",
+      "description": "Widened matrix cards ~33%: card style changed from min-width:260px/flex:1 1 260px/max-width:480px to min-width:340px/flex:1 1 340px/max-width:600px. Single permission column uses width:1%; white-space:nowrap; text-align:center so the switch sits centered and the Role column takes the remaining space \u2014 removes horizontal scroll at normal desktop widths. Table now has width:100%.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/bunit-invariant",
+      "dateTime": "2026-04-18T04:51:05.971553+00:00",
+      "description": "Updated DabblerPagePermissionMatrixTests.cs: replaced the checkbox-based 'ExistingAllowedPermissions_CheckedOnRender' test with 'ExistingAllowedPermissions_RenderSwitchInAllowState' (asserts DenyAllowSwitch.Value is PermissionState.Allow). Added 'ExistingDeniedPermissions_RenderSwitchInDenyState', 'RendersDenyAllowHeaderSvg_NotSeparateAllowAndDenyColumns', 'FlipAllowToDeny_DropsAllow_AndAddsDeny_OnSave' (the Allow\u2192Deny mutual-exclusion invariant called out in the spec), 'FlipDenyToAllow_DropsDeny_AndAddsAllow_OnSave', and 'SetToUnset_OmitsRoleFromBothLists_OnSave'. The invariant test is whitebox-executed through the shared DenyAllowSwitch's ValueChanged callback, which is the exact path MudToggleGroup invokes on user selection.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-18T04:51:05.971553+00:00",
+      "description": "dotnet build: succeeded with 0 errors after shutting down two stray dev-server processes (AcmeCoffeeOnline.Web PID 6460 and AcmeCoffeeOnline.Api PID 37188) that were holding DLL file locks; user authorized via 'continue'. Pre-existing CS8604 warning in WebGuardrailTests.cs persists (unrelated). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 126/126 passed (4 new + replaced tests all green); Dabbler.Security.Tests 268/268; Dabbler.Reports.Blazor.Tests 13/13; Dabbler.Components.Tests 33/33; AcmeCoffeeOnline.Api.Tests 17/17; AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Session 1 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-18T04:52:20.170861+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/session-2-review-1.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8516,
+          "outputTokens": 1289,
+          "costUsd": 0.22441499999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-guidance",
+      "dateTime": "2026-04-18T05:05:04.486242+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session. Confirmed session-2 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/deny-model",
+      "dateTime": "2026-04-18T05:05:04.487747+00:00",
+      "description": "Added EndpointPermission.DeniedRoles (List<string>) to Dabbler.Security.Configuration.EndpointPermission so mutual-exclusion Deny is a first-class concept alongside AllowedRoles. Added AppEndpointPermission.Allowed (bool, default true) so existing rows retain Allow semantics; new writes set the column explicitly.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/persistence",
+      "dateTime": "2026-04-18T05:05:04.488752+00:00",
+      "description": "Created migration 20260418050000_AddEndpointPermissionAllowed (Up: AddColumn Allowed bit NOT NULL defaultValue:true; Down: DropColumn) plus matching Designer + updated DabblerSecurityDbContextModelSnapshot.cs to include Property<bool>(\"Allowed\"). Updated EfCoreSecurityStore.LoadAsync to project Allowed=true \u2192 AllowedRoles, Allowed=false \u2192 DeniedRoles; updated SyncEndpointPermissionsAsync to emit two rows when both lists are set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/handler-deny-precedence",
+      "dateTime": "2026-04-18T05:05:04.488752+00:00",
+      "description": "EndpointAuthorizationHandler.HandleRequirementAsync: added Deny-precedence check (DeniedRoles.Any(r => userRoles.Contains(r)) \u2192 return without Succeed) mirroring PageAuthorizationHandler. A user holding both an allowed and a denied role is now denied. Existing allow/fail-open/fail-closed paths unchanged.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/switch-reuse",
+      "dateTime": "2026-04-18T05:05:04.489752+00:00",
+      "description": "Refactored DabblerEndpointPermissionMatrix.razor to reuse the shared DenyAllowSwitch + deny-allow-header.svg from session 2. Internal state moved from HashSet<string> _allowed to Dictionary<string, Dictionary<string, PermissionState>>. SaveAsync projects the ternary in-memory state back to the parallel AllowedRoles/DeniedRoles lists on EndpointPermission, enforcing mutual exclusion at the model level. Cards widened to 340/600px and the permission column uses width:1%; white-space:nowrap; text-align:center to remove horizontal scroll at normal desktop widths \u2014 same visual convention as Page Access.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/bunit-invariant",
+      "dateTime": "2026-04-18T05:05:04.489752+00:00",
+      "description": "Rewrote DabblerEndpointPermissionMatrixTests.cs: replaced the checkbox-based 'ExistingAllowedEndpoints_CheckedOnRender' test with 'ExistingAllowedEndpoints_RenderSwitchInAllowState'. Added 'ExistingDeniedEndpoints_RenderSwitchInDenyState', 'RendersDenyAllowHeaderSvg_NotSeparateAllowAndDenyColumns', 'FlipAllowToDeny_DropsAllow_AndAddsDeny_OnSave' (the endpoint mutual-exclusion invariant), 'FlipDenyToAllow_DropsDeny_AndAddsAllow_OnSave', and 'SetToUnset_OmitsRoleFromBothLists_OnSave'. Added 'DeniedRole_DoesNotSucceed_EvenWhenSameUserHasAnAllowedRole' in EndpointAuthorizationHandlerTests.cs and 'SaveAsync_ThenLoad_RoundTripsEndpointPermissions_WithAllowAndDeny' in EfCoreSecurityStoreTests.cs for persistence and handler coverage.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-18T05:05:04.491256+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 2 pre-existing warnings (MUD0002 on Dense and CS8604 in WebGuardrailTests). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 131/131 (+5 vs session 2), Dabbler.Security.Tests 270/270 (+2 vs session 2), Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-2 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-18T05:07:15.111336+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/session-003.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 20058,
+          "outputTokens": 1620,
+          "costUsd": 0.42236999999999997
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-guidance",
+      "dateTime": "2026-04-18T05:14:42.774930+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session. Confirmed session-3 review verdict VERIFIED before proceeding. Noted UAT folder still shows in-progress; user reaffirmed to continue polish work.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/crud-headers",
+      "dateTime": "2026-04-18T05:14:42.775930+00:00",
+      "description": "Moved create-header.svg, read-header.svg, update-header.svg, delete-header.svg from src/Libs/Dabbler.Security.Blazor/ project root into wwwroot/ so they are served as Razor-class-library static web assets at _content/Dabbler.Security.Blazor/<op>-header.svg (auto-wired by Microsoft.NET.Sdk.Razor; no csproj changes needed, same mechanism used in Session 2).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/layout",
+      "dateTime": "2026-04-18T05:14:42.776765+00:00",
+      "description": "DabblerEntityPermissionMatrix.razor: widened cards from min-width:260px/flex:1 1 260px/max-width:480px to min-width:340px/flex:1 1 340px/max-width:600px (matches Page Access and Endpoint Access). MudSimpleTable gains width:100% so the Role column flexes while the four CRUD columns stay narrow (width:1%; white-space:nowrap; padding-left:2px; padding-right:2px). Role th min-width reduced 160->140px. Replaced each literal 'Create'/'Read'/'Update'/'Delete' header with an <img> pointing at _content/Dabbler.Security.Blazor/<op>-header.svg with alt, title, and aria-label set to the op name so screen readers retain the text.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/alignment",
+      "dateTime": "2026-04-18T05:14:42.777917+00:00",
+      "description": "Centred CRUD cells: <td style=\"text-align:center; padding-left:2px; padding-right:2px;\"> and the MudCheckBox now has Class=\"ma-0 pa-0 d-inline-flex\" so the checkbox glyph sits centered inside the narrow column without residual left-alignment from default MudBlazor padding. Checkbox still uses Size=Size.Small and per-op Color for visual affordance. Legend caption updated to describe the icon columns.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/bunit-a11y",
+      "dateTime": "2026-04-18T05:14:42.777917+00:00",
+      "description": "DabblerEntityPermissionMatrixTests: replaced the stale 'C / R / U / D' legend assertion with a focused 'CrudHeaders_RenderSvgImages_WithAccessibleNames' test that finds thead th img[src=...] for each of the four expected _content URLs and asserts alt, title, and aria-label all equal the operation name (Create/Read/Update/Delete). Added 'CrudCells_AreCentered' verifying each CRUD td style contains text-align:center. Kept existing 'Renders_RolesAndEntities', 'NoEntities_ShowsHelpMessage', 'ExistingEntityPermissions_CheckedOnRender', 'EntityWithFields_ShowsDrillDownButton', 'DrillDownButton_TogglesDabblerFieldPermissionEditor', and 'SaveButton_PersistsEntityPermissions' tests intact.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/build-and-test",
+      "dateTime": "2026-04-18T05:14:42.778902+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 2 pre-existing warnings (MUD0002 on DenyAllowSwitch Dense, CS8604 in WebGuardrailTests). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 133/133 (+2 vs session 3: the two new a11y/centering tests), Dabbler.Security.Tests 270/270, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-3 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-18T05:15:10.677085+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/ for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8970,
+          "outputTokens": 1197,
+          "costUsd": 0.224325
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/read-guidance",
+      "dateTime": "2026-04-18T05:25:14.843969+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session. Confirmed session-4 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/icon-markup",
+      "dateTime": "2026-04-18T05:25:14.845962+00:00",
+      "description": "Moved enabled.svg, disabled.svg, hidden.svg from src/Libs/Dabbler.Security.Blazor/ project root into wwwroot/ so they are served as Razor-class-library static web assets at _content/Dabbler.Security.Blazor/<state>.svg (same auto-wiring mechanism used in sessions 2 and 4). Added icon+text templates to every MudSelectItem in DabblerControlPermissionTab.razor and DabblerControlPermissionEditor.razor: each item wraps an <img src=\"_content/Dabbler.Security.Blazor/<state>.svg\" alt='' aria-hidden='true' style='width:18px;height:18px;'> and a <span>Enabled/Disabled/Hidden</span> in a d-inline-flex align-center gap-2 container so the icon sits to the left of the text. alt='' + aria-hidden='true' marks the icon decorative so screen readers read only the text label (icons augment, do not replace \u2014 per spec). DabblerControlPermissionTab's MudSelect min-width widened 130->150px so the icon+label pair doesn't clip.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/bunit",
+      "dateTime": "2026-04-18T05:25:14.845962+00:00",
+      "description": "Added StateDropdown_RendersIconAndText_ForEachControlState bUnit test to both DabblerControlPermissionEditorTests.cs and a new DabblerControlPermissionTabTests.cs file. Each test seeds three roles (RoleEnabled, RoleDisabled, RoleHidden) with one ControlRolePermission per state so all three state display templates render in the same CUT markup (MudSelect only renders the selected item's content when closed; using multiple pre-seeded rows avoids needing to open the popover). Asserts each of the three _content/Dabbler.Security.Blazor/<state>.svg URLs is present, each text label (Enabled/Disabled/Hidden) is present, and every icon img has aria-hidden=true with empty alt so screen readers read only the adjacent text.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-04-18T05:25:14.848114+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 2 pre-existing warnings (MUD0002 on DenyAllowSwitch Dense, CS8604 in WebGuardrailTests). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 135/135 (+2 vs session 4: the two new icon+text tests), Dabbler.Security.Tests 270/270, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-4 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-04-18T05:26:10.675806+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/ for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 9708,
+          "outputTokens": 680,
+          "costUsd": 0.19662000000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 1,
+      "stepKey": "session-6/read-guidance",
+      "dateTime": "2026-04-18T06:02:33.914725+00:00",
+      "description": "Read project-guidance.md and lessons-learned.md pre-session. Confirmed session-5 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 2,
+      "stepKey": "session-6/resolver",
+      "dateTime": "2026-04-18T06:02:33.916740+00:00",
+      "description": "Added PermissionResolver.cs in src/Libs/Dabbler.Security/Authorization/. Exposes ResolveRoleChain(roleName, hasValue, allRoles) that walks the RoleDefinition.InheritsFrom chain starting at roleName and returns RoleChainResolution(Found, InheritedFromRole). InheritedFromRole is null when the entry is on the role itself (explicit). Cycle detection via a visited HashSet prevents infinite loops on malformed inheritance graphs. Accepts a predicate rather than a typed dictionary so Page, Endpoint, and Entity matrices can all share it (boolean entry presence for Page/Endpoint, set-contains-op for Entity).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 3,
+      "stepKey": "session-6/legend",
+      "dateTime": "2026-04-18T06:02:33.917742+00:00",
+      "description": "Added InheritedLegend.razor (MudAlert, Severity.Normal, Outlined, Dense, Info icon, data-testid='inherited-legend') with inline message: 'Solid = explicit \u00b7 italic/dim = inherited'. The sample text 'italic/dim = inherited' is wrapped in a span.inherited-sample so the legend visibly demonstrates the convention using the same italic+opacity styling that inherited cells use.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 4,
+      "stepKey": "session-6/styling",
+      "dateTime": "2026-04-18T06:02:33.918742+00:00",
+      "description": "Updated DabblerPagePermissionMatrix.razor, DabblerEndpointPermissionMatrix.razor, and DabblerEntityPermissionMatrix.razor: each cell now calls ResolveCell(...) which dispatches to PermissionResolver.ResolveRoleChain to discover whether the effective value is explicit on the role or inherited from an ancestor. Inherited cells wrap the DenyAllowSwitch / MudCheckBox in <MudTooltip Text='inherited from <parent>'> and apply css class 'permission-cell inherited' (font-style:italic; opacity:0.6). Explicit cells skip the tooltip and use the plain 'permission-cell' class. Each matrix renders <InheritedLegend /> above the filter textbox. The SaveAsync path still persists only the role's own explicit entries \u2014 inherited values are visualized but not duplicated into the role's explicit list on save.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 5,
+      "stepKey": "session-6/bunit",
+      "dateTime": "2026-04-18T06:02:33.919809+00:00",
+      "description": "Added tests: Dabbler.Security.Tests/Authorization/PermissionResolverTests.cs (7 tests: explicit-on-role, inherited-from-direct-parent, inherited-from-grandparent, explicit-wins-over-ancestor, not-found, isolated-role-no-chain, cyclic-inheritance-does-not-loop). Dabbler.Security.Blazor.Tests DabblerPagePermissionMatrixTests added 'InheritedCell_RendersInheritedClass_AndTooltipNamesParentRole', 'ExplicitCell_OverridesParent_DoesNotRenderInheritedStyle', 'InheritedLegend_IsRendered_WhenRolesAndPagesExist'. DabblerEndpointPermissionMatrixTests added 'InheritedCell_RendersInheritedClass_AndTooltipNamesParentRole' and 'InheritedLegend_IsRendered_WhenRolesAndEndpointsExist'. DabblerEntityPermissionMatrixTests added 'InheritedOpCell_RendersInheritedClass_AndTooltipNamesParentRole' and 'InheritedLegend_IsRendered_WhenRolesAndEntitiesExist'. Tests assert 'div.permission-cell.inherited' presence and MudTooltip.Text equals 'inherited from <parent>'.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 6,
+      "stepKey": "session-6/build-and-test",
+      "dateTime": "2026-04-18T06:02:33.920787+00:00",
+      "description": "dotnet build: succeeded with 0 errors, 3 pre-existing warnings (MUD0002 on DenyAllowSwitch Dense, CS8604 in WebGuardrailTests, CS1587 on InheritedLegend fixed by switching /// to @* *@ razor comment). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 142/142 (+7 vs session 5), Dabbler.Security.Tests 277/277 (+7 vs session 5), Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-5 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 7,
+      "stepKey": "session-6/verification",
+      "dateTime": "2026-04-18T06:05:17.846169+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/ for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 26160,
+          "outputTokens": 1607,
+          "costUsd": 0.512925
+        }
+      ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 1,
+      "stepKey": "session-7/read-guidance",
+      "dateTime": "2026-04-18T06:12:15.880108+00:00",
+      "description": "Read project-guidance.md and lessons-learned.md pre-session. Confirmed session-6 review verdict VERIFIED before proceeding.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 2,
+      "stepKey": "session-7/toggle",
+      "dateTime": "2026-04-18T06:12:15.881172+00:00",
+      "description": "Added MudSwitch<bool> to DabblerUserRoleManager.razor with Label=\"Show unassigned users\", Color=Primary, data-testid=\"show-unassigned-toggle\", two-way bound to new private bool _showUnassigned (defaults to false). Rendered inside a div.d-flex.align-center.mb-4 directly below the header row so it sits visually above the MudTable without disturbing the existing search textbox layout.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 3,
+      "stepKey": "session-7/client-filter",
+      "dateTime": "2026-04-18T06:12:15.882178+00:00",
+      "description": "Rewrote FilteredRows to compose the unassigned filter with the existing search filter. When _showUnassigned is false, rows are restricted to r.Roles.Count > 0 before search is applied. When true, the full _userRows list passes through (minus search). No change to persistence, IUserListProvider, or IUserRoleStore calls \u2014 the filter is purely client-side on the in-memory _userRows collection.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 4,
+      "stepKey": "session-7/bunit",
+      "dateTime": "2026-04-18T06:12:15.883177+00:00",
+      "description": "Added DabblerUserRoleManagerTests: ShowUnassignedSwitchOff_HidesUsersWithNoRoles_AndKeepsAssigned (default-off hides Bob, keeps Alice; verifies GetUsersAsync called only once), ShowUnassignedSwitchOn_RevealsFullRoster_WithoutRefetch (toggles switch via MudSwitch<bool>.ValueChanged, asserts both Alice and Bob now appear, verifies GetUsersAsync and GetAllAsync were each called exactly once \u2014 no refetch on toggle), ShowUnassignedSwitchOff_IsTheDefault (asserts toggle.Value is false on initial render and a user with no roles is not in markup). Updated existing tests: Renders_UsersWithCurrentRoles (gave Bob a Viewer role so he now appears under the default filter), AddRole_CallsRoleStore (gave Alice a Viewer role so she appears), and renamed UserWithNoRoles_ShowsNoRolesAssignedText to UserWithNoRoles_ShowsNoRolesAssignedText_WhenUnassignedToggleIsOn, which now flips the switch on before asserting the caption.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 5,
+      "stepKey": "session-7/build-and-test",
+      "dateTime": "2026-04-18T06:12:15.884691+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: succeeded with 0 errors, 2 pre-existing warnings (MUD0002 on DenyAllowSwitch Dense, CS8604 in WebGuardrailTests). dotnet test (non-Playwright): Dabbler.Security.Blazor.Tests 145/145 (+3 vs session 6; the three new toggle tests), Dabbler.Security.Tests 277/277, Dabbler.Reports.Blazor.Tests 13/13, Dabbler.Components.Tests 33/33, AcmeCoffeeOnline.Api.Tests 17/17, AcmeCoffeeOnline.Web.Tests 123/124 with the same pre-existing WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates failure from Sessions 1-6 (missing docs/workflow-auth-observability.md). No new regressions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 6,
+      "stepKey": "session-7/verification",
+      "dateTime": "2026-04-18T06:13:25.236025+00:00",
+      "description": "Independent cross-provider verification via opus. See session-reviews/ for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 6525,
+          "outputTokens": 1194,
+          "costUsd": 0.187425
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 1,
+      "stepKey": "session-8/read-guidance",
+      "dateTime": "2026-04-18T06:28:09.317341+00:00",
+      "description": "Read docs/planning/project-guidance.md and docs/planning/lessons-learned.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 2,
+      "stepKey": "session-8/keyboard",
+      "dateTime": "2026-04-18T06:28:09.319371+00:00",
+      "description": "Added arrow-key/Home/End navigation to DabblerSecurityDashboard.razor. Wrapped MudTabs in a div with @onkeydown handler bound to HandleTabKeyDown; @bind-ActivePanelIndex now drives the active tab. NextPanelIndex is a pure internal static so both pure unit tests and bUnit DOM tests can exercise it.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 3,
+      "stepKey": "session-8/error-demo",
+      "dateTime": "2026-04-18T06:28:09.321767+00:00",
+      "description": "Surfaced duplicate-role-name error inline in the Add Role dialog. RoleFormDialog.razor now accepts ExistingRoleNames, validates on Save via IsDuplicateRoleName (case-insensitive + trim), and renders a MudAlert with data-testid=role-form-duplicate-alert without closing the dialog. DabblerRoleManager.razor passes the current role names when opening the Add dialog.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 4,
+      "stepKey": "session-8/bunit-keyboard",
+      "dateTime": "2026-04-18T06:28:09.322743+00:00",
+      "description": "Added DabblerSecurityDashboardKeyboardTests: Theory for NextPanelIndex semantics (ArrowRight/ArrowLeft wraparound, Home, End, unhandled keys) plus bUnit tests that fire @onkeydown on the wrapper div and assert the internal ActivePanelIndex via InternalsVisibleTo.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 5,
+      "stepKey": "session-8/bunit-validation",
+      "dateTime": "2026-04-18T06:28:09.323743+00:00",
+      "description": "Added RoleFormDialogTests + RoleFormDialogHost razor helper that mounts MudDialogProvider in the host render tree, shows RoleFormDialog via IDialogService, clicks Save, and asserts the inline alert appears without closing the dialog. Also covers the edit-mode path where the name matches an existing role without triggering the alert.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 6,
+      "stepKey": "session-8/build-and-test",
+      "dateTime": "2026-04-18T06:28:09.324751+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 2 pre-existing warnings. dotnet test (non-Playwright): all 166 Dabbler.Security.Blazor.Tests pass, all 277 Dabbler.Security.Tests pass. One pre-existing failure in AcmeCoffeeOnline.Web.Tests.WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md \u2014 confirmed present on master before any Session 8 change, unrelated to this session).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 7,
+      "stepKey": "session-8/verification",
+      "dateTime": "2026-04-18T06:31:05.683748+00:00",
+      "description": "Cross-provider verification via opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8513,
+          "outputTokens": 2202,
+          "costUsd": 0.292845
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 8,
+      "stepKey": "session-8/verification-round2",
+      "dateTime": "2026-04-18T06:33:40.538273+00:00",
+      "description": "Round 2 cross-provider verification via opus.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 7266,
+          "outputTokens": 849,
+          "costUsd": 0.172665
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 9,
+      "stepKey": "session-8/change-log",
+      "dateTime": "2026-04-18T06:35:00.448346+00:00",
+      "description": "Generated change-log.md via gemini-pro.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 10950,
+          "outputTokens": 749,
+          "costUsd": 0.021177500000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 10,
+      "stepKey": "session-8/reorganization",
+      "dateTime": "2026-04-18T07:59:18.551546+00:00",
+      "description": "Step 10b reorganization review: human accepted two proposals. (1) Promoted lessons-learned entry \"Send Related Files To The Cross-Provider Verifier Or Disclaim What Is Out Of Scope\" to project-guidance.md under Conventions -> Workflow Expectations (two-context threshold met: original orders/notes false-positive incident plus proactive out-of-scope disclosures in this session). (2) Collapsed lessons-learned entry \"UAT Checklists Must Include Explicit Test Data And Search Terms\" to a reference pointing at the equivalent Human UAT And Checklist Editor convention. Neither entry was deleted; both were annotated in place.",
+      "status": "complete",
+      "routedApiCalls": []
+    }
+  ]
+}

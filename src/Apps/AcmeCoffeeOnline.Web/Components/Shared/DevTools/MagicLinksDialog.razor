@@ -1,0 +1,183 @@
+@using AcmeCoffeeOnline.Web.Services.DevTools
+@using Dabbler.Security.Services
+@inject TestAuthClient TestAuth
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Info" />
+            <MudText Typo="Typo.h6">Magic Links</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudText Typo="Typo.body2">
+                Captured magic-link emails from the in-memory dev inbox.
+                Filter by recipient, copy a link to the clipboard, or clear the inbox.
+            </MudText>
+
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                <MudTextField T="string"
+                              @bind-Value="_filter"
+                              Label="Filter by email"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Immediate="true"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.FilterList"
+                              id="dev-tools-magic-filter"
+                              data-testid="dev-tools-magic-filter" />
+
+                <MudButton Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           OnClick="Refresh"
+                           data-testid="dev-tools-magic-refresh">
+                    Refresh
+                </MudButton>
+
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           StartIcon="@Icons.Material.Filled.DeleteSweep"
+                           OnClick="Clear"
+                           data-testid="dev-tools-magic-clear">
+                    Clear inbox
+                </MudButton>
+            </MudStack>
+
+            @if (FilteredMessages.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info" Dense="true" data-testid="dev-tools-magic-empty">
+                    No magic links captured yet. Trigger a sign-in to generate one.
+                </MudAlert>
+            }
+            else
+            {
+                <MudTable Items="@FilteredMessages"
+                          Dense="true"
+                          Hover="true"
+                          Bordered="true"
+                          data-testid="dev-tools-magic-table">
+                    <HeaderContent>
+                        <MudTh>Email</MudTh>
+                        <MudTh>Code</MudTh>
+                        <MudTh>Captured</MudTh>
+                        <MudTh Style="text-align:right;">Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="Code">
+                            <MudText Typo="Typo.body2"
+                                     Style="font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;">
+                                @(context.Code ?? "—")
+                            </MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Captured">
+                            @context.CreatedAtUtc.ToLocalTime().ToString("g")
+                        </MudTd>
+                        <MudTd DataLabel="Actions" Style="text-align:right;">
+                            <MudTooltip Text="Copy link to clipboard">
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                               Size="Size.Small"
+                                               Disabled="@string.IsNullOrEmpty(context.LinkUrl)"
+                                               OnClick="@(() => CopyAsync(context.LinkUrl))"
+                                               data-testid="dev-tools-magic-copy"
+                                               aria-label="Copy magic link" />
+                            </MudTooltip>
+                            <MudTooltip Text="Open link in new tab">
+                                <MudIconButton Icon="@Icons.Material.Filled.OpenInNew"
+                                               Size="Size.Small"
+                                               Href="@context.LinkUrl"
+                                               Target="_blank"
+                                               Disabled="@string.IsNullOrEmpty(context.LinkUrl)"
+                                               data-testid="dev-tools-magic-open"
+                                               aria-label="Open magic link" />
+                            </MudTooltip>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close" Color="Color.Primary" Variant="Variant.Filled">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private string _filter = string.Empty;
+    private string? _error;
+    private IReadOnlyList<DevEmailMessage> _messages = [];
+
+    // Client-side substring match is intentionally looser than the endpoint's
+    // exact-match filter so a reviewer can type a partial address.
+    private IReadOnlyList<DevEmailMessage> FilteredMessages =>
+        string.IsNullOrWhiteSpace(_filter)
+            ? _messages
+            : _messages
+                .Where(message => message.Email.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+
+    protected override void OnInitialized()
+    {
+        Refresh();
+    }
+
+    private void Refresh()
+    {
+        _error = null;
+        try
+        {
+            _messages = TestAuth.GetMagicLinks();
+        }
+        catch (Exception ex)
+        {
+            _error = $"Could not load magic links: {ex.Message}";
+            _messages = [];
+        }
+    }
+
+    private void Clear()
+    {
+        _error = null;
+        try
+        {
+            TestAuth.ClearMagicLinks();
+            Refresh();
+            Snackbar.Add("Magic-link inbox cleared.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Could not clear inbox: {ex.Message}";
+        }
+    }
+
+    private async Task CopyAsync(string? link)
+    {
+        if (string.IsNullOrEmpty(link))
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", link);
+            Snackbar.Add("Magic link copied to clipboard.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Could not copy link: {ex.Message}";
+        }
+    }
+
+    private void Close() => MudDialog.Close();
+}

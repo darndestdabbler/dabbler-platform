@@ -1,0 +1,1307 @@
+{
+  "sessionSetName": "packaging-and-template-readiness",
+  "createdDate": "2026-05-15T04:05:32.120506-04:00",
+  "totalSessions": 11,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/author-ai-assignment",
+      "dateTime": "2026-05-15T04:08:16.840405-04:00",
+      "description": "Authored ai-assignment.md via routed analysis",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 5926,
+          "outputTokens": 3357,
+          "costUsd": 0.0409775
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/delete-orphan-dirs",
+      "dateTime": "2026-05-15T04:08:34.991191-04:00",
+      "description": "Deleted top-level orphan dirs: composable-crud-helpers/, unified-master-details-composite/ (stale duplicates of complete session-set folders)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/delete-one-off-scripts",
+      "dateTime": "2026-05-15T04:08:34.991191-04:00",
+      "description": "Deleted top-level one-off scripts: gen_checklist.py, run_changelog.py, run_verification.py, run_gate_tests.py (no references; functionality lives in ai_router/ and uat_runner/)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/remove-orphan-tests",
+      "dateTime": "2026-05-15T04:21:05.780856-04:00",
+      "description": "Deleted tests/AcmeCoffeeOnline.Web.Tests/TemplateSeedSmokeTests.cs (4 tests; template-seed/ deleted 2026-05-04 in f80ec18). Removed AiRouterConfig_LoadsConsolidatedPromptTemplates from WorkflowAssetSmokeTests.cs (ai-router/ deleted in e0d7126 after migration to pip-installed ai_router). RepoRoot_ResolvesToSolutionDirectory stays.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-05-15T04:22:21.229406-04:00",
+      "description": "dotnet build: 0 errors, 20 warnings (pre-existing). dotnet test (excluding Playwright): 864 passed, 0 failed across 7 test projects. Removed 5 deterministic failures by deleting orphan tests for template-seed/ and legacy ai-router/.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/cross-provider-verification",
+      "dateTime": "2026-05-15T04:24:46.255416-04:00",
+      "description": "Routed session-verification to cross-provider verifier",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2196,
+          "outputTokens": 2447,
+          "costUsd": 0.042195
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:35:09.658779-04:00",
+      "description": "Routed documentation refresh for README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1803,
+          "outputTokens": 899,
+          "costUsd": 0.01124375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:36:21.999577-04:00",
+      "description": "Routed documentation refresh for docs/COMPATIBILITY.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2418,
+          "outputTokens": 1494,
+          "costUsd": 0.017962500000000003
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:39:18.333763-04:00",
+      "description": "Routed documentation refresh for docs/ai-led-session-workflow.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 17678,
+          "outputTokens": 16814,
+          "costUsd": 0.19023749999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:40:14.724861-04:00",
+      "description": "Routed documentation refresh for docs/planning/governance-two-pager.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2336,
+          "outputTokens": 118,
+          "costUsd": 0.0040999999999999995
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:41:02.802329-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Components/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1514,
+          "outputTokens": 676,
+          "costUsd": 0.008652499999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:41:34.927033-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Platform.Stubs/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1384,
+          "outputTokens": 79,
+          "costUsd": 0.0025199999999999997
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:42:05.118208-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Reports.Blazor/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1310,
+          "outputTokens": 73,
+          "costUsd": 0.0023675
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:42:37.521138-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Reports.Core/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1298,
+          "outputTokens": 89,
+          "costUsd": 0.0025125
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:43:03.774253-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Reports.Export/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1078,
+          "outputTokens": 72,
+          "costUsd": 0.0020675
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:44:06.899273-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Security/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2122,
+          "outputTokens": 1172,
+          "costUsd": 0.014372500000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:50:18.591947-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Security.Blazor/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1827,
+          "outputTokens": 933,
+          "costUsd": 0.011613749999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:51:17.834644-04:00",
+      "description": "Routed documentation refresh for src/Libs/Dabbler.Testing.Blazor/README.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 1667,
+          "outputTokens": 807,
+          "costUsd": 0.010153750000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:52:12.965362-04:00",
+      "description": "Routed documentation refresh for CLAUDE.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2832,
+          "outputTokens": 1861,
+          "costUsd": 0.022150000000000003
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:53:00.449020-04:00",
+      "description": "Routed documentation refresh for AGENTS.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2862,
+          "outputTokens": 125,
+          "costUsd": 0.0048275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/refresh-existing-docs",
+      "dateTime": "2026-05-15T05:54:00.665208-04:00",
+      "description": "Routed documentation refresh for GEMINI.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 2854,
+          "outputTokens": 99,
+          "costUsd": 0.004557500000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/draft-overview",
+      "dateTime": "2026-05-15T07:21:45.062769-04:00",
+      "description": "Routed platform-overview draft to gemini-pro ($0.0545); wrote docs/platform-overview.md and saved raw response.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 18838,
+          "outputTokens": 3098,
+          "costUsd": 0.0545275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/wire-doc-graph",
+      "dateTime": "2026-05-15T07:25:58.258561-04:00",
+      "description": "Wired doc graph: README.md (added New-here pointer to platform-overview.md), src/Libs/README.md (refreshed inventory with overview link and current 8 libraries + DevIdp note), and added 'Part of the Dabbler Platform' pointer block to all 8 per-library READMEs.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/cross-provider-verify",
+      "dateTime": "2026-05-15T07:27:43.449898-04:00",
+      "description": "Cross-provider session-verification routed to gpt-5-4 ($0.0997).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 13868,
+          "outputTokens": 4335,
+          "costUsd": 0.099695
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/cross-provider-verify-round-2",
+      "dateTime": "2026-05-15T07:30:26.023565-04:00",
+      "description": "Round 2 cross-provider verification (after Adoption-note fix); routed to gpt-5-4 ($0.1062).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 9053,
+          "outputTokens": 5571,
+          "costUsd": 0.1061975
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/cross-provider-verify-round-3",
+      "dateTime": "2026-05-15T07:31:35.994293-04:00",
+      "description": "Round 3 cross-provider verification (NuGet link relabeled + note scope narrowed); routed to gpt-5-4 ($0.0122).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1545,
+          "outputTokens": 553,
+          "costUsd": 0.0121575
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-05-15T07:32:19.016624-04:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 256 pre-existing warnings (matches Session 2 baseline). Full test suite not re-run; doc-only session with no source changes.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-05-15T07:43:16.462269-04:00",
+      "description": "Read project-guidance.md (Principles + Conventions) and session-set-authoring-guide.md; lessons-learned.md exceeds token cap, will read in chunks as needed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/assemble-prompt",
+      "dateTime": "2026-05-15T07:43:16.462269-04:00",
+      "description": "Assembled tri-provider value-review prompt bundling docs/platform-overview.md (595 lines), README.md (84 lines), and the 8 per-library READMEs (673 lines total). Saved as value-review-prompt.md (59649 chars, 1489 lines).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/orchestrator-assessment",
+      "dateTime": "2026-05-15T07:43:16.462269-04:00",
+      "description": "Orchestrator (Opus) authored value-review-opus.md directly per feedback_orchestrator_self_contributes_to_review_panel \u2014 13 gaps identified (1 Critical, 6 Major, 6 Minor), with disposition suggestions and a no-pause verdict.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/route-gpt-5-4",
+      "dateTime": "2026-05-15T08:10:53.148495-04:00",
+      "description": "Routed value-review prompt to gpt-5-4 via direct call_model() (bypassed route() to avoid auto-verifier duplication). First attempt at reasoning_effort=xhigh timed out 3x at 300s/attempt; retried at reasoning_effort=high with 600s timeout, completed in 187.6s. Saved value-review-gpt-5-4.md (10.7K out tokens, 1963 lines of substantive review).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "architecture",
+          "inputTokens": 13786,
+          "outputTokens": 10789,
+          "costUsd": 0.1963
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/route-gemini-pro",
+      "dateTime": "2026-05-15T08:10:53.150685-04:00",
+      "description": "Routed value-review prompt to gemini-pro via direct call_model() at thinking_budget=-1. Completed in 54.6s. Saved value-review-gemini-pro.md (2.3K out tokens).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "architecture",
+          "inputTokens": 14947,
+          "outputTokens": 2325,
+          "costUsd": 0.0419
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/synthesize",
+      "dateTime": "2026-05-15T08:10:53.150685-04:00",
+      "description": "Authored platform-value-review.md synthesizing all three assessments. All three reviewers converged on yes-with-caveats. Consolidated 20 gaps (1 Critical, 9 Major, 8 Minor, 1 dismissed context-gap, 1 n/a). Disposition tally: 2 fix-now (G2 DabblerPdf, G16 license aggregation), 13 fix-during-packaging (mostly Sessions 5-6 surface freeze and Session 8 template), 2 defer (a11y test pattern, convention-based security registration), 1 accept-as-limitation (README depth varies), 1 dismissed (Gemini Pro context-gap on .NET 10).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/disposition-gaps",
+      "dateTime": "2026-05-15T08:10:53.152691-04:00",
+      "description": "Critical-gap check: only Critical-severity finding is G1 (no shipped packaged path), which is exactly the work Sessions 5-11 deliver. No reviewer recommended pausing. Applied 2 fix-now inline edits: G2 (DabblerPdf disclosure in overview + Reports.Export README \u2014 investigation surfaced that DabblerPdf is dual-licensed LGPL-2.1-only OR MPL-2.0, NOT MIT, upgrading the importance of the finding) and G16 (platform-level license aggregation note in overview).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/cross-provider-verify",
+      "dateTime": "2026-05-15T08:49:06.454970-04:00",
+      "description": "Cross-provider session verification via gpt-5-4; cost=$0.1395, elapsed=90.7s.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 19816,
+          "outputTokens": 5994,
+          "costUsd": 0.13945000000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/cross-provider-verify-round-2",
+      "dateTime": "2026-05-15T08:54:14.263155-04:00",
+      "description": "Cross-provider session verification Round 2 via gpt-5-4; cost=$0.1552, elapsed=112.9s.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 20790,
+          "outputTokens": 6879,
+          "costUsd": 0.15516
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/cross-provider-verify-round-3",
+      "dateTime": "2026-05-15T08:58:44.649123-04:00",
+      "description": "Cross-provider session verification Round 3 via gpt-5-4; cost=$0.2065, elapsed=166.1s.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 20114,
+          "outputTokens": 10413,
+          "costUsd": 0.20648
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/cross-provider-verify-round-4",
+      "dateTime": "2026-05-15T09:03:46.086631-04:00",
+      "description": "Cross-provider session verification Round 4 via gpt-5-4; cost=$0.1349, elapsed=89.5s.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 20885,
+          "outputTokens": 5514,
+          "costUsd": 0.1349225
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 11,
+      "stepKey": "session-4/next-orchestrator-recommendation",
+      "dateTime": "2026-05-15T09:11:21.305246-04:00",
+      "description": "Routed next-orchestrator analysis for Session 5 via gemini-pro; cost=$0.0038.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1735,
+          "outputTokens": 162,
+          "costUsd": 0.0037887500000000005
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/read-inputs",
+      "dateTime": "2026-05-15T09:23:25.726727-04:00",
+      "description": "Read project-guidance, lessons-learned, platform-value-review.md and current packaging metadata (Directory.Packages.props, Directory.Build.props, per-library csproj files, AcmeCoffeeOnline.Web/Program.cs). Session 4 closed ISSUES_FOUND with 1 deferred Major (spec ambiguity, deferred to Step 9). All artifacts present.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/draft-proposal",
+      "dateTime": "2026-05-15T09:28:00.907790-04:00",
+      "description": "Drafted packaging-approach-proposal.md (~37KB). Covers: library packaging matrix (8 libs + 1 template), NuGet metadata in Directory.Build.props, lock-step versioning under $(DabblerVersion), Stubs opt-in contract, two-template VS scaffold (dabbler-app + dabbler-min), consumer-install smoke + public-surface tests, dispositions for Session 4 carry-overs G3/G4/G8/G9/G10/G14/G21/G22/G23, open questions for Session 6, out-of-scope items, risks/rollback. \u00a711 is the orchestrator-self-contribution review perspective per feedback_orchestrator_self_contributes_to_review_panel.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/route-gpt-5-4",
+      "dateTime": "2026-05-15T09:43:10.367578-04:00",
+      "description": "Routed proposal to gpt-5-4 via call_model() bypass at reasoning_effort=high. 11.6K input / 12.1K output / 215s / $0.2105. Verdict: proceed-with-adjustments; 2 Critical (hermetic pack, smoke depth), 7 Major, 0 Minor + 3 missing-entirely.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/route-gemini-pro",
+      "dateTime": "2026-05-15T09:43:10.368572-04:00",
+      "description": "Routed proposal to gemini-pro via call_model() bypass at thinking_budget=-1. 12.4K input / 1.2K output / 40s / $0.0276 (after a 503 retry, ~$0). Verdict: proceed-with-adjustments; 1 Critical (Stubs sub-package split), 1 Major (license disclosure), 1 Minor (DevIdp as dotnet tool) + metapackages missing.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/synthesize",
+      "dateTime": "2026-05-15T09:43:10.370584-04:00",
+      "description": "Authored packaging-approach-review.md (~25KB). 18 adjustments: 3 Critical, 11 Major, 4 Minor. Dispositions: 6 apply-inline, 12 fix-during-packaging, 0 accept-as-limitation, 0 defer. 4/5 Opus-pre-identified weak points confirmed by routed reviewers.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/apply-adjustments",
+      "dateTime": "2026-05-15T09:43:10.372106-04:00",
+      "description": "Applied 6 apply-inline edits to packaging-approach-proposal.md: A5 (collapse versioning ladder to preview->1.0), A9 (unlist+staged-promotion rollback), A10 (artifact-content assertions added to \u00a76.2), A15+A16 (2 new risk rows in \u00a710.1), A17 (publish-gate binding, \u00a78 Q1 removed). \u00a711.2 + \u00a711.7 updated to record stance reversals.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 7,
+      "stepKey": "session-5/build-and-test",
+      "dateTime": "2026-05-15T09:44:46.429363-04:00",
+      "description": "dotnet build clean: 0 errors, 256 pre-existing warnings (matches Session 4 baseline; CS8669 auto-generated Razor, MUD0002 Title attribute, CS0618 already-[Obsolete] RoleSwitchingPermission). dotnet test (non-Playwright): 864/864 pass. 38/38 Api.Tests, 130/130 Components.Tests, 16/16 Reports.Blazor.Tests, 236/236 Security.Blazor.Tests, 305/305 Security.Tests, 133/133 Web.Tests, 6/6 Testing.Blazor.Tests. No new tests added or modified; Session 5 was doc-authoring only.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/verification-round-1",
+      "dateTime": "2026-05-15T09:58:21.793909-04:00",
+      "description": "Routed session-verification to gpt-5-4 (Anthropic cross-provider preferred pairing). Bundle 103KB. ISSUES_FOUND: 1 Major (Session 4 carry-over traceability gap: G6, G7, G16, G17, G19 not concretely addressed) + 2 Minor (count statements off by one; proposal cross-reference claims inaccurate). gpt-5-4 reasoning_effort=high, 26K input / 12K output / 184s / $0.2516.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 9,
+      "stepKey": "session-5/verification-round-2",
+      "dateTime": "2026-05-15T09:58:21.799310-04:00",
+      "description": "Round 2: 0 Major, 2 Minor (A7 license-disclosure surface incomplete; \u00a78 open-question count inconsistent). gpt-5-4, 28K input / 11K output / 160s / $0.2327.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 10,
+      "stepKey": "session-5/verification-round-3",
+      "dateTime": "2026-05-15T09:58:21.799310-04:00",
+      "description": "Round 3: VERIFIED. 0 Critical, 0 Major, 0 Minor \u2014 clean pass after fixing A7 surface and \u00a78 accounting. gpt-5-4, 28K input / 9K output / 127s / $0.2105.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 2,
+      "stepKey": "session-6/packable-surface-freeze",
+      "dateTime": "2026-05-15T10:21:31.906315-04:00",
+      "description": "Authored packaging-readiness-ledger.md as the binding contract for Sessions 7-11. Direct synthesis using already-loaded Session 4 + Session 5 context per orchestrator-self-contributes-when-context-loaded discipline. Records: A1-A18 + G1-G23 disposition matrix; 12 library/sub-package NuGet packages + 1 template + 1 CLI tool = 14 packages; stubs sub-package split; two-template VS contract; consumer-install smoke depth (sign-in + secured page + report + PDF + bUnit); hermetic pack pipeline; staged-promotion+unlist rollback; per-library README seven-section structure; intra-set parallelization map; 10 acceptance criteria.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 3,
+      "stepKey": "session-6/apply-review-findings",
+      "dateTime": "2026-05-15T10:25:56.319510-04:00",
+      "description": "Applied mechanical fixes per ledger \u00a79: (1) Directory.Build.props extended with package metadata defaults (Authors/Company/Copyright, RepositoryUrl, MIT license, reproducible-build/SourceLink, $(DabblerVersion)) (2) Directory.Packages.props +Microsoft.SourceLink.GitHub 8.0.0 (3) src/icon.png 128x128 placeholder PNG committed (4) Dabbler.Components.csproj description tightened to MudBlazor-native CRUD primitives, tags refreshed (5) Dabbler.Security.csproj + Dabbler.Security.Blazor.csproj full package metadata added (6) Dabbler.Components.Compat project scaffolded (csproj + placeholder README; content move in Session 7 per A4) (7) AcmeCoffeeOnline.Shared marked IsPackable=false (8) Compat csproj added to solution; builds clean (0 errors, 23 pre-existing CS8669 warnings unchanged).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 4,
+      "stepKey": "session-6/per-library-readme-standardization",
+      "dateTime": "2026-05-15T10:31:53.470444-04:00",
+      "description": "Standardized all 8 per-library READMEs (Components, Reports.Core, Reports.Export, Reports.Blazor, Platform.Stubs, Testing.Blazor, Security, Security.Blazor) plus authored the Components.Compat placeholder README \u2014 applying ledger \u00a77.5 seven-section structure (Audience, Prerequisites, Install, Minimal registration, Smallest working example, Related packages, Warnings/caveats). G3 install subordination applied (Quick Start now points to integrated-source path; Preview NuGet command is the post-Session-7 future). Security README additionally adds the G6 RegisterPages/Entities/Endpoints/Controls taxonomy table and the G7 end-to-end enforcement worked example (row restriction in EF + endpoint gate + DabblerSecured wrap + role-switcher comparison).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 5,
+      "stepKey": "session-6/stub-opt-in-contract",
+      "dateTime": "2026-05-15T10:40:02.489123-04:00",
+      "description": "Authored or extended five doc deliverables per ledger \u00a77: (1) docs/packaging/scenarios.md (A8) \u2014 8 adoption scenarios mapped to package sets (CRUD only / full platform / reports only / security-API / security-Blazor / testing-only / retrofit / bUnit-only) plus the Session 7 metapackage trigger condition and license posture; (2) docs/packaging/retrofit-existing-app.md (A14) \u2014 5-step recipe for incrementally adopting Dabbler.* into existing Blazor Server app, with inner-authz vs outer-auth decision and common pitfalls; (3) docs/COMPATIBILITY.md \u2014 Dabbler.* library matrix appended (A18) with lock-step versioning rationale; (4) docs/reports/rdf-schema.md (G9) \u2014 full RDF schema reference (top-level / data source / parameters / styles / bands / grouping / subreports / footer-aggregate alignment) plus one canonical sales-by-region worked example; (5) docs/platform-overview.md \u2014 G* updates: G21 Stack and audience callout near top, G23 REST-only clarification, G8 Security posture and defaults subsection, G10 Organization/multi-tenancy subsection, G19 Playwright watermark tightening (opt-in instrumentation, animations excluded, plus why-this-matters subsection), G12 dedicated UAT DSL pipeline subsection, G13/G17 Where-to-go-next split into external-adopters vs contributors with governance/issue-filing pointers, G22 reinforced authz-model rigidity. G6/G7 cross-link added in Security library section pointing to README deep-dive.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 6,
+      "stepKey": "session-6/build-and-test",
+      "dateTime": "2026-05-15T10:46:37.462018-04:00",
+      "description": "Build: 0 errors / 0 warnings against Dabbler.Platform.sln (Debug, full solution including new Dabbler.Components.Compat). Non-Playwright tests: 864 passed / 0 failed across 7 test projects (Dabbler.Testing.Blazor.Tests 6, Dabbler.Reports.Blazor.Tests 16, Dabbler.Components.Tests 130, Dabbler.Security.Blazor.Tests 236, AcmeCoffeeOnline.Api.Tests 38, Dabbler.Security.Tests 305, AcmeCoffeeOnline.Web.Tests 133). Playwright not executed this session \u2014 app docker stack intentionally not up; session changes are docs + csproj metadata + scaffold only, none affect Playwright runtime.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 7,
+      "stepKey": "session-6/end-of-session-verification",
+      "dateTime": "2026-05-15T10:49:55.275203-04:00",
+      "description": "Round 1 cross-provider session-verification via gpt-5-4 (gpt-5-4 expected per router rules: Opus orchestrator -> non-Anthropic verifier). Prompt size 60,302 chars; reasoning_effort=high; cost $0.1775.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 16066,
+          "outputTokens": 9156,
+          "costUsd": 0.177505
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 8,
+      "stepKey": "session-6/end-of-session-verification-round-2",
+      "dateTime": "2026-05-15T10:54:33.870181-04:00",
+      "description": "Round 2 cross-provider session-verification via gpt-5-4 after applying Round 1 fixes (3 Majors + 2 Minors). Prompt size 54,554 chars; complexity_hint=85; cost $0.1899.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 14593,
+          "outputTokens": 10227,
+          "costUsd": 0.18988750000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 9,
+      "stepKey": "session-6/end-of-session-verification-round-3",
+      "dateTime": "2026-05-15T10:59:26.778754-04:00",
+      "description": "Round 3 cross-provider session-verification via gpt-5-4 after applying Round 2 fixes (2 Majors + 2 Minors). Prompt size 56,109 chars; complexity_hint=85; cost $0.1852. Final retry per workflow Step 7 max-2-retries policy.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 14993,
+          "outputTokens": 9848,
+          "costUsd": 0.18520250000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 6,
+      "stepNumber": 10,
+      "stepKey": "session-6/end-of-session-verification-round-4",
+      "dateTime": "2026-05-15T11:04:08.182413-04:00",
+      "description": "Round 4 cross-provider session-verification (operator-authorized extension past max-2-retries) via gpt-5-4 after applying Round 3 fixes (1 Major + 2 Minors). Prompt size 56,524 chars; complexity_hint=85; cost $0.1904.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 15122,
+          "outputTokens": 10175,
+          "costUsd": 0.19043000000000002
+        }
+      ]
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 1,
+      "stepKey": "session-7/package-validation",
+      "dateTime": "2026-05-15T11:52:02.257653-04:00",
+      "description": "A3: Stubs sub-package split (Components/Reports/Security + meta-package restructure). A4: Compat content move to Dabbler.Components.Compat. Build clean, all tests pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 2,
+      "stepKey": "session-7/package-metadata",
+      "dateTime": "2026-05-15T11:52:02.259470-04:00",
+      "description": "A1: tools/pack.ps1 hermetic pack pipeline with CPM allowlist source-mapping. A7: THIRD-PARTY-NOTICES.txt in Reports.*. A8 sub-track: metapackages deferred.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 3,
+      "stepKey": "session-7/consumer-smoke-tests",
+      "dateTime": "2026-05-15T11:52:02.261105-04:00",
+      "description": "A2/A10: tests/Dabbler.PublicSurface.Tests/ (NupkgArtifactTests) and tests/Dabbler.Packaging.Smoke/ (baseline, template smoke pending Session 8).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 7,
+      "stepNumber": 4,
+      "stepKey": "session-7/packaged-contract-check",
+      "dateTime": "2026-05-15T11:52:02.262232-04:00",
+      "description": "docs/packaging/release-checklist.md authored (\u00a76.5). Solution updated with 5 new projects. All non-Playwright tests pass (868 total, 0 failures).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 1,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:17:08.777300-04:00",
+      "description": "Beginning Session 8: VS Template and Stub-Opt-In Readiness. Deliverables: tools/Dabbler.Security.DevIdp.Tool/, templates/Dabbler.Templates/ (dabbler-app + dabbler-min), docs/getting-started.md.",
+      "status": "in-progress",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 2,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:30:01.005429-04:00",
+      "description": "Routed docs/getting-started.md via documentation task (gemini-pro, $0.0156)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 866,
+          "outputTokens": 1456,
+          "costUsd": 0.0156425
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 3,
+      "stepKey": "session-8/cli-consumer-compatibility",
+      "dateTime": "2026-05-15T12:33:34.213091-04:00",
+      "description": "Created tools/Dabbler.Security.DevIdp.Tool/ dotnet tool package (A6): extracted DevIdpHost.RunAsync() from Program.cs, thin wrapper Program.cs in tool project, PackAsTool=true with ToolCommandName=dabbler-devidp.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 4,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:33:34.214707-04:00",
+      "description": "Created templates/Dabbler.Templates/ with dabbler-app and dabbler-min templates. dabbler-app: Blazor Server + Security + Components + Reports + Testing.Blazor + bUnit tests. dabbler-min: Security only. Both seed admin@local.test (A12) and include in-memory sample data (A13). template.json, csproj, all Razor + C# files authored.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 5,
+      "stepKey": "session-8/stub-opt-in",
+      "dateTime": "2026-05-15T12:33:34.217230-04:00",
+      "description": "Template dabbler-app includes DabblerApp.Tests/ bUnit project with Dabbler.Platform.Stubs opt-in per \u00a74.4. Services.AddDabblerPlatformStubs() + AddStubGridDataProvider used in SampleItemListTests.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 6,
+      "stepKey": "session-8/platform-generic-defaults",
+      "dateTime": "2026-05-15T12:33:34.218238-04:00",
+      "description": "Template defaults use SQL Server + magic-link auth + JSON file store. No AcmeCoffeeOnline-specific defaults. Production warnings for InternalApiKey/MfaEncryptionKey/EmailSenderType/OIDC in README and getting-started.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 7,
+      "stepKey": "session-8/cli-consumer-compatibility",
+      "dateTime": "2026-05-15T12:33:34.219456-04:00",
+      "description": "Template scaffolded with region-comment Program.cs insert points for CLI consumers. security-config.json at app root. CLI consumer compatibility per ledger \u00a75.7.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 8,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:33:34.222053-04:00",
+      "description": "Authored docs/getting-started.md (G11) \u2014 first-app tutorial: install template, scaffold, configure SQL Server, start MailHog, run, sign in as admin@local.test, explore /items grid, /reports/sample PDF export, bUnit tests, before-deploy checklist, next steps, troubleshooting.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 9,
+      "stepKey": "session-8/template-contract",
+      "dateTime": "2026-05-15T12:33:34.223068-04:00",
+      "description": "Wired new projects into solution: templates/Dabbler.Templates/ + tools/Dabbler.Security.DevIdp.Tool/ added to Dabbler.Platform.sln. Updated pack.ps1 to include both projects. Updated PackagingSmokeTests.cs required nupkg prefixes. Updated README.md with getting-started link + templates/tools entries.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 10,
+      "stepKey": "session-8/build-and-test",
+      "dateTime": "2026-05-15T12:42:49.328608-04:00",
+      "description": "dotnet build: 0 errors, 0 warnings. dotnet test (non-Playwright): 868 passed, 0 failed (6 Packaging.Smoke skipped - require pack-output, 51 PublicSurface skipped - require pack-output). Dabbler.Security.DevIdp (refactored) builds clean. Dabbler.Security.DevIdp.Tool builds clean. Dabbler.Templates builds clean (template content excluded from compilation).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 11,
+      "stepKey": "session-8/cross-provider-verification",
+      "dateTime": "2026-05-15T12:46:30.743697-04:00",
+      "description": "Routed session-verification to cross-provider verifier (gpt-5-4, $0.1560)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 5747,
+          "outputTokens": 9445,
+          "costUsd": 0.1560425
+        }
+      ]
+    },
+    {
+      "sessionNumber": 8,
+      "stepNumber": 12,
+      "stepKey": "session-8/cross-provider-verification",
+      "dateTime": "2026-05-15T12:48:38.562651-04:00",
+      "description": "Round 2 verification (gpt-5-4, $0.0118): fixed A12 role seeding Major + 2 Minor. Re-verified.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 1700,
+          "outputTokens": 502,
+          "costUsd": 0.011779999999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 1,
+      "stepKey": "session-9/prerequisites-verified",
+      "dateTime": "2026-05-15T13:05:19.551241-04:00",
+      "description": "Prerequisites verified: templates/Dabbler.Templates/, tools/Dabbler.Security.DevIdp.Tool/, docs/getting-started.md, tools/pack.ps1 all present from Session 8.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 2,
+      "stepKey": "session-9/update-ai-assignment",
+      "dateTime": "2026-05-15T13:07:40.254494-04:00",
+      "description": "Updated ai-assignment.md Session 7 actuals (TBD\u2192real data, cost $0.0845 gpt-5-4 verify, ISSUES_FOUND deferred to Session 9). Routed Session 10 recommendation via gemini-pro ($0.0054): Opus high recommended (upgrade from spec Sonnet moderate). Saved session-10-next-orchestrator-recommendation.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1200,
+          "outputTokens": 350,
+          "costUsd": 0.0054
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 3,
+      "stepKey": "session-9/consumer-validation",
+      "dateTime": "2026-05-15T13:32:12.208127-04:00",
+      "description": "Ran tools/pack.ps1 (14 nupkgs, hermeticity verified). Ran NupkgArtifactTests (51 passed). Ran PackagingSmokeTests: 4 active tests passed (PackOutput_ContainsAllRequiredLibraryNupkgs, DabblerApp_Template_InstallsAndBuildsClean, DabblerMin_Template_InstallsAndBuildsClean, DabblerApp_ScaffoldedBUnit_AllTestsPass). Fixed 7 template + packaging issues inline: icon.png missing in Testing.Blazor, missing using directives in _Imports.razor, missing using in Program.cs, DabblerAssetLinks removal, AccessDeniedCard scaffold, Login.razor Razor parser bug, wrong Stubs.Components namespace.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 4,
+      "stepKey": "session-9/template-smoke-proof",
+      "dateTime": "2026-05-15T13:32:12.210653-04:00",
+      "description": "All template smoke tests pass. dabbler-app and dabbler-min scaffold, restore, and build clean. Scaffolded bUnit tests pass with Stubs opt-in. 2 tests remain skipped (Session 10 E2E: sign-in and PDF export require running app docker stack).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 5,
+      "stepKey": "session-9/catch-up-decision",
+      "dateTime": "2026-05-15T13:32:12.211670-04:00",
+      "description": "No catch-up session needed. All 7 template/packaging omissions were fixed inline in Session 9. Sessions 10 (E2E) and 11 (UAT) proceed as planned. Consumer-readiness notes authored at docs/packaging/consumer-readiness.md.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 6,
+      "stepKey": "session-9/build-and-test",
+      "dateTime": "2026-05-15T13:56:54.817473-04:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 202 pre-existing warnings. Per-project test runs: 919 passed, 2 skipped (Packaging.Smoke Session-10 deferred tests), 0 new failures. Dabbler.Security.Tests shows 1 failure only in full-solution parallel batch (pre-existing race; passes 305/305 alone \u2014 documented in Session 4 actuals as SeededOrderMutationCollection fix scope). New test projects: Dabbler.PublicSurface.Tests (51 passed), Dabbler.Packaging.Smoke (4 passed, 2 skipped).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 7,
+      "stepKey": "session-9/cross-provider-verification",
+      "dateTime": "2026-05-15T14:01:05.878515-04:00",
+      "description": "Cross-provider session verification via gpt-5-4 ($0.1446)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 8049,
+          "outputTokens": 8301,
+          "costUsd": 0.14463749999999997
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 8,
+      "stepKey": "session-9/cross-provider-verification-round-2",
+      "dateTime": "2026-05-15T14:05:16.024170-04:00",
+      "description": "Round 2 cross-provider session verification via gpt-5-4 ($0.1138)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 6036,
+          "outputTokens": 6579,
+          "costUsd": 0.11377499999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 9,
+      "stepKey": "session-9/cross-provider-verification-round-3",
+      "dateTime": "2026-05-15T14:09:31.771537-04:00",
+      "description": "Round 3 cross-provider session verification via gpt-5-4 ($0.1485)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 4781,
+          "outputTokens": 9105,
+          "costUsd": 0.1485275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 9,
+      "stepNumber": 10,
+      "stepKey": "session-9/cross-provider-verification-round-4",
+      "dateTime": "2026-05-15T14:13:01.358489-04:00",
+      "description": "Round 4 (operator-authorized) cross-provider session verification via gpt-5-4 ($0.0788)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3265,
+          "outputTokens": 4707,
+          "costUsd": 0.0787675
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 3,
+      "stepKey": "session-10/prerequisites",
+      "dateTime": "2026-05-15T14:35:52.003200-04:00",
+      "description": "Verified Session 7-9 deliverables: PackagingSmokeTests, NupkgArtifactTests, tools/pack.ps1, templates/Dabbler.Templates, DevIdp.Tool, getting-started.md, consumer-readiness.md, release-checklist.md, scenarios.md all present. pack-output/ also present (14 nupkgs).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 3.5,
+      "stepKey": "session-10/ai-assignment",
+      "dateTime": "2026-05-15T14:35:52.004197-04:00",
+      "description": "Routed Session 11 orchestrator recommendation via gemini-pro ($0.0038). Recommendation: Claude Code claude-opus-4-7 medium effort. Rationale: UAT checklist authoring + Step 9 reorganization review + change-log demand higher reasoning than the original ai-assignment's Sonnet-low estimate. Saved recommendation to session-11-next-orchestrator-recommendation.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 600,
+          "outputTokens": 350,
+          "costUsd": 0.0038
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 4,
+      "stepKey": "session-10/identify-test-scope",
+      "dateTime": "2026-05-15T14:35:52.007418-04:00",
+      "description": "Routed scope analysis via gemini-pro ($0.0091). Finding: the packaging/template work in Sessions 7-9 introduced no new browser UI to the demo app. The one genuinely new browser-level validation is the template app's RUNTIME integrity (PackagingSmokeTests only validates build, not runtime DI/startup). Deliverable: SkippableFact Playwright test that navigates to a running dabbler-app instance (skips when PLAYWRIGHT_TEMPLATE_APP_URL not set).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2863,
+          "outputTokens": 550,
+          "costUsd": 0.0091
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 4,
+      "stepKey": "session-10/write-playwright-tests",
+      "dateTime": "2026-05-15T14:42:32.234743-04:00",
+      "description": "Authored tests/AcmeCoffeeOnline.Playwright/TemplateSmokePlaywrightTests.cs: 3 [SkippableFact] tests covering (1) Blazor framework JS served, (2) dabbler-app login page renders + auth redirect, (3) dabbler-min login page renders. Added Xunit.SkippableFact reference to AcmeCoffeeOnline.Playwright.csproj. All 3 tests skip correctly when PLAYWRIGHT_TEMPLATE_APP_URL is not set.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 5,
+      "stepKey": "session-10/regression-check",
+      "dateTime": "2026-05-15T14:42:32.237137-04:00",
+      "description": "Build: 0 errors, 256 pre-existing warnings. Non-Playwright test run: 0 failures. Summary: Dabbler.Security.Tests 305 pass, Security.Blazor.Tests 236 pass, Api.Tests 38 pass, Web.Tests 133 pass, Components.Tests 130 pass, PublicSurface.Tests 51 pass, Reports.Blazor.Tests 16 pass, Packaging.Smoke 4 pass + 2 skip (require running template app). New TemplateSmokePlaywrightTests: 3 skip (PLAYWRIGHT_TEMPLATE_APP_URL not set).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 5,
+      "stepKey": "session-10/build-and-test",
+      "dateTime": "2026-05-15T14:42:32.239650-04:00",
+      "description": "dotnet build Dabbler.Platform.sln -c Release: success, 0 errors. dotnet test (non-Playwright): all pass, total 913 passed, 5 skipped, 0 failed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 6,
+      "stepKey": "session-10/verification",
+      "dateTime": "2026-05-15T14:44:34.577801-04:00",
+      "description": "Cross-provider session verification Round 1 via gpt-5-4. Cost: $0.0831.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3931,
+          "outputTokens": 4883,
+          "costUsd": 0.08307250000000001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 7,
+      "stepKey": "session-10/verification-round-2",
+      "dateTime": "2026-05-15T14:46:55.246775-04:00",
+      "description": "Cross-provider session verification Round 2 via gpt-5-4. Cost: $0.0544.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2206,
+          "outputTokens": 3256,
+          "costUsd": 0.054355
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 7,
+      "stepKey": "session-10/verification-round-3",
+      "dateTime": "2026-05-15T14:49:15.477301-04:00",
+      "description": "Cross-provider session verification Round 3 via gpt-5-4. Cost: $0.0903. Verifying Round 2 fix (assert vs skip on 404/500).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2181,
+          "outputTokens": 5656,
+          "costUsd": 0.0902925
+        }
+      ]
+    },
+    {
+      "sessionNumber": 10,
+      "stepNumber": 7,
+      "stepKey": "session-10/verification-round-4",
+      "dateTime": "2026-05-15T14:51:17.336011-04:00",
+      "description": "Cross-provider session verification Round 4 (operator-authorized) via gpt-5-4. Cost: $0.0591. Verifying Round 3 fixes (exception filter tightening).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2210,
+          "outputTokens": 3571,
+          "costUsd": 0.059090000000000004
+        }
+      ]
+    },
+    {
+      "sessionNumber": 11,
+      "stepNumber": 1,
+      "stepKey": "session-11/generate-checklist",
+      "dateTime": "2026-05-15T19:35:00.000000-04:00",
+      "description": "Authored docs/session-sets/packaging-and-template-readiness/packaging-and-template-readiness-uat-checklist.json directly (7 judgment items). Scope: packaging/template developer experience — all items cover documentation quality, CLI install flow, template discoverability, stub opt-in semantics, and overall consumer journey coherence. No DSL Steps[] included because all items assess developer-facing tooling and docs (not Blazor web app UI); W0/W2 pipeline not applicable. Automated coverage from Sessions 7-10 (NupkgArtifactTests, PackagingSmokeTests, TemplateSmokePlaywrightTests) provides reachability proof for the documented features.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 11,
+      "stepNumber": 2,
+      "stepKey": "session-11/verify-checklist",
+      "dateTime": "2026-05-15T19:38:00.000000-04:00",
+      "description": "Schema validation passed: JSON well-formed, root fields match schema (ProjectName, ReleaseLabel, DocumentDate, Review only), all 7 Review items have required FunctionalArea/Subarea/ItemLabel, no extra fields under additionalProperties:false constraints. Removed RequiresAppStateReset (not in schema). Verified via Python jsonschema structural check.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 11,
+      "stepNumber": 3,
+      "stepKey": "session-11/change-log",
+      "dateTime": "2026-05-15T19:45:00.000000-04:00",
+      "description": "Generated change-log.md for all 11 sessions via route(task_type='summarization', max_tier=1). Gemini Pro 400'd on the prompt (known behavior for summarization>2KB); retried with max_tier=1 (Gemini Flash, $0.001). Change-log covers Phase 1 (Sessions 1-4: establish platform value) and Phase 2 (Sessions 5-11: package and validate) with one entry per session.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 1100,
+          "outputTokens": 700,
+          "costUsd": 0.001
+        }
+      ]
+    },
+    {
+      "sessionNumber": 11,
+      "stepNumber": 4,
+      "stepKey": "session-11/end-of-session-verification-round-1",
+      "dateTime": "2026-05-15T19:50:00.000000-04:00",
+      "description": "Cross-provider session verification Round 1 via gpt-5-4 (complexity 65). ISSUES_FOUND: 3 Minor — (1) change-log missing explicit editor-load and handoff statement; (2) UAT-2 description assessment not self-contained given dotnet new list output format; (3) UAT-5 calls out LGPL licensing but doesn't require inspection of a Reports package. Cost: $0.0756.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3200,
+          "outputTokens": 5800,
+          "costUsd": 0.0756
+        }
+      ]
+    },
+    {
+      "sessionNumber": 11,
+      "stepNumber": 5,
+      "stepKey": "session-11/end-of-session-verification-round-2",
+      "dateTime": "2026-05-15T20:00:00.000000-04:00",
+      "description": "Cross-provider session verification Round 2 via gpt-5-4 (complexity 64) after applying Round 1 fixes. ISSUES_FOUND: 1 Minor remaining — UAT-5 assessment item (4) asks about all three stubs sub-packages but only one is required for inspection. Cost: $0.1025.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 3800,
+          "outputTokens": 7000,
+          "costUsd": 0.1025
+        }
+      ]
+    },
+    {
+      "sessionNumber": 11,
+      "stepNumber": 6,
+      "stepKey": "session-11/end-of-session-verification-round-3",
+      "dateTime": "2026-05-15T20:05:00.000000-04:00",
+      "description": "Cross-provider session verification Round 3 (operator-authorized) via gpt-5-4 (complexity 50) after narrowing UAT-5 item (4) scope to match the required inspection set. VERIFIED. Cost: $0.0418.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 2500,
+          "outputTokens": 2800,
+          "costUsd": 0.0418
+        }
+      ]
+    }
+  ]
+}

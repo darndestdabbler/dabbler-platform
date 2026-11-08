@@ -1,0 +1,914 @@
+=== Diagnostic stress: E2E_WF_04, 20 iterations, suffix=batch-2-rendermode ===
+Started: 2026-04-29T06:40:12-04:00
+
+--- Run 1/20 (2026-04-29T06:40:12-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:40:18.356Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:40:18.364Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=EIePgqxQVSUmD2lilK5Brw.
+    [log] [dabbler] setReady 257.1
+[xUnit.net 00:00:11.80]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.80]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.80]       Stack Trace:
+[xUnit.net 00:00:11.80]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.80]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.80]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.80]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.86]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.2358 Seconds
+Run 1: FAIL (exit 1)
+
+--- Run 2/20 (2026-04-29T06:40:25-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.89]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.2566 Seconds
+Run 2: PASS
+
+--- Run 3/20 (2026-04-29T06:40:33-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:40:38.984Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:40:38.992Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=Ykuau2V0cXU96v3c4Ahtrw.
+    [log] [dabbler] setReady 245.9
+[xUnit.net 00:00:11.72]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.72]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.72]       Stack Trace:
+[xUnit.net 00:00:11.72]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.72]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.72]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.72]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.72]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.72]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.72]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.72]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.77]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1562 Seconds
+Run 3: FAIL (exit 1)
+
+--- Run 4/20 (2026-04-29T06:40:46-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:40:51.766Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:40:51.774Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=BhxXNLZnBNVRsaCtMK1Ezg.
+    [log] [dabbler] setReady 295.9
+[xUnit.net 00:00:11.80]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.80]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.80]       Stack Trace:
+[xUnit.net 00:00:11.80]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.80]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.80]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.80]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.80]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.86]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.2209 Seconds
+Run 4: FAIL (exit 1)
+
+--- Run 5/20 (2026-04-29T06:40:58-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:41:04.489Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:41:04.496Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=hT9aUY9Zt2x58pylSHjCww.
+    [log] [dabbler] setReady 258.6
+[xUnit.net 00:00:11.75]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.75]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.75]       Stack Trace:
+[xUnit.net 00:00:11.75]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.75]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.75]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.75]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.80]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1671 Seconds
+Run 5: FAIL (exit 1)
+
+--- Run 6/20 (2026-04-29T06:41:11-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.99]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3620 Seconds
+Run 6: PASS
+
+--- Run 7/20 (2026-04-29T06:41:19-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.14]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.96]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3358 Seconds
+Run 7: PASS
+
+--- Run 8/20 (2026-04-29T06:41:27-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.99]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3581 Seconds
+Run 8: PASS
+
+--- Run 9/20 (2026-04-29T06:41:35-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:41:41.247Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:41:41.255Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=EFIgsYRlnJfxmVen5hmmkQ.
+    [log] [dabbler] setReady 239.8
+[xUnit.net 00:00:11.63]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.63]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.63]       Stack Trace:
+[xUnit.net 00:00:11.63]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.63]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.63]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.63]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.63]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.63]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.63]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.63]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.68]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1083 Seconds
+Run 9: FAIL (exit 1)
+
+--- Run 10/20 (2026-04-29T06:41:48-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:41:54.089Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:41:54.097Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=AYmZhupdQn4ZX22-UPJDdQ.
+    [log] [dabbler] setReady 252.8
+[xUnit.net 00:00:11.75]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.75]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.75]       Stack Trace:
+[xUnit.net 00:00:11.75]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.75]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.75]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.75]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.75]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.80]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1983 Seconds
+Run 10: FAIL (exit 1)
+
+--- Run 11/20 (2026-04-29T06:42:01-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:42:06.904Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:42:06.914Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=loYrXv_-tzvgfYO7bTIRTg.
+    [log] [dabbler] setReady 270.5
+[xUnit.net 00:00:11.82]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.82]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.82]       Stack Trace:
+[xUnit.net 00:00:11.82]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.82]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.82]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.82]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.87]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.2505 Seconds
+Run 11: FAIL (exit 1)
+
+--- Run 12/20 (2026-04-29T06:42:14-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:42:19.670Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:42:19.677Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=noxDLuAYqTbVRhYuvihu5w.
+    [log] [dabbler] setReady 256.8
+[xUnit.net 00:00:11.76]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.76]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.76]       Stack Trace:
+[xUnit.net 00:00:11.76]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.76]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.76]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.76]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.76]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.76]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.76]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.76]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.81]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1834 Seconds
+Run 12: FAIL (exit 1)
+
+--- Run 13/20 (2026-04-29T06:42:26-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:42:32.459Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:42:32.466Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=-SnuzuVu5z02CfzOyGwzmA.
+    [log] [dabbler] setReady 246.2
+[xUnit.net 00:00:11.68]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.68]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.68]       Stack Trace:
+[xUnit.net 00:00:11.68]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.68]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.68]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.68]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.68]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.68]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.68]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.68]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.73]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1055 Seconds
+Run 13: FAIL (exit 1)
+
+--- Run 14/20 (2026-04-29T06:42:39-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:42:45.141Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:42:45.148Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=nJGPiUCCDrMm6Cdf2EdJyg.
+    [log] [dabbler] setReady 240.5
+[xUnit.net 00:00:11.70]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.70]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.70]       Stack Trace:
+[xUnit.net 00:00:11.70]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.70]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.70]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.70]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.70]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.70]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.70]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.70]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.75]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1142 Seconds
+Run 14: FAIL (exit 1)
+
+--- Run 15/20 (2026-04-29T06:42:52-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:42:57.900Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:42:57.909Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=1zZzMMw4JhOy5x6HH6OhKA.
+    [log] [dabbler] setReady 253.5
+[xUnit.net 00:00:11.68]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.68]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.68]       Stack Trace:
+[xUnit.net 00:00:11.69]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.69]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.69]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.69]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.69]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.69]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.69]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.69]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.73]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1419 Seconds
+Run 15: FAIL (exit 1)
+
+--- Run 16/20 (2026-04-29T06:43:05-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:43:10.712Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:43:10.720Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=pbILsHvmDt7sWZ9nO2GVuA.
+    [log] [dabbler] setReady 259.1
+[xUnit.net 00:00:11.76]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.76]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.76]       Stack Trace:
+[xUnit.net 00:00:11.77]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.77]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.77]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.77]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.77]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.77]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.77]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.77]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.82]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1988 Seconds
+Run 16: FAIL (exit 1)
+
+--- Run 17/20 (2026-04-29T06:43:17-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:43:23.600Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:43:23.608Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=YIngR2l25Sw9uHckxINcFg.
+    [log] [dabbler] setReady 242.5
+[xUnit.net 00:00:11.82]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.82]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.82]       Stack Trace:
+[xUnit.net 00:00:11.82]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.82]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.82]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.82]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.82]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.88]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.2664 Seconds
+Run 17: FAIL (exit 1)
+
+--- Run 18/20 (2026-04-29T06:43:30-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:43:36.319Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:43:36.327Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=oToWhkub8cIdnVNkgWC-8Q.
+    [log] [dabbler] setReady 244.3
+[xUnit.net 00:00:11.65]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.65]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.65]       Stack Trace:
+[xUnit.net 00:00:11.65]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.65]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.65]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.65]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.65]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.65]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.65]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.65]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.70]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.0614 Seconds
+Run 18: FAIL (exit 1)
+
+--- Run 19/20 (2026-04-29T06:43:43-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.96]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3470 Seconds
+Run 19: PASS
+
+--- Run 20/20 (2026-04-29T06:43:51-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T10:43:56.995Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T10:43:57.002Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=TkWO7mxVuvLs6rxnz7v41g.
+    [log] [dabbler] setReady 263.4
+[xUnit.net 00:00:11.73]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:11.73]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:11.73]       Stack Trace:
+[xUnit.net 00:00:11.73]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:11.73]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.73]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:11.73]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.73]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:11.74]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(60,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.74]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(89,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:11.74]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:11.79]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 60
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 89
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.1571 Seconds
+Run 20: FAIL (exit 1)
+
+=== Summary ===
+Iterations: 20
+Pass: 5
+Fail: 15
+Results: 1:FAIL 2:PASS 3:FAIL 4:FAIL 5:FAIL 6:PASS 7:PASS 8:PASS 9:FAIL 10:FAIL 11:FAIL 12:FAIL 13:FAIL 14:FAIL 15:FAIL 16:FAIL 17:FAIL 18:FAIL 19:PASS 20:FAIL
+Finished: 2026-04-29T06:44:04-04:00

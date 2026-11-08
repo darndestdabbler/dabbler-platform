@@ -1,0 +1,81 @@
+@inherits LayoutComponentBase
+@using System.Security.Claims
+@using Dabbler.Testing.Blazor.Components
+@inject NavigationManager Nav
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<TestReadinessProbe />
+
+<MudLayout data-testid="main-shell">
+    <MudAppBar Elevation="1" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit"
+                       Edge="Edge.Start" OnClick="ToggleDrawer"
+                       aria-label="Toggle navigation menu" />
+        <MudText Typo="Typo.subtitle1" Class="ml-2" Style="font-weight: 600;">
+            DabblerApp
+        </MudText>
+        <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                <MudText Typo="Typo.body2" Class="mr-2">@context.User.Identity?.Name</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit"
+                               Href="/auth/logout" aria-label="Sign out" />
+            </Authorized>
+        </AuthorizeView>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1" Variant="@DrawerVariant.Responsive"
+               data-testid="nav-drawer">
+        <MudNavMenu>
+            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">
+                Home
+            </MudNavLink>
+            <MudNavLink Href="/items" Icon="@Icons.Material.Filled.List" Match="NavLinkMatch.Prefix">
+                Sample Items
+            </MudNavLink>
+            <MudNavLink Href="/reports/sample" Icon="@Icons.Material.Filled.Assessment" Match="NavLinkMatch.Prefix">
+                Sample Report
+            </MudNavLink>
+            <MudDivider Class="my-2" />
+            <MudNavLink Href="/admin/security" Icon="@Icons.Material.Filled.Shield" Match="NavLinkMatch.Prefix">
+                Security Dashboard
+            </MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent Class="pa-4 pt-16" data-testid="routed-page-content">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private readonly MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#1976D2",
+            Secondary = "#388E3C",
+            AppbarBackground = "#FFFFFF",
+            AppbarText = "#424242",
+            DrawerBackground = "#FAFAFA",
+            DrawerText = "#424242",
+            Surface = "#FFFFFF",
+            Background = "#F5F5F5"
+        },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = ["Roboto", "Helvetica", "Arial", "sans-serif"]
+            }
+        }
+    };
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

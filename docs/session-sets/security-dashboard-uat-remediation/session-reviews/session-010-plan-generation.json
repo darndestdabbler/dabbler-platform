@@ -1,0 +1,72 @@
+[
+  {
+    "functional_area": "Shell and Access",
+    "model": "opus",
+    "cost_usd": 0.745223,
+    "input_tokens": 19107,
+    "output_tokens": 4747,
+    "items_emitted": 3,
+    "verifier_model": "gpt-5-4",
+    "verifier_verdict": "ISSUES_FOUND"
+  },
+  {
+    "functional_area": "Users and Role Assignment",
+    "model": "opus",
+    "cost_usd": 1.12439,
+    "input_tokens": 20271,
+    "output_tokens": 9395,
+    "items_emitted": 5,
+    "verifier_model": "gpt-5-4",
+    "verifier_verdict": "ISSUES_FOUND"
+  },
+  {
+    "functional_area": "Organization Master Details",
+    "model": "opus",
+    "cost_usd": 1.393545,
+    "input_tokens": 21330,
+    "output_tokens": 12491,
+    "items_emitted": 6,
+    "verifier_model": "gpt-5-4",
+    "verifier_verdict": "ISSUES_FOUND"
+  },
+  {
+    "functional_area": "Data-Bound Restriction Enforcement",
+    "model": "opus",
+    "cost_usd": 1.021355,
+    "input_tokens": 20751,
+    "output_tokens": 8107,
+    "items_emitted": 7,
+    "verifier_model": "gpt-5-4",
+    "verifier_verdict": "ISSUES_FOUND"
+  },
+  {
+    "functional_area": "Default Masks and Column Restrictions",
+    "model": "opus",
+    "cost_usd": 1.444457,
+    "input_tokens": 21783,
+    "output_tokens": 12865,
+    "items_emitted": 6,
+    "verifier_model": "gpt-5-4",
+    "verifier_verdict": "ISSUES_FOUND"
+  },
+  {
+    "functional_area": "Master-Details Expansion Shell",
+    "model": "opus",
+    "cost_usd": 1.042937,
+    "input_tokens": 21144,
+    "output_tokens": 7880,
+    "items_emitted": 6,
+    "verifier_model": "gpt-5-4",
+    "verifier_verdict": "ISSUES_FOUND"
+  },
+  {
+    "functional_area": "Accessibility and Keyboard",
+    "model": "opus",
+    "cost_usd": 0.454103,
+    "input_tokens": 18105,
+    "output_tokens": 1337,
+    "items_emitted": 1,
+    "verifier_model": "gpt-5-4",
+    "verifier_verdict": "ISSUES_FOUND"
+  }
+]
