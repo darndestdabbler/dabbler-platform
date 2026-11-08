@@ -25,7 +25,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 11 | Bump to 0.2.0 | no | 2026-11-08 |
 | 12 | Retire what does not run | no | 2026-11-08 |
 | 13 | Prune the v1 guidance | no | 2026-11-08 |
-| 14 | Bump to 1.0.0 | — | not declared |
+| 14 | Bump to 1.0.0 | no | 2026-11-08 |
 
 ### Session 1 — Author or import the solution plan
 
@@ -113,3 +113,9 @@ Retire what no longer runs in dabbler-platform. Delete the v1 Python UAT runner 
 **Releasable: no.**
 
 Prune the retired v1 workflow from the repository's standing guidance. In docs/planning/project-guidance.md remove the dated v3 banner and every passage that only describes the retired v1 router and its workflow: route() task types and tiers, ai_router / ai-router and the W2 uat_runner, session-state.json, ai-assignment.md and next-orchestrator recommendations, session sets and their specs, disposition.json, UAT Review Session sets, maxout overrides, and pointers to the deleted docs/ai-led-session-workflow.md and session-set-authoring-guide.md. Keep the Principles (Architecture, Security And Organization Model, UI Philosophy, Testing Hierarchy, Human UAT Philosophy, Precedence) and the testing, UAT, MudBlazor, CRUD, filter, styling and code-style Conventions, rewording a kept rule only where a sentence of it leans on a v1 term (for example 'session set' becomes 'session'). Do the same in docs/planning/lessons-learned.md: drop the banner, delete the lessons that only describe the retired router (register_session_start, route(task_type=documentation), router complexity score, verifier selection, task-type calibration, truncation, verification cost guard, routed-output persistence, session-state.json, ai-assignment.md, verification prompt template, disposition.json gate and the like), keep the repository-specific failure patterns (Blazor, MudBlazor, Playwright, Docker, .NET, UAT authoring, testing), and strip v1 references from the kept entries and the file's preamble. Finally remove the v1 caveat sentence from the Required reading list in AGENTS.md's project section.
+
+### Session 14 — Bump to 1.0.0
+
+**Releasable: no.**
+
+Bump the single repository version to 1.0.0: set DabblerVersion in Directory.Build.props and the -Version parameter default in tools/pack.ps1 (with its help text and usage example that name the current version) to 1.0.0, and add a 1.0.0 entry at the top of CHANGELOG.md stating that it changes no API since 0.2.0 and that the twelve packages, the gates and docs/MAINTAINING.md are what the operator stands behind. Verification, the unit suite as the run of record and the close follow as the framework runs them.

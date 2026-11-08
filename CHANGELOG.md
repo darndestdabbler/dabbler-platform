@@ -4,6 +4,15 @@ All `Dabbler.*` packages, the `Dabbler.Templates` template pack and the tools
 share one version (`DabblerVersion` in `Directory.Build.props`) and are
 published to nuget.org together.
 
+## 1.0.0
+
+- No API changes since `0.2.0`.
+- The first stable release. The operator stands behind the twelve packages
+  listed in `tools/pack.ps1`, the gates that guard them (the `unit` suite,
+  PublicSurface, Packaging.Smoke and the Playwright E2E gate) and
+  `docs/MAINTAINING.md`, which says where each gate lives and how a release is
+  made.
+
 ## 0.2.0
 
 Breaking changes:
