@@ -85,3 +85,12 @@ runs the rebuildable app services (api, web) with explicit `image:` tags so
 rebuilds replace the tagged images instead of orphaning dangling layers.
 Playwright is intentionally **not** a compose service — run it from the
 host (`dotnet test` or VS Code Test Explorer) against `http://localhost:5010`.
+
+## If this library stops being maintained
+
+Every `Dabbler.*` package, tool and template here is MIT-licensed, and its
+source is in this repository. If the platform stops being maintained, the
+fallback is to copy the MIT source of the packages you use into your
+application, replace each package reference with a project reference to
+your copy, and own it from there. Keep the MIT license notice with the
+copied code. Each package's README names where its source lives.

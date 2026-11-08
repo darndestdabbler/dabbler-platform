@@ -46,6 +46,12 @@ LocalDB). The tests in `Dabbler.PublicSurface.Tests`, `Dabbler.Templates.Tests`
 and `Dabbler.CrudSlice.Tests` that need nupkgs skip when `pack-output/` is
 absent and `DABBLER_PACK_OUTPUT` is unset.
 
+Gate rule (`docs/MAINTAINING.md` → *Where every gate lives*): the `unit`
+suite lives in `dabbler.yaml`, PublicSurface and Packaging.Smoke in CI's
+*Validate And Pack* job, and Playwright is a manual gate, run before each
+release tag and in every session that changes the reference app's UI or the
+MudBlazor pin.
+
 The compose stack is split: `docker-compose.infra.yml` holds the persistent dev
 dependencies (sqlserver, mailhog, the `dabbler-dev` network) and stays up
 across sessions. `docker-compose.app.yml` holds the rebuildable app services

@@ -164,3 +164,11 @@ await Assertions.Expect(page.Locator("html"))
   render. Without this guard, an early-fire of a `TrackAction`-wrapped
   event handler turns into an HTTP 500.
 - **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).
+
+## If this library stops being maintained
+
+This package is MIT-licensed, and its source is in
+[`src/Libs/Dabbler.Testing.Blazor`](https://github.com/darndestdabbler/dabbler-platform/tree/master/src/Libs/Dabbler.Testing.Blazor).
+If it stops being maintained, copy that source into your application,
+replace the package reference with a project reference to your copy, and
+own it from there. Keep the MIT license notice with the copied code.

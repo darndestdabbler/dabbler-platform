@@ -21,7 +21,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 7 | Surface reduction — 16 package IDs to 12 | no | 2026-11-07 |
 | 8 | MudBlazor 9 — libraries and the reference app compile | no | 2026-11-07 |
 | 9 | MudBlazor 9 — templates, scaffolding and the E2E gate | no | 2026-11-07 |
-| 10 | Maintainer guide, gate rule and support policy | — | not declared |
+| 10 | Maintainer guide, gate rule and support policy | no | 2026-11-08 |
 | 11 | Bump to 0.2.0 | — | not declared |
 | 12 | Retire what does not run | — | not declared |
 | 13 | Prune the v1 guidance | — | not declared |
@@ -89,3 +89,9 @@ Finish the MudBlazor 9 move that session 8 started, for the parts outside Dabble
 
 - 2026-11-07 — step 'e2e-gate': its files: The compose stack cannot be rebuilt from this tree: docker/Dockerfile.Api restores before copying Dabbler.Api.Querying.csproj, which AcmeCoffeeOnline.Api references, so 'dotnet publish --no-restore' fails with NETSDK1004. The gate needs a one-line COPY of that csproj. (claude-code (anthropic, claude-opus-5-5))
 - 2026-11-07 — step 'e2e-gate': its files: The E2E gate on MudBlazor 9.12.0 fails 22 of 178 tests; a fresh-database baseline run of the pre-session-8 tree (MudBlazor 8.15.0) fails the same 12 of them, so 10 are MudBlazor 9 regressions in three causes. (A, 6 tests) MudMenu ActivatorContent now receives a MenuContext and no longer wraps a click handler, so UserContextBar's role and organization activators never open their menus: fix in AcmeCoffeeOnline.Web. (B, 1 test) MudNavGroup now stays expanded after navigating to one of its own links, so PlaywrightFixture.NavigateViaDrawerGroupAsync's unconditional group click collapses it: the helper clicks the group only when the link is hidden. (C, 3 tests) FilterPanel's 300 ms debounced text now lands after an immediate collapse click and re-expands the shell by design: the three FilterChange_ClearsCollapsedSummaryState tests wait for the filter chip before collapsing. (claude-code (anthropic, claude-opus-5-5))
+
+### Session 10 — Maintainer guide, gate rule and support policy
+
+**Releasable: no.**
+
+Write docs/MAINTAINING.md, the maintainer guide: how to clone, build, run the `unit` suite and pack; how to release (a bump session, then the hand-pushed annotated tag `nuget-v<version>`, then unlisting retired package IDs on nuget.org); where every gate lives (the `unit` suite in dabbler.yaml, PublicSurface and Packaging.Smoke in CI's Validate And Pack job, and the Playwright manual gate before each release tag and in every session that changes the reference app's UI or the MudBlazor pin); and the MudBlazor policy of adopting a new major within one quarter of its release. Point the *Building and testing* part of AGENTS.md (outside the managed fence) and the platform authoring addendum at that gate rule. Add .github/dependabot.yml for nuget, weekly, with MudBlazor in one group and the Microsoft.* packages pinned at 10.x in another (held to 10.x by ignoring their semver-major updates). Add an "If this library stops being maintained" section, naming the fallback of copying the MIT source into your application and owning it, to the root README.md and to the README of each of the twelve packages; ten READMEs exist, so the two packages without one (Dabbler.Security.DevIdp.Tool and Dabbler.Templates) get a short README packed as their PackageReadmeFile, the same way the other packages pack theirs.

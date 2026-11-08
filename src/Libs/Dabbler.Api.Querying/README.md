@@ -32,3 +32,11 @@ deferred (silently skipped); unknown operators are silently skipped.
 Operator strings match the constants in `Dabbler.Components.Data.FilterOperators`
 so no translation layer is needed between the UI filter panel and the
 server-side extension method.
+
+## If this library stops being maintained
+
+This package is MIT-licensed, and its source is in
+[`src/Libs/Dabbler.Api.Querying`](https://github.com/darndestdabbler/dabbler-platform/tree/master/src/Libs/Dabbler.Api.Querying).
+If it stops being maintained, copy that source into your application,
+replace the package reference with a project reference to your copy, and
+own it from there. Keep the MIT license notice with the copied code.

@@ -346,3 +346,11 @@ Key `DabblerSecurityOptions` properties:
   Tests verifying masking behavior must use a user-type role (e.g.,
   `BackofficeUser`), not a baked-in role.
 - **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).
+
+## If this library stops being maintained
+
+This package is MIT-licensed, and its source is in
+[`src/Libs/Dabbler.Security`](https://github.com/darndestdabbler/dabbler-platform/tree/master/src/Libs/Dabbler.Security).
+If it stops being maintained, copy that source into your application,
+replace the package reference with a project reference to your copy, and
+own it from there. Keep the MIT license notice with the copied code.

@@ -9,6 +9,7 @@
     <PackageType>Template</PackageType>
     <Description>Dotnet new templates for the Dabbler platform: dabbler-app (full Blazor Server app with security + reports) and dabbler-min (minimal security-only app). Both reference published Dabbler NuGet packages and are designed as the canonical external-adopter starting point.</Description>
     <PackageTags>dotnet-template;blazor;server;security;dabbler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <!--
       Exclude template content files from compilation and default item
@@ -33,6 +34,7 @@
     <Compile Remove="content\**\*" />
     <EmbeddedResource Remove="content\**\*" />
     <None Remove="content\**\*" />
+    <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

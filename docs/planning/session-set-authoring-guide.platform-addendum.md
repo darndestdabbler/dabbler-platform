@@ -80,6 +80,13 @@ hand-author a pairing `*UatCoverageTests.cs` file or call
   layer (rare, but legitimate when the change is purely structural
   and has no end-to-end pathway).
 
+**Gate rule.** The Playwright suite is a manual gate, in neither
+`dabbler.yaml` nor CI: run it before each release tag and in every
+session that changes the reference app's UI or the MudBlazor pin. The
+`unit` suite lives in `dabbler.yaml`, and PublicSurface and
+Packaging.Smoke in CI's *Validate And Pack* job. See
+[`docs/MAINTAINING.md`](../MAINTAINING.md) → *Where every gate lives*.
+
 ---
 
 ## Project-specific deliverables and conventions

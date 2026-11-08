@@ -98,3 +98,13 @@ out of scope — see `docs/scaffolding-templates/non-mvp-roadmap.md`.)
 | `--skip-templates` | off | Skip the `dotnet new` invocations (emit registrations only). |
 | `--skip-schema-applicator` | off | Skip the schema-applicator pass. |
 | `--skip-registrations` | off | Skip emitting the `{Entity}Registrations.g.cs` copy-paste reference file. |
+
+## If this library stops being maintained
+
+This tool is MIT-licensed, and its source is in
+[`tools/Dabbler.CrudSlice`](https://github.com/darndestdabbler/dabbler-platform/tree/master/tools/Dabbler.CrudSlice)
+(with the schema applicator it bundles in `tools/Dabbler.SchemaApplicator`).
+If it stops being maintained, copy that source into your own repository,
+build the tool from your copy, and own it from there. The code it has
+already generated is yours and needs nothing from the tool. Keep the MIT
+license notice with the copied code.

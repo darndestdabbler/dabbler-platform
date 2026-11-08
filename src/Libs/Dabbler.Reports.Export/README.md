@@ -82,3 +82,11 @@ download affordance directly.
   the font file path through the report definition.
 - **License (this library): MIT** (see
   [LICENSE](https://licenses.nuget.org/MIT)).
+
+## If this library stops being maintained
+
+This package is MIT-licensed, and its source is in
+[`src/Libs/Dabbler.Reports.Export`](https://github.com/darndestdabbler/dabbler-platform/tree/master/src/Libs/Dabbler.Reports.Export).
+If it stops being maintained, copy that source into your application,
+replace the package reference with a project reference to your copy, and
+own it from there. Keep the MIT license notice with the copied code.

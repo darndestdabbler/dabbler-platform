@@ -131,3 +131,11 @@ The library's surface, organized by role:
   use behavior-level proxies (e.g., the toggle-button text), not
   `Not.ToBeEditableAsync`.
 - **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).
+
+## If this library stops being maintained
+
+This package is MIT-licensed, and its source is in
+[`src/Libs/Dabbler.Components`](https://github.com/darndestdabbler/dabbler-platform/tree/master/src/Libs/Dabbler.Components).
+If it stops being maintained, copy that source into your application,
+replace the package reference with a project reference to your copy, and
+own it from there. Keep the MIT license notice with the copied code.

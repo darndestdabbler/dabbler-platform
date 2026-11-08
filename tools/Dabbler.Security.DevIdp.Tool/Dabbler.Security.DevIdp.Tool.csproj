@@ -15,6 +15,7 @@
     <PackageId>Dabbler.Security.DevIdp.Tool</PackageId>
     <Description>Loopback dev IdP for Dabbler platform development. Run `dabbler-devidp` to start an OpenIddict-backed OIDC server on localhost:5100 that issues Entra-ID-compatible tokens for local development without a real cloud IdP.</Description>
     <PackageTags>dotnet-tool;devidp;oidc;development;dabbler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <!-- Exclude from solution-level build by default (tool, not a library) -->
     <IsTestProject>false</IsTestProject>
@@ -22,6 +23,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Libs\Dabbler.Security.DevIdp\Dabbler.Security.DevIdp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

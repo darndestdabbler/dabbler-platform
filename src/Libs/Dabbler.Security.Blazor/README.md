@@ -147,3 +147,11 @@ A layout that exposes role switching for multi-role users:
   attribute** in MudBlazor 8.x; tests asserting read-only state must
   use behavior-level proxies (e.g., toggle-button text).
 - **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).
+
+## If this library stops being maintained
+
+This package is MIT-licensed, and its source is in
+[`src/Libs/Dabbler.Security.Blazor`](https://github.com/darndestdabbler/dabbler-platform/tree/master/src/Libs/Dabbler.Security.Blazor).
+If it stops being maintained, copy that source into your application,
+replace the package reference with a project reference to your copy, and
+own it from there. Keep the MIT license notice with the copied code.
