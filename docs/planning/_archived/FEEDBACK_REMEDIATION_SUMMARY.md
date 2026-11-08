@@ -220,7 +220,7 @@ builder.Services.AddScoped<IGridDataProvider<SupplierDto>, SupplierGridDataProvi
 
 **Status:** ✅ **RESOLVED** (2026-05-17, `crud-scaffolding-remediation` Sessions 2 + 4)
 
-**Resolution:** The original dual-pattern ambiguity was eliminated. Session 2 of `crud-scaffolding-remediation` replaced the hand-authored `SupplierScaffoldingExtensions.cs` with the convention-correct wrapper-generated version (reading `Services:ApiBaseUrl`, setting `X-Internal-Api-Key`, attaching `UserIdentityHandler`). Session 4 updated [`CRUD_SCAFFOLDING_FINAL_SUMMARY.md`](CRUD_SCAFFOLDING_FINAL_SUMMARY.md) and [`docs/scaffolding-templates/README.md`](docs/scaffolding-templates/README.md) so the wrapper-generated extension is documented as the single source of truth for integration wiring. The four-Option-A-vs-Option-B paragraph is gone; the canonical instruction is now one line: `builder.Services.AddSupplierScaffolding(builder.Configuration);`.
+**Resolution:** The original dual-pattern ambiguity was eliminated. Session 2 of `crud-scaffolding-remediation` replaced the hand-authored `SupplierScaffoldingExtensions.cs` with the convention-correct wrapper-generated version (reading `Services:ApiBaseUrl`, setting `X-Internal-Api-Key`, attaching `UserIdentityHandler`). Session 4 updated [`CRUD_SCAFFOLDING_FINAL_SUMMARY.md`](CRUD_SCAFFOLDING_FINAL_SUMMARY.md) and [`docs/scaffolding-templates/README.md`](../../scaffolding-templates/README.md) so the wrapper-generated extension is documented as the single source of truth for integration wiring. The four-Option-A-vs-Option-B paragraph is gone; the canonical instruction is now one line: `builder.Services.AddSupplierScaffolding(builder.Configuration);`.
 
 ---
 
@@ -233,7 +233,7 @@ But no entry is found in Components/Layout/ or Sidebar.
 
 **Status:** ✅ **RESOLVED** (2026-05-17, `crud-scaffolding-remediation` Session 4)
 
-**Resolution:** [`docs/scaffolding-templates/crud-page-template.md`](docs/scaffolding-templates/crud-page-template.md) now explicitly states the template does **not** generate a navigation menu entry; the menu wiring section is labeled "Navigation Menu (NOT Generated)" and explains that automated nav registration is deferred to Granularity 3, gated by the reauthorization clause in [`non-mvp-roadmap.md`](docs/scaffolding-templates/non-mvp-roadmap.md). Integration points in `crud-page-template.md` reduced from three to two (DI registration + schema application); nav wiring is documented separately as a manual hand-edit.
+**Resolution:** [`docs/scaffolding-templates/crud-page-template.md`](../../scaffolding-templates/crud-page-template.md) now explicitly states the template does **not** generate a navigation menu entry; the menu wiring section is labeled "Navigation Menu (NOT Generated)" and explains that automated nav registration is deferred to Granularity 3, gated by the reauthorization clause in [`non-mvp-roadmap.md`](../../scaffolding-templates/non-mvp-roadmap.md). Integration points in `crud-page-template.md` reduced from three to two (DI registration + schema application); nav wiring is documented separately as a manual hand-edit.
 
 ---
 

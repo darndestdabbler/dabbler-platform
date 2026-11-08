@@ -4,7 +4,7 @@
 > is the operator's, taken from `docs/planning/brief.md` (2026-10-03) and from
 > the plan material already in the tree: `docs/platform-overview.md` (the
 > canonical description of what the libraries are), `docs/planning/phase-3-platform-roadmap.md`
-> (the Access-migration workflow the platform feeds) and `docs/planning/project-status.md`
+> (the Access-migration workflow the platform feeds) and `docs/planning/_archived/project-status.md`
 > (stale, v1-era; kept only for the pointers it still owns).
 >
 > Session 2 challenges this plan's cuts and breaks it into numbered sessions.
@@ -339,7 +339,7 @@ each**, and nothing here is settled by writing it down.
    that version in the migration solution's playbook. *Operator leans:* do it,
    and make it the first numbered session — it unblocks the Access-migration
    walking skeleton.
-4. **Stale docs.** `docs/planning/access-to-blazor-cli-spec.md` describes an
+4. **Stale docs.** `docs/planning/_archived/access-to-blazor-cli-spec.md` describes an
    extractor/generator design that was never built and names projects that do
    not exist. `project-guidance.md` and `lessons-learned.md` carry banners
    pointing readers past their v1 sections; `project-status.md` is marked

@@ -23,7 +23,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 9 | MudBlazor 9 — templates, scaffolding and the E2E gate | no | 2026-11-07 |
 | 10 | Maintainer guide, gate rule and support policy | no | 2026-11-08 |
 | 11 | Bump to 0.2.0 | no | 2026-11-08 |
-| 12 | Retire what does not run | — | not declared |
+| 12 | Retire what does not run | no | 2026-11-08 |
 | 13 | Prune the v1 guidance | — | not declared |
 | 14 | Bump to 1.0.0 | — | not declared |
 
@@ -101,3 +101,9 @@ Write docs/MAINTAINING.md, the maintainer guide: how to clone, build, run the `u
 **Releasable: no.**
 
 Bump the single repository version to 0.2.0 ahead of the operator-tagged release: set DabblerVersion in Directory.Build.props to 0.2.0, change the -Version parameter default in tools/pack.ps1 (and the help text and example that name the current version) to 0.2.0, and add a 0.2.0 entry at the top of CHANGELOG.md naming the three breaking changes: the report expression engine's namespace is now Dabbler.Reports.Core.Expressions (moved from Dabbler.Components.Expressions); MudBlazor 9 is the floor (pinned at 9.12.0), and GridDataProviderExtensions.ToServerDataFunc now returns MudDataGrid's CancellationToken-taking ServerData delegate and passes that token to IGridDataProvider.FetchAsync; Dabbler.Components.Compat and the three Dabbler.Platform.Stubs.Components/.Reports/.Security providers are retired, the providers folded into Dabbler.Platform.Stubs under the namespace they already had.
+
+### Session 12 — Retire what does not run
+
+**Releasable: no.**
+
+Retire what no longer runs in dabbler-platform. Delete the v1 Python UAT runner under uat_runner/ (cut 1) and remove its entries from the project section of AGENTS.md and from README.md; the Playwright tests under tests/AcmeCoffeeOnline.Playwright/ stay untouched. Move docs/planning/access-to-blazor-cli-spec.md, docs/planning/project-status.md and the two root v1 summaries CRUD_SCAFFOLDING_FINAL_SUMMARY.md and FEEDBACK_REMEDIATION_SUMMARY.md into docs/planning/_archived/ with git mv (cut 4), fix the relative links inside the moved files so they still resolve from their new location, and update the full-path pointers to the moved files in docs/planning/brief.md and docs/planning/solution-plan.md. Add docs/session-sets/README.md, one paragraph stating that its 47 directories are read-only v1 history (cut 13), and correct the session-set count in AGENTS.md from 45 to 47.

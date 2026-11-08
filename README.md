@@ -61,9 +61,6 @@ toolchain ↔ catalog ↔ W2 runner compatibility matrix lives at
 - `tools/Dabbler.Security.DevIdp.Tool/` — `dotnet tool` that runs the DevIdp OIDC provider locally (`dabbler-devidp`)
 - `tests/` — xUnit, bUnit, and Playwright coverage
 - `docker/` — compose and container definitions
-- `uat_runner/` — v1 Python UAT runner (checklist → generated Playwright
-  tests → triage); not runnable since the v1 router was retired, kept
-  pending a port-or-retire decision
 - `docs/` — planning docs, `sessions/` (current workflow) and `session-sets/` (v1 history)
 
 ## Local commands

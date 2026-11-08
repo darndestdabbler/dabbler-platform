@@ -16,7 +16,7 @@ data-driven Blazor Server applications: `Dabbler.Components`,
 and two dotnet tools (`Dabbler.CrudSlice.Tool`, `Dabbler.Security.DevIdp.Tool`).
 AcmeCoffeeOnline under `src/Apps/` is the reference application the libraries
 are proven against. `docs/platform-overview.md` is the canonical description;
-`docs/planning/phase-3-platform-roadmap.md` and `docs/planning/project-status.md`
+`docs/planning/phase-3-platform-roadmap.md` and `docs/planning/_archived/project-status.md`
 are the existing plan material to import.
 
 Published: all packages at `0.1.0-preview.1` on nuget.org **except
@@ -79,7 +79,7 @@ Published: all packages at `0.1.0-preview.1` on nuget.org **except
    publish, then pin that version in the migration solution's playbook. This
    unblocks the Access migration walking skeleton and should be the first
    numbered session.
-4. **Stale docs.** `docs/planning/access-to-blazor-cli-spec.md` describes an
+4. **Stale docs.** `docs/planning/_archived/access-to-blazor-cli-spec.md` describes an
    extractor/generator design that was never built and names projects that do
    not exist; archive it. `docs/planning/project-guidance.md` and
    `lessons-learned.md` carry a banner pointing readers past their v1 sections;

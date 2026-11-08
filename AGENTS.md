@@ -82,11 +82,7 @@ pulling it. `dabbler deps check` compares the declaration with the build files.
 - `tests/` -- xUnit, bUnit and Playwright
 - `docker/` -- compose stack
 - `docs/sessions/` -- the session plan and router-written records (current workflow)
-- `docs/session-sets/` -- 45 completed v1 session sets, read-only history
-- `uat_runner/` -- v1 Python UAT runner (human checklist to generated Playwright
-  tests to triage). Not runnable since the v1 router was retired; the generated
-  `tests/AcmeCoffeeOnline.Playwright/Generated/*.cs` are committed and still
-  build. Whether to port or retire it is an open plan decision.
+- `docs/session-sets/` -- 47 directories of v1 session sets, read-only history
 
 Code style conventions (namespaces, casing, nullable, `Async` suffix) live in
 `docs/planning/project-guidance.md` -> Conventions -> Code Style.
