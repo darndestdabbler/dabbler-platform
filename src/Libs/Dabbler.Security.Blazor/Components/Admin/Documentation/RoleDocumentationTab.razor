@@ -1,0 +1,244 @@
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Documentation
+@inject IBakedInRoleProvider BakedInRoleProvider
+@inject SecurityConfigurationManager ConfigManager
+
+<div data-testid="role-documentation-tab">
+    <MudText Typo="Typo.h6" Class="mb-1">Role Documentation</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Read-only reference for the baked-in roles, the defaults for
+        user-type roles, and the Default Masks / Mask Exemptions semantics.
+        Canonical role names are immutable; the display aliases shown here
+        reflect the current deployment's
+        <code>BakedInRoleAliasOverrides</code> when configured.
+    </MudText>
+
+    <MudExpansionPanels MultiExpansion="true" Elevation="1"
+                        data-testid="role-documentation-panels">
+        @foreach (var row in _bakedInRows)
+        {
+            <MudExpansionPanel data-testid="@($"role-doc-panel-{row.Role.Name}")">
+                <TitleContent>
+                    <div class="d-flex align-center gap-2">
+                        <MudIcon Icon="@Icons.Material.Filled.Shield"
+                                 Color="@(row.Role.Privileges.IsUserType ? Color.Info : Color.Primary)"
+                                 Size="Size.Small" />
+                        <MudText Typo="Typo.subtitle1">
+                            @row.DisplayName
+                        </MudText>
+                        <MudChip T="string" Size="Size.Small"
+                                 Variant="Variant.Outlined"
+                                 Color="@(row.Role.Privileges.IsUserType ? Color.Info : Color.Primary)">
+                            @(row.Role.Privileges.IsUserType ? "user-type" : "non-user-type")
+                        </MudChip>
+                        @if (row.Role.Privileges.IsReadOnly)
+                        {
+                            <MudChip T="string" Size="Size.Small"
+                                     Variant="Variant.Outlined"
+                                     Color="Color.Secondary">
+                                read-only
+                            </MudChip>
+                        }
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <MudText Typo="Typo.caption" Class="mb-2"
+                             data-testid="@($"role-doc-canonical-{row.Role.Name}")">
+                        Canonical name: <code>@row.Role.Name</code>
+                        &nbsp;&middot;&nbsp;
+                        Default alias: <i>@row.Role.DefaultDisplayAlias</i>
+                        @if (row.AliasOverride is not null)
+                        {
+                            <text>&nbsp;&middot;&nbsp;Override: <b>@row.AliasOverride</b></text>
+                        }
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mb-3">@row.Role.Description</MudText>
+                    <MudDivider Class="my-2" />
+                    <MudText Typo="Typo.subtitle2" Class="mb-1">Capabilities</MudText>
+                    <ul class="role-doc-capabilities" data-testid="@($"role-doc-caps-{row.Role.Name}")">
+                        @foreach (var cap in row.Capabilities)
+                        {
+                            <li>@cap</li>
+                        }
+                    </ul>
+                </ChildContent>
+            </MudExpansionPanel>
+        }
+
+        <MudExpansionPanel data-testid="role-doc-panel-user-type-defaults">
+            <TitleContent>
+                <div class="d-flex align-center gap-2">
+                    <MudIcon Icon="@Icons.Material.Filled.PeopleAlt"
+                             Color="Color.Info" Size="Size.Small" />
+                    <MudText Typo="Typo.subtitle1">
+                        User-type role default privileges
+                    </MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <MudText Typo="Typo.body2" Class="mb-2">
+                    User-type roles are default-permissive: by default they may
+                    create, read, update, and delete transactional data within
+                    their assigned organization(s). Their privilege surface is
+                    shaped entirely by explicit restrictions configured in the
+                    Role Master Details tab.
+                </MudText>
+                <ul class="role-doc-capabilities">
+                    <li>Cannot create, edit, or delete roles.</li>
+                    <li>Cannot configure role privileges.</li>
+                    <li>Cannot see records for organizations to which they are
+                        not assigned.</li>
+                    <li>Cannot assign any role to any user.</li>
+                    <li>Records every write with the <code>RoleId</code> of the
+                        active role, so multi-role users have an unambiguous
+                        audit trail per write.</li>
+                </ul>
+                <MudDivider Class="my-2" />
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Restriction kinds</MudText>
+                <ul class="role-doc-capabilities">
+                    <li><b>Column restrictions</b> — <code>ViewOnly</code> renders
+                        data-bound controls read-only; <code>Hidden</code> hides
+                        them entirely. Absence of a row means the column is
+                        allowed.</li>
+                    <li><b>Row restrictions</b> — a filter expression that is
+                        automatically applied to every grid and page that binds
+                        to the table.</li>
+                    <li><b>UI restrictions</b> — either hide a page (menu items
+                        disappear; direct navigation returns 403) or disable or
+                        hide specific controls on a page.</li>
+                </ul>
+            </ChildContent>
+        </MudExpansionPanel>
+
+        <MudExpansionPanel data-testid="role-doc-panel-default-masks">
+            <TitleContent>
+                <div class="d-flex align-center gap-2">
+                    <MudIcon Icon="@Icons.Material.Filled.VisibilityOff"
+                             Color="Color.Warning" Size="Size.Small" />
+                    <MudText Typo="Typo.subtitle1">
+                        Default Masks and Mask Exemptions
+                    </MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <MudText Typo="Typo.body2" Class="mb-2">
+                    Sensitive-field masking is modelled as a platform-wide
+                    default with per-role exceptions, not as a per-role rule
+                    with a platform default. Declare a column sensitive once
+                    and every role sees it masked until an exemption grants
+                    unmasked access.
+                </MudText>
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Platform Default Masks</MudText>
+                <ul class="role-doc-capabilities">
+                    <li>SystemAdmin declares <code>{ Table, Column, MaskFormat }</code>
+                        rows. <code>MaskFormat</code> supports tokens such as
+                        <code>{last4}</code> and <code>{firstChar}</code>;
+                        a blank format renders as <code>********</code>.</li>
+                    <li>The Default Masks tab surfaces a sensitive-name safety
+                        net that flags columns matching common sensitive
+                        patterns (ssn, taxid, ein, dob, password, ccnum,
+                        salary) but not yet declared.</li>
+                    <li>Masks render <b>even when the stored value is null</b>
+                        &mdash; an empty-looking sensitive field would itself
+                        leak information.</li>
+                </ul>
+                <MudText Typo="Typo.subtitle2" Class="mb-1 mt-3">Per-role Mask Exemptions</MudText>
+                <ul class="role-doc-capabilities">
+                    <li>Each exemption carries
+                        <code>{ EntityKey, ColumnKey, TargetRoleName, GrantedBy, GrantedAt, ExpiresAt? }</code>.
+                        A null <code>ExpiresAt</code> is permanent; a non-null
+                        value is time-bound.</li>
+                    <li><b>Targeting user-type roles or UserAdmin:</b>
+                        granted by SystemAdmin or CrossOrgUserAdmin, with or
+                        without expiry.</li>
+                    <li><b>Targeting SystemAdmin or CrossOrgMonitor:</b>
+                        granted only by CrossOrgUserAdmin and must carry an
+                        expiry (separation of duties).</li>
+                    <li><b>Targeting CrossOrgUserAdmin:</b> self-granted only
+                        and must carry an expiry &mdash; bounded self-service
+                        unmasking for legitimate review work, fully audited.</li>
+                </ul>
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</div>
+
+<style>
+    .role-doc-capabilities {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+    .role-doc-capabilities li {
+        margin-bottom: 0.25rem;
+    }
+</style>
+
+@code {
+    /// <summary>
+    /// Static, read-only reference view of the baked-in roles, user-type role
+    /// defaults, and Default Masks / Mask Exemption semantics. Sourced from
+    /// <see cref="IBakedInRoleProvider"/> plus the deployment's
+    /// <see cref="SecurityConfiguration.BakedInRoleAliasOverrides"/> so the
+    /// names a reader sees match the names they see elsewhere in the dashboard.
+    /// </summary>
+
+    private readonly List<RoleDocRow> _bakedInRows = new();
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        var overrides = ConfigManager.Current.BakedInRoleAliasOverrides ?? new();
+
+        _bakedInRows.Clear();
+        foreach (var role in BakedInRoleProvider.GetBakedInRoles())
+        {
+            overrides.TryGetValue(role.Name, out var rawOverride);
+            var effectiveOverride = string.IsNullOrWhiteSpace(rawOverride) ? null : rawOverride;
+            var display = effectiveOverride ?? role.DefaultDisplayAlias;
+            _bakedInRows.Add(new RoleDocRow(role, effectiveOverride, display, BuildCapabilities(role)));
+        }
+    }
+
+    private static IReadOnlyList<string> BuildCapabilities(BakedInRoleDefinition role)
+    {
+        var p = role.Privileges;
+        var caps = new List<string>();
+        if (p.HasAllPrivileges)
+            caps.Add("Has every platform privilege (administrative short-circuit).");
+        if (p.IsUserType)
+            caps.Add("User-type role: performs CRUD on transactional data within the user's organization(s), subject to explicit restrictions.");
+        if (p.IsReadOnly)
+            caps.Add("Read-only: cannot create, update, or delete any data.");
+        if (p.CanManageRoles)
+            caps.Add("Can create, edit, or archive user-type roles.");
+        if (p.CanConfigureRolePrivileges)
+            caps.Add("Can configure user-type role restrictions and defaults.");
+        if (p.CanManageOrganizations)
+            caps.Add("Can create, edit, or archive organizations.");
+        if (p.CanAssignUsersToRoles)
+            caps.Add("Can assign roles to users within the role's scope.");
+        if (p.CanSeeAllOrganizations)
+            caps.Add("Bypasses the per-organization query filter and can see records for every organization.");
+        if (p.CanAssignCrossOrgUserAdmin)
+            caps.Add("Can assign CrossOrgUserAdmin to another user.");
+        if (p.CanAssignCrossOrgMonitor)
+            caps.Add("Can assign CrossOrgMonitor to another user.");
+        if (p.CanSelfAssignOwnRole)
+            caps.Add("Can self-assign the role so coverage can be granted without waiting for SystemAdmin.");
+        if (p.CanGrantMaskExemptions)
+            caps.Add("Can grant Mask Exemptions subject to the separation-of-duties authority rules.");
+        if (caps.Count == 0)
+            caps.Add("No administrative privileges; behavior is shaped by restrictions configured in Role Master Details.");
+        return caps;
+    }
+
+    private sealed record RoleDocRow(
+        BakedInRoleDefinition Role,
+        string? AliasOverride,
+        string DisplayName,
+        IReadOnlyList<string> Capabilities);
+}

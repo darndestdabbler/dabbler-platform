@@ -1,0 +1,114 @@
+@using Dabbler.Security.Authorization
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Role
+
+<MudPaper Class="pa-4" Elevation="1" data-testid="baked-in-privileges-panel">
+    <div class="d-flex align-center mb-3 gap-2">
+        <MudIcon Icon="@Icons.Material.Filled.Lock" Color="Color.Primary" />
+        <MudText Typo="Typo.h6" data-testid="baked-in-privileges-title">
+            @Role.Name — compiled privileges
+        </MudText>
+        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary">
+            baked-in
+        </MudChip>
+    </div>
+
+    <MudText Typo="Typo.body2" Class="mb-3" data-testid="baked-in-privileges-description">
+        @Role.Description
+    </MudText>
+
+    @if (!string.IsNullOrEmpty(AliasOverride))
+    {
+        <MudAlert Severity="Severity.Info" Dense="true" Class="mb-3"
+                  data-testid="baked-in-privileges-alias">
+            Display alias override: <b>@AliasOverride</b>
+            (default: <i>@Role.DefaultDisplayAlias</i>).
+        </MudAlert>
+    }
+    else
+    {
+        <MudText Typo="Typo.caption" Class="mb-3" data-testid="baked-in-privileges-default-alias">
+            Default display alias: <b>@Role.DefaultDisplayAlias</b>
+        </MudText>
+    }
+
+    <MudDivider Class="my-3" />
+
+    <MudText Typo="Typo.subtitle2" Class="mb-2">Privilege flags</MudText>
+    <MudSimpleTable Dense="true" Hover="false" Striped="true" Bordered="true"
+                    data-testid="baked-in-privileges-table">
+        <thead>
+            <tr>
+                <th>Privilege</th>
+                <th style="text-align:center;max-width:80px;">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in _privilegeRows)
+            {
+                <tr data-testid="@($"privilege-row-{row.Key}")">
+                    <td>@row.Label</td>
+                    <td style="text-align:center;">
+                        @if (row.Value)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"
+                                     Color="Color.Success" Size="Size.Small"
+                                     data-testid="@($"privilege-value-{row.Key}-true")" />
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.RemoveCircleOutline"
+                                     Color="Color.Default" Size="Size.Small"
+                                     data-testid="@($"privilege-value-{row.Key}-false")" />
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+</MudPaper>
+
+@code {
+    /// <summary>
+    /// Read-only summary of a baked-in role's compiled privilege flags. Rendered
+    /// below the Role Master grid when a baked-in row is selected.
+    /// Has no edit affordances — baked-in privileges are immutable per the
+    /// architecture.
+    /// </summary>
+
+    /// <summary>
+    /// The baked-in role whose privileges are being displayed. Required.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public BakedInRoleDefinition Role { get; set; } = default!;
+
+    /// <summary>
+    /// The per-deployment <c>SecurityConfiguration.BakedInRoleAliasOverrides</c>
+    /// value for this role, or null when no override is configured.
+    /// </summary>
+    [Parameter]
+    public string? AliasOverride { get; set; }
+
+    private readonly List<PrivilegeRow> _privilegeRows = new();
+
+    /// <inheritdoc />
+    protected override void OnParametersSet()
+    {
+        _privilegeRows.Clear();
+        var p = Role.Privileges;
+        _privilegeRows.Add(new("has-all-privileges", "Has all privileges (admin short-circuit)", p.HasAllPrivileges));
+        _privilegeRows.Add(new("is-user-type", "Is user-type", p.IsUserType));
+        _privilegeRows.Add(new("is-read-only", "Is read-only", p.IsReadOnly));
+        _privilegeRows.Add(new("can-manage-roles", "Can manage roles (create/edit/archive)", p.CanManageRoles));
+        _privilegeRows.Add(new("can-configure-role-privileges", "Can configure role privileges", p.CanConfigureRolePrivileges));
+        _privilegeRows.Add(new("can-manage-organizations", "Can manage organizations", p.CanManageOrganizations));
+        _privilegeRows.Add(new("can-assign-users-to-roles", "Can assign users to roles", p.CanAssignUsersToRoles));
+        _privilegeRows.Add(new("can-see-all-organizations", "Can see all organizations (cross-org)", p.CanSeeAllOrganizations));
+        _privilegeRows.Add(new("can-assign-cross-org-user-admin", "Can assign CrossOrgUserAdmin", p.CanAssignCrossOrgUserAdmin));
+        _privilegeRows.Add(new("can-assign-cross-org-monitor", "Can assign CrossOrgMonitor", p.CanAssignCrossOrgMonitor));
+        _privilegeRows.Add(new("can-self-assign-own-role", "Can self-assign own role", p.CanSelfAssignOwnRole));
+        _privilegeRows.Add(new("can-grant-mask-exemptions", "Can grant mask exemptions", p.CanGrantMaskExemptions));
+    }
+
+    private sealed record PrivilegeRow(string Key, string Label, bool Value);
+}

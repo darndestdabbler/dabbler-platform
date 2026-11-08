@@ -1,0 +1,33 @@
+@page "/reports/sample"
+@attribute [DabblerPageAuthorize("/reports/sample")]
+@using Dabbler.Reports.Blazor
+@using Dabbler.Reports.Core.Data
+@using DabblerApp.Web.Reports
+
+<PageTitle>Sample Report — DabblerApp</PageTitle>
+
+<DabblerReportPage RdfPath="Reports/sample-items.rdf.json"
+                   RdfLoader="LoadRdfAsync"
+                   DataProvider="_dataProvider"
+                   Title="Sample Items Report"
+                   AutoRunOnLoad="true"
+                   ShowPdfExport="true"
+                   DefaultScale="1.0"
+                   PdfFileName="sample-items-report.pdf"
+                   OnError="OnErrorAsync" />
+
+@code {
+    [Inject]
+    private SampleReportDataProvider _dataProvider { get; set; } = default!;
+
+    [Inject]
+    private IWebHostEnvironment _env { get; set; } = default!;
+
+    private async Task<string> LoadRdfAsync(string path)
+    {
+        var fullPath = Path.Combine(_env.ContentRootPath, path);
+        return await File.ReadAllTextAsync(fullPath);
+    }
+
+    private Task OnErrorAsync(Exception ex) => Task.CompletedTask;
+}

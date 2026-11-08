@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/dotnetcli.host",
+  "symbolInfo": {
+    "entity": {
+      "longName": "entity",
+      "shortName": "e"
+    },
+    "entityPlural": {
+      "longName": "entity-plural"
+    },
+    "webNamespace": {
+      "longName": "web-namespace"
+    },
+    "sharedNamespace": {
+      "longName": "shared-namespace"
+    },
+    "dtoNamespace": {
+      "longName": "dto-namespace"
+    },
+    "apiBaseUrlConfigKey": {
+      "longName": "api-base-url-config-key"
+    },
+    "pkType": {
+      "longName": "pk-type"
+    },
+    "schema": {
+      "longName": "schema"
+    }
+  }
+}

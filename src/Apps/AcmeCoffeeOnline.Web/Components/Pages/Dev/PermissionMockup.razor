@@ -1,0 +1,383 @@
+@page "/dev/permission-mockup"
+@layout AcmeCoffeeOnline.Web.Components.Layout.AuthLayout
+@attribute [AllowAnonymous]
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Permission UI Mockup — Dev</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-8" data-testid="permission-mockup">
+    @if (!Environment.IsDevelopment() && !Environment.IsEnvironment("Test"))
+    {
+        <MudPaper Elevation="2" Class="pa-8">
+            <MudAlert Severity="Severity.Warning">
+                The permission mockup page is only available in Development or Test environments.
+            </MudAlert>
+        </MudPaper>
+    }
+    else
+    {
+        <MudText Typo="Typo.h4" Class="mb-2">Permission UI Mockup</MudText>
+        <MudText Typo="Typo.body2" Class="mb-6" Color="Color.Secondary">
+            Throwaway visual spike — hard-coded state, no DI, no persistence. Use to evaluate
+            the three proposed treatments before committing to a session-set spec.
+        </MudText>
+
+        <!-- ======================================================================
+             Treatment 1 — Page Access matrix: three-icon toggle per cell.
+             States: Allow (green check), Deny (red X), Force Deny (red block).
+             Resolution: Force Deny > Allow > Deny.
+             ====================================================================== -->
+        <MudCard Class="mb-8" Elevation="3">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Page Access — three-icon toggle (proposed)</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Click any icon to cycle Deny → Allow → Force Deny → Deny.
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <!-- Legend -->
+                <MudPaper Elevation="0" Class="pa-3 mb-4" Style="background:var(--mud-palette-background-grey);">
+                    <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Center">
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            <img src="_content/Dabbler.Security.Blazor/allow.svg" alt="Allow" style="height:20px; width:auto;" />
+                            <MudText Typo="Typo.caption">Allow</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            <img src="_content/Dabbler.Security.Blazor/soft-deny.svg" alt="Soft deny" style="height:20px; width:auto;" />
+                            <MudText Typo="Typo.caption">Deny (soft) — same runtime as "not listed"; another role's Allow overrides</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            <img src="_content/Dabbler.Security.Blazor/force-deny.svg" alt="Force deny" style="height:20px; width:auto;" />
+                            <MudText Typo="Typo.caption">Force Deny — overrides any Allow from any other role</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+
+                <MudTable T="PageRow" Items="_pageRows" Dense="true" Hover="true" Bordered="true" Elevation="0">
+                    <HeaderContent>
+                        <MudTh Style="width:180px;">Page</MudTh>
+                        @foreach (var role in _roles)
+                        {
+                            <MudTh Style="text-align:center; width:90px;">@role</MudTh>
+                        }
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Page">
+                            <MudText Typo="Typo.body2">@context.Page</MudText>
+                        </MudTd>
+                        @foreach (var role in _roles)
+                        {
+                            var r = role;
+                            var state = context.Cells[r];
+                            <MudTd Style="text-align:center;">
+                                <MudButton Variant="Variant.Text" Size="Size.Small" Class="pa-1"
+                                           title="@TitleFor(state)"
+                                           OnClick="@(() => CyclePage(context, r))">
+                                    <img src="@($"_content/Dabbler.Security.Blazor/{SvgFor(state)}")"
+                                         alt="@TitleFor(state)"
+                                         style="height:20px; width:auto; display:inline-block;" />
+                                </MudButton>
+                            </MudTd>
+                        }
+                    </RowTemplate>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+
+        <!-- ======================================================================
+             Treatment 2 — Entity Access CRUD matrix with tight spacing.
+             Binary per cell. No three-state (user's call: CRUD stays binary).
+             ====================================================================== -->
+        <MudCard Class="mb-8" Elevation="3">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Entity Access — compact CRUD (proposed)</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Binary checkboxes with tight column widths. Force Deny at the Entity-level
+                        row (future) would lock out all four CRUD columns.
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <!-- colgroup forces CRUD columns to the target width regardless of content -->
+                <table class="mud-table mud-table-dense mud-table-hover mud-table-bordered crud-tight" style="width:auto; table-layout:fixed;">
+                    <colgroup>
+                        <col style="width:160px;" />
+                        @foreach (var _ in _entities)
+                        {
+                            <col style="width:28px;" />
+                            <col style="width:28px;" />
+                            <col style="width:28px;" />
+                            <col style="width:28px;" />
+                        }
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="text-align:left; padding:8px;">Role / Entity</th>
+                            @foreach (var entity in _entities)
+                            {
+                                <th colspan="4" style="text-align:center; padding:6px; border-left:1px solid var(--mud-palette-table-lines);">
+                                    @entity
+                                </th>
+                            }
+                        </tr>
+                        <tr>
+                            @foreach (var _ in _entities)
+                            {
+                                @foreach (var op in _crudOps)
+                                {
+                                    <th style="padding:0 !important; text-align:center; border-left:1px solid var(--mud-palette-table-lines); overflow:visible;">
+                                        <img src="@($"_content/Dabbler.Security.Blazor/{op.ToLowerInvariant()}-header.svg")"
+                                             alt="@op" title="@op" aria-label="@op"
+                                             style="height:48px; width:auto; display:block; margin:0 auto;" />
+                                    </th>
+                                }
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in _entityRows)
+                        {
+                            <tr>
+                                <td style="padding:4px 8px;"><MudText Typo="Typo.body2">@row.Role</MudText></td>
+                                @foreach (var entity in _entities)
+                                {
+                                    var e = entity;
+                                    <td style="padding:0 !important; text-align:center; border-left:1px solid var(--mud-palette-table-lines);">
+                                        <MudCheckBox T="bool" Size="Size.Small" Dense="true" Color="Color.Success" Class="ma-0 pa-0 crud-cb" @bind-Value="row.Cells[e].Create" />
+                                    </td>
+                                    <td style="padding:0 !important; text-align:center;">
+                                        <MudCheckBox T="bool" Size="Size.Small" Dense="true" Color="Color.Info" Class="ma-0 pa-0 crud-cb" @bind-Value="row.Cells[e].Read" />
+                                    </td>
+                                    <td style="padding:0 !important; text-align:center;">
+                                        <MudCheckBox T="bool" Size="Size.Small" Dense="true" Color="Color.Warning" Class="ma-0 pa-0 crud-cb" @bind-Value="row.Cells[e].Update" />
+                                    </td>
+                                    <td style="padding:0 !important; text-align:center;">
+                                        <MudCheckBox T="bool" Size="Size.Small" Dense="true" Color="Color.Error" Class="ma-0 pa-0 crud-cb" @bind-Value="row.Cells[e].Delete" />
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <style>
+                    /* Override MudBlazor's default checkbox padding so cells can stay tight. */
+                    .crud-tight .crud-cb .mud-icon-button {
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        min-width: 0 !important;
+                    }
+                    .crud-tight .crud-cb .mud-icon-button .mud-ripple {
+                        margin: 0 !important;
+                    }
+                    .crud-tight .crud-cb {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        display: inline-flex !important;
+                    }
+                    /* Size the visible tick glyph to 20px for a consistent look with Page Access SVGs. */
+                    .crud-tight .crud-cb .mud-svg-icon,
+                    .crud-tight .crud-cb svg {
+                        height: 20px !important;
+                        width: 20px !important;
+                        font-size: 20px !important;
+                    }
+                </style>
+            </MudCardContent>
+        </MudCard>
+
+        <!-- ======================================================================
+             Treatment 3 — Control Permissions: dual MudSwitch (cross-wired).
+             Visible (blue) + Enabled (green). Invariant: !Visible => !Enabled.
+             ====================================================================== -->
+        <MudCard Class="mb-8" Elevation="3">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Control Permissions — dual switch (proposed)</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Cross-wired. Toggling Visible off forces Enabled off. Toggling Enabled on
+                        while Visible is off flips Visible on.
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTable T="ControlRow" Items="_controlRows" Dense="true" Hover="true" Bordered="true" Elevation="0">
+                    <HeaderContent>
+                        <MudTh Style="width:220px;">Control</MudTh>
+                        <MudTh Style="width:140px; text-align:center;">Visible</MudTh>
+                        <MudTh Style="width:140px; text-align:center;">Enabled</MudTh>
+                        <MudTh>Resulting state</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Control"><MudText Typo="Typo.body2">@context.Name</MudText></MudTd>
+                        <MudTd Style="text-align:center;">
+                            <MudSwitch T="bool"
+                                       Value="@context.Visible"
+                                       ValueChanged="@(v => OnVisibleChanged(context, v))"
+                                       Color="Color.Primary" />
+                        </MudTd>
+                        <MudTd Style="text-align:center;">
+                            <MudSwitch T="bool"
+                                       Value="@context.Enabled"
+                                       ValueChanged="@(v => OnEnabledChanged(context, v))"
+                                       Color="Color.Success" />
+                        </MudTd>
+                        <MudTd>
+                            <MudChip T="string" Size="Size.Small" Color="@ControlStateColor(context)">
+                                @ControlStateLabel(context)
+                            </MudChip>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    }
+</MudContainer>
+
+@code {
+    // ------------------------------------------------------------------
+    // Shared role list
+    // ------------------------------------------------------------------
+    private static readonly string[] _roles = ["SystemAdmin", "Backoffice", "Customer", "Guest"];
+
+    // ------------------------------------------------------------------
+    // Treatment 1 state
+    // ------------------------------------------------------------------
+    private enum PermState { Deny, Allow, ForceDeny }
+
+    private sealed class PageRow
+    {
+        public string Page { get; set; } = string.Empty;
+        public Dictionary<string, PermState> Cells { get; set; } = [];
+    }
+
+    private readonly List<PageRow> _pageRows =
+    [
+        new PageRow { Page = "/admin/security", Cells = BuildCells(PermState.Allow, PermState.Deny, PermState.Deny, PermState.Deny) },
+        new PageRow { Page = "/orders",         Cells = BuildCells(PermState.Allow, PermState.Allow, PermState.Allow, PermState.ForceDeny) },
+        new PageRow { Page = "/dashboard",      Cells = BuildCells(PermState.Allow, PermState.Allow, PermState.Deny, PermState.Deny) },
+    ];
+
+    private static Dictionary<string, PermState> BuildCells(params PermState[] values) =>
+        _roles.Zip(values, (r, v) => (r, v)).ToDictionary(t => t.r, t => t.v);
+
+    private void CyclePage(PageRow row, string role)
+    {
+        // Order: Allow → Soft Deny → Force Deny → Allow …
+        row.Cells[role] = row.Cells[role] switch
+        {
+            PermState.Allow => PermState.Deny,
+            PermState.Deny => PermState.ForceDeny,
+            _ => PermState.Allow
+        };
+    }
+
+    private static string SvgFor(PermState s) => s switch
+    {
+        PermState.Allow => "allow.svg",
+        PermState.ForceDeny => "force-deny.svg",
+        _ => "soft-deny.svg"
+    };
+
+    private static string TitleFor(PermState s) => s switch
+    {
+        PermState.Allow => "Allow",
+        PermState.ForceDeny => "Force Deny (overrides all Allows)",
+        _ => "Deny (soft — overridable)"
+    };
+
+    // ------------------------------------------------------------------
+    // Treatment 2 state
+    // ------------------------------------------------------------------
+    private static readonly string[] _entities = ["Product", "Order", "Customer"];
+    private static readonly string[] _crudOps = ["Create", "Read", "Update", "Delete"];
+
+    private sealed class EntityRow
+    {
+        public string Role { get; set; } = string.Empty;
+        public Dictionary<string, Crud> Cells { get; set; } = [];
+    }
+
+    private sealed class Crud
+    {
+        public bool Create { get; set; }
+        public bool Read { get; set; }
+        public bool Update { get; set; }
+        public bool Delete { get; set; }
+    }
+
+    private readonly List<EntityRow> _entityRows =
+    [
+        new EntityRow { Role = "SystemAdmin", Cells = BuildCrud((true, true, true, true), (true, true, true, true), (true, true, true, true)) },
+        new EntityRow { Role = "Backoffice",  Cells = BuildCrud((true, true, true, false), (true, true, true, false), (true, true, true, false)) },
+        new EntityRow { Role = "Customer",    Cells = BuildCrud((false, true, false, false), (false, true, false, false), (false, false, false, false)) },
+        new EntityRow { Role = "Guest",       Cells = BuildCrud((false, true, false, false), (false, false, false, false), (false, false, false, false)) },
+    ];
+
+    private static Dictionary<string, Crud> BuildCrud(
+        (bool c, bool r, bool u, bool d) product,
+        (bool c, bool r, bool u, bool d) order,
+        (bool c, bool r, bool u, bool d) customer) =>
+        new()
+        {
+            ["Product"] = new Crud { Create = product.c, Read = product.r, Update = product.u, Delete = product.d },
+            ["Order"] = new Crud { Create = order.c, Read = order.r, Update = order.u, Delete = order.d },
+            ["Customer"] = new Crud { Create = customer.c, Read = customer.r, Update = customer.u, Delete = customer.d },
+        };
+
+    // ------------------------------------------------------------------
+    // Treatment 3 state
+    // ------------------------------------------------------------------
+    private sealed class ControlRow
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool Visible { get; set; }
+        public bool Enabled { get; set; }
+    }
+
+    private readonly List<ControlRow> _controlRows =
+    [
+        new ControlRow { Name = "Orders → Add Product button",    Visible = true,  Enabled = true },
+        new ControlRow { Name = "Customers → Delete button",       Visible = true,  Enabled = false },
+        new ControlRow { Name = "Reports → Export (CSV) menu",     Visible = false, Enabled = false },
+    ];
+
+    private void OnVisibleChanged(ControlRow row, bool next)
+    {
+        row.Visible = next;
+        if (!next)
+        {
+            row.Enabled = false;
+        }
+    }
+
+    private void OnEnabledChanged(ControlRow row, bool next)
+    {
+        row.Enabled = next;
+        if (next && !row.Visible)
+        {
+            row.Visible = true;
+        }
+    }
+
+    private static string ControlStateLabel(ControlRow r) =>
+        (r.Visible, r.Enabled) switch
+        {
+            (true, true) => "Enabled",
+            (true, false) => "Visible but disabled",
+            (false, false) => "Hidden",
+            _ => "(invariant violation)"
+        };
+
+    private static Color ControlStateColor(ControlRow r) =>
+        (r.Visible, r.Enabled) switch
+        {
+            (true, true) => Color.Success,
+            (true, false) => Color.Warning,
+            (false, false) => Color.Default,
+            _ => Color.Error
+        };
+}

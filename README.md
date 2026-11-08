@@ -1,0 +1,96 @@
+# Dabbler Platform
+
+This repository is the integrated development home for the AcmeCoffeeOnline
+rebuild, the required Dabbler libraries, and the AI-led workflow assets used
+to run session-set development from one place.
+
+## Current foundation
+
+The repo currently includes:
+
+- the rebuilt AcmeCoffeeOnline Web, API, and Shared projects
+- a **MudBlazor-native UI layer** using MudBlazor components directly for
+  layout, navigation, grids, forms, dialogs, and theming — replacing the
+  prior custom wrapper abstractions
+- consolidated `Dabbler.Security` and `Dabbler.Security.Blazor` source projects
+- integrated `Dabbler.Components` library retaining the QBE filter model,
+  expression engine, and data provider abstractions while delegating UI
+  rendering to MudBlazor
+- Dabbler Reports source projects under `src/Libs/`
+- route-based navigation with `MudLayout`, `MudAppBar`, `MudDrawer`, and
+  `MudNavMenu` replacing the prior shell/workspace/tab model
+- explicit page composition: each page declares its own MudDataGrid columns,
+  MudForm fields, and layout rather than generating UI from metadata
+- central build and package management
+- Docker Compose for web, api, sql server, MailHog, and Playwright
+- xUnit, bUnit, and Playwright coverage including conformance tests, filter
+  panel interaction tests, accessibility assertions, and browser workflows
+- repo-root Dabbler AI Orchestration declaration: `dabbler.yaml`,
+  `solution-dependencies.json`, `AGENTS.md` (managed body) and `CLAUDE.md`
+- durable cutover/guardrail docs
+
+**New external adopter?** Start with
+[`docs/getting-started.md`](docs/getting-started.md) — scaffold a
+multi-project starter (Blazor Server web + Web API + shared library + tests)
+with security and reports in under 30
+minutes using `dotnet new dabbler-app`. The generated solution ships a
+`docker/` folder with a split compose stack (SQL Server + Mailpit infra,
+plus Web + Api app services) so you can run the full stack with two
+`docker compose` commands.
+
+**New here (contributor)?** Start with
+[`docs/platform-overview.md`](docs/platform-overview.md) — the
+canonical entry-point doc describing what the platform is, the
+libraries it ships, and how to adopt them.
+
+Work runs through the Dabbler AI Orchestration VS Code extension; the
+session plan is `docs/sessions/session-plan.md` and the managed instructions
+are in `AGENTS.md`. `docs/session-sets/` is the completed v1 history.
+Per-library READMEs live under [`src/Libs/`](src/Libs/); the W0
+toolchain ↔ catalog ↔ W2 runner compatibility matrix lives at
+[`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md).
+
+## Project layout
+
+- `src/Apps/AcmeCoffeeOnline.Web/` — rebuilt Blazor Server host with
+  MudBlazor-native pages and layout
+- `src/Apps/AcmeCoffeeOnline.Api/` — rebuilt REST API host
+- `src/Apps/AcmeCoffeeOnline.Shared/` — shared DTOs, enums, and models
+- `src/Libs/` — integrated Dabbler libraries (Components, Security, Reports)
+- `templates/Dabbler.Templates/` — `dotnet new` template package (`dabbler-app`, `dabbler-min`)
+- `tools/Dabbler.Security.DevIdp.Tool/` — `dotnet tool` that runs the DevIdp OIDC provider locally (`dabbler-devidp`)
+- `tests/` — xUnit, bUnit, and Playwright coverage
+- `docker/` — compose and container definitions
+- `uat_runner/` — v1 Python UAT runner (checklist → generated Playwright
+  tests → triage); not runnable since the v1 router was retired, kept
+  pending a port-or-retire decision
+- `docs/` — planning docs, `sessions/` (current workflow) and `session-sets/` (v1 history)
+
+## Local commands
+
+```bash
+dotnet build Dabbler.Platform.sln
+dotnet test Dabbler.Platform.sln
+
+# E2E (Playwright runs from the host against the app containers):
+docker compose -f docker/docker-compose.infra.yml up -d        # sqlserver + mailhog (start once, leave up)
+docker compose -f docker/docker-compose.app.yml   up --build -d # api + web (rebuild after code changes)
+dotnet test tests/AcmeCoffeeOnline.Playwright/
+```
+
+The compose stack is split into two files. `docker-compose.infra.yml` runs
+the persistent dev dependencies (SQL Server, MailHog, and the `dabbler-dev`
+network); start it once and leave it up across sessions. `docker-compose.app.yml`
+runs the rebuildable app services (api, web) with explicit `image:` tags so
+rebuilds replace the tagged images instead of orphaning dangling layers.
+Playwright is intentionally **not** a compose service — run it from the
+host (`dotnet test` or VS Code Test Explorer) against `http://localhost:5010`.
+
+## If this library stops being maintained
+
+Every `Dabbler.*` package, tool and template here is MIT-licensed, and its
+source is in this repository. If the platform stops being maintained, the
+fallback is to copy the MIT source of the packages you use into your
+application, replace each package reference with a project reference to
+your copy, and own it from there. Keep the MIT license notice with the
+copied code. Each package's README names where its source lives.
