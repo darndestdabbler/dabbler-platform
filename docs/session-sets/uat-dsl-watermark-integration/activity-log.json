@@ -1,0 +1,307 @@
+{
+  "sessionSetName": "uat-dsl-watermark-integration",
+  "createdDate": "2026-04-29T15:23:15.597479+00:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-29T15:23:31.372531+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, and flake investigation context",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/crawler-audit",
+      "dateTime": "2026-04-29T15:29:16.599948+00:00",
+      "description": "Audited CrawlerOrchestrator, RouteEnumerator, CatalogElement \u2014 identified CatalogElement as the schema record and CrawlerOrchestrator.RunAsync as the pipeline entry point",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/schema-update",
+      "dateTime": "2026-04-29T15:29:16.600461+00:00",
+      "description": "Added IsWatermarked:bool field to CatalogElement record; bumped schemaVersion to 1.1 in CrawlerOrchestrator.WriteManifest",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/detection-impl",
+      "dateTime": "2026-04-29T15:29:16.600996+00:00",
+      "description": "Created WatermarkDetector.cs \u2014 source-level scan of .razor files for @page + @inherits TrackedComponentBase; uses RouteEnumerator.NormalizeTemplatePath to strip type constraints",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/recrawl",
+      "dateTime": "2026-04-29T15:29:16.600996+00:00",
+      "description": "Verified via unit tests that /admin/products (ProductManagement.razor has both directives) gets IsWatermarked=true and /dashboard gets false; actual re-crawl deferred to compose stack availability",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/unit-tests",
+      "dateTime": "2026-04-29T15:29:16.601513+00:00",
+      "description": "Created ComponentCatalogCrawler.Tests project; 8 tests covering direct inheritance, no-page sub-component, parameterised route normalisation, nested subdirectory, missing directory \u2014 all pass",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-29T15:29:16.602032+00:00",
+      "description": "dotnet build: 0 errors, 184 pre-existing warnings. dotnet test (excl Playwright): 719 passed, 0 failed across all test projects",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-29T15:32:22.075452+00:00",
+      "description": "Session verification via opus: see session-reviews/session-001.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 7822,
+          "outputTokens": 3131,
+          "costUsd": 0.352155
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/commit",
+      "dateTime": "2026-04-29T15:33:46.467323+00:00",
+      "description": "Committed Session 1 changes: WatermarkDetector, CatalogElement IsWatermarked, CrawlerOrchestrator+AccessibilityTreeScraper wiring, test project, README, ai-assignment.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-29T15:43:20.289150+00:00",
+      "description": "Read planning docs (project-guidance, lessons-learned, authoring-guide), spec, sibling repo CLAUDE.md, dabbler-uat-dsl grammar/AST/visitor/emitter/tests",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/grammar-extend",
+      "dateTime": "2026-04-29T15:43:20.289150+00:00",
+      "description": "Extended DabblerUatDsl.g4: added waitForActionsQuietStep rule (WAIT FOR ACTIONS QUIET), inserted before waitForStep in step alternatives; added ACTIONS and QUIET keyword tokens; updated header comment with the new verb",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/parser-ast",
+      "dateTime": "2026-04-29T15:43:20.290144+00:00",
+      "description": "Added WaitForActionsQuietStep record to Ast/Nodes.cs; added VisitWaitForActionsQuietStep override to UatDslVisitor.cs; semantic validator unchanged (the verb has no labels so DescribeProbe falls through cleanly)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/emitter",
+      "dateTime": "2026-04-29T15:43:20.290144+00:00",
+      "description": "Added WaitForActionsQuietStep case to PlaywrightCSharpEmitter.EmitStep emitting exactly: await fixture.WaitForQuietAsync(page);",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/grammar-tests",
+      "dateTime": "2026-04-29T15:43:20.291143+00:00",
+      "description": "Added 4 grammar tests (basic parse, lowercase, missing QUIET fails, distinct-from-quoted-WAIT-FOR), 1 AST test (node construction + ToCanonicalText), 2 emitter tests (emits exact line; emits regardless of EmitWatermarkWaits flag)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/pack",
+      "dateTime": "2026-04-29T15:43:20.291143+00:00",
+      "description": "Bumped Dabbler.Uat.Dsl.Core and Dabbler.Uat.Dsl.Emitters.Playwright.CSharp to 1.1.0; produced pack-output/Dabbler.Uat.Dsl.Core.1.1.0.nupkg and pack-output/Dabbler.Uat.Dsl.Emitters.Playwright.CSharp.1.1.0.nupkg",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-29T15:43:20.291143+00:00",
+      "description": "dotnet build DabblerUatDsl.slnx: 0 errors, 0 warnings; dotnet test: 141 passed (Core.Tests) + 35 passed (Emitter.Tests) = 176/176, 0 failed",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-29T15:43:20.292953+00:00",
+      "description": "Cross-provider session verification via opus (verdict PASS); see session-reviews/session-002.md. Verifier flagged EmitWatermarkWaits coexistence as transitional debt for Session 3 \u2014 out of Session 2 scope per spec.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.29442
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/commit",
+      "dateTime": "2026-04-29T15:45:13.577075+00:00",
+      "description": "Committed Session 2 in sibling repo dabbler-uat-dsl @ 620238fa98de63c246af6be0dbb7fa27a7ab7de7 (grammar+AST+visitor+emitter+tests+pack-output 1.1.0). Orchestration commit follows in dabbler-platform.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-29T16:02:39.630860+00:00",
+      "description": "Read project-guidance, lessons-learned, ai-led-session-workflow, spec, Sessions 1-2 activity-log; checked nuget.config, Directory.Packages.props, sibling pack-output 1.1.0",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/nuget-update",
+      "dateTime": "2026-04-29T16:02:53.760177+00:00",
+      "description": "Bumped Directory.Packages.props: Dabbler.Uat.Dsl.Core 1.0.0->1.1.0 and Dabbler.Uat.Dsl.Emitters.Playwright.CSharp 1.0.0->1.1.0 (sibling pack-output already contains 1.1.0; nuget.config local feed already wired)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/prompt-update",
+      "dateTime": "2026-04-29T16:03:25.386798+00:00",
+      "description": "Added Hard Requirement #8 to uat-script-author prompt: emit WAIT FOR ACTIONS QUIET after every interaction verb on routes whose catalog IsWatermarked=true; positive (/admin/products) + negative (/dashboard) examples included",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/smoke-author",
+      "dateTime": "2026-04-29T16:14:28.060339+00:00",
+      "description": "Re-crawled component catalog (schemaVersion 1.1; /admin/products entries now carry isWatermarked=true; /dashboard false). Routed uat-script-author for a /admin/products toggle-Available smoke; LLM correctly emitted WAIT FOR ACTIONS QUIET as Step 12 immediately after Step 11 CLICK SWITCH.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "sonnet",
+          "taskType": "uat-script-author",
+          "inputTokens": 5323,
+          "outputTokens": 3332,
+          "costUsd": 0.065949
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/smoke-compile",
+      "dateTime": "2026-04-29T16:14:28.061400+00:00",
+      "description": "Compiled compile-only-smoke.json via dabbler-uat-dsl compile (1.1.0). Output contains 'await fixture.WaitForQuietAsync(page);' for the explicit WAIT FOR ACTIONS QUIET verb (also one implicit emission via existing EmitWatermarkWaits flag - transitional debt flagged in Session 2 verification).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/smoke-run",
+      "dateTime": "2026-04-29T16:14:28.062399+00:00",
+      "description": "Full 5x dotnet-test run via uat_runner BLOCKED by known W0 infrastructure gap: SemanticValidator defaults activeRole='*' but catalog entries are stored under concrete role names; W0 CLI does not yet expose --suppressions. Documented in smoke/smoke-result.md as a follow-up session set candidate.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-04-29T16:15:12.290882+00:00",
+      "description": "Generated change-log.md via summarization (gemini-flash, $0.0006).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "costUsd": 0.00060045
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-29T16:16:31.101763+00:00",
+      "description": "dotnet build Dabbler.Platform.sln: 0 errors, 184 pre-existing warnings. dotnet test (excl Playwright): 715/715 passed across all projects (Web.Tests 123, Security.Tests 300, Api.Tests 27, Security.Blazor.Tests 200, Reports.Blazor.Tests 16, Components.Tests 43, Testing.Blazor.Tests 6).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-29T16:19:01.853673+00:00",
+      "description": "Cross-provider session-verification via opus ($0.4962). See session-reviews/session-003.md.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8592,
+          "outputTokens": 4898,
+          "costUsd": 0.49622999999999995
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification-round-2",
+      "dateTime": "2026-04-29T16:21:31.602429+00:00",
+      "description": "Round-2 cross-provider session-verification via opus ($0.1881). See session-reviews/session-003-round-2.md or whatever path save_session_review chose.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 5997,
+          "outputTokens": 1308,
+          "costUsd": 0.18805499999999997
+        }
+      ]
+    }
+  ]
+}

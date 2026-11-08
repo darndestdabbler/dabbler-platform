@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "composable-crud-helpers",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "`EditSession<T>` + `<DirtyAwareActionRow>` + Products migration",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "`<DeclarativeFilterPanel>` + Products filter migration",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Orders migration",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Customers migration + helper hardening",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "Nested 1:N \u2014 Orders \u2192 OrderItems",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 6,
+      "title": "UAT checklist + change log + Step 9 reorganization",
+      "status": "complete",
+      "startedAt": "2026-05-14T17:54:59.909937-04:00",
+      "completedAt": "2026-05-14T18:48:24.756632-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "effort": "low"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}
