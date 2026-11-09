@@ -115,14 +115,12 @@ public class PackagingSmokeTests
             var projPath = Path.Combine(tempDir, "DabblerApp.slnx");
 
             // Write a local nuget.config (Dabbler.* resolve from pack-output; everything
-            // else from the inherited nuget.org) and let the build auto-restore, matching
-            // the DabblerApp_ScaffoldedBUnit / runtime smoke tests. Passing inline
-            // `--source "https://api.nuget.org/v3/index.json"` to `dotnet restore` of a
-            // **.slnx** is mishandled by the .NET 10 SDK: the URL is resolved as a path
-            // relative to the solution directory, producing
-            // `<appdir>\https:\api.nuget.org\v3\index.json` and a spurious NU1301. The
-            // sibling .csproj restore (DabblerMin) is unaffected by the same args, which
-            // isolates the fault to .slnx + inline --source.
+            // else from nuget.org) and let the build auto-restore, matching the
+            // DabblerApp_ScaffoldedBUnit / runtime smoke tests. Passing the nuget.org URL
+            // as an inline `--source` to `dotnet restore` is
+            // mishandled by the .NET 10 SDK (seen on 10.0.403) for a .slnx and a .csproj
+            // alike: the URL is resolved as a path relative to the project directory,
+            // producing `<appdir>\https:\api.nuget.org\v3\index.json` and a spurious NU1301.
             WriteLocalNugetConfig(tempDir, PackOutputDir);
 
             var (buildExit, buildOut) = RunTool("dotnet",
@@ -168,9 +166,9 @@ public class PackagingSmokeTests
             AssertDabblerMinSingleProjectShape(tempDir, "DabblerApp");
 
             var projPath = Path.Combine(tempDir, "DabblerApp", "DabblerApp.csproj");
+            WriteLocalNugetConfig(tempDir, PackOutputDir);
 
-            var (restoreExit, restoreOut) = RunTool("dotnet",
-                $"restore \"{projPath}\" --source \"{PackOutputDir}\" --source \"https://api.nuget.org/v3/index.json\"");
+            var (restoreExit, restoreOut) = RunTool("dotnet", $"restore \"{projPath}\"");
             restoreExit.Should().Be(0, $"restore should succeed. Output:\n{restoreOut}");
 
             var (buildExit, buildOut) = RunTool("dotnet",
@@ -287,8 +285,7 @@ public class PackagingSmokeTests
             var projPath = Path.Combine(tempDir, "DabblerApp.slnx");
             WriteLocalNugetConfig(tempDir, PackOutputDir);
 
-            var (restoreExit, restoreOut) = RunTool("dotnet",
-                $"restore \"{projPath}\" --source \"{PackOutputDir}\" --source \"https://api.nuget.org/v3/index.json\"");
+            var (restoreExit, restoreOut) = RunTool("dotnet", $"restore \"{projPath}\"");
             Assert.True(restoreExit == 0, $"Restore failed:\n{restoreOut}");
 
             var (buildExit, buildOut) = RunTool("dotnet",
@@ -640,9 +637,10 @@ public class PackagingSmokeTests
     }
 
     /// <summary>
-    /// Writes a nuget.config at <paramref name="projectDir"/> that adds the local pack-output
-    /// as an additional feed. Preserves existing user/machine sources so framework packages
-    /// restore normally; Dabbler.* packages at 0.1.0-preview.1 only exist in the local feed.
+    /// Writes a nuget.config at <paramref name="projectDir"/> that clears the inherited
+    /// sources and lists the local pack-output and nuget.org, so a plain `dotnet restore`
+    /// (no inline --source) resolves Dabbler.* from the local feed and everything else
+    /// from nuget.org.
     /// </summary>
     private static void WriteLocalNugetConfig(string projectDir, string packOutputDir)
     {
@@ -651,7 +649,9 @@ public class PackagingSmokeTests
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
+    <clear />
     <add key="local-pack-output" value="{localFeedUri}" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
   </packageSources>
 </configuration>
 """;

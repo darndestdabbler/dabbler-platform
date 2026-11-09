@@ -169,7 +169,7 @@ public class CrudPageTemplateTests
             // 7. Build the resulting project end-to-end.
             var projPath = Path.Combine(tempDir, "SmokeApp.csproj");
             var (restoreExit, restoreOut) = RunTool("dotnet",
-                $"restore \"{projPath}\" --source \"{PackOutputDir}\" --source \"https://api.nuget.org/v3/index.json\"",
+                $"restore \"{projPath}\"",
                 tempDir);
             restoreExit.Should().Be(0, $"restore should succeed. Output:\n{restoreOut}");
 

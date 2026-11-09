@@ -29,6 +29,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 15 | Build on push | no | 2026-11-08 |
 | 16 | Templates reference the version being packed | no | 2026-11-08 |
 | 17 | Make the push build green on a clean machine | no | 2026-11-09 |
+| 18 | Scaffolded-app restores take their sources from nuget.config | no | 2026-11-09 |
 
 ### Session 1 — Author or import the solution plan
 
@@ -140,3 +141,9 @@ Make the dabbler-app (Web and Web.Tests) and dabbler-min templates reference the
 **Releasable: no.**
 
 Make the push build (ci.yml) green and meaningful on a clean machine. First, stop the AcmeCoffeeOnline.Api.Tests race on a fresh LocalDB: every test class owns a WebApplicationFactory<Program> that runs DatabaseInitializer.InitializeAsync (EnsureCreated plus seed) against the one database AcmeCoffeeOnline_Dev, and xUnit runs the classes in parallel, so on a machine without that database several factories create and seed it at once. Adding tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json with parallelizeTestCollections false, copied to the output directory by the project file, makes the first class create and seed it and the rest find it. Second, make the push build run the 46 pack-dependent tests it currently skips (41 in Dabbler.PublicSurface.Tests, 4 in Dabbler.Templates.Tests, FullPipeline_endToEnd_against_smoke_fixture in Dabbler.CrudSlice.Tests): before the unit-suite step, ci.yml builds Dabbler.Publish.slnf in Release and then Dabbler.Reports.Export and Dabbler.Reports.Blazor directly, as build.yml's Validate And Pack job does, runs tools/pack.ps1 with -OutputDir and -ScratchCacheDir under RUNNER_TEMP, and exports that output folder as DABBLER_PACK_OUTPUT for the test step.
+
+### Session 18 — Scaffolded-app restores take their sources from nuget.config
+
+**Releasable: no.**
+
+Make the four scaffolded-app restores in the test suites take their package sources from a local nuget.config instead of inline --source arguments, because the .NET 10.0.403 SDK resolves an inline nuget.org URL as a path under the project directory (NU1301). In tests/Dabbler.Templates.Tests/CrudServiceTemplateTests.cs and CrudPageTemplateTests.cs the tests already write a nuget.config (clear, pack output, nuget.org) into the temp dir, so the restore simply drops both --source arguments. In tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs, DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape is made to call the file's existing WriteLocalNugetConfig before its restore, DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest (which already writes it) drops the --source arguments, and WriteLocalNugetConfig itself is made to clear the sources and list the pack output and nuget.org (matching the Templates helpers), with the comment in DabblerApp_Template_InstallsAndBuildsClean that claimed the .csproj restore was unaffected corrected. No test changes what it asserts.
