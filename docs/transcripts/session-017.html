@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 017 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 017 transcript</h1>
+<p class="stamp">Rendered 2026-11-09T12:54:57.616Z by dabbler-ai-router 3.29.0 at e49f94273da6a8a282bb0eeca100fbd8296cb588.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-08T14:47:50.406-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 17: Make the push build green on a clean machine</h3>
+<ol><li>Register.</li><li>Stop the <code>AcmeCoffeeOnline.Api.Tests</code> race on a fresh LocalDB. Every test class in that project owns a <code>WebApplicationFactory&lt;Program&gt;</code> that, in the Development environment, runs <code>DatabaseInitializer.InitializeAsync</code> (<code>EnsureCreatedAsync</code> plus seed) against the single database <code>AcmeCoffeeOnline_Dev</code>; xUnit runs those classes in parallel, so on a machine where the database does not yet exist several factories create and seed it at once (&quot;Database 'AcmeCoffeeOnline_Dev' already exists&quot;, duplicate-key inserts into Customers, AppOrganizations, AppUsers, AppUserRoles). The operator's machine has had that database since 2026-04-13, which is why the suite is green locally. Fix: add <code>tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json</code> with <code>&quot;parallelizeTestCollections&quot;: false</code> (copied to output), so the first class creates and seeds the database and the rest find it. The step's check: drop the database (<code>sqllocaldb</code> or <code>DROP DATABASE AcmeCoffeeOnline_Dev</code>) and run <code>dotnet test tests/AcmeCoffeeOnline.Api.Tests</code> twice; both runs 51/51.</li><li>Make the push build run the 46 tests it currently skips. <code>Dabbler.PublicSurface.Tests</code> (41), <code>Dabbler.Templates.Tests</code> (4) and <code>Dabbler.CrudSlice.Tests</code>' <code>FullPipeline_endToEnd_against_smoke_fixture</code> (1) are <code>SkippableFact</code>/<code>SkippableTheory</code> tests that skip when <code>DABBLER_PACK_OUTPUT</code> (or the default <code>pack-output/</code> folder) holds no nupkgs, so on the runner they report skipped and the job stays green. In <code>ci.yml</code>, before the test step, build the package set the way <code>build.yml</code>'s *Validate And Pack* job does (<code>dotnet build Dabbler.Publish.slnf --configuration Release</code>, then <code>Dabbler.Reports.Export</code> and <code>Dabbler.Reports.Blazor</code> directly, because <code>pack.ps1</code> packs with <code>--no-build</code> and the filter does not lay down their output), run <code>tools/pack.ps1</code> with <code>-OutputDir</code> and <code>-ScratchCacheDir</code> under <code>$env:RUNNER_TEMP</code>, and export that output folder as <code>DABBLER_PACK_OUTPUT</code> for the test step. The check: the run's summary lines for those three projects show <code>Skipped: 0</code>, with PublicSurface at 41 passed and Templates at 4.</li><li>Cross-provider verification.</li><li>The <code>unit</code> suite once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Why now (2026-11-08): the first <code>ci.yml</code> run on <code>master</code> (run 42486813518, after Session 15 closed) failed with 10 Api.Tests failures, and the pack-dependent tests were silently skipped (41 in PublicSurface, 4 in Templates, 1 in CrudSlice). Both are properties of a clean machine, which is exactly what the push build exists to represent; until they are fixed the check Session 15 added says nothing reliable and cannot be made a branch-protection requirement.</p>
+<h2>Work Plan</h2>
+<p>Make the push build (ci.yml) green and meaningful on a clean machine. First, stop the AcmeCoffeeOnline.Api.Tests race on a fresh LocalDB: every test class owns a WebApplicationFactory&lt;Program&gt; that runs DatabaseInitializer.InitializeAsync (EnsureCreated plus seed) against the one database AcmeCoffeeOnline_Dev, and xUnit runs the classes in parallel, so on a machine without that database several factories create and seed it at once. Adding tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json with parallelizeTestCollections false, copied to the output directory by the project file, makes the first class create and seed it and the rest find it. Second, make the push build run the 46 pack-dependent tests it currently skips (41 in Dabbler.PublicSurface.Tests, 4 in Dabbler.Templates.Tests, FullPipeline_endToEnd_against_smoke_fixture in Dabbler.CrudSlice.Tests): before the unit-suite step, ci.yml builds Dabbler.Publish.slnf in Release and then Dabbler.Reports.Export and Dabbler.Reports.Blazor directly, as build.yml's Validate And Pack job does, runs tools/pack.ps1 with -OutputDir and -ScratchCacheDir under RUNNER_TEMP, and exports that output folder as DABBLER_PACK_OUTPUT for the test step.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/e33098430f7e8abb68e66d4a9820f388da1dcfee"><code>e33098430f7e8abb68e66d4a9820f388da1dcfee</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Serialize api tests</td><td><p>Add tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json containing the xUnit schema reference and &quot;parallelizeTestCollections&quot;: false, and add an item to AcmeCoffeeOnline.Api.Tests.csproj that copies it to the output directory (PreserveNewest), so the test classes run one after another and only the first creates and seeds AcmeCoffeeOnline_Dev on a machine where it does not exist. The check points the tests at a throwaway database, AcmeCoffeeOnline_Test, through the ConnectionStrings__DefaultConnection environment variable, drops that database first and runs the project twice, so the fix is proved on a fresh database without touching the developer's AcmeCoffeeOnline_Dev.</p></td><td><span class="mono">tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json</span><br><span class="mono">tests/AcmeCoffeeOnline.Api.Tests/AcmeCoffeeOnline.Api.Tests.csproj</span></td><td><code>pwsh -NoProfile -Command $env:ConnectionStrings__DefaultConnection = 'Server=(localdb)\mssqllocaldb;Database=AcmeCoffeeOnline_Test;Trusted_Connection=True;MultipleActiveResultSets=true'; try { $c = [System.Data.SqlClient.SqlConnection]::new('Server=(localdb)\mssqllocaldb;Database=master;Trusted_Connection=True'); $c.Open(); $q = $c.CreateCommand(); $q.CommandText = &quot;IF DB_ID(N'AcmeCoffeeOnline_Test') IS NOT NULL BEGIN ALTER DATABASE [AcmeCoffeeOnline_Test] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [AcmeCoffeeOnline_Test] END&quot;; [void]$q.ExecuteNonQuery(); $c.Close() } catch { Write-Host &quot;could not drop AcmeCoffeeOnline_Test: $_&quot;; exit 1 }; foreach ($i in 1, 2) { $out = dotnet test tests/AcmeCoffeeOnline.Api.Tests --nologo 2&gt;&amp;1 | Out-String; Write-Host $out; if ($LASTEXITCODE) { exit $LASTEXITCODE }; if ($out -notmatch '(Passed|succeeded):\s+51\b' -or $out -notmatch 'Skipped:\s+0\b') { Write-Host &quot;run $i was not 51/51&quot;; exit 1 } }; exit 0</code></td><td>yes</td></tr>
+<tr><td>Pack in push build</td><td><p>In .github/workflows/ci.yml, before the 'Run the unit suite' step, add a pwsh step that builds Dabbler.Publish.slnf in Release (ContinuousIntegrationBuild) and then Dabbler.Reports.Export and Dabbler.Reports.Blazor directly, as build.yml's Validate And Pack job does, with a short comment saying why the two are built directly; then a pwsh step that runs tools/pack.ps1 with -OutputDir and -ScratchCacheDir under $env:RUNNER_TEMP and -CleanOutput, and writes DABBLER_PACK_OUTPUT=&lt;that output folder&gt; to $env:GITHUB_ENV so the unit-suite step's pack-dependent tests run instead of skipping. Update the workflow's header comment to say the push build packs first so those tests run.</p></td><td><span class="mono">.github/workflows/ci.yml</span></td><td><code>pwsh -NoProfile -Command $y = Get-Content .github/workflows/ci.yml -Raw; foreach ($s in 'Dabbler.Publish.slnf', 'Dabbler.Reports.Export.csproj', 'Dabbler.Reports.Blazor.csproj', 'tools/pack.ps1', '-ScratchCacheDir', 'RUNNER_TEMP', 'DABBLER_PACK_OUTPUT', 'GITHUB_ENV') { if (-not $y.Contains($s)) { Write-Host &quot;ci.yml does not mention $s&quot;; exit 1 } }; if ($y.IndexOf('tools/pack.ps1') -gt $y.IndexOf('Dabbler.Unit.slnf')) { Write-Host 'the pack step must come before the unit suite'; exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command dotnet build Dabbler.Publish.slnf -c Release --nologo -v minimal /p:ContinuousIntegrationBuild=true; if ($LASTEXITCODE) { exit $LASTEXITCODE }; foreach ($p in 'src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj', 'src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj') { dotnet build $p -c Release --nologo -v minimal /p:ContinuousIntegrationBuild=true; if ($LASTEXITCODE) { exit $LASTEXITCODE } }; $o = Join-Path $env:TEMP 'dabbler-nuget-pack'; &amp; ./tools/pack.ps1 -OutputDir $o -ScratchCacheDir (Join-Path $env:TEMP 'dabbler-nuget-cache') -CleanOutput; if ($LASTEXITCODE) { exit $LASTEXITCODE }; $env:DABBLER_PACK_OUTPUT = $o; foreach ($t in @(@('tests/Dabbler.PublicSurface.Tests', '(Passed|succeeded):\s+41\b'), @('tests/Dabbler.Templates.Tests', '(Passed|succeeded):\s+4\b'), @('tests/Dabbler.CrudSlice.Tests', '(Passed|succeeded):\s+\d+'))) { $out = dotnet test $t[0] --nologo 2&gt;&amp;1 | Out-String; Write-Host $out; if ($LASTEXITCODE) { exit $LASTEXITCODE }; if ($out -notmatch 'Skipped:\s+0\b' -or $out -notmatch $t[1]) { Write-Host &quot;skipped tests or wrong count in $($t[0])&quot;; exit 1 } }; exit 0</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No change to the Api.Tests test classes, to DatabaseInitializer or the seed, and no per-class or per-run database isolation: the fix is serial collection execution only.</li><li>No change to build.yml, tools/pack.ps1, dabbler.yaml or Dabbler.Unit.slnf, and no change to the skip guards in the pack-dependent tests themselves.</li><li>Making the push build a branch-protection requirement is not done here; that is a repository setting for the operator once the build is green.</li><li>No version bump, pack-for-release or publish: no release is part of this session.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[19:47:50]</span> <span class="muted">run-started</span> session=017 mode=pull</div>
+<div class="line"><span class="at">[19:47:50]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[12:45:38]</span> <span class="muted">run-resumed</span> session=017 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[12:45:38]</span> <span class="muted">plan-accepted</span> steps=[&quot;serialize-api-tests&quot;,&quot;pack-in-push-build&quot;] non_goals=4</div>
+<div class="line"><span class="at">[12:45:44]</span> <span class="muted">mechanic-called</span> stop=tree model=claude-fable-5-1</div>
+<div class="line"><span class="at">[12:46:01]</span> <span class="muted">mechanic-handed-back</span> stop=tree</div>
+<div class="line"><span class="at">[12:47:00]</span> <span class="muted">run-resumed</span> session=017 phase=<span class="milestone">plan</span> mode=pull after=tree</div>
+<div class="line"><span class="at">[12:47:00]</span> <span class="muted">plan-accepted</span> steps=[&quot;serialize-api-tests&quot;,&quot;pack-in-push-build&quot;] non_goals=4</div>
+<div class="line"><span class="at">[12:47:07]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[12:47:07]</span> <span class="good">progress-resumed</span> past=tree from=plan phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[12:47:07]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=serialize-api-tests</div>
+<div class="line"><span class="at">[12:47:39]</span> <span class="muted">run-resumed</span> session=017 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[12:48:34]</span> <span class="muted">check-passed</span> step=serialize-api-tests argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$env:ConnectionStrings__DefaultConnection = 'Server=(localdb)\\mssqllocaldb;Database=AcmeCoffeeOnline_Test;Trusted_Connection=True;MultipleActiveResultSets=true'; try { $c = [System.Data.SqlClient.SqlConnection]::new('Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True'); $c.Open(); $q = $c.CreateCommand(); $q.CommandText = \&quot;IF DB_ID(N'AcmeCoffeeOnline_Test') IS NOT NULL BEGIN ALTER DATABASE [AcmeCoffeeOnline_Test] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [AcmeCoffeeOnline_Test] END\&quot;; [void]$q.ExecuteNonQuery(); $c.Close() } catch { Write-Host \&quot;could not drop AcmeCoffeeOnline_Test: $_\&quot;; exit 1 }; foreach ($i in 1, 2) { $out = dotnet test tests/AcmeCoffeeOnline.Api.Tests --nologo 2&gt;&amp;1 | Out-String; Write-Host $out; if ($LASTEXITCODE) { exit $LASTEXITCODE }; if ($out -notmatch '(Passed|succeeded):\\s+51\\b' -or $out -notmatch 'Skipped:\\s+0\\b') { Write-Host \&quot;run $i was not 51/51\&quot;; exit 1 } }; exit 0&quot;]</div>
+<div class="line"><span class="at">[12:48:38]</span> <span class="muted">report-accepted</span> seq=2 step=serialize-api-tests files=[&quot;tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json&quot;,&quot;tests/AcmeCoffeeOnline.Api.Tests/AcmeCoffeeOnline.Api.Tests.csproj&quot;] notes=Added xunit.runner.json (parallelizeTestCollections false) and a PreserveNewest copy item in the csproj so Api.Tests classes run serially.</div>
+<div class="line"><span class="at">[12:48:38]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=pack-in-push-build</div>
+<div class="line"><span class="at">[12:49:16]</span> <span class="muted">run-resumed</span> session=017 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[12:50:56]</span> <span class="muted">check-passed</span> step=pack-in-push-build argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$y = Get-Content .github/workflows/ci.yml -Raw; foreach ($s in 'Dabbler.Publish.slnf', 'Dabbler.Reports.Export.csproj', 'Dabbler.Reports.Blazor.csproj', 'tools/pack.ps1', '-ScratchCacheDir', 'RUNNER_TEMP', 'DABBLER_PACK_OUTPUT', 'GITHUB_ENV') { if (-not $y.Contains($s)) { Write-Host \&quot;ci.yml does not mention $s\&quot;; exit 1 } }; if ($y.IndexOf('tools/pack.ps1') -gt $y.IndexOf('Dabbler.Unit.slnf')) { Write-Host 'the pack step must come before the unit suite'; exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[12:50:56]</span> <span class="muted">check-passed</span> step=pack-in-push-build argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;dotnet build Dabbler.Publish.slnf -c Release --nologo -v minimal /p:ContinuousIntegrationBuild=true; if ($LASTEXITCODE) { exit $LASTEXITCODE }; foreach ($p in 'src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj', 'src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj') { dotnet build $p -c Release --nologo -v minimal /p:ContinuousIntegrationBuild=true; if ($LASTEXITCODE) { exit $LASTEXITCODE } }; $o = Join-Path $env:TEMP 'dabbler-nuget-pack'; &amp; ./tools/pack.ps1 -OutputDir $o -ScratchCacheDir (Join-Path $env:TEMP 'dabbler-nuget-cache') -CleanOutput; if ($LASTEXITCODE) { exit $LASTEXITCODE }; $env:DABBLER_PACK_OUTPUT = $o; foreach ($t in @(@('tests/Dabbler.PublicSurface.Tests', '(Passed|succeeded):\\s+41\\b'), @('tests/Dabbler.Templates.Tests', '(Passed|succeeded):\\s+4\\b'), @('tests/Dabbler.CrudSlice.Tests', '(Passed|succeeded):\\s+\\d+'))) { $out = dotnet test $t[0] --nologo 2&gt;&amp;1 | Out-String; Write-Host $out; if ($LASTEXITCODE) { exit $LASTEXITCODE }; if ($out -notmatch 'Skipped:\\s+0\\b' -or $out -notmatch $t[1]) { Write-Host \&quot;skipped tests or wrong count in $($t[0])\&quot;; exit 1 } }; exit 0&quot;]</div>
+<div class="line"><span class="at">[12:51:00]</span> <span class="muted">report-accepted</span> seq=3 step=pack-in-push-build files=[&quot;.github/workflows/ci.yml&quot;] notes=ci.yml builds Dabbler.Publish.slnf plus the two Reports projects in Release, runs pack.ps1 under RUNNER_TEMP and exports DABBLER_PACK_OUTPUT before the unit suite.</div>
+<div class="line"><span class="at">[12:51:00]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[12:51:02]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[12:51:08]</span> <span class="muted">job-started</span> name=verification pid=59652 log=.dabbler/runs/s17/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[12:51:52]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s17/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[12:51:52]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[12:51:52]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[12:51:56]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[12:51:56]</span> <span class="muted">job-started</span> name=run of record: unit pid=41912 log=.dabbler/runs/s17/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[12:52:13]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s17/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[12:52:19]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[12:52:19]</span> <span class="muted">job-started</span> name=run of record: smoke pid=38344 log=.dabbler/runs/s17/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[12:53:19]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s17/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[12:53:19]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[12:53:53]</span> <span class="muted">landed</span> commit=e33098430f7e8abb68e66d4a9820f388da1dcfee</div>
+<div class="line"><span class="at">[12:53:53]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[12:53:56]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[12:53:56]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[12:54:03]</span> <span class="muted">job-started</span> name=close pid=37080 log=.dabbler/runs/s17/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:54:57]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s17/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:54:57]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="bad">none-selected</span></td><td>8s</td><td></td><td></td><td></td><td><span class="mono"></span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>49s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>
