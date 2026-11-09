@@ -1,0 +1,360 @@
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Role
+@inject SecurityConfigurationManager ConfigManager
+@inject IBakedInRoleProvider BakedInRoleProvider
+@inject ISnackbar Snackbar
+@inject IDialogService Dialogs
+
+<div data-testid="role-master-grid-container">
+    <div class="d-flex align-center my-2">
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            @($"{FilteredRows.Count} of {_rows.Count} roles")
+        </MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="OnAddUserTypeRoleAsync"
+                   Disabled="@(!CanManageRoles)"
+                   data-testid="role-master-add-button">
+            Add user-type role
+        </MudButton>
+    </div>
+
+    <div class="master-grid-scroll-region" style="max-height:24rem; overflow-y:auto;"
+         data-testid="role-master-grid-scroll-region">
+        <MudDataGrid T="RoleRow"
+                     Items="@FilteredRows"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="true"
+                     Striped="true"
+                     ReadOnly="true"
+                     RowClick="@OnRowClickAsync"
+                     SelectedItem="@_selected"
+                     data-testid="role-master-grid">
+            <Columns>
+                <TemplateColumn Title="Canonical name" Sortable="true">
+                    <CellTemplate>
+                        <div class="d-flex align-center gap-2"
+                             data-testid="@($"role-row-{context.Item.CanonicalName}")">
+                            <MudText Typo="Typo.body2" Style="@(context.Item.IsBakedIn ? "color:#6c757d;" : string.Empty)">
+                                @context.Item.CanonicalName
+                            </MudText>
+                            @if (context.Item.IsBakedIn)
+                            {
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                         data-testid="@($"role-row-{context.Item.CanonicalName}-baked-in-chip")">
+                                    baked-in
+                                </MudChip>
+                            }
+                        </div>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Display alias" Sortable="true"
+                                CellStyle="max-width:220px; white-space:normal; word-break:break-word; vertical-align:top;"
+                                HeaderStyle="max-width:220px;">
+                    <CellTemplate>
+                        <MudTextField T="string"
+                                      Value="@context.Item.DisplayAlias"
+                                      ValueChanged="@(v => OnDisplayAliasChangedAsync(context.Item, v))"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Immediate="false"
+                                      DebounceInterval="400"
+                                      Lines="2"
+                                      Style="font-size:0.875rem; line-height:1.35; width:100%;"
+                                      Placeholder="(no alias)"
+                                      data-testid="@($"role-row-{context.Item.CanonicalName}-alias")" />
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.Description" Title="Description" Sortable="true" />
+                <TemplateColumn Title="Actions" Sortable="false">
+                    <CellTemplate>
+                        @if (!context.Item.IsBakedIn && CanManageRoles)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Archive"
+                                           Size="Size.Small"
+                                           Color="Color.Warning"
+                                           OnClick="@(() => OnArchiveAsync(context.Item))"
+                                           title="Archive role"
+                                           aria-label="@($"Archive {context.Item.CanonicalName}")"
+                                           data-testid="@($"role-row-{context.Item.CanonicalName}-archive")" />
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Master grid fragment for Role Master Details. Shows ALL roles (baked-in +
+    /// user-type). Filtering is driven externally via the <see cref="Filter"/>
+    /// parameter — see <see cref="FilterColumns"/> for the column definitions to
+    /// pass to a tab-level <c>FilterPanel&lt;RoleRow&gt;</c>.
+    /// </summary>
+
+    /// <summary>
+    /// Column definitions for the role filter. Consume at the tab level when
+    /// constructing a <c>FilterPanel&lt;RoleRow&gt;</c> to pass as
+    /// <c>FilterContent</c> to the shell.
+    /// </summary>
+    public static readonly IReadOnlyList<FilterColumnDefinition> FilterColumns = new[]
+    {
+        new FilterColumnDefinition
+        {
+            Header = "Canonical name",
+            PropertyName = nameof(RoleRow.CanonicalName),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Display alias",
+            PropertyName = nameof(RoleRow.DisplayAlias),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+        new FilterColumnDefinition
+        {
+            Header = "Description",
+            PropertyName = nameof(RoleRow.Description),
+            EditorType = FilterEditorType.Text,
+            DefaultOperator = FilterOperators.Contains,
+        },
+    };
+
+    /// <summary>
+    /// Whether the active user has the SystemAdmin-compiled <c>CanManageRoles</c>
+    /// privilege. Controls Add / Archive affordance enablement.
+    /// </summary>
+    [Parameter]
+    public bool CanManageRoles { get; set; }
+
+    /// <summary>
+    /// External filter descriptor pushed from the tab-level
+    /// <c>FilterPanel&lt;RoleRow&gt;</c>. When <c>null</c>, all rows are shown.
+    /// </summary>
+    [Parameter]
+    public CompositeFilterDescriptor? Filter { get; set; }
+
+    /// <summary>Raised whenever the selected row changes (or is cleared).</summary>
+    [Parameter]
+    public EventCallback<RoleRow?> SelectedRoleChanged { get; set; }
+
+    private RoleRow? _selected;
+    private List<RoleRow> _rows = new();
+
+    private IReadOnlyList<RoleRow> FilteredRows => ApplyFilter(_rows, Filter);
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        Rebuild();
+    }
+
+    /// <summary>
+    /// Re-reads the role list from the current security configuration and the
+    /// baked-in role provider. Callers invoke this after a sub-tab persists
+    /// a change that affects the displayed rows (e.g., DisplayAlias override).
+    /// </summary>
+    public void Rebuild()
+    {
+        _rows = BuildRows();
+        if (_selected is not null)
+        {
+            _selected = _rows.FirstOrDefault(r =>
+                string.Equals(r.CanonicalName, _selected.CanonicalName, StringComparison.OrdinalIgnoreCase));
+        }
+        StateHasChanged();
+    }
+
+    private List<RoleRow> BuildRows()
+    {
+        var config = ConfigManager.Current;
+
+        var rows = new List<RoleRow>();
+
+        foreach (var baked in BakedInRoleProvider.GetBakedInRoles())
+        {
+            var aliasOverride = config.BakedInRoleAliasOverrides.TryGetValue(baked.Name, out var o) ? o : null;
+            rows.Add(new RoleRow
+            {
+                CanonicalName = baked.Name,
+                DisplayAlias = aliasOverride ?? baked.DefaultDisplayAlias,
+                Description = baked.Description,
+                IsBakedIn = true,
+            });
+        }
+
+        foreach (var role in config.UserTypeRoles)
+        {
+            rows.Add(new RoleRow
+            {
+                CanonicalName = role.RoleName,
+                DisplayAlias = role.DisplayAlias ?? role.RoleName,
+                Description = role.Description,
+                IsBakedIn = false,
+            });
+        }
+
+        return rows;
+    }
+
+    private static IReadOnlyList<RoleRow> ApplyFilter(IReadOnlyList<RoleRow> rows, CompositeFilterDescriptor? filter)
+    {
+        if (filter is null || filter.Filters.Count == 0)
+            return rows;
+
+        return rows.Where(r =>
+        {
+            foreach (var entry in filter.Filters)
+            {
+                var needle = entry.Value as string;
+                if (string.IsNullOrEmpty(needle)) continue;
+                var haystack = entry.PropertyName switch
+                {
+                    nameof(RoleRow.CanonicalName) => r.CanonicalName,
+                    nameof(RoleRow.DisplayAlias) => r.DisplayAlias,
+                    nameof(RoleRow.Description) => r.Description,
+                    _ => string.Empty,
+                };
+                if (!haystack.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
+            return true;
+        }).ToList();
+    }
+
+    private async Task OnRowClickAsync(DataGridRowClickEventArgs<RoleRow> args)
+    {
+        // RowClick is the single source-of-truth for row selection in this grid.
+        // SelectedItemChanged fires only when SelectedItem *changes*, which meant a
+        // first-column cell click could silently set cell focus without reselecting
+        // the row — human saw "two clicks to collapse the shell" (finding #49).
+        // RowClick fires on every row click regardless of current selection state,
+        // and ReadOnly="true" on the grid prevents MudBlazor from interpreting the
+        // click as a cell-edit intent in the first place.
+        await OnSelectionChanged(args.Item);
+    }
+
+    private async Task OnSelectionChanged(RoleRow? row)
+    {
+        _selected = row;
+        if (SelectedRoleChanged.HasDelegate)
+            await SelectedRoleChanged.InvokeAsync(row);
+    }
+
+    private async Task OnDisplayAliasChangedAsync(RoleRow row, string newAlias)
+    {
+        if (string.IsNullOrWhiteSpace(newAlias))
+        {
+            Snackbar.Add("Display alias cannot be empty.", Severity.Warning);
+            return;
+        }
+
+        if (string.Equals(row.DisplayAlias, newAlias, StringComparison.Ordinal))
+            return;
+
+        var config = ConfigManager.Current;
+        if (row.IsBakedIn)
+        {
+            config.BakedInRoleAliasOverrides[row.CanonicalName] = newAlias;
+        }
+        else
+        {
+            var userType = config.UserTypeRoles.FirstOrDefault(r =>
+                string.Equals(r.RoleName, row.CanonicalName, StringComparison.OrdinalIgnoreCase));
+            if (userType is null) return;
+            userType.DisplayAlias = newAlias;
+        }
+
+        row.DisplayAlias = newAlias;
+        await ConfigManager.SaveAsync(config);
+        Snackbar.Add("Display alias updated.", Severity.Success);
+    }
+
+    private async Task OnAddUserTypeRoleAsync()
+    {
+        if (!CanManageRoles) return;
+
+        var parameters = new DialogParameters();
+        var dialog = await Dialogs.ShowAsync<AddUserTypeRoleDialog>("Add user-type role", parameters);
+        var result = await dialog.Result;
+        if (result is null || result.Canceled) return;
+
+        if (result.Data is not AddUserTypeRoleDialog.Result data) return;
+
+        var config = ConfigManager.Current;
+        if (config.UserTypeRoles.Any(r =>
+                string.Equals(r.RoleName, data.RoleName, StringComparison.OrdinalIgnoreCase))
+            || BakedInRoles.IsBakedIn(data.RoleName))
+        {
+            Snackbar.Add($"Role '{data.RoleName}' already exists.", Severity.Error);
+            return;
+        }
+
+        config.UserTypeRoles.Add(new RoleDefinition
+        {
+            RoleName = data.RoleName,
+            DisplayAlias = string.IsNullOrWhiteSpace(data.DisplayAlias) ? null : data.DisplayAlias,
+            Description = data.Description ?? string.Empty,
+        });
+
+        await ConfigManager.SaveAsync(config);
+        Snackbar.Add("Role added.", Severity.Success);
+        Rebuild();
+    }
+
+    private async Task OnArchiveAsync(RoleRow row)
+    {
+        if (row.IsBakedIn || !CanManageRoles) return;
+
+        var config = ConfigManager.Current;
+        var userType = config.UserTypeRoles.FirstOrDefault(r =>
+            string.Equals(r.RoleName, row.CanonicalName, StringComparison.OrdinalIgnoreCase));
+        if (userType is null) return;
+
+        config.UserTypeRoles.Remove(userType);
+        await ConfigManager.SaveAsync(config);
+        Snackbar.Add("Role archived.", Severity.Info);
+        Rebuild();
+
+        if (_selected == row)
+        {
+            _selected = null;
+            if (SelectedRoleChanged.HasDelegate)
+                await SelectedRoleChanged.InvokeAsync(null);
+        }
+    }
+
+    /// <summary>
+    /// Row projection used by the Role Master grid. Carries only the display
+    /// data; the underlying <see cref="RoleDefinition"/> or
+    /// <see cref="BakedInRoleDefinition"/> is resolved by the parent component
+    /// from <see cref="CanonicalName"/> + <see cref="IsBakedIn"/>.
+    /// </summary>
+    public sealed class RoleRow
+    {
+        /// <summary>Canonical immutable role name (used by claims and audit).</summary>
+        public string CanonicalName { get; set; } = string.Empty;
+
+        /// <summary>Per-deployment display alias (editable for every row).</summary>
+        public string DisplayAlias { get; set; } = string.Empty;
+
+        /// <summary>Human-readable description.</summary>
+        public string Description { get; set; } = string.Empty;
+
+        /// <summary>True for baked-in roles; false for user-type roles.</summary>
+        public bool IsBakedIn { get; set; }
+    }
+}

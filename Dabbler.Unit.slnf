@@ -1,0 +1,19 @@
+{
+  "solution": {
+    "path": "Dabbler.Platform.sln",
+    "projects": [
+      "tests\\AcmeCoffeeOnline.Api.Tests\\AcmeCoffeeOnline.Api.Tests.csproj",
+      "tests\\AcmeCoffeeOnline.Web.Tests\\AcmeCoffeeOnline.Web.Tests.csproj",
+      "tests\\ComponentCatalogCrawler.Tests\\ComponentCatalogCrawler.Tests.csproj",
+      "tests\\Dabbler.Components.Tests\\Dabbler.Components.Tests.csproj",
+      "tests\\Dabbler.CrudSlice.Tests\\Dabbler.CrudSlice.Tests.csproj",
+      "tests\\Dabbler.PublicSurface.Tests\\Dabbler.PublicSurface.Tests.csproj",
+      "tests\\Dabbler.Reports.Blazor.Tests\\Dabbler.Reports.Blazor.Tests.csproj",
+      "tests\\Dabbler.SchemaApplicator.Tests\\Dabbler.SchemaApplicator.Tests.csproj",
+      "tests\\Dabbler.Security.Blazor.Tests\\Dabbler.Security.Blazor.Tests.csproj",
+      "tests\\Dabbler.Security.Tests\\Dabbler.Security.Tests.csproj",
+      "tests\\Dabbler.Templates.Tests\\Dabbler.Templates.Tests.csproj",
+      "tests\\Dabbler.Testing.Blazor.Tests\\Dabbler.Testing.Blazor.Tests.csproj"
+    ]
+  }
+}

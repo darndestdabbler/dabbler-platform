@@ -1,0 +1,121 @@
+@page "/dev/email-inbox"
+@layout AcmeCoffeeOnline.Web.Components.Layout.AuthLayout
+@attribute [AllowAnonymous]
+@using Dabbler.Security.Services
+@inject IWebHostEnvironment Environment
+@inject IServiceProvider Services
+
+<PageTitle>Dev Email Inbox — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8" data-testid="dev-email-inbox">
+    @if (!Environment.IsDevelopment() && !Environment.IsEnvironment("Test"))
+    {
+        <MudPaper Elevation="2" Class="pa-8">
+            <MudAlert Severity="Severity.Warning">
+                The dev email inbox is only available in Development or Test environments.
+            </MudAlert>
+        </MudPaper>
+    }
+    else if (_inbox is null)
+    {
+        <MudPaper Elevation="2" Class="pa-8">
+            <MudAlert Severity="Severity.Warning">
+                The dev email inbox is not registered. Confirm <code>DabblerSecurity:Email:SenderType</code> is set to <code>DevMailHog</code>.
+            </MudAlert>
+        </MudPaper>
+    }
+    else
+    {
+        <MudPaper Elevation="2" Class="pa-6">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
+                <MudIcon Icon="@Icons.Material.Filled.Inbox" Color="Color.Primary" />
+                <MudText Typo="Typo.h5">Dev Email Inbox</MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           OnClick="Refresh">
+                    Refresh
+                </MudButton>
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Error"
+                           StartIcon="@Icons.Material.Filled.Delete"
+                           OnClick="Clear"
+                           Disabled="@(!_messages.Any())">
+                    Clear
+                </MudButton>
+            </MudStack>
+
+            <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">
+                Magic-link codes and other development emails are written to this in-memory inbox.
+                They are cleared on app restart.
+            </MudText>
+
+            @if (_messages.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info">
+                    No messages yet. Request a magic link from the <MudLink Href="/login">sign-in page</MudLink> to see one here.
+                </MudAlert>
+            }
+            else
+            {
+                <MudTable Items="_messages" Dense="true" Bordered="true" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Time</MudTh>
+                        <MudTh>Email</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Code</MudTh>
+                        <MudTh>Link</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Time">@context.CreatedAtUtc.ToLocalTime().ToString("HH:mm:ss")</MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="Type">@context.EmailType</MudTd>
+                        <MudTd DataLabel="Code">
+                            @if (!string.IsNullOrEmpty(context.Code))
+                            {
+                                <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.Code</MudText>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Link">
+                            @if (!string.IsNullOrEmpty(context.LinkUrl))
+                            {
+                                <MudLink Href="@context.LinkUrl" Target="_blank" Typo="Typo.body2">Open</MudLink>
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    private Dabbler.Security.Services.DevEmailInbox? _inbox;
+    private List<DevEmailMessage> _messages = new();
+
+    protected override void OnInitialized()
+    {
+        _inbox = Services.GetService<Dabbler.Security.Services.DevEmailInbox>();
+        Refresh();
+    }
+
+    private void Refresh()
+    {
+        if (_inbox is null)
+        {
+            _messages = new List<DevEmailMessage>();
+            return;
+        }
+
+        _messages = _inbox.GetAll()
+            .OrderByDescending(m => m.CreatedAtUtc)
+            .ToList();
+    }
+
+    private void Clear()
+    {
+        _inbox?.Clear();
+        Refresh();
+    }
+}

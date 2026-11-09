@@ -1,0 +1,59 @@
+@page "/platform/stub"
+@layout Layout.StandaloneLayout
+@using Dabbler.Platform.Stubs
+@using Microsoft.Extensions.DependencyInjection
+@inject IConfiguration Configuration
+@inject IServiceProvider Services
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Distributor Stub Demo</PageTitle>
+
+@if (!_isEnabled)
+{
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+        Stub mode is only available when `PlatformStubMode:Enabled` is true in a Development or Test host.
+    </MudAlert>
+}
+else if (_definition is null)
+{
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+        The stub mode route is enabled, but the stub services were not registered.
+    </MudAlert>
+}
+else
+{
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.h5">Distributor Demo</MudText>
+
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+            This demo uses the reusable platform stubs to present an AcmeCoffeeDistributors workspace without the app's real metadata, navigation, query, or report providers.
+        </MudAlert>
+
+        <MudTabs Outlined="true" TabPanelsClass="pa-4">
+            <MudTabPanel Text="Retail Businesses">
+                <PlatformStubCustomerSearch />
+            </MudTabPanel>
+            <MudTabPanel Text="Retail Business Summary">
+                <PlatformStubSalesReport />
+            </MudTabPanel>
+        </MudTabs>
+    </MudStack>
+}
+
+@code {
+    private bool _isEnabled;
+    private StubPlatformDefinition? _definition;
+
+    protected override void OnInitialized()
+    {
+        _isEnabled = (Environment.IsDevelopment() || Environment.IsEnvironment("Test"))
+            && Configuration.GetValue("PlatformStubMode:Enabled", false);
+
+        if (!_isEnabled)
+        {
+            return;
+        }
+
+        _definition = Services.GetService<StubPlatformDefinition>();
+    }
+}

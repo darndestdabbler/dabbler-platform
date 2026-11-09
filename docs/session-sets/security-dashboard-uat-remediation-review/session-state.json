@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "security-dashboard-uat-remediation-review",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Classify + Disposition + Queue Next Action",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-21T18:18:48.955Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
+}

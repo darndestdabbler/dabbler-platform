@@ -1,0 +1,8 @@
+@using AcmeCoffeeOnline.Web.Configuration
+@using Microsoft.Extensions.Options
+@inject IOptions<DabblerAssetOptions> AssetOptions
+
+@foreach (var asset in AssetOptions.Value.Styles)
+{
+    <link rel="stylesheet" href="@asset.Href" data-dabbler-asset="@asset.AssetId" />
+}
