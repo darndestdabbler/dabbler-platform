@@ -31,7 +31,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 17 | Make the push build green on a clean machine | no | 2026-11-09 |
 | 18 | Scaffolded-app restores take their sources from nuget.config | no | 2026-11-09 |
 | 19 | Take DabblerPdf 1.1.3 | no | 2026-11-09 |
-| 20 | Bump to 1.0.1 | — | not declared |
+| 20 | Bump to 1.0.1 | no | 2026-11-09 |
 
 ### Session 1 — Author or import the solution plan
 
@@ -155,3 +155,9 @@ Make the four scaffolded-app restores in the test suites take their package sour
 **Releasable: no.**
 
 Raise the platform's DabblerPdf pin from 1.1.2 to 1.1.3 by changing its PackageVersion in Directory.Packages.props, the one place the platform pins it. DabblerPdf 1.1.3 is on nuget.org, changes no API since 1.1.2, and is the first DabblerPdf version published from CI with trusted publishing. The step is proved by the props file naming DabblerPdf at 1.1.3 and nowhere at 1.1.2, by tests/Dabbler.Reports.Blazor.Tests (which holds the PDF export tests) passing, and by the .nuspec inside the packed Dabbler.Reports.Core nupkg declaring its DabblerPdf dependency at 1.1.3 after a Release build and tools/pack.ps1 -OutputDir pack-output -CleanOutput.
+
+### Session 20 — Bump to 1.0.1
+
+**Releasable: no.**
+
+Bump the lock-step platform version from 1.0.0 to 1.0.1 so Session 19's DabblerPdf 1.1.3 floor reaches consumers. Set DabblerVersion in Directory.Build.props to 1.0.1, and in tools/pack.ps1 set the -Version default to 1.0.1 along with the help text that names it as the default (and the two help examples that name 1.0.0), so neither file names 1.0.0 any more. Add a `## 1.0.1` entry to CHANGELOG.md above `## 1.0.0`: no API changes since 1.0.0; the DabblerPdf dependency moves from 1.1.2 to 1.1.3, which changes no DabblerPdf API either. The step is proved by the two files naming 1.0.1 and not 1.0.0, by the changelog heading order, and by a Release build, tools/pack.ps1 -OutputDir pack-output -CleanOutput, and the Packaging.Smoke suite (ServesBelowFiveHundred excluded, DABBLER_PACK_OUTPUT at pack-output) passing against the packed 1.0.1 nupkgs.

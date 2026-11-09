@@ -4,6 +4,12 @@ All `Dabbler.*` packages, the `Dabbler.Templates` template pack and the tools
 share one version (`DabblerVersion` in `Directory.Build.props`) and are
 published to nuget.org together.
 
+## 1.0.1
+
+- No API changes since `1.0.0`.
+- The `DabblerPdf` dependency moves from `1.1.2` to `1.1.3`, which changes no
+  DabblerPdf API either.
+
 ## 1.0.0
 
 - No API changes since `0.2.0`.
