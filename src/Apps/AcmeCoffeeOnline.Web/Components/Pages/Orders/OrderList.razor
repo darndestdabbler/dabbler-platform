@@ -1,0 +1,255 @@
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Shared.Enums
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Components.MasterDetail
+@using MudBlazor
+@using System.Linq.Expressions
+
+@* ── Filter panel ───────────────────────────────────────────────────── *@
+<DeclarativeFilterPanel TEntity="OrderDto"
+                        Config="_filterConfig"
+                        FilterChanged="@OnFilterChangedAsync"
+                        InitialValues="@BuildInitialFilterValues()" />
+
+@* ── Toolbar ────────────────────────────────────────────────────────── *@
+<div class="d-flex align-center gap-2 my-2">
+    @if (!string.IsNullOrEmpty(_statusText))
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@_statusText</MudText>
+    }
+    <MudSpacer />
+    @if (!AutoLoadOnFilterChange)
+    {
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Search"
+                   OnClick="@SearchAsync"
+                   Disabled="@_isLoading">
+            Search
+        </MudButton>
+    }
+</div>
+
+@* ── Error banner ───────────────────────────────────────────────────── *@
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error"
+              Variant="Variant.Filled"
+              ShowCloseIcon="true"
+              CloseIconClicked="@(() => { _error = null; StateHasChanged(); })"
+              Class="mb-2">
+        @_error.Message
+    </MudAlert>
+}
+
+@* ── Data grid ──────────────────────────────────────────────────────── *@
+<MudDataGrid T="OrderDto"
+             @ref="_mudDataGrid"
+             ServerData="@ServerDataFuncAsync"
+             Dense="true"
+             Hover="true"
+             Bordered="true"
+             RowsPerPage="25"
+             ReadOnly="true"
+             Loading="@_isLoading"
+             RowClick="@OnRowClick">
+    <Columns>
+        <TemplateColumn Title="Order #" SortBy="e => e.Id">
+            <CellTemplate>
+                <MudLink Href="@($"/orders/{context.Item.Id}")"
+                         data-testid="@($"order-detail-link-{context.Item.Id}")">
+                    @context.Item.Id
+                </MudLink>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="e => e.CustomerName" Title="Retail Business Contact" />
+        <PropertyColumn Property="e => e.OrderDate" Title="Order Date" Format="d"
+                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
+        <TemplateColumn Title="Status" Sortable="true">
+            <CellTemplate>
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Color="@GetStatusColor(context.Item.Status)"
+                         Variant="Variant.Filled">
+                    @context.Item.Status
+                </MudChip>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="e => e.Total" Title="Total" Format="C2"
+                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
+        <PropertyColumn Property="e => e.ShipDate" Title="Ship Date" Format="d"
+                       CellStyle="text-align:right; max-width:130px" HeaderStyle="text-align:right; max-width:130px" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="OrderDto" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private MudDataGrid<OrderDto>? _mudDataGrid;
+    private bool _isLoading;
+    private Exception? _error;
+    private int _currentTotal;
+    private int? _unfilteredTotal;
+    private CompositeFilterDescriptor? _currentFilter;
+    private CancellationTokenSource? _debounceCts;
+    private string? _statusText;
+
+    [Parameter]
+    public IGridDataProvider<OrderDto> DataProvider { get; set; } = default!;
+
+    [Parameter]
+    public string? InitialSearchTerm { get; set; }
+
+    [Parameter]
+    public bool AutoLoadOnFilterChange { get; set; } = true;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private static readonly FilterConfig<OrderDto> _filterConfig = new(
+        FilterMode.ServerSide,
+        new FilterProperty<OrderDto>[]
+        {
+            new FilterProperty<OrderDto>.EnumVal
+            {
+                Property = e => (object?)e.Status,
+                Label = "Status",
+            },
+            new FilterProperty<OrderDto>.Text
+            {
+                Property = e => e.CustomerName,
+                Label = "Retail Business",
+            },
+            new FilterProperty<OrderDto>.Date
+            {
+                Property = e => (object?)e.OrderDate,
+                Label = "Order Date",
+                AsRange = true,
+            },
+            new FilterProperty<OrderDto>.Numeric
+            {
+                Property = e => (object?)e.Total,
+                Label = "Total",
+                AsRange = true,
+                MinPlaceholder = "Min $",
+                MaxPlaceholder = "Max $",
+            },
+        });
+
+    private IReadOnlyDictionary<string, object?>? BuildInitialFilterValues()
+    {
+        if (string.IsNullOrWhiteSpace(InitialSearchTerm))
+            return null;
+        return new Dictionary<string, object?> { ["CustomerName"] = InitialSearchTerm.Trim() };
+    }
+
+    private async Task<GridData<OrderDto>> ServerDataFuncAsync(GridState<OrderDto> state, CancellationToken cancellationToken)
+    {
+        _isLoading = true;
+        _error = null;
+        StateHasChanged();
+
+        try
+        {
+            var request = new GridDataRequest
+            {
+                PageIndex = state.Page,
+                PageSize = state.PageSize,
+                CompositeFilter = _currentFilter,
+                Sorts = state.SortDefinitions
+                    .Select(s => new SortDescriptor(s.SortBy, s.Descending))
+                    .ToList(),
+            };
+
+            var response = await DataProvider.FetchAsync(request, cancellationToken);
+
+            _currentTotal = response.TotalCount;
+            if (_currentFilter is null || !HasActiveFilters(_currentFilter))
+            {
+                _unfilteredTotal = response.TotalCount;
+            }
+            UpdateStatusText();
+
+            return new GridData<OrderDto>
+            {
+                Items = response.Items,
+                TotalItems = response.TotalCount,
+            };
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _error = ex;
+            _currentTotal = 0;
+            UpdateStatusText();
+            return new GridData<OrderDto> { Items = [], TotalItems = 0 };
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnFilterChangedAsync(CompositeFilterDescriptor? filter)
+    {
+        _currentFilter = filter;
+
+        if (!AutoLoadOnFilterChange)
+            return;
+
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(200, _debounceCts.Token);
+            if (_mudDataGrid is not null)
+                await _mudDataGrid.ReloadServerData();
+        }
+        catch (TaskCanceledException) { }
+    }
+
+    private async Task SearchAsync()
+    {
+        if (_mudDataGrid is not null)
+            await _mudDataGrid.ReloadServerData();
+    }
+
+    private void OnRowClick(DataGridRowClickEventArgs<OrderDto> args)
+    {
+        NavigationManager.NavigateTo($"/orders/{args.Item.Id}");
+    }
+
+    private void UpdateStatusText()
+    {
+        var hasFilters = _currentFilter is not null && HasActiveFilters(_currentFilter);
+        if (hasFilters && _unfilteredTotal.HasValue && _unfilteredTotal.Value != _currentTotal)
+        {
+            _statusText = $"Showing {_currentTotal:N0} of {_unfilteredTotal.Value:N0} records";
+        }
+        else
+        {
+            _statusText = $"{_currentTotal:N0} records";
+        }
+    }
+
+    private static Color GetStatusColor(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => Color.Default,
+        OrderStatus.Confirmed => Color.Info,
+        OrderStatus.Shipped => Color.Warning,
+        OrderStatus.Delivered => Color.Success,
+        OrderStatus.Cancelled => Color.Error,
+        _ => Color.Default
+    };
+
+    private static bool HasActiveFilters(CompositeFilterDescriptor filter)
+        => filter.Filters.Count > 0 || filter.Children.Count > 0;
+}

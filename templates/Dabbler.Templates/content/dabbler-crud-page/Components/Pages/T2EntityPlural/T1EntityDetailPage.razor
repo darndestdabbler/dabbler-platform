@@ -1,0 +1,31 @@
+@page "/T9RouteName/{T1EntityIdT8PkRoute}"
+@attribute [DabblerPageAuthorize("/T9RouteName")]
+@using T5DtoNs
+@using Dabbler.Security.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+<PageTitle>T1Entity Detail</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/T9RouteName"))"
+                           aria-label="Back to T2EntityPlural" />
+            <MudText Typo="Typo.h4" data-testid="t1entity-detail-title">
+                T1Entity #@T1EntityId
+            </MudText>
+        </MudStack>
+    </MudStack>
+
+    <T1EntityDetail T1EntityId="T1EntityId" IsReadOnly="false" />
+</MudContainer>
+
+@code {
+    [Parameter]
+    public T7PkType T1EntityId { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

@@ -1,0 +1,89 @@
+/* Copyright (c) Dabbler 2025 */
+/* Licensed under the MIT license. */
+
+/* Page-level component styles retained for compatibility surfaces. */
+/* Active app pages now use MudBlazor layout conventions directly. */
+
+/* ── Page containers ─────────────────────────────────────────────── */
+
+.dabbler-catalog-page {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+/* ── Header ──────────────────────────────────────────────────────── */
+
+.dabbler-page-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────── */
+
+.dabbler-page-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    min-height: 40px;
+    border-top: 1px solid var(--mud-palette-lines-default);
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+}
+
+.dabbler-page-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+}
+
+.dabbler-page-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.dabbler-page-toolbar-status {
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* ── Content ─────────────────────────────────────────────────────── */
+
+.dabbler-page-content {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+
+.dabbler-page-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+    color: var(--mud-palette-text-secondary);
+    text-align: center;
+}
+
+/* ── Catalog page specifics ──────────────────────────────────────── */
+
+.dabbler-catalog-search {
+    padding: 0 0 4px;
+}
+
+.dabbler-catalog-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.dabbler-catalog-row-clickable {
+    cursor: pointer;
+}

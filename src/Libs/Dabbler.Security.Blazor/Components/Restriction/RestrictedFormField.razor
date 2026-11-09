@@ -1,0 +1,153 @@
+@using Dabbler.Security.Services
+@namespace Dabbler.Security.Blazor.Components.Restriction
+@inject IRestrictionBinder Binder
+@inject AuthorizationStateNotifier Notifier
+@inject IFieldMaskService FieldMaskService
+@implements IDisposable
+
+@if (!_isResolved)
+{
+    @* Initial render before the binder's async ResolveAsync has completed.
+       Render nothing rather than the unrestricted ChildContent fallback —
+       otherwise the unmasked editable input flashes on screen for the
+       first render cycle, then is replaced by the masked span once the
+       binder resolves. That flash is both a test-flake source (Playwright
+       sometimes snapshots before resolution) and a real defense-in-depth
+       gap for human users on slow renders. *@
+}
+else if (_resolved.Visibility == ColumnVisibility.Hidden)
+{
+    @* Hidden: render nothing. *@
+}
+else if (_resolved.IsMasked)
+{
+    if (MaskedTemplate is not null)
+    {
+        @MaskedTemplate(_resolved)
+    }
+    else
+    {
+        <span data-masked="true"
+              data-mask-entity="@_resolved.EntityKey"
+              data-mask-column="@_resolved.ColumnKey"
+              data-mask-format="@_resolved.MaskFormat"
+              data-testid="@($"restricted-field-masked-{_resolved.EntityKey}-{_resolved.ColumnKey}")">
+            @FieldMaskService.RenderMasked(_resolved.MaskFormat, Value)
+        </span>
+    }
+}
+else
+{
+    @ChildContent?.Invoke(_resolved)
+}
+
+@code {
+    /// <summary>
+    /// Wraps a single MudForm field and applies the active user's
+    /// restrictions for the given (EntityKey, ColumnKey) tuple. The wrapper
+    /// resolves the restriction through <see cref="IRestrictionBinder"/> on
+    /// initialise and on every <see cref="AuthorizationStateNotifier"/>
+    /// notification, so a role-switch or a configuration change re-renders
+    /// the field within the same circuit.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Render contract:
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><c>Hidden</c> → renders nothing.</item>
+    ///   <item><c>Masked</c> (and no active exemption) → renders the
+    ///   <see cref="MaskedTemplate"/>, falling back to a
+    ///   <c>data-masked="true"</c> span containing <c>********</c>.
+    ///   Session Set D wires the actual mask renderer through
+    ///   <see cref="MaskedTemplate"/>.</item>
+    ///   <item>Otherwise → invokes <see cref="ChildContent"/> with the
+    ///   resolved <see cref="RestrictionResolution"/> so the consumer can
+    ///   wire <c>Disabled</c> / <c>ReadOnly</c> on the inner control
+    ///   from <c>state.Editability</c>.</item>
+    /// </list>
+    /// </remarks>
+
+    /// <summary>The entity (table) key the wrapped field binds to. Required.</summary>
+    [Parameter, EditorRequired] public string EntityKey { get; set; } = string.Empty;
+
+    /// <summary>The column (field) key the wrapped field binds to. Required.</summary>
+    [Parameter, EditorRequired] public string ColumnKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The entity instance identifier (stringified) for the row this field
+    /// belongs to. When supplied and the resolution is "exempted → unmasked",
+    /// the binder emits a <c>FieldUnmaskedRead</c> audit row keyed on
+    /// <c>(CorrelationId, EntityKey, EntityId, ColumnKey)</c>. When omitted
+    /// the field still resolves restrictions but does not contribute an
+    /// audit row.
+    /// </summary>
+    [Parameter] public string? EntityId { get; set; }
+
+    /// <summary>
+    /// The raw stored value of the field. Passed to <see cref="IFieldMaskService.RenderMasked"/>
+    /// when the field is masked and no explicit <see cref="MaskedTemplate"/> is supplied.
+    /// Null is valid — the mask service always produces a non-empty output.
+    /// </summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>
+    /// The field template. Receives the resolved <see cref="RestrictionResolution"/>
+    /// so the consumer can apply <c>Disabled</c> / <c>ReadOnly</c> on the
+    /// MudBlazor control (e.g.,
+    /// <c>Disabled="@(state.Editability == ColumnEditability.ReadOnly)"</c>).
+    /// </summary>
+    [Parameter] public RenderFragment<RestrictionResolution>? ChildContent { get; set; }
+
+    /// <summary>
+    /// Optional override for the masked rendering surface. Session Set D
+    /// supplies a real renderer that consumes <c>state.MaskFormat</c> and
+    /// the underlying value; this session emits a placeholder
+    /// <c>********</c> span so layout proves out.
+    /// </summary>
+    [Parameter] public RenderFragment<RestrictionResolution>? MaskedTemplate { get; set; }
+
+    private RestrictionResolution _resolved =
+        RestrictionResolution.Unrestricted(string.Empty, string.Empty);
+
+    private bool _isResolved;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        Notifier.Subscribe(OnConfigChangedAsync);
+        await ResolveAsync();
+    }
+
+    private string? _lastResolvedEntityId;
+
+    /// <inheritdoc />
+    protected override async Task OnParametersSetAsync()
+    {
+        // Resolve when keys change (e.g., a parent rebinds the same wrapper
+        // to a different column) or when the entity instance changes (so the
+        // batched FieldUnmaskedRead audit fires for each distinct row).
+        if (!string.Equals(_resolved.EntityKey, EntityKey, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(_resolved.ColumnKey, ColumnKey, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(_lastResolvedEntityId, EntityId, StringComparison.Ordinal))
+        {
+            await ResolveAsync();
+        }
+    }
+
+    private async Task ResolveAsync()
+    {
+        _resolved = await Binder.ResolveAsync(EntityKey, ColumnKey, EntityId);
+        _lastResolvedEntityId = EntityId;
+        _isResolved = true;
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        await ResolveAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+}
