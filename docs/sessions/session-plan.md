@@ -552,3 +552,31 @@ restores on the same SDK, so a `nuget-v1.0.0` tag would fail there too. The
 operator's confirmation is the first green push build on `master` after this
 session lands; then the `1.0.0` dry run (`gh workflow run build.yml -f
 version=1.0.0`) and the tag.
+
+### Session 19: Take DabblerPdf 1.1.3
+
+1. Register.
+2. Set the `DabblerPdf` `PackageVersion` in `Directory.Packages.props` from
+   `1.1.2` to `1.1.3`, the one place the platform pins it. The step's checks:
+   `Directory.Packages.props` names `DabblerPdf` at `1.1.3` and nowhere at
+   `1.1.2`; `dotnet test tests/Dabbler.Reports.Blazor.Tests` passes (it holds
+   the PDF export tests); then, after a Release build and `tools/pack.ps1
+   -OutputDir pack-output -CleanOutput`, the `.nuspec` inside the packed
+   `Dabbler.Reports.Core` nupkg declares its `DabblerPdf` dependency at
+   `1.1.3`.
+3. Cross-provider verification.
+4. The `unit` suite once against the verified tree, recorded as the run of
+   record.
+5. Close-out.
+
+Non-goals: no change to `DabblerVersion`, `CHANGELOG.md` or any tag (shipping
+this to consumers is a release of its own); no change to what any test
+asserts; no change to `../dabbler-pdf`; the tracked `*.csproj.lscache` files
+that still name `dabblerpdf/1.1.2` are left alone.
+
+Why now (2026-11-09): DabblerPdf 1.1.3 is on nuget.org (its `nuget-v1.1.3`
+publish, run 42666717096). It changes no API since 1.1.2 and is the first
+DabblerPdf version built, validated and published from CI with trusted
+publishing. The platform's 1.0.0 packages depend on 1.1.2, and NuGet resolves
+the lowest version a dependency allows, so a Dabbler consumer gets 1.1.2
+until a Dabbler release raises the floor.
