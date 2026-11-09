@@ -1,0 +1,209 @@
+{
+  "sessionSetName": "crud-scaffolding-spike",
+  "createdDate": "2026-05-16T00:00:00Z",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/full-session-summary",
+      "dateTime": "2026-05-16T11:14:51.722301-04:00",
+      "description": "Session 3 of 3 complete. Tri-provider review (Gemini Pro /usr/bin/bash.0398, GPT-5.4 /usr/bin/bash.2623, Opus self-contribution) synthesized into scaffolding-approach-review.md. Small-scope adjustments applied INLINE; larger BLOCKING adjustments captured as MVP gates in docs/session-sets/crud-scaffolding/spec.md. Verification took 3 rounds (GPT-5.4) before VERIFIED clean. 929 non-Playwright tests pass. Total routed cost ~$0.73.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "architecture",
+          "inputTokens": 9788,
+          "outputTokens": 2758,
+          "costUsd": 0.0398
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "architecture",
+          "inputTokens": 8931,
+          "outputTokens": 16000,
+          "costUsd": 0.2623
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 26942,
+          "outputTokens": 7967,
+          "costUsd": 0.1869,
+          "round": 1
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 21311,
+          "outputTokens": 3749,
+          "costUsd": 0.1095,
+          "round": 2
+        },
+        {
+          "model": "gpt-5-4",
+          "taskType": "session-verification",
+          "inputTokens": 16554,
+          "outputTokens": 552,
+          "costUsd": 0.0497,
+          "round": 3
+        },
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": null,
+          "outputTokens": null,
+          "costUsd": 0.0016
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": null,
+          "outputTokens": null,
+          "costUsd": 0.0061
+        }
+      ]
+    }
+  ],
+  "sessionSummaries": [
+    {
+      "session": 1,
+      "totalSessions": 3,
+      "title": "Session 1 of 3: Helper And Pattern Inventory",
+      "steps": [
+        {
+          "step": 1,
+          "description": "Read project-guidance.md, lessons-learned.md, and composition-over-configuration principle",
+          "status": "completed",
+          "notes": "Focused on 'Composition over configuration for CRUD page composites' principle as guidance for generator design"
+        },
+        {
+          "step": 2,
+          "description": "Inventory CRUD helpers in src/Libs/Dabbler.Components/",
+          "status": "completed",
+          "artifacts": [
+            "EditSession<T> (MasterDetail/EditSession.cs) \u00e2\u20ac\u201d dirty-state tracking via JSON serialization",
+            "DirtyAwareActionRow (MasterDetail/DirtyAwareActionRow.razor) \u00e2\u20ac\u201d Save/Cancel/Delete component with confirmations",
+            "DeclarativeFilterPanel<TEntity> (MasterDetail/DeclarativeFilterPanel.razor) \u00e2\u20ac\u201d QBE filter UI",
+            "IGridDataProvider<T> (Data/IGridDataProvider.cs) \u00e2\u20ac\u201d server-side data abstraction"
+          ]
+        },
+        {
+          "step": 3,
+          "description": "Inventory service endpoint patterns in src/Apps/AcmeCoffeeOnline.Api/",
+          "status": "completed",
+          "artifacts": [
+            "ProductsController (Controllers/ProductsController.cs) \u00e2\u20ac\u201d representative CRUD controller",
+            "IProductService / ProductService \u00e2\u20ac\u201d service interface and implementation pattern",
+            "Authorization pattern: [DabblerEndpointAuthorize], TryGetUserId, ApplyFieldPermissionsAsync"
+          ]
+        },
+        {
+          "step": 4,
+          "description": "Inventory CRUD pages in src/Apps/AcmeCoffeeOnline.Web/Components/Pages/",
+          "status": "completed",
+          "artifacts": [
+            "ProductsPage (Products/ProductsPage.razor) \u00e2\u20ac\u201d thin route wrapper",
+            "ProductList (Products/ProductList.razor) \u00e2\u20ac\u201d reusable grid + filter component",
+            "ProductDetail (Products/ProductDetail.razor) \u00e2\u20ac\u201d single-record edit page with EditSession"
+          ]
+        },
+        {
+          "step": 5,
+          "description": "Route structural analysis via AI Router",
+          "status": "completed",
+          "routed": {
+            "task_type": "analysis",
+            "model": "gemini-pro (Tier 2)",
+            "cost_usd": 0.0276,
+            "result": "Comprehensive prescriptive guidance on generator outputs at three granularities"
+          },
+          "artifacts": [
+            "Routed analysis integrated into helper-and-pattern-inventory.md Part II"
+          ]
+        },
+        {
+          "step": 6,
+          "description": "Save inventory as helper-and-pattern-inventory.md",
+          "status": "completed",
+          "artifacts": [
+            "docs/session-sets/crud-scaffolding-spike/helper-and-pattern-inventory.md"
+          ],
+          "coverage": "Part I: Orchestrator inventory with code excerpts and line references; Part II: Routed structural analysis; Part III: Session notes"
+        }
+      ],
+      "creates": [
+        "helper-and-pattern-inventory.md"
+      ],
+      "touches": [
+        "session-state.json"
+      ],
+      "ends_with": "A complete picture of what reference code the generator must match. No design decisions yet \u00e2\u20ac\u201d pure inventory and prescriptive guidance on generation patterns.",
+      "verification": {
+        "build": "success (0 errors, 256 warnings \u00e2\u20ac\u201d pre-existing obsolescence)",
+        "tests": "running"
+      },
+      "orchestrator": "Claude Haiku 4.5",
+      "timestamp": "2026-05-16"
+    },
+    {
+      "session": 2,
+      "totalSessions": 3,
+      "title": "Session 2 of 3: Scaffolding Approach Proposal",
+      "steps": [
+        {
+          "step": 1,
+          "description": "Read inventory and open design questions from Session 1",
+          "status": "completed",
+          "notes": "Full context loaded from helper-and-pattern-inventory.md"
+        },
+        {
+          "step": 2,
+          "description": "Draft scaffolding-approach-proposal.md (direct authoring, no routing per spec)",
+          "status": "completed",
+          "artifacts": [
+            "scaffolding-approach-proposal.md \u00e2\u20ac\u201d Comprehensive proposal resolving all 6 open design questions"
+          ],
+          "scope": [
+            "Granularities 1 & 2 (MVP) vs 3 (deferred)",
+            "dotnet new templates (CLI shape)",
+            "QBE-only filters (OData deferred)",
+            "No regeneration (generate once, own the code)",
+            "C# reflection for entity discovery (schema files deferred)",
+            "Non-goals documented explicitly",
+            "Generated code samples for both granularities",
+            "Non-MVP roadmap with rationale",
+            "OData re-litigation guard"
+          ]
+        },
+        {
+          "step": 3,
+          "description": "Proposal doubles as Opus contribution to Session 3 tri-provider review",
+          "status": "completed",
+          "notes": "Per feedback_orchestrator_self_contributes_to_review_panel; context asymmetry disclosed explicitly in proposal"
+        },
+        {
+          "step": 4,
+          "description": "Build and run markdown checks if configured",
+          "status": "completed",
+          "notes": "No markdown linters found; skipped"
+        }
+      ],
+      "creates": [
+        "scaffolding-approach-proposal.md",
+        "ai-assignment.md"
+      ],
+      "touches": [
+        "session-state.json"
+      ],
+      "ends_with": "A complete, opinionated proposal ready for tri-provider review. All open design questions resolved. Generated-code samples provided for both MVP granularities.",
+      "orchestrator": "Claude Opus 4.7",
+      "timestamp": "2026-05-16",
+      "routing": {
+        "total_cost_usd": 0.0,
+        "note": "Zero routing per spec: Step 2 was direct orchestrator authoring with full context (no route() call)"
+      }
+    }
+  ]
+}

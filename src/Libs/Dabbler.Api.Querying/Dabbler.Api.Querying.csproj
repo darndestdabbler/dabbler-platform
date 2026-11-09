@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageId>Dabbler.Api.Querying</PackageId>
+    <Description>Server-side grid-query primitives for Dabbler-platform APIs: GridQueryRequest transport DTOs (sort + composite QBE filter graph + paging) and IQueryable&lt;T&gt; extension methods (ApplyGridCompositeFilter / ApplyGridQuerySorts) that translate to EF Core SQL. Consumed by the dabbler-crud-service template and any scaffolded controller POST /query endpoint.</Description>
+    <PackageTags>aspnetcore;efcore;querying;qbe;grid;crud;dabbler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

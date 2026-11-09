@@ -1,0 +1,90 @@
+=== [1/6] pack updated template ===
+  All projects are up-to-date for restore.
+C:\Program Files\dotnet\sdk\11.0.100-preview.2.26159.112\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(383,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [C:\Users\denmi\source\repos\dabbler-platform\templates\Dabbler.Templates\Dabbler.Templates.csproj]
+  Dabbler.Templates -> C:\Users\denmi\source\repos\dabbler-platform\templates\Dabbler.Templates\bin\Release\net10.0\Dabbler.Templates.dll
+  The package Dabbler.Templates.0.1.0-preview.1 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package 'C:\temp\s3-gate\pack\Dabbler.Templates.0.1.0-preview.1.nupkg'.
+  Successfully created package 'C:\temp\s3-gate\pack\Dabbler.Templates.0.1.0-preview.1.snupkg'.
+PACK_EXIT=0
+Dabbler.Templates.0.1.0-preview.1.nupkg
+Dabbler.Templates.0.1.0-preview.1.snupkg
+=== [2/6] install template from local pack ===
+  • 'Dabbler App (minimal)' from 'Dabbler.Templates@0.1.0-preview.1'
+The template from 'Dabbler App (minimal)' will be used. To resolve this conflict, uninstall the conflicting template packages.
+Success: Dabbler.Templates@0.1.0-preview.1 installed the following templates:
+Template Name               Short Name            Language  Tags                              
+--------------------------  --------------------  --------  ----------------------------------
+Dabbler App                 dabbler-app           [C#]      Web/Blazor/Server/Security/Reports
+Dabbler App (minimal)       dabbler-min           [C#]      Web/Blazor/Server/Security        
+Dabbler CRUD Page Slice     dabbler-crud-page     [C#]      Web/Blazor/CRUD/Scaffolding       
+Dabbler CRUD Service Slice  dabbler-crud-service  [C#]      Web/Api/CRUD/Scaffolding          
+
+INSTALL_EXIT=0
+=== [3/6] scaffold a fresh app (outside the repo) ===
+The template "Dabbler App" was created successfully.
+
+SCAFFOLD_EXIT=0
+=== [4/6] inspect generated nuget.config + confirm no packages/ dir ===
+--- nuget.config ---
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Feed-only NuGet configuration. The Dabbler.* platform packages restore from
+  nuget.org (anonymous read — no auth token required for restore). <clear/>
+  drops any inherited machine/user package sources so restore is deterministic
+  across every consumer repo and CI runner.
+
+  Pin Dabbler.* to an exact preview version (never a floating 0.1.0-preview.*).
+  Offline / air-gapped restore is an opt-in procedure — see README "Offline
+  restore"; do not commit a local packages source by default.
+-->
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+  </packageSources>
+</configuration>
+--- packages/ present? (expect: absent) ---
+ls: cannot access '/c/temp/s3-gate/GateApp/packages': No such file or directory
+=== [5/6] clear http-cache + restore/build with ISOLATED package cache (forces real nuget.org fetch) ===
+Clearing NuGet HTTP cache: C:\Users\denmi\AppData\Local\NuGet\v3-cache
+Local resources cleared.
+  Determining projects to restore...
+  Restored C:\temp\s3-gate\GateApp\src\GateApp.Api\GateApp.Api.csproj (in 1.81 sec).
+  Restored C:\temp\s3-gate\GateApp\src\GateApp.Shared\GateApp.Shared.csproj (in 1.8 sec).
+  Restored C:\temp\s3-gate\GateApp\src\GateApp.Web\GateApp.Web.csproj (in 3.05 sec).
+  Restored C:\temp\s3-gate\GateApp\tests\GateApp.Web.Tests\GateApp.Web.Tests.csproj (in 3.65 sec).
+C:\Program Files\dotnet\sdk\11.0.100-preview.2.26159.112\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(383,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [C:\temp\s3-gate\GateApp\src\GateApp.Shared\GateApp.Shared.csproj]
+C:\Program Files\dotnet\sdk\11.0.100-preview.2.26159.112\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(383,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [C:\temp\s3-gate\GateApp\src\GateApp.Web\GateApp.Web.csproj]
+C:\Program Files\dotnet\sdk\11.0.100-preview.2.26159.112\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(383,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [C:\temp\s3-gate\GateApp\tests\GateApp.Web.Tests\GateApp.Web.Tests.csproj]
+C:\Program Files\dotnet\sdk\11.0.100-preview.2.26159.112\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(383,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [C:\temp\s3-gate\GateApp\src\GateApp.Api\GateApp.Api.csproj]
+  GateApp.Shared -> C:\temp\s3-gate\GateApp\src\GateApp.Shared\bin\Release\net10.0\GateApp.Shared.dll
+  GateApp.Api -> C:\temp\s3-gate\GateApp\src\GateApp.Api\bin\Release\net10.0\GateApp.Api.dll
+  GateApp.Web -> C:\temp\s3-gate\GateApp\src\GateApp.Web\bin\Release\net10.0\GateApp.Web.dll
+  GateApp.Web.Tests -> C:\temp\s3-gate\GateApp\tests\GateApp.Web.Tests\bin\Release\net10.0\GateApp.Web.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.58
+BUILD_EXIT=0
+--- Dabbler.* actually pulled into the isolated cache: ---
+dabbler.components
+dabbler.platform.stubs
+dabbler.platform.stubs.components
+dabbler.platform.stubs.reports
+dabbler.platform.stubs.security
+dabbler.reports.blazor
+dabbler.reports.core
+dabbler.reports.export
+dabbler.security
+dabbler.security.blazor
+dabbler.testing.blazor
+dabblerpdf
+=== [6/6] run scaffolded bUnit tests ===
+Test run for C:\temp\s3-gate\GateApp\tests\GateApp.Web.Tests\bin\Release\net10.0\GateApp.Web.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 2 s - GateApp.Web.Tests.dll (net10.0)
+TEST_EXIT=0
+=== GATE_COMPLETE ===

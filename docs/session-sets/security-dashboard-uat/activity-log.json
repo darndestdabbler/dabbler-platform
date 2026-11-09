@@ -1,0 +1,86 @@
+{
+  "sessionSetName": "security-dashboard-uat",
+  "createdDate": "2026-04-17T11:48:41.855025+00:00",
+  "totalSessions": 1,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-guidance",
+      "dateTime": "2026-04-17T11:49:23.236712+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md pre-session.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/checklist-generation",
+      "dateTime": "2026-04-17T11:49:23.237712+00:00",
+      "description": "Verified pre-existing security-dashboard-uat-checklist.json covers all seven dashboard tabs, shell/access, tab strip, and cross-cutting quality with 40 items across 10 functional areas, including explicit seeded test data (admin@acmecoffee.com, jdoe@acmecoffee.com, james.smith@example.com, entity/control/endpoint names) per the lessons-learned UAT-data rule.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/schema-validation",
+      "dateTime": "2026-04-17T11:49:23.237712+00:00",
+      "description": "Validated checklist JSON against uat-checklist-editor checklist-schema.json using jsonschema.validate. No errors. 40 items conform to ProjectName/Review structure with required FunctionalArea/Subarea/ItemLabel.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-17T11:55:02.376757+00:00",
+      "description": "Build: 1 warning, 0 errors. Test: 627 passed, 1 pre-existing failure (AcmeCoffeeOnline.Web.Tests.WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates expects docs/workflow-auth-observability.md which was deleted in commit 8730107 during repository cleanup). Failure unrelated to this session; flagging for the human as a pre-existing fixture/test-data drift.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-17T11:58:13.459871+00:00",
+      "description": "Independent cross-provider verification via gemini-pro. See session-reviews/session-1-review-1.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 8442,
+          "outputTokens": 674,
+          "costUsd": 0.0172925
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/issue-remediation-round-1",
+      "dateTime": "2026-04-17T12:00:08.968268+00:00",
+      "description": "Addressed all 4 verifier issues (1 Major, 3 Minor). Cross-referenced SeedData.cs and security-config.json to ensure user-role mappings and endpoint list are accurate. Checklist now has 42 items across 10 FunctionalAreas with open-feedback rows in every area.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification-round-2",
+      "dateTime": "2026-04-17T12:00:48.219429+00:00",
+      "description": "Round-2 cross-provider verification via gemini-pro. See session-reviews/session-001-review-002.md for raw output.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 9273,
+          "outputTokens": 381,
+          "costUsd": 0.015401250000000002
+        }
+      ]
+    }
+  ]
+}

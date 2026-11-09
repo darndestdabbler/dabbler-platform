@@ -1,0 +1,156 @@
+{
+  "metadata": {
+    "name": "Sample Items Report",
+    "description": "Lists active sample items with their values. Generated from the DabblerApp template.",
+    "author": "DabblerApp",
+    "version": "1.0",
+    "pageWidth": 8.5,
+    "pageHeight": 11.0,
+    "orientation": "Portrait",
+    "marginTop": 0.75,
+    "marginBottom": 0.75,
+    "marginLeft": 1.0,
+    "marginRight": 1.0,
+    "defaultFontFamily": "Segoe UI",
+    "defaultFontSize": 10
+  },
+  "dataSources": [
+    {
+      "name": "main",
+      "connectionName": "SampleItemsDb",
+      "providerType": "Custom",
+      "query": "SELECT Name, Value, Description FROM SampleItems WHERE IsActive = 1 ORDER BY Name"
+    }
+  ],
+  "parameters": [],
+  "fields": [
+    { "name": "Name", "dataType": "String", "sourceColumn": "Name" },
+    { "name": "Value", "dataType": "Decimal", "sourceColumn": "Value", "formatString": "C2" },
+    { "name": "Description", "dataType": "String", "sourceColumn": "Description" }
+  ],
+  "grouping": [],
+  "bands": [
+    {
+      "name": "reportHeader",
+      "bandType": "ReportHeader",
+      "height": 0.5,
+      "elements": [
+        {
+          "elementType": "Text",
+          "left": 0.0,
+          "top": 0.05,
+          "width": 6.5,
+          "height": 0.3,
+          "text": "Sample Items Report",
+          "fontSize": 14,
+          "fontBold": true,
+          "horizontalAlign": "Left"
+        }
+      ]
+    },
+    {
+      "name": "columnHeader",
+      "bandType": "ColumnHeader",
+      "height": 0.3,
+      "elements": [
+        {
+          "elementType": "Text",
+          "left": 0.0,
+          "top": 0.05,
+          "width": 2.5,
+          "height": 0.2,
+          "text": "Name",
+          "fontBold": true,
+          "horizontalAlign": "Left",
+          "drawBorderBottom": true
+        },
+        {
+          "elementType": "Text",
+          "left": 2.6,
+          "top": 0.05,
+          "width": 1.2,
+          "height": 0.2,
+          "text": "Value",
+          "fontBold": true,
+          "horizontalAlign": "Right",
+          "drawBorderBottom": true
+        },
+        {
+          "elementType": "Text",
+          "left": 3.9,
+          "top": 0.05,
+          "width": 2.6,
+          "height": 0.2,
+          "text": "Description",
+          "fontBold": true,
+          "horizontalAlign": "Left",
+          "drawBorderBottom": true
+        }
+      ]
+    },
+    {
+      "name": "detail",
+      "bandType": "Detail",
+      "height": 0.25,
+      "elements": [
+        {
+          "elementType": "Field",
+          "left": 0.0,
+          "top": 0.04,
+          "width": 2.5,
+          "height": 0.18,
+          "fieldName": "Name",
+          "horizontalAlign": "Left"
+        },
+        {
+          "elementType": "Field",
+          "left": 2.6,
+          "top": 0.04,
+          "width": 1.2,
+          "height": 0.18,
+          "fieldName": "Value",
+          "horizontalAlign": "Right"
+        },
+        {
+          "elementType": "Field",
+          "left": 3.9,
+          "top": 0.04,
+          "width": 2.6,
+          "height": 0.18,
+          "fieldName": "Description",
+          "horizontalAlign": "Left"
+        }
+      ]
+    },
+    {
+      "name": "reportFooter",
+      "bandType": "ReportFooter",
+      "height": 0.3,
+      "elements": [
+        {
+          "elementType": "Aggregate",
+          "left": 2.6,
+          "top": 0.05,
+          "width": 1.2,
+          "height": 0.2,
+          "aggregateType": "Sum",
+          "fieldName": "Value",
+          "formatString": "C2",
+          "horizontalAlign": "Right",
+          "fontBold": true,
+          "drawBorderTop": true
+        },
+        {
+          "elementType": "Text",
+          "left": 0.0,
+          "top": 0.05,
+          "width": 2.5,
+          "height": 0.2,
+          "text": "Total:",
+          "fontBold": true,
+          "horizontalAlign": "Right"
+        }
+      ]
+    }
+  ]
+}
