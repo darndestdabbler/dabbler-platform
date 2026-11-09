@@ -28,6 +28,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 14 | Bump to 1.0.0 | no | 2026-11-08 |
 | 15 | Build on push | no | 2026-11-08 |
 | 16 | Templates reference the version being packed | no | 2026-11-08 |
+| 17 | Make the push build green on a clean machine | no | 2026-11-09 |
 
 ### Session 1 — Author or import the solution plan
 
@@ -133,3 +134,9 @@ Add a push build: a new .github/workflows/ci.yml that, on push to master and on 
 **Releasable: no.**
 
 Make the dabbler-app (Web and Web.Tests) and dabbler-min templates reference the Dabbler.* version being packed instead of the hard-pinned 0.1.0-preview.1, and bring the scaffolded-app build into a local gate. Each Dabbler.* PackageReference under templates/Dabbler.Templates/content/** carries a single version token; a pack-time target in Dabbler.Templates.csproj copies the template .csproj files to the intermediate directory with the token replaced by $(DabblerVersion) and packs those copies in place of the originals, so Directory.Build.props stays the one source of truth and the template engine needs no new symbol. The two pieces of template prose that name 0.1.0-preview.1 (the dabbler-app README and nuget.config comment) are reworded to say the references are pinned to the exact version of the Dabbler.Templates package that scaffolded the app. Then a `smoke` suite is added to dabbler.yaml (expensive: true, required_for_close: false so only a bump session that packs runs it) that sets DABBLER_PACK_OUTPUT to the resolved pack-output directory -- failing when it is absent rather than letting the tests skip -- and runs tests/Dabbler.Packaging.Smoke with the same ServesBelowFiveHundred exclusion CI's Validate And Pack job uses; docs/MAINTAINING.md says a bump session runs it.
+
+### Session 17 — Make the push build green on a clean machine
+
+**Releasable: no.**
+
+Make the push build (ci.yml) green and meaningful on a clean machine. First, stop the AcmeCoffeeOnline.Api.Tests race on a fresh LocalDB: every test class owns a WebApplicationFactory<Program> that runs DatabaseInitializer.InitializeAsync (EnsureCreated plus seed) against the one database AcmeCoffeeOnline_Dev, and xUnit runs the classes in parallel, so on a machine without that database several factories create and seed it at once. Adding tests/AcmeCoffeeOnline.Api.Tests/xunit.runner.json with parallelizeTestCollections false, copied to the output directory by the project file, makes the first class create and seed it and the rest find it. Second, make the push build run the 46 pack-dependent tests it currently skips (41 in Dabbler.PublicSurface.Tests, 4 in Dabbler.Templates.Tests, FullPipeline_endToEnd_against_smoke_fixture in Dabbler.CrudSlice.Tests): before the unit-suite step, ci.yml builds Dabbler.Publish.slnf in Release and then Dabbler.Reports.Export and Dabbler.Reports.Blazor directly, as build.yml's Validate And Pack job does, runs tools/pack.ps1 with -OutputDir and -ScratchCacheDir under RUNNER_TEMP, and exports that output folder as DABBLER_PACK_OUTPUT for the test step.

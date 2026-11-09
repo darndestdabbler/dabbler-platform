@@ -16,6 +16,13 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <!-- Every test class's WebApplicationFactory creates and seeds the one
+       AcmeCoffeeOnline_Dev database; run the classes serially so only the
+       first does that on a machine where the database does not yet exist. -->
+  <ItemGroup>
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Apps\AcmeCoffeeOnline.Api\AcmeCoffeeOnline.Api.csproj" />
   </ItemGroup>

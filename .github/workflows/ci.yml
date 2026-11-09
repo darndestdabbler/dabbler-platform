@@ -2,7 +2,10 @@ name: Build
 
 # The push build: the `unit` suite, exactly as dabbler.yaml declares it, on
 # every push to master and every pull request (Dependabot's included).
-# Publishing stays with build.yml on a nuget-v* tag.
+# It packs the public package set first and exports DABBLER_PACK_OUTPUT, so
+# the pack-dependent tests (PublicSurface, Templates, CrudSlice's full
+# pipeline) run instead of skipping. Publishing stays with build.yml on a
+# nuget-v* tag.
 on:
   push:
     branches:
@@ -32,6 +35,43 @@ jobs:
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 10.0.x
+
+      - name: Build publish surface
+        shell: pwsh
+        run: |
+          dotnet build Dabbler.Publish.slnf `
+            --configuration Release `
+            --nologo `
+            -v minimal `
+            /p:ContinuousIntegrationBuild=true
+          if ($LASTEXITCODE -ne 0) { throw 'Build of Dabbler.Publish.slnf failed' }
+
+          # The filter pulls these two in only transitively, which does not lay
+          # down the bin/Release output `pack.ps1` (dotnet pack --no-build) needs.
+          foreach ($proj in @(
+              'src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj',
+              'src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj')) {
+              dotnet build $proj `
+                --configuration Release `
+                --nologo `
+                -v minimal `
+                /p:ContinuousIntegrationBuild=true
+              if ($LASTEXITCODE -ne 0) { throw "Direct build failed: $proj" }
+          }
+
+      - name: Pack public package set
+        shell: pwsh
+        run: |
+          $packOutput = Join-Path $env:RUNNER_TEMP 'dabbler-nuget-pack'
+          $scratchCache = Join-Path $env:RUNNER_TEMP 'dabbler-nuget-cache'
+
+          pwsh ./tools/pack.ps1 `
+            -OutputDir $packOutput `
+            -ScratchCacheDir $scratchCache `
+            -CleanOutput
+          if ($LASTEXITCODE -ne 0) { throw 'pack.ps1 failed' }
+
+          "DABBLER_PACK_OUTPUT=$packOutput" >> $env:GITHUB_ENV
 
       - name: Run the unit suite
         run: dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m
