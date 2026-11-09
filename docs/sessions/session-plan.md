@@ -613,3 +613,129 @@ Why now (2026-11-09): Session 19 raises the DabblerPdf floor in the source,
 but nothing reaches a consumer until the twelve packages ship again at a new
 version. A patch is the proposed version because neither the Dabbler API nor
 the DabblerPdf API changes.
+
+### Session 21: The framework runs the Playwright E2E gate
+
+1. Register.
+2. Add `tools/e2e.ps1`, the one command that runs the E2E gate from a cold
+   start. It uses `podman` when it is on `PATH` and its machine is running,
+   otherwise `docker` (`DABBLER_CONTAINER_ENGINE` overrides the choice), and
+   fails with a plain message, not a test failure, when neither engine is
+   up or `../dabbler-uat-dsl/pack-output` is missing. It brings
+   `docker/docker-compose.infra.yml` up, drops the `AcmeCoffeeOnline_Dev`
+   database so the API creates and seeds it fresh (the persistent volume and
+   the other databases stay), rebuilds and starts
+   `docker/docker-compose.app.yml`, waits for `api` and `web` to report
+   healthy with a time limit, then runs `dotnet test
+   tests/AcmeCoffeeOnline.Playwright/` with `--blame-hang-timeout` and a trx
+   logger, and exits with the test run's exit code. The step's check runs
+   the script and passes when the trx it wrote holds 178 tests of which no
+   more than the 12 known failures failed: the run proves the gate, not the
+   app.
+3. Declare an `e2e` suite in `dabbler.yaml` that runs `tools/e2e.ps1`:
+   `expensive: true`, `required_for_close: false` until Session 22 makes it
+   green, covering `src/Apps`, `src/Libs`, `tests/AcmeCoffeeOnline.Playwright`,
+   `docker` and `Directory.Packages.props`. Rewrite the places that call
+   Playwright a manual gate the operator runs — `docs/MAINTAINING.md` (*Where
+   every gate lives* and *Releasing*), the *Building and testing* part of
+   `AGENTS.md` outside the managed fence, and
+   `docs/packaging/release-checklist.md` — to say the framework runs it as the
+   `e2e` suite and the operator only needs Podman or Docker running. The
+   step's check: `dabbler.yaml` parses and declares the `e2e` suite, and none
+   of the three documents still tells the operator to run Playwright by hand.
+4. Cross-provider verification.
+5. The `unit` suite once against the verified tree, recorded as the run of
+   record.
+6. Close-out.
+
+Non-goals: no change to the app, the libraries or what any Playwright test
+asserts (the 12 failures are Session 22's); no Playwright in `ci.yml` or
+`build.yml` (CI has no `../dabbler-uat-dsl` feed); no change to the compose
+files beyond what the script needs to drive them.
+
+Why now (2026-11-09): the operator ran the gate after Session 20 under Podman
+and got 161 passed, 12 failed, 5 skipped, the same counts as Session 9's
+fresh-database baseline; nothing app-facing has changed since Session 9
+except DabblerPdf 1.1.3, and no PDF test is among the 12. The operator wants
+the framework, not a person, to run the gate, and wants the 12 fixed.
+
+### Session 22: Fix the 12 Playwright E2E failures
+
+1. Register.
+2. Run the `e2e` suite (`tools/e2e.ps1`) on a fresh database and record the
+   12 failing tests by name with each one's first error line. The ones seen
+   on 2026-11-09 are three `OrderNestedItemsSaveTests` (item counts after the
+   parent save), three `EdgeCaseTests.AccessDenied_BackofficeUser_*` (no
+   access-denied page or card), `AdminUsersCrossLinksUat` and
+   `UnifiedMasterDetailsCompositeUat` (no Admin button),
+   `ComposableCrudHelpersUat` (no ACTIVATE button),
+   `SensitiveFieldMaskingAuditUatRemediationUat` (no `XXX-XX-` mask),
+   `ProductAdministrationWorkflowTests.E2E_WF_04` (product not found through
+   the API) and `UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_*`
+   (no roles cell for row 14).
+3. One step per root cause that can be fixed without a public API change:
+   fix it where the cause is (the app, a library's internals, a test's setup
+   or the seed data), each step's check being that cause's failing tests
+   passing in a class run against the running stack. A cause whose fix needs
+   a public API change is not fixed here: the step's notes name the tests,
+   the cause and the API change it needs, for Session 23.
+4. If no cause was left for Session 23, set the `e2e` suite's
+   `required_for_close` to `true`, with the check that `tools/e2e.ps1` exits
+   0 on a fresh database; otherwise it stays `false`.
+5. If a fix changes a packed library, add a line saying what it fixes to the
+   `1.0.1` entry in `CHANGELOG.md`.
+6. Cross-provider verification.
+7. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record (`e2e` may fail only on the tests left for Session 23).
+8. Close-out.
+
+Non-goals: no test is fixed by weakening what it asserts, skipping it, or
+adding it to `tools/uat-suppressions.json`; no public API change (that is
+Session 23's); no change to `ci.yml` or `build.yml`.
+
+If nothing was left for Session 23, the operator cancels it and, once this
+session has pushed, runs the `1.0.1` dry run (`gh workflow run build.yml -f
+version=1.0.1`) and tags `nuget-v1.0.1` when it is green. The version stays
+the proposed patch, `1.0.1`: these are bug fixes.
+
+Why now (2026-11-09): the release checklist says all Playwright tests are
+green, and they have not been since before Session 9. `1.0.1` is not tagged
+yet, so it ships with the fixes.
+
+### Session 23: The E2E fixes that need a public API change
+
+Run only if Session 22 left a cause for it; otherwise the operator cancels
+this session.
+
+1. Register.
+2. One step per cause Session 22's notes left here: make the public API
+   change in the library, fix the cause, and update the
+   `Dabbler.PublicSurface.Tests` baseline for the change. Each step's check:
+   that cause's failing tests pass in a class run against the running stack,
+   and `dotnet test tests/Dabbler.PublicSurface.Tests` passes against a fresh
+   `tools/pack.ps1 -OutputDir pack-output -CleanOutput`.
+3. Set the version to `1.1.0`: `DabblerVersion` in `Directory.Build.props`
+   and the `-Version` default in `tools/pack.ps1` with its help text. The
+   unreleased `## 1.0.1` entry in `CHANGELOG.md` becomes `## 1.1.0`, keeps
+   the DabblerPdf line and Session 22's fixes, and names each API addition.
+   The step's checks: neither file names `1.0.1`; `CHANGELOG.md` has
+   `## 1.1.0` directly above `## 1.0.0` and no `## 1.0.1`; and the smoke
+   suite passes against the packed `1.1.0` packages.
+4. Set the `e2e` suite's `required_for_close` to `true`. The step's check:
+   `tools/e2e.ps1` exits 0 on a fresh database.
+5. Cross-provider verification.
+6. The `unit`, `smoke` and `e2e` suites once against the verified tree,
+   recorded as the run of record.
+7. Close-out.
+
+Non-goals: only additive API changes (a breaking change stops the session,
+and a plan session re-proposes the version as a major); no change to
+`ci.yml` or `build.yml`.
+
+After the session has pushed, the operator runs the `1.1.0` dry run (`gh
+workflow run build.yml -f version=1.1.0`) and tags `nuget-v1.1.0` when it is
+green; `1.0.1` is never tagged.
+
+Why now (2026-11-09): the proposed version is a minor, `1.1.0`, because an
+added public API is a new feature under semantic versioning; `1.0.1` was
+never tagged, so it folds into `1.1.0` rather than shipping separately.
