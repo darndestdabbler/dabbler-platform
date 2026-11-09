@@ -387,7 +387,29 @@
         "identityProvenance": "direct"
       },
       "verificationVerdict": "VERIFIED",
-      "startCommit": "44c6ba35a00146346052c3fc3df01fe9a6fa510d",
+      "verification": {
+        "rounds": 1,
+        "verifierModel": "gpt-5.6-terra",
+        "verifierProvider": "openai",
+        "transport": "api"
+      },
+      "frameworkVersion": "3.29.0",
+      "startCommit": "44c6ba35a00146346052c3fc3df01fe9a6fa510d"
+    },
+    {
+      "number": 19,
+      "title": "Take DabblerPdf 1.1.3",
+      "status": "in-progress",
+      "startedAt": "2026-11-09T13:22:07.452000-05:00",
+      "completedAt": null,
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "identityProvenance": "direct"
+      },
+      "verificationVerdict": "VERIFIED",
+      "startCommit": "dde0bcb0ab01104ac7a64dc8a237ba4bad923299",
       "frameworkVersion": "3.29.0",
       "verification": {
         "rounds": 1,
@@ -395,6 +417,15 @@
         "verifierProvider": "openai",
         "transport": "api"
       }
+    },
+    {
+      "number": 20,
+      "title": "Bump to 1.0.1",
+      "status": "not-started",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
     }
   ]
 }
