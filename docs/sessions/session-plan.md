@@ -580,3 +580,36 @@ DabblerPdf version built, validated and published from CI with trusted
 publishing. The platform's 1.0.0 packages depend on 1.1.2, and NuGet resolves
 the lowest version a dependency allows, so a Dabbler consumer gets 1.1.2
 until a Dabbler release raises the floor.
+
+### Session 20: Bump to 1.0.1
+
+1. Register.
+2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
+   default in `tools/pack.ps1` (with the `(1.0.0)` its help text names as
+   that default), to `1.0.1`. Add the `1.0.1` entry to `CHANGELOG.md`: no
+   API changes since `1.0.0`; the `DabblerPdf` dependency moves from `1.1.2`
+   to `1.1.3`, which changes no DabblerPdf API either. The step's checks:
+   `Directory.Build.props` and `tools/pack.ps1` name `1.0.1` and no longer
+   name `1.0.0` as the version or the default; `CHANGELOG.md` has a `## 1.0.1`
+   heading above `## 1.0.0`; then, after a Release build and
+   `tools/pack.ps1 -OutputDir pack-output -CleanOutput`, the smoke suite
+   (`dotnet test tests/Dabbler.Packaging.Smoke --filter
+   "FullyQualifiedName!~ServesBelowFiveHundred"` with `DABBLER_PACK_OUTPUT`
+   pointing at that output) passes against the `1.0.1` packages.
+3. Cross-provider verification.
+4. The `unit` suite once against the verified tree, recorded as the run of
+   record.
+5. Close-out.
+
+Non-goals: no API change and no dependency change beyond Session 19's; no
+change to `ci.yml`, `build.yml` or `dabbler.yaml`.
+
+After the session has pushed, the operator runs the Playwright E2E gate and
+the `1.0.1` dry run (`gh workflow run build.yml -f version=1.0.1`), and tags
+`nuget-v1.0.1` only when it is green. If the router can name a `nuget-v*` tag
+by then, a plan session first turns this session into a release session.
+
+Why now (2026-11-09): Session 19 raises the DabblerPdf floor in the source,
+but nothing reaches a consumer until the twelve packages ship again at a new
+version. A patch is the proposed version because neither the Dabbler API nor
+the DabblerPdf API changes.
