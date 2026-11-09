@@ -1,0 +1,37 @@
+@page "/reports/sales-by-product"
+@attribute [DabblerPageAuthorize("/reports/sales-by-product")]
+@using Dabbler.Reports.Blazor
+@using Dabbler.Reports.Core.Data
+@using AcmeCoffeeOnline.Web.Data
+
+<PageTitle>Sales by Product — AcmeCoffeeDistributors</PageTitle>
+
+<DabblerReportPage RdfPath="Reports/sales-by-product.rdf.json"
+                   RdfLoader="LoadRdfAsync"
+                   DataProvider="_dataProvider"
+                   Title="Sales by Product"
+                   AutoRunOnLoad="false"
+                   CollapseParametersAfterRun="true"
+                   ShowPdfExport="true"
+                   DefaultScale="1.0"
+                   PdfFileName="sales-by-product.pdf"
+                   OnError="OnErrorAsync" />
+
+@code {
+    [Inject]
+    private SalesReportDataProvider _dataProvider { get; set; } = default!;
+
+    [Inject]
+    private IWebHostEnvironment _env { get; set; } = default!;
+
+    private async Task<string> LoadRdfAsync(string path)
+    {
+        var fullPath = Path.Combine(_env.ContentRootPath, path);
+        return await File.ReadAllTextAsync(fullPath);
+    }
+
+    private Task OnErrorAsync(Exception ex)
+    {
+        return Task.CompletedTask;
+    }
+}

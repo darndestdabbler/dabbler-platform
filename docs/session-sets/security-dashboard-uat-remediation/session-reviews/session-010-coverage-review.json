@@ -1,0 +1,342 @@
+[
+  {
+    "index": 0,
+    "label": "SystemAdmin sees Security Dashboard nav entry and all five tabs",
+    "is_judgment": false,
+    "method": "SecurityNav_SystemAdmin_NavVisible_And_FiveTabsAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004227,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 1,
+    "label": "CrossOrgUserAdmin sees Security Dashboard nav entry and exactly three tabs",
+    "is_judgment": false,
+    "method": "SecurityNav_CrossOrgUserAdmin_NavVisible_And_ThreeTabsAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004515,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 2,
+    "label": "Baked-in User sees Security Dashboard nav entry and only Role Documentation tab",
+    "is_judgment": false,
+    "method": "SecurityNav_BakedInUser_NavVisible_And_RoleDocOnlyAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004359,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 3,
+    "label": "SystemAdmin activates Users and Role Assignment tab without circuit crash",
+    "is_judgment": false,
+    "method": "UsersTab_LoadsForSystemAdmin_NoCircuitCrashAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.003912,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 4,
+    "label": "SystemAdmin sees at least one seeded user row in the Users grid after tab activation",
+    "is_judgment": false,
+    "method": "UsersTab_LoadsForSystemAdmin_GridProjectsSeededRowsAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004065,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 5,
+    "label": "Rapid tab switch away and back to Users tab does not crash the Blazor circuit",
+    "is_judgment": false,
+    "method": "UsersTab_RapidRemountDoesNotCrashAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.005001,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 6,
+    "label": "CrossOrgUserAdmin activates Users and Role Assignment tab without circuit crash",
+    "is_judgment": false,
+    "method": "UsersTab_LoadsForCrossOrgUserAdmin_NoCircuitCrashAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.003963,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 7,
+    "label": "Changing the Email filter clears the collapsed summary back to the default 'Users' header",
+    "is_judgment": false,
+    "method": "UsersAndRoleAssignment_FilterChange_ClearsCollapsedSummaryStateAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.0051,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 8,
+    "label": "CrossOrgUserAdmin sees all retail customers \u2014 CanSeeAllOrganizations grants full visibility via API",
+    "is_judgment": false,
+    "method": "Customers_CrossOrgUserAdmin_SeesAllRetailCustomersAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004119,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 9,
+    "label": "BackofficeUser sees customers instead of empty set (pre-Set-C deferred scope)",
+    "is_judgment": false,
+    "method": "Customers_BackofficeUser_SeesCustomersInsteadOfEmptySetAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.003396,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 10,
+    "label": "Filter Key containing a dash character narrows the grid in-circuit without mis-treating the dash",
+    "is_judgment": false,
+    "method": "OrgMasterDetails_FilterKeyContainsDash_ShowsRetailRowsInCircuitAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.006456,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 11,
+    "label": "Create organization refreshes grid in-circuit without browser reload",
+    "is_judgment": false,
+    "method": "OrgMasterDetails_CreateOrganization_GridRefreshesInCircuitAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.006279,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 12,
+    "label": "New organization button collapses shell and shows 'New organization' summary cue",
+    "is_judgment": false,
+    "method": "OrganizationMasterDetails_NewOrganization_CollapsesShellWithNewSummaryAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004497,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 13,
+    "label": "Filter change clears collapsed summary state and resets shell to default 'Organizations' header",
+    "is_judgment": false,
+    "method": "OrganizationMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004938,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 14,
+    "label": "BackofficeUser reaches /products without an access-denied card",
+    "is_judgment": false,
+    "method": "Products_BackofficeUser_ReachesListWithoutAccessDeniedAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.003774,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 15,
+    "label": "BackofficeUser sees UnitPrice column as non-editable in product grid",
+    "is_judgment": false,
+    "method": "Products_BackofficeUser_UnitPriceColumn_IsNotEditableAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004113,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 16,
+    "label": "BackofficeUser sees UnitPrice field as disabled on product detail page",
+    "is_judgment": false,
+    "method": "Products_BackofficeUser_UnitPriceField_IsDisabledOnDetailAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.003927,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 17,
+    "label": "BackofficeUser is still denied on /admin/products (admin route stays protected)",
+    "is_judgment": false,
+    "method": "AdminProducts_BackofficeUser_StillDeniedAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.003477,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 18,
+    "label": "WarehouseUser sees no UnitPrice column in the product grid",
+    "is_judgment": false,
+    "method": "Products_WarehouseUser_UnitPriceColumn_AbsentFromGridAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004032,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 19,
+    "label": "WarehouseUser sees no UnitPrice field on the product detail page",
+    "is_judgment": false,
+    "method": "Products_WarehouseUser_UnitPriceField_AbsentFromDetailAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.003765,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 20,
+    "label": "Customer persona sees UnitPrice field as disabled on product detail page",
+    "is_judgment": false,
+    "method": "Products_CustomerPersona_UnitPriceField_IsDisabledOnDetailAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004188,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 21,
+    "label": "Safety-net panel is absent from the Default Masks tab after feature removal",
+    "is_judgment": false,
+    "method": "DefaultMasks_SafetyNetPanel_AbsentFromTabAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004206,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 22,
+    "label": "Seeded Customer.SocialSecurityNumber row renders singular table name and SSN display label",
+    "is_judgment": false,
+    "method": "DefaultMasks_SeededSsnRow_RendersSingularTableAndSsnColumnAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004863,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 23,
+    "label": "Default Masks Table dropdown shows singular entity names (Customer, Product, Order)",
+    "is_judgment": false,
+    "method": "DefaultMasks_TableDropdown_ShowsSingularEntityNamesAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004623,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 24,
+    "label": "Adding Customer.Phone as a Default Mask persists and renders in the grid without browser reload",
+    "is_judgment": false,
+    "method": "DefaultMasks_AddPhoneMask_PersistsAndRendersInGridAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.00513,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 25,
+    "label": "Add Column Restriction button enables for a fresh Table+Column pair and the new row persists",
+    "is_judgment": false,
+    "method": "ColumnRestrictions_AddButton_EnabledForFreshPair_AndRowPersistsAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.006894,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 26,
+    "label": "Already-restricted column (Product.UnitPrice on BackofficeUser) is hidden from the Column dropdown",
+    "is_judgment": false,
+    "method": "ColumnRestrictions_AlreadyRestrictedColumn_HiddenFromDropdownAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.005448,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 27,
+    "label": "Selecting a user-type role row collapses the shell and shows a summary without a baked-in badge",
+    "is_judgment": false,
+    "method": "RoleMasterDetails_SelectRow_CollapsesShellAndShowsSummaryAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004935,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 28,
+    "label": "Selecting a baked-in role row collapses the shell and preserves the baked-in badge in the summary",
+    "is_judgment": false,
+    "method": "RoleMasterDetails_SelectBakedInRow_CollapsesShellWithBakedInBadgeAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004437,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 29,
+    "label": "Clicking the collapsed shell header re-expands the results grid while keeping the details section visible",
+    "is_judgment": false,
+    "method": "RoleMasterDetails_ReexpandShellHeader_ShowsGridAgainAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004959,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 30,
+    "label": "Changing a filter after re-expanding clears the stale selection summary so re-collapse shows the generic header",
+    "is_judgment": false,
+    "method": "RoleMasterDetails_FilterChange_ClearsCollapsedSummaryStateAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.00495,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 31,
+    "label": "Default Masks shell shows a declared-count summary when collapsed instead of a per-row selection summary",
+    "is_judgment": false,
+    "method": "DefaultMasks_Shell_RendersDeclaredCountSummaryAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004392,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 32,
+    "label": "DisplayAlias column renders as a wrapped body-typography editor that is readable and not clipped",
+    "is_judgment": true,
+    "method": "RoleMasterGrid_DisplayAliasColumn_IsReadableAndNotClippedAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.005445,
+    "raw": "VERIFIED"
+  },
+  {
+    "index": 33,
+    "label": "ArrowRight on tab strip does not switch tabs \u2014 custom handler removed, Role Master Details stays selected",
+    "is_judgment": false,
+    "method": "Dashboard_TabStrip_NoArrowKeyHandler_NormalTabFocusStillWorksAsync",
+    "verdict": "VERIFIED",
+    "model": "sonnet",
+    "cost_usd": 0.004677,
+    "raw": "VERIFIED"
+  }
+]

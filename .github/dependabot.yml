@@ -1,0 +1,22 @@
+# Weekly NuGet updates. MudBlazor moves in its own group (a new major is
+# adopted within one quarter of its release; see docs/MAINTAINING.md). The
+# Microsoft.* packages pinned at 10.x move together and stay on 10.x.
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      mudblazor:
+        patterns:
+          - "MudBlazor"
+      microsoft-10x:
+        patterns:
+          - "Microsoft.AspNetCore.*"
+          - "Microsoft.EntityFrameworkCore*"
+    ignore:
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore*"
+        update-types: ["version-update:semver-major"]

@@ -1,0 +1,44 @@
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject IUserRoleStore UserRoleStore
+@inject AuthenticationStateProvider AuthStateProvider
+
+@if (_showSecurityAdmin)
+{
+    <nav aria-label="Security administration">
+        <MudNavGroup Title="Security Admin" Icon="@Icons.Material.Filled.Security" Expanded="false">
+            <MudNavLink Href="/admin/security" Icon="@Icons.Material.Filled.Shield">Security Dashboard</MudNavLink>
+            <MudNavLink Href="/admin/users" Icon="@Icons.Material.Filled.People">Users</MudNavLink>
+            <MudNavLink Href="/admin/audit" Icon="@Icons.Material.Filled.History">Audit Log</MudNavLink>
+        </MudNavGroup>
+    </nav>
+}
+
+@code {
+    /// <summary>
+    /// Renders a navigation group for security administration tasks.
+    /// The navigation group is only visible to users with the "SystemAdministrator" or "UserAdministrator" roles.
+    /// </summary>
+    private bool _showSecurityAdmin;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                         ?? user.Identity.Name
+                         ?? string.Empty;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var roles = await UserRoleStore.GetRolesAsync(userId);
+                _showSecurityAdmin = roles.Contains("SystemAdministrator") || roles.Contains("UserAdministrator");
+            }
+        }
+    }
+}

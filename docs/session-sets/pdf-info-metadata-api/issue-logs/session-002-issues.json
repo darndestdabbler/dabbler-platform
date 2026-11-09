@@ -1,0 +1,26 @@
+{
+  "session": 2,
+  "verificationRound": 1,
+  "verifier": "gemini-pro",
+  "verifierProvider": "google",
+  "issues": [
+    {
+      "id": 1,
+      "summary": "Verifier claimed `net10.0` TFM is invalid; proposed `net10`.",
+      "severity": "minor",
+      "status": "dismissed",
+      "category": "factual-error",
+      "resolution": "Orchestrator dismissal accepted by human (option b). .NET TFMs include the major.minor (net6.0/net7.0/net8.0/net9.0/net10.0). The build succeeds with net10.0 and the existing 1.0.0 release shipped with the same TFM. Adjudication recorded via record_adjudication.",
+      "fileChanged": null
+    },
+    {
+      "id": 2,
+      "summary": "`FormatWithExplicitOffset` and `ExpectedFormatted` in `PdfDateTests.cs` are duplicate helpers.",
+      "severity": "minor",
+      "status": "fixed",
+      "category": "code-quality",
+      "resolution": "Removed `FormatWithExplicitOffset`; the single call site now uses `ExpectedFormatted`. Tests still pass (601 / 601).",
+      "fileChanged": "tests/DabblerPdf.Tests/Utilities/PdfDateTests.cs"
+    }
+  ]
+}

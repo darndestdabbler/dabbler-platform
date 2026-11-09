@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "unified-master-details-composite",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Generify the shell + migrate `RoleMasterDetailsTab` (Scenario 2 baseline)",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Scenario 1 (Add Only) \u2014 `ShowGrid=false` layout + demo",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "`PickOrAddDialog` + Scenario 3 (pick-or-add, no link data)",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Scenarios 4a / 4b + inspect-to-decide \u2014 `LinkDataContent` + `TargetEditability`",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "UAT checklist + coverage review + change log + reorganization",
+      "status": "complete",
+      "startedAt": "2026-05-12T09:00:00.000000-04:00",
+      "completedAt": "2026-05-12T15:20:00.000000-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "effort": "low"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}
