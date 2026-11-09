@@ -506,3 +506,49 @@ Templates, 1 in CrudSlice). Both are properties of a clean machine, which is
 exactly what the push build exists to represent; until they are fixed the
 check Session 15 added says nothing reliable and cannot be made a
 branch-protection requirement.
+
+### Session 18: Scaffolded-app restores take their sources from nuget.config
+
+1. Register.
+2. Stop passing nuget.org to `dotnet restore` on the command line. Four
+   restores of a scaffolded app pass `--source "<pack output>" --source
+   "https://api.nuget.org/v3/index.json"`:
+   `tests/Dabbler.Templates.Tests/CrudServiceTemplateTests.cs` and
+   `CrudPageTemplateTests.cs` (one each), and
+   `tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs` (in
+   `DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape` and
+   `DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest`). The
+   .NET 10.0.403 SDK on the runner resolves that URL as a path under the
+   project directory (`NU1301: The local source
+   '<tempdir>\https:\api.nuget.org\v3\index.json' doesn't exist`); the same
+   defect on a `.slnx` is already recorded in
+   `DabblerApp_Template_InstallsAndBuildsClean` in `PackagingSmokeTests.cs`,
+   and the fix there was a local `nuget.config` and no inline source. Apply
+   the same fix to all four: each test already writes, or (the
+   `dabbler-min` restore) is made to write with the file's existing
+   `WriteLocalNugetConfig`, a `nuget.config` that clears the sources and
+   lists the pack output and nuget.org, so `dotnet restore` runs with no
+   `--source`. No test changes what it asserts. The step's checks: no
+   `--source "https://api.nuget.org` remains under `tests/`; then, with
+   `DABBLER_PACK_OUTPUT` pointing at a fresh `tools/pack.ps1` output,
+   `dotnet test tests/Dabbler.Templates.Tests` shows 4 passed and 0
+   skipped, and `dotnet test tests/Dabbler.Packaging.Smoke --filter
+   "FullyQualifiedName!~ServesBelowFiveHundred"` passes.
+3. Cross-provider verification.
+4. The `unit` suite once against the verified tree, recorded as the run of
+   record.
+5. Close-out.
+
+Non-goals: no change to `ci.yml`, `build.yml` or the SDK the workflows
+install, and no `global.json`; no change to the CRUD templates themselves.
+
+Why now (2026-11-09): with Session 17's pack step in place, the push build on
+`master` (run 42621003718) ran the pack-dependent tests for the first time:
+Api.Tests 51/51, PublicSurface 41/41 and CrudSlice 29/29 with nothing
+skipped, but three of the four `Dabbler.Templates.Tests` failed with the
+`NU1301` above. The operator's machine passes because its default SDK is an
+11.0 preview. `build.yml`'s *Validate And Pack* job runs the same smoke
+restores on the same SDK, so a `nuget-v1.0.0` tag would fail there too. The
+operator's confirmation is the first green push build on `master` after this
+session lands; then the `1.0.0` dry run (`gh workflow run build.yml -f
+version=1.0.0`) and the tag.
