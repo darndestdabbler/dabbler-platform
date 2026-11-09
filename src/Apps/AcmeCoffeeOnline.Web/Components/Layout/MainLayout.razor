@@ -1,0 +1,165 @@
+@inherits LayoutComponentBase
+@using System.Security.Claims
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Components.Shared
+@using AcmeCoffeeOnline.Web.Components.Shared.DevTools
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Testing.Blazor.Components
+@inject NavigationManager NavigationManager
+@inject ShellSessionStateLoader ShellSessionStateLoader
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<TestReadinessProbe />
+
+<MudLayout data-testid="main-shell">
+    @* ── App bar ────────────────────────────────────────────────────── *@
+    <MudAppBar Elevation="1" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit"
+                       Edge="Edge.Start" OnClick="ToggleDrawer"
+                       aria-label="Toggle navigation menu" />
+        <MudIcon Icon="@Icons.Material.Filled.LocalCafe" Class="ml-2" />
+        <MudText Typo="Typo.subtitle1" Class="ml-2" Style="font-weight: 600;">
+            AcmeCoffeeDistributors
+        </MudText>
+
+        <MudSpacer />
+
+        <DevToolsMenu />
+
+        <UserContextBar UserName="@_userName"
+                        UserRoles="@_userRoles"
+                        ActiveOrganizationName="@_activeOrganizationName"
+                        OrganizationOptions="@_organizationOptions" />
+    </MudAppBar>
+
+    @* ── Left navigation drawer ─────────────────────────────────────── *@
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1" Variant="@DrawerVariant.Responsive"
+               data-testid="nav-drawer">
+        <MudNavMenu>
+            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard"
+                        Match="NavLinkMatch.All">
+                Dashboard
+            </MudNavLink>
+            <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart"
+                        Match="NavLinkMatch.Prefix">
+                Orders
+            </MudNavLink>
+            <MudNavLink Href="/customers" Icon="@Icons.Material.Filled.People"
+                        Match="NavLinkMatch.Prefix">
+                Retail Businesses
+            </MudNavLink>
+            <MudNavLink Href="/products" Icon="@Icons.Material.Filled.Inventory"
+                        Match="NavLinkMatch.Prefix">
+                Products
+            </MudNavLink>
+
+            <MudDivider Class="my-2" />
+            <MudNavGroup Title="Reports" Icon="@Icons.Material.Filled.Assessment"
+                         Expanded="false">
+                <MudNavLink Href="/reports/orders-by-customer"
+                            Icon="@Icons.Material.Filled.Assessment">
+                    Orders by Retail Business
+                </MudNavLink>
+                <MudNavLink Href="/reports/sales-by-product"
+                            Icon="@Icons.Material.Filled.BarChart">
+                    Sales by Product
+                </MudNavLink>
+            </MudNavGroup>
+
+            @if (_isAdmin || _canReachSecurityDashboard)
+            {
+                <MudDivider Class="my-2" />
+                <MudNavGroup Title="Admin" Icon="@Icons.Material.Filled.AdminPanelSettings"
+                             Expanded="false">
+                    @if (_isAdmin)
+                    {
+                        <MudNavLink Href="/admin/users"
+                                    Icon="@Icons.Material.Filled.People">
+                            User Management
+                        </MudNavLink>
+                        @if (_isSystemAdmin)
+                        {
+                            <MudNavLink Href="/admin/products"
+                                        Icon="@Icons.Material.Filled.Inventory">
+                                Product Management
+                            </MudNavLink>
+                        }
+                    }
+                    @if (_canReachSecurityDashboard)
+                    {
+                        <MudNavLink Href="/admin/security"
+                                    Icon="@Icons.Material.Filled.Shield">
+                            Security Dashboard
+                        </MudNavLink>
+                    }
+                </MudNavGroup>
+            }
+        </MudNavMenu>
+    </MudDrawer>
+
+    @* ── Main content area (routed pages) ───────────────────────────── *@
+    <MudMainContent Class="pa-4 pt-16" data-testid="routed-page-content">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private string _userId = "";
+    private string _userName = "";
+    private IReadOnlyList<string> _userRoles = Array.Empty<string>();
+    private bool _isAdmin;
+    private bool _isSystemAdmin;
+    private bool _canReachSecurityDashboard;
+    private string? _activeOrganizationName;
+    private IReadOnlyList<OrganizationOptionDto> _organizationOptions = [];
+
+    private readonly MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#1976D2",
+            Secondary = "#388E3C",
+            AppbarBackground = "#FFFFFF",
+            AppbarText = "#424242",
+            DrawerBackground = "#FAFAFA",
+            DrawerText = "#424242",
+            Surface = "#FFFFFF",
+            Background = "#F5F5F5"
+        },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = ["Roboto", "Helvetica", "Arial", "sans-serif"]
+            }
+        },
+        LayoutProperties = new LayoutProperties
+        {
+            DefaultBorderRadius = "4px"
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var shellState = await ShellSessionStateLoader.LoadAsync();
+
+        _userId = shellState.UserId;
+        _userName = shellState.UserName;
+        _userRoles = shellState.UserRoles;
+        _isAdmin = shellState.IsAdmin;
+        _isSystemAdmin = shellState.IsSystemAdmin;
+        _canReachSecurityDashboard = shellState.CanReachSecurityDashboard;
+        _activeOrganizationName = shellState.ActiveOrganizationName;
+        _organizationOptions = shellState.OrganizationOptions;
+    }
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

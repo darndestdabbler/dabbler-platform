@@ -1,0 +1,47 @@
+{
+  "iterations": 5,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "iteration": 1,
+      "passed": true,
+      "duration_sec": 10.0,
+      "exit_code": 0,
+      "inbox_clear_http": 200,
+      "tail": "\n============================================================\nUAT Run Report: w0-cli-suppressions-and-role-pinning\n============================================================\nPassed:           1\nFailed:           0\nTriage cost:      $0.0000\n============================================================\n\nRunner message: All 1 test(s) passed.\n\n\u2713 All checks passed."
+    },
+    {
+      "iteration": 2,
+      "passed": true,
+      "duration_sec": 9.6,
+      "exit_code": 0,
+      "inbox_clear_http": 200,
+      "tail": "\n============================================================\nUAT Run Report: w0-cli-suppressions-and-role-pinning\n============================================================\nPassed:           1\nFailed:           0\nTriage cost:      $0.0000\n============================================================\n\nRunner message: All 1 test(s) passed.\n\n\u2713 All checks passed."
+    },
+    {
+      "iteration": 3,
+      "passed": true,
+      "duration_sec": 9.6,
+      "exit_code": 0,
+      "inbox_clear_http": 200,
+      "tail": "\n============================================================\nUAT Run Report: w0-cli-suppressions-and-role-pinning\n============================================================\nPassed:           1\nFailed:           0\nTriage cost:      $0.0000\n============================================================\n\nRunner message: All 1 test(s) passed.\n\n\u2713 All checks passed."
+    },
+    {
+      "iteration": 4,
+      "passed": true,
+      "duration_sec": 9.8,
+      "exit_code": 0,
+      "inbox_clear_http": 200,
+      "tail": "\n============================================================\nUAT Run Report: w0-cli-suppressions-and-role-pinning\n============================================================\nPassed:           1\nFailed:           0\nTriage cost:      $0.0000\n============================================================\n\nRunner message: All 1 test(s) passed.\n\n\u2713 All checks passed."
+    },
+    {
+      "iteration": 5,
+      "passed": true,
+      "duration_sec": 9.5,
+      "exit_code": 0,
+      "inbox_clear_http": 200,
+      "tail": "\n============================================================\nUAT Run Report: w0-cli-suppressions-and-role-pinning\n============================================================\nPassed:           1\nFailed:           0\nTriage cost:      $0.0000\n============================================================\n\nRunner message: All 1 test(s) passed.\n\n\u2713 All checks passed."
+    }
+  ]
+}
