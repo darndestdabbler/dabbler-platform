@@ -1,0 +1,73 @@
+# dabbler.yaml -- what this repository declares about itself.
+#
+# Tracked, unlike local-overrides.yaml, because CI reads these facts and so
+# does the next machine to pick up a session. Precedence is the packaged
+# router-config.yaml, then this file, then local-overrides.yaml. Providers,
+# models, roles and transports are deliberately absent.
+schema_version: 1
+
+# Three suites. `unit` is the unit, bUnit and in-process API/Web tests, through
+# a solution filter that leaves out the two projects that need infrastructure:
+#   - tests/AcmeCoffeeOnline.Playwright  needs the container stack (no skip
+#                                         guard); the `e2e` suite
+#   - tests/Dabbler.Packaging.Smoke       needs packed nupkgs; the `smoke` suite
+# Tests in PublicSurface / Templates / CrudSlice that need nupkgs skip
+# themselves when pack-output/ is absent and DABBLER_PACK_OUTPUT is unset.
+#
+# `smoke` scaffolds and builds the templates against pack-output/, so it runs
+# after `pwsh tools/pack.ps1 -OutputDir pack-output -CleanOutput` and fails
+# when pack-output/ is missing rather than letting the tests skip. It is the
+# bump session's gate, not every session's: required_for_close is false. The
+# ServesBelowFiveHundred exclusion (it needs SQL LocalDB) matches CI's
+# Validate And Pack job.
+#
+# `e2e` is the Playwright gate. tools/e2e.ps1 runs it from a cold start under
+# Podman or Docker: infra up, a freshly seeded AcmeCoffeeOnline_Dev, the app
+# stack rebuilt, then tests/AcmeCoffeeOnline.Playwright. It needs a running
+# engine and ../dabbler-uat-dsl/pack-output. required_for_close stays false
+# until Session 22 makes it green.
+testing:
+  suites:
+    - name: unit
+      # -m:1 runs the test projects one at a time: Templates.Tests and
+      # CrudSlice.Tests both `dotnet new install` into the same template cache
+      # and fail intermittently when they overlap.
+      command: dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m
+      expensive: true
+      covers:
+        - "src"
+        - "templates"
+        - "tools"
+        - "tests"
+      test_roots:
+        - "tests"
+      test_glob: "*Tests.cs"
+      test_name: "{name}Tests.cs"
+      select: dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter {names}
+      select_separator: "|"
+
+    - name: smoke
+      command: 'pwsh -NoProfile -Command "$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE"'
+      expensive: true
+      required_for_close: false
+      covers:
+        - "tests/Dabbler.Packaging.Smoke"
+
+    - name: e2e
+      command: pwsh -NoProfile -File tools/e2e.ps1
+      expensive: true
+      required_for_close: false
+      covers:
+        - "src/Apps"
+        - "src/Libs"
+        - "tests/AcmeCoffeeOnline.Playwright"
+        - "docker"
+        - "Directory.Packages.props"
+
+# Packaging: pack only. There is no push block and no release member on
+# purpose: nuget.org publishing stays with .github/workflows/build.yml on an
+# annotated `nuget-v<version>` tag via trusted publishing, so no credential
+# lives on a developer machine.
+packaging:
+  pack:
+    argv: ["pwsh", "-NoProfile", "-File", "tools/pack.ps1", "-Version", "{version}", "-OutputDir", "{output}", "-CleanOutput"]
