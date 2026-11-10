@@ -465,9 +465,9 @@
     {
       "number": 22,
       "title": "Fix the 12 Playwright E2E failures",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-10T07:28:04.233000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-10T09:54:17.983000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
