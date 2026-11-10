@@ -95,9 +95,11 @@ public sealed class ValidationTests
             // the OnFieldChanged callback directly)
             await PlaywrightFixture.FillFormFieldAsync(page, "field-name", original.Name + " boundary");
 
-            // Click save
-            await page.GetByTestId("save-button").ClickAsync();
-            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            // Click save and wait for it to land (Save renders disabled again
+            // only once the PUT has returned), so neither the read below nor
+            // the restore in finally races the UI's save.
+            await PlaywrightFixture.ClickSaveAsync(page);
+            await PlaywrightFixture.AssertSaveDisabledAsync(page);
 
             // Verify the saved price respects the minimum boundary
             var afterProduct = await _fixture.GetProductByIdAsync(userId, productId.Value);

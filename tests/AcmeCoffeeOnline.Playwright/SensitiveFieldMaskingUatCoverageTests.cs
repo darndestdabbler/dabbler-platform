@@ -84,7 +84,9 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
             if (await removeButton.CountAsync() > 0)
             {
                 await removeButton.ClickAsync();
-                await setupPage.WaitForLoadStateAsync(LoadState.NetworkIdle);
+                // Wait for the removal to land before the page (and its
+                // circuit) closes; NetworkIdle does not see SignalR work.
+                await Assertions.Expect(removeButton).ToHaveCountAsync(0);
             }
         }
         finally
@@ -135,12 +137,15 @@ public sealed class SensitiveFieldMaskingUatCoverageTests
             var addButton = setupPage.GetByTestId("mask-exemption-add-button");
             await Assertions.Expect(addButton).ToBeEnabledAsync(new() { Timeout = 5_000 });
             await addButton.ClickAsync();
-            await setupPage.WaitForLoadStateAsync(LoadState.NetworkIdle);
-            await Task.Delay(500); // Propagation guard: extra buffer after NetworkIdle for server-side state consistency.
+            // Wait for the Add to land (its row appears) or be rejected before
+            // the page (and its circuit) closes.
+            var authorityError = setupPage.GetByTestId("mask-exemption-authority-error");
+            await Assertions
+                .Expect(setupPage.GetByTestId($"mask-exemption-remove-{EntityKey}-{ColumnKey}").Or(authorityError))
+                .ToBeVisibleAsync(new() { Timeout = 10_000 });
             // Surface a denied-authority error if Add was rejected, so the
             // resulting test failure points at the real cause rather than at
             // a missing badge.
-            var authorityError = setupPage.GetByTestId("mask-exemption-authority-error");
             if (await authorityError.CountAsync() > 0)
             {
                 var errText = await authorityError.InnerTextAsync();

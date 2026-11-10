@@ -53,10 +53,9 @@ public sealed class UsersAndRoleAssignmentWorkflowTests
                 .Expect(page.GetByTestId("users-master-grid"))
                 .ToBeVisibleAsync(new() { Timeout = 10_000 });
 
-            // Resolve the target user's seeded id so we can use the stable
-            // data-testid selectors rather than matching by email (which may
-            // appear in other columns).
-            var targetUserId = await _fixture.GetSeededUserIdAsync(TargetEmail);
+            // The grid keys its row test ids by AdminUserRow.UserId, which is
+            // the user's email (the IUserRoleStore key), not the numeric id.
+            const string targetUserId = TargetEmail;
 
             // Click the row for the target customer to select them.
             var targetRow = page.Locator(

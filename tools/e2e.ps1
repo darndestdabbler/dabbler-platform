@@ -19,11 +19,17 @@
 
 .PARAMETER HealthTimeoutSeconds
     How long to wait for sqlserver, and then for api and web, to report healthy.
+
+.PARAMETER Filter
+    Optional `dotnet test --filter` expression, to run a subset of the tests after
+    the same cold start (for example "FullyQualifiedName~EdgeCaseTests"). Without
+    it, every test runs.
 #>
 [CmdletBinding()]
 param(
     [string]$ResultsDirectory,
-    [int]$HealthTimeoutSeconds = 300
+    [int]$HealthTimeoutSeconds = 300,
+    [string]$Filter
 )
 
 $ErrorActionPreference = 'Stop'
@@ -110,8 +116,11 @@ foreach ($url in $endpoints) {
 New-Item -ItemType Directory -Force -Path $ResultsDirectory | Out-Null
 Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $ResultsDirectory 'e2e.trx')
 
+$filterArgs = if ($Filter) { @('--filter', $Filter) } else { @() }
+
 dotnet test (Join-Path $repoRoot 'tests/AcmeCoffeeOnline.Playwright/') `
     --blame-hang-timeout 10m `
     --logger 'trx;LogFileName=e2e.trx' `
-    --results-directory $ResultsDirectory
+    --results-directory $ResultsDirectory `
+    @filterArgs
 exit $LASTEXITCODE

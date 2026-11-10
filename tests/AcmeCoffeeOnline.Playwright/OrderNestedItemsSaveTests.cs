@@ -70,9 +70,7 @@ public sealed class OrderNestedItemsSaveTests
 
             // Edit form is dismissed; the parent's Save (data-testid=save-button)
             // is now the dirty-aware action — click it to commit the full graph.
-            await Assertions.Expect(page.GetByTestId("save-button")).ToBeEnabledAsync();
-            await page.GetByTestId("save-button").ClickAsync();
-            await _fixture.WaitForQuietAsync(page);
+            await SaveParentAsync(page);
 
             // Verify persistence — the merged update should land on the same Id.
             var persisted = await _fixture.GetOrderByIdAsync(userId, orderId);
@@ -86,8 +84,7 @@ public sealed class OrderNestedItemsSaveTests
                 page, "edit-item-quantity", firstItem.Quantity.ToString());
             await page.GetByTestId("save-item-button").ClickAsync();
             await _fixture.WaitForQuietAsync(page);
-            await page.GetByTestId("save-button").ClickAsync();
-            await _fixture.WaitForQuietAsync(page);
+            await SaveParentAsync(page);
         }
         finally
         {
@@ -128,9 +125,7 @@ public sealed class OrderNestedItemsSaveTests
 
             // The grid should reflect the in-memory deletion (one fewer row).
             // Parent Save is now dirty.
-            await Assertions.Expect(page.GetByTestId("save-button")).ToBeEnabledAsync();
-            await page.GetByTestId("save-button").ClickAsync();
-            await _fixture.WaitForQuietAsync(page);
+            await SaveParentAsync(page);
 
             // Verify persistence — the deleted item should no longer be in the DB.
             var persisted = await _fixture.GetOrderByIdAsync(userId, orderId);
@@ -203,9 +198,7 @@ public sealed class OrderNestedItemsSaveTests
             await _fixture.WaitForQuietAsync(page);
 
             // Save the parent order to commit the in-memory add.
-            await Assertions.Expect(page.GetByTestId("save-button")).ToBeEnabledAsync();
-            await page.GetByTestId("save-button").ClickAsync();
-            await _fixture.WaitForQuietAsync(page);
+            await SaveParentAsync(page);
 
             // Persisted order should now have one more item.
             var persisted = await _fixture.GetOrderByIdAsync(userId, orderId);
@@ -226,6 +219,17 @@ public sealed class OrderNestedItemsSaveTests
     }
 
     // ── Helpers ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Clicks the order's Save and waits for it to land: the button only
+    /// renders disabled again once the PUT has returned and the edit session
+    /// is clean, so the API read that follows sees the saved graph.
+    /// </summary>
+    private static async Task SaveParentAsync(IPage page)
+    {
+        await PlaywrightFixture.ClickSaveAsync(page);
+        await PlaywrightFixture.AssertSaveDisabledAsync(page);
+    }
 
     private async Task<int> FindModifiableOrderWithItemsAsync(string userId)
         => await FindModifiableOrderWithMinItemsAsync(userId, minimumItems: 1);

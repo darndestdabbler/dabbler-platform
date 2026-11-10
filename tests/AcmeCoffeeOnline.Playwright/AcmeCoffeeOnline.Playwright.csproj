@@ -24,4 +24,11 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
+  <!-- Generated/ holds untracked output of the retired v1 uat_runner (its
+       .gitignore keeps it out of git). Those files are not repository tests;
+       compiling them made the e2e suite differ from machine to machine. -->
+  <ItemGroup>
+    <Compile Remove="Generated/**" />
+  </ItemGroup>
 </Project>

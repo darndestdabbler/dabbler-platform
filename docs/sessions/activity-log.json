@@ -172,6 +172,37 @@
       "dateTime": "2026-11-09T15:34:08.370000-05:00",
       "task": "Make the Playwright E2E gate something the framework runs instead of a person. Add tools/e2e.ps1, one cold-start command: it picks podman when it is on PATH and `podman info` succeeds, otherwise docker (DABBLER_CONTAINER_ENGINE overrides), and stops with a plain message when no engine is up or ../dabbler-uat-dsl/pack-output is missing; it brings docker/docker-compose.infra.yml up, waits for dabbler-sqlserver to be healthy, takes the app stack down, drops only the AcmeCoffeeOnline_Dev database through sqlcmd in the sqlserver container, rebuilds and starts docker/docker-compose.app.yml, polls the api (5011) and web (5010) /health endpoints under a time limit, then runs dotnet test tests/AcmeCoffeeOnline.Playwright/ with --blame-hang-timeout and a trx logger into a results directory parameter, and exits with the test run's exit code. Then declare an `e2e` suite in dabbler.yaml that runs the script (expensive, not required for close until Session 22 makes it green, covering src/Apps, src/Libs, tests/AcmeCoffeeOnline.Playwright, docker and Directory.Packages.props), and rewrite docs/MAINTAINING.md (Where every gate lives, Releasing), the Building and testing part of AGENTS.md outside the managed fence, and docs/packaging/release-checklist.md so they say the framework runs Playwright as the `e2e` suite and the operator only needs Podman or Docker running.",
       "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 22,
+      "dateTime": "2026-11-10T08:06:01.796000-05:00",
+      "task": "Make the Playwright `e2e` suite green by fixing the root causes of its 12 failures (all seen again on 2026-11-10 against a fresh AcmeCoffeeOnline_Dev, 161 passed / 12 failed). Four causes, none of which needs a public API change. (1) Save race: OrderNestedItemsSaveTests (3 tests) and ValidationTests.ProductDetail_UnitPriceBoundary_EnforcesMinimumAsync click Save and then read or restore through the API before the UI's PUT has landed. The order tests read stale item counts and quantities. The validation test's API restore of product 17 is overwritten by the late save, which leaves it named '... boundary', so ProductAdministrationWorkflowTests.E2E_WF_04 then cannot find 'Blonde Roast - Decaf - Espresso'. Fix: those tests wait for the save to finish with the fixture's established ClickSaveAsync/AssertSaveDisabledAsync pattern before touching the API. (2) Seed data: src/Apps/AcmeCoffeeOnline.Web/user-roles.json grants jdoe@acmecoffee.com CrossOrgUserAdmin. That entry was introduced by the 2026-05-11 id-to-email rewrite (the old key \"3\" was asmith). It lets the BackofficeUser persona into /admin/products and /admin/security, so the three EdgeCaseTests.AccessDenied_BackofficeUser_* fail. Fix: drop jdoe's entry from the web file. (3) UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_* looks for users-row-14-*, but the users grid keys rows by AdminUserRow.UserId, which is documented as the user's email (users-row-robert.williams@example.com-*). Fix: the test selects by the target's email. (4) The four Generated UATs (AdminUsersCrossLinksUat, ComposableCrudHelpersUat, SensitiveFieldMaskingAuditUatRemediationUat, UnifiedMasterDetailsCompositeUat) are not in the repository. They are untracked, gitignored May-2026 output of the retired v1 uat_runner, and compile into the suite only on this machine. Per the operator's decision, the Playwright project stops compiling Generated/**, so the gate is the same on every machine. Tracked equivalents (AdminUsersCrossLinksUatTests, SensitiveFieldMaskingUatCoverageTests) keep that coverage. tools/e2e.ps1 gains an optional -Filter so each step's check runs its classes from a cold start: rebuilt app stack, fresh database. No cause is left for Session 23, so the `e2e` suite becomes required_for_close: true, checked by tools/e2e.ps1 exiting 0 on a fresh database, and the prose saying Session 22 will make it green is updated. No packed library changes, so CHANGELOG.md is not touched.",
+      "releasable": false
+    },
+    {
+      "kind": "amendment",
+      "sessionNumber": 22,
+      "dateTime": "2026-11-10T08:11:10.354000-05:00",
+      "what": "step 'e2e-filter': its files",
+      "reason": "The step's cold-start check exposed a reproducible race (twice in a row; passes warm): SmokeTests.DashboardCards_NavigateToEntityPagesAsync goes back to /dashboard before the first, cold render of /orders has replaced it, then clicks the stale dashboard card. It is the intermittent 13th failure from Session 21's run of record and would keep the e2e gate red. Fix: wait for the dashboard to leave the page after each navigation; assertions unchanged.",
+      "by": "claude-code (anthropic, claude-opus-5-5)"
+    },
+    {
+      "kind": "amendment",
+      "sessionNumber": 22,
+      "dateTime": "2026-11-10T08:39:49.119000-05:00",
+      "what": "step 'e2e-required-for-close': its files",
+      "reason": "The full cold-start e2e check failed only on E2E_WF_04 (passed in the save-race filtered run): WaitForQuietAsync returns before the 300 ms debounced search begins, so the availability click lands mid-rerender and is dropped. The gate cannot be required while it races; the test waits until the grid shows only the searched product before clicking. Assertions unchanged.",
+      "by": "claude-code (anthropic, claude-opus-5-5)"
+    },
+    {
+      "kind": "amendment",
+      "sessionNumber": 22,
+      "dateTime": "2026-11-10T08:53:57.974000-05:00",
+      "what": "step 'e2e-required-for-close': its files",
+      "reason": "The second full cold-start e2e run (E2E_WF_04 now green) failed only on SensitiveFieldMaskingUatCoverageTests.Uatv1 (green alone 3/3): its setup clicks Remove on the BackofficeUser mask exemption Uatv3 left behind and closes the page on NetworkIdle, before the removal lands. The setup helpers now wait for the exemption row to disappear or appear. Assertions unchanged.",
+      "by": "claude-code (anthropic, claude-opus-5-5)"
     }
   ]
 }

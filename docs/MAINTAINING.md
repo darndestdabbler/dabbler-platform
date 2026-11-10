@@ -50,7 +50,8 @@ picks Podman when its machine is up, otherwise Docker
 waits for `api` and `web` to be healthy, and runs the tests with a trx
 logger into `TestResults/e2e/`. It stops with a plain message, not a test
 failure, when no engine is up or the sibling feed is missing. The suite is
-not yet required for close; Session 22 makes it green.
+required for close (green since Session 22). `-Filter <expr>` runs a subset
+of the tests after the same cold start.
 
 To run the CI gates locally before tagging:
 

@@ -47,7 +47,7 @@ and `e2e` suites live in `dabbler.yaml`, PublicSurface and Packaging.Smoke in
 CI's *Validate And Pack* job. The framework runs Playwright as the `e2e`
 suite, in sessions that change what it covers and before each release tag;
 the operator only needs Podman or Docker running and `../dabbler-uat-dsl`
-packed. It is not required for close until Session 22 makes it green.
+packed. It is required for close (green since Session 22).
 
 The compose stack is split: `docker-compose.infra.yml` holds the persistent dev
 dependencies (sqlserver, mailhog, the `dabbler-dev` network) and stays up

@@ -295,6 +295,10 @@ public sealed class SmokeTests
             await page.GetByTestId("nav-card-orders").ClickAsync();
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
             await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/orders$"));
+            // The URL changes before the page renders. Wait for the dashboard to
+            // leave the DOM, or GoBack lands on the stale dashboard and the next
+            // click goes to a disposed component (seen on a cold start).
+            await Assertions.Expect(page.GetByTestId("nav-card-orders")).ToHaveCountAsync(0);
 
             // Go back and click Retail Businesses card
             await page.GoBackAsync();
@@ -302,6 +306,7 @@ public sealed class SmokeTests
             await page.GetByTestId("nav-card-customers").ClickAsync();
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
             await Assertions.Expect(page).ToHaveURLAsync(new Regex(".*/customers$"));
+            await Assertions.Expect(page.GetByTestId("nav-card-customers")).ToHaveCountAsync(0);
 
             // Go back and click Products card
             await page.GoBackAsync();

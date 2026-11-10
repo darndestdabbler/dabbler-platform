@@ -49,6 +49,9 @@ public sealed class ProductAdministrationWorkflowTests
             await _fixture.NavigateToAdminProductsAsync(page);
             var routedContent = page.GetByTestId("routed-page-content");
 
+            // Let the initial product load finish first: if it lands after the
+            // search, it replaces the filtered rows with the unfiltered page.
+            await PlaywrightFixture.WaitForGridDataAsync(page);
             await routedContent.GetByPlaceholder("Search products...").FillAsync(productName);
 
             // The search uses a 300ms-debounced TextChanged wired to OnSearchAsync, which
@@ -57,6 +60,11 @@ public sealed class ProductAdministrationWorkflowTests
             // clicking the switch — otherwise the click can land mid-rerender and SignalR
             // delivers it to a stale handler-id, silently dropping ValueChanged. See
             // cumulative-flake-investigation.md (Session 5 root cause).
+            // WaitForQuietAsync alone can return before the debounce has even
+            // fired, so first wait for the search's render: the grid down to the
+            // one product whose name is searched for.
+            await Assertions.Expect(routedContent.Locator("[data-testid^='product-availability-']"))
+                .ToHaveCountAsync(1);
             await _fixture.WaitForQuietAsync(page);
 
             var availabilitySwitch = routedContent.GetByTestId($"product-availability-{productId}");
