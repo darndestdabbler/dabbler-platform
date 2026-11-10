@@ -6,11 +6,10 @@
 # models, roles and transports are deliberately absent.
 schema_version: 1
 
-# Two suites. `unit` is the unit, bUnit and in-process API/Web tests, through
+# Three suites. `unit` is the unit, bUnit and in-process API/Web tests, through
 # a solution filter that leaves out the two projects that need infrastructure:
-#   - tests/AcmeCoffeeOnline.Playwright  needs the Docker stack (no skip guard);
-#                                         a manual gate, see AGENTS.md
-#                                         "Building and testing"
+#   - tests/AcmeCoffeeOnline.Playwright  needs the container stack (no skip
+#                                         guard); the `e2e` suite
 #   - tests/Dabbler.Packaging.Smoke       needs packed nupkgs; the `smoke` suite
 # Tests in PublicSurface / Templates / CrudSlice that need nupkgs skip
 # themselves when pack-output/ is absent and DABBLER_PACK_OUTPUT is unset.
@@ -21,6 +20,12 @@ schema_version: 1
 # bump session's gate, not every session's: required_for_close is false. The
 # ServesBelowFiveHundred exclusion (it needs SQL LocalDB) matches CI's
 # Validate And Pack job.
+#
+# `e2e` is the Playwright gate. tools/e2e.ps1 runs it from a cold start under
+# Podman or Docker: infra up, a freshly seeded AcmeCoffeeOnline_Dev, the app
+# stack rebuilt, then tests/AcmeCoffeeOnline.Playwright. It needs a running
+# engine and ../dabbler-uat-dsl/pack-output. required_for_close stays false
+# until Session 22 makes it green.
 testing:
   suites:
     - name: unit
@@ -47,6 +52,17 @@ testing:
       required_for_close: false
       covers:
         - "tests/Dabbler.Packaging.Smoke"
+
+    - name: e2e
+      command: pwsh -NoProfile -File tools/e2e.ps1
+      expensive: true
+      required_for_close: false
+      covers:
+        - "src/Apps"
+        - "src/Libs"
+        - "tests/AcmeCoffeeOnline.Playwright"
+        - "docker"
+        - "Directory.Packages.props"
 
 # Packaging: pack only. There is no push block and no release member on
 # purpose: nuget.org publishing stays with .github/workflows/build.yml on an

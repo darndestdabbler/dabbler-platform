@@ -13,13 +13,12 @@ All tests green. No skipped-but-should-pass tests.
 
 ## Step 2 — Playwright tests pass (ProjectReference path)
 
-Requires Docker compose stack running (`docker/docker-compose.infra.yml` + `docker/docker-compose.app.yml`).
+The framework runs the Playwright tests as the `e2e` suite in `dabbler.yaml`
+(`pwsh -NoProfile -File tools/e2e.ps1`), from a cold start: infra stack up, a
+freshly seeded `AcmeCoffeeOnline_Dev`, the app stack rebuilt. The operator only
+needs Podman or Docker running and `../dabbler-uat-dsl/pack-output` present.
 
-```
-dotnet test tests/AcmeCoffeeOnline.Playwright/
-```
-
-All Playwright tests green.
+The `e2e` suite green.
 
 ## Step 3 — Hermetic pack succeeds
 

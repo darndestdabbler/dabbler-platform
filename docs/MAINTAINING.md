@@ -7,8 +7,8 @@ list, read [`packaging/release-checklist.md`](packaging/release-checklist.md).
 
 ## Clone, build, test and pack
 
-You need the .NET 10 SDK and PowerShell 7. The Playwright gate also needs
-Docker and the sibling repository `dabbler-uat-dsl` checked out beside this
+You need the .NET 10 SDK and PowerShell 7. The `e2e` suite (Playwright) also
+needs Podman or Docker running and the sibling repository `dabbler-uat-dsl` checked out beside this
 one (`../dabbler-uat-dsl`) and packed to its `pack-output/`, as
 `solution-dependencies.json` declares; `dabbler deps check` verifies it.
 
@@ -39,19 +39,18 @@ nupkgs run instead of skipping.
 | Push build | The same `unit` suite command | CI: `.github/workflows/ci.yml` | Every push to `master` and every pull request, Dependabot's included: the gate on `master` and on Dependabot pull requests |
 | Package surface | `Dabbler.PublicSurface.Tests` against the packed nupkgs | CI: the *Validate And Pack* job in `.github/workflows/build.yml` | Every `nuget-v*` tag and every manual dispatch |
 | Consumer smoke | `Dabbler.Packaging.Smoke` against the packed nupkgs | CI: the same *Validate And Pack* job | Every `nuget-v*` tag and every manual dispatch |
-| Playwright | `tests/AcmeCoffeeOnline.Playwright` against the Docker stack | Manual: run it yourself | Before each release tag, and in every session that changes the reference app's UI or the MudBlazor pin |
+| `e2e` suite | `pwsh -NoProfile -File tools/e2e.ps1`: `tests/AcmeCoffeeOnline.Playwright` against the container stack, from a cold start | `dabbler.yaml` | Every session that changes `src/Apps`, `src/Libs`, `docker`, the Playwright tests or `Directory.Packages.props` (the MudBlazor pin among them), and before each release tag |
 
-**The gate rule:** Playwright is in neither `dabbler.yaml` nor CI, because
-it needs the Docker stack and has no skip guard. That leaves it to you. Run
-it before you push a release tag, and in any session that touches the
-reference app's UI (`src/Apps/AcmeCoffeeOnline.Web/`) or moves `MudBlazor`
-in `Directory.Packages.props`:
-
-```bash
-docker compose -f docker/docker-compose.infra.yml up -d         # sqlserver + mailhog, leave up
-docker compose -f docker/docker-compose.app.yml   up --build -d  # api + web, rebuild after changes
-dotnet test tests/AcmeCoffeeOnline.Playwright/
-```
+**The gate rule:** the framework runs Playwright as the `e2e` suite; it is
+not in CI, because CI has no `../dabbler-uat-dsl` feed. Your part is to have
+Podman or Docker running and `../dabbler-uat-dsl` packed. `tools/e2e.ps1`
+picks Podman when its machine is up, otherwise Docker
+(`DABBLER_CONTAINER_ENGINE` overrides), brings the infra stack up, drops
+`AcmeCoffeeOnline_Dev` so the API seeds it fresh, rebuilds the app stack,
+waits for `api` and `web` to be healthy, and runs the tests with a trx
+logger into `TestResults/e2e/`. It stops with a plain message, not a test
+failure, when no engine is up or the sibling feed is missing. The suite is
+not yet required for close; Session 22 makes it green.
 
 To run the CI gates locally before tagging:
 
@@ -73,8 +72,8 @@ machine: CI publishes through trusted publishing (OIDC).
    (`pwsh tools/pack.ps1 -OutputDir pack-output -CleanOutput`) and runs the
    `smoke` suite, which scaffolds the templates at the new version and
    builds them: the same consumer smoke CI runs before it publishes.
-2. **Playwright gate.** Run the Playwright suite against the bumped trunk,
-   as described above.
+2. **E2E gate.** The framework runs the `e2e` suite against the bumped
+   trunk, as described above; have Podman or Docker running.
 3. **Tag by hand.** Push an annotated tag on that commit:
 
    ```bash
@@ -101,4 +100,4 @@ push build (`.github/workflows/ci.yml`).
 
 **MudBlazor policy:** adopt a new MudBlazor major within one quarter of its
 release. A major move is its own session: move the pin, fix the libraries,
-the reference app and the templates, and run the Playwright gate.
+the reference app and the templates; the framework runs the `e2e` suite.

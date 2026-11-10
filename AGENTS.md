@@ -25,11 +25,10 @@ today is `dabbler-uat-dsl` (see `solution-dependencies.json`).
 dotnet build Dabbler.Platform.sln
 dotnet test  Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m   # the `unit` suite in dabbler.yaml (-m:1: template tests share a cache)
 
-# E2E (Playwright runs from the host against the app containers). Not in
-# dabbler.yaml: it needs the Docker stack up and has no skip guard.
-docker compose -f docker/docker-compose.infra.yml up -d        # sqlserver + mailhog (start once, leave up)
-docker compose -f docker/docker-compose.app.yml   up --build -d # api + web (rebuild after code changes)
-dotnet test tests/AcmeCoffeeOnline.Playwright/
+# E2E: the `e2e` suite in dabbler.yaml, which the framework runs. From a cold
+# start under Podman or Docker: infra up, fresh AcmeCoffeeOnline_Dev, app
+# stack rebuilt, then the Playwright tests from the host (trx in TestResults/e2e/).
+pwsh -NoProfile -File tools/e2e.ps1
 
 # Packaging gate (what CI runs; `dabbler packaging` runs pack.ps1 the same way):
 pwsh tools/pack.ps1 -OutputDir pack-output -CleanOutput
@@ -38,22 +37,23 @@ dotnet test tests/Dabbler.Packaging.Smoke/ --filter "FullyQualifiedName!~ServesB
 ```
 
 `Dabbler.Unit.slnf` is every test project except `AcmeCoffeeOnline.Playwright`
-(needs Docker) and `Dabbler.Packaging.Smoke` (needs packed nupkgs and SQL
+(the `e2e` suite) and `Dabbler.Packaging.Smoke` (needs packed nupkgs and SQL
 LocalDB). The tests in `Dabbler.PublicSurface.Tests`, `Dabbler.Templates.Tests`
 and `Dabbler.CrudSlice.Tests` that need nupkgs skip when `pack-output/` is
 absent and `DABBLER_PACK_OUTPUT` is unset.
 
 Gate rule (`docs/MAINTAINING.md` → *Where every gate lives*): the `unit`
-suite lives in `dabbler.yaml`, PublicSurface and Packaging.Smoke in CI's
-*Validate And Pack* job, and Playwright is a manual gate, run before each
-release tag and in every session that changes the reference app's UI or the
-MudBlazor pin.
+and `e2e` suites live in `dabbler.yaml`, PublicSurface and Packaging.Smoke in
+CI's *Validate And Pack* job. The framework runs Playwright as the `e2e`
+suite, in sessions that change what it covers and before each release tag;
+the operator only needs Podman or Docker running and `../dabbler-uat-dsl`
+packed. It is not required for close until Session 22 makes it green.
 
 The compose stack is split: `docker-compose.infra.yml` holds the persistent dev
 dependencies (sqlserver, mailhog, the `dabbler-dev` network) and stays up
 across sessions. `docker-compose.app.yml` holds the rebuildable app services
-(api, web). Playwright is intentionally not a compose service: run it from the
-host against `http://localhost:5010`.
+(api, web). Playwright is intentionally not a compose service: `tools/e2e.ps1`
+runs it from the host against `http://localhost:5010`.
 
 Publishing to nuget.org is the job of CI: push an annotated `nuget-v<version>`
 tag and `.github/workflows/build.yml` publishes through trusted publishing
