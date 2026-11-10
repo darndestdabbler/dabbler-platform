@@ -1,0 +1,31 @@
+@page "/suppliers/{SupplierId:int}"
+@attribute [DabblerPageAuthorize("/suppliers")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Security.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+<PageTitle>Supplier Detail</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/suppliers"))"
+                           aria-label="Back to Suppliers" />
+            <MudText Typo="Typo.h4" data-testid="t1entity-detail-title">
+                Supplier #@SupplierId
+            </MudText>
+        </MudStack>
+    </MudStack>
+
+    <SupplierDetail SupplierId="SupplierId" IsReadOnly="false" />
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int SupplierId { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

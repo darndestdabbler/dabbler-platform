@@ -1,0 +1,112 @@
+{
+  "sessionSetName": "admin-user-creation-flow-uat-remediation",
+  "createdDate": "2026-05-11T16:12:59.342923-04:00",
+  "totalSessions": 1,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/ai-assignment-authored",
+      "dateTime": "2026-05-11T16:14:36.050854-04:00",
+      "description": "Authored ai-assignment.md via route(task_type=analysis); gemini-pro, $0.004",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.00418
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/seed-data-fix",
+      "dateTime": "2026-05-11T16:15:47.154710-04:00",
+      "description": "Added manager@acmecoffee.com to SeedData.cs (AppUser ID 62, internal-org membership, BackofficeUserAdmin AppUserRole) and user-roles.json (both Api + Web key 62: UserAdmin)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/checklist-update",
+      "dateTime": "2026-05-11T16:16:45.378796-04:00",
+      "description": "Updated admin-user-creation-flow-uat-checklist.json: UAT-4 step 10 email changed to audit-uat-v2@test.local; step 13 verification text updated; Feedback updated with docker reset instructions",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/build-verify",
+      "dateTime": "2026-05-11T16:23:52.753884-04:00",
+      "description": "Rebuilt docker app containers twice (seed data + user-roles.json updates). BackfillSecuritySeedDataAsync ran and inserted manager@acmecoffee.com as AppUser ID 1030. Added user-roles.json keys 62 (fresh seed) and 1030 (current env) with UserAdmin baked-in role. DB confirmed: Internal Operations org membership + BackofficeUserAdmin AppUserRole assigned.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-test",
+      "dateTime": "2026-05-11T16:27:58.561601-04:00",
+      "description": "dotnet build: 0 errors, 189 warnings (pre-existing). Tests: Security 305/305 pass; Api.Tests 27/27 pass; Web.Tests 123/128 pass (5 pre-existing TemplateSeedSmokeTests failures: template-seed/ directory not yet in repo, unrelated to this session).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-05-11T16:29:03.385615-04:00",
+      "description": "Cross-provider session verification. Model: gemini-pro. Cost: $0.0035",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 1040,
+          "outputTokens": 219,
+          "costUsd": 0.00349
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification-r2",
+      "dateTime": "2026-05-11T16:50:04.214218-04:00",
+      "description": "Cross-provider re-verification (round 2) after email-key refactor. Model: gemini-pro. Cost: $0.0047",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 1139,
+          "outputTokens": 331,
+          "costUsd": 0.00473375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/change-log-and-next-set",
+      "dateTime": "2026-05-11T16:52:19.473487-04:00",
+      "description": "Authored change-log.md and next-session-set recommendation via router",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "costUsd": 0.00019004999999999998
+        },
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.0009400000000000001
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "severity": "Major",
+    "category": "spec consistency",
+    "description": "B4 schema-primary fix incomplete: Section 5 heading still said Explicit Parameters Primary; Session 2 smoke-test command did not pass --schema",
+    "status": "fixed",
+    "fix": "Retitled proposal Section 5 to Schema File (Primary, Per-Property) + Explicit Parameters (Identity Basics). Updated Session 2 smoke-test command to author a smoke.dabbler-entity.json fixture and pass --schema. Updated Session 3 multi-template smoke to reuse the same fixture."
+  }
+]
