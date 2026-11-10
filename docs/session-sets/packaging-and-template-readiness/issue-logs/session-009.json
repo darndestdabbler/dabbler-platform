@@ -1,0 +1,8 @@
+[
+  {
+    "severity": "Minor",
+    "description": "BeginOutputReadLine async drain: WaitForExit(timeout) without parameter-less WaitForExit can leave async output handlers incompletely drained",
+    "status": "fixed",
+    "fix": "Added process.WaitForExit() after the timed WaitForExit in RunTool helper (standard .NET async drain pattern)"
+  }
+]

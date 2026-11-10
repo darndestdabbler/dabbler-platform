@@ -1,0 +1,207 @@
+@page "/admin/users"
+@attribute [DabblerPageAuthorize("/admin/users")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using AcmeCoffeeOnline.Web.Services
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AdminUserApiClient AdminUserApiClient
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IRoleSwitcher RoleSwitcher
+@inject IBakedInRoleProvider BakedInRoleProvider
+@inject ISnackbar Snackbar
+
+<PageTitle>Manage Organization Admins — AcmeCoffeeDistributors</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Manage Organization Admins</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+    Grant or revoke UserAdmin access for members of the active organization. Switch organizations from the shell to manage a different scope.
+</MudText>
+
+@if (_showDashboardBanner)
+{
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Class="mb-4"
+              data-testid="user-admin-dashboard-banner">
+        Looking for full role assignment?
+        <MudLink Href="/admin/security"
+                 data-testid="user-admin-dashboard-banner-link">
+            Open the Security Dashboard → Users and Role Assignment tab
+        </MudLink>
+    </MudAlert>
+}
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" Class="d-flex mx-auto my-8" />
+}
+else if (_scope is null || !_scope.CanManageUsers || string.IsNullOrWhiteSpace(_scope.ActiveOrganizationName))
+{
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" data-testid="user-admin-scope-warning">
+        Switch into an organization where you hold user-admin access to manage organization memberships and user-admin elevation.
+    </MudAlert>
+}
+else
+{
+    <MudPaper Elevation="1" Class="pa-4 mb-4" data-testid="admin-scope-banner">
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <div>
+                <MudText Typo="Typo.h6">@_scope.ActiveOrganizationName</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Scope key: @_scope.ActiveOrganizationKey
+                </MudText>
+            </div>
+            <MudChip T="string" Color="@(_scope.IsSystemAdmin ? Color.Secondary : Color.Primary)" Variant="Variant.Outlined">
+                @(_scope.IsSystemAdmin ? "SystemAdmin scope" : "UserAdmin scope")
+            </MudChip>
+        </MudStack>
+    </MudPaper>
+
+    <MudPaper Elevation="1" Class="pa-4">
+        <MudDataGrid T="AdminUserScopeUserDto" Items="_scope.Users" Filterable="true" SortMode="SortMode.Single"
+                     Dense="true" Hover="true" Striped="true" Bordered="true">
+            <Columns>
+                <PropertyColumn Property="x => x.DisplayName" Title="Name" />
+                <PropertyColumn Property="x => x.Email" Title="Email" />
+                <PropertyColumn Property="x => x.IsActive" Title="Active">
+                    <CellTemplate>
+                        <MudIcon Icon="@(context.Item.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                                 Color="@(context.Item.IsActive ? Color.Success : Color.Error)"
+                                 Size="Size.Small" />
+                    </CellTemplate>
+                </PropertyColumn>
+                <TemplateColumn Title="Roles In Scope" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.ScopedRoles.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">No scoped roles</MudText>
+                        }
+                        else
+                        {
+                            @foreach (var roleName in context.Item.ScopedRoles)
+                            {
+                                <MudChip T="string" Size="Size.Small" Class="mr-1 mb-1">@roleName</MudChip>
+                            }
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Other Organizations" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.OtherOrganizations.Count == 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Only this organization</MudText>
+                        }
+                        else
+                        {
+                            @foreach (var otherOrganization in context.Item.OtherOrganizations)
+                            {
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Class="mr-1 mb-1">
+                                    @otherOrganization
+                                </MudChip>
+                            }
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Actions" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.CanGrantUserAdmin)
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                       data-testid="@($"grant-useradmin-{context.Item.OrganizationMembershipId}")"
+                                       OnClick="@(() => GrantUserAdminAsync(context.Item))">
+                                Grant UserAdmin
+                            </MudButton>
+                        }
+                        else if (context.Item.CanRevokeUserAdmin)
+                        {
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                       data-testid="@($"revoke-useradmin-{context.Item.OrganizationMembershipId}")"
+                                       OnClick="@(() => RevokeUserAdminAsync(context.Item))">
+                                Remove UserAdmin
+                            </MudButton>
+                        }
+                        else if (context.Item.HasScopedUserAdmin)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Scoped admin retained</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">No elevation action</MudText>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </MudPaper>
+}
+
+@code {
+    private bool _loading = true;
+    private AdminUserScopeDto? _scope;
+    // Cached once on init. True when the actor's role can access the Security Dashboard tab.
+    private bool _showDashboardBanner;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var effectiveRoles = new HashSet<string>(
+            RoleSwitcher.EffectiveRoles(authState.User),
+            StringComparer.OrdinalIgnoreCase);
+        _showDashboardBanner = effectiveRoles
+            .Select(r => BakedInRoleProvider.TryGetBakedInRole(r))
+            .Where(b => b is not null)
+            .Any(b => string.Equals(b!.Name, BakedInRoles.SystemAdmin, StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(b.Name, BakedInRoles.CrossOrgUserAdmin, StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(b.Name, BakedInRoles.UserAdmin, StringComparison.OrdinalIgnoreCase));
+        await LoadScopeAsync();
+    }
+
+    private async Task LoadScopeAsync()
+    {
+        try
+        {
+            _scope = await AdminUserApiClient.GetScopeAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load the organization user-admin scope: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task GrantUserAdminAsync(AdminUserScopeUserDto user)
+    {
+        try
+        {
+            _scope = await AdminUserApiClient.GrantScopedUserAdminAsync(user.OrganizationMembershipId) ?? _scope;
+            Snackbar.Add($"Granted UserAdmin for {user.DisplayName} in the active organization.", Severity.Success);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to grant UserAdmin: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task RevokeUserAdminAsync(AdminUserScopeUserDto user)
+    {
+        try
+        {
+            _scope = await AdminUserApiClient.RevokeScopedUserAdminAsync(user.OrganizationMembershipId) ?? _scope;
+            Snackbar.Add($"Removed UserAdmin for {user.DisplayName} in the active organization.", Severity.Success);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to remove UserAdmin: {ex.Message}", Severity.Error);
+        }
+    }
+}

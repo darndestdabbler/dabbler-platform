@@ -1,0 +1,24 @@
+@using AcmeCoffeeOnline.Web.StubMode
+@using Dabbler.Components.Data
+@using Dabbler.Platform.Stubs
+@using MudBlazor
+@inject StubGridDataProvider<StubCustomerRow> DataProvider
+
+@* Temporary: uses MudDataGrid directly pending Session 4 rebuild *@
+<MudText Typo="Typo.h6" Class="mb-2">Stub Retail Businesses</MudText>
+
+<MudDataGrid T="StubCustomerRow"
+             ServerData="@(DataProvider.ToServerDataFunc())"
+             Dense="true"
+             Hover="true"
+             RowsPerPage="25"
+             ReadOnly="true">
+    <Columns>
+        <PropertyColumn Property="@(row => row.Name)" Title="Retail Business" />
+        <PropertyColumn Property="@(row => row.City)" Title="City" />
+        <PropertyColumn Property="@(row => row.Tier)" Title="Tier" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="StubCustomerRow" />
+    </PagerContent>
+</MudDataGrid>

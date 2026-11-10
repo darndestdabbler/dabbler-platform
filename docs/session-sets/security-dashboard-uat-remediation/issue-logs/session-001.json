@@ -1,0 +1,23 @@
+[
+  {
+    "round": 1,
+    "severity": "Minor",
+    "summary": "Session 7 lacks an explicit step for NEW Playwright assertions on findings 7 and 8; step 6 only updates prior tests.",
+    "status": "fixed",
+    "resolution": "Added Session 7 step 7 explicitly covering new assertions for the chosen master-details idiom, condensed grid viewport, and DisplayAlias column behaviour. Added progress key `session-7/add-new-ux-assertions`."
+  },
+  {
+    "round": 1,
+    "severity": "Minor",
+    "summary": "Session 7 regression-run exists only as a progress key; inconsistent with Sessions 2-6's explicit numbered regression step.",
+    "status": "fixed",
+    "resolution": "Added Session 7 step 8 reading 'Regression: re-run Sessions 2-6 tests end-to-end against the new UX...' to match the structure of earlier sessions."
+  },
+  {
+    "round": 1,
+    "severity": "Minor",
+    "summary": "Finding 6 exit criteria attributes closure entirely to Session 4 despite the scroll/layout portion being addressed in Session 7.",
+    "status": "fixed",
+    "resolution": "Rewrote Finding 6's exit-criteria bullet to credit Sessions 4 and 7 with their respective portions. Also added a '(closes layout portion of finding 6)' annotation to Session 7 step 2 for symmetry with the Steps / Exit criteria pairing."
+  }
+]
