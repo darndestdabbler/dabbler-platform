@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "dabbler-app-docker-assets",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Session 1",
+      "status": "complete",
+      "startedAt": "2026-05-28T05:54:57.032272-04:00",
+      "completedAt": "2026-05-28T06:21:53.955282-04:00",
+      "orchestrator": {
+        "engine": "claude",
+        "provider": null,
+        "model": "claude-sonnet-4-6",
+        "effort": "standard",
+        "chatSessionId": null,
+        "checkedOutAt": "2026-05-28T05:54:57.032272-04:00",
+        "lastActivityAt": "2026-05-28T05:54:57.032272-04:00"
+      },
+      "verificationVerdict": "VERIFIED"
+    },
+    {
+      "number": 2,
+      "title": "Session 2",
+      "status": "complete",
+      "startedAt": "2026-05-28T06:31:57.751567-04:00",
+      "completedAt": "2026-05-28T06:56:23.619750-04:00",
+      "orchestrator": {
+        "engine": "claude",
+        "provider": null,
+        "model": "claude-sonnet-4-6",
+        "effort": "standard",
+        "chatSessionId": null,
+        "checkedOutAt": "2026-05-28T06:31:57.751567-04:00",
+        "lastActivityAt": "2026-05-28T06:31:57.751567-04:00"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

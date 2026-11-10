@@ -1,0 +1,69 @@
+[
+  {
+    "severity": "Major",
+    "description": "Consolidated gap/disposition table missing explicit rows for GPT-5.4's 'narrow stack constraints' and Gemini Pro's 'rigid security model' adopter-deterrents.",
+    "status": "fixed",
+    "fix_notes": "Added G21 (stack constraints, accept-as-limitation, Session 6 callout) and G22 (security model rigidity, accept-as-limitation, Session 6 callout) to the consolidated table. Both gaps were discussed narratively in synthesis sections 2.2 and 2.6 but lacked explicit disposition rows."
+  },
+  {
+    "severity": "Minor",
+    "description": "Section 4 tally summary internally inconsistent: claimed Major gaps had 0 fix-now items when G2 is Major/fix-now; Minor counts did not sum to stated total.",
+    "status": "fixed",
+    "fix_notes": "Recounted tally to reflect actual table content: 1 Critical, 11 Major (after adding G21/G22), 8 Minor + 1 G20 (defer), 1 dismissed. Added a tally-history footnote explaining the Round-2 correction."
+  },
+  {
+    "severity": "Minor",
+    "description": "Session 4 made documented edits outside the session-set folder (docs/platform-overview.md, src/Libs/Dabbler.Reports.Export/README.md, test files) even though spec says 'Touches: This session-set folder.'",
+    "status": "acknowledged",
+    "fix_notes": "Added an explicit acknowledgment to platform-value-review.md section 9 methodology notes: the spec's Touches line was written before the gap review surfaced, fix-now scope extensions are permitted by the disposition framework. Surfaced as input for future spec authors to either expand Touches or document the convention."
+  },
+  {
+    "round": 2,
+    "severity": "Minor",
+    "description": "Section 4 tally still inconsistent with the consolidated table. Rows G4, G6, and G12 carried mixed/conditional severity strings (e.g., 'Minor \u2192 Major depending on packaging plan') even though the preamble said split severities are normalized upward.",
+    "status": "fixed",
+    "fix_notes": "Normalized G4, G6, G12 to single 'Major' severity (the higher value per the preamble convention) with a parenthetical noting each reviewer's original rating for traceability. Replaced the tally paragraph with an explicit severity-by-disposition table summing to 23 rows total. Sum check: 2 fix-now + 15 fix-during-packaging + 3 accept-as-limitation + 2 defer + 1 dismissed = 23 = G1 + G2..G22 + GD1. \u2713"
+  },
+  {
+    "round": 3,
+    "severity": "Major",
+    "description": "Tri-provider comparison not fully apples-to-apples; Opus's assessment used context from project-guidance.md / lessons-learned.md that the routed providers did not have.",
+    "status": "acknowledged",
+    "fix_notes": "Added a methodology note to synthesis section 9 documenting the deliberate asymmetry: spec Step 2's 'self-contained' clause governs the routed prompt; Step 3's orchestrator-self-assessment permits the orchestrator to bring its full perspective per feedback_orchestrator_self_contributes_to_review_panel. Honestly disclosed which Opus findings (e.g., G18 README-depth-varies) depended on cross-set context the routed providers couldn't see. Recorded the interpretive choice for future spec authors."
+  },
+  {
+    "round": 3,
+    "severity": "Major",
+    "description": "fix-now DabblerPdf disclosure incomplete: Dabbler.Reports.Core/README.md also lists DabblerPdf as a dependency but did not receive the new origin/license disclosure.",
+    "status": "fixed",
+    "fix_notes": "Updated src/Libs/Dabbler.Reports.Core/README.md Dependencies section with the same DabblerPdf disclosure (Dabbler-authored C# port of OpenPDF, ships as NuGet from darndestdabbler/dabbler-pdf, dual-licensed LGPL-2.1-only OR MPL-2.0). Both consumer-facing README touchpoints now carry the compliance-critical license note."
+  },
+  {
+    "round": 3,
+    "severity": "Minor",
+    "description": "Disposition table introduces a fifth disposition ('dismissed') even though section 4 preamble enumerated only fix-now / fix-during-packaging / accept-as-limitation / defer. Synthesis also did not carry Opus's 'REST-only business data vs UseEfCoreStore() in host startup' inconsistency into the gap table for explicit disposition.",
+    "status": "fixed",
+    "fix_notes": "Expanded the section 4 disposition enumeration into an explicit code-table that includes 'dismissed' with a rationale on when it applies (reviewer-side knowledge gap, not a real gap). Added G23 covering the REST-only vs UseEfCoreStore inconsistency with disposition fix-during-packaging (Session 6 one-sentence overview clarification that REST-only applies to business data, not platform-internal stores). Updated section 4 tally to 24 rows."
+  },
+  {
+    "round": 4,
+    "severity": "Major",
+    "description": "Opus self-assessment not run on same self-contained context as routed providers. Spec Step 2 says 'identical and self-contained across all three reviewers; assume each reviewer has no prior context'; documented deviation does not close the compliance gap.",
+    "status": "deferred",
+    "fix_notes": "Operator-confirmed defer (Option 1 of 3 in the user choice). Rationale: spec Step 2 and Step 3 carry conflicting requirements (Step 3 explicitly cites 'the orchestrator already has the full context loaded' as the reason for self-contribution, which contradicts Step 2's 'no prior context' clause). The orchestrator-self-contribution pattern documented in feedback_orchestrator_self_contributes_to_review_panel was designed precisely to leverage the orchestrator's full context. Re-doing Opus's assessment under strict prompt-only constraint would dismantle the pattern (functionally equivalent to routing Opus->Opus, which is what the feedback memory specifically advises against). This is a spec-revision item for Step 9 reorganization review, not a session-4-internal fix. Surfaced in disposition.json for the closeout gate; preserved in the synthesis section 9 methodology notes for future spec-author reference."
+  },
+  {
+    "round": 4,
+    "severity": "Minor",
+    "description": "Synthesis introduced a non-spec disposition value 'dismissed' for GD1 (.NET 10 context-gap). Spec disposition scheme is limited to fix-now / fix-during-packaging / accept-as-limitation / defer.",
+    "status": "fixed",
+    "fix_notes": "Removed GD1 from the consolidated disposition table. The .NET 10 context-gap finding is now recorded only in synthesis section 3.1 as a methodology footnote, NOT as a row with a disposition code. The disposition framework in section 4 is now strictly the four spec-enumerated values (fix-now / fix-during-packaging / accept-as-limitation / defer). Tally updated from 24 to 23 rows."
+  },
+  {
+    "round": 4,
+    "severity": "Minor",
+    "description": "Verification bundle's 'produced artifacts' and 'inline-edits' sections list only docs/platform-overview.md and Dabbler.Reports.Export/README.md, but methodology notes claim Dabbler.Reports.Core/README.md was also updated in Round 4. Bundle internally inconsistent.",
+    "status": "fixed-in-synthesis",
+    "fix_notes": "The Round-4 bundle file (session-004.bundle.round4.md) is a generated artifact and will not be regenerated since the session is closing with ISSUES_FOUND and no Round 5. The synthesis methodology notes accurately list all three touched files (platform-overview, Reports.Export, Reports.Core). Future readers should consult the synthesis, not the stale bundle."
+  }
+]

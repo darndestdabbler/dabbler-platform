@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 013 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 013 transcript</h1>
+<p class="stamp">Rendered 2026-11-08T12:04:21.306Z by dabbler-ai-router 3.29.0 at 990281ca82d537e500d2c1f85ba018853bce0186.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-08T06:46:18.763-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 13: Prune the v1 guidance</h3>
+<ol><li>Register.</li><li>Prune <code>docs/planning/project-guidance.md</code>. Remove the sections that describe the retired v1 workflow (<code>route()</code>, <code>session-state.json</code>, <code>ai-assignment.md</code>, session sets), keep the testing, UAT, MudBlazor, CRUD and code-style rules, and drop its banner.</li><li>Prune <code>docs/planning/lessons-learned.md</code> the same way. Keep the repository-specific failure patterns, remove what only describes the retired router, and drop its banner.</li><li>Remove the v1 caveat from <code>AGENTS.md</code>'s *Required reading* list.</li><li>Cross-provider verification.</li><li>The <code>unit</code> suite once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<h2>Work Plan</h2>
+<p>Prune the retired v1 workflow from the repository's standing guidance. In docs/planning/project-guidance.md remove the dated v3 banner and every passage that only describes the retired v1 router and its workflow: route() task types and tiers, ai_router / ai-router and the W2 uat_runner, session-state.json, ai-assignment.md and next-orchestrator recommendations, session sets and their specs, disposition.json, UAT Review Session sets, maxout overrides, and pointers to the deleted docs/ai-led-session-workflow.md and session-set-authoring-guide.md. Keep the Principles (Architecture, Security And Organization Model, UI Philosophy, Testing Hierarchy, Human UAT Philosophy, Precedence) and the testing, UAT, MudBlazor, CRUD, filter, styling and code-style Conventions, rewording a kept rule only where a sentence of it leans on a v1 term (for example 'session set' becomes 'session'). Do the same in docs/planning/lessons-learned.md: drop the banner, delete the lessons that only describe the retired router (register_session_start, route(task_type=documentation), router complexity score, verifier selection, task-type calibration, truncation, verification cost guard, routed-output persistence, session-state.json, ai-assignment.md, verification prompt template, disposition.json gate and the like), keep the repository-specific failure patterns (Blazor, MudBlazor, Playwright, Docker, .NET, UAT authoring, testing), and strip v1 references from the kept entries and the file's preamble. Finally remove the v1 caveat sentence from the Required reading list in AGENTS.md's project section.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/4111c2ad10d59fbfcde30e3d9d1d4a5119c7d973"><code>4111c2ad10d59fbfcde30e3d9d1d4a5119c7d973</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Prune project guidance</td><td><p>Edit docs/planning/project-guidance.md: delete the dated banner; delete the passages that only describe the retired v1 workflow (route() task types and tiers, ai_router / ai-router and the W2 uat_runner, session-state.json, ai-assignment.md, session sets and their specs, disposition.json, the UAT Review Session set type, maxout overrides, links to the deleted docs/ai-led-session-workflow.md and session-set-authoring-guide.md), including the UAT Runner (W2) section and the v1 bullets of Workflow Expectations; keep the Principles and the testing, UAT, MudBlazor, CRUD, filter, styling and code-style Conventions, rewording only sentences of kept rules that lean on a v1 term.</p></td><td><span class="mono">docs/planning/project-guidance.md</span></td><td><code>pwsh -NoProfile -Command $t = Get-Content -Raw docs/planning/project-guidance.md; foreach ($p in 'predates the Dabbler AI Orchestration','route\(','session-state\.json','ai-assignment\.md','ai[-_]router','uat_runner','ai-led-session-workflow','session-set-authoring-guide\.md','disposition\.json','maxout','\bsession[ -]sets?\b(?!-)') { if ($t -match $p) { Write-Output &quot;v1 term remains: $p&quot;; exit 1 } }; foreach ($h in '### Architecture','### Security And Organization Model','### Testing Hierarchy','### Human UAT Philosophy','### CRUD Form Conventions','### MudBlazor Usage','### Testing Conventions','### Code Style') { if (-not $t.Contains($h)) { Write-Output &quot;kept section missing: $h&quot;; exit 1 } }; exit 0</code></td><td>yes</td></tr>
+<tr><td>Prune lessons learned</td><td><p>Edit docs/planning/lessons-learned.md: delete the dated banner; delete the lessons that only describe the retired v1 router and workflow; keep the repository-specific failure patterns (Blazor, MudBlazor, Playwright, Docker, .NET, UAT authoring, testing) and strip v1 references (route(), session-state.json, ai-assignment.md, session sets, ai-router, uat_runner, disposition.json, the deleted docs/ai-led-session-workflow.md) from the kept entries and from the file's preamble, rewording only the sentences that lean on them.</p></td><td><span class="mono">docs/planning/lessons-learned.md</span></td><td><code>pwsh -NoProfile -Command $t = Get-Content -Raw docs/planning/lessons-learned.md; foreach ($p in 'predates the Dabbler AI Orchestration','route\(','register_session_start','session-state\.json','ai-assignment\.md','ai[-_]router','uat_runner','ai-led-session-workflow','session-set-authoring-guide\.md','disposition\.json','\bsession[ -]sets?\b(?!-)') { if ($t -match $p) { Write-Output &quot;v1 term remains: $p&quot;; exit 1 } }; foreach ($h in '## Do Not Run Build And Test In Parallel Against The Same Worktree','## MudForm Does Not Invalidate Required-But-Untouched Fields On Load','## Pin Culture Explicitly In .NET Containers','## Docker E2E: Connection Strings Must Be Set Per-Service','## MudNumericField Playwright FillAsync Does Not Commit @bind-Value') { if (-not $t.Contains($h)) { Write-Output &quot;kept lesson missing: $h&quot;; exit 1 } }; exit 0</code></td><td>yes</td></tr>
+<tr><td>Drop agents caveat</td><td><p>In AGENTS.md's project section (above the managed fence), remove the caveat sentence after the docs/planning/project-guidance.md bullet in Required reading, leaving the bullet as '<code>docs/planning/project-guidance.md</code> -- durable principles and conventions'.</p></td><td><span class="mono">AGENTS.md</span></td><td><code>pwsh -NoProfile -Command $t = Get-Content -Raw AGENTS.md; if ($t -match 'retired v1 workflow') { Write-Output 'v1 caveat remains'; exit 1 }; if (-not $t.Contains('`docs/planning/project-guidance.md` -- durable principles and conventions')) { Write-Output 'project-guidance bullet missing'; exit 1 }; exit 0</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>Editing anything under docs/session-sets/ (read-only v1 history) or the router-written records under docs/sessions/.</li><li>Editing other documents that still mention the v1 workflow (docs/planning/session-set-authoring-guide.platform-addendum.md, docs/platform-overview.md, docs/COMPATIBILITY.md and the rest) or code comments that cite project-guidance.md: the session's section names only project-guidance.md, lessons-learned.md and AGENTS.md.</li><li>Rewriting, reorganizing, promoting or adding rules and lessons beyond removing v1 material and the wording that depends on it.</li><li>Editing the managed body of AGENTS.md inside the fence, or CLAUDE.md.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[11:46:18]</span> <span class="muted">run-started</span> session=013 mode=pull</div>
+<div class="line"><span class="at">[11:46:18]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[11:49:26]</span> <span class="muted">run-resumed</span> session=013 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[11:49:26]</span> <span class="muted">plan-accepted</span> steps=[&quot;prune-project-guidance&quot;,&quot;prune-lessons-learned&quot;,&quot;drop-agents-caveat&quot;] non_goals=4</div>
+<div class="line"><span class="at">[11:49:32]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[11:49:32]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=prune-project-guidance</div>
+<div class="line"><span class="at">[11:54:31]</span> <span class="muted">run-resumed</span> session=013 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[11:54:42]</span> <span class="muted">check-passed</span> step=prune-project-guidance argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content -Raw docs/planning/project-guidance.md; foreach ($p in 'predates the Dabbler AI Orchestration','route\\(','session-state\\.json','ai-assignment\\.md','ai[-_]router','uat_runner','ai-led-session-workflow','session-set-authoring-guide\\.md','disposition\\.json','maxout','\\bsession[ -]sets?\\b(?!-)') { if ($t -match $p) { Write-Output \&quot;v1 term remains: $p\&quot;; exit 1 } }; foreach ($h in '### Architecture','### Security And Organization Model','### Testing Hierarchy','### Human UAT Philosophy','### CRUD Form Conventions','### MudBlazor Usage','### Testing Conventions','### Code Style') { if (-not $t.Contains($h)) { Write-Output \&quot;kept section missing: $h\&quot;; exit 1 } }; exit 0&quot;]</div>
+<div class="line"><span class="at">[11:54:44]</span> <span class="muted">report-accepted</span> seq=2 step=prune-project-guidance files=[&quot;docs/planning/project-guidance.md&quot;] notes=Removed the banner, the UAT Runner (W2) section, the UAT Review Session set type and the v1 Workflow Expectations bullets (route(), session-state.json, ai-assignment.md, maxout, verification routing, two-repo mirrors); reworded kept UAT/MudBlazor/testing rules that leaned on W2, route(), session sets or disposition.json.</div>
+<div class="line"><span class="at">[11:54:44]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=prune-lessons-learned</div>
+<div class="line"><span class="at">[11:59:46]</span> <span class="muted">run-resumed</span> session=013 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[11:59:59]</span> <span class="muted">check-passed</span> step=prune-lessons-learned argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content -Raw docs/planning/lessons-learned.md; foreach ($p in 'predates the Dabbler AI Orchestration','route\\(','register_session_start','session-state\\.json','ai-assignment\\.md','ai[-_]router','uat_runner','ai-led-session-workflow','session-set-authoring-guide\\.md','disposition\\.json','\\bsession[ -]sets?\\b(?!-)') { if ($t -match $p) { Write-Output \&quot;v1 term remains: $p\&quot;; exit 1 } }; foreach ($h in '## Do Not Run Build And Test In Parallel Against The Same Worktree','## MudForm Does Not Invalidate Required-But-Untouched Fields On Load','## Pin Culture Explicitly In .NET Containers','## Docker E2E: Connection Strings Must Be Set Per-Service','## MudNumericField Playwright FillAsync Does Not Commit @bind-Value') { if (-not $t.Contains($h)) { Write-Output \&quot;kept lesson missing: $h\&quot;; exit 1 } }; exit 0&quot;]</div>
+<div class="line"><span class="at">[12:00:02]</span> <span class="muted">report-accepted</span> seq=3 step=prune-lessons-learned files=[&quot;docs/planning/lessons-learned.md&quot;] notes=Removed the banner and 19 router/v1-workflow lessons (register_session_start, tri-provider, matrix runs, verifier prompt/selection/exclusion, route(documentation), complexity score, mechanical-gate, truncation, cost guard, routed output, ASCII glyphs, session-state, ai-assignment, spec config, effort levels, uat-coverage-review wording, disposition.json gate); restored the lost heading of the checklist-editor-schema lesson; reworded kept entries and preamble that leaned on route(), session sets, the W2 runner or the deleted workflow doc.</div>
+<div class="line"><span class="at">[12:00:02]</span> <span class="muted">instruction-issued</span> seq=4 kind=step step=drop-agents-caveat</div>
+<div class="line"><span class="at">[12:00:41]</span> <span class="muted">run-resumed</span> session=013 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[12:00:54]</span> <span class="muted">check-passed</span> step=drop-agents-caveat argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content -Raw AGENTS.md; if ($t -match 'retired v1 workflow') { Write-Output 'v1 caveat remains'; exit 1 }; if (-not $t.Contains('`docs/planning/project-guidance.md` -- durable principles and conventions')) { Write-Output 'project-guidance bullet missing'; exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[12:00:56]</span> <span class="muted">report-accepted</span> seq=4 step=drop-agents-caveat files=[&quot;AGENTS.md&quot;] notes=Removed the v1 caveat from the project-guidance.md bullet in Required reading (project section, above the managed fence).</div>
+<div class="line"><span class="at">[12:00:56]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[12:00:58]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[12:01:02]</span> <span class="muted">job-started</span> name=verification pid=46752 log=.dabbler/runs/s13/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[12:02:00]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s13/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[12:02:00]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[12:02:00]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[12:02:04]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[12:02:05]</span> <span class="muted">job-started</span> name=run of record: unit pid=56336 log=.dabbler/runs/s13/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[12:02:28]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s13/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[12:02:28]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[12:03:06]</span> <span class="muted">landed</span> commit=4111c2ad10d59fbfcde30e3d9d1d4a5119c7d973</div>
+<div class="line"><span class="at">[12:03:06]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[12:03:10]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[12:03:10]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[12:03:14]</span> <span class="muted">job-started</span> name=close pid=48840 log=.dabbler/runs/s13/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:04:21]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s13/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:04:21]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="bad">none-selected</span></td><td>8s</td><td></td><td></td><td></td><td><span class="mono"></span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

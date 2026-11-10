@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "severity": "Minor",
+    "title": "Disabled links lack tabindex='-1'",
+    "finding": "Disabled role and org links remained focusable via Tab despite aria-disabled='true'.",
+    "resolution": "fixed",
+    "notes": "Added tabindex='-1' via UserAttributes when _canSwitchRole/_canSwitchOrg is false; added bUnit test DisabledLinks_HaveTabindexMinusOne_AndSkipMenuAttributes."
+  },
+  {
+    "id": 2,
+    "severity": "Minor",
+    "title": "No test asserts specific spec aria-label strings",
+    "finding": "Existing tests covered presence of aria-label but not the exact sentence strings the spec enumerates.",
+    "resolution": "fixed",
+    "notes": "Added bUnit test Links_ExposeSpecSentenceAriaLabels asserting the three exact strings: 'Casey Hart, sign out', 'System Admin, switch role', 'Internal Operations, switch organization'."
+  },
+  {
+    "id": 3,
+    "severity": "Informational",
+    "title": "No aria-haspopup on menu-trigger links",
+    "finding": "Screen readers may not announce role/org links as menu buttons if MudBlazor does not inject aria-haspopup on ActivatorContent.",
+    "resolution": "fixed",
+    "notes": "Added aria-haspopup='menu' on enabled role and org links via UserAttributes; added bUnit test EnabledMenuLinks_AdvertisePopup."
+  },
+  {
+    "id": 4,
+    "severity": "Informational",
+    "title": "title tooltip not accessible on touch devices",
+    "finding": "Native title attribute does not surface on touch. aria-label already contains full text for AT users, but touch sighted users see only the truncated value.",
+    "resolution": "deferred",
+    "notes": "Inherent limitation of the title approach. aria-label already covers AT users. A full MudTooltip solution would add DOM complexity without a proportional benefit for this single sentence. Revisit only if UAT flags it."
+  }
+]

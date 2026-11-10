@@ -1,0 +1,152 @@
+{
+  "ProjectName": "AcmeCoffeeOnline - packaging-and-template-readiness",
+  "ReleaseLabel": "packaging-and-template-readiness Final",
+  "DocumentDate": "5/16/2026, 1:48:48 AM",
+  "Review": [
+    {
+      "FunctionalArea": "Getting Started Experience",
+      "Subarea": "Tutorial Completeness",
+      "ItemLabel": "UAT-1: Developer follows getting-started.md from zero to runnable app",
+      "IsJudgmentItem": true,
+      "Feedback": "Judgment item — reviewed against the current docs plus a real local template install/scaffold/build/run pass.\n\n(1) Are all prerequisites listed and accurate for .NET 10 + SQL Server + Docker?\n(ANSWER: YES. The prerequisites are broadly correct. The guide clearly states .NET 10, SQL Server, Docker/Desktop for MailHog, and the Blazor Server + MudBlazor stack constraints.)\n\n(2) Does each step build on the prior step without gaps?\n(ANSWER: MOSTLY YES. The narrative is progressive and readable, but it over-promises the runnable outcome because the generated app currently crashes before the login page. Also, the checklist's own references to the stub section are stale; the bUnit/stub material is now Step 10, not Step 6.)\n\n(3) Are the 'dotnet new install Dabbler.Templates' and 'dotnet new dabbler-app -o MyApp' commands and their expected outputs accurate?\n(ANSWER: PARTIAL YES. Local template install from `pack-output/Dabbler.Templates.0.1.0-preview.1.nupkg` succeeded, and both `dabbler-app` and `dabbler-min` scaffolded successfully. The sample `dotnet new list dabbler` output is directionally correct, but not exact: the real output showed `[C#]` and tags `Web/Blazor/Server/Security/Reports` for the full template and `Web/Blazor/Server/Security` for the minimal template.)\n\n(4) Is the stub opt-in wiring explained clearly as a development tool, not a production default?\n(ANSWER: NO. The getting-started guide shows the stub registration in the test project, but it does not explicitly say in that section that stubs are opt-in development/test wiring and not a production fallback. That clarity exists more explicitly in `docs/platform-overview.md` than in this guide.)\n\n(5) Is the run-the-app step sufficient for a developer to reach the login page?\n(ANSWER: NO. This is the blocking issue. The scaffolded full app built successfully in a clean-room consumer folder, but `dotnet run` crashed before `/login` because generated `security-config.json` contains `\"BakedInRoleAliasOverrides\": []`, while the runtime expects a dictionary-shaped value.)\n\nSpecific feedback: the guide is well structured and close to usable, but it is not currently trustworthy end-to-end because the scaffolded full app does not start. Fix the template/runtime mismatch first, then tighten the sample `dotnet new list` output and add one explicit sentence in the bUnit section that `Dabbler.Platform.Stubs` is intentional opt-in wiring for tests/demo hosts, not a production default.",
+      "Passes": false
+    },
+    {
+      "FunctionalArea": "Template Experience",
+      "Subarea": "Template Discoverability",
+      "ItemLabel": "UAT-2: Developer installs Dabbler.Templates and finds both templates via dotnet new list",
+      "IsJudgmentItem": true,
+      "Feedback": "Pass with minor issues. Local template install from `pack-output/Dabbler.Templates.0.1.0-preview.1.nupkg` succeeded, and `dotnet new list dabbler` showed both templates exactly where a developer would expect to find them. The short names are intuitive and distinct, and the `template.json` descriptions do a good job of separating the full starter (`dabbler-app`) from the lighter security-only starter (`dabbler-min`).\n\nMinor issues: the checklist's sample output is not exact relative to the current CLI output, and the checklist's fallback file paths are stale. The actual metadata files live at `templates/Dabbler.Templates/content/dabbler-app/.template.config/template.json` and `templates/Dabbler.Templates/content/dabbler-min/.template.config/template.json`, not under `templates/.../templates/...`.",
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Developer Experience",
+      "Subarea": "Stub Opt-In Story",
+      "ItemLabel": "UAT-3: Developer reads stub documentation and understands intentional opt-in semantics",
+      "IsJudgmentItem": true,
+      "Feedback": "Pass, with one documentation gap. The combined story in `docs/getting-started.md` and `docs/platform-overview.md` does make the core opt-in contract understandable: the overview explicitly says stubs are strictly opt-in, shows explicit `AddDabblerPlatformStubs(...)` / focused-helper registration, and says the app should never silently fall back to stub behavior in production. The getting-started guide also shows explicit test-time registration rather than implying automatic activation.\n\nThe weak spot is package-shape explanation. These two docs do not explain the meta-package vs sub-package split as clearly as the dedicated `src/Libs/Dabbler.Platform.Stubs/README.md` does, so a developer could still need that README to fully understand when to choose `Dabbler.Platform.Stubs` versus a focused sub-package. Also, this checklist prompt is stale: the getting-started stub section is currently Step 10, not Step 6.",
+      "Passes": true
+    },
+    {
+      "FunctionalArea": "Documentation Quality",
+      "Subarea": "Platform Overview",
+      "ItemLabel": "UAT-4: Developer unfamiliar with the platform reads platform-overview.md and understands the value proposition",
+      "IsJudgmentItem": true,
+      "Feedback": "Fail. The document is strong on value proposition, stack constraints, library roles, accessibility posture, and the opt-in stub model. A .NET developer reading it would understand what the platform is for and why it exists.\n\nThe problem is accuracy of the adoption story. `docs/platform-overview.md` still says NuGet packaging and template scaffolding are planned/future work that have not shipped yet, while `docs/getting-started.md` now tells developers to install `Dabbler.Templates` directly. That contradiction weakens trust and means the overview no longer cleanly reflects the final packaging/template decisions. The platform overview should be updated so its packaging/adoption section matches the current template/package reality and explicitly surfaces the current two-template contract and the stubs sub-package split.",
+      "Passes": false
+    },
+    {
+      "FunctionalArea": "Packaging",
+      "Subarea": "Package Metadata Quality",
+      "ItemLabel": "UAT-5: Developer inspects NuGet package metadata for clarity and completeness",
+      "IsJudgmentItem": true,
+      "Feedback": "Fail, but narrowly. `Dabbler.Components`, `Dabbler.Platform.Stubs`, and `Dabbler.Platform.Stubs.Components` all have clear package names, useful tags, and descriptions that make the package choice understandable. The stubs meta-package clearly says it references `.Components`, `.Reports`, and `.Security`, and the Components sub-package description makes its limited scope clear.\n\nThe weak package is `Dabbler.Reports.Core`. The artifact does include `THIRD-PARTY-NOTICES.txt`, but the nuspec license metadata is only `MIT`, and the description text does not call out the `DabblerPdf` LGPL-2.1-only OR MPL-2.0 transitive licensing implication. A developer inspecting only the package metadata could miss a real adoption constraint. If the intended policy is to surface that licensing consideration prominently, the current metadata does not do enough.",
+      "Passes": false
+    },
+    {
+      "FunctionalArea": "Documentation Quality",
+      "Subarea": "Per-Library Documentation",
+      "ItemLabel": "UAT-6: Developer opens library READMEs and gets accurate, useful information",
+      "IsJudgmentItem": true,
+      "Feedback": "Fail. The README structure is good: the reviewed library docs are readable, cross-linked, and generally strong on examples and surface explanation. `Dabbler.Security` in particular does a good job of showing the registration taxonomy and an end-to-end enforcement example.\n\nThe issue is staleness relative to the packaged state. Multiple READMEs still talk in future tense about Session 7 packaging work that has already happened in the local artifacts. Examples: `Dabbler.Components` and `Dabbler.Security` still say NuGet preview 'lands at the end of Session 7', and `Dabbler.Platform.Stubs` still says the sub-package split is 'coming in Session 7' even though the split packages already exist in `pack-output/`. The docs are good, but they do not yet read like finalized external-consumer documentation.",
+      "Passes": false
+    },
+    {
+      "FunctionalArea": "Developer Experience",
+      "Subarea": "End-to-End Onboarding Path",
+      "ItemLabel": "UAT-7: Developer reads docs in onboarding order and forms a coherent, actionable picture",
+      "IsJudgmentItem": true,
+      "Feedback": "Fail. The doc graph is close: the root README points to the right starting docs, the overview links outward well, and the library READMEs generally link back for broader context. Vocabulary is also mostly consistent across the set.\n\nThe contradictions are still material enough to break the onboarding story. The biggest one is that `docs/platform-overview.md` still frames packaging/templates as future work, while `docs/getting-started.md` assumes `Dabbler.Templates` is installable now. The getting-started guide also promises a runnable app/login flow that currently fails at startup because of the scaffolded `security-config.json` defect. On top of that, some checklist/path references are stale. As a result, the docs do not yet hang together as one fully coherent, trust-building external-adopter package.",
+      "Passes": false
+    },
+    {
+      "FunctionalArea": "Getting Started Experience",
+      "Subarea": "Tutorial Completeness",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "\n"
+    },
+    {
+      "FunctionalArea": "Template Experience",
+      "Subarea": "Template Discoverability",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Developer Experience",
+      "Subarea": "Stub Opt-In Story",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Developer Experience",
+      "Subarea": "End-to-End Onboarding Path",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Documentation Quality",
+      "Subarea": "Platform Overview",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Documentation Quality",
+      "Subarea": "Per-Library Documentation",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Packaging",
+      "Subarea": "Package Metadata Quality",
+      "ItemLabel": "Other",
+      "IsOtherItem": null,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Packaging",
+      "Subarea": "Package Metadata Quality",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "Install the local `Dabbler.Security.DevIdp.Tool` package to an isolated `--tool-path`, then invoke `dabbler-devidp --help`.",
+      "Expectation": "The tool should install cleanly, and `--help` should print usage text without starting the server.",
+      "Passes": false,
+      "Feedback": "Local tool install succeeded with `dotnet tool install --tool-path <temp> Dabbler.Security.DevIdp.Tool --version 0.1.0-preview.1 --add-source pack-output`. However, invoking `dabbler-devidp --help` did not print help and exit; it booted the host instead. That means the package is installable and runnable, but its CLI ergonomics do not currently match normal tool expectations."
+    }
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  }
+}

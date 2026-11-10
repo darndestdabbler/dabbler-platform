@@ -1,0 +1,42 @@
+@using DabblerApp.Web.Components.Layout
+@using Dabbler.Testing.Blazor.Configuration
+@using Microsoft.Extensions.Options
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveServer" />
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">X</a>
+    </div>
+
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    @if (TrackedActionsEnabled)
+    {
+        <script src="_content/Dabbler.Testing.Blazor/dabbler-tracked-actions.js"></script>
+    }
+</body>
+
+</html>
+
+@code {
+    [Inject]
+    private IOptions<TrackedActionsOptions> Options { get; set; } = null!;
+
+    private bool TrackedActionsEnabled => Options.Value.Enabled;
+}
