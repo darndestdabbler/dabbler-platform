@@ -487,11 +487,14 @@
     {
       "number": 23,
       "title": "The E2E fixes that need a public API change",
-      "status": "not-started",
+      "status": "cancelled",
       "startedAt": null,
       "completedAt": null,
       "orchestrator": null,
-      "verificationVerdict": null
+      "verificationVerdict": null,
+      "preCancelStatus": "not-started",
+      "cancelledReason": "This session was optional.  It is no longer needed.  Previous sessions addressed all outstanding issues.",
+      "cancelledAt": "2026-11-10T09:58:41-05:00"
     }
   ]
 }
