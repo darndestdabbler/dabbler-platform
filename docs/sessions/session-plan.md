@@ -781,9 +781,10 @@ confirmed to fix the Debug build, and `--help` still runs with it.
 > was cancelled, so `1.0.1` is still unreleased and `1.1.0` was never made;
 > both fold into `2.0.0`. The findings about DabblerPdf are Sessions 13–15
 > of `../dabbler-pdf`, which release DabblerPdf `1.2.0`, and Unicode is its
-> Sessions 16–18, which release `1.3.0`. Session 28 here takes `1.2.0` and
-> Session 29 takes `1.3.0`; `2.0.0` waits for both. Sessions 25–27 depend on
-> neither and run while DabblerPdf is being released.
+> Sessions 16–18, which release `1.3.0`. Both were on nuget.org by the time
+> Session 26 closed, so Session 28 here takes `1.3.0` directly and no
+> session pins `1.2.0`; Session 29 builds on Session 28 and `2.0.0` waits
+> for both. Sessions 25–27 depend on neither.
 
 ### Session 25: MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button
 
@@ -1019,21 +1020,21 @@ Why now (2026-11-12): the consumer read "Implemented in Session 2" and
 work, copied a README example that does not compile, and imports the
 download script by a path no document promises.
 
-### Session 28: Take DabblerPdf 1.2.0, and measure report text the way it is drawn
+### Session 28: Take DabblerPdf 1.3.0, and measure report text the way it is drawn
 
-Run only once DabblerPdf `1.2.0` is listed on nuget.org (Sessions 13–15 of
-`../dabbler-pdf`, then that repository's `nuget-v1.2.0` tag). If it is not,
-report the first step blocked and say so. Sessions 25–27 do not wait for it.
+Run only once DabblerPdf `1.3.0` is listed on nuget.org (Sessions 13–18 of
+`../dabbler-pdf`, then that repository's `nuget-v1.3.0` tag; it was listed
+on 2026-11-12). If it is not, report the first step blocked and say so.
 
 1. Register.
 2. Set the `DabblerPdf` `PackageVersion` in `Directory.Packages.props` from
-   `1.1.3` to `1.2.0`, the one place the platform pins it. The step's
-   checks: `Directory.Packages.props` names `DabblerPdf` at `1.2.0` and
+   `1.1.3` to `1.3.0`, the one place the platform pins it. The step's
+   checks: `Directory.Packages.props` names `DabblerPdf` at `1.3.0` and
    nowhere at `1.1.3`; `dotnet test tests/Dabbler.Reports.Blazor.Tests`
    passes; then, after a Release build and `tools/pack.ps1 -OutputDir
    pack-output -CleanOutput`, the `.nuspec` inside the packed
    `Dabbler.Reports.Core` nupkg declares its `DabblerPdf` dependency at
-   `1.2.0`.
+   `1.3.0`.
 3. A field's height is measured by `OpenPdfTextMeasurer`
    (`src/Libs/Dabbler.Reports.Core/Layout/`) and its text drawn by
    `PdfPageRenderer` through `PdfStyleResolver`
@@ -1083,23 +1084,17 @@ resolves the lowest version a dependency allows. Taking it changes nothing
 in a report unless the platform wraps with it: its own wraps collapse
 spaces exactly as TRIMS reported, and measuring and drawing with different
 fonts, sizes and wraps is how a grown field clips or leaves a gap. Found
-while planning DabblerPdf's Sessions 14–18.
+while planning DabblerPdf's Sessions 14–18. Amended 2026-11-12: `1.3.0` was
+listed before this session ran, so it takes `1.3.0` directly instead of
+`1.2.0`, and Session 29 no longer moves the pin.
 
-### Session 29: Take DabblerPdf 1.3.0, and report text can use a Unicode TrueType font
+### Session 29: Report text can use a Unicode TrueType font
 
-Run only once DabblerPdf `1.3.0` is listed on nuget.org (Sessions 16–18 of
-`../dabbler-pdf`, then that repository's `nuget-v1.3.0` tag). If it is not,
-report the first step blocked and say so.
+Runs after Session 28, which takes DabblerPdf `1.3.0` and adds the font
+resolver this session extends.
 
 1. Register.
-2. Set the `DabblerPdf` `PackageVersion` in `Directory.Packages.props` from
-   `1.2.0` to `1.3.0`. The step's checks: `Directory.Packages.props` names
-   `DabblerPdf` at `1.3.0` and nowhere at `1.2.0`; `dotnet test
-   tests/Dabbler.Reports.Blazor.Tests` passes; then, after a Release build
-   and `tools/pack.ps1 -OutputDir pack-output -CleanOutput`, the `.nuspec`
-   inside the packed `Dabbler.Reports.Core` nupkg declares its `DabblerPdf`
-   dependency at `1.3.0`.
-3. Every PDF report font is one of the Base 14 with Windows-1252, so Polish,
+2. Every PDF report font is one of the Base 14 with Windows-1252, so Polish,
    Cyrillic, Greek and CJK text prints as `?`, and
    `src/Libs/Dabbler.Reports.Export/README.md` says custom fonts are given
    "through the report definition", which nothing reads. Add a public
@@ -1127,10 +1122,10 @@ report the first step blocked and say so.
    U+FFFF, no fallback between fonts). The step's checks: `dotnet test
    tests/Dabbler.Reports.Blazor.Tests` passes; the README no longer says
    "through the report definition".
-4. Cross-provider verification.
-5. The `unit` and `e2e` suites once against the verified tree, recorded as
+3. Cross-provider verification.
+4. The `unit` and `e2e` suites once against the verified tree, recorded as
    the run of record.
-6. Close-out.
+5. Close-out.
 
 Non-goals: no font file shipped in any package (consumers bring their own);
 no RDF syntax for fonts; no change to the HTML `ReportViewer`, which the
@@ -1139,7 +1134,8 @@ change to `DabblerVersion` or `CHANGELOG.md`.
 
 Why now (2026-11-12): the operator asked for Unicode report text. DabblerPdf
 1.3.0 draws it from an embedded, subset TrueType font, but the platform
-creates every font as a Base 14 one, so taking 1.3.0 alone changes nothing.
+creates every font as a Base 14 one, so taking 1.3.0 alone (Session 28)
+changes nothing.
 
 ### Session 30: Bump to 2.0.0
 
