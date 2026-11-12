@@ -1,6 +1,6 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
-@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using Dabbler.Components.MasterDetail
 @using MudBlazor
 @namespace AcmeCoffeeOnline.Web.Components.Pages.Orders
 @inject ProductApiClient ProductApi
@@ -32,8 +32,7 @@
                  ExpandedHeaderText="Available products"
                  TargetEditability="@EffectiveTargetEditability"
                  OnUsePicked="HandleUsePickedAsync"
-                 OnSaveAndUse="HandleSaveAndUseAsync"
-                 OnRowSelected="HandleRowSelectedAsync">
+                 OnSaveAndUse="HandleSaveAndUseAsync">
     <FilterContent>
         <MudTextField T="string"
                       Value="@_search"

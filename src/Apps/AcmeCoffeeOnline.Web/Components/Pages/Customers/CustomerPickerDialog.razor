@@ -1,6 +1,6 @@
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
-@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using Dabbler.Components.MasterDetail
 @using MudBlazor
 @namespace AcmeCoffeeOnline.Web.Components.Pages.Customers
 @inject CustomerApiClient CustomerApi
@@ -27,7 +27,6 @@
                  OnUsePicked="HandleUsePickedAsync"
                  OnSaveAndUse="HandleSaveAndUseAsync"
                  OnAdd="HandleAddAsync"
-                 OnRowSelected="HandleRowSelectedAsync"
                  OnTargetEditingToggled="HandleTargetEditingToggledAsync">
     <FilterContent>
         <MudTextField T="string"

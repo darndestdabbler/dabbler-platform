@@ -175,7 +175,7 @@ public sealed class OrderNestedItemsSaveTests
             var existingProductIds = original.OrderItems.Select(i => i.ProductId).ToHashSet();
 
             // Open the product line picker dialog
-            await page.GetByTestId("add-product-button").ClickAsync();
+            await page.GetByTestId("order-items-shell-add-button").ClickAsync();
             await Assertions.Expect(page.GetByTestId("product-line-picker")).ToBeVisibleAsync();
 
             // Pick a product that's NOT already on the order so we don't have

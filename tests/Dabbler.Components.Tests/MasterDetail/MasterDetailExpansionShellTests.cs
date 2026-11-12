@@ -1,17 +1,19 @@
 using Bunit;
-using Dabbler.Security.Blazor.Components.Admin.Shared;
-using Dabbler.Security.Blazor.Tests.TestHelpers;
+using Dabbler.Components.MasterDetail;
+using Dabbler.Components.Tests.TestHelpers;
+using FluentAssertions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
-namespace Dabbler.Security.Blazor.Tests.Components.Admin.Shared;
+namespace Dabbler.Components.Tests.MasterDetail;
 
 public class MasterDetailExpansionShellTests
 {
     private static TestContext Build()
     {
         var ctx = new TestContext();
-        ctx.SetupForDabbler();
+        ctx.SetupForDabblerComponents();
         return ctx;
     }
 
@@ -152,31 +154,98 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowAddActionFalse_RendersWithoutError()
+    public void Shell_ShowAddAction_DefaultsToNoAddButton()
     {
         using var ctx = Build();
 
-        // Structural acceptance test: the Add button lives in the consumer's
-        // GridContent (RoleMasterGrid), not in the shell itself for Session 1.
         var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
-            .Add(c => c.TestId, "test-shell")
-            .Add(c => c.ShowAddAction, false));
+            .Add(c => c.TestId, "test-shell"));
 
-        cut.Find("[data-testid='test-shell']").Should().NotBeNull();
+        cut.FindAll("[data-testid='test-shell-add-button']").Should().BeEmpty();
     }
 
     [Fact]
-    public void Shell_OnRowSelectedCallback_AcceptedWithoutError()
+    public void Shell_ShowAddAction_RendersAddButtonWithAddLabelAboveGrid()
     {
         using var ctx = Build();
 
-        // Structural acceptance test: OnRowSelected is a declared output callback;
-        // the shell accepts it without rendering errors.
         var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
-            .Add(c => c.OnRowSelected, EventCallback.Factory.Create<object>(this, _ => { })));
+            .Add(c => c.ShowAddAction, true)
+            .Add(c => c.AddLabel, "Add Product")
+            .Add(c => c.GridContent, builder =>
+                builder.AddMarkupContent(0, "<div data-testid='inner-results'>grid</div>")));
 
-        cut.Find("[data-testid='test-shell']").Should().NotBeNull();
+        var button = cut.Find("[data-testid='test-shell-add-button']");
+        button.TextContent.Should().Contain("Add Product");
+        button.HasAttribute("disabled").Should().BeFalse();
+
+        var body = cut.Find("[data-testid='test-shell-body']");
+        body.InnerHtml.IndexOf("test-shell-add-button", StringComparison.Ordinal)
+            .Should().BeLessThan(body.InnerHtml.IndexOf("inner-results", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Shell_AddButtonClick_ResetsSelectionThenRaisesOnAddRequestedOnce()
+    {
+        using var ctx = Build();
+        var raised = 0;
+        bool? entityDirtyWhenRaised = null;
+        bool? linkDirtyWhenRaised = null;
+        MasterDetailExpansionShell<TestRow, object, object>? shell = null;
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowAddAction, true)
+            .Add(c => c.AllowLinkOnly, true)
+            .Add(c => c.OnAddRequested, EventCallback.Factory.Create(this, () =>
+            {
+                raised++;
+                entityDirtyWhenRaised = shell!.DetailsContext.IsDirty;
+                linkDirtyWhenRaised = shell.LinkContext.IsLinkDirty;
+            })));
+        shell = cut.Instance;
+
+        await cut.InvokeAsync(() =>
+        {
+            shell.NotifyRowSelected(new TestRow { Id = 1 });
+            shell.DetailsContext.SetDirty();
+            shell.LinkContext.SetLinkDirty();
+        });
+
+        cut.Find("[data-testid='test-shell-add-button']").Click();
+
+        raised.Should().Be(1);
+        entityDirtyWhenRaised.Should().BeFalse();
+        linkDirtyWhenRaised.Should().BeFalse();
+        shell.IsPrimaryActionUseOnly.Should().BeFalse("the selection was cleared");
+    }
+
+    [Fact]
+    public void Shell_AddButton_DisabledWhileWorking()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowAddAction, true)
+            .Add(c => c.Working, true));
+
+        cut.Find("[data-testid='test-shell-add-button']").HasAttribute("disabled").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Shell_ShowGridFalse_NoAddButtonEvenWithShowAddAction()
+    {
+        using var ctx = Build();
+
+        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ShowGrid, false)
+            .Add(c => c.ShowAddAction, true)
+            .Add(c => c.DetailsContent, _ => { }));
+
+        cut.FindAll("[data-testid='test-shell-add-button']").Should().BeEmpty();
     }
 
     [Fact]

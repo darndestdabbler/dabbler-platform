@@ -2,7 +2,7 @@
 @typeparam TEntity
 @typeparam TLink
 @using MudBlazor
-@namespace Dabbler.Security.Blazor.Components.Admin.Shared
+@namespace Dabbler.Components.MasterDetail
 
 <CascadingValue Value="_detailsContext" IsFixed="true">
 <CascadingValue Value="_linkContext" IsFixed="true">
@@ -48,6 +48,21 @@
                             <div class="master-detail-filter-region">
                                 @FilterContent
                             </div>
+                        }
+                        @if (ShowAddAction)
+                        {
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Disabled="@Working"
+                                           OnClick="HandleAddAsync"
+                                           data-testid="@($"{TestId}-add-button")">
+                                    @AddLabel
+                                </MudButton>
+                            </MudStack>
                         }
                         @GridContent
                     </div>
@@ -215,7 +230,8 @@ else
     /// <summary>
     /// Root data-testid for this shell. Derived test ids:
     /// <c>{TestId}-header</c>, <c>{TestId}-body</c>, <c>{TestId}-summary</c>,
-    /// <c>{TestId}-summary-badge</c>, <c>{TestId}-details</c>.
+    /// <c>{TestId}-summary-badge</c>, <c>{TestId}-details</c>,
+    /// <c>{TestId}-add-button</c>.
     /// </summary>
     [Parameter, EditorRequired]
     public string TestId { get; set; } = "master-detail-shell";
@@ -227,17 +243,22 @@ else
     /// <summary>
     /// When <c>false</c>, drops the expansion panel entirely and renders
     /// <see cref="DetailsContent"/> in a full-width surface (Scenario 1 /
-    /// Add-Only). Implemented in Session 2.
+    /// Add-Only).
     /// </summary>
     [Parameter]
     public bool ShowGrid { get; set; } = true;
 
     /// <summary>
-    /// When <c>true</c>, renders a toolbar Add button that raises
-    /// <see cref="OnAddRequested"/>. Default <c>true</c>.
+    /// When <c>true</c> and <see cref="ShowGrid"/> is <c>true</c>, renders an
+    /// Add button above <see cref="GridContent"/> that resets the selection
+    /// and raises <see cref="OnAddRequested"/>. Default <c>false</c>.
     /// </summary>
     [Parameter]
-    public bool ShowAddAction { get; set; } = true;
+    public bool ShowAddAction { get; set; }
+
+    /// <summary>Label for the Add button. Default "Add".</summary>
+    [Parameter]
+    public string AddLabel { get; set; } = "Add";
 
     /// <summary>
     /// When <c>true</c>, each grid row gets a row-wise "Use" action rendered
@@ -254,10 +275,6 @@ else
     /// </summary>
     [Parameter]
     public bool AllowLinkOnly { get; set; }
-
-    /// <summary>Inline or Dialog rendering mode.</summary>
-    [Parameter]
-    public ShellMode Mode { get; set; } = ShellMode.Inline;
 
     /// <summary>
     /// Controls whether target-entity fields are editable, permanently read-only,
@@ -400,7 +417,6 @@ else
     /// <summary>
     /// Link-data fields rendered in a visually-distinct card above the target
     /// form when <see cref="ShowLinkData"/> is <c>true</c>.
-    /// Implemented in Session 4.
     /// </summary>
     [Parameter]
     public RenderFragment? LinkDataContent { get; set; }
@@ -432,13 +448,12 @@ else
     // Callbacks
     // -----------------------------------------------------------------------
 
-    /// <summary>Raised when the user clicks the Add toolbar button.</summary>
+    /// <summary>
+    /// Raised when the user clicks the Add button (<see cref="ShowAddAction"/>),
+    /// after the shell has reset the selection and both dirty flags.
+    /// </summary>
     [Parameter]
     public EventCallback OnAddRequested { get; set; }
-
-    /// <summary>Raised when the user clicks a grid row (or the row-wise Use button).</summary>
-    [Parameter]
-    public EventCallback<TRow> OnRowSelected { get; set; }
 
     /// <summary>Raised when the user clicks the row-wise "Use" button to link without editing.</summary>
     [Parameter]
@@ -649,6 +664,13 @@ else
         _linkContext.ResetLinkDirty();
         _detailsContext.IsTargetReadOnly = false;
         StateHasChanged();
+    }
+
+    private async Task HandleAddAsync()
+    {
+        ResetSelection();
+        if (OnAddRequested.HasDelegate)
+            await OnAddRequested.InvokeAsync();
     }
 
     private async Task HandleExpandedChanged(bool expanded)

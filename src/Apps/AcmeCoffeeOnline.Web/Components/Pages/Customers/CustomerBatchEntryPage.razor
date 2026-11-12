@@ -2,7 +2,7 @@
 @attribute [DabblerPageAuthorize("/customers")]
 @using AcmeCoffeeOnline.Shared.DTOs
 @using AcmeCoffeeOnline.Web.Services
-@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using Dabbler.Components.MasterDetail
 @using MudBlazor
 @inject CustomerApiClient CustomerClient
 @inject ISnackbar Snackbar
@@ -21,7 +21,6 @@
     <MasterDetailExpansionShell TRow="CustomerDto" TEntity="CustomerDto" TLink="object"
         TestId="batch-entry-shell"
         ShowGrid="false"
-        ShowAddAction="false"
         OnSaveRequested="HandleSaveAsync"
         OnCancelRequested="HandleCancel">
 

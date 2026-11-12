@@ -1,6 +1,6 @@
 @page "/admin/order-item-tuner"
 @using AcmeCoffeeOnline.Shared.DTOs
-@using Dabbler.Security.Blazor.Components.Admin.Shared
+@using Dabbler.Components.MasterDetail
 @using MudBlazor
 @attribute [DabblerPageAuthorize("/dashboard")]
 @inject ISnackbar Snackbar
@@ -21,7 +21,6 @@
                                 @ref="_shell"
                                 TestId="order-item-tuner-shell"
                                 ShowGrid="false"
-                                ShowAddAction="false"
                                 ShowLinkData="true"
                                 LinkDataHeading="Line details"
                                 TargetEditability="TargetEditability.Editable"

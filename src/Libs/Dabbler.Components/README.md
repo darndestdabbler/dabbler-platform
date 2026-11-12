@@ -97,7 +97,7 @@ The library's surface, organized by role:
 | `DeclarativeFilterPanel<TEntity>` | Catalog-friendly QBE filter panel with AND/OR group logic, operator selection, presets, and active filter chips. Default for new query pages. |
 | `EditSession<T>` | Dirty-tracking snapshot for a detail-page record (NotifyChanged / Commit / CommitFrom / Cancel). Pairs with `<DirtyAwareActionRow>`. |
 | `<DirtyAwareActionRow>` | Save / Cancel / Delete action row that reads `EditSession<T>` state, with a `CustomActions` slot for page-specific buttons. |
-| `<MasterDetailExpansionShell>` | Generic master/detail composite (Add-Only, Search+Update, Pick-or-Add, M:N-with-payload) selected via capability parameters (`ShowGrid`, `ShowLinkData`, `TargetEditability`). |
+| `<MasterDetailExpansionShell>` | Generic master/detail composite (Add-Only, Search+Update, Pick-or-Add, M:N-with-payload) in `Dabbler.Components.MasterDetail`, selected via capability parameters (`ShowGrid`, `ShowLinkData`, `TargetEditability`). An opt-in Add button above the grid (`ShowAddAction`, labelled by `AddLabel`) resets the selection and raises `OnAddRequested`. `PickOrAddDialog` hosts it in a `MudDialog`. |
 | `FilterPanel<T>` | Original MudBlazor-native QBE filter panel; retained for legacy callers. New pages prefer `DeclarativeFilterPanel<TEntity>`. |
 | `FilteringCoordinator` | Manages filter state, group lifecycle, and change notification. |
 | `FilterColumnDefinition` | Defines filterable columns with types, operators, and editor metadata. |

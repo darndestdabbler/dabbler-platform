@@ -35,7 +35,7 @@ public sealed class OrderNestedItemsTests
             var preCount = targetOrder.OrderItems.Count;
 
             // Open the picker dialog, pick first product, fill link data, Save and Use.
-            await page.GetByTestId("add-product-button").ClickAsync();
+            await page.GetByTestId("order-items-shell-add-button").ClickAsync();
             await Assertions.Expect(page.GetByTestId("product-line-picker")).ToBeVisibleAsync();
             var firstProductRow = page.Locator("[data-testid='product-line-picker-grid'] .mud-table-body tr").First;
             await Assertions.Expect(firstProductRow).ToBeVisibleAsync();

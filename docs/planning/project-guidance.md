@@ -311,17 +311,21 @@ before proceeding.
 
 - Prefer a single generic component with capability parameters over multiple
   mode-specific variants. `MasterDetailExpansionShell<TRow, TEntity, TLink>`
-  is the reference: three independent boolean knobs (`ShowGrid`, `ShowLinkData`,
-  `TargetEditability`) cover Add-Only, Search+Update, Pick-or-Add, and M:N-with-
-  payload from one component rather than four variants. A wrapper dialog
+  (`Dabbler.Components.MasterDetail`) is the reference: three independent knobs
+  (`ShowGrid`, `ShowLinkData`, `TargetEditability`) cover Add-Only,
+  Search+Update, Pick-or-Add, and M:N-with-payload from one component rather
+  than four variants, and an opt-in Add button (`ShowAddAction`, default
+  `false`; `AddLabel`; `OnAddRequested`) sits above the grid. A wrapper dialog
   (`PickOrAddDialog`) is the correct composition unit for modal invocation.
+  The shell does not own the grid, so row selection is reported to it by the
+  consumer's row-click handler calling `NotifyRowSelected`.
   Apply this pattern when a new composite UI control needs to serve more than
   one workflow shape — name the capability parameters, not the mode.
 - When a composite form hosts multiple EF entities (e.g., target entity + join-
   table payload), use separate dirty-state trackers per section (`_entityDirty`,
   `_linkDirty`) rather than a single flag. The action label and save handler
   read `AnyDirty = _entityDirty || _linkDirty`; each EF write is gated on its
-  own flag. This pattern was first used in `MasterDetailExpansionShell` Session 4.
+  own flag. `MasterDetailExpansionShell` is the reference for this pattern.
 - `MudBlazor 8.x` places `data-testid` attributes directly on the `<input>`
   element inside `MudTextField`, not on the wrapper div. Playwright locators
   that use `GetByTestId("foo")` already resolve to the `<input>`; calling

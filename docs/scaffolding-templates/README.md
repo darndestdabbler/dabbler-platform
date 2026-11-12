@@ -8,7 +8,7 @@ The Dabbler CRUD scaffolding templates reduce the effort of adding a new entity 
 
 **Not for:** workflow-driven flows with status state machines, transition gates, multi-entity orchestration, or domain-specific commands (e.g., order placement, return-merchandise authorization, payment authorization). Author those pages by hand. The scaffolder is appropriate for entity-maintenance surfaces *adjacent* to a workflow (e.g., the supplier or product catalog the order workflow consumes), but not for the workflow itself.
 
-If a candidate page expresses a sequence of business operations rather than CRUD over a single row shape, the scaffolder is the wrong tool — start from a hand-authored page and adopt the platform's composable helpers (`EditSession<T>`, `<DirtyAwareActionRow>`, `<DeclarativeFilterPanel>`, `MasterDetailExpansionShell`) à la carte.
+If a candidate page expresses a sequence of business operations rather than CRUD over a single row shape, the scaffolder is the wrong tool — start from a hand-authored page and adopt the platform's composable helpers (`EditSession<T>`, `<DirtyAwareActionRow>`, `<DeclarativeFilterPanel>`, `<MasterDetailExpansionShell>`, all from `Dabbler.Components`) à la carte.
 
 ## The `dabbler-crud-slice` Wrapper
 

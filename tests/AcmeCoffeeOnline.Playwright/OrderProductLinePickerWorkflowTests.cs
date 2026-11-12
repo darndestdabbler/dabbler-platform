@@ -40,7 +40,7 @@ public sealed class OrderProductLinePickerWorkflowTests
             Assert.True(orderId > 0);
 
             // Now, add a product to the newly created order
-            await page.GetByTestId("add-product-button").ClickAsync();
+            await page.GetByTestId("order-items-shell-add-button").ClickAsync();
             await Assertions.Expect(page.GetByTestId("product-line-picker")).ToBeVisibleAsync();
 
             // Select the first product from the grid. This populates the target card but keeps the dialog open.

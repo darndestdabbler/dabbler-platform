@@ -1,13 +1,15 @@
 using System.Reflection;
 using Bunit;
 using Bunit.TestDoubles;
-using Dabbler.Security.Blazor.Components.Admin.Shared;
+using Dabbler.Components.MasterDetail;
+using FluentAssertions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
+using Xunit;
 
-namespace Dabbler.Security.Blazor.Tests.Components.Admin.Shared;
+namespace Dabbler.Components.Tests.MasterDetail;
 
 /// <summary>
 /// bUnit tests for <see cref="PickOrAddDialog{TRow,TEntity,TLink}"/>.
@@ -178,5 +180,32 @@ public class PickOrAddDialogTests
 
         dialogReference!.Result.IsCompleted.Should().BeFalse();
         provider.FindComponents<PickOrAddDialog<TestRow, TestEntity, object>>().Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task OnAdd_RaisedWhenAddButtonClicked()
+    {
+        using var ctx = new TestContext();
+        var provider = SetupContext(ctx);
+        var dialogService = ctx.Services.GetRequiredService<IDialogService>();
+        var addCount = 0;
+
+        var parameters = new DialogParameters<PickOrAddDialog<TestRow, TestEntity, object>>
+        {
+            { p => p.TestId, "dialog-shell" },
+            { p => p.ShowAddAction, true },
+            { p => p.OnAdd, EventCallback.Factory.Create(this, () => addCount++) },
+        };
+
+        await provider.InvokeAsync(async () =>
+        {
+            await dialogService.ShowAsync<PickOrAddDialog<TestRow, TestEntity, object>>(
+                "Test Dialog", parameters);
+        });
+
+        var button = provider.Find("[data-testid='dialog-shell-add-button']");
+        await provider.InvokeAsync(() => button.Click());
+
+        addCount.Should().Be(1);
     }
 }

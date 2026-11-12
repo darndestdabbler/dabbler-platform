@@ -106,7 +106,7 @@ A layout that exposes role switching for multi-role users:
 
 | Component | Description |
 |-----------|-------------|
-| `DabblerSecurityDashboard` | Central admin panel exposing five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, Role Documentation. Each tab is gated by the active baked-in role. |
+| `DabblerSecurityDashboard` | Central admin panel exposing five tabs: Role Master Details, Default Masks, Organization Master Details, Users and Role Assignment, Role Documentation. Each tab is gated by the active baked-in role. Every tab but Role Documentation is laid out with `MasterDetailExpansionShell` from `Dabbler.Components`. |
 | `RestrictedFormField` / `RestrictedGridColumn` | Render fields and grid columns subject to the active role's `ColumnRestriction` rules and `DefaultMask` + `MaskExemption` resolution. |
 
 ## Current contract notes
@@ -127,7 +127,8 @@ A layout that exposes role switching for multi-role users:
   authorization model (restrictions, masking, baked-in roles,
   authentication). This library cannot function without it.
 - [`Dabbler.Components`](../Dabbler.Components/README.md) — the CRUD
-  primitives that `RestrictedFormField` / `RestrictedGridColumn` wrap.
+  primitives that `RestrictedFormField` / `RestrictedGridColumn` wrap,
+  and the `MasterDetailExpansionShell` the admin tabs use.
 - [`Dabbler.Testing.Blazor`](../Dabbler.Testing.Blazor/README.md) —
   watermark instrumentation for Playwright E2E tests of admin /
   dashboard pages.

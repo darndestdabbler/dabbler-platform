@@ -218,6 +218,13 @@
       "dateTime": "2026-11-12T12:16:26.032000-05:00",
       "task": "Make the Debug solution build green under .NET SDK 11.0.100 by setting <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled> in tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj, with a comment explaining that the tool serves no static files (no wwwroot, no UseStaticFiles or MapStaticAssets), so SDK 11's Debug-only Hot Reload browser-tools module has no static web assets to attach to and otherwise fails the build. No other project changes.",
       "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 25,
+      "dateTime": "2026-11-12T12:58:41.491000-05:00",
+      "task": "Move MasterDetailExpansionShell, its contexts (MasterDetailShellContexts.cs) and PickOrAddDialog from Dabbler.Security.Blazor (namespace Dabbler.Security.Blazor.Components.Admin.Shared) to Dabbler.Components (namespace Dabbler.Components.MasterDetail), taking the finished move from the local branch wip/session-24-shell-move, fixing the four Security admin tabs and five reference-app callers, and moving the two test classes to Dabbler.Components.Tests with no forwarding type left behind. Then make the shell's documented Add button real: ShowAddAction defaults to false and, with ShowGrid true, renders a right-aligned Add button (data-testid {TestId}-add-button, label AddLabel default \"Add\", disabled while Working) between FilterContent and GridContent whose click calls ResetSelection() and raises OnAddRequested; remove the dead Mode/ShellMode and OnRowSelected from the shell and OnRowSelected from PickOrAddDialog (whose ShowAddAction also defaults to false and whose OnAdd now fires); drop the stale 'Implemented in Session N' doc notes; switch OrderDetail's hand-rolled Add Product button to the shell's and point the three Order Playwright classes at order-items-shell-add-button; replace the two structural shell tests with behavioural ones. Finally correct the documents that describe the shell's package, namespace and knobs.",
+      "releasable": false
     }
   ]
 }

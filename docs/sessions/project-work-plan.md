@@ -36,7 +36,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 22 | Fix the 12 Playwright E2E failures | no | 2026-11-10 |
 | 23 | The E2E fixes that need a public API change | — | not declared |
 | 24 | The Debug solution build is green under .NET SDK 11.0.100 | no | 2026-11-12 |
-| 25 | MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button | — | not declared |
+| 25 | MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button | no | 2026-11-12 |
 | 26 | One filter-operator vocabulary, and no silently dropped filter | — | not declared |
 | 27 | Shipped text, the download helper and the READMEs | — | not declared |
 | 28 | Take DabblerPdf 1.2.0, and measure report text the way it is drawn | — | not declared |
@@ -199,3 +199,9 @@ Make the Debug solution build green under .NET SDK 11.0.100 by setting <StaticWe
 **Rolled back:**
 
 - 2026-11-12 — session 24 — Rollback to Start of This Session from the Work Explorer (operator)
+
+### Session 25 — MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button
+
+**Releasable: no.**
+
+Move MasterDetailExpansionShell, its contexts (MasterDetailShellContexts.cs) and PickOrAddDialog from Dabbler.Security.Blazor (namespace Dabbler.Security.Blazor.Components.Admin.Shared) to Dabbler.Components (namespace Dabbler.Components.MasterDetail), taking the finished move from the local branch wip/session-24-shell-move, fixing the four Security admin tabs and five reference-app callers, and moving the two test classes to Dabbler.Components.Tests with no forwarding type left behind. Then make the shell's documented Add button real: ShowAddAction defaults to false and, with ShowGrid true, renders a right-aligned Add button (data-testid {TestId}-add-button, label AddLabel default "Add", disabled while Working) between FilterContent and GridContent whose click calls ResetSelection() and raises OnAddRequested; remove the dead Mode/ShellMode and OnRowSelected from the shell and OnRowSelected from PickOrAddDialog (whose ShowAddAction also defaults to false and whose OnAdd now fires); drop the stale 'Implemented in Session N' doc notes; switch OrderDetail's hand-rolled Add Product button to the shell's and point the three Order Playwright classes at order-items-shell-add-button; replace the two structural shell tests with behavioural ones. Finally correct the documents that describe the shell's package, namespace and knobs.

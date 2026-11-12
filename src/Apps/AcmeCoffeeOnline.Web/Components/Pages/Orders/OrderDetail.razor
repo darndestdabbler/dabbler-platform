@@ -5,7 +5,6 @@
 @using AcmeCoffeeOnline.Web.Components.Pages.Products
 @using AcmeCoffeeOnline.Web.Services
 @using Dabbler.Components.MasterDetail
-@using Dabbler.Security.Blazor.Components.Admin.Shared
 @using MudBlazor
 @inject OrderDetailState State
 @inject IDialogService DialogService
@@ -165,26 +164,13 @@ else if (State.Record is not null)
                 <MasterDetailExpansionShell TRow="OrderItemDto" TEntity="OrderItemDto" TLink="object"
                                             TestId="order-items-shell"
                                             ShowGrid="true"
-                                            ShowAddAction="false"
+                                            ShowAddAction="@(!IsReadOnly)"
+                                            AddLabel="Add Product"
+                                            OnAddRequested="OpenProductLinePickerAsync"
                                             IsExpanded="true"
                                             ExpandedHeaderText="@($"Order items ({State.Record.OrderItems.Count})")"
                                             TargetEditability="TargetEditability.Editable">
                     <GridContent>
-                        @if (!IsReadOnly)
-                        {
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
-                                <MudSpacer />
-                                <MudButton Variant="Variant.Outlined"
-                                           Color="Color.Primary"
-                                           Size="Size.Small"
-                                           StartIcon="@Icons.Material.Filled.Add"
-                                           OnClick="OpenProductLinePickerAsync"
-                                           data-testid="add-product-button">
-                                    Add Product
-                                </MudButton>
-                            </MudStack>
-                        }
-
                         <MudDataGrid T="OrderItemDto"
                                      Items="State.Record.OrderItems"
                                      Dense="true"

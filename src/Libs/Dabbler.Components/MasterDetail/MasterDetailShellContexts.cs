@@ -1,13 +1,4 @@
-namespace Dabbler.Security.Blazor.Components.Admin.Shared;
-
-/// <summary>Mode in which the shell renders.</summary>
-public enum ShellMode
-{
-    /// <summary>Renders inline within a page (default).</summary>
-    Inline,
-    /// <summary>Renders hosted inside a MudDialog.</summary>
-    Dialog,
-}
+namespace Dabbler.Components.MasterDetail;
 
 /// <summary>Controls how the target entity's fields are rendered.</summary>
 public enum TargetEditability
