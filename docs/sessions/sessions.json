@@ -609,9 +609,9 @@
     {
       "number": 29,
       "title": "Report text can use a Unicode TrueType font",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-12T17:07:47.447000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-12T17:42:36.865000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
