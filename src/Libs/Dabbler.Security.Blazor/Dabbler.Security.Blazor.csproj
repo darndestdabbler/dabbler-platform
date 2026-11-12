@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- NuGet package metadata (per ledger §9.2 — landed in Session 6 to bring Security.Blazor in line with the other packable libraries) -->
+    <PackageId>Dabbler.Security.Blazor</PackageId>
+    <Description>Blazor Server UI surface for Dabbler.Security: secured-rendering components, the security-administration dashboard, role-switcher and organization-switcher controls, masked-field renderers, and the restriction-aware grid/form binders.</Description>
+    <PackageTags>blazor;mudblazor;security;authorization;dashboard;role-switcher;masked-fields</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="MudBlazor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dabbler.Components\Dabbler.Components.csproj" />
+    <ProjectReference Include="..\Dabbler.Security\Dabbler.Security.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dabbler.Security.Blazor.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

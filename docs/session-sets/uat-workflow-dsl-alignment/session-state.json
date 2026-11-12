@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "uat-workflow-dsl-alignment",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "dabbler-uat-dsl docs surface + dabbler-platform link refactor",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "workflow doc + spec-authoring-guide alignment + retire uat-coverage-review",
+      "status": "complete",
+      "startedAt": "2026-04-30T07:30:58.490353-04:00",
+      "completedAt": "2026-04-30T07:37:18.992344-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

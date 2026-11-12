@@ -1,0 +1,126 @@
+{
+  "sessionSet": "post-rebuild-uat",
+  "sessionNumber": 1,
+  "issues": [
+    {
+      "id": "UAT-001",
+      "category": "Layout",
+      "severity": "Major",
+      "description": "Page titles and back buttons hidden behind fixed MudAppBar across all pages",
+      "status": "fixed",
+      "fix": "Added pt-16 to MudMainContent in MainLayout.razor"
+    },
+    {
+      "id": "UAT-002",
+      "category": "UX Design",
+      "severity": "Major",
+      "description": "App bar role/org controls look awkward. User suggested inline hyperlink pattern: 'Casey Hart as System Admin for Internal Operations'",
+      "status": "deferred",
+      "reason": "Significant UX redesign — needs its own design session"
+    },
+    {
+      "id": "UAT-003",
+      "category": "Layout",
+      "severity": "Minor",
+      "description": "Security Dashboard has duplicate headers (page h4 + component h1)",
+      "status": "fixed",
+      "fix": "Removed h1 from DabblerSecurityDashboard.razor"
+    },
+    {
+      "id": "UAT-004",
+      "category": "Functional",
+      "severity": "Major",
+      "description": "Dashboard search fields discard input — SearchOrdersAsync and SearchProductsAsync navigate without passing search term",
+      "status": "fixed",
+      "fix": "Pass search term as ?search= query param; added InitialSearchTerm parameter to list components with CompositeFilterDescriptor"
+    },
+    {
+      "id": "UAT-005",
+      "category": "Styling",
+      "severity": "Minor",
+      "description": "Currency columns left-aligned in Products and Orders grids",
+      "status": "fixed",
+      "fix": "Added CellStyle/HeaderStyle text-align:right with max-width:130px; added Bordered=true to all grids"
+    },
+    {
+      "id": "UAT-006",
+      "category": "Functional",
+      "severity": "Minor",
+      "description": "Product filter panel reported as not working by UAT reviewer",
+      "status": "deferred",
+      "reason": "E2E tests for RoastLevel and price range filters pass. May be specific filters or user state. Needs further investigation."
+    },
+    {
+      "id": "UAT-007",
+      "category": "Layout",
+      "severity": "Minor",
+      "description": "Product detail back button and title partially hidden by app bar",
+      "status": "fixed",
+      "fix": "Resolved by UAT-001 (systemic app bar offset fix)"
+    },
+    {
+      "id": "UAT-008",
+      "category": "Functional",
+      "severity": "Major",
+      "description": "Product detail Undo button stays permanently disabled after editing select/numeric/checkbox fields",
+      "status": "fixed",
+      "fix": "Replaced @bind-Value with explicit Value+ValueChanged on UnitPrice, RoastLevel, CaffeineContent, GrindType, IsAvailable — all now call OnFieldChanged"
+    },
+    {
+      "id": "UAT-009",
+      "category": "Styling",
+      "severity": "Minor",
+      "description": "Date columns left-aligned in Orders grid, don't line up well under headers when columns are wide",
+      "status": "fixed",
+      "fix": "Right-aligned with max-width:130px; added Bordered=true for column separation"
+    },
+    {
+      "id": "UAT-010",
+      "category": "Functional",
+      "severity": "Minor",
+      "description": "Reports return no data for 2025 date range. MudDatePicker is readonly by default — typed dates not accepted",
+      "status": "fixed",
+      "fix": "Added Editable=true, DateFormat, and Placeholder to ParameterPromptForm date pickers"
+    },
+    {
+      "id": "UAT-011",
+      "category": "Functional",
+      "severity": "Major",
+      "description": "User Management inaccessible for sloane.reyes — Admin drawer group hidden because isAdmin only checks current org's roles",
+      "status": "fixed",
+      "fix": "isAdmin check in ShellSessionStateLoader now considers BackofficeUserAdmin across all org memberships"
+    },
+    {
+      "id": "UAT-012",
+      "category": "Styling",
+      "severity": "Minor",
+      "description": "Filter panel and grid font sizes differ slightly",
+      "status": "deferred",
+      "reason": "FilterPanel already uses Margin.Dense. Remaining delta is MudBlazor default — acceptable per reviewer."
+    },
+    {
+      "id": "UAT-013",
+      "category": "Functional",
+      "severity": "Major",
+      "description": "Security Dashboard tabs (Page Access, Entity Access, Endpoint Access, Control Permissions, Row Filters, User Assignments) show 'No items registered'",
+      "status": "deferred",
+      "reason": "Web app has not wired RegisterPages/RegisterEntities/RegisterEndpoints calls. Tracked as separate session set: security-dashboard-wiring."
+    },
+    {
+      "id": "UAT-014",
+      "category": "Layout",
+      "severity": "Minor",
+      "description": "Report columns use only ~6\" of 9.5\" landscape page width",
+      "status": "fixed",
+      "fix": "Spread column positions to full 9.5\" width in both orders-by-customer.rdf.json and sales-by-product.rdf.json"
+    },
+    {
+      "id": "UAT-015",
+      "category": "Styling",
+      "severity": "Minor",
+      "description": "Spacing inconsistency across list pages",
+      "status": "deferred",
+      "reason": "No specific feedback provided beyond general observation. Monitor in future UAT."
+    }
+  ]
+}

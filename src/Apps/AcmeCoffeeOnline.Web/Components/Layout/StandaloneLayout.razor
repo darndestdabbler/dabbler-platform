@@ -1,0 +1,40 @@
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+<div data-testid="standalone-shell" class="standalone-shell">
+    <MudThemeProvider />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
+    <MudAppBar Elevation="1" Dense="true" Color="Color.Surface" Class="standalone-shell-appbar">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Style="width: 100%;">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.LocalCafe" Color="Color.Primary" />
+                <MudText Typo="Typo.subtitle1" Color="Color.Primary" Style="font-weight: 600;">AcmeCoffeeDistributors</MudText>
+                <MudDivider Vertical="true" FlexItem="true" Class="mx-2" Style="height: 24px;" />
+                <MudChip T="string" Color="Color.Success" Variant="Variant.Outlined" Size="Size.Small">
+                    Distributor Demo
+                </MudChip>
+            </MudStack>
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="standalone-shell-status">
+                    Shared shell styling, distributor stub entry point
+                </MudText>
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Inherit"
+                           StartIcon="@Icons.Material.Filled.Dashboard"
+                           OnClick="@(() => NavigationManager.NavigateTo("/dashboard"))">
+                    Main App
+                </MudButton>
+            </MudStack>
+        </MudStack>
+    </MudAppBar>
+
+    <main class="standalone-shell-body">
+        <section class="standalone-shell-content">
+            @Body
+        </section>
+    </main>
+</div>

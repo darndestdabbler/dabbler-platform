@@ -1,0 +1,44 @@
+[
+  {
+    "round": 1,
+    "severity": "Medium",
+    "summary": "No test for editing an existing organization through SaveAsync.",
+    "status": "fixed",
+    "resolution": "Added OrganizationDetailsFormTests.DetailsForm_EditExistingOrganization_PersistsChanges."
+  },
+  {
+    "round": 1,
+    "severity": "Medium",
+    "summary": "No test for duplicate-key rejection on create.",
+    "status": "fixed",
+    "resolution": "Added OrganizationDetailsFormTests.DetailsForm_DuplicateKey_WithDifferentCasing_DoesNotPersistSecondRow."
+  },
+  {
+    "round": 2,
+    "severity": "Medium",
+    "summary": "Verifier claimed AppOrganization.Key lacked a DB-level unique constraint.",
+    "status": "dismissed_false_positive",
+    "resolution": "Included src/Libs/Dabbler.Security/Data/ModelBuilderExtensions.cs in round 3; ConfigureAppOrganization already has HasIndex(x => x.Key).IsUnique()."
+  },
+  {
+    "round": 3,
+    "severity": "Medium",
+    "summary": "Create-time duplicate-key guard diverged from production SQL Server collation because the InMemory provider is case-sensitive and does not enforce unique indexes.",
+    "status": "fixed",
+    "resolution": "Normalized new organization keys to lower-case, changed duplicate detection to compare normalized values, added whitespace guard, and updated the duplicate-key test to use a case-variant key."
+  },
+  {
+    "round": 3,
+    "severity": "Low",
+    "summary": "OrganizationMasterGrid.ApplyFilter ignores entry.Operator and hardcodes Contains/Equals.",
+    "status": "deferred",
+    "resolution": "Known limitation inherited from the existing Role tab pattern; safe for this session because the configured Organization filters use the default operators only."
+  },
+  {
+    "round": 3,
+    "severity": "Low",
+    "summary": "Additional low-risk test gaps remain (selection callback, reset button, OrganizationScopeFilter null-argument guards).",
+    "status": "deferred",
+    "resolution": "Non-blocking follow-up candidates; core create/edit/archive and duplicate-key behavior are now covered."
+  }
+]

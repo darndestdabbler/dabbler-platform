@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 009 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 009 transcript</h1>
+<p class="stamp">Rendered 2026-11-08T03:20:19.380Z by dabbler-ai-router 3.29.0 at 1ca7c854f5adffa28a30fc8840960b356c2303fe.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-07T18:28:42.215-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 9: MudBlazor 9 — templates, scaffolding and the E2E gate</h3>
+<ol><li>Register.</li><li>Move <code>templates/Dabbler.Templates/content/**</code> to MudBlazor <code>9.12.0</code> and fix the generated code. It is proven by <code>Dabbler.Templates.Tests</code> with the packages present: the step's checks are <code>pwsh tools/pack.ps1 -OutputDir pack-output -CleanOutput</code>, then <code>dotnet test tests/Dabbler.Templates.Tests/</code>.</li><li>Move <code>tools/Dabbler.CrudSlice/Templates/**</code> to MudBlazor 9 in the same way. It is proven by <code>dotnet test tests/Dabbler.CrudSlice.Tests/</code> after the same pack.</li><li>Run the Playwright E2E manual gate against the compose stack rebuilt from this tree, fix what it finds in <code>AcmeCoffeeOnline.Web</code>, and record the result in the step's notes. It restores <code>Dabbler.Uat.Dsl.*</code> from <code>../dabbler-uat-dsl/pack-output</code> (cut 6 is still deferred).</li><li>Cross-provider verification.</li><li>The <code>unit</code> suite once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<h2>Work Plan</h2>
+<p>Finish the MudBlazor 9 move that session 8 started, for the parts outside Dabbler.Unit.slnf's compile path: the dotnet new templates, the dabbler-crud-slice scaffolding and the Playwright E2E gate. In templates/Dabbler.Templates/content, the explicit MudBlazor 8.15.0 PackageReference pins in dabbler-app's Web and Web.Tests projects and in dabbler-min move to 9.12.0. So does the SmokeApp fixture in tests/Dabbler.Templates.Tests, which the crud-page test builds the scaffolded slice into. The generated dabbler-crud-page code gets the MudBlazor 9 API fixes session 8 found: T1EntityDetail.razor calls ShowMessageBoxAsync and _form.ValidateAsync(), and the ServerData callback in T1EntityList.razor takes the CancellationToken and passes it to IGridDataProvider.FetchAsync. Packing and running Dabbler.Templates.Tests with the packages present proves this. The text templates under tools/Dabbler.CrudSlice/Templates emit only registration lines and contain no MudBlazor API, and the tool's Razor output comes from the dabbler-crud-page template. So the same step also runs Dabbler.CrudSlice.Tests after that pack to show the scaffolding is on MudBlazor 9. The step changes a CrudSlice file only if that run shows one needs it. Then the Playwright E2E manual gate runs against the compose stack rebuilt from this tree, restoring Dabbler.Uat.Dsl.* from ../dabbler-uat-dsl/pack-output. Anything it finds is fixed in AcmeCoffeeOnline.Web, and the result goes in that step's notes. Once the gate has passed on 9.12.0, the two docs that name the platform's MudBlazor major (the coupling bullet in docs/platform-overview.md and the stack note in docs/getting-started.md) say 9.x instead of 8.x.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/ecab7fe24722fab74a7386cde8b513cf80dc1b09"><code>ecab7fe24722fab74a7386cde8b513cf80dc1b09</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Templates mudblazor9</td><td><p>Move templates/Dabbler.Templates/content/** and the dabbler-crud-slice scaffolding to MudBlazor 9.12.0 (session plan items 2 and 3). Change the MudBlazor PackageReference Version from 8.15.0 to 9.12.0 in dabbler-app's DabblerApp.Web.csproj and DabblerApp.Web.Tests.csproj, in dabbler-min's DabblerApp.csproj, and in the tests/Dabbler.Templates.Tests SmokeApp fixture that the scaffolded crud-page slice is built into. Fix the generated dabbler-crud-page code for MudBlazor 9. In T1EntityDetail.razor, DialogService.ShowMessageBox becomes ShowMessageBoxAsync and _form.Validate() becomes _form.ValidateAsync(). In T1EntityList.razor, ServerDataFuncAsync takes (GridState&lt;T1EntityDto&gt; state, CancellationToken cancellationToken) and passes the token to DataProvider.FetchAsync. tools/Dabbler.CrudSlice/Templates/*.template emit only registration lines and contain no MudBlazor API, and the tool's Razor output comes from dabbler-crud-page. So the CrudSlice side is proven by running Dabbler.CrudSlice.Tests after the same pack, with no file changed there unless that run needs one. The checks pack, then run Dabbler.Templates.Tests and Dabbler.CrudSlice.Tests with the packages present.</p></td><td><span class="mono">templates/Dabbler.Templates/content/dabbler-app/src/DabblerApp.Web/DabblerApp.Web.csproj</span><br><span class="mono">templates/Dabbler.Templates/content/dabbler-app/tests/DabblerApp.Web.Tests/DabblerApp.Web.Tests.csproj</span><br><span class="mono">templates/Dabbler.Templates/content/dabbler-min/DabblerApp/DabblerApp.csproj</span><br><span class="mono">templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/T1EntityDetail.razor</span><br><span class="mono">templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/T1EntityList.razor</span><br><span class="mono">tests/Dabbler.Templates.Tests/Fixtures/SmokeApp/SmokeApp.csproj</span></td><td><code>pwsh -NoProfile -File tools/pack.ps1 -OutputDir pack-output -CleanOutput</code><br><code>dotnet test tests/Dabbler.Templates.Tests/</code><br><code>dotnet test tests/Dabbler.CrudSlice.Tests/</code></td><td>yes</td></tr>
+<tr><td>E2e gate</td><td><p>Run the Playwright E2E manual gate against the compose stack rebuilt from this tree. Run docker compose -f docker/docker-compose.infra.yml up -d, then docker compose -f docker/docker-compose.app.yml up --build -d, then dotnet test tests/AcmeCoffeeOnline.Playwright/, which restores Dabbler.Uat.Dsl.* from ../dabbler-uat-dsl/pack-output. Fix whatever it finds in src/Apps/AcmeCoffeeOnline.Web under MudBlazor 9 and re-run until it passes. Record the pass, fail and skip counts and any fixes in the step's notes. Any Web file a fix touches is added to this step with dabbler session plan amend. Once the gate has passed, change MudBlazor 8.x to 9.x in the 'MudBlazor 8.x coupling' bullet of docs/platform-overview.md and in the stack note of docs/getting-started.md.</p></td><td><span class="mono">docker/Dockerfile.Api</span><br><span class="mono">docs/getting-started.md</span><br><span class="mono">docs/platform-overview.md</span><br><span class="mono">src/Apps/AcmeCoffeeOnline.Web/Components/Shared/UserContextBar.razor</span><br><span class="mono">tests/AcmeCoffeeOnline.Playwright/Infrastructure/PlaywrightFixture.cs</span><br><span class="mono">tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs</span></td><td><code>dotnet build src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj</code><br><code>dotnet build tests/AcmeCoffeeOnline.Playwright/AcmeCoffeeOnline.Playwright.csproj</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No change to the central MudBlazor pin in Directory.Packages.props or to the Dabbler.* libraries' MudBlazor 9 port, which session 8 completed. The only exception is a defect the E2E gate finds in AcmeCoffeeOnline.Web.</li><li>No porting of the dabbler-uat-dsl dependency into this repository (cut 6 stays deferred). The Playwright project keeps restoring from ../dabbler-uat-dsl/pack-output.</li><li>No version bump, release or nuget-v* tag, no packaging: block in dabbler.yaml, and no edits to the historical release rows in docs/COMPATIBILITY.md. The maintainer guide and the gate-rule documentation are session 10's work.</li><li>No new template features and no refactoring of template content beyond what MudBlazor 9 needs to compile and pass the tests.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[23:28:42]</span> <span class="muted">run-started</span> session=009 mode=pull</div>
+<div class="line"><span class="at">[23:28:42]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[23:46:23]</span> <span class="muted">run-resumed</span> session=009 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[23:46:23]</span> <span class="muted">plan-accepted</span> steps=[&quot;templates-mudblazor9&quot;,&quot;e2e-gate&quot;] non_goals=4</div>
+<div class="line"><span class="at">[23:46:26]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[23:46:26]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=templates-mudblazor9</div>
+<div class="line"><span class="at">[23:47:24]</span> <span class="muted">run-resumed</span> session=009 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[23:48:14]</span> <span class="muted">check-passed</span> step=templates-mudblazor9 argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-File&quot;,&quot;tools/pack.ps1&quot;,&quot;-OutputDir&quot;,&quot;pack-output&quot;,&quot;-CleanOutput&quot;]</div>
+<div class="line"><span class="at">[23:48:14]</span> <span class="muted">check-passed</span> step=templates-mudblazor9 argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Templates.Tests/&quot;]</div>
+<div class="line"><span class="at">[23:48:14]</span> <span class="muted">check-passed</span> step=templates-mudblazor9 argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.CrudSlice.Tests/&quot;]</div>
+<div class="line"><span class="at">[23:48:16]</span> <span class="muted">report-accepted</span> seq=2 step=templates-mudblazor9 files=[&quot;templates/Dabbler.Templates/content/dabbler-app/src/DabblerApp.Web/DabblerApp.Web.csproj&quot;,&quot;templates/Dabbler.Templates/content/dabbler-app/tests/DabblerApp.Web.Tests/DabblerApp.Web.Tests.csproj&quot;,&quot;templates/Dabbler.Templates/content/dabbler-min/DabblerApp/DabblerApp.csproj&quot;,&quot;templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/T1EntityDetail.razor&quot;,&quot;templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/T1EntityList.razor&quot;,&quot;tests/Dabbler.Templates.Tests/Fixtures/SmokeApp/SmokeApp.csproj&quot;] notes=MudBlazor pins 8.15.0-&gt;9.12.0 in dabbler-app Web/Web.Tests, dabbler-min and the SmokeApp fixture; crud-page uses ShowMessageBoxAsync and ValidateAsync, and its ServerData callback takes the CancellationToken, passes it to FetchAsync and rethrows cancellation (session 8's pattern). CrudSlice .template files hold no MudBlazor API and are unchanged.</div>
+<div class="line"><span class="at">[23:48:16]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=e2e-gate</div>
+<div class="line"><span class="at">[03:16:04]</span> <span class="muted">run-resumed</span> session=009 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[03:16:27]</span> <span class="muted">check-passed</span> step=e2e-gate argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj&quot;]</div>
+<div class="line"><span class="at">[03:16:27]</span> <span class="muted">check-passed</span> step=e2e-gate argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;tests/AcmeCoffeeOnline.Playwright/AcmeCoffeeOnline.Playwright.csproj&quot;]</div>
+<div class="line"><span class="at">[03:17:08]</span> <span class="muted">named-tests-passed</span> step=e2e-gate suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter SecurityDashboardUatCoverageTests</div>
+<div class="line"><span class="at">[03:17:09]</span> <span class="muted">report-accepted</span> seq=3 step=e2e-gate files=[&quot;docker/Dockerfile.Api&quot;,&quot;docs/getting-started.md&quot;,&quot;docs/platform-overview.md&quot;,&quot;src/Apps/AcmeCoffeeOnline.Web/Components/Shared/UserContextBar.razor&quot;,&quot;tests/AcmeCoffeeOnline.Playwright/Infrastructure/PlaywrightFixture.cs&quot;,&quot;tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUatCoverageTests.cs&quot;] notes=E2E gate run under Podman (Docker Desktop would not start), with the stack rebuilt from this tree on a fresh database. Dockerfile.Api needed a COPY of Dabbler.Api.Querying.csproj before restore, or publish --no-restore fails with NETSDK1004. First run on 9.12.0: 151 passed, 22 failed, 5 skipped. A fresh-database baseline of the pre-session-8 tree (MudBlazor 8.15.0) gave 161/12/5, and those 12 also fail on 9, so 10 failures were MudBlazor 9 regressions with three causes. (A, 6) MudMenu ActivatorContent now passes a MenuContext and adds no click handler, so UserContextBar's role and org activators got OnClick=context.ToggleAsync. (B, 1) MudNavGroup stays expanded after navigating to one of its own links, so NavigateViaDrawerGroupAsync now expands the group only when the link is hidden. (C, 3) FilterPanel's 300 ms debounce lands after an immediate collapse click and re-expands the shell, so the FilterChange_ClearsCollapsedSummaryState tests now wait for the filter chip before collapsing. After the fixes the 10 pass. Full runs on fresh databases: 160/13/5, where the extra failure was Uatv5's exemption-setup helper, which then passed 6/6 twice in class runs; a second full run gave 161/12/5, identical to the baseline. Docs now say MudBlazor 9.x. The tests' GrantedAt write to security-config.json was reverted.</div>
+<div class="line"><span class="at">[03:17:09]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[03:17:10]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[03:17:14]</span> <span class="muted">job-started</span> name=verification pid=57264 log=.dabbler/runs/s9/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[03:18:08]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s9/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[03:18:08]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[03:18:08]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[03:18:09]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[03:18:10]</span> <span class="muted">job-started</span> name=run of record: unit pid=23860 log=.dabbler/runs/s9/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[03:19:35]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s9/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[03:19:35]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[03:19:49]</span> <span class="muted">landed</span> commit=ecab7fe24722fab74a7386cde8b513cf80dc1b09</div>
+<div class="line"><span class="at">[03:19:49]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[03:19:51]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[03:19:51]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[03:19:53]</span> <span class="muted">job-started</span> name=close pid=24860 log=.dabbler/runs/s9/driver/jobs/close.log</div>
+<div class="line"><span class="at">[03:20:19]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s9/driver/jobs/close.log</div>
+<div class="line"><span class="at">[03:20:19]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="good">passed</span></td><td>76s</td><td>136</td><td>0</td><td>0</td><td><span class="mono">dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;AccessDeniedCardTests|AcmeCoffeeNavigationDataProviderTests|CustomerListTests|DevToolsEndpointContractTests|DevToolsMenuTests|MagicLinksDialogTests|MudBlazorRebuildConformanceTests|NotesDrivenAlignmentGuardrailTests|ObservabilitySmokeTests|OrderDetailStateNestedItemsTests|OrderDetailStateTests|ProductionSplitTests|SecurityDashboardUatCoverageTests|ShellSessionStateLoaderTests|TestAuthClientTests|UserContextBarTests|UserManagementPageTests|WebGuardrailTests|WebHealthEndpointTests|WorkflowAssetSmokeTests&quot;</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

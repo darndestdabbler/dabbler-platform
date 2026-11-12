@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Dabbler.Reports.Core</PackageId>
+    <Description>Banded report engine with RDF-based definitions: layout composition, grouping, aggregates, running totals, hide duplicates, subreports, PrintWhen expressions, and CanGrow/CanShrink support. MIT-licensed. Note: this package takes a transitive dependency on DabblerPdf (LGPL-2.1-only OR MPL-2.0); see THIRD-PARTY-NOTICES.txt for the canonical license text.</Description>
+    <PackageTags>blazor;reports;rdf;banded-report;layout-engine;aggregates</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591 suppression removed — all public members must have XML docs -->
+  </PropertyGroup>
+
+  <!-- No UI references — this project must remain platform-agnostic -->
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dabbler.Reports.Export" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DabblerPdf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+    <None Include="THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

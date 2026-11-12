@@ -1,0 +1,3942 @@
+{
+  "appName": "AcmeCoffeeOnline",
+  "generatedAt": "2026-05-11T19:00:37Z",
+  "schemaVersion": "1.1",
+  "entries": [
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "AcmeCoffeeDistributors Dashboard",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Reports",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Orders",
+      "testId": "search-orders",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Products",
+      "testId": "search-products",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Product Administration",
+      "htmlTag": "h4",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "ADD PRODUCT",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Price",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Actions",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Edit product",
+      "ariaLabel": "Edit product",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Remove product from catalog",
+      "ariaLabel": "Remove product from catalog",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "1",
+      "ariaLabel": "Current page 1",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "2",
+      "ariaLabel": "Page 2",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Tab",
+      "userVisibleLabel": "ORGANIZATION MASTER DETAILS",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Tab",
+      "userVisibleLabel": "USERS AND ROLE ASSIGNMENT",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Tab",
+      "userVisibleLabel": "ROLE DOCUMENTATION",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Tab",
+      "userVisibleLabel": "COMPLIANCE REVIEW",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Organization Master Details Create, edit, and archive organizations. The grid stays filterable by key, name, internal/external status, and active/archive status. Organizations Key Name Internal Active",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Organization Master Details",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Key Name Internal Active",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Key",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "NEW ORGANIZATION",
+      "testId": "organization-grid-add-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Key",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Internal",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Status",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Active Members",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "RESET",
+      "testId": "organization-reset-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "organization-save-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Manage Organization Admins",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Open the Security Dashboard \u2192 Users and Role Assignment tab",
+      "testId": "user-admin-dashboard-banner-link",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Internal Operations",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Add filter",
+      "ariaLabel": "Add filter",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Email",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Active",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roles In Scope",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Other Organizations",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Actions",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "GRANT USERADMIN",
+      "testId": "grant-useradmin-3",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "REMOVE USERADMIN",
+      "testId": "revoke-useradmin-5",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Counter",
+      "htmlTag": "h1",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Snackbar",
+      "userVisibleLabel": "Current count: 0",
+      "htmlTag": "p",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Click me",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Last Name Email City State Active",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Last Name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Email",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "City",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "State",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Primary Contact First Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Primary Contact Last Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Account Email",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Phone",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "City",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "State",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Active",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to retail businesses",
+      "ariaLabel": "Back to retail businesses",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Business #42",
+      "testId": "customer-detail-title",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "First Name",
+      "testId": "field-first-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Last Name",
+      "testId": "field-last-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Email",
+      "testId": "field-email",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Phone",
+      "testId": "field-phone",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Address",
+      "testId": "field-address",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "City",
+      "testId": "field-city",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "State",
+      "testId": "field-state",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Zip Code",
+      "testId": "field-zip-code",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Social Security Number",
+      "testId": "field-ssn",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "AcmeCoffeeDistributors Dashboard",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Reports",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Orders",
+      "testId": "search-orders",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Products",
+      "testId": "search-products",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Not Found",
+      "htmlTag": "h3",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Status Retail Business Order Date From Order Date To Min Total Max Total",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Status",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Retail Business",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date From",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date To",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Total",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Total",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Order #",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Retail Business Contact",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Order Date",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Status",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Total",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Ship Date",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "355",
+      "testId": "order-detail-link-355",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "65",
+      "testId": "order-detail-link-65",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "64",
+      "testId": "order-detail-link-64",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "63",
+      "testId": "order-detail-link-63",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "62",
+      "testId": "order-detail-link-62",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "61",
+      "testId": "order-detail-link-61",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "60",
+      "testId": "order-detail-link-60",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "59",
+      "testId": "order-detail-link-59",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "58",
+      "testId": "order-detail-link-58",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "57",
+      "testId": "order-detail-link-57",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "56",
+      "testId": "order-detail-link-56",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "55",
+      "testId": "order-detail-link-55",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "54",
+      "testId": "order-detail-link-54",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "53",
+      "testId": "order-detail-link-53",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "52",
+      "testId": "order-detail-link-52",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "51",
+      "testId": "order-detail-link-51",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "50",
+      "testId": "order-detail-link-50",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "49",
+      "testId": "order-detail-link-49",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "48",
+      "testId": "order-detail-link-48",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "47",
+      "testId": "order-detail-link-47",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "46",
+      "testId": "order-detail-link-46",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "45",
+      "testId": "order-detail-link-45",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "44",
+      "testId": "order-detail-link-44",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "43",
+      "testId": "order-detail-link-43",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "42",
+      "testId": "order-detail-link-42",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to orders",
+      "ariaLabel": "Back to orders",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Order #355",
+      "testId": "order-detail-title",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "SHIPPED",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "CANCELLED",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Customer",
+      "testId": "field-customer-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date",
+      "testId": "field-order-date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Ship Date",
+      "testId": "field-ship-date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Total",
+      "testId": "field-total",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Notes",
+      "testId": "field-notes",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Tab",
+      "userVisibleLabel": "ITEMS (1)",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Tab",
+      "userVisibleLabel": "NOTES (1)",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "ADD PRODUCT Product Qty Unit Price Discount % Line Total Deep Dark Roast - Regular - Drip 3 $18.49 0 $55.47",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "ADD PRODUCT",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Product",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Qty",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Discount %",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Line Total",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Roast Level Caffeine Grind Type Available Min Price Max Price",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "ADD PRODUCT",
+      "testId": "add-product-button",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Roast Level Caffeine Grind Type Available Min Price Max Price",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "ADD PRODUCT",
+      "testId": "add-product-button",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to products",
+      "ariaLabel": "Back to products",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Product #21",
+      "testId": "product-detail-title",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "ACTIVATE",
+      "testId": "toggle-availability-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Name",
+      "testId": "field-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Unit Price",
+      "testId": "field-unit-price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Representative Playwright automation product.",
+      "testId": "field-description",
+      "htmlTag": "textarea",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Image URL",
+      "testId": "field-image-url",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Orders by Retail Business Report Parameters Start Date Start Date is required End Date End Date is required Order Status Filter Summary RUN REPORT 100% Set parameters and click \u0022Run Report\u0022 to generat",
+      "ariaLabel": "Orders by Retail Business",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Report Parameters",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Start Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "End Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Status",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Filter Summary",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "RUN REPORT",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom out",
+      "ariaLabel": "Zoom out",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom in",
+      "ariaLabel": "Zoom in",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Export to PDF",
+      "ariaLabel": "Export to PDF",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Print",
+      "ariaLabel": "Print",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Element",
+      "userVisibleLabel": "Sales by Product Report Parameters Start Date Start Date is required End Date End Date is required Roast Level Filter Summary RUN REPORT 100% Set parameters and click \u0022Run Report\u0022 to generate the repo",
+      "ariaLabel": "Sales by Product",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Report Parameters",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Start Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "End Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Input",
+      "userVisibleLabel": "Filter Summary",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "RUN REPORT",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom out",
+      "ariaLabel": "Zoom out",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom in",
+      "ariaLabel": "Zoom in",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Export to PDF",
+      "ariaLabel": "Export to PDF",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Print",
+      "ariaLabel": "Print",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "CrossOrgUserAdmin",
+      "elementRole": "Text",
+      "userVisibleLabel": "Weather",
+      "htmlTag": "h1",
+      "isWatermarked": false
+    }
+  ]
+}
