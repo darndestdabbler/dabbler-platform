@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY Directory.Build.props Directory.Packages.props Dabbler.Platform.sln ./
+COPY src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj src/Libs/Dabbler.Security.DevIdp/
+
+RUN dotnet restore src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj
+
+COPY . .
+RUN dotnet publish src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /app/publish .
+
+# DevIdp listens on plain HTTP inside the container so browser flows from a
+# host on Docker Desktop can reach it via http://localhost:5100 without dev
+# cert distribution. Cross-container OIDC additionally requires the issuer
+# URL the Web container fetches to match the issuer the browser sees — the
+# canonical fix is OpenIddict `SetIssuer("http://localhost:5100")` and a Web
+# `Authority` of `http://host.docker.internal:5100`. That issuer/metadata
+# alignment is intentionally NOT wired up in this session — the in-container
+# DevIdp ships as scaffolding for future browser-driven Docker OIDC runs.
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "Dabbler.Security.DevIdp.dll"]

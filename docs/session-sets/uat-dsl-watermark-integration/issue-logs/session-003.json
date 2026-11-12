@@ -1,0 +1,30 @@
+[
+  {
+    "id": "i1",
+    "severity": "Major",
+    "status": "deferred-accept",
+    "description": "5/5 PASS quality bar not met (W0 infrastructure gap)",
+    "disposition": "Accepted per verifier's own suggestion: gap is pre-existing, not a regression introduced by this set, and is honestly documented in smoke-result.md with proposed follow-up set 'w0-cli-suppressions-and-role-pinning'. Per feedback_fix_broken_tests_no_carry_forward.md this is documented infrastructure debt not a silently tolerated test failure."
+  },
+  {
+    "id": "i2",
+    "severity": "Minor",
+    "status": "fixed-with-clarification",
+    "description": "compile-only-smoke.json shows double WaitForQuietAsync (implicit + explicit)",
+    "disposition": "Compile-only-smoke kept as-is (interaction-based version blocked by same W0 role-context gap that defeats the LLM-authored checklist). Added an explicit Feedback note inside the smoke checklist and a longer 'Note on the compile-only choice' paragraph in smoke-result.md explaining the double emission is transitional debt and why a tighter usage example cannot compile until W0 ships role pinning."
+  },
+  {
+    "id": "i3",
+    "severity": "Minor",
+    "status": "in-progress",
+    "description": "Step 11 (reorganization review) candidates have no documented disposition",
+    "disposition": "Will be addressed in Step 9 reorganization review post-notify (per workflow Step 8 ordering: notify before reorganization so the human is not blocking the completion signal)."
+  },
+  {
+    "id": "i4",
+    "severity": "Minor",
+    "status": "fixed",
+    "description": "HR#8 negative example wording could lead an LLM to hallucinate a substitute wait verb",
+    "disposition": "Reworded the negative example: '...rely on Playwright's built-in auto-wait inside the VERIFY assertion, or add a free-form WAIT FOR \"<visible state>\" step only if an explicit settle period is needed. Do not invent a substitute wait verb.'"
+  }
+]

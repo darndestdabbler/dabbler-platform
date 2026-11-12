@@ -1,0 +1,18 @@
+{
+  "session": 3,
+  "verificationRound": 1,
+  "verifier": "opus",
+  "verifierProvider": "anthropic",
+  "verdict": "VERIFIED",
+  "issues": [
+    {
+      "id": 1,
+      "summary": "XML doc comment on PdfExporter.Title claimed 'Defaults to the report name' but the property is null by default with no constructor assignment.",
+      "severity": "minor",
+      "status": "fixed",
+      "category": "documentation-accuracy",
+      "resolution": "Rewrote the doc comment to state that Title is null by default and that ExportAsync forwards non-null/non-whitespace values to the /Info dictionary via Document.AddTitle. No runtime behaviour change; no constructor assignment added because that would change behaviour for existing callers.",
+      "fileChanged": "src/Libs/Dabbler.Reports.Export/PdfExporter.cs"
+    }
+  ]
+}

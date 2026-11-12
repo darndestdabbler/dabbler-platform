@@ -1,0 +1,760 @@
+@typeparam TRow
+@typeparam TEntity
+@typeparam TLink
+@using MudBlazor
+@namespace Dabbler.Components.MasterDetail
+
+<CascadingValue Value="_detailsContext" IsFixed="true">
+<CascadingValue Value="_linkContext" IsFixed="true">
+@if (ShowGrid)
+{
+    <div data-testid="@TestId" class="master-detail-expansion-shell mb-3">
+        <MudExpansionPanels MultiExpansion="false" Elevation="0">
+            <MudExpansionPanel Expanded="@IsExpanded"
+                               ExpandedChanged="@HandleExpandedChanged"
+                               DisableGutters="true">
+                <TitleContent>
+                    <div class="d-flex align-center gap-2" data-testid="@($"{TestId}-header")">
+                        @if (IsExpanded)
+                        {
+                            <MudText Typo="Typo.subtitle2">@ExpandedHeaderText</MudText>
+                        }
+                        else if (CollapsedSummaryContent is not null)
+                        {
+                            @CollapsedSummaryContent
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.subtitle2"
+                                     data-testid="@($"{TestId}-summary")">
+                                @(string.IsNullOrWhiteSpace(CollapsedSummaryText)
+                                    ? ExpandedHeaderText
+                                    : CollapsedSummaryText)
+                            </MudText>
+                            @if (!string.IsNullOrWhiteSpace(CollapsedSummaryBadge))
+                            {
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                         data-testid="@($"{TestId}-summary-badge")">
+                                    @CollapsedSummaryBadge
+                                </MudChip>
+                            }
+                        }
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <div class="master-detail-results-body" data-testid="@($"{TestId}-body")">
+                        @if (FilterContent is not null)
+                        {
+                            <div class="master-detail-filter-region">
+                                @FilterContent
+                            </div>
+                        }
+                        @if (ShowAddAction)
+                        {
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Disabled="@Working"
+                                           OnClick="HandleAddAsync"
+                                           data-testid="@($"{TestId}-add-button")">
+                                    @AddLabel
+                                </MudButton>
+                            </MudStack>
+                        }
+                        @GridContent
+                    </div>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    </div>
+
+    @if (DetailsContent is not null)
+    {
+        <div class="master-detail-details-body" data-testid="@($"{TestId}-details")">
+            @if (ShowLinkData && LinkDataContent is not null)
+            {
+                <MudCard Class="mb-3" data-testid="@($"{TestId}-link-card")">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.subtitle1">@LinkDataHeading</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @LinkDataContent
+                    </MudCardContent>
+                </MudCard>
+            }
+            @if (ShowLinkData)
+            {
+                <MudCard Class="mb-3" data-testid="@($"{TestId}-target-card")">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.subtitle1">@TargetCardHeading</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            @if (TargetEditability == TargetEditability.ReadOnlyWithToggle)
+                            {
+                                <MudButton Variant="Variant.Text"
+                                           StartIcon="@(_detailsContext.IsTargetReadOnly ? Icons.Material.Filled.Edit : Icons.Material.Filled.Lock)"
+                                           OnClick="ToggleTargetEditingAsync"
+                                           data-testid="@($"{TestId}-edit-toggle")">
+                                    @(_detailsContext.IsTargetReadOnly ? EditRecordLabel : LockRecordLabel)
+                                </MudButton>
+                            }
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @DetailsContent
+                    </MudCardContent>
+                </MudCard>
+            }
+            else
+            {
+                @if (TargetEditability == TargetEditability.ReadOnlyWithToggle)
+                {
+                    <MudButton Variant="Variant.Text"
+                               StartIcon="@(_detailsContext.IsTargetReadOnly ? Icons.Material.Filled.Edit : Icons.Material.Filled.Lock)"
+                               OnClick="ToggleTargetEditingAsync"
+                               Class="mb-2"
+                               data-testid="@($"{TestId}-edit-toggle")">
+                        @(_detailsContext.IsTargetReadOnly ? EditRecordLabel : LockRecordLabel)
+                    </MudButton>
+                }
+                @DetailsContent
+            }
+            @if (DetailsActions is not null)
+            {
+                @DetailsActions(BuildActionsContext())
+            }
+            else
+            {
+                <MudDivider Class="my-3" />
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Disabled="@Working"
+                               OnClick="HandlePrimaryActionAsync"
+                               data-testid="@($"{TestId}-primary-button")">
+                        @PrimaryActionLabel
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               Disabled="@Working"
+                               OnClick="HandleCancelAsync"
+                               data-testid="@($"{TestId}-cancel-button")">
+                        @CancelLabel
+                    </MudButton>
+                </MudStack>
+            }
+        </div>
+    }
+}
+else
+{
+    @* ShowGrid=false: Scenario 1 (Add Only) — full-width MudPaper, no expansion chrome. *@
+    <div data-testid="@TestId" class="master-detail-expansion-shell master-detail-add-only mb-3">
+        @if (SessionSummaryContent is not null)
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-3" Elevation="0"
+                      data-testid="@($"{TestId}-session-summary")">
+                @SessionSummaryContent(_sessionCount)
+            </MudAlert>
+        }
+        @if (DetailsContent is not null)
+        {
+            <MudPaper Class="pa-4" Elevation="1"
+                      data-testid="@($"{TestId}-details")">
+                @if (ShowLinkData && LinkDataContent is not null)
+                {
+                    <MudCard Class="mb-3" data-testid="@($"{TestId}-link-card")">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.subtitle1">@LinkDataHeading</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @LinkDataContent
+                        </MudCardContent>
+                    </MudCard>
+                }
+                @if (TargetEditability == TargetEditability.ReadOnlyWithToggle)
+                {
+                    <MudButton Variant="Variant.Text"
+                               StartIcon="@(_detailsContext.IsTargetReadOnly ? Icons.Material.Filled.Edit : Icons.Material.Filled.Lock)"
+                               OnClick="ToggleTargetEditingAsync"
+                               Class="mb-2"
+                               data-testid="@($"{TestId}-edit-toggle")">
+                        @(_detailsContext.IsTargetReadOnly ? EditRecordLabel : LockRecordLabel)
+                    </MudButton>
+                }
+                @DetailsContent
+                <MudDivider Class="my-3" />
+                @if (DetailsActions is not null)
+                {
+                    @DetailsActions(BuildActionsContext())
+                }
+                else
+                {
+                    <MudStack Row="true" Spacing="2">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Disabled="@Working"
+                                   OnClick="HandleDefaultSaveAsync"
+                                   data-testid="@($"{TestId}-save-button")">
+                            @SaveLabel
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Default"
+                                   Disabled="@Working"
+                                   OnClick="HandleCancelAsync"
+                                   data-testid="@($"{TestId}-cancel-button")">
+                            @CancelLabel
+                        </MudButton>
+                    </MudStack>
+                }
+            </MudPaper>
+        }
+    </div>
+}
+</CascadingValue>
+</CascadingValue>
+
+@code {
+    // -----------------------------------------------------------------------
+    // Identity
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Root data-testid for this shell. Derived test ids:
+    /// <c>{TestId}-header</c>, <c>{TestId}-body</c>, <c>{TestId}-summary</c>,
+    /// <c>{TestId}-summary-badge</c>, <c>{TestId}-details</c>,
+    /// <c>{TestId}-add-button</c>.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string TestId { get; set; } = "master-detail-shell";
+
+    // -----------------------------------------------------------------------
+    // Layout knobs
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// When <c>false</c>, drops the expansion panel entirely and renders
+    /// <see cref="DetailsContent"/> in a full-width surface (Scenario 1 /
+    /// Add-Only).
+    /// </summary>
+    [Parameter]
+    public bool ShowGrid { get; set; } = true;
+
+    /// <summary>
+    /// When <c>true</c> and <see cref="ShowGrid"/> is <c>true</c>, renders an
+    /// Add button above <see cref="GridContent"/> that resets the selection
+    /// and raises <see cref="OnAddRequested"/>. Default <c>false</c>.
+    /// </summary>
+    [Parameter]
+    public bool ShowAddAction { get; set; }
+
+    /// <summary>Label for the Add button. Default "Add".</summary>
+    [Parameter]
+    public string AddLabel { get; set; } = "Add";
+
+    /// <summary>
+    /// When <c>true</c>, each grid row gets a row-wise "Use" action rendered
+    /// via <see cref="RowUseAction"/> (or the default MudIconButton). Used in
+    /// Scenarios 3 and 4.
+    /// </summary>
+    [Parameter]
+    public bool ShowRowUseAction { get; set; }
+
+    /// <summary>
+    /// When <c>true</c> and a row is selected but no fields are dirty, the
+    /// primary action button reads "Use" rather than "Save and Use". Used in
+    /// Scenarios 3 and 4.
+    /// </summary>
+    [Parameter]
+    public bool AllowLinkOnly { get; set; }
+
+    /// <summary>
+    /// Controls whether target-entity fields are editable, permanently read-only,
+    /// or start read-only with an unlock toggle.
+    /// </summary>
+    [Parameter]
+    public TargetEditability TargetEditability { get; set; } = TargetEditability.Editable;
+
+    /// <summary>
+    /// When <c>true</c>, renders the <see cref="LinkDataContent"/> slot in a
+    /// visually-distinct "Link Data" card above the target form. Used in
+    /// Scenarios 4a and 4b.
+    /// </summary>
+    [Parameter]
+    public bool ShowLinkData { get; set; }
+
+    /// <summary>Heading text for the Link Data card. Default "Link Data".</summary>
+    [Parameter]
+    public string LinkDataHeading { get; set; } = "Link Data";
+
+    // -----------------------------------------------------------------------
+    // Expansion / collapse state
+    // -----------------------------------------------------------------------
+
+    /// <summary>Controls whether the results region is expanded.</summary>
+    [Parameter]
+    public bool IsExpanded { get; set; } = true;
+
+    /// <summary>Raised when the user expands or collapses the panel header.</summary>
+    [Parameter]
+    public EventCallback<bool> IsExpandedChanged { get; set; }
+
+    /// <summary>Header text shown while the panel is expanded (e.g. "Results").</summary>
+    [Parameter]
+    public string ExpandedHeaderText { get; set; } = "Results";
+
+    /// <summary>
+    /// Compact read-only summary shown when collapsed (e.g. "Role: BackofficeUser").
+    /// Falls back to <see cref="ExpandedHeaderText"/> when blank.
+    /// Ignored when <see cref="CollapsedSummaryContent"/> is set.
+    /// </summary>
+    [Parameter]
+    public string? CollapsedSummaryText { get; set; }
+
+    /// <summary>
+    /// Optional chip rendered next to the collapsed summary text.
+    /// Ignored when <see cref="CollapsedSummaryContent"/> is set.
+    /// </summary>
+    [Parameter]
+    public string? CollapsedSummaryBadge { get; set; }
+
+    // -----------------------------------------------------------------------
+    // Button labels
+    // -----------------------------------------------------------------------
+
+    /// <summary>Label for the primary save action. Default "Save".</summary>
+    [Parameter]
+    public string SaveLabel { get; set; } = "Save";
+
+    /// <summary>Label for the save-and-use action. Default "Save and Use".</summary>
+    [Parameter]
+    public string SaveAndUseLabel { get; set; } = "Save and Use";
+
+    /// <summary>Label for the use-only action. Default "Use".</summary>
+    [Parameter]
+    public string UseLabel { get; set; } = "Use";
+
+    /// <summary>Label for the cancel action. Default "Cancel".</summary>
+    [Parameter]
+    public string CancelLabel { get; set; } = "Cancel";
+
+    /// <summary>Header text on the target card when <see cref="ShowLinkData"/> is true. Default "Details".</summary>
+    [Parameter]
+    public string TargetCardHeading { get; set; } = "Details";
+
+    /// <summary>Label on the toggle button when target is currently read-only. Default "Edit record".</summary>
+    [Parameter]
+    public string EditRecordLabel { get; set; } = "Edit record";
+
+    /// <summary>Label on the toggle button when target is currently editable. Default "Lock record".</summary>
+    [Parameter]
+    public string LockRecordLabel { get; set; } = "Lock record";
+
+    // -----------------------------------------------------------------------
+    // Working / busy state
+    // -----------------------------------------------------------------------
+
+    /// <summary>When true, disables action buttons while an async save is in flight.</summary>
+    [Parameter]
+    public bool Working { get; set; }
+
+    /// <summary>Raised when the shell's internal working state changes.</summary>
+    [Parameter]
+    public EventCallback<bool> WorkingChanged { get; set; }
+
+    /// <summary>When true, disables link-data action buttons while a link save is in flight.</summary>
+    [Parameter]
+    public bool LinkWorking { get; set; }
+
+    /// <summary>Raised when the link working state changes.</summary>
+    [Parameter]
+    public EventCallback<bool> LinkWorkingChanged { get; set; }
+
+    // -----------------------------------------------------------------------
+    // Slots (render fragments)
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Filter controls to render at the top of the expansion panel body.
+    /// Typically a <c>FilterPanel&lt;TRow&gt;</c>. Optional — omit when the
+    /// grid component manages filtering internally.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? FilterContent { get; set; }
+
+    /// <summary>
+    /// The results grid (and any toolbar). Required when <see cref="ShowGrid"/> is
+    /// <c>true</c>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? GridContent { get; set; }
+
+    /// <summary>
+    /// Custom row-wise Use action template. Rendered in each row when
+    /// <see cref="ShowRowUseAction"/> is <c>true</c>. Defaults to a
+    /// <c>MudIconButton</c> that raises <see cref="OnUseRequested"/>.
+    /// Consumers reach this via the <see cref="EffectiveRowUseAction"/>
+    /// property, which falls back to the built-in template when this is null.
+    /// </summary>
+    [Parameter]
+    public RenderFragment<TRow>? RowUseAction { get; set; }
+
+    /// <summary>
+    /// The target-entity detail form. Rendered below the expansion panel
+    /// (or as the sole surface when <see cref="ShowGrid"/> is <c>false</c>).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? DetailsContent { get; set; }
+
+    /// <summary>
+    /// Link-data fields rendered in a visually-distinct card above the target
+    /// form when <see cref="ShowLinkData"/> is <c>true</c>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? LinkDataContent { get; set; }
+
+    /// <summary>
+    /// Custom action buttons for the details surface (overrides the default
+    /// Save / Save-and-Use / Cancel row). Receives a
+    /// <see cref="DetailsActionsContext{TEntity,TLink}"/> carrying dirty-state flags.
+    /// </summary>
+    [Parameter]
+    public RenderFragment<DetailsActionsContext<TEntity, TLink>>? DetailsActions { get; set; }
+
+    /// <summary>
+    /// Custom content for the collapsed panel header. When set, overrides
+    /// <see cref="CollapsedSummaryText"/> and <see cref="CollapsedSummaryBadge"/>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? CollapsedSummaryContent { get; set; }
+
+    /// <summary>
+    /// Thin summary fragment rendered above the full-width form when
+    /// <see cref="ShowGrid"/> is <c>false</c>. Receives the current session
+    /// save count as context (e.g., "Records added this session: @context").
+    /// </summary>
+    [Parameter]
+    public RenderFragment<int>? SessionSummaryContent { get; set; }
+
+    // -----------------------------------------------------------------------
+    // Callbacks
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Raised when the user clicks the Add button (<see cref="ShowAddAction"/>),
+    /// after the shell has reset the selection and both dirty flags.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnAddRequested { get; set; }
+
+    /// <summary>Raised when the user clicks the row-wise "Use" button to link without editing.</summary>
+    [Parameter]
+    public EventCallback<TRow> OnUseRequested { get; set; }
+
+    /// <summary>Raised when the user saves in Scenarios 1 / 2 (no dialog close).</summary>
+    [Parameter]
+    public EventCallback<SaveRequest<TEntity, TLink>> OnSaveRequested { get; set; }
+
+    /// <summary>
+    /// Raised when the user clicks "Save and Use" in Scenarios 3 / 4.
+    /// The consumer saves both entity and link data and returns a
+    /// <see cref="SaveAndUseResult{TEntity,TLink}"/> via the callback.
+    /// </summary>
+    [Parameter]
+    public EventCallback<SaveRequest<TEntity, TLink>> OnSaveAndUseRequested { get; set; }
+
+    /// <summary>
+    /// Raised when the user toggles target editability in
+    /// <see cref="TargetEditability.ReadOnlyWithToggle"/> mode.
+    /// The bool argument is the new IsTargetReadOnly value.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OnTargetEditingToggled { get; set; }
+
+    /// <summary>Raised when the user clicks Cancel in the details surface.</summary>
+    [Parameter]
+    public EventCallback OnCancelRequested { get; set; }
+
+    // -----------------------------------------------------------------------
+    // Internals
+    // -----------------------------------------------------------------------
+
+    private int _sessionCount;
+    private TRow? _selectedRow;
+    private bool _hasSelectedRow;
+    private DetailsContext<TEntity> _detailsContext = default!;
+    private LinkContext<TLink> _linkContext = default!;
+
+    /// <summary>
+    /// The shell-owned <see cref="DetailsContext{TEntity}"/> exposed for
+    /// consumers (typically a dialog wrapper) that need to drive
+    /// <c>SetDirty()</c> from outside the cascading-value subtree.
+    /// </summary>
+    public DetailsContext<TEntity> DetailsContext => _detailsContext;
+
+    /// <summary>
+    /// The shell-owned <see cref="LinkContext{TLink}"/> exposed for consumers
+    /// that drive <c>SetLinkDirty()</c> from outside the cascading-value subtree.
+    /// </summary>
+    public LinkContext<TLink> LinkContext => _linkContext;
+
+    protected override void OnInitialized()
+    {
+        _detailsContext = new DetailsContext<TEntity>
+        {
+            IsTargetReadOnly = TargetEditability != TargetEditability.Editable,
+            SetDirty = SetEntityDirty,
+            ToggleTargetEditing = ToggleTargetEditingInternal,
+        };
+        _linkContext = new LinkContext<TLink>
+        {
+            SetLinkDirty = SetLinkDirtyInternal,
+        };
+    }
+
+    private void SetEntityDirty()
+    {
+        if (!_detailsContext.IsDirty)
+        {
+            _detailsContext.SetDirtyInternal();
+            StateHasChanged();
+        }
+    }
+
+    private void SetLinkDirtyInternal()
+    {
+        if (!_linkContext.IsLinkDirty)
+        {
+            _linkContext.SetLinkDirtyInternal();
+            StateHasChanged();
+        }
+    }
+
+    private DetailsActionsContext<TEntity, TLink> BuildActionsContext() =>
+        new()
+        {
+            EntityDirty = _detailsContext.IsDirty,
+            LinkDirty = _linkContext.IsLinkDirty,
+        };
+
+    /// <summary>
+    /// True if either the target entity or the link data has been edited.
+    /// Drives the primary-action label and the dialog-close gating.
+    /// </summary>
+    private bool AnyDirty => _detailsContext.IsDirty || _linkContext.IsLinkDirty;
+
+    private void ToggleTargetEditingInternal()
+    {
+        // Synchronous entry-point used by consumer code via DetailsContext.ToggleTargetEditing.
+        // Mirrors ToggleTargetEditingAsync below; we don't await OnTargetEditingToggled
+        // here because the consumer signature is a synchronous Action.
+        _detailsContext.IsTargetReadOnly = !_detailsContext.IsTargetReadOnly;
+        StateHasChanged();
+        if (OnTargetEditingToggled.HasDelegate)
+            _ = OnTargetEditingToggled.InvokeAsync(_detailsContext.IsTargetReadOnly);
+    }
+
+    private async Task ToggleTargetEditingAsync()
+    {
+        _detailsContext.IsTargetReadOnly = !_detailsContext.IsTargetReadOnly;
+        if (OnTargetEditingToggled.HasDelegate)
+            await OnTargetEditingToggled.InvokeAsync(_detailsContext.IsTargetReadOnly);
+    }
+
+    /// <summary>
+    /// The label that should appear on the shell's primary action button,
+    /// reflecting current dirty state and selection:
+    /// <list type="bullet">
+    ///   <item><description><see cref="UseLabel"/> when <see cref="AllowLinkOnly"/> is true,
+    ///   a row is selected, and no entity fields are dirty.</description></item>
+    ///   <item><description><see cref="SaveAndUseLabel"/> when <see cref="ShowRowUseAction"/>
+    ///   is true (Scenarios 3/4) and the above does not apply.</description></item>
+    ///   <item><description><see cref="SaveLabel"/> otherwise (Scenarios 1/2).</description></item>
+    /// </list>
+    /// </summary>
+    public string PrimaryActionLabel
+    {
+        get
+        {
+            if (AllowLinkOnly && _hasSelectedRow && !AnyDirty)
+                return UseLabel;
+            if (ShowRowUseAction)
+                return SaveAndUseLabel;
+            return SaveLabel;
+        }
+    }
+
+    /// <summary>
+    /// True when the primary action is "Use" (a row is selected and neither
+    /// the entity nor the link is dirty, in <see cref="AllowLinkOnly"/> mode).
+    /// Toggling <see cref="TargetEditability.ReadOnlyWithToggle"/> alone does
+    /// NOT flip this — only an actual entity or link field change does.
+    /// </summary>
+    public bool IsPrimaryActionUseOnly =>
+        AllowLinkOnly && _hasSelectedRow && !AnyDirty;
+
+    /// <summary>
+    /// Effective row-use template: returns <see cref="RowUseAction"/> when
+    /// provided, otherwise a default MudIconButton that raises
+    /// <see cref="OnUseRequested"/>. Consumers' GridContent template columns
+    /// reach into this property via a back-reference to the shell.
+    /// </summary>
+    public RenderFragment<TRow> EffectiveRowUseAction => row =>
+        RowUseAction is not null
+            ? RowUseAction(row)
+            : DefaultRowUseAction(row);
+
+    private RenderFragment DefaultRowUseAction(TRow row) =>
+        @<MudIconButton Icon="@Icons.Material.Filled.AddTask"
+                        Size="Size.Small"
+                        Color="Color.Primary"
+                        OnClick="@(() => RaiseUseRequestedAsync(row))"
+                        data-testid="@($"{TestId}-row-use")" />;
+
+    /// <summary>
+    /// Invoked by the default <see cref="RowUseAction"/> (or by custom row
+    /// templates that opt in). Records the selection so the primary action
+    /// label can flip to "Use", then raises <see cref="OnUseRequested"/>.
+    /// </summary>
+    public async Task RaiseUseRequestedAsync(TRow row)
+    {
+        _selectedRow = row;
+        _hasSelectedRow = true;
+        if (OnUseRequested.HasDelegate)
+            await OnUseRequested.InvokeAsync(row);
+    }
+
+    /// <summary>
+    /// Records a row as the selected row without raising <see cref="OnUseRequested"/>.
+    /// Used by consumers that drive selection via row-click rather than the
+    /// row-wise Use button (so the primary action label flips when the user
+    /// has chosen a row to edit/link). Re-applies the
+    /// <see cref="TargetEditability"/> default to <c>IsTargetReadOnly</c> so
+    /// that returning to a picked row after an Add cycle reverts the form to
+    /// the configured read-only baseline.
+    /// </summary>
+    public void NotifyRowSelected(TRow row)
+    {
+        _selectedRow = row;
+        _hasSelectedRow = true;
+        _detailsContext.IsTargetReadOnly = TargetEditability != TargetEditability.Editable;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Resets selection + dirty state for both entity and link. Forces the
+    /// target editable (the user is adding, not picking) regardless of
+    /// <see cref="TargetEditability"/>; consumers in pure
+    /// <see cref="TargetEditability.ReadOnly"/> mode shouldn't be exposing
+    /// an Add affordance anyway.
+    /// </summary>
+    public void ResetSelection()
+    {
+        _selectedRow = default;
+        _hasSelectedRow = false;
+        _detailsContext.ResetDirty();
+        _linkContext.ResetLinkDirty();
+        _detailsContext.IsTargetReadOnly = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleAddAsync()
+    {
+        ResetSelection();
+        if (OnAddRequested.HasDelegate)
+            await OnAddRequested.InvokeAsync();
+    }
+
+    private async Task HandleExpandedChanged(bool expanded)
+    {
+        if (IsExpanded == expanded) return;
+        IsExpanded = expanded;
+        if (IsExpandedChanged.HasDelegate)
+            await IsExpandedChanged.InvokeAsync(expanded);
+    }
+
+    private async Task HandlePrimaryActionAsync()
+    {
+        var request = new SaveRequest<TEntity, TLink>
+        {
+            EntityDirty = _detailsContext.IsDirty,
+            LinkDirty = _linkContext.IsLinkDirty,
+        };
+
+        Working = true;
+        if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(true);
+        try
+        {
+            if (IsPrimaryActionUseOnly)
+            {
+                if (_selectedRow is not null && OnUseRequested.HasDelegate)
+                    await OnUseRequested.InvokeAsync(_selectedRow);
+                return;
+            }
+
+            if (ShowRowUseAction && OnSaveAndUseRequested.HasDelegate)
+            {
+                await OnSaveAndUseRequested.InvokeAsync(request);
+            }
+            else if (OnSaveRequested.HasDelegate)
+            {
+                await OnSaveRequested.InvokeAsync(request);
+                if (!ShowGrid)
+                    _sessionCount++;
+            }
+
+            _detailsContext.ResetDirty();
+            _linkContext.ResetLinkDirty();
+        }
+        catch (OperationCanceledException)
+        {
+            // Consumer cancelled — leave dirty state intact.
+        }
+        finally
+        {
+            Working = false;
+            if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(false);
+        }
+    }
+
+    private async Task HandleDefaultSaveAsync()
+    {
+        Working = true;
+        if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(true);
+        try
+        {
+            await OnSaveRequested.InvokeAsync(new SaveRequest<TEntity, TLink>
+            {
+                EntityDirty = _detailsContext.IsDirty,
+                LinkDirty = _linkContext.IsLinkDirty,
+            });
+            if (!ShowGrid)
+                _sessionCount++;
+            _detailsContext.ResetDirty();
+            _linkContext.ResetLinkDirty();
+        }
+        catch (OperationCanceledException)
+        {
+            // Consumer cancelled the save (e.g., validation failed) — do not increment.
+        }
+        finally
+        {
+            Working = false;
+            if (WorkingChanged.HasDelegate) await WorkingChanged.InvokeAsync(false);
+        }
+    }
+
+    private async Task HandleCancelAsync()
+    {
+        if (OnCancelRequested.HasDelegate)
+            await OnCancelRequested.InvokeAsync();
+    }
+}

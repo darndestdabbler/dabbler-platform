@@ -1,0 +1,3 @@
+```json
+{"verdict": "VERIFIED", "issues": []}
+```

@@ -1,0 +1,16 @@
+[
+  {
+    "category": "Correctness",
+    "severity": "Major",
+    "title": "Incorrect Playwright call for VerifyTextMatchesStep",
+    "details": "Used ToMatchAriaSnapshotAsync instead of ToHaveTextAsync(new Regex(...)). Fixed.",
+    "status": "fixed"
+  },
+  {
+    "category": "Correctness",
+    "severity": "Major",
+    "title": "Unit test validated incorrect behavior for VerifyTextMatchesStep",
+    "details": "Test asserted ToMatchAriaSnapshotAsync; corrected to assert ToHaveTextAsync(new Regex(...)). Fixed.",
+    "status": "fixed"
+  }
+]

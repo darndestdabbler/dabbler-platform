@@ -1,0 +1,50 @@
+@using AcmeCoffeeOnline.Web.Configuration
+@using Microsoft.Extensions.Options
+@inject IOptions<AppAuthenticationOptions> AuthOptions
+@inject IDialogService DialogService
+
+@if (AuthOptions.Value.SeededSession.Enabled)
+{
+    <MudMenu Icon="@Icons.Material.Filled.BugReport"
+             Color="Color.Warning"
+             Dense="true"
+             Label="Dev"
+             data-testid="dev-tools-menu"
+             AnchorOrigin="Origin.BottomRight"
+             TransformOrigin="Origin.TopRight">
+        <MudMenuItem Icon="@Icons.Material.Filled.Login"
+                     OnClick="OpenQuickSignInAsync"
+                     data-testid="dev-tools-quick-signin">
+            Quick Sign-In
+        </MudMenuItem>
+        <MudMenuItem Icon="@Icons.Material.Filled.Info"
+                     OnClick="OpenSessionInfoAsync"
+                     data-testid="dev-tools-session-info">
+            Session Info
+        </MudMenuItem>
+        <MudMenuItem Icon="@Icons.Material.Filled.Email"
+                     OnClick="OpenMagicLinksAsync"
+                     data-testid="dev-tools-magic-links">
+            Magic Links
+        </MudMenuItem>
+    </MudMenu>
+}
+
+@code {
+    private Task OpenQuickSignInAsync() => OpenAsync<QuickSignInDialog>("Quick Sign-In");
+    private Task OpenSessionInfoAsync() => OpenAsync<SessionInfoDialog>("Session Info");
+    private Task OpenMagicLinksAsync() => OpenAsync<MagicLinksDialog>("Magic Links");
+
+    private Task OpenAsync<TDialog>(string title) where TDialog : ComponentBase
+    {
+        return DialogService.ShowAsync<TDialog>(
+            title,
+            new DialogOptions
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium,
+                CloseButton = true,
+                CloseOnEscapeKey = true
+            });
+    }
+}

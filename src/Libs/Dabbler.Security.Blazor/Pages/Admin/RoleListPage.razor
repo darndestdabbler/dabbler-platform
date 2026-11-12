@@ -1,0 +1,156 @@
+@page "/admin/roles"
+@using Dabbler.Security.Entities
+@using Dabbler.Security.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using MudBlazor
+@attribute [Authorize(Roles = "UserAdministrator")]
+@inject DabblerSecurityDbContext DbContext
+
+@*
+/// <summary>
+/// Displays a list of all available application roles and their associated permissions.
+/// This page is restricted to users with the "UserAdministrator" role.
+/// </summary>
+*@
+
+<PageTitle>Role Management</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h1" Class="mb-4">Role Management</MudText>
+
+    <MudPaper Elevation="3" Class="pa-4 mb-4">
+        <MudText Typo="Typo.body1">
+            Roles and permissions are defined by the application's migration metadata. 
+            As a UserAdministrator, you can view the available roles and their permissions, 
+            but you cannot create or modify them here.
+        </MudText>
+    </MudPaper>
+
+    <MudTable Items="@_roles" Dense="true" Hover="true" Loading="@_loading" Striped="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>System Role</MudTh>
+            <MudTh>Permissions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="ID">@context.Id</MudTd>
+            <MudTd DataLabel="Name">
+                <MudText Typo="Typo.subtitle2">@context.Name</MudText>
+            </MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="System Role">
+                @if (context.IsSystemRole)
+                {
+                    <MudChip T="string" Color="Color.Warning" Size="Size.Small" Style="background-color:#8a5a00;color:#ffffff;">System</MudChip>
+                }
+            </MudTd>
+            <MudTd DataLabel="Permissions">
+                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => ShowPermissions(context))">
+                    View Permissions
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</MudContainer>
+
+<MudDialog @bind-Visible="_dialogVisible" Options="_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Security" Class="mr-3 mb-n1"/>
+            Permissions for @_selectedRole?.Name
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_selectedRolePermissions != null && _selectedRolePermissions.Any())
+        {
+            <MudTable Items="@_selectedRolePermissions" Dense="true" Hover="true" Elevation="0">
+                <HeaderContent>
+                    <MudTh>Entity</MudTh>
+                    <MudTh>Permission</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Entity">@context.EntityName</MudTd>
+                    <MudTd DataLabel="Permission">
+                        <MudChip T="string" Size="Size.Small" Color="@GetPermissionColor(context.PermissionType)">
+                            @context.PermissionType
+                        </MudChip>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" Class="pa-4">No explicit permissions defined for this role.</MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="CloseDialog">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true;
+    private List<AppRole> _roles = new();
+    
+    private bool _dialogVisible;
+    private DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+    private AppRole? _selectedRole;
+    private List<AppRolePermission> _selectedRolePermissions = new();
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+    }
+
+    private async Task LoadRoles()
+    {
+        _loading = true;
+        try
+        {
+            _roles = await DbContext.AppRoles
+                .Where(r => r.DeletedAt == null)
+                .OrderBy(r => r.Name)
+                .ToListAsync();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task ShowPermissions(AppRole role)
+    {
+        _selectedRole = role;
+        _selectedRolePermissions = await DbContext.AppRolePermissions
+            .Where(p => p.RoleId == role.Id)
+            .OrderBy(p => p.EntityName)
+            .ThenBy(p => p.PermissionType)
+            .ToListAsync();
+            
+        _dialogVisible = true;
+    }
+
+    private void CloseDialog()
+    {
+        _dialogVisible = false;
+    }
+
+    private Color GetPermissionColor(string permission)
+    {
+        return permission.ToLowerInvariant() switch
+        {
+            "read" => Color.Info,
+            "create" => Color.Success,
+            "update" => Color.Warning,
+            "delete" => Color.Error,
+            _ => Color.Default
+        };
+    }
+}

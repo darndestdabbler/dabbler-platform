@@ -1,0 +1,33 @@
+{
+  "ProjectName": "uat-dsl-watermark-integration smoke (post-auth subset)",
+  "Review": [
+    {
+      "FunctionalArea": "UAT DSL Watermark Smoke",
+      "Subarea": "Toggle availability (post-auth)",
+      "ItemLabel": "SMOKE-1-post-auth: Toggle Available column switch on /admin/products",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.UatDslWatermarkSmokeTests.Smoke1PostAuthAsync",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/products\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "WAIT FOR \"the page displays the text 'Product Administration'\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK SWITCH in column with header \"Available\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "WAIT FOR ACTIONS QUIET"
+        },
+        {
+          "StepNumber": 5,
+          "Action": "VERIFY ELEMENT with label \"Available\" is visible"
+        }
+      ]
+    }
+  ]
+}
