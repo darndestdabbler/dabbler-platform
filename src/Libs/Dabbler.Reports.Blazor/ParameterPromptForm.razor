@@ -1,0 +1,33 @@
+@namespace Dabbler.Reports.Blazor
+@using MudBlazor
+
+<MudPaper Class="pa-4" Elevation="1">
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <MudText Typo="Typo.h6" Class="mb-4">@Title</MudText>
+    }
+
+    <MudForm @ref="_form" @bind-IsValid="_isFormValid">
+        @if (Parameters is not null)
+        {
+            @foreach (var param in Parameters.OrderBy(p => p.SortOrder))
+            {
+                <div class="mb-3">
+                    @RenderParameterControl(param)
+                </div>
+            }
+        }
+    </MudForm>
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="mt-4"
+               Disabled="@(!_isFormValid || IsLoading)"
+               OnClick="OnRunReportClicked">
+        @if (IsLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+        }
+        Run Report
+    </MudButton>
+</MudPaper>

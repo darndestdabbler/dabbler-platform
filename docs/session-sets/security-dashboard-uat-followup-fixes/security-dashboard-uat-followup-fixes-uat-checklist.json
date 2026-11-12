@@ -1,0 +1,336 @@
+{
+  "ProjectName": "Dabbler Platform / AcmeCoffeeOnline Security Dashboard (UAT Follow-up Fixes)",
+  "ReleaseLabel": "security-dashboard-uat-followup-fixes",
+  "Review": [
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-Role Security Nav Visibility and Tab Gating",
+      "ItemLabel": "Baked-in User persona sees Security Dashboard nav entry and only Role Documentation tab",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Clear the dev email inbox so the \"top-most\" row you pick in step 4 is unambiguously the new magic-link message (navigate to /dev/email-inbox and click Clear if rows are present, or use the /test-auth/magic-links?clear=true endpoint).",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Open the login screen at /login",
+          "Verifications": [
+            {
+              "Text": "The login page is visible (data-testid login-page)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Fill the email input with `juser@acmecoffee.com` and click the \"Send sign-in link\" button",
+          "Verifications": [
+            {
+              "Text": "The login screen confirms the code was sent, displaying a \"We sent a sign-in code to\" message",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "In a second browser tab, open /dev/email-inbox and look at the top-most data row (the first `tbody tr.mud-table-row` element — tbody scoping is required because MudTable also renders a header `tr.mud-table-row` in thead)",
+          "Verifications": [
+            {
+              "Text": "The first `<a>` inside the top row's `td[data-label=\"Link\"]` has an href matching `^https?://.+/login\\?token=` (points at the magic-link landing URL)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Read the href of the anchor inside the top row's `td[data-label=\"Link\"]` and navigate the original tab to that URL (the magic-link landing URL)",
+          "Verifications": [
+            {
+              "Text": "The Admin drawer group is visible in the left navigation of the authenticated app",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Navigate via the Admin drawer group to Security Dashboard (URL ends at /admin/security)",
+          "Verifications": [
+            {
+              "Text": "\"Role Documentation\" tab is visible",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Role Master Details\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Default Masks\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Organization Master Details\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "\"Users and Role Assignment\" tab is absent (count 0)",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "juser@acmecoffee.com",
+        "SeededRole": "User (baked-in, from user-roles.json)",
+        "LoginUrl": "/login",
+        "EmailInboxUrl": "/dev/email-inbox",
+        "EmailInputSelector": "input[type='email']",
+        "SendLinkButtonLabel": "Send sign-in link",
+        "InboxRowSelector": "tbody tr.mud-table-row",
+        "InboxLinkCellSelector": "td[data-label='Link']",
+        "DrawerGroup": "Admin",
+        "NavEntry": "Security Dashboard"
+      },
+      "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.SecurityNav_BakedInUserPersona_RealLoginFlow_NavVisibleRoleDocOnlyAsync",
+      "IsJudgmentItem": false,
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "In-Circuit Refresh + New Org Cue",
+      "ItemLabel": "Create organization auto-re-expands the shell and shows the new row without a shell-header click",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate via the Admin drawer group to Security Dashboard (URL ends at /admin/security)",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the Organization Master Details tab",
+          "Verifications": [
+            {
+              "Text": "Organization master grid is visible",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "Generate a fresh 8-character hex marker you will reuse in steps 6, 7, and the verifications at step 8. Any 8-hex string works; this checklist uses `b2c3d4e5` as the example. The Playwright test computes its marker via `Guid.NewGuid().ToString(\"N\").Substring(0, 8)`.",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "Click the organization-grid-add-button button",
+          "Verifications": [
+            {
+              "Text": "The collapsed shell summary reads \"New organization\"",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 6,
+          "Action": "Fill the Key field with `customer-followup-b2c3d4e5` (substitute the 8-hex marker you chose in step 4).",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 7,
+          "Action": "Fill the Name field with `Followup b2c3d4e5` (substitute the same 8-hex marker you chose in step 4).",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 8,
+          "Action": "Click the organization-save-button button. DO NOT click the shell header afterwards — the shell must re-expand on its own.",
+          "Verifications": [
+            {
+              "Text": "The results shell auto-re-expands within a few seconds — the organization master grid becomes visible without any shell-header click.",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The row with key `customer-followup-b2c3d4e5` is visible in the grid (using the marker you chose in step 4).",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The row with name `Followup b2c3d4e5` is visible in the grid (using the marker you chose in step 4).",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "SystemAdminEmail": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "NavGroup": "Admin",
+        "NavItem": "Security Dashboard",
+        "DashboardUrlPattern": ".*/admin/security$",
+        "TabName": "Organization Master Details",
+        "AddButtonTestId": "organization-grid-add-button",
+        "NewOrgKey": "customer-followup-{{RuntimeMarker}}",
+        "NewOrgName": "Followup {{RuntimeMarker}}",
+        "SaveButtonTestId": "organization-save-button",
+        "RuntimeMarker": "<8-hex-chars-from-Guid.NewGuid.ToString-N>"
+      },
+      "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.OrgMasterDetails_CreateOrganization_AutoReexpandsShellAsync",
+      "IsJudgmentItem": false,
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Currency Formatting",
+      "ItemLabel": "Products Unit Price column renders the US dollar symbol (not the invariant-culture \"¤\")",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as jdoe@acmecoffee.com with role BackofficeUser",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to /products",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Wait for the product grid data to load",
+          "Verifications": [
+            {
+              "Text": "The Unit Price column header is visible in the grid (.mud-table-head)",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The first data row's Unit Price cell text contains a \"$\" character (e.g., \"$4.99\").",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The first data row's Unit Price cell text does NOT contain \"¤\" (the invariant-culture currency symbol).",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "jdoe@acmecoffee.com",
+        "Role": "BackofficeUser",
+        "ProductsUrl": "/products",
+        "ExpectedCurrencySymbol": "$",
+        "UnacceptableCurrencySymbol": "¤"
+      },
+      "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.Products_BackofficeUser_UnitPriceColumn_ShowsDollarSymbolAsync",
+      "IsJudgmentItem": false,
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Row-Select Collapse",
+      "ItemLabel": "Clicking a first-column cell collapses the shell on the first click",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "Sign in as admin@acmecoffee.com with role SystemAdmin",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "Navigate to /admin/security",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "Click the Role Master Details tab",
+          "Verifications": [
+            {
+              "Text": "The role master grid is visible (data-testid role-master-grid).",
+              "VerificationMethod": "ui"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "With the shell expanded, click directly on the BackofficeUser row's canonical-name cell (the first column's cell content, not the row's edge). Do NOT double-click.",
+          "Verifications": [
+            {
+              "Text": "On the FIRST click, the results shell collapses — the role-master-details-shell-summary element becomes visible.",
+              "VerificationMethod": "ui"
+            },
+            {
+              "Text": "The role-details-section is visible (the details panel renders alongside the collapse driven by the same row-select).",
+              "VerificationMethod": "ui"
+            }
+          ]
+        }
+      ],
+      "TestData": {
+        "Persona": "admin@acmecoffee.com",
+        "Role": "SystemAdmin",
+        "SecurityUrl": "/admin/security",
+        "TabName": "Role Master Details",
+        "RoleCellTestId": "role-row-BackofficeUser",
+        "ShellSummaryTestId": "role-master-details-shell-summary"
+      },
+      "E2ETestReference": "SecurityDashboardUatFollowupCoverageTests.RoleMasterGrid_FirstColumnCellClick_CollapsesShellOnFirstClickAsync",
+      "IsJudgmentItem": false,
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Access",
+      "Subarea": "Per-Role Security Nav Visibility and Tab Gating",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "How can you run the test in a manner that most emulates the user.  Can you actually login with the login screen and navigate to http://localhost:5010/dev/email-inbox?, get the top-most entry (first tr element with class = \"mud-table-row\"), get the td with data-label = \"Link\" and then follow the link to login?  That's what the human does."
+    },
+    {
+      "FunctionalArea": "Organization Master Details",
+      "Subarea": "In-Circuit Refresh + New Org Cue",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Data-Bound Restriction Enforcement",
+      "Subarea": "Currency Formatting",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Master-Details Expansion Shell",
+      "Subarea": "Row-Select Collapse",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    }
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "36%",
+      "8%",
+      "36%"
+    ]
+  },
+  "DocumentDate": "4/21/2026, 4:32:37 PM"
+}

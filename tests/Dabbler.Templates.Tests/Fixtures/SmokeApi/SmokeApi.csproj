@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>SmokeApi</RootNamespace>
+    <AssemblyName>SmokeApi</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <!-- Allow the consumer skeleton to skip XML doc generation; warnings here would
+         drown out the actual scaffolded-output compile diagnostic the test wants to assert. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    The smoke test runs this csproj in a temp dir OUTSIDE the repo's central-package-management
+    scope (Directory.Packages.props), so explicit Version attributes are required on every
+    PackageReference for `dotnet restore` to succeed.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
+    <PackageReference Include="Dabbler.Api.Querying" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Security" Version="0.1.0-preview.1" />
+  </ItemGroup>
+
+</Project>

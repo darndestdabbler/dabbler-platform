@@ -1,0 +1,29 @@
+@page "/products/{ProductId:int}"
+@attribute [DabblerPageAuthorize("/products")]
+
+<PageTitle>Product Details — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/products"))"
+                           aria-label="Back to products" />
+            <MudText Typo="Typo.h4" data-testid="product-detail-title">Product #@ProductId</MudText>
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            View and edit product details.
+        </MudText>
+    </MudStack>
+
+    <ProductDetail ProductId="ProductId"
+                   IsReadOnly="false" />
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int ProductId { get; set; }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

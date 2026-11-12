@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 021 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 021 transcript</h1>
+<p class="stamp">Rendered 2026-11-10T12:12:42.926Z by dabbler-ai-router 3.29.1 at feb4794b777e8ac6d2d71cf0461127caa97cafc6.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-09T15:31:48.557-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 21: The framework runs the Playwright E2E gate</h3>
+<ol><li>Register.</li><li>Add <code>tools/e2e.ps1</code>, the one command that runs the E2E gate from a cold start. It uses <code>podman</code> when it is on <code>PATH</code> and its machine is running, otherwise <code>docker</code> (<code>DABBLER_CONTAINER_ENGINE</code> overrides the choice), and fails with a plain message, not a test failure, when neither engine is up or <code>../dabbler-uat-dsl/pack-output</code> is missing. It brings <code>docker/docker-compose.infra.yml</code> up, drops the <code>AcmeCoffeeOnline_Dev</code> database so the API creates and seeds it fresh (the persistent volume and the other databases stay), rebuilds and starts <code>docker/docker-compose.app.yml</code>, waits for <code>api</code> and <code>web</code> to report healthy with a time limit, then runs <code>dotnet test tests/AcmeCoffeeOnline.Playwright/</code> with <code>--blame-hang-timeout</code> and a trx logger, and exits with the test run's exit code. The step's check runs the script and passes when the trx it wrote holds 178 tests of which no more than the 12 known failures failed: the run proves the gate, not the app.</li><li>Declare an <code>e2e</code> suite in <code>dabbler.yaml</code> that runs <code>tools/e2e.ps1</code>: <code>expensive: true</code>, <code>required_for_close: false</code> until Session 22 makes it green, covering <code>src/Apps</code>, <code>src/Libs</code>, <code>tests/AcmeCoffeeOnline.Playwright</code>, <code>docker</code> and <code>Directory.Packages.props</code>. Rewrite the places that call Playwright a manual gate the operator runs — <code>docs/MAINTAINING.md</code> (*Where every gate lives* and *Releasing*), the *Building and testing* part of <code>AGENTS.md</code> outside the managed fence, and <code>docs/packaging/release-checklist.md</code> — to say the framework runs it as the <code>e2e</code> suite and the operator only needs Podman or Docker running. The step's check: <code>dabbler.yaml</code> parses and declares the <code>e2e</code> suite, and none of the three documents still tells the operator to run Playwright by hand.</li><li>Cross-provider verification.</li><li>The <code>unit</code> suite once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no change to the app, the libraries or what any Playwright test asserts (the 12 failures are Session 22's); no Playwright in <code>ci.yml</code> or <code>build.yml</code> (CI has no <code>../dabbler-uat-dsl</code> feed); no change to the compose files beyond what the script needs to drive them.</p>
+<p>Why now (2026-11-09): the operator ran the gate after Session 20 under Podman and got 161 passed, 12 failed, 5 skipped, the same counts as Session 9's fresh-database baseline; nothing app-facing has changed since Session 9 except DabblerPdf 1.1.3, and no PDF test is among the 12. The operator wants the framework, not a person, to run the gate, and wants the 12 fixed.</p>
+<h2>Work Plan</h2>
+<p>Make the Playwright E2E gate something the framework runs instead of a person. Add tools/e2e.ps1, one cold-start command: it picks podman when it is on PATH and <code>podman info</code> succeeds, otherwise docker (DABBLER_CONTAINER_ENGINE overrides), and stops with a plain message when no engine is up or ../dabbler-uat-dsl/pack-output is missing; it brings docker/docker-compose.infra.yml up, waits for dabbler-sqlserver to be healthy, takes the app stack down, drops only the AcmeCoffeeOnline_Dev database through sqlcmd in the sqlserver container, rebuilds and starts docker/docker-compose.app.yml, polls the api (5011) and web (5010) /health endpoints under a time limit, then runs dotnet test tests/AcmeCoffeeOnline.Playwright/ with --blame-hang-timeout and a trx logger into a results directory parameter, and exits with the test run's exit code. Then declare an <code>e2e</code> suite in dabbler.yaml that runs the script (expensive, not required for close until Session 22 makes it green, covering src/Apps, src/Libs, tests/AcmeCoffeeOnline.Playwright, docker and Directory.Packages.props), and rewrite docs/MAINTAINING.md (Where every gate lives, Releasing), the Building and testing part of AGENTS.md outside the managed fence, and docs/packaging/release-checklist.md so they say the framework runs Playwright as the <code>e2e</code> suite and the operator only needs Podman or Docker running.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/ae5f4b137c46aaccae08eb5013ca94f64e09630d"><code>ae5f4b137c46aaccae08eb5013ca94f64e09630d</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>E2e script</td><td><p>Write tools/e2e.ps1 as described in the task: engine choice (DABBLER_CONTAINER_ENGINE, else podman if on PATH and <code>podman info</code> succeeds, else docker if <code>docker info</code> succeeds, else a plain error and exit 2), a plain error when ../dabbler-uat-dsl/pack-output is missing, infra compose up -d, wait for dabbler-sqlserver healthy, app compose down, drop AcmeCoffeeOnline_Dev (SINGLE_USER WITH ROLLBACK IMMEDIATE, then DROP, only if it exists) via sqlcmd inside dabbler-sqlserver, app compose up --build -d, poll http://localhost:5011/health and http://localhost:5010/health until 200 or -HealthTimeoutSeconds (default 300) elapses, remove any old e2e.trx, then dotnet test tests/AcmeCoffeeOnline.Playwright/ --blame-hang-timeout 10m --logger 'trx;LogFileName=e2e.trx' --results-directory &lt;-ResultsDirectory, default TestResults/e2e under the repo root&gt;, and exit with dotnet test's exit code. The check runs the script and passes when its trx holds 178 tests with no more than 12 failed.</p></td><td><span class="mono">tools/e2e.ps1</span></td><td><code>pwsh -NoProfile -Command $d = Join-Path ([IO.Path]::GetTempPath()) 'dabbler-e2e-check'; &amp; ./tools/e2e.ps1 -ResultsDirectory $d; $trx = Join-Path $d 'e2e.trx'; if (-not (Test-Path $trx)) { Write-Host &quot;no trx at $trx&quot;; exit 1 }; [xml]$x = Get-Content -Raw $trx; $c = $x.TestRun.ResultSummary.Counters; Write-Host &quot;total=$($c.total) passed=$($c.passed) failed=$($c.failed)&quot;; if ([int]$c.total -eq 178 -and [int]$c.failed -le 12) { exit 0 } else { exit 1 }</code></td><td>yes</td></tr>
+<tr><td>E2e suite and docs</td><td><p>Declare the <code>e2e</code> suite in dabbler.yaml (command <code>pwsh -NoProfile -File tools/e2e.ps1</code>, expensive: true, required_for_close: false, covers src/Apps, src/Libs, tests/AcmeCoffeeOnline.Playwright, docker, Directory.Packages.props) and update the file's header comment that calls Playwright a manual gate. Rewrite docs/MAINTAINING.md (Where every gate lives and Releasing), the Building and testing part of AGENTS.md outside the managed fence, and docs/packaging/release-checklist.md Step 2 to say the framework runs Playwright as the <code>e2e</code> suite through tools/e2e.ps1 and the operator only needs Podman or Docker running (and ../dabbler-uat-dsl packed).</p></td><td><span class="mono">dabbler.yaml</span><br><span class="mono">docs/MAINTAINING.md</span><br><span class="mono">AGENTS.md</span><br><span class="mono">docs/packaging/release-checklist.md</span></td><td><code>python -c import yaml; s = {x['name']: x for x in yaml.safe_load(open('dabbler.yaml', encoding='utf-8'))['testing']['suites']}; e = s['e2e']; assert 'tools/e2e.ps1' in e['command'], e; assert e['expensive'] is True and e['required_for_close'] is False, e; assert set(['src/Apps', 'src/Libs', 'tests/AcmeCoffeeOnline.Playwright', 'docker', 'Directory.Packages.props']) &lt;= set(e['covers']), e</code><br><code>pwsh -NoProfile -Command $hits = Select-String -Path docs/MAINTAINING.md, AGENTS.md, docs/packaging/release-checklist.md -SimpleMatch -Pattern 'dotnet test tests/AcmeCoffeeOnline.Playwright', 'manual gate', 'Manual: run it yourself', 'run it yourself'; if ($hits) { $hits | ForEach-Object { Write-Host $_ }; exit 1 }; exit 0</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No change to the app, the libraries or what any Playwright test asserts; the 12 known failures are Session 22's.</li><li>No Playwright in .github/workflows/ci.yml or build.yml (CI has no ../dabbler-uat-dsl feed).</li><li>No change to the compose files beyond what the script needs to drive them (none is planned).</li><li>The e2e suite stays required_for_close: false; making it required is Session 22's.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[20:31:48]</span> <span class="muted">run-started</span> session=021 mode=pull</div>
+<div class="line"><span class="at">[20:31:48]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[20:34:03]</span> <span class="muted">run-resumed</span> session=021 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[20:34:03]</span> <span class="muted">plan-accepted</span> steps=[&quot;e2e-script&quot;,&quot;e2e-suite-and-docs&quot;] non_goals=4</div>
+<div class="line"><span class="at">[20:34:17]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[20:34:17]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=e2e-script</div>
+<div class="line"><span class="at">[20:35:27]</span> <span class="muted">run-resumed</span> session=021 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[20:50:13]</span> <span class="muted">check-passed</span> step=e2e-script argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$d = Join-Path ([IO.Path]::GetTempPath()) 'dabbler-e2e-check'; &amp; ./tools/e2e.ps1 -ResultsDirectory $d; $trx = Join-Path $d 'e2e.trx'; if (-not (Test-Path $trx)) { Write-Host \&quot;no trx at $trx\&quot;; exit 1 }; [xml]$x = Get-Content -Raw $trx; $c = $x.TestRun.ResultSummary.Counters; Write-Host \&quot;total=$($c.total) passed=$($c.passed) failed=$($c.failed)\&quot;; if ([int]$c.total -eq 178 -and [int]$c.failed -le 12) { exit 0 } else { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[20:50:18]</span> <span class="muted">report-accepted</span> seq=2 step=e2e-script files=[&quot;tools/e2e.ps1&quot;] notes=Added tools/e2e.ps1: engine choice, preconditions, infra up, fresh AcmeCoffeeOnline_Dev, app rebuild, /health wait, Playwright with trx; exits with the test run's code.</div>
+<div class="line"><span class="at">[20:50:18]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=e2e-suite-and-docs</div>
+<div class="line"><span class="at">[20:51:52]</span> <span class="muted">run-resumed</span> session=021 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[20:52:10]</span> <span class="muted">check-passed</span> step=e2e-suite-and-docs argv=[&quot;python&quot;,&quot;-c&quot;,&quot;import yaml; s = {x['name']: x for x in yaml.safe_load(open('dabbler.yaml', encoding='utf-8'))['testing']['suites']}; e = s['e2e']; assert 'tools/e2e.ps1' in e['command'], e; assert e['expensive'] is True and e['required_for_close'] is False, e; assert set(['src/Apps', 'src/Libs', 'tests/AcmeCoffeeOnline.Playwright', 'docker', 'Directory.Packages.props']) &lt;= set(e['covers']), e&quot;]</div>
+<div class="line"><span class="at">[20:52:10]</span> <span class="muted">check-passed</span> step=e2e-suite-and-docs argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$hits = Select-String -Path docs/MAINTAINING.md, AGENTS.md, docs/packaging/release-checklist.md -SimpleMatch -Pattern 'dotnet test tests/AcmeCoffeeOnline.Playwright', 'manual gate', 'Manual: run it yourself', 'run it yourself'; if ($hits) { $hits | ForEach-Object { Write-Host $_ }; exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[20:52:12]</span> <span class="muted">report-accepted</span> seq=3 step=e2e-suite-and-docs files=[&quot;dabbler.yaml&quot;,&quot;docs/MAINTAINING.md&quot;,&quot;AGENTS.md&quot;,&quot;docs/packaging/release-checklist.md&quot;] notes=Declared the e2e suite (tools/e2e.ps1, expensive, not required for close) and rewrote MAINTAINING, AGENTS Building and testing, and the release checklist: the framework runs Playwright; the operator only needs Podman or Docker.</div>
+<div class="line"><span class="at">[20:52:12]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[20:52:14]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[20:52:21]</span> <span class="muted">job-started</span> name=verification pid=52432 log=.dabbler/runs/s21/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[20:53:41]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s21/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[20:53:41]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[20:53:41]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[20:53:45]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[20:53:46]</span> <span class="muted">job-started</span> name=run of record: unit pid=26888 log=.dabbler/runs/s21/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[20:54:10]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s21/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[20:54:16]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[20:54:16]</span> <span class="muted">job-started</span> name=run of record: smoke pid=36472 log=.dabbler/runs/s21/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[21:10:31]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s21/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[21:10:37]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[21:10:38]</span> <span class="muted">job-started</span> name=run of record: e2e pid=27056 log=.dabbler/runs/s21/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[21:26:02]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="bad">1</span> log=.dabbler/runs/s21/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[21:26:02]</span> <span class="muted">tests-failed</span> command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[21:26:02]</span> <span class="muted">instruction-issued</span> seq=4 kind=step step=fix-run-of-record</div>
+<div class="line"><span class="at">[21:27:00]</span> <span class="muted">run-resumed</span> session=021 phase=<span class="milestone">run-of-record</span> mode=pull</div>
+<div class="line"><span class="at">[21:27:05]</span> <span class="muted">mechanic-called</span> stop=blocked model=claude-fable-5-1</div>
+<div class="line"><span class="at">[21:27:19]</span> <span class="muted">mechanic-handed-back</span> stop=blocked</div>
+<div class="line"><span class="at">[22:07:24]</span> <span class="muted">run-resumed</span> session=021 phase=<span class="milestone">run-of-record</span> mode=pull after=blocked</div>
+<div class="line"><span class="at">[22:07:24]</span> <span class="muted">mechanic-not-called</span> why=this stop has had its one attempt</div>
+<div class="line"><span class="at">[11:28:36]</span> <span class="muted">run-resumed</span> session=021 phase=<span class="milestone">run-of-record</span> mode=pull after=blocked</div>
+<div class="line"><span class="at">[11:28:36]</span> <span class="muted">mechanic-not-called</span> why=this stop has had its one attempt</div>
+<div class="line"><span class="at">[11:31:03]</span> <span class="muted">run-resumed</span> session=021 phase=<span class="milestone">run-of-record</span> mode=pull after=blocked</div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$d = Join-Path ([IO.Path]::GetTempPath()) 'dabbler-e2e-check'; &amp; ./tools/e2e.ps1 -ResultsDirectory $d; $trx = Join-Path $d 'e2e.trx'; if (-not (Test-Path $trx)) { Write-Host \&quot;no trx at $trx\&quot;; exit 1 }; [xml]$x = Get-Content -Raw $trx; $c = $x.TestRun.ResultSummary.Counters; Write-Host \&quot;total=$($c.total) passed=$($c.passed) failed=$($c.failed)\&quot;; if ([int]$c.total -eq 178 -and [int]$c.failed -le 12) { exit 0 } else { exit 1 }&quot;] owner=e2e-script</div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;python&quot;,&quot;-c&quot;,&quot;import yaml; s = {x['name']: x for x in yaml.safe_load(open('dabbler.yaml', encoding='utf-8'))['testing']['suites']}; e = s['e2e']; assert 'tools/e2e.ps1' in e['command'], e; assert e['expensive'] is True and e['required_for_close'] is False, e; assert set(['src/Apps', 'src/Libs', 'tests/AcmeCoffeeOnline.Playwright', 'docker', 'Directory.Packages.props']) &lt;= set(e['covers']), e&quot;] owner=e2e-suite-and-docs</div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$hits = Select-String -Path docs/MAINTAINING.md, AGENTS.md, docs/packaging/release-checklist.md -SimpleMatch -Pattern 'dotnet test tests/AcmeCoffeeOnline.Playwright', 'manual gate', 'Manual: run it yourself', 'run it yourself'; if ($hits) { $hits | ForEach-Object { Write-Host $_ }; exit 1 }; exit 0&quot;] owner=e2e-suite-and-docs</div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="muted">report-accepted</span> seq=4 step=fix-run-of-record files=[&quot;docs/sessions/mechanic-log.md&quot;] notes=Router gap, fixed in dabbler-ai-orchestration 3.29.1 (Sessions 301-302, now installed): a red required_for_close:false suite no longer fails the run of record. No file of this tree changed except the mechanic log.</div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="good">progress-resumed</span> past=blocked from=run-of-record phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[11:43:41]</span> <span class="muted">job-started</span> name=verification pid=27972 log=.dabbler/runs/s21/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[11:44:22]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s21/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[11:44:22]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[11:44:22]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[11:44:22]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[11:44:22]</span> <span class="muted">job-started</span> name=run of record: unit pid=35716 log=.dabbler/runs/s21/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[11:44:23]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s21/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[11:44:24]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[11:44:24]</span> <span class="muted">job-started</span> name=run of record: smoke pid=41192 log=.dabbler/runs/s21/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[11:59:55]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s21/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[11:59:55]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[11:59:55]</span> <span class="muted">job-started</span> name=run of record: e2e pid=46176 log=.dabbler/runs/s21/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[12:12:33]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="bad">1</span> log=.dabbler/runs/s21/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[12:12:33]</span> <span class="muted">run-of-record-red-not-required</span> suite=e2e command=pwsh -NoProfile -File tools/e2e.ps1 log=.dabbler/runs/s21/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[12:12:33]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[12:12:36]</span> <span class="muted">landed</span> commit=ae5f4b137c46aaccae08eb5013ca94f64e09630d</div>
+<div class="line"><span class="at">[12:12:36]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[12:12:36]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[12:12:36]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[12:12:37]</span> <span class="muted">job-started</span> name=close pid=50468 log=.dabbler/runs/s21/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:12:42]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s21/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:12:42]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td><details><summary>2 findings</summary></details></td></tr><tr class="findings"><td colspan="7"><table>
+<tr><th>#</th><th>Severity</th><th>Finding</th><th>Response</th></tr>
+<tr><td>0</td><td><strong>minor</strong></td><td>**Nit:** `tools/e2e.ps1` tests only that `../dabbler-uat-dsl/pack-output` exists, not that it is a directory. A low-probability malformed checkout containing a regular file named `pack-output` would pass the precondition and later fail during restore as a test failure rather than the required plain prerequisite message.</td><td>not answered</td></tr>
+<tr><td>1</td><td><strong>minor</strong></td><td>**Nit:** No test assets are visible in this diff for the new script’s selection and prerequisite branches. A useful nonblocking contract test would place both fake `podman` and `docker` executables on `PATH`, make both `info` commands succeed, and invoke the script with a valid fake feed; assert that only `podman` receives compose commands. The current code appears to select Podman correctly, but that precedence is unpinned by a visible test.</td><td>not answered</td></tr>
+</table></td></tr>
+<tr><td>2</td><td>fix-delta</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td><details><summary>3 findings</summary></details></td></tr><tr class="findings"><td colspan="7"><table>
+<tr><th>#</th><th>Severity</th><th>Finding</th><th>Response</th></tr>
+<tr><td>0</td><td><strong>minor</strong></td><td>**Nit (re-raised from Round 1):** `tools/e2e.ps1` remains unchanged by this delta, so the `../dabbler-uat-dsl/pack-output` prerequisite still appears to be tested only for existence rather than directory type. A regular file at that path would pass the prerequisite check and fail later during package restore instead of producing the required plain prerequisite message.</td><td>not answered</td></tr>
+<tr><td>1</td><td><strong>minor</strong></td><td>**Nit (re-raised from Round 1):** No test asset is visible in this delta to pin container-engine precedence. The useful contract case is: with successful fake `podman info` and `docker info` executables on `PATH`, plus a valid fake feed directory, invoke `tools/e2e.ps1` and assert compose commands are sent only to `podman`; a reversed implementation would otherwise be unpinned.</td><td>not answered</td></tr>
+<tr><td>2</td><td><strong>minor</strong></td><td>**Nit:** The new log admits that the recorded E2E run had 13 failures, while the session plan’s stated acceptance condition is “no more than the 12 known failures failed.” The proposed external router change would permit recording a red non-required suite, but it cannot make the recorded TRX satisfy that count.</td><td>not answered</td></tr>
+</table></td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="bad">none-selected</span></td><td>9s</td><td></td><td></td><td></td><td><span class="mono"></span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>963s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="bad">failed</span></td><td>912s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="bad">none-selected</span></td><td>1s</td><td></td><td></td><td></td><td><span class="mono"></span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>930s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="bad">failed</span></td><td>756s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<details><summary><strong>run-of-record-e2e</strong> exit <span class="bad">1</span></summary>
+<pre>running e2e: pwsh -NoProfile -File tools/e2e.ps1
+e2e: container engine is podman
+&gt;&gt;&gt;&gt; Executing external compose provider &quot;C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker-compose.exe&quot;. Please see podman-compose(1) for how to disable this message. &lt;&lt;&lt;&lt;
+
+ Container dabbler-mailhog Running 
+ Container dabbler-sqlserver Running 
+&gt;&gt;&gt;&gt; Executing external compose provider &quot;C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker-compose.exe&quot;. Please see podman-compose(1) for how to disable this message. &lt;&lt;&lt;&lt;
+
+ Container dabbler-app-devidp-1 Stopping 
+ Container dabbler-app-web-1 Stopping 
+ Container dabbler-app-devidp-1 Stopped 
+ Container dabbler-app-devidp-1 Removing 
+ Container dabbler-app-devidp-1 Removed 
+ Container dabbler-app-web-1 Stopped 
+ Container dabbler-app-web-1 Removing 
+ Container dabbler-app-web-1 Removed 
+ Container dabbler-app-api-1 Stopping 
+ Container dabbler-app-api-1 Stopped 
+ Container dabbler-app-api-1 Removing 
+ Container dabbler-app-api-1 Removed 
+Nonqualified transactions are being rolled back. Estimated rollback completion: 0%.
+Nonqualified transactions are being rolled back. Estimated rollback completion: 100%.
+e2e: dropped AcmeCoffeeOnline_Dev; the API creates and seeds it on start
+&gt;&gt;&gt;&gt; Executing external compose provider &quot;C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker-compose.exe&quot;. Please see podman-compose(1) for how to disable this message. &lt;&lt;&lt;&lt;
+
+ Image acmecoffee-devidp:local Building 
+ Image acmecoffee-api:local Building 
+ Image acmecoffee-api:local Building 
+ Image acmecoffee-devidp:local Building 
+Sending build context to Docker daemon  526.8kBSending build context to Docker daemon  526.8kBSending build context to Docker daemon   6.83MBSending build context to Docker daemon   6.83MBSending build context to Docker daemon  13.13MBSending build context to Docker daemon  13.13MBSending build context to Docker daemon  18.38MBSending build context to Docker daemon  18.38MBSending build context to Docker daemon  22.07MBSending build context to Docker daemon   22.6MBSending build context to Docker daemon   26.8MBSending build context to Docker daemon  27.33MBSending build context to Docker daemon  32.05MBSending build context to Docker daemon  32.58MBSending build context to Docker daemon  36.78MBSending build context to Docker daemon  37.31MBSending build context to Docker daemon  40.99MBSending build context to Docker daemon  40.99MBSending build context to Docker daemon  46.76MBSending build context to Docker daemon  47.29MBSending build context to Docker daemon  52.56MBSending build context to Docker daemon  52.56MBSending build context to Docker daemon  57.81MBSending build context to Docker daemon  58.33MBSending build context to Docker daemon  61.48MBSending build context to Docker daemon  62.01MBSending build context to Docker daemon  65.69MBSending build context to Docker daemon  67.26MBSending build context to Docker daemon  70.41MBSending build context to Docker daemon  71.99MBSending build context to Docker daemon  73.04MBSending build context to Docker daemon  73.56MBSending build context to Docker daemon  74.61MBSending build context to Docker daemon  75.13MBSending build context to Docker daemon  76.18MBSending build context to Docker daemon  76.71MBSending build context to Docker daemon  77.76MBSending build context to Docker daemon  78.28MBSending build context to Docker daemon  79.33MBSending build context to Docker daemon  79.85MBSending build context to Docker daemon   80.9MBSending build context to Docker daemon  81.43MBSending build context to Docker daemon  82.48MBSending build context to Docker daemon     83MBSending build context to Docker daemon  84.05MBSending build context to Docker daemon  84.57MBSending build context to Docker daemon  85.62MBSending build context to Docker daemon  86.15MBSending build context to Docker daemon   87.2MBSending build context to Docker daemon   87.2MBSending build context to Docker daemon  88.77MBSending build context to Docker daemon  88.77MBSending build context to Docker daemon  91.39MBSending build context to Docker daemon  91.39MBSending build context to Docker daemon  92.96MBSending build context to Docker daemon  92.96MBSending build context to Docker daemon  94.54MBSending build context to Docker daemon  94.54MBSending build context to Docker daemon  96.63MBSending build context to Docker daemon  96.63MBSending build context to Docker daemon  98.21MBSending build context to Docker daemon  98.21MBSending build context to Docker daemon  99.78MBSending build context to Docker daemon  99.78MBSending build context to Docker daemon  101.4MBSending build context to Docker daemon  101.4MBSending build context to Docker daemon  102.9MBSending build context to Docker daemon  102.9MBSending build context to Docker daemon  104.5MBSending build context to Docker daemon  104.5MBSending build context to Docker daemon  106.1MBSending build context to Docker daemon  106.1MBSending build context to Docker daemon  107.1MBSending build context to Docker daemon  107.1MBSending build context to Docker daemon  108.2MBSending build context to Docker daemon  108.7MBSending build context to Docker daemon  111.3MBSending build context to Docker daemon  111.9MBSending build context to Docker daemon  112.4MBSending build context to Docker daemon  112.9MBSending build context to Docker daemon  113.4MBSending build context to Docker daemon    114MBSending build context to Docker daemon  114.5MBSending build context to Docker daemon    115MBSending build context to Docker daemon  115.5MBSending build context to Docker daemon  115.5MBSending build context to Docker daemon  116.6MBSending build context to Docker daemon  116.6MBSending build context to Docker daemon  117.6MBSending build context to Docker daemon  117.6MBSending build context to Docker daemon  119.2MBSending build context to Docker daemon  119.2MBSending build context to Docker daemon  120.2MBSending build context to Docker daemon  120.2MBSending build context to Docker daemon  121.3MBSending build context to Docker daemon  121.3MBSending build context to Docker daemon  122.3MBSending build context to Docker daemon  122.3MBSending build context to Docker daemon  123.4MBSending build context to Docker daemon  123.4MBSending build context to Docker daemon  124.4MBSending build context to Docker daemon  124.4MBSending build context to Docker daemon  125.5MBSending build context to Docker daemon  125.5MBSending build context to Docker daemon  126.5MBSending build context to Docker daemon  126.5MBSending build context to Docker daemon  127.6MBSending build context to Docker daemon  127.6MBSending build context to Docker daemon  128.6MBSending build context to Docker daemon  128.6MBSending build context to Docker daemon  129.7MBSending build context to Docker daemon  129.7MBSending build context to Docker daemon  131.3MBSending build context to Docker daemon  131.3MBSending build context to Docker daemon  132.3MBSending build context to Docker daemon  132.3MBSending build context to Docker daemon  133.4MBSending build context to Docker daemon  133.4MBSending build context to Docker daemon  134.4MBSending build context to Docker daemon  134.4MBSending build context to Docker daemon    136MBSending build context to Docker daemon    136MBSending build context to Docker daemon  137.6MBSending build context to Docker daemon  137.6MBSending build context to Docker daemon  139.1MBSending build context to Docker daemon  139.1MBSending build context to Docker daemon  140.2MBSending build context to Docker daemon  140.2MBSending build context to Docker daemon  141.7MBSending build context to Docker daemon  141.7MBSending build context to Docker daemon  142.8MBSending build context to Docker daemon  142.8MBSending build context to Docker daemon  143.8MBSending build context to Docker daemon  143.8MBSending build context to Docker daemon  144.9MBSending build context to Docker daemon  144.9MBSending build context to Docker daemon  145.9MBSending build context to Docker daemon  145.9MBSending build context to Docker daemon  147.5MBSending build context to Docker daemon  147.5MBSending build context to Docker daemon  149.6MBSending build context to Docker daemon  149.6MBSending build context to Docker daemon  151.7MBSending build context to Docker daemon  151.7MBSending build context to Docker daemon  153.8MBSending build context to Docker daemon  153.8MBSending build context to Docker daemon  155.4MBSending build context to Docker daemon  155.4MBSending build context to Docker daemon    158MBSending build context to Docker daemon    158MBSending build context to Docker daemon  160.6MBSending build context to Docker daemon  160.6MBSending build context to Docker daemon  161.7MBSending build context to Docker daemon  161.7MBSending build context to Docker daemon  163.3MBSending build context to Docker daemon  163.3MBSending build context to Docker daemon  165.3MBSending build context to Docker daemon  165.3MBSending build context to Docker daemon  166.9MBSending build context to Docker daemon  166.9MBSending build context to Docker daemon    168MBSending build context to Docker daemon    168MBSending build context to Docker daemon    169MBSending build context to Docker daemon    169MBSending build context to Docker daemon  170.6MBSending build context to Docker daemon  170.6MBSending build context to Docker daemon  171.6MBSending build context to Docker daemon  171.6MBSending build context to Docker daemon  172.7MBSending build context to Docker daemon  172.7MBSending build context to Docker daemon  174.3MBSending build context to Docker daemon  174.3MBSending build context to Docker daemon  175.8MBSending build context to Docker daemon  175.8MBSending build context to Docker daemon  177.4MBSending build context to Docker daemon  177.4MBSending build context to Docker daemon  178.5MBSending build context to Docker daemon  178.5MBSending build context to Docker daemon  179.5MBSending build context to Docker daemon  179.5MBSending build context to Docker daemon  183.7MBSending build context to Docker daemon  183.7MBSending build context to Docker daemon  188.4MBSending build context to Docker daemon  188.4MBSending build context to Docker daemon  194.7MBSending build context to Docker daemon  194.7MBSending build context to Docker daemon    201MBSending build context to Docker daemon    201MBSending build context to Docker daemon  205.2MBSending build context to Docker daemon  205.2MBSending build context to Docker daemon    211MBSending build context to Docker daemon    211MBSending build context to Docker daemon  216.8MBSending build context to Docker daemon  217.3MBSending build context to Docker daemon  222.1MBSending build context to Docker daemon  222.1MBSending build context to Docker daemon  223.1MBSending build context to Docker daemon  223.1MBSending build context to Docker daemon  224.2MBSending build context to Docker daemon  224.2MBSending build context to Docker daemon  225.2MBSending build context to Docker daemon  225.2MBSending build context to Docker daemon  229.9MBSending build context to Docker daemon  229.9MBSending build context to Docker daemon  235.7MBSending build context to Docker daemon  235.7MBSending build context to Docker daemon    242MBSending build context to Docker daemon    242MBSending build context to Docker daemon  246.2MBSending build context to Docker daemon  246.2MBSending build context to Docker daemon  247.6MB
+Sending build context to Docker daemon  247.6MB
+[1/2] STEP 1/10: FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+[1/2] STEP 1/7: FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+[1/2] STEP 2/7: WORKDIR /src
+[1/2] STEP 2/10: WORKDIR /src
+--&gt; Using cache 3f6dfbe881ea1503d84c2c93a52ecaff600f2f569cc6f1a50c1cee3f72d2a037
+--&gt; 3f6dfbe881ea
+--&gt; Using cache 3f6dfbe881ea1503d84c2c93a52ecaff600f2f569cc6f1a50c1cee3f72d2a037
+--&gt; 3f6dfbe881ea
+[1/2] STEP 3/7: COPY Directory.Build.props Directory.Packages.props Dabbler.Platform.sln ./
+[1/2] STEP 3/10: COPY Directory.Build.props Directory.Packages.props Dabbler.Platform.sln ./
+--&gt; Using cache a0a35f7607b11be804b9e036faede54a3b7e6b7eeffe9e8b80016a49792afec4
+--&gt; a0a35f7607b1
+--&gt; Using cache a0a35f7607b11be804b9e036faede54a3b7e6b7eeffe9e8b80016a49792afec4
+--&gt; a0a35f7607b1
+[1/2] STEP 4/7: COPY src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj src/Libs/Dabbler.Security.DevIdp/
+[1/2] STEP 4/10: COPY src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj         src/Apps/AcmeCoffeeOnline.Api/
+--&gt; Using cache 9c4c90566909976c5b6493b80b5a27b648df31a5ec08aff2114b7af4cca85130
+--&gt; 9c4c90566909
+--&gt; Using cache 29ab3d4951b463ee76fb9176916eb24b06f9e80a8b840dec58620859fd2b1982
+--&gt; 29ab3d4951b4
+[1/2] STEP 5/10: COPY src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj   src/Apps/AcmeCoffeeOnline.Shared/
+[1/2] STEP 5/7: RUN dotnet restore src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj
+--&gt; Using cache 054d66911d1b19f3c790cb066e7eb2c1894f941c13e6a83a64be92f3dcfae4bb
+--&gt; 054d66911d1b
+[1/2] STEP 6/7: COPY . .
+--&gt; Using cache 1e03e6e409c460ac3cdac0aad111163405e3da092b2cbaaf0ab8f98b486a5421
+--&gt; 1e03e6e409c4
+[1/2] STEP 6/10: COPY src/Libs/Dabbler.Security/Dabbler.Security.csproj                 src/Libs/Dabbler.Security/
+--&gt; Using cache 7f93a1ce01be6cd79f8dd619216edc876809e5652550c7b32328be7e5b87082c
+--&gt; 7f93a1ce01be
+[1/2] STEP 7/10: COPY src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj         src/Libs/Dabbler.Api.Querying/
+--&gt; Using cache 2075a2da74674cbd54c2819eb6a631205fccc8d59dd0c21cab12c4c738baa55b
+--&gt; 2075a2da7467
+[1/2] STEP 8/10: RUN dotnet restore src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj
+--&gt; Using cache 1dccbbd14d7bfd18e2423f66a14fb42626fea3c91119f154b4c9d5f40091ef68
+--&gt; 1dccbbd14d7b
+[1/2] STEP 9/10: COPY . .
+--&gt; af3d673d32ce
+[1/2] STEP 7/7: RUN dotnet publish src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj -c Release -o /app/publish
+--&gt; 514ba4ab7577
+[1/2] STEP 10/10: RUN dotnet publish src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj -c Release -o /app/publish --no-restore
+  Determining projects to restore...
+/src/src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj : warning NU1903: Package 'Microsoft.OpenApi' 2.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc
+/src/src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+/src/src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj : warning NU1903: Package 'SQLitePCLRaw.lib.e_sqlite3' 2.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-2m69-gcr7-jv3q
+  Restored /src/src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj (in 521 ms).
+/src/src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+/src/src/Libs/Dabbler.Security.DevIdp/Dabbler.Security.DevIdp.csproj : warning NU1903: Package 'SQLitePCLRaw.lib.e_sqlite3' 2.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-2m69-gcr7-jv3q
+/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Api.Querying'. [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Security'. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(10,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.PageIndex' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(11,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.PageSize' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(12,41): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.Sorts' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(13,33): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.Filter' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(30,28): warning CS1591: Missing XML comment for publicly visible type or member 'GridCompositeFilter.Logic' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(31,43): warning CS1591: Missing XML comment for publicly visible type or member 'GridCompositeFilter.Filters' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(32,47): warning CS1591: Missing XML comment for publicly visible type or member 'GridCompositeFilter.Children' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(36,31): warning CS1591: Missing XML comment for publicly visible type or member 'GridFilterLogic.And' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(36,36): warning CS1591: Missing XML comment for publicly visible type or member 'GridFilterLogic.Or' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(45,20): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.Items' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(46,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.TotalCount' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(47,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.PageIndex' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(48,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.PageSize' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(49,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.TotalPages' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(50,17): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.HasPreviousPage' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(51,17): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.HasNextPage' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/QueryableExtensions.cs(213,20): warning CS0419: Ambiguous reference in cref attribute: 'Expression.Convert'. Assuming 'System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression, System.Type)', but could have also matched other overloads including 'System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression, System.Type, System.Reflection.MethodInfo?)'. [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+  Dabbler.Api.Querying -&gt; /src/src/Libs/Dabbler.Api.Querying/bin/Release/net10.0/Dabbler.Api.Querying.dll
+/src/src/Libs/Dabbler.Security/Services/AdminUserQueryService.cs(40,26): warning CS8604: Possible null reference argument for parameter 'actor' in 'Task&lt;IReadOnlyList&lt;AdminUserRow&gt;&gt; AdminUserQueryService.GetUsersAsync(ClaimsPrincipal actor, CancellationToken ct = default(CancellationToken))'. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/AdminUserQueryService.cs(136,49): warning CS8604: Possible null reference argument for parameter 'actor' in 'Task&lt;IReadOnlySet&lt;int&gt;&gt; AdminUserQueryService.GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal actor, CancellationToken ct = default(CancellationToken))'. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(63,13): warning CS0618: 'SecurityConfiguration.Roles' is obsolete: 'Replaced by UserTypeRoles for app-defined roles. Baked-in roles now live as code constants under Dabbler.Security.Authorization.BakedInRoles. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(67,17): warning CS0618: 'RoleDefinition.InheritsFrom' is obsolete: 'Role inheritance is removed; handlers no longer consult InheritsFrom. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(70,13): warning CS0618: 'SecurityConfiguration.EntityPermissions' is obsolete: 'Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(72,34): warning CS0618: 'EntityPermission' is obsolete: 'Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(84,13): warning CS0618: 'SecurityConfiguration.FieldPermissions' is obsolete: 'Replaced by ColumnRestriction plus DefaultMasks / MaskExemptions. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(86,34): warning CS0618: 'FieldPermission' is obsolete: 'Replaced by ColumnRestriction plus DefaultMaskRule / MaskExemption. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(97,13): warning CS0618: 'SecurityConfiguration.PagePermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(99,34): warning CS0618: 'PagePermission' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(106,13): warning CS0618: 'SecurityConfiguration.EndpointPermissions' is obsolete: 'Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(108,34): warning CS0618: 'EndpointPermission' is obsolete: 'Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(115,13): warning CS0618: 'SecurityConfiguration.ControlPermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(117,34): warning CS0618: 'ControlPermission' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(128,13): warning CS0618: 'SecurityConfiguration.RowFilters' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(128,53): warning CS0618: 'RowFilter' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RowFilterService.cs(55,25): warning CS0618: 'SecurityConfiguration.RowFilters' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(185,36): warning CS0618: 'SecurityConfiguration.EntityPermissions' is obsolete: 'Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(212,35): warning CS0618: 'SecurityConfiguration.FieldPermissions' is obsolete: 'Replaced by ColumnRestriction plus DefaultMasks / MaskExemptions. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(237,34): warning CS0618: 'SecurityConfiguration.PagePermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(271,28): warning CS0618: 'SecurityConfiguration.EndpointPermissions' is obsolete: 'Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(305,28): warning CS0618: 'SecurityConfiguration.ControlPermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(330,28): warning CS0618: 'SecurityConfiguration.RowFilters' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/EmailAlreadyExistsException.cs(11,19): warning CS1591: Missing XML comment for publicly visible type or member 'EmailAlreadyExistsException.Email' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/IAdminUserQueryService.cs(104,94): warning CS1573: Parameter 'ct' has no matching param tag in the XML comment for 'IAdminUserQueryService.GetUsersAsync(ClaimsPrincipal, CancellationToken)' (but other parameters do) [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/IAdminUserQueryService.cs(108,107): warning CS1573: Parameter 'ct' has no matching param tag in the XML comment for 'IAdminUserQueryService.GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal, CancellationToken)' (but other parameters do) [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RoleAssignmentAuthority.cs(31,50): warning CS1734: XML comment on 'RoleAssignmentAuthority' has a paramref tag for 'targetCurrentRoles', but there is no parameter by that name [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RowRestrictionExpressionBuilder.cs(29,52): warning CS1735: XML comment on 'RowRestrictionExpressionBuilder' has a typeparamref tag for 'T', but there is no type parameter by that name [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RowRestrictionExpressionBuilder.cs(30,43): warning CS1734: XML comment on 'RowRestrictionExpressionBuilder' has a paramref tag for 'tokens', but there is no parameter by that name [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+  Dabbler.Security -&gt; /src/src/Libs/Dabbler.Security/bin/Release/net10.0/Dabbler.Security.dll
+  AcmeCoffeeOnline.Shared -&gt; /src/src/Apps/AcmeCoffeeOnline.Shared/bin/Release/net10.0/AcmeCoffeeOnline.Shared.dll
+  Dabbler.Security.DevIdp -&gt; /src/src/Libs/Dabbler.Security.DevIdp/bin/Release/net10.0/Dabbler.Security.DevIdp.dll
+  Dabbler.Security.DevIdp -&gt; /app/publish/
+--&gt; 2904fc2b74d6
+[2/2] STEP 1/8: FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+  AcmeCoffeeOnline.Api -&gt; /src/src/Apps/AcmeCoffeeOnline.Api/bin/Release/net10.0/AcmeCoffeeOnline.Api.dll
+[2/2] STEP 2/8: WORKDIR /app
+--&gt; Using cache ec561235cf25abd56083990d9ad5d29a75eedba9a15304908f00f997cbd87b2e
+--&gt; ec561235cf25
+[2/2] STEP 3/8: RUN apt-get update     &amp;&amp; apt-get install -y --no-install-recommends curl     &amp;&amp; rm -rf /var/lib/apt/lists/*
+--&gt; Using cache 54165dfdeaa0b4d4b009938ffedaf0f475d8edb03e077eb38bf4c3b2717e2e52
+--&gt; 54165dfdeaa0
+[2/2] STEP 4/8: COPY --from=build /app/publish .
+  AcmeCoffeeOnline.Api -&gt; /app/publish/
+--&gt; Using cache a744296263008afcdddd84736d3b710a4ac4eb3993fd1908a0ea12d5aacc8dd0
+--&gt; a74429626300
+[2/2] STEP 5/8: ENV ASPNETCORE_URLS=http://+:8080
+--&gt; Using cache bf4a6d1f32fcc93f48894ef8ed1d0ea3470efd267b0757d5467af2857aed0de3
+--&gt; bf4a6d1f32fc
+[2/2] STEP 6/8: EXPOSE 8080
+--&gt; Using cache 4c19999a902783032b5f98c69102445b73032bd111c2cedb45daa63fa11f41dd
+--&gt; 4c19999a9027
+[2/2] STEP 7/8: ENTRYPOINT [&quot;dotnet&quot;, &quot;Dabbler.Security.DevIdp.dll&quot;]
+--&gt; Using cache 2ddf3588e291648316daff43e0205b8b4ef97b66b912ea304b1e337357c93e88
+--&gt; 2ddf3588e291
+[2/2] STEP 8/8: LABEL &quot;com.docker.compose.image.builder&quot;=&quot;classic&quot;
+--&gt; Using cache b0732727d36982a3bef8f59d88d4a8ccd2dde5137e8ba829b8d5e0ab3c32ee5d
+[2/2] COMMIT docker.io/library/acmecoffee-devidp:local
+--&gt; b0732727d369
+Successfully tagged docker.io/library/acmecoffee-devidp:local
+--&gt; ca41f381d6fa
+[2/2] STEP 1/8: FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+b0732727d36982a3bef8f59d88d4a8ccd2dde5137e8ba829b8d5e0ab3c32ee5d
+[2/2] STEP 2/8: WORKDIR /app
+--&gt; Using cache ec561235cf25abd56083990d9ad5d29a75eedba9a15304908f00f997cbd87b2e
+--&gt; ec561235cf25
+[2/2] STEP 3/8: RUN apt-get update     &amp;&amp; apt-get install -y --no-install-recommends curl     &amp;&amp; rm -rf /var/lib/apt/lists/*
+--&gt; Using cache 54165dfdeaa0b4d4b009938ffedaf0f475d8edb03e077eb38bf4c3b2717e2e52
+--&gt; 54165dfdeaa0
+[2/2] STEP 4/8: COPY --from=build /app/publish .
+Successfully built b0732727d369
+Successfully tagged acmecoffee-devidp:local
+ Image acmecoffee-devidp:local Built 
+ Image acmecoffee-devidp:local Built 
+--&gt; Using cache dc76af57f089f07126e9ce305aaf851742ef7aa012fe6c8c3e2837ea2d05c20e
+--&gt; dc76af57f089
+[2/2] STEP 5/8: ENV ASPNETCORE_URLS=http://+:8080
+--&gt; Using cache e0027c15bd7dd0e417f644408d475e269571e1b6b5ba780d2fdc4714bb2b0010
+--&gt; e0027c15bd7d
+[2/2] STEP 6/8: EXPOSE 8080
+--&gt; Using cache df91c683db5d70f460c8875ee456fba2dddd8600796dc68a2f34e87b03a8fc8c
+--&gt; df91c683db5d
+[2/2] STEP 7/8: ENTRYPOINT [&quot;dotnet&quot;, &quot;AcmeCoffeeOnline.Api.dll&quot;]
+--&gt; Using cache 4dc66270fb737549a6cff444260bc750836552d6a6c0b5849064f3454376ffc1
+--&gt; 4dc66270fb73
+[2/2] STEP 8/8: LABEL &quot;com.docker.compose.image.builder&quot;=&quot;classic&quot;
+--&gt; Using cache 88143bc7c2d3fb85ec51695c5cc31072eb8949e613f95b458225ca141e83b642
+[2/2] COMMIT docker.io/library/acmecoffee-api:local
+--&gt; 88143bc7c2d3
+Successfully tagged docker.io/library/acmecoffee-api:local
+88143bc7c2d3fb85ec51695c5cc31072eb8949e613f95b458225ca141e83b642
+Successfully built 88143bc7c2d3
+Successfully tagged acmecoffee-api:local
+ Image acmecoffee-api:local Built 
+ Image acmecoffee-api:local Built 
+ Image acmecoffee-web:local Building 
+ Image acmecoffee-web:local Building 
+Sending build context to Docker daemon  528.6kBSending build context to Docker daemon  6.832MBSending build context to Docker daemon  13.13MBSending build context to Docker daemon  18.92MBSending build context to Docker daemon  23.65MBSending build context to Docker daemon   28.9MBSending build context to Docker daemon  34.17MBSending build context to Docker daemon  39.43MBSending build context to Docker daemon  45.73MBSending build context to Docker daemon  51.52MBSending build context to Docker daemon  56.78MBSending build context to Docker daemon  62.04MBSending build context to Docker daemon   67.3MBSending build context to Docker daemon  71.52MBSending build context to Docker daemon  74.14MBSending build context to Docker daemon  75.71MBSending build context to Docker daemon  77.28MBSending build context to Docker daemon  78.86MBSending build context to Docker daemon  80.43MBSending build context to Docker daemon     82MBSending build context to Docker daemon  83.58MBSending build context to Docker daemon  85.15MBSending build context to Docker daemon   86.2MBSending build context to Docker daemon  87.25MBSending build context to Docker daemon   88.3MBSending build context to Docker daemon  89.87MBSending build context to Docker daemon  91.97MBSending build context to Docker daemon  93.54MBSending build context to Docker daemon  95.64MBSending build context to Docker daemon  97.21MBSending build context to Docker daemon  98.78MBSending build context to Docker daemon  100.4MBSending build context to Docker daemon  101.9MBSending build context to Docker daemon  103.5MBSending build context to Docker daemon  105.1MBSending build context to Docker daemon  106.7MBSending build context to Docker daemon  107.7MBSending build context to Docker daemon  108.7MBSending build context to Docker daemon  111.9MBSending build context to Docker daemon  112.9MBSending build context to Docker daemon    114MBSending build context to Docker daemon    115MBSending build context to Docker daemon  116.1MBSending build context to Docker daemon  117.1MBSending build context to Docker daemon  118.7MBSending build context to Docker daemon  119.8MBSending build context to Docker daemon  120.8MBSending build context to Docker daemon  121.9MBSending build context to Docker daemon  122.9MBSending build context to Docker daemon    124MBSending build context to Docker daemon    125MBSending build context to Docker daemon  126.1MBSending build context to Docker daemon  127.1MBSending build context to Docker daemon  128.2MBSending build context to Docker daemon  129.2MBSending build context to Docker daemon  130.3MBSending build context to Docker daemon  131.3MBSending build context to Docker daemon  132.4MBSending build context to Docker daemon  133.4MBSending build context to Docker daemon  134.4MBSending build context to Docker daemon  135.5MBSending build context to Docker daemon  137.1MBSending build context to Docker daemon  138.6MBSending build context to Docker daemon  139.7MBSending build context to Docker daemon  140.7MBSending build context to Docker daemon  141.8MBSending build context to Docker daemon  142.8MBSending build context to Docker daemon  143.9MBSending build context to Docker daemon  144.9MBSending build context to Docker daemon    146MBSending build context to Docker daemon  147.6MBSending build context to Docker daemon  149.1MBSending build context to Docker daemon  151.2MBSending build context to Docker daemon  153.3MBSending build context to Docker daemon  154.9MBSending build context to Docker daemon    157MBSending build context to Docker daemon  159.6MBSending build context to Docker daemon  161.2MBSending build context to Docker daemon  162.3MBSending build context to Docker daemon  163.8MBSending build context to Docker daemon  165.4MBSending build context to Docker daemon    167MBSending build context to Docker daemon    168MBSending build context to Docker daemon  169.1MBSending build context to Docker daemon  170.1MBSending build context to Docker daemon  171.2MBSending build context to Docker daemon  172.2MBSending build context to Docker daemon  173.8MBSending build context to Docker daemon  174.8MBSending build context to Docker daemon  176.4MBSending build context to Docker daemon    178MBSending build context to Docker daemon    179MBSending build context to Docker daemon  182.7MBSending build context to Docker daemon    188MBSending build context to Docker daemon  194.3MBSending build context to Docker daemon  201.1MBSending build context to Docker daemon  205.8MBSending build context to Docker daemon  212.2MBSending build context to Docker daemon  218.5MBSending build context to Docker daemon  222.6MBSending build context to Docker daemon  223.7MBSending build context to Docker daemon  224.7MBSending build context to Docker daemon  226.9MBSending build context to Docker daemon  231.6MBSending build context to Docker daemon  237.9MBSending build context to Docker daemon  244.7MBSending build context to Docker daemon  247.6MB
+[1/2] STEP 1/15: FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+[1/2] STEP 2/15: WORKDIR /src
+--&gt; Using cache 3f6dfbe881ea1503d84c2c93a52ecaff600f2f569cc6f1a50c1cee3f72d2a037
+--&gt; 3f6dfbe881ea
+[1/2] STEP 3/15: COPY Directory.Build.props Directory.Packages.props Dabbler.Platform.sln ./
+--&gt; Using cache a0a35f7607b11be804b9e036faede54a3b7e6b7eeffe9e8b80016a49792afec4
+--&gt; a0a35f7607b1
+[1/2] STEP 4/15: COPY src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj       src/Apps/AcmeCoffeeOnline.Web/
+--&gt; Using cache f2da1de03138b2423498f77675624f9c7555632cdc2b415409662477fbec2c71
+--&gt; f2da1de03138
+[1/2] STEP 5/15: COPY src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj src/Apps/AcmeCoffeeOnline.Shared/
+--&gt; Using cache 8f1e4230fe42300bee52e468153238a9e6b76eb7eed280a4111e8ed89fd1e1a0
+--&gt; 8f1e4230fe42
+[1/2] STEP 6/15: COPY src/Libs/Dabbler.Components/Dabbler.Components.csproj            src/Libs/Dabbler.Components/
+--&gt; Using cache 7336db1923b23cbb74a9a6b2daa11ffece98fb8e6c35995083ad38e0aed82d95
+--&gt; 7336db1923b2
+[1/2] STEP 7/15: COPY src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj   src/Libs/Dabbler.Platform.Stubs/
+--&gt; Using cache b1ce115665acbd6991ddaeb89991f725567c9fc2600d311534ea5a3fa1d8be3c
+--&gt; b1ce115665ac
+[1/2] STEP 8/15: COPY src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj   src/Libs/Dabbler.Reports.Blazor/
+--&gt; Using cache 3f9e1af1bbbb2ea16560929cc6973423e2aa2142ebedecf3dac9ab12752fb1b9
+--&gt; 3f9e1af1bbbb
+[1/2] STEP 9/15: COPY src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj       src/Libs/Dabbler.Reports.Core/
+--&gt; Using cache b1d48eae88bd7fbfb8cb4a5fb19d61d72ce080c009f4de6cee873508df2c6e2a
+--&gt; b1d48eae88bd
+[1/2] STEP 10/15: COPY src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj   src/Libs/Dabbler.Reports.Export/
+--&gt; Using cache bda230f03698d7e435a2f3066712a4983497501b74ccd3c8ab348a1af70d3101
+--&gt; bda230f03698
+[1/2] STEP 11/15: COPY src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj src/Libs/Dabbler.Security.Blazor/
+--&gt; Using cache 0078f777c3e6c7fc78c73d47cbd595ba607d224ad8092330f3ec5cee20c37403
+--&gt; 0078f777c3e6
+[1/2] STEP 12/15: COPY src/Libs/Dabbler.Security/Dabbler.Security.csproj               src/Libs/Dabbler.Security/
+--&gt; Using cache 989c00b4a3c8ea74344eeb0c7dafbc39a7d906cf0cacb27052653121fde0d3c4
+--&gt; 989c00b4a3c8
+[1/2] STEP 13/15: RUN dotnet restore src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj
+--&gt; Using cache f3b76ca6377f823e5f58590760451d08fd5b769be4288f2b04c56bd24bae2370
+--&gt; f3b76ca6377f
+[1/2] STEP 14/15: COPY . .
+--&gt; 13e18c7c3530
+[1/2] STEP 15/15: RUN dotnet publish src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj -c Release -o /app/publish
+  Determining projects to restore...
+/src/src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Testing.Blazor/Dabbler.Testing.Blazor.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7 [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7 [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7 [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+  Restored /src/src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj (in 673 ms).
+  Restored /src/src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj (in 673 ms).
+  Restored /src/src/Libs/Dabbler.Components/Dabbler.Components.csproj (in 778 ms).
+  Restored /src/src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj (in 856 ms).
+  Restored /src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj (in 916 ms).
+  Restored /src/src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj (in 673 ms).
+  Restored /src/src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj (in 778 ms).
+  Restored /src/src/Libs/Dabbler.Security/Dabbler.Security.csproj (in 910 ms).
+  Restored /src/src/Libs/Dabbler.Testing.Blazor/Dabbler.Testing.Blazor.csproj (in 1.03 sec).
+  Restored /src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj (in 856 ms).
+/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+  Restored /src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj (in 1.13 sec).
+/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+/src/src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Testing.Blazor/Dabbler.Testing.Blazor.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+/src/src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1902: Package 'Microsoft.Build.Tasks.Git' 8.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-23fw-v26w-5fgq
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Api.Querying'. [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Reports.Core'. [/src/src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj]
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Security'. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Testing.Blazor'. [/src/src/Libs/Dabbler.Testing.Blazor/Dabbler.Testing.Blazor.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Testing.Blazor/Dabbler.Testing.Blazor.csproj]
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Components'. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(10,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.PageIndex' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(11,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.PageSize' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(12,41): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.Sorts' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(13,33): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryRequest.Filter' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(30,28): warning CS1591: Missing XML comment for publicly visible type or member 'GridCompositeFilter.Logic' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(31,43): warning CS1591: Missing XML comment for publicly visible type or member 'GridCompositeFilter.Filters' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(32,47): warning CS1591: Missing XML comment for publicly visible type or member 'GridCompositeFilter.Children' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(36,31): warning CS1591: Missing XML comment for publicly visible type or member 'GridFilterLogic.And' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(36,36): warning CS1591: Missing XML comment for publicly visible type or member 'GridFilterLogic.Or' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(45,20): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.Items' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(46,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.TotalCount' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(47,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.PageIndex' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(48,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.PageSize' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(49,16): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.TotalPages' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(50,17): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.HasPreviousPage' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs(51,17): warning CS1591: Missing XML comment for publicly visible type or member 'GridQueryResponse&lt;T&gt;.HasNextPage' [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+/src/src/Libs/Dabbler.Api.Querying/QueryableExtensions.cs(213,20): warning CS0419: Ambiguous reference in cref attribute: 'Expression.Convert'. Assuming 'System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression, System.Type)', but could have also matched other overloads including 'System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression, System.Type, System.Reflection.MethodInfo?)'. [/src/src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj]
+  Dabbler.Api.Querying -&gt; /src/src/Libs/Dabbler.Api.Querying/bin/Release/net10.0/Dabbler.Api.Querying.dll
+  Dabbler.Reports.Core -&gt; /src/src/Libs/Dabbler.Reports.Core/bin/Release/net10.0/Dabbler.Reports.Core.dll
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Reports.Export'. [/src/src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj]
+  Dabbler.Testing.Blazor -&gt; /src/src/Libs/Dabbler.Testing.Blazor/bin/Release/net10.0/Dabbler.Testing.Blazor.dll
+  Dabbler.Reports.Export -&gt; /src/src/Libs/Dabbler.Reports.Export/bin/Release/net10.0/Dabbler.Reports.Export.dll
+/src/src/Libs/Dabbler.Security/Services/AdminUserQueryService.cs(40,26): warning CS8604: Possible null reference argument for parameter 'actor' in 'Task&lt;IReadOnlyList&lt;AdminUserRow&gt;&gt; AdminUserQueryService.GetUsersAsync(ClaimsPrincipal actor, CancellationToken ct = default(CancellationToken))'. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/AdminUserQueryService.cs(136,49): warning CS8604: Possible null reference argument for parameter 'actor' in 'Task&lt;IReadOnlySet&lt;int&gt;&gt; AdminUserQueryService.GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal actor, CancellationToken ct = default(CancellationToken))'. [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(63,13): warning CS0618: 'SecurityConfiguration.Roles' is obsolete: 'Replaced by UserTypeRoles for app-defined roles. Baked-in roles now live as code constants under Dabbler.Security.Authorization.BakedInRoles. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(67,17): warning CS0618: 'RoleDefinition.InheritsFrom' is obsolete: 'Role inheritance is removed; handlers no longer consult InheritsFrom. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(70,13): warning CS0618: 'SecurityConfiguration.EntityPermissions' is obsolete: 'Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(72,34): warning CS0618: 'EntityPermission' is obsolete: 'Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(84,13): warning CS0618: 'SecurityConfiguration.FieldPermissions' is obsolete: 'Replaced by ColumnRestriction plus DefaultMasks / MaskExemptions. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(86,34): warning CS0618: 'FieldPermission' is obsolete: 'Replaced by ColumnRestriction plus DefaultMaskRule / MaskExemption. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(97,13): warning CS0618: 'SecurityConfiguration.PagePermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(99,34): warning CS0618: 'PagePermission' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(106,13): warning CS0618: 'SecurityConfiguration.EndpointPermissions' is obsolete: 'Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(108,34): warning CS0618: 'EndpointPermission' is obsolete: 'Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(115,13): warning CS0618: 'SecurityConfiguration.ControlPermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(117,34): warning CS0618: 'ControlPermission' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(128,13): warning CS0618: 'SecurityConfiguration.RowFilters' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(128,53): warning CS0618: 'RowFilter' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(185,36): warning CS0618: 'SecurityConfiguration.EntityPermissions' is obsolete: 'Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(212,35): warning CS0618: 'SecurityConfiguration.FieldPermissions' is obsolete: 'Replaced by ColumnRestriction plus DefaultMasks / MaskExemptions. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(237,34): warning CS0618: 'SecurityConfiguration.PagePermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(271,28): warning CS0618: 'SecurityConfiguration.EndpointPermissions' is obsolete: 'Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(305,28): warning CS0618: 'SecurityConfiguration.ControlPermissions' is obsolete: 'Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Persistence/EfCoreSecurityStore.cs(330,28): warning CS0618: 'SecurityConfiguration.RowFilters' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RowFilterService.cs(55,25): warning CS0618: 'SecurityConfiguration.RowFilters' is obsolete: 'Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/EmailAlreadyExistsException.cs(11,19): warning CS1591: Missing XML comment for publicly visible type or member 'EmailAlreadyExistsException.Email' [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/IAdminUserQueryService.cs(104,94): warning CS1573: Parameter 'ct' has no matching param tag in the XML comment for 'IAdminUserQueryService.GetUsersAsync(ClaimsPrincipal, CancellationToken)' (but other parameters do) [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/IAdminUserQueryService.cs(108,107): warning CS1573: Parameter 'ct' has no matching param tag in the XML comment for 'IAdminUserQueryService.GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal, CancellationToken)' (but other parameters do) [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RoleAssignmentAuthority.cs(31,50): warning CS1734: XML comment on 'RoleAssignmentAuthority' has a paramref tag for 'targetCurrentRoles', but there is no parameter by that name [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RowRestrictionExpressionBuilder.cs(29,52): warning CS1735: XML comment on 'RowRestrictionExpressionBuilder' has a typeparamref tag for 'T', but there is no type parameter by that name [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+/src/src/Libs/Dabbler.Security/Services/RowRestrictionExpressionBuilder.cs(30,43): warning CS1734: XML comment on 'RowRestrictionExpressionBuilder' has a paramref tag for 'tokens', but there is no parameter by that name [/src/src/Libs/Dabbler.Security/Dabbler.Security.csproj]
+  Dabbler.Security -&gt; /src/src/Libs/Dabbler.Security/bin/Release/net10.0/Dabbler.Security.dll
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(218,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(235,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(243,112): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(252,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(260,166): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(260,245): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(269,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(286,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(303,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(320,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(337,102): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2238,100): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2255,100): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2263,112): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2272,100): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2280,166): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2280,245): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2289,100): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2306,100): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2323,100): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2340,100): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2384,108): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+/src/src/Libs/Dabbler.Components/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/MasterDetail/DeclarativeFilterPanel_razor.g.cs(2392,116): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Libs/Dabbler.Components/Dabbler.Components.csproj]
+  Dabbler.Components -&gt; /src/src/Libs/Dabbler.Components/bin/Release/net10.0/Dabbler.Components.dll
+  AcmeCoffeeOnline.Shared -&gt; /src/src/Apps/AcmeCoffeeOnline.Shared/bin/Release/net10.0/AcmeCoffeeOnline.Shared.dll
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Platform.Stubs'. [/src/src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj]
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Reports.Blazor'. [/src/src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj]
+/root/.nuget/packages/microsoft.build.tasks.git/8.0.0/build/Microsoft.Build.Tasks.Git.targets(25,5): warning : Unable to locate repository with working directory that contains directory '/src/src/Libs/Dabbler.Security.Blazor'. [/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj]
+/root/.nuget/packages/microsoft.sourcelink.common/8.0.0/build/Microsoft.SourceLink.Common.targets(53,5): warning : Source control information is not available - the generated source link is empty. [/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj]
+  Dabbler.Platform.Stubs -&gt; /src/src/Libs/Dabbler.Platform.Stubs/bin/Release/net10.0/Dabbler.Platform.Stubs.dll
+  Dabbler.Reports.Blazor -&gt; /src/src/Libs/Dabbler.Reports.Blazor/bin/Release/net10.0/Dabbler.Reports.Blazor.dll
+/src/src/Libs/Dabbler.Security.Blazor/Components/DabblerRoleSwitcher.razor(92,31): warning CS0618: 'SecurityConfiguration.RoleSwitching' is obsolete: 'Replaced by OrganizationSwitching (org switching) plus baked-in role privileges (role switching). Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj]
+/src/src/Libs/Dabbler.Security.Blazor/Components/Admin/Shared/MasterDetailExpansionShell.razor(1,1): warning MUD0002: Illegal Attribute 'DisableGutters' on 'MudExpansionPanel' using pattern 'LowerCase' source location '(188,24)-(188,86)' 'DisableGutters' was removed in v7 and replaced by 'Gutters', which inverts the value: DisableGutters=&quot;true&quot; becomes Gutters=&quot;false&quot;, DisableGutters=&quot;false&quot; becomes Gutters=&quot;true&quot;, and DisableGutters=&quot;@expression&quot; becomes Gutters=&quot;@(!expression)&quot;. See https://github.com/MudBlazor/MudBlazor/discussions/12658 (https://mudblazor.com/features/analyzers) [/src/src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj]
+  Dabbler.Security.Blazor -&gt; /src/src/Libs/Dabbler.Security.Blazor/bin/Release/net10.0/Dabbler.Security.Blazor.dll
+/src/src/Apps/AcmeCoffeeOnline.Web/Components/Shared/UserContextBar.razor.cs(101,31): warning CS0618: 'SecurityConfiguration.RoleSwitching' is obsolete: 'Replaced by OrganizationSwitching (org switching) plus baked-in role privileges (role switching). Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.' [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1030,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1038,116): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1047,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1055,170): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1055,249): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1064,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1073,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1090,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1158,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1166,116): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1175,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1183,170): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1183,249): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1192,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1201,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1218,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1286,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1294,116): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1303,106): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1311,170): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1311,249): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1320,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1329,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1346,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1414,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1422,116): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1431,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1439,170): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1439,249): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1448,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1457,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1474,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1542,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1550,116): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1559,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1567,170): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1567,249): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1576,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1585,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/obj/Release/net10.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Components/Pages/Customers/CustomerDetail_razor.g.cs(1602,107): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Orders/OrderDetail.razor(1,1): warning MUD0002: Illegal Attribute 'Title' on 'MudButton' using pattern 'LowerCase' source location '(1322,28)-(1322,116)' (https://mudblazor.com/features/analyzers) [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Orders/OrderDetail.razor(1,1): warning MUD0002: Illegal Attribute 'Title' on 'MudIconButton' using pattern 'LowerCase' source location '(2554,32)-(2554,91)' (https://mudblazor.com/features/analyzers) [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+/src/src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Orders/OrderDetail.razor(1,1): warning MUD0002: Illegal Attribute 'Title' on 'MudIconButton' using pattern 'LowerCase' source location '(2627,32)-(2627,128)' (https://mudblazor.com/features/analyzers) [/src/src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj]
+  AcmeCoffeeOnline.Web -&gt; /src/src/Apps/AcmeCoffeeOnline.Web/bin/Release/net10.0/AcmeCoffeeOnline.Web.dll
+  AcmeCoffeeOnline.Web -&gt; /app/publish/
+--&gt; bf751a1ecf8e
+[2/2] STEP 1/8: FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+[2/2] STEP 2/8: WORKDIR /app
+--&gt; Using cache ec561235cf25abd56083990d9ad5d29a75eedba9a15304908f00f997cbd87b2e
+--&gt; ec561235cf25
+[2/2] STEP 3/8: RUN apt-get update     &amp;&amp; apt-get install -y --no-install-recommends curl     &amp;&amp; rm -rf /var/lib/apt/lists/*
+--&gt; Using cache 54165dfdeaa0b4d4b009938ffedaf0f475d8edb03e077eb38bf4c3b2717e2e52
+--&gt; 54165dfdeaa0
+[2/2] STEP 4/8: COPY --from=build /app/publish .
+--&gt; fe7925af4b65
+[2/2] STEP 5/8: ENV ASPNETCORE_URLS=http://+:8080
+--&gt; b89375b8d7a6
+[2/2] STEP 6/8: EXPOSE 8080
+--&gt; 7cce735e8a81
+[2/2] STEP 7/8: ENTRYPOINT [&quot;dotnet&quot;, &quot;AcmeCoffeeOnline.Web.dll&quot;]
+--&gt; 6eb87a511e3d
+[2/2] STEP 8/8: LABEL &quot;com.docker.compose.image.builder&quot;=&quot;classic&quot;
+[2/2] COMMIT docker.io/library/acmecoffee-web:local
+--&gt; 7b6c4dceb920
+Successfully tagged docker.io/library/acmecoffee-web:local
+7b6c4dceb92013b5bbbd81110e05c8eec82ddf7346a6484b9cd7c1499eaeb0cc
+Successfully built 7b6c4dceb920
+Successfully tagged acmecoffee-web:local
+ Image acmecoffee-web:local Built 
+ Image acmecoffee-web:local Built 
+ Container dabbler-app-api-1 Creating 
+ Container dabbler-app-devidp-1 Creating 
+ Container dabbler-app-devidp-1 Created 
+ Container dabbler-app-api-1 Created 
+ Container dabbler-app-web-1 Creating 
+ Container dabbler-app-web-1 Created 
+ Container dabbler-app-api-1 Starting 
+ Container dabbler-app-devidp-1 Starting 
+ Container dabbler-app-devidp-1 Started 
+ Container dabbler-app-api-1 Started 
+ Container dabbler-app-api-1 Waiting 
+ Container dabbler-app-api-1 Healthy 
+ Container dabbler-app-web-1 Starting 
+ Container dabbler-app-web-1 Started 
+e2e: http://localhost:5011/health is healthy
+e2e: http://localhost:5010/health is healthy
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Program Files\dotnet\sdk\11.0.100-preview.2.26159.112\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(383,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\AcmeCoffeeOnline.Playwright.csproj]
+  AcmeCoffeeOnline.Playwright -&gt; D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll
+Test run for D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.17]     AcmeCoffeeOnline.Playwright.TemplateSmokePlaywrightTests.DabblerApp_LoginPage_RendersFromScaffoldedTemplateAsync [SKIP]
+[xUnit.net 00:00:00.19]     AcmeCoffeeOnline.Playwright.TemplateSmokePlaywrightTests.DabblerMinTemplate_LoginPage_RendersFromScaffoldedTemplateAsync [SKIP]
+[xUnit.net 00:00:00.19]     AcmeCoffeeOnline.Playwright.TemplateSmokePlaywrightTests.DabblerApp_BlazorFrameworkJs_IsServedAsync [SKIP]
+  Skipped AcmeCoffeeOnline.Playwright.TemplateSmokePlaywrightTests.DabblerApp_LoginPage_RendersFromScaffoldedTemplateAsync [1 ms]
+  Skipped AcmeCoffeeOnline.Playwright.TemplateSmokePlaywrightTests.DabblerMinTemplate_LoginPage_RendersFromScaffoldedTemplateAsync [1 ms]
+  Skipped AcmeCoffeeOnline.Playwright.TemplateSmokePlaywrightTests.DabblerApp_BlazorFrameworkJs_IsServedAsync [1 ms]
+[xUnit.net 00:00:44.32]     AcmeCoffeeOnline.Playwright.Generated.UnifiedMasterDetailsCompositeUatTests.RunChecklistAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.Generated.UnifiedMasterDetailsCompositeUatTests.RunChecklistAsync [32 s]
+  Error Message:
+   System.TimeoutException : Timeout 30000ms exceeded.
+Call log:
+  - waiting for GetByRole(AriaRole.Link).Filter(new() { HasTextRegex = new Regex(&quot;^\\s*Open\\s*$&quot;, RegexOptions.IgnoreCase) }).First
+  Stack Trace:
+     at Microsoft.Playwright.Transport.Connection.InnerSendMessageToServerAsync[T](ChannelOwner object, String method, Dictionary`2 dictionary, Boolean keepNulls) in /_/src/Playwright/Transport/Connection.cs:line 201
+   at Microsoft.Playwright.Transport.Connection.WrapApiCallAsync[T](Func`1 action, Boolean isInternal, String title) in /_/src/Playwright/Transport/Connection.cs:line 499
+   at UnifiedMasterDetailsCompositeUat.RunAsync(IPlaywrightUatFixture fixture, IPage page) in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\UnifiedMasterDetailsCompositeUat.cs:line 25
+   at AcmeCoffeeOnline.Playwright.Generated.UnifiedMasterDetailsCompositeUatTests.RunChecklistAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\UnifiedMasterDetailsCompositeUatTests.cs:line 23
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:54.88]     AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to contain text 'XXX-XX-'
+But was: '
+
+
+
+
+
+
+
+Now viewing as 'Backoffice User'.
+
+
+
+
+        
+        
+            AcmeCoffeeDistributors
+        
+
+        
+
+        
+
+        Internal Platform Admin
+
+    asBackoffice UserforInternal Operations
+
+    
+                Dashboard
+            
+            
+                Orders
+            
+            
+                Retail Businesses
+            
+            
+                Products
+            
+
+            
+            Reports
+    
+                    Orders by Retail Business
+                
+                
+                    Sales by Product
+                
+                Admin
+    
+                            User Management
+                        
+                                Product Management
+                            
+                            Security Dashboard
+                        
+
+
+    
+
+
+            
+                Retail Business #1
+        
+            View and edit retail business contact details and related orders.
+        
+
+    Save
+                        Undo
+                    First NameFirst Name
+
+            Last NameLast Name
+
+            EmailEmail
+
+            PhonePhone
+
+            AddressAddress
+
+            CityCity
+
+            StateState
+
+            Zip CodeZip Code
+
+            
+                Active
+
+            Social Security NumberSocial Security Number
+                Created: 11/9/2026 11:01 AM
+            
+                Modified: 11/10/2026 8:01 AM
+        
+
+    
+        An unhandled error has occurred.
+        Reload
+        X
+
+    Connection lost
+                Attempting to reconnect to the server...
+            Reconnection failed
+                Please reload the page to restore functionality.
+
+    
+    ' 
+Call log:
+  - Expect &quot;ToContainTextAsync&quot; with timeout 5000ms
+  - waiting for Locator(&quot;body&quot;)
+    9 × locator resolved to &lt;body&gt;…&lt;/body&gt;
+      - unexpected value &quot;
+
+
+
+
+
+
+
+Now viewing as 'Backoffice User'.
+
+
+
+
+        
+        
+            AcmeCoffeeDistributors
+        
+
+        
+
+        
+
+        Internal Platform Admin
+
+    asBackoffice UserforInternal Operations
+
+    
+                Dashboard
+            
+            
+                Orders
+            
+            
+                Retail Businesses
+            
+            
+                Products
+            
+
+            
+            Reports
+    
+                    Orders by Retail Business
+                
+                
+                    Sales by Product
+                
+                Admin
+    
+                            User Management
+                        
+                                Product Management
+                            
+                            Security Dashboard
+                        
+
+
+    
+
+
+            
+                Retail Business #1
+        
+            View and edit retail business contact details and related orders.
+        
+
+    Save
+                        Undo
+                    First NameFirst Name
+
+            Last NameLast Name
+
+            EmailEmail
+
+            PhonePhone
+
+            AddressAddress
+
+            CityCity
+
+            StateState
+
+            Zip CodeZip Code
+
+            
+                Active
+
+            Social Security NumberSocial Security Number
+                Created: 11/9/2026 11:01 AM
+            
+                Modified: 11/10/2026 8:01 AM
+        
+
+    
+        An unhandled error has occurred.
+        Reload
+        X
+
+    Connection lost
+                Attempting to reconnect to the server...
+            Reconnection failed
+                Please reload the page to restore functionality.
+
+    
+    &quot;
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at SensitiveFieldMaskingAuditUatRemediationUat.RunAsync(IPlaywrightUatFixture fixture, IPage page) in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\SensitiveFieldMaskingAuditUatRemediationUat.cs:line 49
+   at AcmeCoffeeOnline.Playwright.Generated.SensitiveFieldMaskingAuditUatRemediationUatTests.RunChecklistAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\SensitiveFieldMaskingAuditUatRemediationUatTests.cs:line 23
+--- End of stack trace from previous location ---
+[xUnit.net 00:01:27.61]     AcmeCoffeeOnline.Playwright.Generated.AdminUsersCrossLinksUatTests.RunChecklistAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.Generated.AdminUsersCrossLinksUatTests.RunChecklistAsync [32 s]
+  Error Message:
+   System.TimeoutException : Timeout 30000ms exceeded.
+Call log:
+  - waiting for GetByRole(AriaRole.Button).Filter(new() { HasTextRegex = new Regex(&quot;^\\s*Admin\\s*$&quot;, RegexOptions.IgnoreCase) }).First
+  Stack Trace:
+     at Microsoft.Playwright.Transport.Connection.InnerSendMessageToServerAsync[T](ChannelOwner object, String method, Dictionary`2 dictionary, Boolean keepNulls) in /_/src/Playwright/Transport/Connection.cs:line 201
+   at Microsoft.Playwright.Transport.Connection.WrapApiCallAsync[T](Func`1 action, Boolean isInternal, String title) in /_/src/Playwright/Transport/Connection.cs:line 499
+   at AdminUsersCrossLinksUat.RunAsync(IPlaywrightUatFixture fixture, IPage page) in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\AdminUsersCrossLinksUat.cs:line 28
+   at AcmeCoffeeOnline.Playwright.Generated.AdminUsersCrossLinksUatTests.RunChecklistAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\AdminUsersCrossLinksUatTests.cs:line 23
+--- End of stack trace from previous location ---
+[xUnit.net 00:02:25.12]     AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync [43 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect &quot;ToBeVisibleAsync&quot; with timeout 10000ms
+  - waiting for Locator(&quot;[data-testid='users-row-14-roles'], [data-testid='users-row-14-no-roles']&quot;).First
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\UsersAndRoleAssignmentWorkflowTests.cs:line 64
+   at AcmeCoffeeOnline.Playwright.UsersAndRoleAssignmentWorkflowTests.CrossOrgUserAdmin_AssignsBackofficeUser_ToSeededCustomerAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\UsersAndRoleAssignmentWorkflowTests.cs:line 114
+--- End of stack trace from previous location ---
+[xUnit.net 00:02:25.13]     AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [SKIP]
+  Skipped AcmeCoffeeOnline.Playwright.SsoOidcWorkflowTests.SsoLogin_BackofficeUserAdmin_LandsOnDashboardAsync [1 ms]
+[xUnit.net 00:06:27.34]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [1 s]
+  Error Message:
+   Could not find product 'Blonde Roast - Decaf - Espresso' through the API.
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.GetProductByExactNameAsync(String userId, String productName) in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 641
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 45
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 97
+--- End of stack trace from previous location ---
+[xUnit.net 00:07:34.56]     AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.AddItem_ViaPickerDialog_PersistsAfterParentSaveAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.AddItem_ViaPickerDialog_PersistsAfterParentSaveAsync [2 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   1
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.AddItem_ViaPickerDialog_PersistsAfterParentSaveAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\OrderNestedItemsSaveTests.cs:line 212
+   at AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.AddItem_ViaPickerDialog_PersistsAfterParentSaveAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\OrderNestedItemsSaveTests.cs:line 225
+--- End of stack trace from previous location ---
+[xUnit.net 00:07:37.08]     AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.EditItem_ViaRowForm_PersistsAfterParentSaveAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.EditItem_ViaRowForm_PersistsAfterParentSaveAsync [2 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 9
+Actual:   2
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.EditItem_ViaRowForm_PersistsAfterParentSaveAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\OrderNestedItemsSaveTests.cs:line 80
+   at AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.EditItem_ViaRowForm_PersistsAfterParentSaveAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\OrderNestedItemsSaveTests.cs:line 95
+--- End of stack trace from previous location ---
+[xUnit.net 00:07:39.21]     AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.DeleteItem_ViaRowIcon_PersistsAfterParentSaveAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.DeleteItem_ViaRowIcon_PersistsAfterParentSaveAsync [2 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   2
+  Stack Trace:
+     at AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.DeleteItem_ViaRowIcon_PersistsAfterParentSaveAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\OrderNestedItemsSaveTests.cs:line 137
+   at AcmeCoffeeOnline.Playwright.OrderNestedItemsSaveTests.DeleteItem_ViaRowIcon_PersistsAfterParentSaveAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\OrderNestedItemsSaveTests.cs:line 152
+--- End of stack trace from previous location ---
+[xUnit.net 00:08:52.83]     AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync [7 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect &quot;ToBeVisibleAsync&quot; with timeout 5000ms
+  - waiting for GetByTestId(&quot;access-denied-card&quot;)
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\EdgeCaseTests.cs:line 194
+   at AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_SecurityDashboard_ShowsCenteredCardAndAvoidsNotFoundAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\EdgeCaseTests.cs:line 207
+--- End of stack trace from previous location ---
+[xUnit.net 00:08:59.79]     AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync [6 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect &quot;ToBeVisibleAsync&quot; with timeout 5000ms
+  - waiting for GetByTestId(&quot;access-denied-page&quot;)
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\EdgeCaseTests.cs:line 163
+   at AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminSecurityAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\EdgeCaseTests.cs:line 169
+--- End of stack trace from previous location ---
+[xUnit.net 00:09:10.39]     AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync [7 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to be visible 
+Call log:
+  - Expect &quot;ToBeVisibleAsync&quot; with timeout 5000ms
+  - waiting for GetByTestId(&quot;access-denied-page&quot;)
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 85
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\EdgeCaseTests.cs:line 139
+   at AcmeCoffeeOnline.Playwright.EdgeCaseTests.AccessDenied_BackofficeUser_BlockedFromAdminProductsAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\EdgeCaseTests.cs:line 145
+--- End of stack trace from previous location ---
+[xUnit.net 00:11:05.27]     AcmeCoffeeOnline.Playwright.Generated.ComposableCrudHelpersUatTests.RunChecklistAsync [FAIL]
+  Failed AcmeCoffeeOnline.Playwright.Generated.ComposableCrudHelpersUatTests.RunChecklistAsync [44 s]
+  Error Message:
+   System.TimeoutException : Timeout 30000ms exceeded.
+Call log:
+  - waiting for GetByRole(AriaRole.Button).Filter(new() { HasTextRegex = new Regex(&quot;^\\s*SHIPPED\\s*$&quot;, RegexOptions.IgnoreCase) }).First
+  Stack Trace:
+     at Microsoft.Playwright.Transport.Connection.InnerSendMessageToServerAsync[T](ChannelOwner object, String method, Dictionary`2 dictionary, Boolean keepNulls) in /_/src/Playwright/Transport/Connection.cs:line 201
+   at Microsoft.Playwright.Transport.Connection.WrapApiCallAsync[T](Func`1 action, Boolean isInternal, String title) in /_/src/Playwright/Transport/Connection.cs:line 499
+   at ComposableCrudHelpersUat.RunAsync(IPlaywrightUatFixture fixture, IPage page) in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\ComposableCrudHelpersUat.cs:line 127
+   at AcmeCoffeeOnline.Playwright.Generated.ComposableCrudHelpersUatTests.RunChecklistAsync() in D:\Projects\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Generated\ComposableCrudHelpersUatTests.cs:line 28
+--- End of stack trace from previous location ---
+[xUnit.net 00:11:08.10]     AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [SKIP]
+Data collector 'Blame' message: All tests finished running, Sequence file will not be generated.
+  Skipped AcmeCoffeeOnline.Playwright.MultiOrganizationWorkflowFlakyTests.E2E_WF_02_DualMembershipUser_SwitchesShellScopeAndLosesInternalRoutesAsync [1 ms]
+Results File: D:\Projects\dabbler-platform\TestResults\e2e\e2e.trx
+
+Failed!  - Failed:    12, Passed:   161, Skipped:     5, Total:   178, Duration: 11 m 7 s - AcmeCoffeeOnline.Playwright.dll (net10.0)
+recorded e2e [final-full]: failed in 756s (timed here)
+</pre></details>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,290 @@
+{
+  "sessionSetName": "security-dashboard-behavioral-fixes",
+  "createdDate": "2026-04-17T19:09:21.092700+00:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/repro",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Read spec, planning docs, and Orders-related code; identified that jdoe signs into the internal org as BackofficeUser and ApplyRowFilter returns Where(_=>false) when ActiveOrganizationId.HasValue and CustomerId is null.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/trace",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Traced row-filter pipeline: IRowFilterService is registered but unused; OrderService.ApplyRowFilter hardcodes logic that filters by CustomerId when any ActiveOrganizationId is set, regardless of role. CurrentUserService.Role returns highest role from claims.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/decision",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Confirmed rule from config and role description: Customer -> own orders only; BackofficeUser and above -> all orders. Matches security-config.json RowFilters which only scopes the Customer role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/fix",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Rewrote OrderService.ApplyRowFilter to key off role only: Role >= BackofficeUser -> pass-through; Customer with CustomerId -> filter; Customer with no CustomerId -> deny-all. Removes the ActiveOrganizationId.HasValue branch that caused the bug.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/integration-test",
+      "dateTime": "2026-04-17T19:15:35.258823+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Api.Tests/OrderVisibilityTests.cs with three real-DB cases: BackofficeUser jdoe sees total order count; Customer sees only own orders; SystemAdmin sees all.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/playwright",
+      "dateTime": "2026-04-17T19:15:35.260754+00:00",
+      "description": "Added OrdersList_AsBackofficeUser_ShowsSeededOrdersAsync to OrdersWorkflowTests.cs exercising the drawer-driven nav as jdoe.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-17T19:17:39.243217+00:00",
+      "description": "dotnet build: success (0 warnings, 0 errors). dotnet test: 561 passed; one pre-existing failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates references docs/workflow-auth-observability.md which was removed in commit 8730107 and is unrelated to this session). All 3 new OrderVisibilityTests pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-17T19:19:48.497956+00:00",
+      "description": "Cross-provider verification via router (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 16252,
+          "outputTokens": 1307,
+          "costUsd": 0.341805
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/clarify-scope",
+      "dateTime": "2026-04-17T19:33:04.139942+00:00",
+      "description": "Kickoff clarification: user confirmed expected scope is 'full detail-page editing (status + line items + customer)' like the products detail page.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/repro",
+      "dateTime": "2026-04-17T19:33:04.140942+00:00",
+      "description": "Reproduced by reading OrderDetailPage.razor, OrderDetail.razor, ProductDetailPage.razor. Root cause identified: OrderDetailPage hardcodes IsReadOnly=true, so status buttons, Add Product, Remove items, Add/Edit/Delete notes are never rendered for any role. Also, no UpdateOrder endpoint or API client method exists for editing an existing order's header (Notes, ShipDate) \u2014 OrderDetailState.SaveAsync returns false whenever !isNew.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/trace",
+      "dateTime": "2026-04-17T19:33:04.140942+00:00",
+      "description": "Traced OrderDetail -> OrderDetailState -> OrderApiClient -> OrdersController -> OrderService. Confirmed: endpoint-level authorization is the actual gate (Products follows 'show edit UI to everyone; API enforces auth' pattern). Row filter in OrderService.ApplyRowFilter correctly scopes existing-order mutations to the caller's CustomerId for Customer role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/fix",
+      "dateTime": "2026-04-17T19:33:04.141939+00:00",
+      "description": "Implemented across server and client: added IOrderService.UpdateAsync + OrderService.UpdateAsync (updates Notes, ShipDate, ModifiedDate, ModifiedBy; row-filtered); added OrdersController UpdateAsync at PUT /api/orders/{id} with [DabblerEndpointAuthorize('UpdateOrder')]; added UpdateOrder endpoint permission to security-config.json (SystemAdmin, BackofficeUserAdmin, BackofficeUser); added OrderApiClient.UpdateAsync; updated OrderDetailState.SaveAsync to route to create-on-new and update-on-existing; flipped OrderDetailPage IsReadOnly to false; added Save/Undo toolbar for existing orders to OrderDetail with dirty-state tracking over Notes and ShipDate; rewired Notes TextField and ShipDate DatePicker to change-callbacks that drive dirty state; updated OrderDetailState.UpdateStatusAsync to re-fetch the order after a status change so server-side side effects (ShipDate on Shipped) show in the UI.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/integration-test",
+      "dateTime": "2026-04-17T19:33:04.141939+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Api.Tests/OrderUpdateTests.cs with two real-DB cases: SystemAdmin updates Notes and ShipDate and the change persists (then restores); a different Customer cannot update another customer's order (row filter returns null, DB unchanged).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/playwright",
+      "dateTime": "2026-04-17T19:33:04.141939+00:00",
+      "description": "Added OrderDetail_SystemAdmin_CanEditNotesAndPersistAsync to tests/AcmeCoffeeOnline.Playwright/OrdersWorkflowTests.cs. Drives drawer -> /orders, clicks the first row, asserts Save/Undo/Add Product controls are visible and Save/Undo start disabled, edits Notes, asserts Save enables, clicks Save, re-fetches the order via API and asserts Notes persisted, then restores the original Notes so later tests aren't affected. Updated the file's header doc-comment which previously stated IsReadOnly=true was the current state.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/web-unit-test",
+      "dateTime": "2026-04-17T19:33:04.143075+00:00",
+      "description": "Updated tests/AcmeCoffeeOnline.Web.Tests/Services/OrderDetailStateTests.cs: replaced the outdated SaveAsync_RequiresNewRecordAndSuccessfulCreate test with SaveAsync_CreatesNewOrderThroughClient (create path) and SaveAsync_UpdatesExistingOrderThroughClient (update path).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-17T19:33:04.143075+00:00",
+      "description": "dotnet build: success (0 errors, 1 pre-existing warning in WebGuardrailTests). dotnet test (non-Playwright): 547 passed, 1 pre-existing failure in WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md from commit 8730107 \u2014 same unrelated failure noted in Session 1). New tests: 2/2 OrderUpdateTests pass, 2/2 OrderDetailStateTests create/update cases pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-17T19:33:56.709195+00:00",
+      "description": "Cross-provider verification via router (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 34858,
+          "outputTokens": 2407,
+          "costUsd": 0.703395
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/verification-round-2",
+      "dateTime": "2026-04-17T19:37:59.385389+00:00",
+      "description": "Round-2 verification after fixes applied to round-1 issues (model: opus).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 16022,
+          "outputTokens": 1092,
+          "costUsd": 0.32223
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/repro",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Read spec + planning docs. Reproduced the UAT claim by tracing the admin UI path: DabblerUserRoleManager.AddRoleAsync -> IUserRoleStore -> JsonFileUserRoleStore (user-roles.json); sign-in path: UserSessionContextService.BuildAsync reads roles only from AppUserRoles navigation. The two stores never sync.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/root-cause",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Root cause: UserSessionContextService.BuildAsync ignores IUserRoleStore. Host app is configured with UseJsonFileStore (writing to user-roles.json). Admin elevations persist to user-roles.json but are never merged into the claims built for the target user on next sign-in, so the elevated user still lacks the role.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/fix",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Injected IUserRoleStore (optional) into UserSessionContextService. BuildAsync now loads the user roles from the store keyed by user.Id.ToString() and merges them into effectiveRoles. Promoted isSystemAdmin to also consider store-sourced SystemAdmin assignments so a store-elevated admin can cross-org target like a seed-admin. InternalUserMiddleware and all CreatePrincipalAsync callers inherit the fix through BuildAsync.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/bunit",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Added bUnit test SelectingSystemAdminAndClickingAdd_PersistsElevationAndRendersChip to DabblerUserRoleManagerTests: renders the component for Jordan Ellis, drives MudSelect ValueChanged to SystemAdmin, clicks the Add button, verifies IUserRoleStore.AddRoleAsync(userId, SystemAdmin) was invoked and that the SystemAdmin chip appears in the row markup.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/integration-test",
+      "dateTime": "2026-04-17T19:54:26.023852+00:00",
+      "description": "Added tests/Dabbler.Security.Tests/Persistence/EfCoreUserRoleStoreTests.cs covering AddRoleAsync/GetRolesAsync/GetAllAsync/RemoveRoleAsync round-trip against the AppUserRoleAssignments table. Extended UserSessionContextServiceTests with three cases: store roles merge into EffectiveRoles; store-elevated SystemAdmin can target an organization without membership; CreatePrincipalAsync stamps store roles as ClaimTypes.Role claims.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/playwright",
+      "dateTime": "2026-04-17T19:54:26.028297+00:00",
+      "description": "Added tests/AcmeCoffeeOnline.Playwright/SecurityDashboardUserAssignmentsTests.cs. As admin, navigates /admin/security, opens the User Assignments tab, picks SystemAdmin for Jordan Ellis from the MudSelect popover, clicks the add icon, asserts the chip appears, then seeded-signs-in Jordan in a second page and asserts SessionInfo.Roles contains SystemAdmin. Baseline-and-cleanup bookends confirm the role is absent before elevation and removed after (via the MudChip close button).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-17T19:54:26.029396+00:00",
+      "description": "dotnet build: success (0 errors, 1 pre-existing warning in WebGuardrailTests). dotnet test (non-Playwright): 547 passed, 1 pre-existing failure in WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates (missing docs/workflow-auth-observability.md from commit 8730107, unrelated). Security.Tests: 268 total pass (including 3 new UserSessionContextService merge tests and 4 new EfCoreUserRoleStore tests). Security.Blazor.Tests: 121 total pass (including 1 new DabblerUserRoleManager test).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-17T19:56:06.369906+00:00",
+      "description": "Cross-provider verification via router (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 22440,
+          "outputTokens": 2582,
+          "costUsd": 0.53025
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/verification-round-2",
+      "dateTime": "2026-04-17T19:57:55.704800+00:00",
+      "description": "Round-2 verification after Playwright setup-guard fix (model: opus); raw review saved.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 5313,
+          "outputTokens": 1274,
+          "costUsd": 0.17524499999999998
+        }
+      ]
+    }
+  ]
+}

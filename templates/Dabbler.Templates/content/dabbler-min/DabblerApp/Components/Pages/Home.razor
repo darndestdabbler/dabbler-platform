@@ -1,0 +1,17 @@
+@page "/"
+@attribute [DabblerPageAuthorize("/")]
+<PageTitle>Home — DabblerApp</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Welcome to DabblerApp</MudText>
+
+<MudText Class="mb-3">
+    This app was scaffolded from the <strong>dabbler-min</strong> template.
+    It includes magic-link authentication and restriction-based authorization
+    via <strong>Dabbler.Security</strong>. Add components from the platform
+    as your app grows.
+</MudText>
+
+<MudAlert Severity="Severity.Info" Class="mt-4">
+    Navigate to <MudLink Href="/admin/security">Security Dashboard</MudLink>
+    to configure roles, restrictions, and masking policies.
+</MudAlert>

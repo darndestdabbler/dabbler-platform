@@ -1,0 +1,66 @@
+{
+  "ProjectName": "AcmeCoffeeOnline - UAT DSL watermark integration smoke",
+  "Review": [
+    {
+      "FunctionalArea": "UAT DSL Watermark Smoke",
+      "Subarea": "Toggle availability",
+      "ItemLabel": "SMOKE-1: Toggle Available on a product row; verify quiet",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.UatDslWatermarkSmokeTests.Smoke1_ToggleAvailableAsync",
+      "Feedback": "CATALOG GAP: /login and /dev/email-inbox are not in the crawled catalog by design (the crawler authenticates first). The pre-auth steps below use the standard sign-in flow. Additionally, no catalog row for /admin/products carries elementRole=grid with a userVisibleLabel naming the product table; the CLICK SWITCH step therefore omits the grid scope qualifier and identifies the target column solely by its header \"Available\", which IS present in the catalog as elementRole=Column on /admin/products x SystemAdmin.",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\""
+        },
+        {
+          "StepNumber": 4,
+          "Action": "WAIT FOR \"the page displays the text 'We sent a sign-in code to'\""
+        },
+        {
+          "StepNumber": 5,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\""
+        },
+        {
+          "StepNumber": 6,
+          "Action": "WAIT FOR \"an email row appears for admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK ROW in \"Inbox\" where \"To\" = \"admin@acmecoffee.com\""
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK LINK with text \"Sign in\""
+        },
+        {
+          "StepNumber": 9,
+          "Action": "NAVIGATE TO \"http://localhost:5010/admin/products\""
+        },
+        {
+          "StepNumber": 10,
+          "Action": "WAIT FOR \"the page displays the text 'Product Administration'\""
+        },
+        {
+          "StepNumber": 11,
+          "Action": "CLICK SWITCH in column with header \"Available\""
+        },
+        {
+          "StepNumber": 12,
+          "Action": "WAIT FOR ACTIONS QUIET"
+        },
+        {
+          "StepNumber": 13,
+          "Action": "VERIFY ELEMENT with label \"Available\" is visible"
+        }
+      ]
+    }
+  ]
+}

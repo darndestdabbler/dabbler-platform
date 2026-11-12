@@ -1,0 +1,28 @@
+@page "/suppliers"
+@attribute [DabblerPageAuthorize("/suppliers")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Components.Data
+@using Dabbler.Security.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+<PageTitle>Suppliers</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">Suppliers</MudText>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Href="/suppliers/new">
+            New Supplier
+        </MudButton>
+    </MudStack>
+
+    <SupplierList DataProvider="DataProvider" />
+</MudContainer>
+
+@code {
+    [Inject]
+    private IGridDataProvider<SupplierDto> DataProvider { get; set; } = default!;
+}
