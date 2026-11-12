@@ -19,6 +19,12 @@
 
     <!-- Exclude from solution-level build by default (tool, not a library) -->
     <IsTestProject>false</IsTestProject>
+
+    <!-- The tool serves no static files (no wwwroot, no UseStaticFiles or
+         MapStaticAssets). Under .NET SDK 11 a Debug build of a Web SDK project
+         adds a Hot Reload browser-tools module, which fails the build here
+         because it has no matching static asset endpoint. -->
+    <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
   </PropertyGroup>
 
   <ItemGroup>

@@ -211,6 +211,13 @@
       "dateTime": "2026-11-12T12:10:57.634000-05:00",
       "reason": "Rollback to Start of This Session from the Work Explorer",
       "by": "operator"
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 24,
+      "dateTime": "2026-11-12T12:16:26.032000-05:00",
+      "task": "Make the Debug solution build green under .NET SDK 11.0.100 by setting <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled> in tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj, with a comment explaining that the tool serves no static files (no wwwroot, no UseStaticFiles or MapStaticAssets), so SDK 11's Debug-only Hot Reload browser-tools module has no static web assets to attach to and otherwise fails the build. No other project changes.",
+      "releasable": false
     }
   ]
 }

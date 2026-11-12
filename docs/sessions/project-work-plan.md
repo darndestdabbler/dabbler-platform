@@ -35,7 +35,13 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 21 | The framework runs the Playwright E2E gate | no | 2026-11-09 |
 | 22 | Fix the 12 Playwright E2E failures | no | 2026-11-10 |
 | 23 | The E2E fixes that need a public API change | — | not declared |
-| 24 | Session 24 | — | not declared |
+| 24 | The Debug solution build is green under .NET SDK 11.0.100 | no | 2026-11-12 |
+| 25 | MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button | — | not declared |
+| 26 | One filter-operator vocabulary, and no silently dropped filter | — | not declared |
+| 27 | Shipped text, the download helper and the READMEs | — | not declared |
+| 28 | Take DabblerPdf 1.2.0, and measure report text the way it is drawn | — | not declared |
+| 29 | Take DabblerPdf 1.3.0, and report text can use a Unicode TrueType font | — | not declared |
+| 30 | Bump to 2.0.0 | — | not declared |
 
 ### Session 1 — Author or import the solution plan
 
@@ -184,7 +190,11 @@ Make the Playwright `e2e` suite green by fixing the root causes of its 12 failur
 - 2026-11-10 — step 'e2e-required-for-close': its files: The full cold-start e2e check failed only on E2E_WF_04 (passed in the save-race filtered run): WaitForQuietAsync returns before the 300 ms debounced search begins, so the availability click lands mid-rerender and is dropped. The gate cannot be required while it races; the test waits until the grid shows only the searched product before clicking. Assertions unchanged. (claude-code (anthropic, claude-opus-5-5))
 - 2026-11-10 — step 'e2e-required-for-close': its files: The second full cold-start e2e run (E2E_WF_04 now green) failed only on SensitiveFieldMaskingUatCoverageTests.Uatv1 (green alone 3/3): its setup clicks Remove on the BackofficeUser mask exemption Uatv3 left behind and closes the page on NetworkIdle, before the removal lands. The setup helpers now wait for the exemption row to disappear or appear. Assertions unchanged. (claude-code (anthropic, claude-opus-5-5))
 
-### Session 24 — Session 24
+### Session 24 — The Debug solution build is green under .NET SDK 11.0.100
+
+**Releasable: no.**
+
+Make the Debug solution build green under .NET SDK 11.0.100 by setting <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled> in tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj, with a comment explaining that the tool serves no static files (no wwwroot, no UseStaticFiles or MapStaticAssets), so SDK 11's Debug-only Hot Reload browser-tools module has no static web assets to attach to and otherwise fails the build. No other project changes.
 
 **Rolled back:**
 
