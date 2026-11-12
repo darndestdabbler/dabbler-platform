@@ -1,0 +1,22 @@
+{
+  "ProjectName": "uat-dsl-watermark-integration smoke (compile-only emitter check)",
+  "Review": [
+    {
+      "FunctionalArea": "UAT DSL Watermark",
+      "Subarea": "Verb compile",
+      "ItemLabel": "Compile-emitter check: WAIT FOR ACTIONS QUIET emits WaitForQuietAsync",
+      "E2ETestReference": "AcmeCoffeeOnline.Playwright.UatDslWatermarkSmokeTests.CompileEmitterCheckAsync",
+      "Feedback": "This compile-only smoke uses NAVIGATE TO + WAIT FOR ACTIONS QUIET (no label probes) so it bypasses the W0 SemanticValidator's role='*' limitation that blocks any catalog-grounded checklist from compiling without W0 CLI --suppressions support. The emitter's output still shows TWO WaitForQuietAsync calls because the existing EmitWatermarkWaits flag emits one implicitly after NAVIGATE TO and the new explicit verb emits the second; this is the transitional-debt coexistence that Session 2's verifier flagged for follow-up. The point being proven here is just that the explicit verb resolves to the C# helper end-to-end; production usage of the verb pairs it with an interaction step (see HR#8 in the uat-script-author prompt template).",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dashboard\""
+        },
+        {
+          "StepNumber": 2,
+          "Action": "WAIT FOR ACTIONS QUIET"
+        }
+      ]
+    }
+  ]
+}

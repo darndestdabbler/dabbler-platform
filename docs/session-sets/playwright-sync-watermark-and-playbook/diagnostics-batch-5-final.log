@@ -1,0 +1,329 @@
+=== Diagnostic stress: E2E_WF_04, 20 iterations, suffix=batch-5-final ===
+Started: 2026-04-29T07:21:09-04:00
+
+--- Run 1/20 (2026-04-29T07:21:09-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:10.00]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [8 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 10.3583 Seconds
+Run 1: PASS
+
+--- Run 2/20 (2026-04-29T07:21:20-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.03]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.4056 Seconds
+Run 2: PASS
+
+--- Run 3/20 (2026-04-29T07:21:28-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.97]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3593 Seconds
+Run 3: PASS
+
+--- Run 4/20 (2026-04-29T07:21:36-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.23]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.5846 Seconds
+Run 4: PASS
+
+--- Run 5/20 (2026-04-29T07:21:44-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.05]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.4280 Seconds
+Run 5: PASS
+
+--- Run 6/20 (2026-04-29T07:21:52-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.15]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.5323 Seconds
+Run 6: PASS
+
+--- Run 7/20 (2026-04-29T07:22:00-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.95]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3309 Seconds
+Run 7: PASS
+
+--- Run 8/20 (2026-04-29T07:22:08-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.36]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.7501 Seconds
+Run 8: PASS
+
+--- Run 9/20 (2026-04-29T07:22:16-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.17]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.5473 Seconds
+Run 9: PASS
+
+--- Run 10/20 (2026-04-29T07:22:24-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.38]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.7644 Seconds
+Run 10: PASS
+
+--- Run 11/20 (2026-04-29T07:22:33-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.94]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3206 Seconds
+Run 11: PASS
+
+--- Run 12/20 (2026-04-29T07:22:41-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.10]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.4895 Seconds
+Run 12: PASS
+
+--- Run 13/20 (2026-04-29T07:22:49-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.03]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.4179 Seconds
+Run 13: PASS
+
+--- Run 14/20 (2026-04-29T07:22:57-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.90]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.2677 Seconds
+Run 14: PASS
+
+--- Run 15/20 (2026-04-29T07:23:05-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.03]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.4033 Seconds
+Run 15: PASS
+
+--- Run 16/20 (2026-04-29T07:23:13-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.09]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.4620 Seconds
+Run 16: PASS
+
+--- Run 17/20 (2026-04-29T07:23:21-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.03]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3973 Seconds
+Run 17: PASS
+
+--- Run 18/20 (2026-04-29T07:23:29-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.00]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3742 Seconds
+Run 18: PASS
+
+--- Run 19/20 (2026-04-29T07:23:37-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.07]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.4656 Seconds
+Run 19: PASS
+
+--- Run 20/20 (2026-04-29T07:23:45-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:06.92]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.3047 Seconds
+Run 20: PASS
+
+=== Summary ===
+Iterations: 20
+Pass: 20
+Fail: 0
+Results: 1:PASS 2:PASS 3:PASS 4:PASS 5:PASS 6:PASS 7:PASS 8:PASS 9:PASS 10:PASS 11:PASS 12:PASS 13:PASS 14:PASS 15:PASS 16:PASS 17:PASS 18:PASS 19:PASS 20:PASS
+Finished: 2026-04-29T07:23:53-04:00

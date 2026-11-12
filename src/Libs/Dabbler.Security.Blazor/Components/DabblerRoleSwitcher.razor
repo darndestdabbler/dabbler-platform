@@ -1,0 +1,154 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@inject SecurityConfigurationManager ConfigManager
+@inject AuthorizationStateNotifier Notifier
+@inject IRoleSwitcher RoleSwitcher
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+@if (_visible)
+{
+    <div style="position:relative;display:inline-flex;align-items:center;">
+        <MudButton StartIcon="@Icons.Material.Filled.SwapHoriz"
+                   Color="Color.Inherit"
+                   Variant="Variant.Text"
+                   EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                   OnClick="ToggleMenu"
+                   UserAttributes="_activatorAttributes"
+                   @ref="_activatorButton">
+            @(RoleSwitcher.IsRoleSwitched ? _switchedRole : "Switch role")
+        </MudButton>
+        @if (_isOpen)
+        {
+            <MudPaper Elevation="8"
+                      Style="position:absolute;top:100%;right:0;min-width:180px;z-index:1300;padding:0.5rem;"
+                      @onkeydown="HandleMenuKeyDownAsync">
+                <div role="listbox" aria-label="Available roles" class="d-flex flex-column gap-1">
+                    <button type="button"
+                            class="mud-button-root mud-button mud-button-text mud-button-text-inherit mud-button-text-size-small"
+                            disabled="@(!RoleSwitcher.IsRoleSwitched)"
+                            role="option"
+                            aria-selected="@(!RoleSwitcher.IsRoleSwitched ? "true" : "false")"
+                            @onclick="ClearSwitchAsync">
+                        — My roles —
+                    </button>
+                    @foreach (var role in _allowedSwitchRoles)
+                    {
+                        var r = role;
+                        <button type="button"
+                                class="mud-button-root mud-button mud-button-text mud-button-text-inherit mud-button-text-size-small"
+                                role="option"
+                                aria-selected="@(IsCurrentRole(r) ? "true" : "false")"
+                                @onclick="@(() => ApplySwitchAsync(r))">
+                            @r
+                        </button>
+                    }
+                </div>
+            </MudPaper>
+        }
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Provides a UI for authorized users to temporarily switch their effective role.
+    /// This is useful for administrators who need to test application behavior from the perspective of another role.
+    /// The component is only visible if the current user belongs to a role that is configured to allow switching.
+    /// </summary>
+    private bool _visible;
+    private bool _isOpen;
+    private List<string> _allowedSwitchRoles = [];
+    private string? _switchedRole;
+    private MudButton? _activatorButton;
+    private bool _returnFocusToActivator;
+
+    private Dictionary<string, object?> _activatorAttributes => new()
+    {
+        ["aria-label"] = "Switch active role",
+        ["aria-haspopup"] = "listbox",
+        ["aria-expanded"] = _isOpen ? "true" : "false",
+        ["data-testid"] = "role-switcher-activator"
+    };
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        await RefreshVisibilityAsync();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private void ToggleMenu() => _isOpen = !_isOpen;
+
+    private async Task RefreshVisibilityAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        _allowedSwitchRoles = ConfigManager.Current.RoleSwitching.AllowedRoles;
+        _visible = _allowedSwitchRoles.Any(r => user.IsInRole(r));
+
+        if (RoleSwitcher.IsRoleSwitched)
+            _switchedRole = RoleSwitcher.EffectiveRoles(user).FirstOrDefault();
+    }
+
+    private async Task ApplySwitchAsync(string role)
+    {
+        RoleSwitcher.SwitchToRole(role);
+        _switchedRole = role;
+        _isOpen = false;
+        _returnFocusToActivator = true;
+        Snackbar.Add($"Now viewing as '{role}'.", Severity.Warning);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ClearSwitchAsync()
+    {
+        RoleSwitcher.ClearSwitch();
+        _switchedRole = null;
+        _isOpen = false;
+        _returnFocusToActivator = true;
+        Snackbar.Add("Role switch cleared. Viewing your natural roles.", Severity.Info);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        await RefreshVisibilityAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool IsCurrentRole(string role) =>
+        RoleSwitcher.IsRoleSwitched && string.Equals(_switchedRole, role, StringComparison.OrdinalIgnoreCase);
+
+    private Task HandleMenuKeyDownAsync(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            _isOpen = false;
+            _returnFocusToActivator = true;
+            return InvokeAsync(StateHasChanged);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_returnFocusToActivator && _activatorButton is not null)
+        {
+            _returnFocusToActivator = false;
+            await _activatorButton.FocusAsync();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+}

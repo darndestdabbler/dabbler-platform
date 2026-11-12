@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "category": "Correctness",
+    "severity": "Major",
+    "summary": "EditSession<T> only round-trips public read/write properties; doesn't handle fields, get-only collections, base-type properties.",
+    "status": "fixed",
+    "fix": "Tightened EditSession<T> XML docs to explicitly scope the helper to flat DTOs with public read/write scalar/enum/string/nullable properties. Get-only collections, computed properties, and fields are documented as out-of-scope. ProductDto fits the supported shape; broader DTO shapes will use a dedicated copy-and-compare strategy if/when they emerge."
+  },
+  {
+    "id": 2,
+    "category": "Completeness",
+    "severity": "Minor",
+    "summary": "Verifier reported DirtyAwareActionRow parameters lack XML docs.",
+    "status": "disputed-context-gap",
+    "fix": "False positive caused by abbreviated prompt content. The actual file has full XML <summary> blocks on every [Parameter]. Re-verifying with full file content (workflow disagreement resolution option (c): re-verify with reshaped context)."
+  },
+  {
+    "id": 3,
+    "category": "Test-coverage",
+    "severity": "Minor",
+    "summary": "Missing tests: (a) Delete confirmation dismissal does NOT fire OnDelete; (b) Undo after Commit restores committed baseline (not original).",
+    "status": "fixed",
+    "fix": "Added DeleteButton_OnClick_DoesNotInvokeOnDelete_WhenConfirmationDismissed to DirtyAwareActionRowTests.cs (clicks the 'Cancel' button in the dialog and asserts OnDelete was not invoked). Added Undo_AfterCommit_RestoresCommittedBaselineNotOriginal to EditSessionTests.cs (mutates -> Commits -> mutates again -> Undo -> asserts the committed values are restored, not the original construction-time values). All 32 MasterDetail tests now pass."
+  }
+]
