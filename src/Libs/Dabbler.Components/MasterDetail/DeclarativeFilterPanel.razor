@@ -563,41 +563,41 @@
             {
                 case FilterProperty<TEntity>.Text:
                     if (_filterState.TryGetValue(propName, out var tv) && tv is string ts && !string.IsNullOrEmpty(ts))
-                        descriptors.Add(new FilterDescriptor(propName, "contains", ts));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Contains, ts));
                     break;
 
                 case FilterProperty<TEntity>.EnumVal:
                     if (_filterState.TryGetValue(propName, out var ev) && ev != null)
-                        descriptors.Add(new FilterDescriptor(propName, "eq", ev));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, ev));
                     break;
 
                 case FilterProperty<TEntity>.Bool:
                     if (_filterState.TryGetValue(propName, out var bv) && bv is bool b)
-                        descriptors.Add(new FilterDescriptor(propName, "eq", b));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, b));
                     break;
 
                 case FilterProperty<TEntity>.Numeric { AsRange: true }:
                     if (_filterState.TryGetValue(propName + "_min", out var minV) && minV is decimal minD)
-                        descriptors.Add(new FilterDescriptor(propName, "gte", minD));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.GreaterThanOrEqual, minD));
                     if (_filterState.TryGetValue(propName + "_max", out var maxV) && maxV is decimal maxD)
-                        descriptors.Add(new FilterDescriptor(propName, "lte", maxD));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.LessThanOrEqual, maxD));
                     break;
 
                 case FilterProperty<TEntity>.Numeric:
                     if (_filterState.TryGetValue(propName, out var nv) && nv is decimal nd)
-                        descriptors.Add(new FilterDescriptor(propName, "eq", nd));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, nd));
                     break;
 
                 case FilterProperty<TEntity>.Date { AsRange: true }:
                     if (_filterState.TryGetValue(propName + "_start", out var ds) && ds is DateTime dt1)
-                        descriptors.Add(new FilterDescriptor(propName, "gte", dt1));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.GreaterThanOrEqual, dt1));
                     if (_filterState.TryGetValue(propName + "_end", out var de) && de is DateTime dt2)
-                        descriptors.Add(new FilterDescriptor(propName, "lte", dt2));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.LessThanOrEqual, dt2));
                     break;
 
                 case FilterProperty<TEntity>.Date:
                     if (_filterState.TryGetValue(propName, out var dv) && dv is DateTime dt)
-                        descriptors.Add(new FilterDescriptor(propName, "eq", dt));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, dt));
                     break;
 
                 default:
@@ -606,7 +606,7 @@
                     // key from the object. A future KeyProperty selector on ForeignKey<TForeign>
                     // will make this provider-agnostic; deferred until ForeignKey is used in a page.
                     if (prop.IsForeignKey && _filterState.TryGetValue(propName, out var fkv) && fkv != null)
-                        descriptors.Add(new FilterDescriptor(propName, "eq", fkv));
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, fkv));
                     break;
             }
         }

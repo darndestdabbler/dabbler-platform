@@ -51,7 +51,7 @@ public class ProductDataProvider : IGridDataProvider<ProductDto>
     {
         foreach (var filter in request.Filters)
         {
-            if (filter.Operator == "contains" && filter.Value is string value)
+            if (filter.Operator == FilterOperators.Contains && filter.Value is string value)
                 return value;
         }
         return null;

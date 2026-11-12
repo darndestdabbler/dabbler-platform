@@ -80,7 +80,8 @@ public record SortDescriptor(string PropertyName, bool Descending = false);
 /// Describes a filter operation on a single property.
 /// </summary>
 /// <param name="PropertyName">The property name to filter on.</param>
-/// <param name="Operator">The filter operator (e.g., <c>"equals"</c>, <c>"contains"</c>).</param>
+/// <param name="Operator">The filter operator: one of the <see cref="FilterOperators"/> constants
+/// (e.g., <see cref="FilterOperators.Equals"/>, <see cref="FilterOperators.Contains"/>).</param>
 /// <param name="Value">The filter value to compare against.</param>
 public record FilterDescriptor(string PropertyName, string Operator, object? Value);
 

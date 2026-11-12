@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Bunit;
 using Dabbler.Components.Data;
 using Dabbler.Components.MasterDetail;
+using Dabbler.Platform.Stubs;
 using FluentAssertions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ internal sealed class FilterTestDto
     public FilterTestRoast RoastLevel { get; set; }
     public decimal UnitPrice { get; set; }
     public bool IsAvailable { get; set; }
+    public DateTime RoastedOn { get; set; }
 }
 
 internal enum FilterTestRoast { Dark, Medium, Light }
@@ -160,7 +162,7 @@ public sealed class DeclarativeFilterPanelTests
             .Invoke(panel, ["RoastLevel", FilterTestRoast.Dark]));
 
         captured.Should().NotBeNull();
-        captured!.Filters.Should().ContainSingle(f => f.PropertyName == "RoastLevel" && f.Operator == "eq");
+        captured!.Filters.Should().ContainSingle(f => f.PropertyName == "RoastLevel" && f.Operator == FilterOperators.Equals);
     }
 
     [Fact]
@@ -180,7 +182,7 @@ public sealed class DeclarativeFilterPanelTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().ContainSingle(f =>
-            f.PropertyName == "Name" && f.Operator == "contains" && (string)f.Value! == "espresso");
+            f.PropertyName == "Name" && f.Operator == FilterOperators.Contains && (string)f.Value! == "espresso");
     }
 
     [Fact]
@@ -214,8 +216,8 @@ public sealed class DeclarativeFilterPanelTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().HaveCount(2);
-        captured.Filters.Should().Contain(f => f.Operator == "gte" && (decimal)f.Value! == 10m);
-        captured.Filters.Should().Contain(f => f.Operator == "lte" && (decimal)f.Value! == 50m);
+        captured.Filters.Should().Contain(f => f.Operator == FilterOperators.GreaterThanOrEqual && (decimal)f.Value! == 10m);
+        captured.Filters.Should().Contain(f => f.Operator == FilterOperators.LessThanOrEqual && (decimal)f.Value! == 50m);
     }
 
     [Fact]
@@ -245,8 +247,8 @@ public sealed class DeclarativeFilterPanelTests
             .Invoke(panel, ["UnitPrice_min", (decimal?)15m]));
 
         captured.Should().NotBeNull();
-        captured!.Filters.Should().ContainSingle(f => f.Operator == "gte");
-        captured.Filters.Should().NotContain(f => f.Operator == "lte");
+        captured!.Filters.Should().ContainSingle(f => f.Operator == FilterOperators.GreaterThanOrEqual);
+        captured.Filters.Should().NotContain(f => f.Operator == FilterOperators.LessThanOrEqual);
     }
 
     [Fact]
@@ -274,7 +276,7 @@ public sealed class DeclarativeFilterPanelTests
             .Invoke(panel, ["IsAvailable", (bool?)true]));
 
         captured.Should().NotBeNull();
-        captured!.Filters.Should().ContainSingle(f => f.Operator == "eq" && (bool)f.Value! == true);
+        captured!.Filters.Should().ContainSingle(f => f.Operator == FilterOperators.Equals && (bool)f.Value! == true);
     }
 
     [Fact]
@@ -471,7 +473,7 @@ public sealed class DeclarativeFilterPanelTests
             .Invoke(panel, ["Name", (DateTime?)date]));
 
         captured.Should().NotBeNull();
-        captured!.Filters.Should().ContainSingle(f => f.PropertyName == "Name" && f.Operator == "eq");
+        captured!.Filters.Should().ContainSingle(f => f.PropertyName == "Name" && f.Operator == FilterOperators.Equals);
     }
 
     [Fact]
@@ -505,8 +507,8 @@ public sealed class DeclarativeFilterPanelTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().HaveCount(2);
-        captured.Filters.Should().Contain(f => f.Operator == "gte");
-        captured.Filters.Should().Contain(f => f.Operator == "lte");
+        captured.Filters.Should().Contain(f => f.Operator == FilterOperators.GreaterThanOrEqual);
+        captured.Filters.Should().Contain(f => f.Operator == FilterOperators.LessThanOrEqual);
     }
 
     [Fact]
@@ -566,8 +568,55 @@ public sealed class DeclarativeFilterPanelTests
             .Invoke(panel, ["Name", (object?)selectedItem]));
 
         captured.Should().NotBeNull();
-        captured!.Filters.Should().ContainSingle(f => f.PropertyName == "Name" && f.Operator == "eq");
+        captured!.Filters.Should().ContainSingle(f => f.PropertyName == "Name" && f.Operator == FilterOperators.Equals);
         captured.Filters[0].Value.Should().BeSameAs(selectedItem);
+    }
+
+    [Fact]
+    public async Task RaisedDescriptors_PassedUnchangedToStubGridDataProvider_FilterItsRows()
+    {
+        using var ctx = CreateContext();
+        CompositeFilterDescriptor? captured = null;
+
+        var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
+        {
+            new FilterProperty<FilterTestDto>.Text { Property = e => e.Name, Label = "Name" },
+            new FilterProperty<FilterTestDto>.EnumVal { Property = e => (object?)e.RoastLevel, Label = "Roast Level" },
+            new FilterProperty<FilterTestDto>.Date { Property = e => (object?)e.RoastedOn, Label = "Roasted", AsRange = true },
+        });
+
+        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+            .Add(x => x.Config, config)
+            .Add(x => x.FilterChanged, f => captured = f));
+
+        var panel = cut.Instance;
+        var type = panel.GetType();
+        const System.Reflection.BindingFlags flags =
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+
+        await cut.InvokeAsync(() => type.GetMethod("OnTextChangedAsync", flags)!
+            .Invoke(panel, ["Name", "espresso"]));
+        await cut.InvokeAsync(() => type.GetMethod("OnEnumChangedAsync", flags)!
+            .Invoke(panel, ["RoastLevel", FilterTestRoast.Dark]));
+        var onDate = type.GetMethod("OnDateChangedAsync", flags)!;
+        await cut.InvokeAsync(() => onDate.Invoke(panel, ["RoastedOn_start", (DateTime?)new DateTime(2025, 1, 1)]));
+        await cut.InvokeAsync(() => onDate.Invoke(panel, ["RoastedOn_end", (DateTime?)new DateTime(2025, 6, 30)]));
+
+        captured.Should().NotBeNull();
+
+        var rows = new[]
+        {
+            new FilterTestDto { Name = "Dark Espresso", RoastLevel = FilterTestRoast.Dark, RoastedOn = new DateTime(2025, 3, 1) },
+            new FilterTestDto { Name = "Light Espresso", RoastLevel = FilterTestRoast.Light, RoastedOn = new DateTime(2025, 3, 1) },
+            new FilterTestDto { Name = "Dark Decaf", RoastLevel = FilterTestRoast.Dark, RoastedOn = new DateTime(2025, 3, 1) },
+            new FilterTestDto { Name = "Old Espresso", RoastLevel = FilterTestRoast.Dark, RoastedOn = new DateTime(2024, 12, 31) },
+            new FilterTestDto { Name = "New Espresso", RoastLevel = FilterTestRoast.Dark, RoastedOn = new DateTime(2025, 7, 1) },
+        };
+        var provider = new StubGridDataProvider<FilterTestDto>(rows);
+
+        var response = await provider.FetchAsync(new GridDataRequest { CompositeFilter = captured });
+
+        response.Items.Select(r => r.Name).Should().Equal("Dark Espresso");
     }
 
     [Fact]

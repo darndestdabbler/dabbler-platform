@@ -144,7 +144,7 @@ public class OrdersFilterConfigTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().ContainSingle(f =>
-            f.PropertyName == "Status" && f.Operator == "eq");
+            f.PropertyName == "Status" && f.Operator == FilterOperators.Equals);
     }
 
     [Fact]
@@ -165,7 +165,7 @@ public class OrdersFilterConfigTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().ContainSingle(f =>
-            f.PropertyName == "CustomerName" && f.Operator == "contains");
+            f.PropertyName == "CustomerName" && f.Operator == FilterOperators.Contains);
     }
 
     [Fact]
@@ -186,6 +186,6 @@ public class OrdersFilterConfigTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().ContainSingle(f =>
-            f.PropertyName == "Total" && f.Operator == "gte");
+            f.PropertyName == "Total" && f.Operator == FilterOperators.GreaterThanOrEqual);
     }
 }

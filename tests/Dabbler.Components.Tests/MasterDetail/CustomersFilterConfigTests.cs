@@ -153,7 +153,7 @@ public class CustomersFilterConfigTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().ContainSingle(f =>
-            f.PropertyName == nameof(CustomerFilterTestDto.LastName) && f.Operator == "contains");
+            f.PropertyName == nameof(CustomerFilterTestDto.LastName) && f.Operator == FilterOperators.Contains);
     }
 
     [Fact]
@@ -174,7 +174,7 @@ public class CustomersFilterConfigTests
 
         captured.Should().NotBeNull();
         captured!.Filters.Should().ContainSingle(f =>
-            f.PropertyName == nameof(CustomerFilterTestDto.IsActive) && f.Operator == "eq");
+            f.PropertyName == nameof(CustomerFilterTestDto.IsActive) && f.Operator == FilterOperators.Equals);
     }
 
     [Fact]
