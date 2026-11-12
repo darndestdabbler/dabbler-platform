@@ -565,9 +565,9 @@
     {
       "number": 27,
       "title": "Shipped text, the download helper and the READMEs",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-12T14:57:50.052000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-12T15:45:25.808000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
