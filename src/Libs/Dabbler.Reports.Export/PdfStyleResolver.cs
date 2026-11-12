@@ -18,10 +18,10 @@ internal sealed class PdfStyleResolver
     private readonly ReportFontResolver _fonts;
     private readonly Dictionary<string, BaseColor> _colorCache = new();
 
-    public PdfStyleResolver(ReportDefinition report)
+    public PdfStyleResolver(ReportDefinition report, ReportFonts? fonts = null)
     {
         ArgumentNullException.ThrowIfNull(report);
-        _fonts = new ReportFontResolver(report.Metadata);
+        _fonts = new ReportFontResolver(report.Metadata, fonts);
         _styles = new Dictionary<string, StyleDefinition>(StringComparer.OrdinalIgnoreCase);
         foreach (var style in report.Styles)
         {

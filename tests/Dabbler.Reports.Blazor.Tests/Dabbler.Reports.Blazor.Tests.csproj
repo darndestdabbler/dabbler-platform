@@ -26,4 +26,10 @@
     <ProjectReference Include="..\..\src\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Liberation Sans (SIL OFL 1.1), vendored from ../dabbler-pdf: the TrueType
+         fixture for the ReportFonts tests, so they run on any OS. -->
+    <None Update="Fonts\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

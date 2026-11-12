@@ -8,6 +8,7 @@ using Dabbler.Reports.Core.Rdf;
 using Dabbler.Reports.Blazor;
 using Dabbler.Reports.Export;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 
 namespace Dabbler.Components;
@@ -35,6 +36,12 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
 
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
+
+    [Inject]
+    private IServiceProvider Services { get; set; } = null!;
+
+    /// <summary>The fonts registered with <c>AddDabblerReportFonts</c>, or null when none are.</summary>
+    private ReportFonts? Fonts => Services.GetService<ReportFonts>();
 
     // ── Required parameters ────────────────────────────────────────────
 
@@ -227,7 +234,7 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
 
         try
         {
-            var exporter = ReportPdfExporterFactory.Create(_reportDefinition);
+            var exporter = ReportPdfExporterFactory.Create(_reportDefinition, Fonts);
             using var ms = new MemoryStream();
             await exporter.ExportAsync(_pages, ms);
 
@@ -360,7 +367,7 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
                 SubreportRdfLoader,
                 SubreportProviderFactory,
                 fallbackResolver: null,
-                textMeasurer: new OpenPdfTextMeasurer(_reportDefinition));
+                textMeasurer: new OpenPdfTextMeasurer(_reportDefinition, Fonts));
 
             _hasRun = true;
             UpdateStatusText();

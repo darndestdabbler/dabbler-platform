@@ -1,6 +1,7 @@
 // Copyright (c) Dabbler 2025
 // Licensed under the MIT license.
 
+using Dabbler.Reports.Core.Layout;
 using Dabbler.Reports.Core.Rdf;
 using Dabbler.Reports.Export;
 
@@ -26,10 +27,20 @@ public static class ReportPdfExporterFactory
     /// </summary>
     /// <param name="reportDefinition">The parsed RDF.</param>
     /// <returns>A configured <see cref="PdfExporter"/> ready to export.</returns>
-    public static PdfExporter Create(ReportDefinition reportDefinition)
+    public static PdfExporter Create(ReportDefinition reportDefinition) =>
+        Create(reportDefinition, null);
+
+    /// <summary>
+    /// Creates a <see cref="PdfExporter"/> as <see cref="Create(ReportDefinition)"/> does, which
+    /// draws a family registered in <paramref name="fonts"/> with its embedded TrueType file.
+    /// </summary>
+    /// <param name="reportDefinition">The parsed RDF.</param>
+    /// <param name="fonts">The registered TrueType families, or null for the Base 14 fonts only.</param>
+    /// <returns>A configured <see cref="PdfExporter"/> ready to export.</returns>
+    public static PdfExporter Create(ReportDefinition reportDefinition, ReportFonts? fonts)
     {
         ArgumentNullException.ThrowIfNull(reportDefinition);
-        return new PdfExporter(reportDefinition)
+        return new PdfExporter(reportDefinition, fonts)
         {
             Title = reportDefinition.Metadata.Name,
             Author = reportDefinition.Metadata.Author,

@@ -6,32 +6,41 @@ namespace Dabbler.Reports.Core.Layout;
 /// <summary>
 /// Resolves the font and size a report element's text is measured and drawn in:
 /// the style's own values, then the report's <see cref="ReportMetadata"/> defaults,
-/// then the Base 14 mapping. Shared by <see cref="OpenPdfTextMeasurer"/> and the
-/// PDF renderer so both see the same font.
+/// then a family registered in <see cref="ReportFonts"/>, else the Base 14 mapping.
+/// Shared by <see cref="OpenPdfTextMeasurer"/> and the PDF renderer so both see the same font.
 /// </summary>
 internal sealed class ReportFontResolver
 {
     private readonly ReportMetadata _metadata;
+    private readonly ReportFonts? _registered;
     private readonly Dictionary<string, BaseFont> _fontCache = new();
 
-    public ReportFontResolver(ReportMetadata metadata)
+    public ReportFontResolver(ReportMetadata metadata, ReportFonts? registered = null)
     {
         ArgumentNullException.ThrowIfNull(metadata);
         _metadata = metadata;
+        _registered = registered;
     }
 
-    /// <summary>Gets the Base 14 font for the given style.</summary>
+    /// <summary>
+    /// Gets the font for the given style: the registered family's TrueType file, embedded
+    /// with Identity-H encoding, or else the Base 14 font with Windows-1252 encoding.
+    /// </summary>
     public BaseFont GetFont(StyleDefinition? style)
     {
-        string baseFontName = MapToBaseFontName(
-            style?.FontFamily ?? _metadata.DefaultFontFamily,
-            style?.IsBold == true,
-            style?.IsItalic == true);
+        string? family = style?.FontFamily ?? _metadata.DefaultFontFamily;
+        bool bold = style?.IsBold == true;
+        bool italic = style?.IsItalic == true;
 
-        if (!_fontCache.TryGetValue(baseFontName, out var font))
+        string? fontFile = _registered?.GetFontFile(family, bold, italic);
+        string key = fontFile ?? MapToBaseFontName(family, bold, italic);
+
+        if (!_fontCache.TryGetValue(key, out var font))
         {
-            font = BaseFont.CreateFont(baseFontName, BaseFont.WinAnsiEncoding, false);
-            _fontCache[baseFontName] = font;
+            font = fontFile is null
+                ? BaseFont.CreateFont(key, BaseFont.WinAnsiEncoding, false)
+                : BaseFont.CreateFont(fontFile, BaseFont.IdentityH, true);
+            _fontCache[key] = font;
         }
 
         return font;

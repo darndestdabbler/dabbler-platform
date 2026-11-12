@@ -76,10 +76,35 @@ download affordance directly.
   distribution policy requires non-copyleft licenses for transitive
   PDF dependencies should review this before adopting. The
   `THIRD-PARTY-NOTICES.txt` file is included in the NuGet package.
-- **PDF font subsetting and embedding** is handled by DabblerPdf;
-  consumers do not need to register fonts at the .NET level if their
-  RDF references standard system fonts. Custom fonts require providing
-  the font file path through the report definition.
+- **Fonts.** By default every family maps to one of the PDF Base 14
+  fonts: Times, Times New Roman and serif to Times; Courier, Courier New
+  and monospace to Courier; anything else (Arial, Segoe UI, ...) to
+  Helvetica. The Base 14 fonts are not embedded and draw Windows-1252
+  text only, so Polish, Cyrillic, Greek or CJK characters print as `?`.
+  To print such text, register a TrueType family in code (no package
+  ships a font file, so bring your own `.ttf` files) and name it as a
+  style's `fontFamily` or the report's `defaultFontFamily`:
+
+  ```csharp
+  // Blazor: DabblerReportPage measures and exports with it.
+  builder.Services.AddDabblerReportFonts(fonts =>
+      fonts.Register("Noto Sans", "fonts/NotoSans-Regular.ttf",
+                     boldPath: "fonts/NotoSans-Bold.ttf"));
+
+  // Directly: give the same ReportFonts to the measurer and the exporter.
+  var fonts = new ReportFonts().Register("Noto Sans", "fonts/NotoSans-Regular.ttf");
+  var measurer = new OpenPdfTextMeasurer(report, fonts);
+  var exporter = new PdfExporter(report, fonts);
+  ```
+
+  Family names match case-insensitively. A registered family is embedded
+  as a subset and draws every character its font has a glyph for. A
+  bold, italic or bold-italic style uses the file registered for it,
+  else the regular file. What it does not do: no synthetic bold or
+  italic, no text shaping (complex scripts and ligatures are drawn glyph
+  by glyph) and no right-to-left layout, nothing beyond U+FFFF (such
+  characters draw as the font's missing glyph), and no fallback from one
+  font to another for a character the font lacks.
 - **License (this library): MIT** (see
   [LICENSE](https://licenses.nuget.org/MIT)).
 

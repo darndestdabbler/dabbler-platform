@@ -2,6 +2,8 @@ using System.Data;
 using Bunit;
 using Dabbler.Components;
 using Dabbler.Platform.Stubs;
+using Dabbler.Reports.Core.Layout;
+using Dabbler.Reports.Core.Rdf;
 using Dabbler.Reports.Blazor.Tests.TestHelpers;
 using FluentAssertions;
 using Xunit;
@@ -85,6 +87,92 @@ public class DabblerReportPageTests
                 "a CanGrow field holding three lines must grow past its designed 0.2in height");
         });
     }
+
+    [Fact]
+    public void AutoRun_CanGrowFieldInARegisteredFamilyGrowsToTheHeightMeasuredWithThatFont()
+    {
+        var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "LiberationSans-Regular.ttf");
+        using var ctx = new TestContext();
+        ctx.Services.AddDabblerReportFonts(fonts => fonts.Register("Liberation Sans", fontPath));
+        ctx.SetupForDabblerReports();
+
+        const string notes = "Zażółć gęślą jaźń. Съешь же ещё этих мягких французских булок. " +
+                             "Ξεσκεπάζω την ψυχοφθόρα βδελυγμία.";
+        var provider = new StubReportDataProvider()
+            .AddQueryResult("SELECT Notes FROM Orders", _ =>
+            {
+                var table = new DataTable();
+                table.Columns.Add("Notes", typeof(string));
+                table.Rows.Add(notes);
+                return table;
+            });
+
+        var cut = ctx.RenderComponent<DabblerReportPage>(parameters => parameters
+            .Add(x => x.RdfPath, "reports/can-grow-unicode.rdf.json")
+            .Add(x => x.RdfLoader, _ => Task.FromResult(UnicodeCanGrowReportRdf))
+            .Add(x => x.DataProvider, provider)
+            .Add(x => x.AutoRunOnLoad, true));
+
+        var report = new RdfParser().TryParse(UnicodeCanGrowReportRdf).Definition!;
+        double withFont = new OpenPdfTextMeasurer(report, new ReportFonts().Register("Liberation Sans", fontPath))
+            .MeasureTextHeight(notes, "notes", 2.0);
+        double withBase14 = new OpenPdfTextMeasurer(report).MeasureTextHeight(notes, "notes", 2.0);
+
+        cut.WaitForAssertion(() =>
+        {
+            cut.Instance.HasRun.Should().BeTrue();
+            var field = cut.Instance.Pages!.SelectMany(p => p.Elements).Single(e => e.Text == notes);
+            field.Height.Should().Be(withFont);
+            field.Height.Should().NotBe(withBase14);
+        });
+    }
+
+    private const string UnicodeCanGrowReportRdf = """
+{
+  "metadata": {
+    "name": "Can Grow Unicode",
+    "pageWidth": 8.5,
+    "pageHeight": 11.0,
+    "marginTop": 0.5,
+    "marginBottom": 0.5,
+    "marginLeft": 0.5,
+    "marginRight": 0.5
+  },
+  "dataSources": [
+    {
+      "name": "main",
+      "connectionName": "Test",
+      "providerType": "Custom",
+      "query": "SELECT Notes FROM Orders"
+    }
+  ],
+  "fields": [
+    { "name": "Notes", "dataType": "String", "sourceColumn": "Notes" }
+  ],
+  "bands": [
+    {
+      "name": "detail",
+      "type": "Detail",
+      "height": 0.25,
+      "elements": [
+        {
+          "type": "TextField",
+          "x": 0,
+          "y": 0,
+          "width": 2.0,
+          "height": 0.2,
+          "fieldName": "Notes",
+          "styleName": "notes",
+          "canGrow": true
+        }
+      ]
+    }
+  ],
+  "styles": [
+    { "name": "notes", "fontFamily": "Liberation Sans", "fontSize": 10, "textWrap": true }
+  ]
+}
+""";
 
     private const string CanGrowReportRdf = """
 {

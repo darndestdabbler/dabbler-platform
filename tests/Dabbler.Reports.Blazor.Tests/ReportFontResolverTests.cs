@@ -14,6 +14,9 @@ public class ReportFontResolverTests
         DefaultFontSize = 9
     };
 
+    private static readonly string LiberationSans =
+        Path.Combine(AppContext.BaseDirectory, "Fonts", "LiberationSans-Regular.ttf");
+
     [Fact]
     public void GetFont_UsesTheStylesFamilyAndWeight()
     {
@@ -40,6 +43,37 @@ public class ReportFontResolverTests
         var resolver = new ReportFontResolver(new ReportMetadata { DefaultFontFamily = "Segoe UI" });
 
         resolver.GetFont(null).PostscriptName.Should().Be(BaseFont.Helvetica);
+    }
+
+    [Fact]
+    public void GetFont_UsesTheRegularFileForABoldStyleInARegularOnlyFamily()
+    {
+        var resolver = new ReportFontResolver(Metadata, new ReportFonts().Register("Liberation Sans", LiberationSans));
+
+        var bold = resolver.GetFont(new StyleDefinition { Name = "s", FontFamily = "liberation sans", IsBold = true });
+
+        bold.PostscriptName.Should().Be("LiberationSans");
+        bold.Should().BeSameAs(BaseFont.CreateFont(LiberationSans, BaseFont.IdentityH, true));
+    }
+
+    [Fact]
+    public void GetFont_UsesARegisteredReportDefaultFamily()
+    {
+        var resolver = new ReportFontResolver(
+            new ReportMetadata { DefaultFontFamily = "Liberation Sans" },
+            new ReportFonts().Register("Liberation Sans", LiberationSans));
+
+        resolver.GetFont(null).PostscriptName.Should().Be("LiberationSans");
+    }
+
+    [Fact]
+    public void GetFont_MapsAnUnregisteredFamilyToTheBase14()
+    {
+        var resolver = new ReportFontResolver(Metadata, new ReportFonts().Register("Liberation Sans", LiberationSans));
+
+        resolver.GetFont(new StyleDefinition { Name = "s", FontFamily = "Times New Roman", IsBold = true })
+            .PostscriptName.Should().Be(BaseFont.TimesBold);
+        resolver.GetFont(null).PostscriptName.Should().Be(BaseFont.Courier);
     }
 
     [Fact]

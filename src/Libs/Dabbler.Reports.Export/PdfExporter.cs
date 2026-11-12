@@ -25,15 +25,28 @@ namespace Dabbler.Reports.Export;
 public class PdfExporter : IReportExporter
 {
     private readonly ReportDefinition _report;
+    private readonly ReportFonts? _fonts;
 
     /// <summary>
     /// Initializes a new <see cref="PdfExporter"/> for the specified report definition.
     /// </summary>
     /// <param name="report">The report definition containing page layout, styles, and metadata.</param>
     public PdfExporter(ReportDefinition report)
+        : this(report, null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new <see cref="PdfExporter"/> for the specified report definition that
+    /// draws a family registered in <paramref name="fonts"/> with its embedded TrueType file.
+    /// </summary>
+    /// <param name="report">The report definition containing page layout, styles, and metadata.</param>
+    /// <param name="fonts">The registered TrueType families, or null for the Base 14 fonts only.</param>
+    public PdfExporter(ReportDefinition report, ReportFonts? fonts)
     {
         ArgumentNullException.ThrowIfNull(report);
         _report = report;
+        _fonts = fonts;
     }
 
     /// <summary>
@@ -58,7 +71,7 @@ public class PdfExporter : IReportExporter
         ArgumentNullException.ThrowIfNull(pages);
         ArgumentNullException.ThrowIfNull(outputStream);
 
-        var styleResolver = new PdfStyleResolver(_report);
+        var styleResolver = new PdfStyleResolver(_report, _fonts);
         var renderer = new PdfPageRenderer(styleResolver, _report.Metadata);
 
         // Create page size rectangle (DabblerPdf uses bottom-left origin, width × height in points)

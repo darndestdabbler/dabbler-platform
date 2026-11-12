@@ -22,7 +22,7 @@ public class OpenPdfTextMeasurer : ITextMeasurer
     /// </summary>
     /// <param name="styles">The named style definitions from the report.</param>
     public OpenPdfTextMeasurer(IEnumerable<StyleDefinition> styles)
-        : this(styles, new ReportMetadata())
+        : this(styles, new ReportMetadata(), null)
     {
     }
 
@@ -30,14 +30,25 @@ public class OpenPdfTextMeasurer : ITextMeasurer
     /// Creates a new text measurer using the styles and metadata defaults of the given report definition.
     /// </summary>
     public OpenPdfTextMeasurer(ReportDefinition report)
-        : this(report.Styles, report.Metadata)
+        : this(report, null)
     {
     }
 
-    private OpenPdfTextMeasurer(IEnumerable<StyleDefinition> styles, ReportMetadata metadata)
+    /// <summary>
+    /// Creates a new text measurer using the styles and metadata defaults of the given report
+    /// definition, measuring a family registered in <paramref name="fonts"/> with its TrueType file.
+    /// </summary>
+    /// <param name="report">The report definition.</param>
+    /// <param name="fonts">The registered TrueType families, or null for the Base 14 fonts only.</param>
+    public OpenPdfTextMeasurer(ReportDefinition report, ReportFonts? fonts)
+        : this(report.Styles, report.Metadata, fonts)
+    {
+    }
+
+    private OpenPdfTextMeasurer(IEnumerable<StyleDefinition> styles, ReportMetadata metadata, ReportFonts? fonts)
     {
         _styles = styles.ToDictionary(s => s.Name, StringComparer.OrdinalIgnoreCase);
-        _fonts = new ReportFontResolver(metadata);
+        _fonts = new ReportFontResolver(metadata, fonts);
     }
 
     /// <inheritdoc />
