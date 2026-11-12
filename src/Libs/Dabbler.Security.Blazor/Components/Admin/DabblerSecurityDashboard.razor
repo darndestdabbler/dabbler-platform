@@ -60,9 +60,8 @@
     /// <summary>
     /// The six canonical tab keys for the restriction-based security dashboard.
     /// Ordering matches the architecture doc's recommended UI layout. The
-    /// <see cref="ComplianceReview"/> tab was appended in Session 4 of the
-    /// <c>sensitive-field-masking-audit</c> set so existing UAT tab-position
-    /// expectations for tabs 1–5 do not shift.
+    /// <see cref="ComplianceReview"/> tab comes last so the positions of
+    /// tabs 1–5 stay stable for UAT tab-position expectations.
     /// </summary>
     internal enum TabKey
     {
@@ -86,33 +85,33 @@
         new(TabKey.RoleMasterDetails,
             "Role Master Details",
             "role-master-details-stub",
-            "Role Master Details — wired in Session 3 of rearchitect-role-administration-dashboard.",
+            "Role Master Details is not available.",
             [BakedInRoles.SystemAdmin]),
         new(TabKey.DefaultMasks,
             "Default Masks",
             "default-masks-stub",
-            "Default Masks — wired in Session 4 of rearchitect-role-administration-dashboard.",
+            "Default Masks is not available.",
             [BakedInRoles.SystemAdmin]),
         new(TabKey.OrganizationMasterDetails,
             "Organization Master Details",
             "organization-master-details-stub",
-            "Organization Master Details — wired in Session 6 of rearchitect-role-administration-dashboard.",
+            "Organization Master Details is not available.",
             [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin]),
         new(TabKey.UsersAndRoleAssignment,
             "Users and Role Assignment",
             "users-and-role-assignment-stub",
-            "Users and Role Assignment — wired in Session 7 of rearchitect-role-administration-dashboard.",
+            "Users and Role Assignment is not available.",
             [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.UserAdmin]),
         new(TabKey.RoleDocumentation,
             "Role Documentation",
             "role-documentation-stub",
-            "Role Documentation — wired in Session 8 of rearchitect-role-administration-dashboard.",
+            "Role Documentation is not available.",
             [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.CrossOrgMonitor,
              BakedInRoles.UserAdmin, BakedInRoles.User]),
         new(TabKey.ComplianceReview,
             "Compliance Review",
             "compliance-review-stub",
-            "Compliance Review — wired in Session 4 of sensitive-field-masking-audit.",
+            "Compliance Review is not available.",
             [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.CrossOrgMonitor]),
     ];
 

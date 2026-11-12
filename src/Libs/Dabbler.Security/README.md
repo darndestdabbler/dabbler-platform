@@ -35,7 +35,7 @@ sensitive-field masking story — without rolling their own.
 > The recommended adoption model for internal projects is **integrated source** under
 > `src/Libs/Dabbler.Security/`. NuGet packages are available;
 > to install the package:
-> `dotnet add package Dabbler.Security --prerelease`
+> `dotnet add package Dabbler.Security`
 
 ## Minimal registration
 

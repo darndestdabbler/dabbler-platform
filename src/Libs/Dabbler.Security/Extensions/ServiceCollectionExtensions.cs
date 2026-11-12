@@ -82,8 +82,8 @@ public static class ServiceCollectionExtensions
         if (earlyOptions.ExternalProviders.Count > 0)
         {
             // Temporary cookie used during the external auth round-trip. The OIDC/OAuth
-            // middleware writes the external identity here; Session 3's callback handler
-            // converts it into the main application cookie.
+            // middleware writes the external identity here; the external-login callback
+            // handler converts it into the main application cookie.
             authBuilder.AddCookie(ExternalProviderConfig.ExternalAuthScheme, extCookieOpts =>
             {
                 extCookieOpts.Cookie.Name = ".Dabbler.External";
@@ -130,8 +130,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IBakedInRoleProvider, PlatformBakedInRoleProvider>();
 
         // The three resource-specific handlers are scoped so they can receive the scoped IRoleSwitcher.
-        // Entity and Field handlers were removed in Session 3 of
-        // rearchitect-role-administration-foundations: entity CRUD is now default-permissive,
+        // There are no Entity or Field handlers: entity CRUD is default-permissive,
         // and field access is shaped by ColumnRestriction + DefaultMasks / MaskExemptions.
         services.AddScoped<IAuthorizationHandler, PageAuthorizationHandler>();
         services.AddScoped<IAuthorizationHandler, EndpointAuthorizationHandler>();
@@ -150,9 +149,8 @@ public static class ServiceCollectionExtensions
             sp.GetRequiredService<ISensitiveAccessAuditor>(),
             sp));
 
-        // Per-circuit / per-request correlation scope. Session 2 ships a
-        // single-Guid placeholder; Session 3 swaps in the navigation-aware
-        // implementation without changing this DI line.
+        // Per-circuit / per-request correlation scope. Regenerates on Blazor
+        // navigation; API callers reset it at the request boundary.
         services.AddScoped<IRenderCorrelationScope, RenderCorrelationScope>();
         services.AddScoped<ISensitiveAccessAuditor, SensitiveAccessAuditor>();
 

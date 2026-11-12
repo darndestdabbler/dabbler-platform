@@ -217,8 +217,8 @@
     {
         // When the Default Masks tab adds or removes a rule, the cascading
         // Table / Column dropdowns here must reflect that change in the same
-        // circuit (spec § Session 4 step 4 — "push through a notification
-        // event"). A stale exemption pointing at a removed DefaultMaskRule
+        // circuit, so the change is pushed through a notification event.
+        // A stale exemption pointing at a removed DefaultMaskRule
         // simply filters out of the Column dropdown; existing rows remain
         // visible in the grid until an admin removes them.
         RebuildTableKeys();

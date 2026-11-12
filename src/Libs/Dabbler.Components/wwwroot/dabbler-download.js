@@ -1,5 +1,5 @@
-// Minimal file-download helper for report PDF export.
-// Will be replaced by MudBlazor-native approach in Session 5.
+// Minimal file-download helper: saves base64-encoded content in the browser
+// as a file with the given name and MIME type.
 
 export function downloadFile(fileName, base64, mimeType) {
     const byteChars = atob(base64);

@@ -21,7 +21,7 @@ re-implementing it page by page.
 ## Prerequisites and stack constraints
 
 - Blazor Server
-- MudBlazor 8.x
+- MudBlazor 9.x
 - .NET 10 (current LTS)
 - Reference to
   [`Dabbler.Reports.Core`](../Dabbler.Reports.Core/README.md) and
@@ -36,7 +36,7 @@ re-implementing it page by page.
 > The recommended adoption model for internal projects is **integrated source** under
 > `src/Libs/Dabbler.Reports.Blazor/`. NuGet packages are available;
 > to install the package:
-> `dotnet add package Dabbler.Reports.Blazor --prerelease`
+> `dotnet add package Dabbler.Reports.Blazor`
 
 ## Minimal registration
 

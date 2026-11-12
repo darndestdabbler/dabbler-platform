@@ -7,10 +7,8 @@ namespace Dabbler.Security.Configuration;
 /// Legacy grant-based type. Replaced by per-role
 /// <see cref="ColumnRestriction"/> (view-only / hidden) plus platform-level
 /// <see cref="DefaultMaskRule"/> and per-role <see cref="MaskExemption"/>.
-/// Scheduled for removal in Session 3 of
-/// <c>rearchitect-role-administration-foundations</c>.
 /// </remarks>
-[Obsolete("Replaced by ColumnRestriction plus DefaultMaskRule / MaskExemption. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+[Obsolete("Replaced by ColumnRestriction plus DefaultMaskRule / MaskExemption.")]
 public sealed class FieldPermission
 {
     /// <summary>

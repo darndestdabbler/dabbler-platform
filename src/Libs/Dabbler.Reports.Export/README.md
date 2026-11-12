@@ -31,7 +31,7 @@ separate reporting engine.
 > The recommended adoption model for internal projects is **integrated source** under
 > `src/Libs/Dabbler.Reports.Export/`. NuGet packages are available;
 > to install the package:
-> `dotnet add package Dabbler.Reports.Export --prerelease`
+> `dotnet add package Dabbler.Reports.Export`
 
 ## Minimal registration
 

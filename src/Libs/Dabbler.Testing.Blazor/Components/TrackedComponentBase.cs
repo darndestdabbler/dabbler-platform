@@ -62,9 +62,7 @@ public class TrackedComponentBase : ComponentBase
     /// lifecycle boundaries before the SignalR circuit is fully active).
     /// Without this guard, an early-fire of a TrackAction-wrapped event handler
     /// would throw <see cref="InvalidOperationException"/> from JS.InvokeVoidAsync
-    /// and bubble out as an HTTP 500 on the page render — observed in Session 5
-    /// when wrapping ProductManagement.OnSearchAsync broke /admin/products for
-    /// non-SystemAdmin roles. The watermark is a test-time signal; a missed
+    /// and bubble out as an HTTP 500 on the page render. The watermark is a test-time signal; a missed
     /// TrackAction silently degrades to "no signal" rather than failing the page.
     /// </summary>
     private async Task<bool> TryInvokeJsAsync(string identifier, params object?[] args)

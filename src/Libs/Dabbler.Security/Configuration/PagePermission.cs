@@ -5,11 +5,9 @@ namespace Dabbler.Security.Configuration;
 /// </summary>
 /// <remarks>
 /// Legacy grant-based type. Replaced by <see cref="UiRestriction"/> on each
-/// user-type role plus compiled baked-in role privileges. Scheduled for
-/// removal in Session 3 of <c>rearchitect-role-administration-foundations</c>
-/// alongside the handler rewrite.
+/// user-type role plus compiled baked-in role privileges.
 /// </remarks>
-[Obsolete("Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+[Obsolete("Replaced by UiRestriction on each user-type RoleDefinition.")]
 public sealed class PagePermission
 {
     /// <summary>The page key as registered via options.RegisterPages().</summary>

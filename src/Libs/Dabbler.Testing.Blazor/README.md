@@ -30,7 +30,7 @@ hardest E2E synchronization problems on Blazor Server.
 > The recommended adoption model for internal projects is **integrated source** under
 > `src/Libs/Dabbler.Testing.Blazor/`. NuGet packages are available;
 > to install the package:
-> `dotnet add package Dabbler.Testing.Blazor --prerelease`
+> `dotnet add package Dabbler.Testing.Blazor`
 
 ## Minimal registration
 
@@ -163,6 +163,28 @@ await Assertions.Expect(page.Locator("html"))
   those frames degrades to "no signal" rather than failing the page
   render. Without this guard, an early-fire of a `TrackAction`-wrapped
   event handler turns into an HTTP 500.
+- **A `WebApplicationFactory` host outside `Development` does not serve
+  library static web assets unless the test host calls
+  `UseStaticWebAssets()`.** The web host's defaults turn static web
+  assets on only in the Development environment. A consumer's test host
+  in another environment got `200` with an empty body for
+  `_content/Dabbler.Components/dabbler-download.js`. Reproduced in
+  `tests/AcmeCoffeeOnline.Web.Tests/StaticWebAssetHostTests.cs` (in-memory
+  `TestServer`, `Test` and `Production` environments): the request fails
+  with `FileNotFoundException` for
+  `wwwroot/_content/Dabbler.Components/dabbler-download.js` under the
+  app's content root, and the exception escapes the app's exception
+  handler, which it does only once the response has started; that fits a
+  real-socket client seeing `200` and no body. Adding
+  `UseStaticWebAssets()` to the test host serves the file:
+
+  ```csharp
+  using var host = factory.WithWebHostBuilder(b =>
+  {
+      b.UseEnvironment("Test");
+      b.UseStaticWebAssets();
+  });
+  ```
 - **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).
 
 ## If this library stops being maintained

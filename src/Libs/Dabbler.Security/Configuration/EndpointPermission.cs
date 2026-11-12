@@ -6,10 +6,9 @@ namespace Dabbler.Security.Configuration;
 /// <remarks>
 /// Legacy grant-based type. Replaced by baked-in role privileges (for the
 /// five canonical roles) plus <see cref="UiRestriction"/> on each user-type
-/// role. Scheduled for removal in Session 3 of
-/// <c>rearchitect-role-administration-foundations</c>.
+/// role.
 /// </remarks>
-[Obsolete("Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+[Obsolete("Replaced by baked-in role privileges plus UiRestriction.")]
 public sealed class EndpointPermission
 {
     /// <summary>

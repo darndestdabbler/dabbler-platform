@@ -71,9 +71,8 @@ public interface ISensitiveAccessAuditor
 
     /// <summary>
     /// Records that a user with an active exemption read the unmasked value of
-    /// a sensitive field. Wired in Session 3 of the spec; included here so the
-    /// auditor service surface is complete and the binder can consume it as
-    /// soon as the call site exists.
+    /// a sensitive field. Called by the restriction binder when it renders an
+    /// unmasked value.
     /// </summary>
     /// <param name="user">The reading principal.</param>
     /// <param name="entityKey">The entity key of the read field.</param>

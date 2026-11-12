@@ -6,9 +6,8 @@ point that produces a drop-in CRUD slice whose generated `{Entity}ScaffoldingExt
 matches the host's real production wiring (correct config keys, `X-Internal-Api-Key`
 header, `UserIdentityHandler`).
 
-This tool is part of the `crud-scaffolding-remediation` session set's Session 2
-deliverable. It exists because the dabbler-crud-page template alone emits a
-scaffolding extension that:
+It exists because the dabbler-crud-page template alone emits a scaffolding
+extension that:
 
 - Reads `Api:BaseUrl` instead of `Services:ApiBaseUrl` (drift vs. real wiring).
 - Omits the `X-Internal-Api-Key` header.
@@ -19,7 +18,7 @@ a convention-correct one, and additionally emits an API-side
 `{Entity}ApiRegistrationExtensions.cs` for the `Add{Entity}ApiServices()`
 one-liner.
 
-Session 3 added a third emit: `{Entity}Registrations.g.cs`, a copy-paste reference
+A third emit is `{Entity}Registrations.g.cs`, a copy-paste reference
 file containing four clearly-commented blocks the consumer pastes into the
 `AddDabblerSecurity(...)` lambdas in `Api/Program.cs` and `Web/Program.cs` (API
 entity + endpoints, Web page + endpoints). Shapes match the host's real Supplier

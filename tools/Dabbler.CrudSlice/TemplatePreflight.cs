@@ -9,8 +9,7 @@ namespace Dabbler.CrudSlice;
 /// <c>dabbler-crud-page</c> <c>dotnet new</c> templates are installed before the
 /// wrapper shells out to them.
 /// <para>
-/// Generator-acquisition decision (Session 1), Decision 5: because CrudSlice
-/// shells out to the Dabbler.Templates templates, acquisition is <b>two</b>
+/// Because CrudSlice shells out to the Dabbler.Templates templates, acquisition is <b>two</b>
 /// installs at the same pinned <c>DabblerVersion</c> — the tool and the
 /// templates. A tool-only install otherwise fails deep inside the first
 /// <c>dotnet new</c> child process with an opaque "No templates found" error.

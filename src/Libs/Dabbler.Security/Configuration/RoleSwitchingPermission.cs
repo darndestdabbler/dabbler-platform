@@ -6,10 +6,9 @@ namespace Dabbler.Security.Configuration;
 /// <remarks>
 /// Legacy grant-based type. Role-switching privileges now come from compiled
 /// baked-in role rules; organization-switching configuration moved to
-/// <see cref="OrganizationSwitching"/>. Scheduled for removal in Session 3 of
-/// <c>rearchitect-role-administration-foundations</c>.
+/// <see cref="OrganizationSwitching"/>.
 /// </remarks>
-[Obsolete("Replaced by OrganizationSwitching plus baked-in role privileges. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+[Obsolete("Replaced by OrganizationSwitching plus baked-in role privileges.")]
 public sealed class RoleSwitchingPermission
 {
     /// <summary>

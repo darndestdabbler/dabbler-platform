@@ -22,7 +22,7 @@ review) without conditional branches inside the components themselves.
 ## Prerequisites and stack constraints
 
 - Blazor Server (matches the platform target)
-- MudBlazor 8.x (transitively via `Dabbler.Components`)
+- MudBlazor 9.x (transitively via `Dabbler.Components`)
 - .NET 10 (current LTS)
 - Reference to
   [`Dabbler.Components`](../Dabbler.Components/README.md) and
@@ -34,7 +34,7 @@ review) without conditional branches inside the components themselves.
 > **Adoption note:**
 > The recommended adoption model for internal projects is **integrated source** under
 > `src/Libs/Dabbler.Platform.Stubs/`. To install from NuGet:
-> `dotnet add package Dabbler.Platform.Stubs --prerelease`.
+> `dotnet add package Dabbler.Platform.Stubs`.
 
 ## Minimal registration
 

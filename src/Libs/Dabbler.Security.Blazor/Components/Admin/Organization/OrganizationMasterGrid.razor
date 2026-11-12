@@ -146,8 +146,8 @@
         // Use IDbContextFactory so every refresh projects from a fresh
         // DbContext. This avoids any stale identity-map entries that the
         // OrganizationDetailsForm's tracked-edit path may have left behind
-        // on the shared scoped DbContext, and matches the Session 2 pattern
-        // that unblocked the Users tab under concurrent awaits.
+        // on the shared scoped DbContext, and keeps concurrent awaits from
+        // sharing one DbContext (the same pattern the Users tab uses).
         await using var db = await DbFactory.CreateDbContextAsync();
         _rows = await db.AppOrganizations
             .AsNoTracking()

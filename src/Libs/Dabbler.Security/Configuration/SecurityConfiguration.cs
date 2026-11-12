@@ -7,22 +7,15 @@ namespace Dabbler.Security.Configuration;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The restriction-based model added in Session 2 of the
-/// <c>rearchitect-role-administration-foundations</c> set introduces the four
-/// canonical top-level fields — <see cref="UserTypeRoles"/>,
-/// <see cref="OrganizationSwitching"/>, <see cref="DefaultMasks"/>, and
-/// <see cref="MaskExemptions"/> — plus <see cref="BakedInRoleAliasOverrides"/>
-/// carried forward from Session 1.
+/// The restriction-based model has four canonical top-level fields —
+/// <see cref="UserTypeRoles"/>, <see cref="OrganizationSwitching"/>,
+/// <see cref="DefaultMasks"/>, and <see cref="MaskExemptions"/> — plus
+/// <see cref="BakedInRoleAliasOverrides"/>.
 /// </para>
 /// <para>
 /// The legacy grant-based fields (<see cref="Roles"/>, <see cref="PagePermissions"/>,
 /// etc.) are marked <see cref="ObsoleteAttribute"/> and remain on the type for
-/// build compatibility with the current handlers, Blazor admin components, and EF
-/// store. Session 3 of the same session set rewrites the authorization handlers to
-/// read from the new fields, at which point the legacy fields can be physically
-/// removed. Spec step 8 called for deletion in Session 2; the deletion was
-/// deferred to keep <c>dotnet build</c> green because the handler rewrite has not
-/// yet landed.
+/// compatibility with the legacy configuration shape.
 /// </para>
 /// </remarks>
 public sealed class SecurityConfiguration
@@ -70,25 +63,22 @@ public sealed class SecurityConfiguration
         new(StringComparer.OrdinalIgnoreCase);
 
     // -----------------------------------------------------------------------
-    // Legacy grant-based fields — scheduled for deletion in Session 3 of the
-    // rearchitect-role-administration-foundations set, alongside the handler
-    // rewrite. Kept here temporarily so the existing handlers, Blazor admin
-    // components, and EF store continue to compile between Session 2 and
-    // Session 3.
+    // Legacy grant-based fields, kept for compatibility with the legacy
+    // configuration shape. Each is marked [Obsolete] with its replacement.
     // -----------------------------------------------------------------------
 
     /// <summary>
     /// Legacy: all defined roles (baked-in + user-type) as a flat list.
     /// Prefer <see cref="UserTypeRoles"/>; baked-in roles move to code.
     /// </summary>
-    [Obsolete("Replaced by UserTypeRoles for app-defined roles. Baked-in roles now live as code constants under Dabbler.Security.Authorization.BakedInRoles. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by UserTypeRoles for app-defined roles. Baked-in roles now live as code constants under Dabbler.Security.Authorization.BakedInRoles.")]
     public List<RoleDefinition> Roles { get; set; } = [];
 
     /// <summary>
     /// Legacy: page-level grant entries (AllowedRoles / DeniedRoles).
     /// Replaced by per-role <see cref="UiRestriction"/>.
     /// </summary>
-    [Obsolete("Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by UiRestriction on each user-type RoleDefinition.")]
     public List<PagePermission> PagePermissions { get; set; } = [];
 
     /// <summary>
@@ -96,7 +86,7 @@ public sealed class SecurityConfiguration
     /// User-type roles are now default-permissive; absence of a
     /// <see cref="ColumnRestriction"/> means full access.
     /// </summary>
-    [Obsolete("Replaced by default-permissive CRUD plus ColumnRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by default-permissive CRUD plus ColumnRestriction.")]
     public List<EntityPermission> EntityPermissions { get; set; } = [];
 
     /// <summary>
@@ -104,28 +94,28 @@ public sealed class SecurityConfiguration
     /// <see cref="ColumnRestriction"/> (see-only / hidden) plus platform-level
     /// <see cref="DefaultMasks"/> and per-role <see cref="MaskExemptions"/>.
     /// </summary>
-    [Obsolete("Replaced by ColumnRestriction plus DefaultMasks / MaskExemptions. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by ColumnRestriction plus DefaultMasks / MaskExemptions.")]
     public List<FieldPermission> FieldPermissions { get; set; } = [];
 
     /// <summary>
     /// Legacy: endpoint-level grant entries. Replaced by baked-in role
     /// privileges plus per-role <see cref="UiRestriction"/>.
     /// </summary>
-    [Obsolete("Replaced by baked-in role privileges plus UiRestriction. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by baked-in role privileges plus UiRestriction.")]
     public List<EndpointPermission> EndpointPermissions { get; set; } = [];
 
     /// <summary>
     /// Legacy: UI control state grants. Replaced by per-role
     /// <see cref="UiRestriction"/>.
     /// </summary>
-    [Obsolete("Replaced by UiRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by UiRestriction on each user-type RoleDefinition.")]
     public List<ControlPermission> ControlPermissions { get; set; } = [];
 
     /// <summary>
     /// Legacy: per-role row filters. Replaced by per-role
     /// <see cref="RowRestriction"/> on the role's <see cref="RoleDefinition"/>.
     /// </summary>
-    [Obsolete("Replaced by RowRestriction on each user-type RoleDefinition. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by RowRestriction on each user-type RoleDefinition.")]
     public List<RowFilter> RowFilters { get; set; } = [];
 
     /// <summary>
@@ -133,6 +123,6 @@ public sealed class SecurityConfiguration
     /// baked-in role compiled rules; organization-switching config moved to
     /// <see cref="OrganizationSwitching"/>.
     /// </summary>
-    [Obsolete("Replaced by OrganizationSwitching (org switching) plus baked-in role privileges (role switching). Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Replaced by OrganizationSwitching (org switching) plus baked-in role privileges (role switching).")]
     public RoleSwitchingPermission RoleSwitching { get; set; } = new();
 }

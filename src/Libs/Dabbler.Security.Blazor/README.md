@@ -21,7 +21,7 @@ service-level model.
 ## Prerequisites and stack constraints
 
 - Blazor Server
-- MudBlazor 8.x
+- MudBlazor 9.x
 - .NET 10 (current LTS)
 - Reference to [`Dabbler.Security`](../Dabbler.Security/README.md)
   (this library extends its service-level model into UI)
@@ -34,7 +34,7 @@ service-level model.
 > The recommended adoption model for internal projects is **integrated source** under
 > `src/Libs/Dabbler.Security.Blazor/`. NuGet packages are available;
 > to install the package:
-> `dotnet add package Dabbler.Security.Blazor --prerelease`
+> `dotnet add package Dabbler.Security.Blazor`
 
 ## Minimal registration
 
@@ -142,11 +142,10 @@ A layout that exposes role switching for multi-role users:
   role whose `UiRestriction` actually defines the absence. See
   `docs/planning/lessons-learned.md` → *Hard-Asserted Disabled-State
   Tests Become Regressions When The Feature Gets Enabled*.
-- **`MudDataGrid` `data-testid` lands on the `<input>`, not the wrapper**
-  (a MudBlazor 8.x convention). Test selectors should account for this.
-- **`MudTextField ReadOnly="true"` does NOT set the HTML `readonly`
-  attribute** in MudBlazor 8.x; tests asserting read-only state must
-  use behavior-level proxies (e.g., toggle-button text).
+- **On a `MudTextField`, `data-testid` lands on the `<input>`, not the
+  wrapper** (MudBlazor 9.x; checked against 9.12.0). Test selectors
+  should use `GetByTestId("foo")` directly rather than chaining a
+  `.Locator("input")` after.
 - **License: MIT** (see [LICENSE](https://licenses.nuget.org/MIT)).
 
 ## If this library stops being maintained

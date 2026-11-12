@@ -58,11 +58,9 @@ public sealed class RoleDefinition
     /// <summary>
     /// Legacy inheritance pointer. Role inheritance is removed from the
     /// authorization model — a user assigned to multiple roles must explicitly
-    /// switch. Retained on the type only so the legacy EF store and Blazor
-    /// admin components continue to compile between Session 2 and Session 3 of
-    /// the <c>rearchitect-role-administration-foundations</c> set; no handler
-    /// consults it at runtime.
+    /// switch. Retained on the type for compatibility with the legacy
+    /// configuration shape; no handler consults it at runtime.
     /// </summary>
-    [Obsolete("Role inheritance is removed; handlers no longer consult InheritsFrom. Scheduled for removal in Session 3 of rearchitect-role-administration-foundations.")]
+    [Obsolete("Role inheritance is removed; handlers no longer consult InheritsFrom.")]
     public string? InheritsFrom { get; set; }
 }

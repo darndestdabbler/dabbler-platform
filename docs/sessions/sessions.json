@@ -553,7 +553,29 @@
         "identityProvenance": "direct"
       },
       "verificationVerdict": "VERIFIED",
-      "startCommit": "7384fcc50e1b7de2141a5cfc7c565bb0c837352b",
+      "verification": {
+        "rounds": 1,
+        "verifierModel": "gpt-5.6-terra",
+        "verifierProvider": "openai",
+        "transport": "api"
+      },
+      "frameworkVersion": "3.32.4",
+      "startCommit": "7384fcc50e1b7de2141a5cfc7c565bb0c837352b"
+    },
+    {
+      "number": 27,
+      "title": "Shipped text, the download helper and the READMEs",
+      "status": "in-progress",
+      "startedAt": "2026-11-12T14:57:50.052000-05:00",
+      "completedAt": null,
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "identityProvenance": "direct"
+      },
+      "verificationVerdict": "VERIFIED",
+      "startCommit": "56ddff44490404760b0a2fafe5801a5fb653844e",
       "frameworkVersion": "3.32.4",
       "verification": {
         "rounds": 1,
@@ -563,17 +585,8 @@
       }
     },
     {
-      "number": 27,
-      "title": "Shipped text, the download helper and the READMEs",
-      "status": "not-started",
-      "startedAt": null,
-      "completedAt": null,
-      "orchestrator": null,
-      "verificationVerdict": null
-    },
-    {
       "number": 28,
-      "title": "Take DabblerPdf 1.2.0, and measure report text the way it is drawn",
+      "title": "Take DabblerPdf 1.3.0, and measure report text the way it is drawn",
       "status": "not-started",
       "startedAt": null,
       "completedAt": null,
@@ -582,7 +595,7 @@
     },
     {
       "number": 29,
-      "title": "Take DabblerPdf 1.3.0, and report text can use a Unicode TrueType font",
+      "title": "Report text can use a Unicode TrueType font",
       "status": "not-started",
       "startedAt": null,
       "completedAt": null,

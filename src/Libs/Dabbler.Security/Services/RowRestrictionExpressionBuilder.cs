@@ -11,8 +11,7 @@ namespace Dabbler.Security.Services;
 /// <remarks>
 /// <para>
 /// Grammar (ported verbatim from the legacy <c>RowFilterService</c> that this
-/// helper replaces in Session 4 of the
-/// <c>rearchitect-role-administration-foundations</c> set):
+/// helper replaces):
 /// </para>
 /// <list type="bullet">
 ///   <item><c>PropertyName == 'StringValue'</c> (single-quoted string literal)</item>

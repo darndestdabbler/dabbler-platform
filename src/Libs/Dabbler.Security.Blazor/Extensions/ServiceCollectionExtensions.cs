@@ -49,8 +49,8 @@ public static class ServiceCollectionExtensions
             sp.GetService<Dabbler.Security.Services.ISensitiveAccessAuditor>(),
             sp.GetService<Dabbler.Security.Services.IRenderCorrelationScope>()));
 
-        // CSV export service consumed by the Compliance Review tab (Session 4
-        // of sensitive-field-masking-audit). Stateless, RFC 4180-compliant.
+        // CSV export service consumed by the Compliance Review tab.
+        // Stateless, RFC 4180-compliant.
         services.TryAddSingleton<ICsvExportService, CsvExportService>();
 
         // Register the delegating handler to pass user headers to the API

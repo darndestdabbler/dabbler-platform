@@ -173,7 +173,7 @@ public static class RoleAssignmentAuthority
         if (HasNonUserTypeRole(targetCurrentRoles, out var existingNonUserTypeRole))
         {
             // Non-user-type users may not accumulate additional roles, except that
-            // UserAdmin may be held for more than one organization. Session 7's
+            // UserAdmin may be held for more than one organization. The
             // role-assignment contract is global per user (via IUserRoleStore), so
             // the UserAdmin-multi-org carve-out is modelled here as "the proposed
             // role is also UserAdmin and the existing role is UserAdmin": both

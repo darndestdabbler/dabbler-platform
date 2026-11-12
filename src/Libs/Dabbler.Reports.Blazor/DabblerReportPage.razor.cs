@@ -20,7 +20,6 @@ namespace Dabbler.Components;
 public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
 {
     private bool _hasRendered;
-    private bool _disposed;
     private ParameterPromptForm? _parameterForm;
     private ReportViewer? _viewer;
     private ReportDefinition? _reportDefinition;
@@ -33,7 +32,6 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
     private string? _parameterSummary;
     private Exception? _error;
     private string? _statusText;
-    private IJSObjectReference? _jsModule;
 
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
@@ -224,7 +222,7 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
     /// </summary>
     public async Task ExportToPdfAsync()
     {
-        if (_reportDefinition is null || _pages is null || _pages.Count == 0 || _jsModule is null)
+        if (_reportDefinition is null || _pages is null || _pages.Count == 0 || !_hasRendered)
             return;
 
         try
@@ -233,11 +231,10 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
             using var ms = new MemoryStream();
             await exporter.ExportAsync(_pages, ms);
 
-            var base64 = Convert.ToBase64String(ms.ToArray());
             var fileName = PdfFileName
                 ?? $"{(_reportDefinition.Metadata.Name is { Length: > 0 } name ? name : "report")}.pdf";
 
-            await _jsModule.InvokeVoidAsync("downloadFile", fileName, base64, "application/pdf");
+            await JSRuntime.DownloadFileAsync(fileName, ms.ToArray(), "application/pdf");
         }
         catch (Exception ex)
         {
@@ -273,14 +270,14 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
     }
 
     /// <inheritdoc />
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             _hasRendered = true;
-            _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/Dabbler.Components/dabbler-download.js");
         }
+
+        return Task.CompletedTask;
     }
 
     // ── Private methods ────────────────────────────────────────────────
@@ -508,14 +505,5 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
     private string ZoomPercentText => $"{(int)(_scale * 100)}%";
 
     /// <inheritdoc />
-    public async ValueTask DisposeAsync()
-    {
-        if (_disposed) return;
-        _disposed = true;
-
-        if (_jsModule is not null)
-        {
-            await _jsModule.DisposeAsync();
-        }
-    }
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

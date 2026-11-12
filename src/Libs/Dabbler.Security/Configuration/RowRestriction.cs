@@ -3,20 +3,18 @@ namespace Dabbler.Security.Configuration;
 /// <summary>
 /// Restricts a user-type role to only see records on the named entity that match
 /// the given filter expression. The filter is applied automatically to all relevant
-/// grids and data-bound pages via <c>IRowRestrictionBroker</c> (wired in Session 4
-/// of the Foundations set).
+/// grids and data-bound pages via <c>IRowRestrictionBroker</c>.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Replaces the legacy <c>RowFilter</c> shape. The expression grammar is the same
 /// one honoured by the prior <c>RowFilterService</c> — simple equality of a column
-/// against a string literal, integer literal, or the <c>@CurrentUserId</c> token —
-/// and it will be ported into a new broker service in the Session 4 step.
+/// against a string literal, integer literal, or the <c>@CurrentUserId</c> token.
 /// </para>
 /// <para>
 /// User-type roles only. Baked-in roles have compiled-in row-scoping semantics
 /// (SystemAdmin and CrossOrgMonitor see everything; UserAdmin and User are
-/// org-scoped via the global EF query filter delivered in Session Set C).
+/// org-scoped via the global EF query filter).
 /// </para>
 /// </remarks>
 public sealed class RowRestriction

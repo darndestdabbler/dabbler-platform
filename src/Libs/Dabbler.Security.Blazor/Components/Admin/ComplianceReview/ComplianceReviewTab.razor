@@ -180,8 +180,7 @@
 @code {
     /// <summary>
     /// Sixth tab on the security dashboard. Read-only viewer over the
-    /// <c>AppSensitiveAccessLog</c> temporal table delivered in Session 2 of
-    /// the <c>sensitive-field-masking-audit</c> set. Server-paged so a
+    /// <c>AppSensitiveAccessLog</c> temporal table. Server-paged so a
     /// CrossOrgMonitor browsing thousands of rows does not OOM the
     /// browser. Filtered through <see cref="FilterPanel{T}"/> for the
     /// platform-standard QBE shape.
@@ -412,11 +411,7 @@
 
             var csv = CsvExport.Export(rows, _csvColumns);
             var fileName = $"compliance-review-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
-            var base64 = Convert.ToBase64String(csv);
-
-            await using var module = await Js.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/Dabbler.Components/dabbler-download.js");
-            await module.InvokeVoidAsync("downloadFile", fileName, base64, "text/csv");
+            await Js.DownloadFileAsync(fileName, csv, "text/csv");
 
             Snackbar.Add($"Exported {rows.Count} rows to {fileName}", Severity.Success);
         }
