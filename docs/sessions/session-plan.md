@@ -740,17 +740,52 @@ Why now (2026-11-09): the proposed version is a minor, `1.1.0`, because an
 added public API is a new feature under semantic versioning; `1.0.1` was
 never tagged, so it folds into `1.1.0` rather than shipping separately.
 
-> **Sessions 24–29** answer the maintainer findings a downstream consumer
+### Session 24: The Debug solution build is green under .NET SDK 11.0.100
+
+1. Register.
+2. Stop `tools/Dabbler.Security.DevIdp.Tool` failing the Debug build. Under
+   .NET SDK 11.0.100, `dotnet build Dabbler.Platform.sln` fails in that
+   project with "The following scoped css bundles do not have matching
+   endpoints:
+   `_framework/Microsoft.NET.Sdk.BlazorWeb.HotReload#[.{fingerprint}]!.lib.module.js`".
+   In Debug, SDK 11 adds a Hot Reload browser-tools module to every
+   `Microsoft.NET.Sdk.Web` project, and this tool has no static web assets
+   for it to attach to. The Release build passes. Set
+   `<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>` in
+   `Dabbler.Security.DevIdp.Tool.csproj`, with a comment that says why: the
+   tool serves no static files (no `wwwroot`, no `UseStaticFiles` or
+   `MapStaticAssets`). No other project changes. The step's checks:
+   `dotnet build Dabbler.Platform.sln` succeeds; `dotnet build
+   Dabbler.Platform.sln -c Release` succeeds; `dotnet run --project
+   tools/Dabbler.Security.DevIdp.Tool -- --help` exits 0.
+3. Cross-provider verification.
+4. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+5. Close-out.
+
+Non-goals: no `global.json` SDK pin; no change to the DevIdp tool's
+behaviour; no change to `ci.yml`, `build.yml` or `dabbler.yaml`; no version
+or `CHANGELOG.md` change (Session 30's).
+
+Why now (2026-11-12): SDK 11.0.100 was installed on the development machine
+on 2026-11-10, after Session 22's last green run. The first attempt at the
+shell move (now Session 25) was rolled back because its `dotnet build
+Dabbler.Platform.sln` check failed in this project, a project the move does
+not touch. Every session whose checks build the solution in Debug fails the
+same way until this is fixed. Setting the property on the command line was
+confirmed to fix the Debug build, and `--help` still runs with it.
+
+> **Sessions 25–30** answer the maintainer findings a downstream consumer
 > (the TRIMS application, on the `1.0.0` packages) sent on 2026-11-12, and
 > the operator's request for Unicode report text the same day. Session 23
 > was cancelled, so `1.0.1` is still unreleased and `1.1.0` was never made;
 > both fold into `2.0.0`. The findings about DabblerPdf are Sessions 13–15
 > of `../dabbler-pdf`, which release DabblerPdf `1.2.0`, and Unicode is its
-> Sessions 16–18, which release `1.3.0`. Session 27 here takes `1.2.0` and
-> Session 28 takes `1.3.0`; `2.0.0` waits for both. Sessions 24–26 depend on
+> Sessions 16–18, which release `1.3.0`. Session 28 here takes `1.2.0` and
+> Session 29 takes `1.3.0`; `2.0.0` waits for both. Sessions 25–27 depend on
 > neither and run while DabblerPdf is being released.
 
-### Session 24: MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button
+### Session 25: MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button
 
 1. Register.
 2. Move the shell to the package its documentation names. `git mv`
@@ -833,7 +868,13 @@ never tagged, so it folds into `1.1.0` rather than shipping separately.
 Non-goals: no change to the shell's save, use, link-data or
 target-editability behaviour; no new Add buttons on the four Security admin
 tabs (they never set `ShowAddAction`, which is why its default becomes
-`false`); no version or `CHANGELOG.md` change (Session 29's).
+`false`); no version or `CHANGELOG.md` change (Session 30's).
+
+Step 2 was done once, in the first attempt at this session, which was rolled
+back on 2026-11-12 (see Session 24). That work is kept on the local,
+unpushed branch `wip/session-24-shell-move`, one commit on `877921b`. Where
+the branch exists, take the move from it rather than redoing it; it is
+step 2 alone, and steps 3 and 4 were never started.
 
 Why now (2026-11-12): the `Dabbler.Components` `1.0.0` README lists the
 shell, but the type ships in `Dabbler.Security.Blazor`, so a consumer who
@@ -842,7 +883,7 @@ through `Dabbler.Security`, EF Core. A consumer who follows the `ShowAddAction`
 documentation gets no way to add a row. Both were confirmed in the source;
 the reference app itself hand-rolls the Add button the shell documents.
 
-### Session 25: One filter-operator vocabulary, and no silently dropped filter
+### Session 26: One filter-operator vocabulary, and no silently dropped filter
 
 1. Register.
 2. `DeclarativeFilterPanel` (`src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor`)
@@ -901,7 +942,7 @@ Non-goals: no generic `IGridDataProvider<T>`-to-API adapter in the platform
 package that joins them is a decision for a plan session; once the
 vocabulary is one, a consumer's adapter is a field-for-field copy); no
 change to the legacy `FilterPanel<T>`, which already emits the constants; no
-version or `CHANGELOG.md` change (Session 29's).
+version or `CHANGELOG.md` change (Session 30's).
 
 Why now (2026-11-12): carried over in the consumer's findings and confirmed
 here: the panel and the server disagree on operator names, the reference
@@ -909,7 +950,7 @@ app carries an adapter for it, and `Dabbler.Api.Querying` hides three kinds
 of caller mistake by returning unfiltered data. Both changes break callers
 that relied on the old strings or the silence, so they belong in `2.0.0`.
 
-### Session 26: Shipped text, the download helper and the READMEs
+### Session 27: Shipped text, the download helper and the READMEs
 
 1. Register.
 2. Remove internal workflow references from what ships. XML docs and
@@ -971,18 +1012,18 @@ that relied on the old strings or the silence, so they belong in `2.0.0`.
 Non-goals: no change to `EditSession<T>`'s behaviour (the findings ask for
 its semantics to be stated, not changed); no streaming download; nothing
 under `docs/session-sets/` or `docs/transcripts/`; no version or
-`CHANGELOG.md` change (Session 29's).
+`CHANGELOG.md` change (Session 30's).
 
 Why now (2026-11-12): the consumer read "Implemented in Session 2" and
 "Will be replaced … in Session 5" in the shipped package as unfinished
 work, copied a README example that does not compile, and imports the
 download script by a path no document promises.
 
-### Session 27: Take DabblerPdf 1.2.0, and measure report text the way it is drawn
+### Session 28: Take DabblerPdf 1.2.0, and measure report text the way it is drawn
 
 Run only once DabblerPdf `1.2.0` is listed on nuget.org (Sessions 13–15 of
 `../dabbler-pdf`, then that repository's `nuget-v1.2.0` tag). If it is not,
-report the first step blocked and say so. Sessions 24–26 do not wait for it.
+report the first step blocked and say so. Sessions 25–27 do not wait for it.
 
 1. Register.
 2. Set the `DabblerPdf` `PackageVersion` in `Directory.Packages.props` from
@@ -1033,7 +1074,7 @@ report the first step blocked and say so. Sessions 24–26 do not wait for it.
 
 Non-goals: no use of `PdfWriter.CompressContentStreams`; no change to the
 HTML `ReportViewer`'s own text layout; no font other than the Base 14
-(Session 28's); no change to `DabblerVersion` or `CHANGELOG.md`; the
+(Session 29's); no change to `DabblerVersion` or `CHANGELOG.md`; the
 tracked `*.csproj.lscache` files are left alone.
 
 Why now (2026-11-12): the platform's packages should depend on the
@@ -1044,7 +1085,7 @@ spaces exactly as TRIMS reported, and measuring and drawing with different
 fonts, sizes and wraps is how a grown field clips or leaves a gap. Found
 while planning DabblerPdf's Sessions 14–18.
 
-### Session 28: Take DabblerPdf 1.3.0, and report text can use a Unicode TrueType font
+### Session 29: Take DabblerPdf 1.3.0, and report text can use a Unicode TrueType font
 
 Run only once DabblerPdf `1.3.0` is listed on nuget.org (Sessions 16–18 of
 `../dabbler-pdf`, then that repository's `nuget-v1.3.0` tag). If it is not,
@@ -1064,7 +1105,7 @@ report the first step blocked and say so.
    "through the report definition", which nothing reads. Add a public
    `ReportFonts` in `Dabbler.Reports.Core` that registers a family name
    (case-insensitive) against a regular `.ttf` file and, optionally, bold,
-   italic and bold-italic files. The font resolver from Session 27 uses a
+   italic and bold-italic files. The font resolver from Session 28 uses a
    registered family, when a style's family or the report's default family
    names one, through `BaseFont.CreateFont(path, BaseFont.IdentityH,
    true)`, choosing the file for the style's weight and slant and falling
@@ -1100,7 +1141,7 @@ Why now (2026-11-12): the operator asked for Unicode report text. DabblerPdf
 1.3.0 draws it from an embedded, subset TrueType font, but the platform
 creates every font as a Base 14 one, so taking 1.3.0 alone changes nothing.
 
-### Session 29: Bump to 2.0.0
+### Session 30: Bump to 2.0.0
 
 1. Register.
 2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
@@ -1139,7 +1180,7 @@ creates every font as a Base 14 one, so taking 1.3.0 alone changes nothing.
    recorded as the run of record.
 5. Close-out.
 
-Non-goals: no API or dependency change beyond Sessions 24–28; no change to
+Non-goals: no API or dependency change beyond Sessions 25–29; no change to
 `ci.yml`, `build.yml` or `dabbler.yaml`.
 
 Proposed version: **2.0.0 (major)**, approved by the operator on
