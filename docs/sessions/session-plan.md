@@ -739,3 +739,317 @@ green; `1.0.1` is never tagged.
 Why now (2026-11-09): the proposed version is a minor, `1.1.0`, because an
 added public API is a new feature under semantic versioning; `1.0.1` was
 never tagged, so it folds into `1.1.0` rather than shipping separately.
+
+> **Sessions 24–28** answer the maintainer findings a downstream consumer
+> (the TRIMS application, on the `1.0.0` packages) sent on 2026-11-12.
+> Session 23 was cancelled, so `1.0.1` is still unreleased and `1.1.0` was
+> never made; both fold into `2.0.0`. The findings about DabblerPdf are
+> Sessions 13–14 of `../dabbler-pdf`, which release DabblerPdf `1.2.0`;
+> Session 27 here takes it. Sessions 24–26 do not depend on it and can run
+> while it is being released.
+
+### Session 24: MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button
+
+1. Register.
+2. Move the shell to the package its documentation names. `git mv`
+   `MasterDetailExpansionShell.razor`, `MasterDetailShellContexts.cs` and
+   `PickOrAddDialog.razor` from
+   `src/Libs/Dabbler.Security.Blazor/Components/Admin/Shared/` to
+   `src/Libs/Dabbler.Components/MasterDetail/`, and change their namespace
+   from `Dabbler.Security.Blazor.Components.Admin.Shared` to
+   `Dabbler.Components.MasterDetail`. Nothing in them uses a security type.
+   Fix every caller: the four Security admin tabs (`RoleMasterDetailsTab`,
+   `OrganizationMasterDetailsTab`, `UsersAndRoleAssignmentTab`,
+   `DefaultMasksTab`) and the five reference-app pages (`OrderDetail`,
+   `CustomerBatchEntryPage`, `OrderItemTunerPage`, `CustomerPickerDialog`,
+   `ProductLinePickerDialog`). Move `MasterDetailExpansionShellTests.cs` and
+   `PickOrAddDialogTests.cs` from
+   `tests/Dabbler.Security.Blazor.Tests/Components/Admin/Shared/` to
+   `tests/Dabbler.Components.Tests/MasterDetail/`. No forwarding type is
+   left in the old namespace: this is the breaking change `2.0.0` is for.
+   The step's checks: no file under `src`, `tests`, `templates` or `tools`
+   names `Components.Admin.Shared`; `dotnet build Dabbler.Platform.sln`
+   succeeds; the two moved test classes pass in `Dabbler.Components.Tests`.
+3. Make the shell's documented Add button real, and remove the parameters
+   that do nothing. Today `ShowAddAction` (default `true`) and
+   `OnAddRequested` are declared and never read, so no button is rendered
+   and the callback never fires; `Mode` and `OnRowSelected` are declared and
+   never read either.
+   - `ShowAddAction` defaults to `false`. When it is `true` and `ShowGrid` is
+     `true`, the shell renders an Add button in the results body, after
+     `FilterContent` and above `GridContent`, right-aligned, with
+     `data-testid="{TestId}-add-button"`, labelled by a new `AddLabel`
+     parameter (default `"Add"`) and disabled while `Working`. A click calls
+     `ResetSelection()` and then raises `OnAddRequested`. With `ShowGrid`
+     `false` no button is rendered: that surface is already the add form.
+   - Remove `Mode` and the `ShellMode` enum, and remove `OnRowSelected` from
+     the shell: it cannot see a click on a grid it does not own, and
+     consumers already call `NotifyRowSelected`. `PickOrAddDialog` loses the
+     `OnRowSelected` it only forwarded; the two reference-app pickers that
+     pass it call their handler from their own row click instead, with no
+     change in behaviour.
+   - `PickOrAddDialog.ShowAddAction` defaults to `false` as well, and its
+     `OnAdd` now fires.
+   - The XML docs lose "Implemented in Session 2" and "Implemented in
+     Session 4", and the `TestId` doc lists `{TestId}-add-button`.
+   - In the reference app, `OrderDetail.razor` replaces its hand-rolled
+     "Add Product" button in `GridContent` with the shell's
+     (`ShowAddAction="@(!IsReadOnly)"`, `AddLabel="Add Product"`,
+     `OnAddRequested="OpenProductLinePickerAsync"`), and the three
+     Playwright classes that locate that button (`OrderNestedItemsTests`,
+     `OrderNestedItemsSaveTests`, `OrderProductLinePickerWorkflowTests`)
+     locate `order-items-shell-add-button`. `ProductList.razor` has a
+     different button with the same test id; it is not touched. The three
+     pages that pass `ShowAddAction="false"` drop it.
+   - Replace the structural tests (`Shell_ShowAddActionFalse_RendersWithoutError`,
+     `Shell_OnRowSelectedCallback_AcceptedWithoutError`) with tests that
+     assert behaviour: no Add button by default; with `ShowAddAction` the
+     button renders with `AddLabel`; a click raises `OnAddRequested` once
+     and clears the selection and both dirty flags; the button is disabled
+     while `Working`; no button when `ShowGrid` is `false`;
+     `PickOrAddDialog` raises `OnAdd`.
+
+   The step's checks: `dotnet test tests/Dabbler.Components.Tests --filter
+   "FullyQualifiedName~MasterDetailExpansionShellTests|FullyQualifiedName~PickOrAddDialogTests"`
+   passes, and `pwsh -NoProfile -File tools/e2e.ps1 -Filter
+   "FullyQualifiedName~Order"` passes.
+4. Make the documents true. The `<MasterDetailExpansionShell>` rows in
+   `src/Libs/Dabbler.Components/README.md` and `docs/platform-overview.md`
+   name the namespace `Dabbler.Components.MasterDetail` and the opt-in Add
+   button; `docs/planning/project-guidance.md` and
+   `docs/scaffolding-templates/README.md` are corrected where they describe
+   the shell's knobs; `src/Libs/Dabbler.Security.Blazor/README.md` says its
+   admin tabs use the shell from `Dabbler.Components`. If
+   `Dabbler.PublicSurface.Tests` names any moved type, update it. The step's
+   check: after `pwsh tools/pack.ps1 -OutputDir pack-output -CleanOutput`,
+   `dotnet test tests/Dabbler.PublicSurface.Tests/` passes.
+5. Cross-provider verification.
+6. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+7. Close-out.
+
+Non-goals: no change to the shell's save, use, link-data or
+target-editability behaviour; no new Add buttons on the four Security admin
+tabs (they never set `ShowAddAction`, which is why its default becomes
+`false`); no version or `CHANGELOG.md` change (Session 28's).
+
+Why now (2026-11-12): the `Dabbler.Components` `1.0.0` README lists the
+shell, but the type ships in `Dabbler.Security.Blazor`, so a consumer who
+wants a generic master/detail layout must take the security UI package and,
+through `Dabbler.Security`, EF Core. A consumer who follows the `ShowAddAction`
+documentation gets no way to add a row. Both were confirmed in the source;
+the reference app itself hand-rolls the Add button the shell documents.
+
+### Session 25: One filter-operator vocabulary, and no silently dropped filter
+
+1. Register.
+2. `DeclarativeFilterPanel` (`src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor`)
+   builds its descriptors with the literals `"contains"`, `"eq"`, `"gte"`
+   and `"lte"`, while `LocalDataProvider`, `StubGridDataProvider` and
+   `Dabbler.Api.Querying` match the `FilterOperators` constants
+   (`"Contains"`, `"Equals"`, `"GreaterThanOrEqual"`, `"LessThanOrEqual"`).
+   Every provider therefore needs an adapter, and an unmapped operator is
+   dropped. Make the panel emit the `FilterOperators` constants. Then
+   remove the workarounds: `NormaliseOperator` in
+   `src/Apps/AcmeCoffeeOnline.Web/Data/SupplierGridDataProvider.cs`, and the
+   `"contains"` comparisons in `CustomerDataProvider`, `OrderDataProvider`
+   and `ProductDataProvider`, which compare with `FilterOperators.Contains`.
+   Correct the `FilterDescriptor` doc comment in `GridDataRequest.cs`, which
+   gives `"equals"` and `"contains"` as examples. Update the tests in
+   `tests/Dabbler.Components.Tests/MasterDetail/` that assert the lowercase
+   strings, and add a test there that the descriptors a
+   `DeclarativeFilterPanel` raises, passed unchanged to a
+   `StubGridDataProvider<T>`, filter its rows (a text contains, an enum
+   equals and a date range). The step's checks: no `"contains"`, `"eq"`,
+   `"gte"` or `"lte"` operator literal remains under `src`; `dotnet test
+   tests/Dabbler.Components.Tests` and `dotnet test
+   tests/AcmeCoffeeOnline.Web.Tests` pass.
+3. `Dabbler.Api.Querying` (`QueryableExtensions.cs`) converts a filter value
+   with `Convert.ChangeType` inside a `catch` that returns no predicate, so a
+   filter on a `DateOnly` property, on a `Guid`, or on a property that does
+   not exist is ignored and the caller gets unfiltered rows; an unknown sort
+   property throws a raw `ArgumentException` from the expression tree.
+   Change it so that:
+   - a value is converted to `DateOnly`, `TimeOnly`, `DateTime`,
+     `DateTimeOffset`, `Guid` and enum members (by name or number) as well
+     as the numeric types, from a `string` or a `JsonElement`, with the
+     invariant culture and ISO 8601 forms;
+   - `In` is applied when the value is an array;
+   - an unknown property (in a filter or a sort), an unknown operator, an
+     operator the property's type does not support, and a value that cannot
+     be converted each throw a new public `GridQueryException` that names
+     the property and the operator. Nothing is dropped.
+
+   In `AcmeCoffeeOnline.Api`, a `GridQueryException` from a query endpoint
+   is answered with `400` and a problem-details body. Tests go in
+   `tests/AcmeCoffeeOnline.Api.Tests/QueryableExtensionsTests.cs`, one per
+   rule above, plus one that the Supplier query endpoint returns `400` for
+   an unknown property. `src/Libs/Dabbler.Api.Querying/README.md` states the
+   rules. The step's checks: `dotnet test tests/AcmeCoffeeOnline.Api.Tests`
+   passes, and `pwsh -NoProfile -File tools/e2e.ps1 -Filter
+   "FullyQualifiedName~Filter"` passes (no Playwright class is named for
+   suppliers; the whole `e2e` suite is the run of record).
+4. Cross-provider verification.
+5. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+6. Close-out.
+
+Non-goals: no generic `IGridDataProvider<T>`-to-API adapter in the platform
+(`Dabbler.Components` does not reference `Dabbler.Api.Querying`, and a
+package that joins them is a decision for a plan session; once the
+vocabulary is one, a consumer's adapter is a field-for-field copy); no
+change to the legacy `FilterPanel<T>`, which already emits the constants; no
+version or `CHANGELOG.md` change (Session 28's).
+
+Why now (2026-11-12): carried over in the consumer's findings and confirmed
+here: the panel and the server disagree on operator names, the reference
+app carries an adapter for it, and `Dabbler.Api.Querying` hides three kinds
+of caller mistake by returning unfiltered data. Both changes break callers
+that relied on the old strings or the silence, so they belong in `2.0.0`.
+
+### Session 26: Shipped text, the download helper and the READMEs
+
+1. Register.
+2. Remove internal workflow references from what ships. XML docs and
+   comments under `src/Libs` say "Session N" in 22 files (56 places: for
+   example "Implemented in Session 2" on a public parameter), and
+   `src/Libs/Dabbler.Components/wwwroot/dabbler-download.js` opens with
+   "Will be replaced by MudBlazor-native approach in Session 5." Reword each
+   to say what the member does, or delete the sentence; change no code. Do
+   the same for `tools/Dabbler.CrudSlice/README.md` and
+   `tools/Dabbler.CrudSlice/TemplatePreflight.cs`, which are packed. The
+   step's check: a search for `Session [0-9]+` in `*.cs`, `*.razor` and
+   `*.js` under `src/Libs` and in the two CrudSlice files finds nothing,
+   and `dotnet build Dabbler.Platform.sln` succeeds.
+3. Give the download script a supported C# entry point. Add
+   `DabblerDownloadExtensions.DownloadFileAsync(this IJSRuntime js, string
+   fileName, byte[] content, string mimeType, CancellationToken
+   cancellationToken = default)` in `src/Libs/Dabbler.Components/`, which
+   imports `./_content/Dabbler.Components/dabbler-download.js` and calls
+   `downloadFile`. `DabblerReportPage.razor.cs` and `ComplianceReviewTab.razor`
+   call it and no longer name the script path. Tests in
+   `tests/Dabbler.Components.Tests/DabblerDownloadExtensionsTests.cs`: the
+   module path imported, and the arguments passed (base64 of the content).
+   The step's check: that test class, `ComplianceReviewTabTests` and
+   `dotnet test tests/Dabbler.Reports.Blazor.Tests` pass.
+4. Bring the READMEs in step with the API.
+   - `src/Libs/Dabbler.Components/README.md`: the "Smallest working example"
+     uses `DeclarativeFilterPanel` with `FilterColumns` and `Coordinator`,
+     parameters it does not have; rewrite it with `Config` (a
+     `FilterConfig<T>`) and `FilterChanged`, the pattern
+     `AcmeCoffeeOnline.Web`'s `CustomerList.razor` uses. Add a section on
+     `EditSession<T>`: `Live` is the instance passed to the constructor, not
+     a copy; `NotifyChanged` serialises the whole object on every call;
+     `Undo` and `CommitFrom` copy public properties that have a getter and a
+     setter (init-only included) and nothing else. Add a section on
+     `DownloadFileAsync`, saying that the content crosses the circuit as
+     base64 and that a large file is better served from an endpoint.
+   - Every package README under `src/Libs`: the prerequisite is MudBlazor
+     9.x; the install command has no `--prerelease` and names no
+     `0.1.0-preview.1`; each caveat that says "in MudBlazor 8.x" is checked
+     against 9.12.0 and either restated for 9.x or removed.
+   - `src/Libs/Dabbler.Testing.Blazor/README.md` gains a note: in a
+     `WebApplicationFactory` host whose environment is not `Development`, a
+     request for `_content/Dabbler.Components/dabbler-download.js` returned
+     `200` with an empty body for the consumer. Reproduce it in
+     `tests/AcmeCoffeeOnline.Web.Tests` first, and write what the
+     reproduction shows and what makes the asset load (expected:
+     `UseStaticWebAssets()` on the test host); if it does not reproduce,
+     write only what the consumer observed.
+
+   The step's check: no README under `src/Libs` contains `MudBlazor 8`,
+   `0.1.0-preview.1` or `--prerelease`, and after `pwsh tools/pack.ps1
+   -OutputDir pack-output -CleanOutput`, `dotnet test
+   tests/Dabbler.PublicSurface.Tests/` passes.
+5. Cross-provider verification.
+6. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+7. Close-out.
+
+Non-goals: no change to `EditSession<T>`'s behaviour (the findings ask for
+its semantics to be stated, not changed); no streaming download; nothing
+under `docs/session-sets/` or `docs/transcripts/`; no version or
+`CHANGELOG.md` change (Session 28's).
+
+Why now (2026-11-12): the consumer read "Implemented in Session 2" and
+"Will be replaced … in Session 5" in the shipped package as unfinished
+work, copied a README example that does not compile, and imports the
+download script by a path no document promises.
+
+### Session 27: Take DabblerPdf 1.2.0
+
+Run only once DabblerPdf `1.2.0` is listed on nuget.org (Sessions 13–14 of
+`../dabbler-pdf`, then that repository's `nuget-v1.2.0` tag). If it is not,
+report the first step blocked and say so.
+
+1. Register.
+2. Set the `DabblerPdf` `PackageVersion` in `Directory.Packages.props` from
+   `1.1.3` to `1.2.0`, the one place the platform pins it. The step's
+   checks: `Directory.Packages.props` names `DabblerPdf` at `1.2.0` and
+   nowhere at `1.1.3`; `dotnet test tests/Dabbler.Reports.Blazor.Tests`
+   passes; then, after a Release build and `tools/pack.ps1 -OutputDir
+   pack-output -CleanOutput`, the `.nuspec` inside the packed
+   `Dabbler.Reports.Core` nupkg declares its `DabblerPdf` dependency at
+   `1.2.0`.
+3. Cross-provider verification.
+4. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+5. Close-out.
+
+Non-goals: no use of `PdfWriter.CompressContentStreams` and no change to
+`PdfPageRenderer` (it wraps text with its own `WrapText`, not DabblerPdf's
+`TextLayout`, so the `1.2.0` spacing fix changes no report output); no
+change to `DabblerVersion` or `CHANGELOG.md`; the tracked `*.csproj.lscache`
+files are left alone.
+
+Why now (2026-11-12): the platform's packages should depend on the
+DabblerPdf that carries the fixes its consumers asked for, and NuGet
+resolves the lowest version a dependency allows.
+
+### Session 28: Bump to 2.0.0
+
+1. Register.
+2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
+   default in `tools/pack.ps1` with the version its help text names, to
+   `2.0.0`. In `CHANGELOG.md`, the unreleased `## 1.0.1` entry becomes
+   `## 2.0.0`, keeps what it has, and states:
+   - breaking: `MasterDetailExpansionShell`, its context types and
+     `PickOrAddDialog` moved from `Dabbler.Security.Blazor` (namespace
+     `Dabbler.Security.Blazor.Components.Admin.Shared`) to
+     `Dabbler.Components` (namespace `Dabbler.Components.MasterDetail`);
+   - breaking: `ShowAddAction` now renders an Add button and defaults to
+     `false`; `Mode`, `ShellMode` and the shell's and dialog's
+     `OnRowSelected` are removed;
+   - breaking: `DeclarativeFilterPanel` emits the `FilterOperators`
+     constants, not `"contains"`, `"eq"`, `"gte"` and `"lte"`;
+   - breaking: `Dabbler.Api.Querying` throws `GridQueryException` for an
+     unknown property, an unknown or unsupported operator and an
+     unconvertible value, where it used to skip the filter;
+   - added: `AddLabel`; `DateOnly`, `TimeOnly`, `DateTimeOffset`, `Guid`,
+     enum and `In` filters in `Dabbler.Api.Querying`; `GridQueryException`;
+     `DownloadFileAsync`;
+   - changed: the `DabblerPdf` dependency moves from `1.1.2` to `1.2.0`.
+
+   It gives the one-line migration for each breaking change. The step's
+   checks: neither file names `1.0.1`; `CHANGELOG.md` has `## 2.0.0`
+   directly above `## 1.0.0`; then, after a Release build and
+   `tools/pack.ps1 -OutputDir pack-output -CleanOutput`, the `smoke` suite
+   passes against the `2.0.0` packages.
+3. Cross-provider verification.
+4. The `unit`, `smoke` and `e2e` suites once against the verified tree,
+   recorded as the run of record.
+5. Close-out.
+
+Non-goals: no API or dependency change beyond Sessions 24–27; no change to
+`ci.yml`, `build.yml` or `dabbler.yaml`.
+
+Proposed version: **2.0.0 (major)**, approved by the operator on
+2026-11-12: a public type changes assembly and namespace, parameters are
+removed, and two behaviours callers could rely on change.
+
+This is a bump session, not a `(release: 2.0.0)` session: with the pack-only
+`packaging:` block the router makes a `session-<N>` tag that publishes
+nothing (Session 11 of `../dabbler-pdf`). After the session has pushed, the
+operator runs the `2.0.0` dry run (`gh workflow run build.yml -f
+version=2.0.0`) and tags `nuget-v2.0.0` by hand when it is green; `1.0.1` is
+never tagged.
