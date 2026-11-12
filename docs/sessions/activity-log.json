@@ -203,6 +203,14 @@
       "what": "step 'e2e-required-for-close': its files",
       "reason": "The second full cold-start e2e run (E2E_WF_04 now green) failed only on SensitiveFieldMaskingUatCoverageTests.Uatv1 (green alone 3/3): its setup clicks Remove on the BackofficeUser mask exemption Uatv3 left behind and closes the page on NetworkIdle, before the removal lands. The setup helpers now wait for the exemption row to disappear or appear. Assertions unchanged.",
       "by": "claude-code (anthropic, claude-opus-5-5)"
+    },
+    {
+      "kind": "rollback",
+      "sessionNumber": 24,
+      "through": 24,
+      "dateTime": "2026-11-12T12:10:57.634000-05:00",
+      "reason": "Rollback to Start of This Session from the Work Explorer",
+      "by": "operator"
     }
   ]
 }

@@ -35,6 +35,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 21 | The framework runs the Playwright E2E gate | no | 2026-11-09 |
 | 22 | Fix the 12 Playwright E2E failures | no | 2026-11-10 |
 | 23 | The E2E fixes that need a public API change | — | not declared |
+| 24 | Session 24 | — | not declared |
 
 ### Session 1 — Author or import the solution plan
 
@@ -182,3 +183,9 @@ Make the Playwright `e2e` suite green by fixing the root causes of its 12 failur
 - 2026-11-10 — step 'e2e-filter': its files: The step's cold-start check exposed a reproducible race (twice in a row; passes warm): SmokeTests.DashboardCards_NavigateToEntityPagesAsync goes back to /dashboard before the first, cold render of /orders has replaced it, then clicks the stale dashboard card. It is the intermittent 13th failure from Session 21's run of record and would keep the e2e gate red. Fix: wait for the dashboard to leave the page after each navigation; assertions unchanged. (claude-code (anthropic, claude-opus-5-5))
 - 2026-11-10 — step 'e2e-required-for-close': its files: The full cold-start e2e check failed only on E2E_WF_04 (passed in the save-race filtered run): WaitForQuietAsync returns before the 300 ms debounced search begins, so the availability click lands mid-rerender and is dropped. The gate cannot be required while it races; the test waits until the grid shows only the searched product before clicking. Assertions unchanged. (claude-code (anthropic, claude-opus-5-5))
 - 2026-11-10 — step 'e2e-required-for-close': its files: The second full cold-start e2e run (E2E_WF_04 now green) failed only on SensitiveFieldMaskingUatCoverageTests.Uatv1 (green alone 3/3): its setup clicks Remove on the BackofficeUser mask exemption Uatv3 left behind and closes the page on NetworkIdle, before the removal lands. The setup helpers now wait for the exemption row to disappear or appear. Assertions unchanged. (claude-code (anthropic, claude-opus-5-5))
+
+### Session 24 — Session 24
+
+**Rolled back:**
+
+- 2026-11-12 — session 24 — Rollback to Start of This Session from the Work Explorer (operator)
