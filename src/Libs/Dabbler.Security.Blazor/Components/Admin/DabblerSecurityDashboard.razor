@@ -1,0 +1,155 @@
+@using System.Security.Claims
+@using Dabbler.Security.Blazor.Components.Admin.ComplianceReview
+@using Dabbler.Security.Blazor.Components.Admin.Documentation
+@using Dabbler.Security.Blazor.Components.Admin.Organization
+@using Dabbler.Security.Blazor.Components.Admin.Users
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Blazor.Components.Admin.Masks
+@using Dabbler.Security.Blazor.Components.Admin.Role
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@page "/admin/security"
+@attribute [Dabbler.Security.Authorization.DabblerPageAuthorize("/admin/security")]
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IRoleSwitcher RoleSwitcher
+@inject IBakedInRoleProvider BakedInRoleProvider
+
+<PageTitle>Security Administration</PageTitle>
+
+<div data-testid="security-dashboard-tabstrip">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" TabPanelsClass="pa-4"
+             @bind-ActivePanelIndex="_activePanelIndex">
+        @foreach (var tab in _visibleTabs)
+        {
+            <MudTabPanel Text="@tab.Label">
+                @if (tab.Key == TabKey.RoleMasterDetails)
+                {
+                    <RoleMasterDetailsTab />
+                }
+                else if (tab.Key == TabKey.DefaultMasks)
+                {
+                    <DefaultMasksTab />
+                }
+                else if (tab.Key == TabKey.OrganizationMasterDetails)
+                {
+                    <OrganizationMasterDetailsTab />
+                }
+                else if (tab.Key == TabKey.UsersAndRoleAssignment)
+                {
+                    <UsersAndRoleAssignmentTab />
+                }
+                else if (tab.Key == TabKey.RoleDocumentation)
+                {
+                    <RoleDocumentationTab />
+                }
+                else if (tab.Key == TabKey.ComplianceReview)
+                {
+                    <ComplianceReviewTab />
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" data-testid="@tab.StubTestId">@tab.StubMessage</MudText>
+                }
+            </MudTabPanel>
+        }
+    </MudTabs>
+</div>
+
+@code {
+    /// <summary>
+    /// The six canonical tab keys for the restriction-based security dashboard.
+    /// Ordering matches the architecture doc's recommended UI layout. The
+    /// <see cref="ComplianceReview"/> tab comes last so the positions of
+    /// tabs 1–5 stay stable for UAT tab-position expectations.
+    /// </summary>
+    internal enum TabKey
+    {
+        RoleMasterDetails,
+        DefaultMasks,
+        OrganizationMasterDetails,
+        UsersAndRoleAssignment,
+        RoleDocumentation,
+        ComplianceReview,
+    }
+
+    internal sealed record TabDescriptor(
+        TabKey Key,
+        string Label,
+        string StubTestId,
+        string StubMessage,
+        IReadOnlyList<string> AllowedBakedInRoles);
+
+    internal static readonly IReadOnlyList<TabDescriptor> AllTabs =
+    [
+        new(TabKey.RoleMasterDetails,
+            "Role Master Details",
+            "role-master-details-stub",
+            "Role Master Details is not available.",
+            [BakedInRoles.SystemAdmin]),
+        new(TabKey.DefaultMasks,
+            "Default Masks",
+            "default-masks-stub",
+            "Default Masks is not available.",
+            [BakedInRoles.SystemAdmin]),
+        new(TabKey.OrganizationMasterDetails,
+            "Organization Master Details",
+            "organization-master-details-stub",
+            "Organization Master Details is not available.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin]),
+        new(TabKey.UsersAndRoleAssignment,
+            "Users and Role Assignment",
+            "users-and-role-assignment-stub",
+            "Users and Role Assignment is not available.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.UserAdmin]),
+        new(TabKey.RoleDocumentation,
+            "Role Documentation",
+            "role-documentation-stub",
+            "Role Documentation is not available.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.CrossOrgMonitor,
+             BakedInRoles.UserAdmin, BakedInRoles.User]),
+        new(TabKey.ComplianceReview,
+            "Compliance Review",
+            "compliance-review-stub",
+            "Compliance Review is not available.",
+            [BakedInRoles.SystemAdmin, BakedInRoles.CrossOrgUserAdmin, BakedInRoles.CrossOrgMonitor]),
+    ];
+
+    private int _activePanelIndex;
+    private IReadOnlyList<TabDescriptor> _visibleTabs = [];
+
+    internal int ActivePanelIndex => _activePanelIndex;
+    internal IReadOnlyList<TabDescriptor> VisibleTabs => _visibleTabs;
+    internal int TabCount => _visibleTabs.Count;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _visibleTabs = ResolveVisibleTabs(authState.User, RoleSwitcher, BakedInRoleProvider, AllTabs);
+    }
+
+    internal static IReadOnlyList<TabDescriptor> ResolveVisibleTabs(
+        ClaimsPrincipal user,
+        IRoleSwitcher roleSwitcher,
+        IBakedInRoleProvider bakedInRoleProvider,
+        IReadOnlyList<TabDescriptor> allTabs)
+    {
+        var effectiveRoles = new HashSet<string>(
+            roleSwitcher.EffectiveRoles(user),
+            StringComparer.OrdinalIgnoreCase);
+
+        var bakedInRoles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var roleName in effectiveRoles)
+        {
+            var bakedIn = bakedInRoleProvider.TryGetBakedInRole(roleName);
+            if (bakedIn is not null)
+                bakedInRoles.Add(bakedIn.Name);
+        }
+
+        return allTabs
+            .Where(t => t.AllowedBakedInRoles.Any(bakedInRoles.Contains))
+            .ToList();
+    }
+
+}

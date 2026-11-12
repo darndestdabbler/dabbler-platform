@@ -1,0 +1,19 @@
+@page "/products/catalog"
+@attribute [DabblerPageAuthorize("/products")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Components.Data
+
+<PageTitle>Products — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Class="mb-4">
+        The catalog route now opens the focused distributor product workflow backed by the retained query page surface.
+    </MudAlert>
+
+    <ProductList DataProvider="DataProvider" Title="Products" />
+</MudContainer>
+
+@code {
+    [Inject]
+    private IGridDataProvider<ProductDto> DataProvider { get; set; } = default!;
+}

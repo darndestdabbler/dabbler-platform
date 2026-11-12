@@ -1,0 +1,24 @@
+@namespace Dabbler.Reports.Blazor
+
+<div class="report-viewer" style="@GetViewerStyle()"
+     role="document" aria-label="@GetReportAriaLabel()">
+    @if (Pages is not null)
+    {
+        @for (int i = 0; i < Pages.Count; i++)
+        {
+            var pageNum = i + 1;
+            var page = Pages[i];
+            <div class="report-page" style="@GetPageStyle()"
+                 role="region" aria-label="@($"Page {pageNum} of {Pages.Count}")">
+                @foreach (var bg in page.BandBackgrounds)
+                {
+                    <div class="report-band-bg" style="@GetBandBackgroundStyle(bg)"></div>
+                }
+                @foreach (var element in page.Elements)
+                {
+                    @RenderElement(element)
+                }
+            </div>
+        }
+    }
+</div>

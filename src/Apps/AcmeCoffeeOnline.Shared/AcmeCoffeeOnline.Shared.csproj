@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Demo-app-internal shared types; not part of the packable platform surface. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Libs\Dabbler.Security\Dabbler.Security.csproj" />
+  </ItemGroup>
+
+</Project>
