@@ -184,8 +184,8 @@ internal sealed class PdfPageRenderer
         var descent = font.GetFontDescriptor(BaseFont.DESCENT, fontSize);
         var lineHeight = ascent - descent;
 
-        // Split into lines using the same word-wrap logic as OpenPdfTextMeasurer
-        var lines = WrapText(text, font, fontSize, w);
+        // The same wrap OpenPdfTextMeasurer counts with, so a grown field holds every line
+        var lines = TextLayout.WrapText(text, font, fontSize, w);
 
         // Start from the top of the text area
         double currentY = y + h - ascent; // top of box, baseline at ascent below
@@ -211,58 +211,6 @@ internal sealed class PdfPageRenderer
         }
 
         cb.EndText();
-    }
-
-    /// <summary>
-    /// Word-wraps text into lines that fit within the given width in points.
-    /// </summary>
-    internal static List<string> WrapText(string text, BaseFont font, double fontSize, double availableWidthPoints)
-    {
-        var result = new List<string>();
-        var paragraphs = text.Split('\n');
-
-        foreach (var paragraph in paragraphs)
-        {
-            if (paragraph.Length == 0)
-            {
-                result.Add(string.Empty);
-                continue;
-            }
-
-            var words = paragraph.Split(' ');
-            var currentLine = string.Empty;
-            double currentWidth = 0;
-            double spaceWidth = font.GetWidthPoint(" ", fontSize);
-
-            foreach (var word in words)
-            {
-                if (word.Length == 0) continue;
-
-                double wordWidth = font.GetWidthPoint(word, fontSize);
-
-                if (currentLine.Length == 0)
-                {
-                    currentLine = word;
-                    currentWidth = wordWidth;
-                }
-                else if (currentWidth + spaceWidth + wordWidth <= availableWidthPoints)
-                {
-                    currentLine += " " + word;
-                    currentWidth += spaceWidth + wordWidth;
-                }
-                else
-                {
-                    result.Add(currentLine);
-                    currentLine = word;
-                    currentWidth = wordWidth;
-                }
-            }
-
-            if (currentLine.Length > 0)
-                result.Add(currentLine);
-        }
-
-        return result;
     }
 
     private void RenderLineElement(PdfContentByte cb, LayoutElement element)

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Dabbler.Reports.Core.Layout;
 using Dabbler.Reports.Core.Rdf;
 using DabblerPdf.Document;
 using DabblerPdf.Text;
@@ -14,14 +15,13 @@ namespace Dabbler.Reports.Export;
 internal sealed class PdfStyleResolver
 {
     private readonly Dictionary<string, StyleDefinition> _styles;
-    private readonly ReportMetadata _metadata;
-    private readonly Dictionary<string, BaseFont> _fontCache = new();
+    private readonly ReportFontResolver _fonts;
     private readonly Dictionary<string, BaseColor> _colorCache = new();
 
     public PdfStyleResolver(ReportDefinition report)
     {
         ArgumentNullException.ThrowIfNull(report);
-        _metadata = report.Metadata;
+        _fonts = new ReportFontResolver(report.Metadata);
         _styles = new Dictionary<string, StyleDefinition>(StringComparer.OrdinalIgnoreCase);
         foreach (var style in report.Styles)
         {
@@ -37,28 +37,15 @@ internal sealed class PdfStyleResolver
     }
 
     /// <summary>
-    /// Gets the BaseFont for the given style, mapping to one of the 14 standard PDF fonts.
+    /// Gets the BaseFont for the given style, resolved as <see cref="ReportFontResolver"/> does
+    /// for the text measurer.
     /// </summary>
-    public BaseFont GetFont(StyleDefinition? style)
-    {
-        string baseFontName = OpenPdfTextMeasurerFontMapping(style);
-
-        if (!_fontCache.TryGetValue(baseFontName, out var font))
-        {
-            font = BaseFont.CreateFont(baseFontName, BaseFont.WinAnsiEncoding, false);
-            _fontCache[baseFontName] = font;
-        }
-
-        return font;
-    }
+    public BaseFont GetFont(StyleDefinition? style) => _fonts.GetFont(style);
 
     /// <summary>
-    /// Gets the effective font size for a style, falling back to metadata default.
+    /// Gets the effective font size for a style, falling back to the metadata default.
     /// </summary>
-    public double GetFontSize(StyleDefinition? style)
-    {
-        return style?.FontSize ?? _metadata.DefaultFontSize;
-    }
+    public double GetFontSize(StyleDefinition? style) => _fonts.GetFontSize(style);
 
     /// <summary>
     /// Parses a hex color string into a BaseColor, or returns null if invalid.
@@ -138,26 +125,6 @@ internal sealed class PdfStyleResolver
             CoordinateTranslator.InchesToPoints(style.PaddingRight ?? basePad),
             CoordinateTranslator.InchesToPoints(style.PaddingBottom ?? basePad)
         );
-    }
-
-    /// <summary>
-    /// Maps a style's font properties to one of the 14 standard PDF base font names.
-    /// Reuses the same mapping logic as OpenPdfTextMeasurer.
-    /// </summary>
-    private string OpenPdfTextMeasurerFontMapping(StyleDefinition? style)
-    {
-        return Dabbler.Reports.Core.Layout.OpenPdfTextMeasurer.MapToBaseFontName(
-            style is not null
-                ? new StyleDefinition
-                {
-                    FontFamily = style.FontFamily ?? _metadata.DefaultFontFamily,
-                    IsBold = style.IsBold,
-                    IsItalic = style.IsItalic
-                }
-                : new StyleDefinition
-                {
-                    FontFamily = _metadata.DefaultFontFamily
-                });
     }
 
     internal static BaseColor ParseHexColor(string hexColor)

@@ -360,7 +360,7 @@ public partial class DabblerReportPage : ComponentBase, IAsyncDisposable
                 SubreportRdfLoader,
                 SubreportProviderFactory,
                 fallbackResolver: null,
-                textMeasurer: null);
+                textMeasurer: new OpenPdfTextMeasurer(_reportDefinition));
 
             _hasRun = true;
             UpdateStatusText();

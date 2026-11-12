@@ -56,6 +56,79 @@ public class DabblerReportPageTests
         });
     }
 
+    [Fact]
+    public void AutoRun_CanGrowFieldWithThreeLinesComposesTallerThanDesigned()
+    {
+        using var ctx = new TestContext().SetupForDabblerReports();
+
+        const string notes = "Line one\nLine two\nLine three";
+        var provider = new StubReportDataProvider()
+            .AddQueryResult("SELECT Notes FROM Orders", _ =>
+            {
+                var table = new DataTable();
+                table.Columns.Add("Notes", typeof(string));
+                table.Rows.Add(notes);
+                return table;
+            });
+
+        var cut = ctx.RenderComponent<DabblerReportPage>(parameters => parameters
+            .Add(x => x.RdfPath, "reports/can-grow.rdf.json")
+            .Add(x => x.RdfLoader, _ => Task.FromResult(CanGrowReportRdf))
+            .Add(x => x.DataProvider, provider)
+            .Add(x => x.AutoRunOnLoad, true));
+
+        cut.WaitForAssertion(() =>
+        {
+            cut.Instance.HasRun.Should().BeTrue();
+            var field = cut.Instance.Pages!.SelectMany(p => p.Elements).Single(e => e.Text == notes);
+            field.Height.Should().BeGreaterThan(0.2,
+                "a CanGrow field holding three lines must grow past its designed 0.2in height");
+        });
+    }
+
+    private const string CanGrowReportRdf = """
+{
+  "metadata": {
+    "name": "Can Grow",
+    "pageWidth": 8.5,
+    "pageHeight": 11.0,
+    "marginTop": 0.5,
+    "marginBottom": 0.5,
+    "marginLeft": 0.5,
+    "marginRight": 0.5
+  },
+  "dataSources": [
+    {
+      "name": "main",
+      "connectionName": "Test",
+      "providerType": "Custom",
+      "query": "SELECT Notes FROM Orders"
+    }
+  ],
+  "fields": [
+    { "name": "Notes", "dataType": "String", "sourceColumn": "Notes" }
+  ],
+  "bands": [
+    {
+      "name": "detail",
+      "type": "Detail",
+      "height": 0.25,
+      "elements": [
+        {
+          "type": "TextField",
+          "x": 0,
+          "y": 0,
+          "width": 4.0,
+          "height": 0.2,
+          "fieldName": "Notes",
+          "canGrow": true
+        }
+      ]
+    }
+  ]
+}
+""";
+
     private const string TestSalesReportRdf = """
 {
   "metadata": {

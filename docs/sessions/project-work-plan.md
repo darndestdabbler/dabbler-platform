@@ -39,7 +39,7 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 25 | MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button | no | 2026-11-12 |
 | 26 | One filter-operator vocabulary, and no silently dropped filter | no | 2026-11-12 |
 | 27 | Shipped text, the download helper and the READMEs | no | 2026-11-12 |
-| 28 | Take DabblerPdf 1.3.0, and measure report text the way it is drawn | — | not declared |
+| 28 | Take DabblerPdf 1.3.0, and measure report text the way it is drawn | no | 2026-11-12 |
 | 29 | Report text can use a Unicode TrueType font | — | not declared |
 | 30 | Bump to 2.0.0 | — | not declared |
 
@@ -217,3 +217,9 @@ Make the filter-operator vocabulary one, and stop Dabbler.Api.Querying dropping 
 **Releasable: no.**
 
 Remove internal workflow references ("Session N", "Will be replaced ... in Session 5") from the XML docs and comments of what ships under src/Libs and from the packed tools/Dabbler.CrudSlice README.md and TemplatePreflight.cs, rewording each to say what the member does or deleting it, with no code change. Give dabbler-download.js a supported C# entry point, DabblerDownloadExtensions.DownloadFileAsync(this IJSRuntime, fileName, byte[] content, mimeType, CancellationToken) in Dabbler.Components, which imports ./_content/Dabbler.Components/dabbler-download.js and calls downloadFile with the base64 of the content; DabblerReportPage and ComplianceReviewTab call it instead of naming the script path, with DabblerDownloadExtensionsTests covering the module path and the arguments. Bring the package READMEs in step with the API: the Dabbler.Components smallest example uses DeclarativeFilterPanel with Config (a FilterConfig<T>) and FilterChanged as CustomerList.razor does, and new sections state EditSession<T>'s semantics (Live is the constructor's instance, NotifyChanged serialises the whole object per call, Undo/CommitFrom copy public get+set properties including init-only and nothing else) and DownloadFileAsync's (content crosses the circuit as base64; serve large files from an endpoint); every src/Libs README states MudBlazor 9.x, drops --prerelease and 0.1.0-preview.1, and restates or removes each "MudBlazor 8.x" caveat after checking it against 9.12.0. Reproduce in tests/AcmeCoffeeOnline.Web.Tests the empty-body response for _content/Dabbler.Components/dabbler-download.js under a non-Development WebApplicationFactory host and document in the Dabbler.Testing.Blazor README what the reproduction shows and what makes the asset load (or, if it does not reproduce, only what the consumer observed).
+
+### Session 28 — Take DabblerPdf 1.3.0, and measure report text the way it is drawn
+
+**Releasable: no.**
+
+Move the platform's DabblerPdf pin from 1.1.3 to 1.3.0 in Directory.Packages.props and prove the packed Dabbler.Reports.Core nupkg declares DabblerPdf 1.3.0. Then make report text measured the way it is drawn: add one internal font resolver in Dabbler.Reports.Core (ReportFontResolver: style, then ReportMetadata defaults, then the Base 14 mapping) used by both OpenPdfTextMeasurer and PdfStyleResolver, have the measurer count lines with TextLayout.CountLines and PdfPageRenderer draw the lines of TextLayout.WrapText, and delete both private wraps (WrapParagraph/CountWrappedLines and PdfPageRenderer.WrapText), so runs of spaces survive, an unsized style is measured at the report's DefaultFontSize, an unfamilied style in the family DefaultFontFamily maps to, and an over-wide word breaks at characters. Finally have DabblerReportPage compose with an OpenPdfTextMeasurer built from its report definition so CanGrow and CanShrink act in the shipped page. Tests go in tests/Dabbler.Reports.Blazor.Tests in files named after the classes they test.

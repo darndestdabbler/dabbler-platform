@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Dabbler.Reports.Export" />
+    <InternalsVisibleTo Include="Dabbler.Reports.Blazor.Tests" />
   </ItemGroup>
 
   <ItemGroup>
