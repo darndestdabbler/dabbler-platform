@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 026 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 026 transcript</h1>
+<p class="stamp">Rendered 2026-11-12T19:33:41.422Z by dabbler-ai-router 3.32.4 at 7b24cf4f24f372841e37a81e69524bb2b0107d5c.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-12T13:48:52.990-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 26: One filter-operator vocabulary, and no silently dropped filter</h3>
+<ol><li>Register.</li><li><code>DeclarativeFilterPanel</code> (<code>src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor</code>) builds its descriptors with the literals <code>&quot;contains&quot;</code>, <code>&quot;eq&quot;</code>, <code>&quot;gte&quot;</code> and <code>&quot;lte&quot;</code>, while <code>LocalDataProvider</code>, <code>StubGridDataProvider</code> and <code>Dabbler.Api.Querying</code> match the <code>FilterOperators</code> constants (<code>&quot;Contains&quot;</code>, <code>&quot;Equals&quot;</code>, <code>&quot;GreaterThanOrEqual&quot;</code>, <code>&quot;LessThanOrEqual&quot;</code>). Every provider therefore needs an adapter, and an unmapped operator is dropped. Make the panel emit the <code>FilterOperators</code> constants. Then remove the workarounds: <code>NormaliseOperator</code> in <code>src/Apps/AcmeCoffeeOnline.Web/Data/SupplierGridDataProvider.cs</code>, and the <code>&quot;contains&quot;</code> comparisons in <code>CustomerDataProvider</code>, <code>OrderDataProvider</code> and <code>ProductDataProvider</code>, which compare with <code>FilterOperators.Contains</code>. Correct the <code>FilterDescriptor</code> doc comment in <code>GridDataRequest.cs</code>, which gives <code>&quot;equals&quot;</code> and <code>&quot;contains&quot;</code> as examples. Update the tests in <code>tests/Dabbler.Components.Tests/MasterDetail/</code> that assert the lowercase strings, and add a test there that the descriptors a <code>DeclarativeFilterPanel</code> raises, passed unchanged to a <code>StubGridDataProvider&lt;T&gt;</code>, filter its rows (a text contains, an enum equals and a date range). The step's checks: no <code>&quot;contains&quot;</code>, <code>&quot;eq&quot;</code>, <code>&quot;gte&quot;</code> or <code>&quot;lte&quot;</code> operator literal remains under <code>src</code>; <code>dotnet test tests/Dabbler.Components.Tests</code> and <code>dotnet test tests/AcmeCoffeeOnline.Web.Tests</code> pass.</li><li><code>Dabbler.Api.Querying</code> (<code>QueryableExtensions.cs</code>) converts a filter value with <code>Convert.ChangeType</code> inside a <code>catch</code> that returns no predicate, so a filter on a <code>DateOnly</code> property, on a <code>Guid</code>, or on a property that does not exist is ignored and the caller gets unfiltered rows; an unknown sort property throws a raw <code>ArgumentException</code> from the expression tree. Change it so that:</li></ol>
+<ul><li>a value is converted to <code>DateOnly</code>, <code>TimeOnly</code>, <code>DateTime</code>, <code>DateTimeOffset</code>, <code>Guid</code> and enum members (by name or number) as well as the numeric types, from a <code>string</code> or a <code>JsonElement</code>, with the invariant culture and ISO 8601 forms;</li><li><code>In</code> is applied when the value is an array;</li><li>an unknown property (in a filter or a sort), an unknown operator, an operator the property's type does not support, and a value that cannot be converted each throw a new public <code>GridQueryException</code> that names the property and the operator. Nothing is dropped.</li></ul>
+<p>In <code>AcmeCoffeeOnline.Api</code>, a <code>GridQueryException</code> from a query endpoint is answered with <code>400</code> and a problem-details body. Tests go in <code>tests/AcmeCoffeeOnline.Api.Tests/QueryableExtensionsTests.cs</code>, one per rule above, plus one that the Supplier query endpoint returns <code>400</code> for an unknown property. <code>src/Libs/Dabbler.Api.Querying/README.md</code> states the rules. The step's checks: <code>dotnet test tests/AcmeCoffeeOnline.Api.Tests</code> passes, and <code>pwsh -NoProfile -File tools/e2e.ps1 -Filter &quot;FullyQualifiedName~Filter&quot;</code> passes (no Playwright class is named for suppliers; the whole <code>e2e</code> suite is the run of record).</p>
+<ol><li>Cross-provider verification.</li><li>The <code>unit</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no generic <code>IGridDataProvider&lt;T&gt;</code>-to-API adapter in the platform (<code>Dabbler.Components</code> does not reference <code>Dabbler.Api.Querying</code>, and a package that joins them is a decision for a plan session; once the vocabulary is one, a consumer's adapter is a field-for-field copy); no change to the legacy <code>FilterPanel&lt;T&gt;</code>, which already emits the constants; no version or <code>CHANGELOG.md</code> change (Session 30's).</p>
+<p>Why now (2026-11-12): carried over in the consumer's findings and confirmed here: the panel and the server disagree on operator names, the reference app carries an adapter for it, and <code>Dabbler.Api.Querying</code> hides three kinds of caller mistake by returning unfiltered data. Both changes break callers that relied on the old strings or the silence, so they belong in <code>2.0.0</code>.</p>
+<h2>Work Plan</h2>
+<p>Make the filter-operator vocabulary one, and stop Dabbler.Api.Querying dropping filters without a word. DeclarativeFilterPanel emits the FilterOperators constants (Contains, Equals, GreaterThanOrEqual, LessThanOrEqual) in place of the literals &quot;contains&quot;, &quot;eq&quot;, &quot;gte&quot; and &quot;lte&quot;; the reference app's workarounds go (NormaliseOperator in SupplierGridDataProvider, the &quot;contains&quot; comparisons in CustomerDataProvider, OrderDataProvider and ProductDataProvider, which compare with FilterOperators.Contains); the FilterDescriptor doc comment in GridDataRequest.cs names the constants; the Dabbler.Components.Tests MasterDetail tests assert the constants, and a new DeclarativeFilterPanelTests test passes the descriptors the panel raises unchanged to a StubGridDataProvider&lt;T&gt; and shows a text contains, an enum equals and a date range filter its rows. Then QueryableExtensions converts filter values (from a string or a JsonElement, invariant culture, ISO 8601) to DateOnly, TimeOnly, DateTime, DateTimeOffset, Guid, enum members by name or number, and the numeric types; applies In when the value is an array; and throws a new public GridQueryException naming the property and the operator for an unknown property in a filter or a sort, an unknown operator, an operator the property's type does not support, and a value that cannot be converted, so nothing is dropped. GridQueryException derives from ArgumentException, so callers that caught the old sort ArgumentException still catch it and AcmeCoffeeOnline.Api's existing ErrorHandlingMiddleware already answers it with 400 and a problem-details body; a test proves that through the Supplier query endpoint. QueryableExtensionsTests gets one test per rule, and the Dabbler.Api.Querying README states the rules.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/7fee9dd6d5096b78fde4c918932886675f2e1ce4"><code>7fee9dd6d5096b78fde4c918932886675f2e1ce4</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Operator vocabulary</td><td><p>In DeclarativeFilterPanel.razor emit FilterOperators.Contains, FilterOperators.Equals, FilterOperators.GreaterThanOrEqual and FilterOperators.LessThanOrEqual in place of the literals &quot;contains&quot;, &quot;eq&quot;, &quot;gte&quot; and &quot;lte&quot;. Remove NormaliseOperator from SupplierGridDataProvider (operators pass through unchanged) and correct its class doc comment; make CustomerDataProvider, OrderDataProvider and ProductDataProvider compare with FilterOperators.Contains. Correct the FilterDescriptor doc comment in GridDataRequest.cs to name the FilterOperators constants. Update DeclarativeFilterPanelTests, CustomersFilterConfigTests and OrdersFilterConfigTests to assert the constants, and add a DeclarativeFilterPanelTests test that renders the panel over a row type with a text, an enum and a date-range property, sets a text contains, an enum equals and a date range, passes the raised CompositeFilterDescriptor unchanged to a StubGridDataProvider&lt;T&gt;, and asserts only the matching rows come back.</p></td><td><span class="mono">src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor</span><br><span class="mono">src/Libs/Dabbler.Components/Data/GridDataRequest.cs</span><br><span class="mono">src/Apps/AcmeCoffeeOnline.Web/Data/SupplierGridDataProvider.cs</span><br><span class="mono">src/Apps/AcmeCoffeeOnline.Web/Data/CustomerDataProvider.cs</span><br><span class="mono">src/Apps/AcmeCoffeeOnline.Web/Data/OrderDataProvider.cs</span><br><span class="mono">src/Apps/AcmeCoffeeOnline.Web/Data/ProductDataProvider.cs</span><br><span class="mono">tests/Dabbler.Components.Tests/MasterDetail/DeclarativeFilterPanelTests.cs</span><br><span class="mono">tests/Dabbler.Components.Tests/MasterDetail/CustomersFilterConfigTests.cs</span><br><span class="mono">tests/Dabbler.Components.Tests/MasterDetail/OrdersFilterConfigTests.cs</span></td><td><code>pwsh -NoProfile -Command $hits = Get-ChildItem -Path src -Recurse -Include *.cs,*.razor | Where-Object { $_.FullName -notmatch '[\\/](obj|bin)[\\/]' } | Select-String -CaseSensitive -Pattern '(Operator\s*==\s*|FilterDescriptor\([^,]*,\s*)\x22(contains|eq|gte|lte)\x22|\x22(contains|eq|gte|lte)\x22\s*=&gt;'; if ($hits) { $hits; exit 1 }</code><br><code>dotnet test tests/Dabbler.Components.Tests</code><br><code>dotnet test tests/AcmeCoffeeOnline.Web.Tests</code></td><td>yes</td></tr>
+<tr><td>No dropped filter</td><td><p>Add public GridQueryException (deriving from ArgumentException, carrying PropertyName and Operator, with a message naming both) in src/Libs/Dabbler.Api.Querying/GridQueryException.cs. In QueryableExtensions.cs remove the catch that returns no predicate and replace Convert.ChangeType with a converter that takes a string or a JsonElement (and an already-typed value) to DateOnly, TimeOnly, DateTime, DateTimeOffset, Guid, enum members by name or number and the numeric types, with the invariant culture and ISO 8601 forms; apply In as a typed-array Contains when the value is an array (CLR array or JSON array); throw GridQueryException for an unknown property in a filter or a sort, an unknown operator, an operator the property's type does not support (a string operator on a non-string, a comparison on a type without ordering, IsEmpty/IsNotEmpty or a null value on a non-nullable value type, In without an array), and a value that cannot be converted. In tests/AcmeCoffeeOnline.Api.Tests/QueryableExtensionsTests.cs replace ApplyGridCompositeFilter_InvalidPropertyName_ReturnsAll with tests, one per rule: the conversions (DateOnly, TimeOnly, DateTime, DateTimeOffset, Guid, enum by name and by number, from string and JsonElement), In with an array, and each GridQueryException case including an unknown sort property. Add tests/AcmeCoffeeOnline.Api.Tests/SuppliersControllerTests.cs (named after the controller whose endpoint it exercises; it needs the WebApplicationFactory fixture the pure QueryableExtensions tests do not) with one test that POST /api/suppliers/query, sent as an internal user allowed to query suppliers, with a filter on an unknown property returns 400 with a problem-details body naming the property. State the conversion, In and exception rules in src/Libs/Dabbler.Api.Querying/README.md, replacing the 'silently skipped' text.</p></td><td><span class="mono">src/Libs/Dabbler.Api.Querying/GridQueryException.cs</span><br><span class="mono">src/Libs/Dabbler.Api.Querying/QueryableExtensions.cs</span><br><span class="mono">src/Libs/Dabbler.Api.Querying/README.md</span><br><span class="mono">tests/AcmeCoffeeOnline.Api.Tests/QueryableExtensionsTests.cs</span><br><span class="mono">tests/AcmeCoffeeOnline.Api.Tests/SuppliersControllerTests.cs</span></td><td><code>dotnet test tests/AcmeCoffeeOnline.Api.Tests</code><br><code>pwsh -NoProfile -Command $t = Get-Content -Raw src/Libs/Dabbler.Api.Querying/README.md; if ($t -notmatch 'GridQueryException' -or $t -match 'silently') { exit 1 }</code><br><code>pwsh -NoProfile -File tools/e2e.ps1 -Filter FullyQualifiedName~Filter</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No generic IGridDataProvider&lt;T&gt;-to-API adapter in the platform: Dabbler.Components does not reference Dabbler.Api.Querying, and a package joining them is a decision for a plan session.</li><li>No change to the legacy FilterPanel&lt;T&gt;, which already emits the constants.</li><li>No version or CHANGELOG.md change (Session 30's).</li><li>No change under templates/: the section names only the reference app's workarounds, and the dabbler-crud-page template's NormaliseOperator passes the constants through unchanged.</li><li>No change to LocalDataProvider's matching, which already uses the FilterOperators constants, and no change to the FilterSummaryBuilder display label &quot;contains&quot;, which is chip text, not an operator.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[18:48:53]</span> <span class="muted">run-started</span> session=026 mode=pull</div>
+<div class="line"><span class="at">[18:48:53]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[18:51:39]</span> <span class="muted">run-resumed</span> session=026 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[18:51:39]</span> <span class="muted">plan-accepted</span> steps=[&quot;operator-vocabulary&quot;,&quot;no-dropped-filter&quot;] non_goals=5</div>
+<div class="line"><span class="at">[18:51:39]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[18:51:39]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=operator-vocabulary</div>
+<div class="line"><span class="at">[18:54:21]</span> <span class="muted">run-resumed</span> session=026 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[18:55:20]</span> <span class="muted">check-passed</span> step=operator-vocabulary argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$hits = Get-ChildItem -Path src -Recurse -Include *.cs,*.razor | Where-Object { $_.FullName -notmatch '[\\\\/](obj|bin)[\\\\/]' } | Select-String -CaseSensitive -Pattern '(Operator\\s*==\\s*|FilterDescriptor\\([^,]*,\\s*)\\x22(contains|eq|gte|lte)\\x22|\\x22(contains|eq|gte|lte)\\x22\\s*=&gt;'; if ($hits) { $hits; exit 1 }&quot;]</div>
+<div class="line"><span class="at">[18:55:20]</span> <span class="muted">check-passed</span> step=operator-vocabulary argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Components.Tests&quot;]</div>
+<div class="line"><span class="at">[18:55:20]</span> <span class="muted">check-passed</span> step=operator-vocabulary argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/AcmeCoffeeOnline.Web.Tests&quot;]</div>
+<div class="line"><span class="at">[18:55:44]</span> <span class="muted">named-tests-passed</span> step=operator-vocabulary suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;CustomersFilterConfigTests|DeclarativeFilterPanelTests|OrdersFilterConfigTests&quot;</div>
+<div class="line"><span class="at">[18:55:44]</span> <span class="muted">report-accepted</span> seq=2 step=operator-vocabulary files=[&quot;src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor&quot;,&quot;src/Libs/Dabbler.Components/Data/GridDataRequest.cs&quot;,&quot;src/Apps/AcmeCoffeeOnline.Web/Data/SupplierGridDataProvider.cs&quot;,&quot;src/Apps/AcmeCoffeeOnline.Web/Data/CustomerDataProvider.cs&quot;,&quot;src/Apps/AcmeCoffeeOnline.Web/Data/OrderDataProvider.cs&quot;,&quot;src/Apps/AcmeCoffeeOnline.Web/Data/ProductDataProvider.cs&quot;,&quot;tests/Dabbler.Components.Tests/MasterDetail/DeclarativeFilterPanelTests.cs&quot;,&quot;tests/Dabbler.Components.Tests/MasterDetail/CustomersFilterConfigTests.cs&quot;,&quot;tests/Dabbler.Components.Tests/MasterDetail/OrdersFilterConfigTests.cs&quot;] notes=DeclarativeFilterPanel emits FilterOperators constants; NormaliseOperator and the contains literals removed; tests assert constants plus a panel-to-StubGridDataProvider round trip (text contains, enum equals, date range).</div>
+<div class="line"><span class="at">[18:55:44]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=no-dropped-filter</div>
+<div class="line"><span class="at">[19:02:20]</span> <span class="muted">run-resumed</span> session=026 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[19:04:34]</span> <span class="muted">check-passed</span> step=no-dropped-filter argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/AcmeCoffeeOnline.Api.Tests&quot;]</div>
+<div class="line"><span class="at">[19:04:34]</span> <span class="muted">check-passed</span> step=no-dropped-filter argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content -Raw src/Libs/Dabbler.Api.Querying/README.md; if ($t -notmatch 'GridQueryException' -or $t -match 'silently') { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[19:04:34]</span> <span class="muted">check-passed</span> step=no-dropped-filter argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-File&quot;,&quot;tools/e2e.ps1&quot;,&quot;-Filter&quot;,&quot;FullyQualifiedName~Filter&quot;]</div>
+<div class="line"><span class="at">[19:04:54]</span> <span class="muted">named-tests-passed</span> step=no-dropped-filter suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;QueryableExtensionsTests|SuppliersControllerTests&quot;</div>
+<div class="line"><span class="at">[19:04:54]</span> <span class="muted">report-accepted</span> seq=3 step=no-dropped-filter files=[&quot;src/Libs/Dabbler.Api.Querying/GridQueryException.cs&quot;,&quot;src/Libs/Dabbler.Api.Querying/QueryableExtensions.cs&quot;,&quot;src/Libs/Dabbler.Api.Querying/README.md&quot;,&quot;tests/AcmeCoffeeOnline.Api.Tests/QueryableExtensionsTests.cs&quot;,&quot;tests/AcmeCoffeeOnline.Api.Tests/SuppliersControllerTests.cs&quot;] notes=GridQueryException (an ArgumentException, so the existing ErrorHandlingMiddleware answers 400 problem-details) replaces every silent drop; values convert to DateOnly/TimeOnly/DateTime/DateTimeOffset/Guid/enum/numerics from string or JsonElement; In applies to arrays; README states the rules.</div>
+<div class="line"><span class="at">[19:04:54]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[19:04:55]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[19:04:55]</span> <span class="muted">job-started</span> name=verification pid=53892 log=.dabbler/runs/s26/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[19:06:45]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s26/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[19:06:45]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[19:06:45]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[19:06:45]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 72s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[19:06:45]</span> <span class="muted">job-started</span> name=run of record: unit pid=26708 log=.dabbler/runs/s26/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[19:08:00]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s26/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[19:08:00]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[19:08:00]</span> <span class="muted">job-started</span> name=run of record: smoke pid=59568 log=.dabbler/runs/s26/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[19:23:36]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s26/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[19:23:36]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[19:23:36]</span> <span class="muted">job-started</span> name=run of record: e2e pid=52524 log=.dabbler/runs/s26/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[19:33:30]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="good">0</span> log=.dabbler/runs/s26/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[19:33:30]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[19:33:34]</span> <span class="muted">landed</span> commit=7fee9dd6d5096b78fde4c918932886675f2e1ce4</div>
+<div class="line"><span class="at">[19:33:34]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[19:33:34]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[19:33:34]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[19:33:34]</span> <span class="muted">job-started</span> name=close pid=27220 log=.dabbler/runs/s26/driver/jobs/close.log</div>
+<div class="line"><span class="at">[19:33:41]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s26/driver/jobs/close.log</div>
+<div class="line"><span class="at">[19:33:41]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td><details><summary>2 findings</summary></details></td></tr><tr class="findings"><td colspan="7"><table>
+<tr><th>#</th><th>Severity</th><th>Finding</th><th>Response</th></tr>
+<tr><td>0</td><td><strong>minor</strong></td><td>**Nit:** The visible conversion tests do not pin a numeric `JsonElement` value. Add a test with a `decimal Price` property, input `new GridQueryFilter(&quot;Price&quot;, &quot;Equals&quot;, Json(&quot;25.50&quot;))`, and assert the row with price `25.50m` is returned. Today’s implementation appears to pass this case, but only the string form is asserted for numeric conversion.</td><td>not answered</td></tr>
+<tr><td>1</td><td><strong>minor</strong></td><td>**Nit:** `Equals` can leak a raw `InvalidOperationException` for a value-type property without an equality operator. With a DTO property such as `readonly struct Money { public decimal Amount { get; } }` and an `Equals` filter whose value is a `Money`, `ConvertValue` accepts the already-typed value and `Expression.Equal` can fail without being wrapped in `GridQueryException`. Add a test asserting `GridQueryException` names the property and `Equals`, and wrap `Expression.Equal` failures consistently.</td><td>not answered</td></tr>
+</table></td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="good">passed</span></td><td>73s</td><td>636</td><td>0</td><td>0</td><td><span class="mono">dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;AccessDeniedCardTests|AcmeCoffeeNavigationDataProviderTests|AdminUserScopeTests|AuditLogPageTests|BakedInPrivilegesPanelTests|BandLayoutEngineComposerTests|CallerLevelPdfExportTests|ColumnRestrictionsSubTabTests|CompatibilitySurfaceTests|ComplianceReviewTabTests|ContractHomeSmokeTests|CreateBackofficeUserDialogTests|CsvExportServiceTests|CustomerDetailEditSessionTests|CustomerListTests|CustomersFilterConfigTests|DabblerReportPageTests|DabblerRoleSwitcherTests|DabblerSecuredTests|DabblerSecurityDashboardTests|DabblerSecurityNavTests|DeclarativeFilterPanelTests|DefaultMasksGridTests|DefaultMasksTabTests|DevIdpToolTests|DevToolsEndpointContractTests|DevToolsMenuTests|DiagnosticTests|DirtyAwareActionRowTests|EditSessionTests|FilterPanelAccessibilityTests|FilterPanelTests|GridDataProviderExtensionsTests|HealthEndpointTests|HomePageConfigurationTests|LoginPageOidcTests|LoginPageTests|MagicLinksDialogTests|MaskExemptionsSubTabTests|MasterDetailExpansionShellTests|MfaPageTests|MigratedSecurityConfigSeedTests|MudBlazorRebuildConformanceTests|NotesDrivenAlignmentGuardrailTests|NupkgArtifactTests|ObservabilitySmokeTests|OrderDetailEditSessionTests|OrderDetailStateNestedItemsTests|OrderDetailStateTests|OrderServiceMergeItemsTests|OrderUpdateTests|OrderVisibilityTests|OrdersFilterConfigTests|OrganizationDetailsFormTests|OrganizationMasterGridTests|ParameterPromptFormTests|PdfExportTitleRegressionTests|PickOrAddDialogTests|ProductionSplitTests|QueryableExtensionsTests|ReportViewerTests|RestrictedFormFieldTests|RestrictedGridColumnTests|RestrictionBinderExpiredAuditTests|RestrictionBinderTests|RestrictionBinderUnmaskedReadAuditTests|RoleAssignmentPageTests|RoleDetailsSectionTests|RoleDocumentationTabTests|RoleListPageTests|RoleMasterDetailsTabTests|RowRestrictionIntegrationTests|SeedDataOrganizationTests|ShellSessionStateLoaderTests|StubGridDataProviderTests|StubPlatformRegistrationTests|SuppliersControllerTests|TemporalTablesTests|TestAuthClientTests|UserContextBarTests|UserEditPageTests|UserListPageExternalLoginTests|UserListPageTests|UserManagementPageTests|UserRoleAssignmentDetailsTests|UsersMasterGridTests|WebGuardrailTests|WebHealthEndpointTests|WorkflowAssetSmokeTests&quot;</span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>935s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="good">passed</span></td><td>592s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-e2e</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>
