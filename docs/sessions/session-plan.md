@@ -740,13 +740,15 @@ Why now (2026-11-09): the proposed version is a minor, `1.1.0`, because an
 added public API is a new feature under semantic versioning; `1.0.1` was
 never tagged, so it folds into `1.1.0` rather than shipping separately.
 
-> **Sessions 24–28** answer the maintainer findings a downstream consumer
-> (the TRIMS application, on the `1.0.0` packages) sent on 2026-11-12.
-> Session 23 was cancelled, so `1.0.1` is still unreleased and `1.1.0` was
-> never made; both fold into `2.0.0`. The findings about DabblerPdf are
-> Sessions 13–14 of `../dabbler-pdf`, which release DabblerPdf `1.2.0`;
-> Session 27 here takes it. Sessions 24–26 do not depend on it and can run
-> while it is being released.
+> **Sessions 24–29** answer the maintainer findings a downstream consumer
+> (the TRIMS application, on the `1.0.0` packages) sent on 2026-11-12, and
+> the operator's request for Unicode report text the same day. Session 23
+> was cancelled, so `1.0.1` is still unreleased and `1.1.0` was never made;
+> both fold into `2.0.0`. The findings about DabblerPdf are Sessions 13–15
+> of `../dabbler-pdf`, which release DabblerPdf `1.2.0`, and Unicode is its
+> Sessions 16–18, which release `1.3.0`. Session 27 here takes `1.2.0` and
+> Session 28 takes `1.3.0`; `2.0.0` waits for both. Sessions 24–26 depend on
+> neither and run while DabblerPdf is being released.
 
 ### Session 24: MasterDetailExpansionShell moves to Dabbler.Components and gets its Add button
 
@@ -831,7 +833,7 @@ never tagged, so it folds into `1.1.0` rather than shipping separately.
 Non-goals: no change to the shell's save, use, link-data or
 target-editability behaviour; no new Add buttons on the four Security admin
 tabs (they never set `ShowAddAction`, which is why its default becomes
-`false`); no version or `CHANGELOG.md` change (Session 28's).
+`false`); no version or `CHANGELOG.md` change (Session 29's).
 
 Why now (2026-11-12): the `Dabbler.Components` `1.0.0` README lists the
 shell, but the type ships in `Dabbler.Security.Blazor`, so a consumer who
@@ -899,7 +901,7 @@ Non-goals: no generic `IGridDataProvider<T>`-to-API adapter in the platform
 package that joins them is a decision for a plan session; once the
 vocabulary is one, a consumer's adapter is a field-for-field copy); no
 change to the legacy `FilterPanel<T>`, which already emits the constants; no
-version or `CHANGELOG.md` change (Session 28's).
+version or `CHANGELOG.md` change (Session 29's).
 
 Why now (2026-11-12): carried over in the consumer's findings and confirmed
 here: the panel and the server disagree on operator names, the reference
@@ -969,18 +971,18 @@ that relied on the old strings or the silence, so they belong in `2.0.0`.
 Non-goals: no change to `EditSession<T>`'s behaviour (the findings ask for
 its semantics to be stated, not changed); no streaming download; nothing
 under `docs/session-sets/` or `docs/transcripts/`; no version or
-`CHANGELOG.md` change (Session 28's).
+`CHANGELOG.md` change (Session 29's).
 
 Why now (2026-11-12): the consumer read "Implemented in Session 2" and
 "Will be replaced … in Session 5" in the shipped package as unfinished
 work, copied a README example that does not compile, and imports the
 download script by a path no document promises.
 
-### Session 27: Take DabblerPdf 1.2.0
+### Session 27: Take DabblerPdf 1.2.0, and measure report text the way it is drawn
 
-Run only once DabblerPdf `1.2.0` is listed on nuget.org (Sessions 13–14 of
+Run only once DabblerPdf `1.2.0` is listed on nuget.org (Sessions 13–15 of
 `../dabbler-pdf`, then that repository's `nuget-v1.2.0` tag). If it is not,
-report the first step blocked and say so.
+report the first step blocked and say so. Sessions 24–26 do not wait for it.
 
 1. Register.
 2. Set the `DabblerPdf` `PackageVersion` in `Directory.Packages.props` from
@@ -991,22 +993,114 @@ report the first step blocked and say so.
    pack-output -CleanOutput`, the `.nuspec` inside the packed
    `Dabbler.Reports.Core` nupkg declares its `DabblerPdf` dependency at
    `1.2.0`.
-3. Cross-provider verification.
-4. The `unit` and `e2e` suites once against the verified tree, recorded as
-   the run of record.
-5. Close-out.
+3. A field's height is measured by `OpenPdfTextMeasurer`
+   (`src/Libs/Dabbler.Reports.Core/Layout/`) and its text drawn by
+   `PdfPageRenderer` through `PdfStyleResolver`
+   (`src/Libs/Dabbler.Reports.Export/`), and the two disagree:
+   - each has its own word wrap (`WrapParagraph` and `WrapText`), and both
+     split on single spaces and rejoin with one, so a run of spaces is
+     collapsed in every PDF report, the bug DabblerPdf 1.2.0 fixed in
+     `TextLayout.WrapText`;
+   - a style with no font size is measured at 12 pt and drawn at
+     `ReportMetadata.DefaultFontSize` (10 by default);
+   - a style with no font family is measured in Helvetica and drawn in the
+     family `ReportMetadata.DefaultFontFamily` maps to.
 
-Non-goals: no use of `PdfWriter.CompressContentStreams` and no change to
-`PdfPageRenderer` (it wraps text with its own `WrapText`, not DabblerPdf's
-`TextLayout`, so the `1.2.0` spacing fix changes no report output); no
-change to `DabblerVersion` or `CHANGELOG.md`; the tracked `*.csproj.lscache`
-files are left alone.
+   Give both one internal font resolver in `Dabbler.Reports.Core` (style,
+   then report metadata, then the Base 14 mapping), and have the measurer
+   count lines with `TextLayout.CountLines` and the renderer draw the lines
+   of `TextLayout.WrapText`; delete both private wraps. A word wider than
+   the field is now broken at characters, where it used to overflow. Tests
+   go in `tests/Dabbler.Reports.Blazor.Tests`, in files named after the
+   classes they test (add `InternalsVisibleTo` for an internal type): a
+   double space in a field survives into the PDF's `Tj` operand; for a
+   style with no size and no family, and for one with both, the measurer's
+   line count equals the number of lines the renderer draws; a style with
+   no size is measured at the report's default size. The step's check:
+   `dotnet test tests/Dabbler.Reports.Blazor.Tests` passes.
+4. `DabblerReportPage` (`src/Libs/Dabbler.Reports.Blazor/DabblerReportPage.razor.cs`)
+   composes with `textMeasurer: null`, so `CanGrow` and `CanShrink` never
+   act in the shipped page: long text is clipped instead of growing its
+   band. Pass an `OpenPdfTextMeasurer` built from the report definition.
+   Add a test to `tests/Dabbler.Reports.Blazor.Tests/DabblerReportPageTests.cs`
+   that a `CanGrow` field with three lines of text composes taller than its
+   designed height. The step's check: `dotnet test
+   tests/Dabbler.Reports.Blazor.Tests` passes.
+5. Cross-provider verification.
+6. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+7. Close-out.
+
+Non-goals: no use of `PdfWriter.CompressContentStreams`; no change to the
+HTML `ReportViewer`'s own text layout; no font other than the Base 14
+(Session 28's); no change to `DabblerVersion` or `CHANGELOG.md`; the
+tracked `*.csproj.lscache` files are left alone.
 
 Why now (2026-11-12): the platform's packages should depend on the
 DabblerPdf that carries the fixes its consumers asked for, and NuGet
-resolves the lowest version a dependency allows.
+resolves the lowest version a dependency allows. Taking it changes nothing
+in a report unless the platform wraps with it: its own wraps collapse
+spaces exactly as TRIMS reported, and measuring and drawing with different
+fonts, sizes and wraps is how a grown field clips or leaves a gap. Found
+while planning DabblerPdf's Sessions 14–18.
 
-### Session 28: Bump to 2.0.0
+### Session 28: Take DabblerPdf 1.3.0, and report text can use a Unicode TrueType font
+
+Run only once DabblerPdf `1.3.0` is listed on nuget.org (Sessions 16–18 of
+`../dabbler-pdf`, then that repository's `nuget-v1.3.0` tag). If it is not,
+report the first step blocked and say so.
+
+1. Register.
+2. Set the `DabblerPdf` `PackageVersion` in `Directory.Packages.props` from
+   `1.2.0` to `1.3.0`. The step's checks: `Directory.Packages.props` names
+   `DabblerPdf` at `1.3.0` and nowhere at `1.2.0`; `dotnet test
+   tests/Dabbler.Reports.Blazor.Tests` passes; then, after a Release build
+   and `tools/pack.ps1 -OutputDir pack-output -CleanOutput`, the `.nuspec`
+   inside the packed `Dabbler.Reports.Core` nupkg declares its `DabblerPdf`
+   dependency at `1.3.0`.
+3. Every PDF report font is one of the Base 14 with Windows-1252, so Polish,
+   Cyrillic, Greek and CJK text prints as `?`, and
+   `src/Libs/Dabbler.Reports.Export/README.md` says custom fonts are given
+   "through the report definition", which nothing reads. Add a public
+   `ReportFonts` in `Dabbler.Reports.Core` that registers a family name
+   (case-insensitive) against a regular `.ttf` file and, optionally, bold,
+   italic and bold-italic files. The font resolver from Session 27 uses a
+   registered family, when a style's family or the report's default family
+   names one, through `BaseFont.CreateFont(path, BaseFont.IdentityH,
+   true)`, choosing the file for the style's weight and slant and falling
+   back to the regular file (no synthetic bold or italic); any other family
+   keeps the Base 14 mapping. `OpenPdfTextMeasurer` and `PdfExporter` take
+   an optional `ReportFonts`; `services.AddDabblerReportFonts(fonts => …)`
+   registers one, and `DabblerReportPage` and the PDF export it starts use
+   it when it is registered. Vendor the Liberation Sans fixture with its
+   licence, as `../dabbler-pdf` does, under `tests/`. Tests in
+   `tests/Dabbler.Reports.Blazor.Tests`, in files named after the classes
+   they test: a report whose field holds Polish, Cyrillic and Greek text in
+   a registered family exports a PDF from which PdfPig extracts that text;
+   that field's `CanGrow` height is the one `TextLayout.MeasureHeight` gives
+   with the registered font; a bold style in a family registered with only
+   a regular file uses the regular file; an unregistered family still maps
+   to the Base 14. Rewrite the README's font paragraph: the Base 14
+   families and their Windows-1252 limit, how to register a Unicode font,
+   and what it does not do (no shaping or right-to-left text, nothing beyond
+   U+FFFF, no fallback between fonts). The step's checks: `dotnet test
+   tests/Dabbler.Reports.Blazor.Tests` passes; the README no longer says
+   "through the report definition".
+4. Cross-provider verification.
+5. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+6. Close-out.
+
+Non-goals: no font file shipped in any package (consumers bring their own);
+no RDF syntax for fonts; no change to the HTML `ReportViewer`, which the
+browser draws with its own fonts; no use of fonts in the reference app; no
+change to `DabblerVersion` or `CHANGELOG.md`.
+
+Why now (2026-11-12): the operator asked for Unicode report text. DabblerPdf
+1.3.0 draws it from an embedded, subset TrueType font, but the platform
+creates every font as a Base 14 one, so taking 1.3.0 alone changes nothing.
+
+### Session 29: Bump to 2.0.0
 
 1. Register.
 2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
@@ -1027,8 +1121,13 @@ resolves the lowest version a dependency allows.
      unconvertible value, where it used to skip the filter;
    - added: `AddLabel`; `DateOnly`, `TimeOnly`, `DateTimeOffset`, `Guid`,
      enum and `In` filters in `Dabbler.Api.Querying`; `GridQueryException`;
-     `DownloadFileAsync`;
-   - changed: the `DabblerPdf` dependency moves from `1.1.2` to `1.2.0`.
+     `DownloadFileAsync`; `ReportFonts` and `AddDabblerReportFonts` for
+     Unicode TrueType report fonts;
+   - changed: PDF report text keeps runs of spaces, breaks a word wider
+     than its field, and is measured with the font and size it is drawn
+     with; `DabblerReportPage` measures `CanGrow` and `CanShrink` fields, so
+     their bands grow and shrink in the shipped page;
+   - changed: the `DabblerPdf` dependency moves from `1.1.2` to `1.3.0`.
 
    It gives the one-line migration for each breaking change. The step's
    checks: neither file names `1.0.1`; `CHANGELOG.md` has `## 2.0.0`
@@ -1040,7 +1139,7 @@ resolves the lowest version a dependency allows.
    recorded as the run of record.
 5. Close-out.
 
-Non-goals: no API or dependency change beyond Sessions 24–27; no change to
+Non-goals: no API or dependency change beyond Sessions 24–28; no change to
 `ci.yml`, `build.yml` or `dabbler.yaml`.
 
 Proposed version: **2.0.0 (major)**, approved by the operator on
