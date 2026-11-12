@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 023 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 023 transcript</h1>
+<div class="cancelled" id="cancelled"><strong>CANCELLED</strong> <span class="at">at 2026-11-10T09:58:41-05:00</span><div>This session was optional.  It is no longer needed.  Previous sessions addressed all outstanding issues.</div><div>It was cancelled before anything ran.</div></div>
+<p class="stamp">Rendered 2026-11-10T14:58:41.690Z by dabbler-ai-router 3.29.1 at cdb00648fa09797f74030bbd0bfc5f0f37cb13ee.</p>
+<h2>Session Plan</h2>
+<h3>Session 23: The E2E fixes that need a public API change</h3>
+<p>Run only if Session 22 left a cause for it; otherwise the operator cancels this session.</p>
+<ol><li>Register.</li><li>One step per cause Session 22's notes left here: make the public API change in the library, fix the cause, and update the <code>Dabbler.PublicSurface.Tests</code> baseline for the change. Each step's check: that cause's failing tests pass in a class run against the running stack, and <code>dotnet test tests/Dabbler.PublicSurface.Tests</code> passes against a fresh <code>tools/pack.ps1 -OutputDir pack-output -CleanOutput</code>.</li><li>Set the version to <code>1.1.0</code>: <code>DabblerVersion</code> in <code>Directory.Build.props</code> and the <code>-Version</code> default in <code>tools/pack.ps1</code> with its help text. The unreleased <code>## 1.0.1</code> entry in <code>CHANGELOG.md</code> becomes <code>## 1.1.0</code>, keeps the DabblerPdf line and Session 22's fixes, and names each API addition. The step's checks: neither file names <code>1.0.1</code>; <code>CHANGELOG.md</code> has <code>## 1.1.0</code> directly above <code>## 1.0.0</code> and no <code>## 1.0.1</code>; and the smoke suite passes against the packed <code>1.1.0</code> packages.</li><li>Set the <code>e2e</code> suite's <code>required_for_close</code> to <code>true</code>. The step's check: <code>tools/e2e.ps1</code> exits 0 on a fresh database.</li><li>Cross-provider verification.</li><li>The <code>unit</code>, <code>smoke</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: only additive API changes (a breaking change stops the session, and a plan session re-proposes the version as a major); no change to <code>ci.yml</code> or <code>build.yml</code>.</p>
+<p>After the session has pushed, the operator runs the <code>1.1.0</code> dry run (<code>gh workflow run build.yml -f version=1.1.0</code>) and tags <code>nuget-v1.1.0</code> when it is green; <code>1.0.1</code> is never tagged.</p>
+<p>Why now (2026-11-09): the proposed version is a minor, <code>1.1.0</code>, because an added public API is a new feature under semantic versioning; <code>1.0.1</code> was never tagged, so it folds into <code>1.1.0</code> rather than shipping separately.</p>
+<h2>Verification</h2>
+<p>No verification round was recorded.</p>
+<h2>Test runs</h2>
+<p>No test run was recorded.</p>
+</main>
+</body>
+</html>

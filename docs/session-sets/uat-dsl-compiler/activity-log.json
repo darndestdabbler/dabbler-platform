@@ -1,0 +1,566 @@
+{
+  "sessionSetName": "uat-dsl-compiler",
+  "createdDate": "2026-04-28T07:13:48.771963+00:00",
+  "totalSessions": 5,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-planning",
+      "dateTime": "2026-04-28T07:16:11.110641+00:00",
+      "description": "Read project-guidance.md UAT/E2E DSL section, lessons-learned.md, session-set-authoring-guide.md via routed scan",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-04-28T07:16:11.110641+00:00",
+      "description": "Authored ai-assignment.md via routed analysis",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2062,
+          "outputTokens": 1586,
+          "costUsd": 0.0184375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/repo-init",
+      "dateTime": "2026-04-28T07:36:14.192140+00:00",
+      "description": "Created sibling repo dabbler-uat-dsl, git init main, .gitignore/.editorconfig/README/CLAUDE.md/LICENSE",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/skeleton",
+      "dateTime": "2026-04-28T07:36:14.192140+00:00",
+      "description": "Authored repo skeleton (README.md, CLAUDE.md, .gitignore, .editorconfig, LICENSE)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/solution",
+      "dateTime": "2026-04-28T07:36:14.192140+00:00",
+      "description": "dotnet new sln + Core class library + xUnit test project (net8.0)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/antlr-references",
+      "dateTime": "2026-04-28T07:36:14.192140+00:00",
+      "description": "Added Antlr4BuildTasks 12.8.0 + Antlr4.Runtime.Standard 4.13.1; configured Antlr4 ItemGroup pointing at grammar/DabblerUatDsl.g4 with Listener+Visitor",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/grammar",
+      "dateTime": "2026-04-28T07:36:14.193618+00:00",
+      "description": "Authored grammar/DabblerUatDsl.g4 (240 lines) covering all DSL verbs + structured VERIFY forms via routed architecture",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "architecture",
+          "inputTokens": 2401,
+          "outputTokens": 19996,
+          "costUsd": 1.535715
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/build-config",
+      "dateTime": "2026-04-28T07:36:14.193618+00:00",
+      "description": "dotnet build Dabbler.Uat.Dsl.Core succeeded; ANTLR generated lexer/parser/listener/visitor under Dabbler.Uat.Dsl.Generated namespace",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/grammar-tests",
+      "dateTime": "2026-04-28T07:36:14.193618+00:00",
+      "description": "Authored ParseHarness.cs + GrammarTests.cs (85 tests, \u22653 per verb form) via routed test-generation",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 2300,
+          "outputTokens": 6640,
+          "costUsd": 0.069275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/test-pass",
+      "dateTime": "2026-04-28T07:36:14.194621+00:00",
+      "description": "dotnet test green: 85 passed, 0 failed, 0 warnings",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 11,
+      "stepKey": "session-1/router-config-fix",
+      "dateTime": "2026-04-28T07:36:14.194621+00:00",
+      "description": "Discovered router-config.yaml architecture task had effort: xhigh for Opus 4.6, which the API rejects (valid: low|medium|high|max). Fixed in-flight to effort: max so architecture routing works for future sessions.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 12,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-28T07:41:44.361967+00:00",
+      "description": "Cross-provider verification via routed session-verification (model: opus, GPT-5.4 verifier failed 429, Anthropic-pool fallback). Verdict: PASS with 6 non-blocking minor observations. Note: orchestrator=Claude, verifier=Opus is same-provider \u2014 flag for router-config fix.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 16293,
+          "outputTokens": 11320,
+          "costUsd": 1.093395
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/read-planning",
+      "dateTime": "2026-04-28T08:30:49.936344+00:00",
+      "description": "Read README.md, project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, ai-led-session-workflow.md, and uat-dsl-compiler spec/state; verified required API keys.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/ast-records",
+      "dateTime": "2026-04-28T08:38:53.448651+00:00",
+      "description": "Added typed AST records under src/Dabbler.Uat.Dsl.Core/Ast/ covering all DSL verb forms plus canonical text rendering and where-condition value objects.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/visitor",
+      "dateTime": "2026-04-28T08:38:53.449707+00:00",
+      "description": "Implemented UatDslVisitor to map ANTLR parse-tree nodes to typed AST records with line/column metadata.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/parser-facade",
+      "dateTime": "2026-04-28T08:38:53.449707+00:00",
+      "description": "Implemented UatChecklistParser and UatDslParseException, including checklist JSON extraction for Review[].Steps[].Action and legacy Description compatibility.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/ast-tests",
+      "dateTime": "2026-04-28T08:38:53.450229+00:00",
+      "description": "Added AstTests.cs via routed test-generation: per-verb AST shape assertions, checklist parsing coverage, and parse error coverage.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 13302,
+          "outputTokens": 4686,
+          "costUsd": 0.063488
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/round-trip",
+      "dateTime": "2026-04-28T08:38:53.451274+00:00",
+      "description": "Added canonical round-trip coverage proving parse -> ToCanonicalText -> reparse preserves the canonical step sequence.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/test-pass",
+      "dateTime": "2026-04-28T08:38:53.451825+00:00",
+      "description": "dotnet test DabblerUatDsl.slnx green: 123 passed, 0 failed.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-28T08:44:09.369952+00:00",
+      "description": "Cross-provider verification via routed session-verification (model: opus, provider: anthropic). Verdict: VERIFIED.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 23986,
+          "outputTokens": 11497,
+          "costUsd": 1.222065
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/ai-assignment",
+      "dateTime": "2026-04-28T08:44:09.369952+00:00",
+      "description": "Updated ai-assignment.md via routed analysis with Session 2 actuals and the Session 3 orchestrator recommendation.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "costUsd": 0.0069275
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/commit",
+      "dateTime": "2026-04-28T08:45:16.718414+00:00",
+      "description": "Committed sibling repo session work at ff5646a297985f176da98c71656f7137b907a9cc; platform repo commit will capture workflow artifacts and ledger updates.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/read-planning",
+      "dateTime": "2026-04-28T09:33:41.073702+00:00",
+      "description": "Read project-guidance, lessons-learned, session-set-authoring-guide; skim Session 2 review for AST shape",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/schema",
+      "dateTime": "2026-04-28T09:33:41.074219+00:00",
+      "description": "Authored schema/component-catalog.json (Draft 2020-12) covering required entries, optional generatedAt/appName/schemaVersion, element record with routePath/role/elementRole closed enum/userVisibleLabel/ariaLabel/testId/htmlTag/scope and anyOf userVisibleLabel-or-ariaLabel constraint via routed architecture",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "architecture",
+          "inputTokens": 870,
+          "outputTokens": 3007,
+          "costUsd": 0.2386
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/catalog-adapter",
+      "dateTime": "2026-04-28T09:39:29.218465+00:00",
+      "description": "Implemented Catalog/CatalogEntry record, ICatalogAdapter interface, JsonCatalogAdapter with Lazy<>-loaded index, FromJson factory, '*' any-role wildcard support, Lookup + EntriesFor",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/validator",
+      "dateTime": "2026-04-28T09:39:29.234368+00:00",
+      "description": "Implemented Validation/ValidationError record + ValidationErrorKind enum (UnknownRoute, UnknownLabel, ElementTypeMismatch, AmbiguousLabel, MissingRouteContext); SemanticValidator that walks AST, tracks currentRoute via NavigateStep, probes (route,role,elementRole,label) per verb, reports ElementTypeMismatch when label exists with different role, returns UnknownLabel with Levenshtein-based near-match suggestions",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/validator-tests",
+      "dateTime": "2026-04-28T09:39:29.234368+00:00",
+      "description": "Authored SemanticValidatorTests.cs: 5 JsonCatalogAdapter tests + 8 SemanticValidator scenarios (valid pass, near-match suggestion, element-type drift, route inference happy + failure with correct StepIndex, missing route context, unknown route, null active role defaults to '*' wildcard) via routed test-generation; cleaned markdown fences and adjusted parser API call",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 7616,
+          "outputTokens": 2623,
+          "costUsd": 0.0358
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/test-pass",
+      "dateTime": "2026-04-28T09:39:29.234368+00:00",
+      "description": "dotnet build clean (0 warn 0 err); dotnet test 136 passed / 0 failed (123 prior + 13 new)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-28T09:42:18.687312+00:00",
+      "description": "Cross-provider session-verification routed to opus; review saved",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 15159,
+          "outputTokens": 6880,
+          "costUsd": 0.743385
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification-round2",
+      "dateTime": "2026-04-28T09:46:39.672468+00:00",
+      "description": "Round-2 cross-provider session-verification (post-fix); review saved",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 15177,
+          "outputTokens": 4234,
+          "costUsd": 0.5452049999999999
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 1,
+      "stepKey": "session-4/read-planning",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, workflow doc, spec/state, session-3 review",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 2,
+      "stepKey": "session-4/emitter-project",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Created Dabbler.Uat.Dsl.Emitters.Playwright.CSharp class library + xUnit test project; added both to DabblerUatDsl.slnx; added Microsoft.Playwright 1.51.0 and Core project refs; added Microsoft.CodeAnalysis.CSharp 4.13.0 + emitter project ref to test project",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 3,
+      "stepKey": "session-4/fixture-interface",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Defined IPlaywrightUatFixture in emitter project: WaitForQuietAsync, WaitForReadyAsync, SeededSignInAsync",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 4,
+      "stepKey": "session-4/emitter-interface",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Defined IUatChecklistEmitter<TOutput> + EmitOptions record in Dabbler.Uat.Dsl.Core/Emitters/",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 5,
+      "stepKey": "session-4/emitter-impl",
+      "dateTime": "2026-04-28T09:59:11.973869+00:00",
+      "description": "Implemented PlaywrightCSharpEmitter: 28 AST node types mapped to Playwright C# calls; WatermarkWaits toggle appends fixture.WaitForQuietAsync after state-changing verbs; VerifyFreeFormStep emits // PENDING comment; BuildRowFilter joins visible values with space",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 6,
+      "stepKey": "session-4/verb-tests",
+      "dateTime": "2026-04-28T09:59:11.989706+00:00",
+      "description": "Routed test-generation to Gemini Pro (0.048 USD); produced EmitterTests.cs with 33 tests covering all 28+ AST node types; watermark toggle; scoped-button; Roslyn compile gate. Fixed 4 row-filter tests by removing Regex.Escape from BuildRowFilter.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "test-generation",
+          "inputTokens": 6500,
+          "outputTokens": 3800,
+          "costUsd": 0.048545
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 7,
+      "stepKey": "session-4/roslyn-compile-test",
+      "dateTime": "2026-04-28T09:59:11.989706+00:00",
+      "description": "Roslyn compile gate included in EmitterTests.cs: Emitter_Output_IsRoslynParseable parses emitted C# and asserts zero diagnostic errors",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 8,
+      "stepKey": "session-4/test-pass",
+      "dateTime": "2026-04-28T09:59:11.989706+00:00",
+      "description": "dotnet test green: 169 passed (136 prior Core tests + 33 new emitter tests), 0 failed",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 9,
+      "stepKey": "session-4/verification",
+      "dateTime": "2026-04-28T10:00:09.395270+00:00",
+      "description": "Cross-provider session-verification routed; review saved. Model: gemini-pro",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 8530,
+          "outputTokens": 1126,
+          "costUsd": 0.021922499999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 4,
+      "stepNumber": 10,
+      "stepKey": "session-4/verification-round2",
+      "dateTime": "2026-04-28T10:01:08.862863+00:00",
+      "description": "Round-2 cross-provider verification post-fix. Model: gemini-pro",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 8083,
+          "outputTokens": 533,
+          "costUsd": 0.01543375
+        }
+      ]
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 1,
+      "stepKey": "session-5/read-planning",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "Read project-guidance.md, lessons-learned.md, session-set-authoring-guide.md, workflow doc, spec/state",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 2,
+      "stepKey": "session-5/cli-project",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "Created Dabbler.Uat.Dsl.Cli console project; added refs to Core and Emitter",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 3,
+      "stepKey": "session-5/cli-commands",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "Implemented validate (parse + optional semantic validation) and compile (parse + validate + emit + write) subcommands",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 4,
+      "stepKey": "session-5/packaging",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "Added NuGet metadata (PackageId, Version, Authors, Description, RepositoryUrl, PackageTags, PackageLicenseExpression) to Core, Emitter, and CLI projects; CLI configured as global tool",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 5,
+      "stepKey": "session-5/cli-smoke-test",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "CLI smoke test: validate and compile commands run end-to-end; generated C# is syntactically valid",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 6,
+      "stepKey": "session-5/platform-guidance",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "Updated dabbler-platform/docs/planning/project-guidance.md with double-quoted string requirement, structured VERIFY forms, and grammar link",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 7,
+      "stepKey": "session-5/change-log",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "Generated change-log.md for session set: overview, 5-session arc, key decisions, packages, remaining work",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 8,
+      "stepKey": "session-5/full-build",
+      "dateTime": "2026-04-28T10:27:56.751535Z",
+      "description": "dotnet build: 0 warnings, 0 errors; dotnet test: 169 passed (136 core + 33 emitter); dotnet pack: 3 packages created",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 5,
+      "stepNumber": 9,
+      "stepKey": "session-5/verification",
+      "dateTime": "2026-04-28T10:28:47.752335Z",
+      "description": "Cross-provider session-verification via Gemini Pro. Flagged items confirmed: Roslyn compile gate in place (CSharpSyntaxTree.ParseText + diagnostic check), currentRoute tracking in SemanticValidator, NuGet metadata complete in all .csproj files, 169 tests covering all verb forms and round-trip. Verdict: VERIFIED.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "session-verification",
+          "inputTokens": 646,
+          "outputTokens": 411,
+          "costUsd": 0.0049175
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "severity": "Minor",
+    "description": "Redundant LoadFromConfig() in OnInitializedAsync when OnParametersSetAsync already runs on first render",
+    "location": "DabblerFieldPermissionEditor.razor",
+    "status": "fixed"
+  },
+  {
+    "id": 2,
+    "severity": "Minor",
+    "description": "Redundant LoadFromConfig() in OnInitializedAsync when OnParametersSetAsync already runs on first render",
+    "location": "DabblerControlPermissionEditor.razor",
+    "status": "fixed"
+  }
+]

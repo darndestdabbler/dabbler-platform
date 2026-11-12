@@ -1,0 +1,120 @@
+@page "/admin/users"
+@using Dabbler.Security.Entities
+@using Dabbler.Security.Abstractions
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@attribute [Authorize(Roles = "UserAdministrator")]
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<PageTitle>User Management</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h1" Class="mb-4">User Management</MudText>
+
+    <MudTable Items="@_users" Dense="true" Hover="true" Loading="@_loading" Striped="true">
+        <ToolBarContent>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="CreateUser">
+                New User
+            </MudButton>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Display Name</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Auth</MudTh>
+            <MudTh>Roles</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="ID">@context.Id</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Display Name">@context.DisplayName</MudTd>
+            <MudTd DataLabel="Status">
+                @if (context.IsActive)
+                {
+                    <MudChip T="string" Color="Color.Success" Size="Size.Small" Style="background-color:#1f5f2d;color:#ffffff;">Active</MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" Color="Color.Error" Size="Size.Small">Inactive</MudChip>
+                }
+            </MudTd>
+            <MudTd DataLabel="Auth">
+                @if (context.ExternalLogins.Count > 0)
+                {
+                    @foreach (var login in context.ExternalLogins)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Info" Class="mr-1"
+                                 Icon="@Icons.Material.Filled.Business">@login.Provider</MudChip>
+                    }
+                }
+                else
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="mr-1"
+                             Icon="@Icons.Material.Filled.Email">Magic Link</MudChip>
+                }
+            </MudTd>
+            <MudTd DataLabel="Roles">
+                @foreach (var role in context.Roles)
+                {
+                    <MudChip T="string" Size="Size.Small" Class="mr-1">@role.Role?.Name</MudChip>
+                }
+            </MudTd>
+            <MudTd DataLabel="Actions">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Color="Color.Primary"
+                               aria-label="@($"Edit user {context.DisplayName}")"
+                               title="@($"Edit user {context.DisplayName}")"
+                               OnClick="@(() => EditUser(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Security"
+                               Size="Size.Small"
+                               Color="Color.Secondary"
+                               aria-label="@($"Manage roles for {context.DisplayName}")"
+                               title="@($"Manage roles for {context.DisplayName}")"
+                               OnClick="@(() => ManageRoles(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private bool _loading = true;
+    private IReadOnlyList<AppUser> _users = new List<AppUser>();
+
+    /// <summary>
+    /// Initializes the component by loading the list of all users from the <see cref="IUserService"/>.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        _loading = true;
+        _users = await UserService.GetAllAsync();
+        _loading = false;
+    }
+
+    private void CreateUser()
+    {
+        NavigationManager.NavigateTo("/admin/users/new");
+    }
+
+    private void EditUser(int id)
+    {
+        NavigationManager.NavigateTo($"/admin/users/{id}");
+    }
+
+    private void ManageRoles(int id)
+    {
+        NavigationManager.NavigateTo($"/admin/users/{id}/roles");
+    }
+}
