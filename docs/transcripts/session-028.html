@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 028 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 028 transcript</h1>
+<p class="stamp">Rendered 2026-11-12T21:40:05.652Z by dabbler-ai-router 3.32.4 at c3779e2b45332fd80411d7c9545b2e17d599c066.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-12T16:04:56.762-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 28: Take DabblerPdf 1.3.0, and measure report text the way it is drawn</h3>
+<p>Run only once DabblerPdf <code>1.3.0</code> is listed on nuget.org (Sessions 13–18 of <code>../dabbler-pdf</code>, then that repository's <code>nuget-v1.3.0</code> tag; it was listed on 2026-11-12). If it is not, report the first step blocked and say so.</p>
+<ol><li>Register.</li><li>Set the <code>DabblerPdf</code> <code>PackageVersion</code> in <code>Directory.Packages.props</code> from <code>1.1.3</code> to <code>1.3.0</code>, the one place the platform pins it. The step's checks: <code>Directory.Packages.props</code> names <code>DabblerPdf</code> at <code>1.3.0</code> and nowhere at <code>1.1.3</code>; <code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code> passes; then, after a Release build and <code>tools/pack.ps1 -OutputDir pack-output -CleanOutput</code>, the <code>.nuspec</code> inside the packed <code>Dabbler.Reports.Core</code> nupkg declares its <code>DabblerPdf</code> dependency at <code>1.3.0</code>.</li><li>A field's height is measured by <code>OpenPdfTextMeasurer</code> (<code>src/Libs/Dabbler.Reports.Core/Layout/</code>) and its text drawn by <code>PdfPageRenderer</code> through <code>PdfStyleResolver</code> (<code>src/Libs/Dabbler.Reports.Export/</code>), and the two disagree:</li></ol>
+<ul><li>each has its own word wrap (<code>WrapParagraph</code> and <code>WrapText</code>), and both split on single spaces and rejoin with one, so a run of spaces is collapsed in every PDF report, the bug DabblerPdf 1.2.0 fixed in <code>TextLayout.WrapText</code>;</li><li>a style with no font size is measured at 12 pt and drawn at <code>ReportMetadata.DefaultFontSize</code> (10 by default);</li><li>a style with no font family is measured in Helvetica and drawn in the family <code>ReportMetadata.DefaultFontFamily</code> maps to.</li></ul>
+<p>Give both one internal font resolver in <code>Dabbler.Reports.Core</code> (style, then report metadata, then the Base 14 mapping), and have the measurer count lines with <code>TextLayout.CountLines</code> and the renderer draw the lines of <code>TextLayout.WrapText</code>; delete both private wraps. A word wider than the field is now broken at characters, where it used to overflow. Tests go in <code>tests/Dabbler.Reports.Blazor.Tests</code>, in files named after the classes they test (add <code>InternalsVisibleTo</code> for an internal type): a double space in a field survives into the PDF's <code>Tj</code> operand; for a style with no size and no family, and for one with both, the measurer's line count equals the number of lines the renderer draws; a style with no size is measured at the report's default size. The step's check: <code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code> passes.</p>
+<ol><li><code>DabblerReportPage</code> (<code>src/Libs/Dabbler.Reports.Blazor/DabblerReportPage.razor.cs</code>) composes with <code>textMeasurer: null</code>, so <code>CanGrow</code> and <code>CanShrink</code> never act in the shipped page: long text is clipped instead of growing its band. Pass an <code>OpenPdfTextMeasurer</code> built from the report definition. Add a test to <code>tests/Dabbler.Reports.Blazor.Tests/DabblerReportPageTests.cs</code> that a <code>CanGrow</code> field with three lines of text composes taller than its designed height. The step's check: <code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code> passes.</li><li>Cross-provider verification.</li><li>The <code>unit</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no use of <code>PdfWriter.CompressContentStreams</code>; no change to the HTML <code>ReportViewer</code>'s own text layout; no font other than the Base 14 (Session 29's); no change to <code>DabblerVersion</code> or <code>CHANGELOG.md</code>; the tracked <code>*.csproj.lscache</code> files are left alone.</p>
+<p>Why now (2026-11-12): the platform's packages should depend on the DabblerPdf that carries the fixes its consumers asked for, and NuGet resolves the lowest version a dependency allows. Taking it changes nothing in a report unless the platform wraps with it: its own wraps collapse spaces exactly as TRIMS reported, and measuring and drawing with different fonts, sizes and wraps is how a grown field clips or leaves a gap. Found while planning DabblerPdf's Sessions 14–18. Amended 2026-11-12: <code>1.3.0</code> was listed before this session ran, so it takes <code>1.3.0</code> directly instead of <code>1.2.0</code>, and Session 29 no longer moves the pin.</p>
+<h2>Work Plan</h2>
+<p>Move the platform's DabblerPdf pin from 1.1.3 to 1.3.0 in Directory.Packages.props and prove the packed Dabbler.Reports.Core nupkg declares DabblerPdf 1.3.0. Then make report text measured the way it is drawn: add one internal font resolver in Dabbler.Reports.Core (ReportFontResolver: style, then ReportMetadata defaults, then the Base 14 mapping) used by both OpenPdfTextMeasurer and PdfStyleResolver, have the measurer count lines with TextLayout.CountLines and PdfPageRenderer draw the lines of TextLayout.WrapText, and delete both private wraps (WrapParagraph/CountWrappedLines and PdfPageRenderer.WrapText), so runs of spaces survive, an unsized style is measured at the report's DefaultFontSize, an unfamilied style in the family DefaultFontFamily maps to, and an over-wide word breaks at characters. Finally have DabblerReportPage compose with an OpenPdfTextMeasurer built from its report definition so CanGrow and CanShrink act in the shipped page. Tests go in tests/Dabbler.Reports.Blazor.Tests in files named after the classes they test.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/8f36a58fbbcf0c89eb8fb5a6e7c8f72b6ec5df6d"><code>8f36a58fbbcf0c89eb8fb5a6e7c8f72b6ec5df6d</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Pin dabblerpdf 1 3 0</td><td><p>Set the DabblerPdf PackageVersion in Directory.Packages.props from 1.1.3 to 1.3.0.</p></td><td><span class="mono">Directory.Packages.props</span></td><td><code>pwsh -NoProfile -Command $t = Get-Content -Raw Directory.Packages.props; if ($t -notmatch '&lt;PackageVersion Include=&quot;DabblerPdf&quot; Version=&quot;1\.3\.0&quot; /&gt;' -or $t -match '1\.1\.3') { Write-Error 'DabblerPdf is not pinned at 1.3.0 alone'; exit 1 }</code><br><code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code><br><code>dotnet build Dabbler.Platform.sln -c Release</code><br><code>pwsh -NoProfile -File tools/pack.ps1 -OutputDir pack-output -CleanOutput</code><br><code>pwsh -NoProfile -Command $n = Get-ChildItem pack-output -Filter *.nupkg | Where-Object Name -match '^Dabbler\.Reports\.Core\.\d' | Select-Object -First 1; if (-not $n) { Write-Error 'no Dabbler.Reports.Core nupkg'; exit 1 }; Add-Type -AssemblyName System.IO.Compression.FileSystem; $z = [IO.Compression.ZipFile]::OpenRead($n.FullName); try { $e = $z.Entries | Where-Object Name -eq 'Dabbler.Reports.Core.nuspec'; $r = New-Object IO.StreamReader($e.Open()); $x = $r.ReadToEnd(); $r.Dispose() } finally { $z.Dispose() }; if ($x -notmatch 'id=&quot;DabblerPdf&quot; version=&quot;1\.3\.0&quot;') { Write-Error 'nuspec does not declare DabblerPdf 1.3.0'; exit 1 }</code></td><td>yes</td></tr>
+<tr><td>One font resolver and wrap</td><td><p>Add an internal ReportFontResolver in src/Libs/Dabbler.Reports.Core/Layout/ that resolves a style's BaseFont and font size from the style, then ReportMetadata.DefaultFontFamily / DefaultFontSize, then the Base 14 mapping (moving MapToBaseFontName there). OpenPdfTextMeasurer uses it (the ReportDefinition constructor with report.Metadata, the styles-only constructor with a default ReportMetadata) and counts lines with TextLayout.CountLines; PdfStyleResolver delegates GetFont and GetFontSize to it; PdfPageRenderer draws the lines of TextLayout.WrapText. Delete WrapParagraph/CountWrappedLines and PdfPageRenderer.WrapText. Add InternalsVisibleTo Dabbler.Reports.Blazor.Tests to Dabbler.Reports.Core. Tests: ReportFontResolverTests (style, metadata and Base 14 fallbacks), OpenPdfTextMeasurerTests (a style with no size is measured at the report's default size), PdfPageRendererTests (a double space in a field survives into the PDF's Tj operand; for a style with no size and no family, and for one with both, the measurer's line count equals the number of lines the renderer draws).</p></td><td><span class="mono">src/Libs/Dabbler.Reports.Core/Layout/ReportFontResolver.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Core/Layout/OpenPdfTextMeasurer.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj</span><br><span class="mono">src/Libs/Dabbler.Reports.Export/PdfStyleResolver.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Export/PdfPageRenderer.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/ReportFontResolverTests.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/OpenPdfTextMeasurerTests.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/PdfPageRendererTests.cs</span></td><td><code>pwsh -NoProfile -Command if (Select-String -Path src/Libs/Dabbler.Reports.Core/Layout/OpenPdfTextMeasurer.cs, src/Libs/Dabbler.Reports.Export/PdfPageRenderer.cs -Pattern 'WrapParagraph|CountWrappedLines|List&lt;string&gt; WrapText\(' -Quiet) { Write-Error 'a private wrap remains'; exit 1 }</code><br><code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code></td><td>yes</td></tr>
+<tr><td>Report page measures text</td><td><p>In DabblerReportPage.razor.cs compose with textMeasurer: new OpenPdfTextMeasurer(_reportDefinition) instead of null. Add a test to DabblerReportPageTests.cs that a CanGrow field with three lines of text composes taller than its designed height.</p></td><td><span class="mono">src/Libs/Dabbler.Reports.Blazor/DabblerReportPage.razor.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/DabblerReportPageTests.cs</span></td><td><code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No use of PdfWriter.CompressContentStreams.</li><li>No change to the HTML ReportViewer's own text layout.</li><li>No font other than the Base 14 (Session 29's work).</li><li>No change to DabblerVersion or CHANGELOG.md.</li><li>The tracked *.csproj.lscache files are left alone.</li><li>No change to OpenPdfTextMeasurer's or PdfExporter's public surface.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[21:04:56]</span> <span class="muted">run-started</span> session=028 mode=pull</div>
+<div class="line"><span class="at">[21:04:56]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[21:06:28]</span> <span class="muted">run-resumed</span> session=028 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[21:06:28]</span> <span class="muted">plan-accepted</span> steps=[&quot;pin-dabblerpdf-1-3-0&quot;,&quot;one-font-resolver-and-wrap&quot;,&quot;report-page-measures-text&quot;] non_goals=6</div>
+<div class="line"><span class="at">[21:06:29]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[21:06:29]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=pin-dabblerpdf-1-3-0</div>
+<div class="line"><span class="at">[21:06:59]</span> <span class="muted">run-resumed</span> session=028 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[21:07:29]</span> <span class="muted">check-passed</span> step=pin-dabblerpdf-1-3-0 argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content -Raw Directory.Packages.props; if ($t -notmatch '&lt;PackageVersion Include=\&quot;DabblerPdf\&quot; Version=\&quot;1\\.3\\.0\&quot; /&gt;' -or $t -match '1\\.1\\.3') { Write-Error 'DabblerPdf is not pinned at 1.3.0 alone'; exit 1 }&quot;]</div>
+<div class="line"><span class="at">[21:07:29]</span> <span class="muted">check-passed</span> step=pin-dabblerpdf-1-3-0 argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[21:07:29]</span> <span class="muted">check-passed</span> step=pin-dabblerpdf-1-3-0 argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;,&quot;-c&quot;,&quot;Release&quot;]</div>
+<div class="line"><span class="at">[21:07:29]</span> <span class="muted">check-passed</span> step=pin-dabblerpdf-1-3-0 argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-File&quot;,&quot;tools/pack.ps1&quot;,&quot;-OutputDir&quot;,&quot;pack-output&quot;,&quot;-CleanOutput&quot;]</div>
+<div class="line"><span class="at">[21:07:29]</span> <span class="muted">check-passed</span> step=pin-dabblerpdf-1-3-0 argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$n = Get-ChildItem pack-output -Filter *.nupkg | Where-Object Name -match '^Dabbler\\.Reports\\.Core\\.\\d' | Select-Object -First 1; if (-not $n) { Write-Error 'no Dabbler.Reports.Core nupkg'; exit 1 }; Add-Type -AssemblyName System.IO.Compression.FileSystem; $z = [IO.Compression.ZipFile]::OpenRead($n.FullName); try { $e = $z.Entries | Where-Object Name -eq 'Dabbler.Reports.Core.nuspec'; $r = New-Object IO.StreamReader($e.Open()); $x = $r.ReadToEnd(); $r.Dispose() } finally { $z.Dispose() }; if ($x -notmatch 'id=\&quot;DabblerPdf\&quot; version=\&quot;1\\.3\\.0\&quot;') { Write-Error 'nuspec does not declare DabblerPdf 1.3.0'; exit 1 }&quot;]</div>
+<div class="line"><span class="at">[21:07:29]</span> <span class="muted">report-accepted</span> seq=2 step=pin-dabblerpdf-1-3-0 files=[&quot;Directory.Packages.props&quot;] notes=DabblerPdf pinned at 1.3.0 in Directory.Packages.props</div>
+<div class="line"><span class="at">[21:07:29]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=one-font-resolver-and-wrap</div>
+<div class="line"><span class="at">[21:09:58]</span> <span class="muted">run-resumed</span> session=028 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[21:10:04]</span> <span class="muted">check-passed</span> step=one-font-resolver-and-wrap argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (Select-String -Path src/Libs/Dabbler.Reports.Core/Layout/OpenPdfTextMeasurer.cs, src/Libs/Dabbler.Reports.Export/PdfPageRenderer.cs -Pattern 'WrapParagraph|CountWrappedLines|List&lt;string&gt; WrapText\\(' -Quiet) { Write-Error 'a private wrap remains'; exit 1 }&quot;]</div>
+<div class="line"><span class="at">[21:10:04]</span> <span class="muted">check-passed</span> step=one-font-resolver-and-wrap argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[21:10:32]</span> <span class="muted">named-tests-passed</span> step=one-font-resolver-and-wrap suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;OpenPdfTextMeasurerTests|PdfPageRendererTests|ReportFontResolverTests&quot;</div>
+<div class="line"><span class="at">[21:10:32]</span> <span class="muted">report-accepted</span> seq=3 step=one-font-resolver-and-wrap files=[&quot;src/Libs/Dabbler.Reports.Core/Layout/ReportFontResolver.cs&quot;,&quot;src/Libs/Dabbler.Reports.Core/Layout/OpenPdfTextMeasurer.cs&quot;,&quot;src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj&quot;,&quot;src/Libs/Dabbler.Reports.Export/PdfStyleResolver.cs&quot;,&quot;src/Libs/Dabbler.Reports.Export/PdfPageRenderer.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/ReportFontResolverTests.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/OpenPdfTextMeasurerTests.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/PdfPageRendererTests.cs&quot;] notes=One internal ReportFontResolver for measurer and renderer; both wrap with TextLayout; private wraps deleted</div>
+<div class="line"><span class="at">[21:10:32]</span> <span class="muted">instruction-issued</span> seq=4 kind=step step=report-page-measures-text</div>
+<div class="line"><span class="at">[21:11:41]</span> <span class="muted">run-resumed</span> session=028 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[21:11:46]</span> <span class="muted">check-passed</span> step=report-page-measures-text argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[21:12:03]</span> <span class="muted">named-tests-passed</span> step=report-page-measures-text suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter DabblerReportPageTests</div>
+<div class="line"><span class="at">[21:12:03]</span> <span class="muted">report-accepted</span> seq=4 step=report-page-measures-text files=[&quot;src/Libs/Dabbler.Reports.Blazor/DabblerReportPage.razor.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/DabblerReportPageTests.cs&quot;] notes=DabblerReportPage composes with an OpenPdfTextMeasurer from its report; CanGrow test fails with textMeasurer null</div>
+<div class="line"><span class="at">[21:12:03]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[21:12:03]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[21:12:03]</span> <span class="muted">job-started</span> name=verification pid=59908 log=.dabbler/runs/s28/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[21:12:51]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s28/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[21:12:51]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[21:12:51]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[21:12:51]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 135s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[21:12:51]</span> <span class="muted">job-started</span> name=run of record: unit pid=53356 log=.dabbler/runs/s28/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[21:13:59]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s28/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[21:14:00]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[21:14:00]</span> <span class="muted">job-started</span> name=run of record: smoke pid=57572 log=.dabbler/runs/s28/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[21:29:35]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s28/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[21:29:35]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[21:29:35]</span> <span class="muted">job-started</span> name=run of record: e2e pid=4060 log=.dabbler/runs/s28/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[21:39:54]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="good">0</span> log=.dabbler/runs/s28/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[21:39:54]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[21:39:58]</span> <span class="muted">landed</span> commit=8f36a58fbbcf0c89eb8fb5a6e7c8f72b6ec5df6d</div>
+<div class="line"><span class="at">[21:39:58]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[21:39:58]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[21:39:58]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[21:39:58]</span> <span class="muted">job-started</span> name=close pid=58992 log=.dabbler/runs/s28/driver/jobs/close.log</div>
+<div class="line"><span class="at">[21:40:05]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s28/driver/jobs/close.log</div>
+<div class="line"><span class="at">[21:40:05]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="good">passed</span></td><td>67s</td><td>376</td><td>0</td><td>0</td><td><span class="mono">dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;AccessDeniedCardTests|AcmeCoffeeNavigationDataProviderTests|BandLayoutEngineComposerTests|CallerLevelPdfExportTests|CompatibilitySurfaceTests|ContractHomeSmokeTests|CsvExportServiceTests|CustomerDetailEditSessionTests|CustomerListTests|CustomersFilterConfigTests|DabblerDownloadExtensionsTests|DabblerReportPageTests|DeclarativeFilterPanelTests|DevIdpToolTests|DevToolsEndpointContractTests|DevToolsMenuTests|DirtyAwareActionRowTests|EditSessionTests|FilterPanelAccessibilityTests|FilterPanelTests|GridDataProviderExtensionsTests|HomePageConfigurationTests|MagicLinksDialogTests|MasterDetailExpansionShellTests|MudBlazorRebuildConformanceTests|NotesDrivenAlignmentGuardrailTests|NupkgArtifactTests|ObservabilitySmokeTests|OpenPdfTextMeasurerTests|OrderDetailEditSessionTests|OrderDetailStateNestedItemsTests|OrderDetailStateTests|OrdersFilterConfigTests|ParameterPromptFormTests|PdfExportTitleRegressionTests|PdfPageRendererTests|PickOrAddDialogTests|ProductionSplitTests|ReportFontResolverTests|ReportViewerTests|ShellSessionStateLoaderTests|StaticWebAssetHostTests|StubGridDataProviderTests|StubPlatformRegistrationTests|TestAuthClientTests|UserContextBarTests|UserManagementPageTests|WebGuardrailTests|WebHealthEndpointTests|WorkflowAssetSmokeTests&quot;</span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>934s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="good">passed</span></td><td>618s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-e2e</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,166 @@
+@using System.Security.Claims
+@using Dabbler.Components
+@using Dabbler.Components.Data
+@using Dabbler.Security.Authorization
+@using Dabbler.Components.MasterDetail
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Role
+@inject SecurityConfigurationManager ConfigManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IRoleSwitcher RoleSwitcher
+@inject IBakedInRoleProvider BakedInRoleProvider
+@inject AuthorizationStateNotifier Notifier
+@implements IDisposable
+
+<div data-testid="role-master-details-tab">
+    <MudText Typo="Typo.h6" Class="mb-1">Role Master Details</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        All roles on this deployment — baked-in roles are greyed with a
+        <b>baked-in</b> chip. Select a row to configure restrictions and mask
+        exemptions below.
+    </MudText>
+
+    <MasterDetailExpansionShell TRow="RoleMasterGrid.RoleRow"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="role-master-details-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Roles"
+                                CollapsedSummaryText="@_summaryText"
+                                CollapsedSummaryBadge="@_summaryBadge">
+        <FilterContent>
+            <FilterPanel T="RoleMasterGrid.RoleRow"
+                         Columns="RoleMasterGrid.FilterColumns"
+                         FilterChanged="OnFilterChangedAsync"
+                         ShowAddGroup="false"
+                         ShowFilterChips="true" />
+        </FilterContent>
+        <GridContent>
+            <RoleMasterGrid @ref="_grid"
+                            CanManageRoles="@_canManageRoles"
+                            Filter="@_filterDescriptor"
+                            SelectedRoleChanged="OnSelectedRoleChangedAsync" />
+        </GridContent>
+        <DetailsContent>
+            @if (_selection is not null)
+            {
+                <RoleDetailsSection Selection="@_selection"
+                                    OnPersisted="OnSubTabPersistedAsync" />
+            }
+        </DetailsContent>
+    </MasterDetailExpansionShell>
+</div>
+
+@code {
+    /// <summary>
+    /// Top-level composer for the Role Master Details tab. Wraps the
+    /// <see cref="RoleMasterGrid"/> in a <see cref="MasterDetailExpansionShell{TRow,TEntity,TLink}"/>
+    /// using the new slot pattern: filter in <c>FilterContent</c>, grid in
+    /// <c>GridContent</c>, and details form in <c>DetailsContent</c>.
+    /// </summary>
+
+    private RoleMasterGrid? _grid;
+    private RoleDetailsSection.RoleSelection? _selection;
+    private bool _canManageRoles;
+    private bool _isResultsExpanded = true;
+    private string? _summaryText;
+    private string? _summaryBadge;
+    private CompositeFilterDescriptor? _filterDescriptor;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+        _canManageRoles = await ResolveCanManageRolesAsync();
+        Notifier.Subscribe(OnConfigChangedAsync);
+    }
+
+    private async Task<bool> ResolveCanManageRolesAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated != true) return false;
+
+        foreach (var roleName in RoleSwitcher.EffectiveRoles(user))
+        {
+            var bakedIn = BakedInRoleProvider.TryGetBakedInRole(roleName);
+            if (bakedIn is not null && bakedIn.Privileges.CanManageRoles)
+                return true;
+        }
+        return false;
+    }
+
+    private Task OnSelectedRoleChangedAsync(RoleMasterGrid.RoleRow? row)
+    {
+        _selection = ResolveSelection(row);
+        if (row is not null)
+        {
+            _isResultsExpanded = false;
+            _summaryText = $"Role: {row.CanonicalName}";
+            _summaryBadge = row.IsBakedIn ? "baked-in" : null;
+        }
+        else
+        {
+            _isResultsExpanded = true;
+            _summaryText = null;
+            _summaryBadge = null;
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFilterChangedAsync(CompositeFilterDescriptor? descriptor)
+    {
+        _filterDescriptor = descriptor;
+        _isResultsExpanded = true;
+        _summaryText = null;
+        _summaryBadge = null;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private RoleDetailsSection.RoleSelection? ResolveSelection(RoleMasterGrid.RoleRow? row)
+    {
+        if (row is null) return null;
+
+        var config = ConfigManager.Current;
+        if (row.IsBakedIn)
+        {
+            var baked = BakedInRoleProvider.TryGetBakedInRole(row.CanonicalName);
+            if (baked is null) return null;
+            var aliasOverride = config.BakedInRoleAliasOverrides.TryGetValue(baked.Name, out var o) ? o : null;
+            return RoleDetailsSection.RoleSelection.ForBakedIn(baked, aliasOverride);
+        }
+
+        var userType = config.UserTypeRoles.FirstOrDefault(r =>
+            string.Equals(r.RoleName, row.CanonicalName, StringComparison.OrdinalIgnoreCase));
+        if (userType is null) return null;
+        return RoleDetailsSection.RoleSelection.ForUserType(userType);
+    }
+
+    private async Task OnSubTabPersistedAsync()
+    {
+        _grid?.Rebuild();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnConfigChangedAsync(AuthorizationConfigurationChanged _)
+    {
+        _grid?.Rebuild();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Notifier.Unsubscribe(OnConfigChangedAsync);
+}

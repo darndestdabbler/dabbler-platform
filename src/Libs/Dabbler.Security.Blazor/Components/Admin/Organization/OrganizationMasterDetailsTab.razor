@@ -1,0 +1,109 @@
+@using Dabbler.Components.MasterDetail
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Organization
+
+<div data-testid="organization-master-details-tab">
+    <MudText Typo="Typo.h6" Class="mb-1">Organization Master Details</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Create, edit, and archive organizations. The grid stays filterable by
+        key, name, internal/external status, and active/archive status.
+    </MudText>
+
+    <MasterDetailExpansionShell TRow="object"
+                                TEntity="object"
+                                TLink="object"
+                                TestId="organization-master-details-shell"
+                                IsExpanded="@_isResultsExpanded"
+                                IsExpandedChanged="OnResultsExpandedChangedAsync"
+                                ExpandedHeaderText="Organizations"
+                                CollapsedSummaryText="@_summaryText">
+        <GridContent>
+            <OrganizationMasterGrid @ref="_grid"
+                                    SelectedOrganizationIdChanged="OnSelectedOrganizationIdChangedAsync"
+                                    CreateRequested="OnCreateRequestedAsync"
+                                    FiltersChanged="OnFiltersChangedAsync" />
+        </GridContent>
+    </MasterDetailExpansionShell>
+
+    <OrganizationDetailsForm Selection="@_selection"
+                             Persisted="OnPersistedAsync" />
+</div>
+
+@code {
+    private OrganizationMasterGrid? _grid;
+    private OrganizationDetailsForm.OrganizationSelection _selection =
+        OrganizationDetailsForm.OrganizationSelection.CreateNew();
+    private bool _isResultsExpanded = true;
+    private string? _summaryText;
+    private bool _isCreatingNew;
+
+    private Task OnSelectedOrganizationIdChangedAsync(int? organizationId)
+    {
+        if (organizationId.HasValue)
+        {
+            _isCreatingNew = false;
+            _selection = OrganizationDetailsForm.OrganizationSelection.ForExisting(organizationId.Value);
+            _isResultsExpanded = false;
+            _summaryText = $"Organization #{organizationId.Value}";
+        }
+        else if (!_isCreatingNew)
+        {
+            // Plain deselect (user clicked through the grid back to an
+            // unselected state). CreateRequested fires a null selection as
+            // part of its flow too, so we only reset here when we are NOT
+            // in the middle of staging a new organization.
+            _selection = OrganizationDetailsForm.OrganizationSelection.CreateNew();
+            _isResultsExpanded = true;
+            _summaryText = null;
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnCreateRequestedAsync()
+    {
+        _isCreatingNew = true;
+        _selection = OrganizationDetailsForm.OrganizationSelection.CreateNew();
+        _isResultsExpanded = false;
+        _summaryText = "New organization";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnResultsExpandedChangedAsync(bool expanded)
+    {
+        _isResultsExpanded = expanded;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFiltersChangedAsync()
+    {
+        _isResultsExpanded = true;
+        _summaryText = null;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnPersistedAsync(int organizationId)
+    {
+        _isCreatingNew = false;
+        _selection = OrganizationDetailsForm.OrganizationSelection.ForExisting(organizationId);
+
+        // Auto-re-expand the results shell so the user sees the refreshed grid
+        // (with the newly-created / just-edited row) without needing an extra
+        // click on the shell header. Finding #11 (in-circuit refresh) reported
+        // the new row not appearing — root cause was that the save flow left
+        // the shell collapsed and some human reviewers did not realise a
+        // second click was needed to surface the refreshed data.
+        _isResultsExpanded = true;
+        _summaryText = null;
+
+        if (_grid is not null)
+        {
+            await _grid.RefreshAsync(organizationId);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

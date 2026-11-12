@@ -1,0 +1,440 @@
+@page "/admin/users/{Id:int}"
+@page "/admin/users/new"
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using Dabbler.Security.Entities
+@using Dabbler.Security.Abstractions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Dabbler.Security.Options
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.Extensions.Options
+@using MudBlazor
+@attribute [Authorize(Roles = "UserAdministrator")]
+@inject IUserService UserService
+@inject IExternalLoginService ExternalLoginService
+@inject IOptions<DabblerSecurityOptions> SecurityOptions
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>@(IsNew ? "Create User" : "Edit User")</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+    <MudText Typo="Typo.h1" Class="mb-4" id="user-edit-title">@(IsNew ? "Create User" : "Edit User")</MudText>
+
+    @if (_loading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else
+    {
+        <MudPaper Elevation="3" Class="pa-8">
+            <EditForm Model="@_model"
+                      OnValidSubmit="SaveUser"
+                      OnInvalidSubmit="HandleInvalidSubmitAsync"
+                      aria-labelledby="user-edit-title">
+                <DataAnnotationsValidator />
+                
+                <MudTextField @bind-Value="_model.Email" 
+                              @ref="_emailField"
+                              Label="Email Address" 
+                              Variant="Variant.Outlined" 
+                              InputType="InputType.Email" 
+                              For="@(() => _model.Email)"
+                              Disabled="@(!IsNew)"
+                              Class="mb-4" />
+                              
+                <MudTextField @bind-Value="_model.DisplayName" 
+                              @ref="_displayNameField"
+                              Label="Display Name" 
+                              Variant="Variant.Outlined" 
+                              For="@(() => _model.DisplayName)"
+                              Class="mb-4" />
+                              
+                @if (!IsNew)
+                {
+                    <MudSwitch @bind-Value="_model.IsActive" 
+                               Label="Active Account" 
+                               Color="Color.Primary" 
+                               Class="mb-4" />
+                }
+                
+                <div class="d-flex justify-space-between mt-6">
+                    <MudButton Variant="Variant.Text" OnClick="Cancel">Cancel</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving">
+                        @if (_saving)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">Saving...</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Save</MudText>
+                        }
+                    </MudButton>
+                </div>
+            </EditForm>
+        </MudPaper>
+        
+        @if (!IsNew)
+        {
+            <MudPaper Elevation="3" Class="pa-8 mt-6">
+                <MudText Typo="Typo.h5" Class="mb-4">External Logins</MudText>
+
+                @if (_externalLogins.Count == 0)
+                {
+                    <MudText Typo="Typo.body2" Class="mb-4">No external logins linked to this account.</MudText>
+                }
+                else
+                {
+                    <MudSimpleTable Dense="true" Hover="true" Class="mb-4">
+                        <thead>
+                            <tr>
+                                <th>Provider</th>
+                                <th>Provider Email</th>
+                                <th>Linked At</th>
+                                <th>Last Used</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var login in _externalLogins)
+                            {
+                                <tr>
+                                    <td>
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Info"
+                                                 Icon="@Icons.Material.Filled.Business">@login.Provider</MudChip>
+                                    </td>
+                                    <td>@(login.ProviderEmail ?? "—")</td>
+                                    <td>@login.LinkedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@(login.LastUsedAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
+                                    <td>
+                                        <MudIconButton Icon="@Icons.Material.Filled.LinkOff"
+                                                       Size="Size.Small"
+                                                       Color="Color.Error"
+                                                       aria-label="@($"Unlink {login.Provider} login")"
+                                                       title="@($"Unlink {login.Provider} login")"
+                                                       OnClick="@(() => UnlinkExternalLoginAsync(login.Provider))"
+                                                       Disabled="@_saving" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
+
+                @if (_availableProviders.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle2" Class="mt-4 mb-2">Link External Provider</MudText>
+                    <div class="d-flex align-center gap-4">
+                        <MudSelect @bind-Value="_linkProvider" Label="Provider" Variant="Variant.Outlined" Dense="true" Style="max-width: 200px;">
+                            @foreach (var provider in _availableProviders)
+                            {
+                                <MudSelectItem Value="@provider.ProviderName">@provider.DisplayName</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudTextField @bind-Value="_linkSubjectId" Label="Subject ID" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                        <MudTextField @bind-Value="_linkEmail" Label="Provider Email (optional)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                   Disabled="@(_saving || string.IsNullOrWhiteSpace(_linkProvider) || string.IsNullOrWhiteSpace(_linkSubjectId))"
+                                   OnClick="LinkExternalLoginAsync"
+                                   StartIcon="@Icons.Material.Filled.Link">
+                            Link
+                        </MudButton>
+                    </div>
+                }
+            </MudPaper>
+        }
+
+        @if (!IsNew)
+        {
+            <MudPaper Elevation="3" Class="pa-8 mt-6 border-solid border-2 mud-border-error">
+                <MudText Typo="Typo.h5" Class="mb-4" Style="color:#7a1414;">Danger Zone</MudText>
+                <MudText Typo="Typo.body2" Class="mb-4">
+                    Deleting a user will permanently remove their access and stamp their record as deleted.
+                </MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="DeleteUser" Disabled="@_saving">
+                    Delete User
+                </MudButton>
+            </MudPaper>
+        }
+    }
+</MudContainer>
+
+@code {
+    /// <summary>
+    /// A page for creating a new user or editing an existing user's details.
+    /// This page is restricted to users with the 'UserAdministrator' role.
+    /// It handles user profile information, external login management, and user deletion.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsage", "AsyncFixer03:Fire-and-forget async-void methods or delegates", Justification = "Blazor component lifecycle method.")]
+    private bool _loading = true;
+    private bool _saving = false;
+    private UserModel _model = new();
+    private int _currentUserId;
+    private IReadOnlyList<AppExternalLogin> _externalLogins = [];
+    private IReadOnlyList<ExternalProviderDisplayInfo> _availableProviders = [];
+    private string _linkProvider = string.Empty;
+    private string _linkSubjectId = string.Empty;
+    private string _linkEmail = string.Empty;
+    private MudTextField<string>? _emailField;
+    private MudTextField<string>? _displayNameField;
+    private string? _invalidFieldToFocus;
+    private int _invalidFocusRetriesRemaining;
+
+    /// <summary>
+    /// Gets or sets the ID of the user to edit. If null or not provided, the page operates in 'create new user' mode.
+    /// </summary>
+    [Parameter]
+    public int? Id { get; set; }
+
+    private bool IsNew => !Id.HasValue;
+
+    /// <summary>
+    /// Initializes the component. If an <see cref="Id"/> is provided, it loads the corresponding user's data.
+    /// It also retrieves the current administrator's user ID for auditing purposes.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(userIdClaim, out var uid))
+        {
+            _currentUserId = uid;
+        }
+
+        if (!IsNew)
+        {
+            await LoadUser();
+        }
+        else
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task LoadUser()
+    {
+        _loading = true;
+        try
+        {
+            var user = await UserService.GetByIdCachedAsync(Id!.Value);
+            if (user == null)
+            {
+                Snackbar.Add("User not found", Severity.Error);
+                NavigationManager.NavigateTo("/admin/users");
+                return;
+            }
+
+            _model = new UserModel
+            {
+                Email = user.Email,
+                DisplayName = user.DisplayName,
+                IsActive = user.IsActive
+            };
+
+            _externalLogins = await ExternalLoginService.GetExternalLoginsForUserAsync(Id!.Value);
+            UpdateAvailableProviders();
+        }
+        catch
+        {
+            Snackbar.Add("Error loading user. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SaveUser()
+    {
+        _saving = true;
+        try
+        {
+            if (IsNew)
+            {
+                await UserService.CreateAsync(_model.Email, _model.DisplayName, _currentUserId);
+                Snackbar.Add("User created successfully", Severity.Success);
+            }
+            else
+            {
+                if (Id!.Value == _currentUserId && !_model.IsActive)
+                {
+                    Snackbar.Add("You cannot deactivate your own account.", Severity.Warning);
+                    return;
+                }
+                await UserService.UpdateAsync(Id!.Value, _model.DisplayName, _model.IsActive);
+                Snackbar.Add("User updated successfully", Severity.Success);
+            }
+            
+            NavigationManager.NavigateTo("/admin/users");
+        }
+        catch
+        {
+            Snackbar.Add("Error saving user. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private Task HandleInvalidSubmitAsync(EditContext editContext)
+    {
+        _invalidFieldToFocus = editContext.GetValidationMessages(() => _model.Email).Any()
+            ? nameof(_model.Email)
+            : editContext.GetValidationMessages(() => _model.DisplayName).Any()
+                ? nameof(_model.DisplayName)
+                : null;
+        _invalidFocusRetriesRemaining = 2;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task DeleteUser()
+    {
+        if (Id!.Value == _currentUserId)
+        {
+            Snackbar.Add("You cannot delete your own account.", Severity.Warning);
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            await UserService.DeleteAsync(Id!.Value, _currentUserId);
+            Snackbar.Add("User deleted successfully", Severity.Success);
+            NavigationManager.NavigateTo("/admin/users");
+        }
+        catch
+        {
+            Snackbar.Add("Error deleting user. Please try again.", Severity.Error);
+            _saving = false;
+        }
+    }
+
+    private async Task LinkExternalLoginAsync()
+    {
+        _saving = true;
+        try
+        {
+            var email = string.IsNullOrWhiteSpace(_linkEmail) ? null : _linkEmail.Trim();
+            await ExternalLoginService.LinkExternalLoginAsync(Id!.Value, _linkProvider, _linkSubjectId.Trim(), email);
+            _externalLogins = await ExternalLoginService.GetExternalLoginsForUserAsync(Id!.Value);
+            UpdateAvailableProviders();
+            _linkProvider = string.Empty;
+            _linkSubjectId = string.Empty;
+            _linkEmail = string.Empty;
+            Snackbar.Add($"External login linked successfully", Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add("Error linking external login. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task UnlinkExternalLoginAsync(string provider)
+    {
+        _saving = true;
+        try
+        {
+            await ExternalLoginService.UnlinkExternalLoginAsync(Id!.Value, provider);
+            _externalLogins = await ExternalLoginService.GetExternalLoginsForUserAsync(Id!.Value);
+            UpdateAvailableProviders();
+            Snackbar.Add($"Unlinked {provider} login successfully", Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add("Error unlinking external login. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void UpdateAvailableProviders()
+    {
+        var linkedProviders = _externalLogins.Select(l => l.Provider).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        _availableProviders = SecurityOptions.Value.GetConfiguredProviders()
+            .Where(p => !linkedProviders.Contains(p.ProviderName))
+            .ToList();
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/admin/users");
+    }
+
+    /// <summary>
+    /// Handles focusing on the first invalid form field after a failed submission attempt.
+    /// </summary>
+    /// <param name="firstRender">True if this is the first time the component has been rendered, otherwise false.</param>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_invalidFieldToFocus == nameof(_model.Email) && _emailField is not null)
+        {
+            try
+            {
+                _invalidFieldToFocus = null;
+                _invalidFocusRetriesRemaining = 0;
+                await _emailField.FocusAsync();
+            }
+            catch when (_invalidFocusRetriesRemaining > 0)
+            {
+                _invalidFocusRetriesRemaining--;
+                _invalidFieldToFocus = nameof(_model.Email);
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+        }
+        else if (_invalidFieldToFocus == nameof(_model.DisplayName) && _displayNameField is not null)
+        {
+            try
+            {
+                _invalidFieldToFocus = null;
+                _invalidFocusRetriesRemaining = 0;
+                await _displayNameField.FocusAsync();
+            }
+            catch when (_invalidFocusRetriesRemaining > 0)
+            {
+                _invalidFocusRetriesRemaining--;
+                _invalidFieldToFocus = nameof(_model.DisplayName);
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    /// <summary>
+    /// Represents the data model for the user edit form.
+    /// </summary>
+    public class UserModel
+    {
+        /// <summary>
+        /// Gets or sets the user's email address. Cannot be changed after creation.
+        /// </summary>
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the user's display name.
+        /// </summary>
+        [Required]
+        public string DisplayName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user's account is active and can be used to sign in.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+    }
+}

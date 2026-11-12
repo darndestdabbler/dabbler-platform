@@ -1,0 +1,567 @@
+{
+  "ProjectName": "Dabbler Platform / AcmeCoffeeOnline",
+  "ReleaseLabel": "post-rebuild-uat",
+  "DocumentDate": "4/16/2026, 7:36:57 PM",
+  "Review": [
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "App Bar and Branding",
+      "ItemLabel": "App bar layout and branding feel polished",
+      "HumanAction": "Sign in as admin@acmecoffee.com via the seeded-session helper. Look at the top app bar: the coffee icon, the application title, the active organization label, the Switch Org button, and the user menu.",
+      "Expectation": "The app bar looks clean and professional. Text is readable, spacing feels intentional, and no elements overlap or appear cropped. The active organization label is clearly distinct from other app bar elements.",
+      "Passes": false,
+      "Feedback": "The Title at the top of the home page (\"Welcome to Acme...\") is cutoff by the app bar."
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "App Bar and Branding",
+      "ItemLabel": "User menu is clear and functional",
+      "HumanAction": "Click the user account menu in the app bar. Review the display name, active organization info, current roles, and the Sign Out option.",
+      "Expectation": "The menu opens cleanly, all information is readable, roles are understandable, and Sign Out is easy to find. Nothing feels cluttered or truncated.",
+      "Passes": false,
+      "Feedback": " The role and org components in the title bar section look awkward.  Could we do this instead ... \"Casey Hart as System Admin for Internal Operations\" -- where Casey Hart is a hyperlink for changing the login user id, System Admin is a hyperlink for changing the role, and Internal Operations is a hyperlink for changing organization.  The user hyperlink is always enabled and it signs one out after a confirmation.  The role and organization hyperlinks are each enabled only when the user has the ability to change role and/or organization, respectively.  We can discuss perhaps there are better options. If we do this, we can eliminate the \"Active Org\" text and the person/login icon with dropdown"
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "Drawer Navigation",
+      "ItemLabel": "Nav drawer items are readable and visually clear",
+      "HumanAction": "Look at the left navigation drawer. Check each nav link (Dashboard, Orders, Retail Businesses, Products) and the collapsible groups (Reports, Admin). Click through several items.",
+      "Expectation": "Selected state is clearly visible with good contrast. Unselected items are readable. Group expand/collapse is smooth. Font size feels appropriate. No text is cut off or unreadable.",
+      "Passes": false,
+      "Feedback": "At http://localhost:5010/admin/security ... the Security Dashboard header/title is cutoff by the menu.  We have two headers on this page.  The Security Administration header is way too big.  I don't think that we need two headers."
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "Drawer Navigation",
+      "ItemLabel": "Hamburger toggle works smoothly",
+      "HumanAction": "Click the hamburger menu button to collapse the drawer, then click it again to expand. Observe the transition and the content area adjustment.",
+      "Expectation": "The collapse and expand transitions feel smooth. Content area adjusts without jarring jumps. The hamburger button has visible focus state.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "Organization Switching",
+      "ItemLabel": "Organization switch is discoverable and clear",
+      "HumanAction": "Sign in as casey.hart@acmecoffee.com (dual membership: internal + retail). Click the Switch Org button. Switch to the retail business organization, then switch back to Internal Operations.",
+      "Expectation": "The org switcher opens and displays available organizations clearly. After switching, the active organization label updates immediately and visibly. The page content reflects the new scope without confusion.",
+      "Passes": true,
+      "Feedback": "This is OK, but consider the change that I asked for earlier.  It would help with UX"
+    },
+    {
+      "FunctionalArea": "Dashboard",
+      "Subarea": "Layout and Cards",
+      "ItemLabel": "Dashboard layout feels presentation-worthy",
+      "HumanAction": "Navigate to the Dashboard. Review the page heading, navigation cards (Orders, Retail Businesses, Products), report quick links, and search bars.",
+      "Expectation": "The layout is balanced and readable. Cards are well-spaced and clearly clickable. The heading is not cut off by the app bar. Search bars are aligned and labeled. The page feels like a professional dashboard, not a developer prototype.",
+      "Passes": false,
+      "Feedback": "Except for the header being cutoff by the app bar, it looks good."
+    },
+    {
+      "FunctionalArea": "Dashboard",
+      "Subarea": "Search and Quick Actions",
+      "ItemLabel": "Dashboard search fields feel responsive",
+      "HumanAction": "Type a search term into the Search Orders field and press Enter. Try the Search Products field as well. Clear both.",
+      "Expectation": "Search responds promptly. Results appear in the correct entity page. Clearing the search returns to the expected state. The search UX does not feel sluggish or confusing.",
+      "Passes": false,
+      "Feedback": "the SearchOrdersAsync method currently just navigates to /orders without passing the search term through. The text you type is discarded;  The same problem exists with the Products search."
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "Products List",
+      "ItemLabel": "Product grid looks clean and is easy to scan",
+      "HumanAction": "Navigate to Products via the drawer. Review the grid layout: column headers (Name, Roast Level, Caffeine, Grind Type, Unit Price, Available), row styling, and the record count status text.",
+      "Expectation": "Column headers are clear and aligned. Data is readable. Currency is formatted correctly. The Available column communicates status clearly. Row hover or selection states are visible. Status text is helpful.",
+      "Passes": false,
+      "Feedback": "Currency should be right aligned.  It is left-aligned now."
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "Product Filter Panel",
+      "ItemLabel": "Filter panel is intuitive and responsive",
+      "HumanAction": "On the Products page, use the filter panel to filter by Roast Level (select Dark). Observe the filter chips that appear. Clear the filter by clicking the chip or Clear All.",
+      "Expectation": "The filter dropdown opens cleanly and options are readable. After selection, filter chips appear promptly and clearly describe the active filter. Clearing a filter chip refreshes the grid. The overall filter experience feels natural.",
+      "Passes": false,
+      "Feedback": "None of the row filters seem to be working"
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "Product Detail",
+      "ItemLabel": "Product detail form feels complete and well-laid-out",
+      "HumanAction": "Click a product row to navigate to the detail page. Review the form layout: field labels, field values, spacing, the Save/Undo buttons, and the Deactivate/Activate toggle.",
+      "Expectation": "All fields are labeled and populated. Spacing between fields is consistent. The Save button is clearly disabled when no changes exist. The toggle button text clearly communicates the current state. The back button is easy to find.",
+      "Passes": false,
+      "Feedback": "The back button and title is partially hidden by the app bar"
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "Product Detail",
+      "ItemLabel": "Edit-save feedback feels trustworthy",
+      "HumanAction": "On a product detail page, edit the product name (add a word), click Save, then verify the change stuck. Click Undo, edit the name again, this time click Undo before saving.",
+      "Expectation": "After Save, the button returns to disabled and the form feels committed. After Undo, fields revert cleanly. The feedback at each step makes the outcome obvious without guesswork. No confusing intermediate states.",
+      "Passes": false,
+      "Feedback": "Undo does not work.  It stays disabled."
+    },
+    {
+      "FunctionalArea": "Retail Businesses",
+      "Subarea": "Customer List",
+      "ItemLabel": "Customer grid is readable and navigable",
+      "HumanAction": "Navigate to Retail Businesses via the drawer. Review the grid layout: column headers, row data, and record count. Click a row to navigate to the detail page.",
+      "Expectation": "Column headers are clear. Data rows are readable and well-spaced. The row click navigates promptly. Status text is correct. The page title matches the drawer label (Retail Businesses, not Customers).",
+      "Passes": true,
+      "Feedback": "FYI ... Retail businesses are displayed only for the SystemAdmin user.  I think that's by design."
+    },
+    {
+      "FunctionalArea": "Retail Businesses",
+      "Subarea": "Customer Detail",
+      "ItemLabel": "Customer detail form is complete and clear",
+      "HumanAction": "On a customer detail page, review all fields (First Name, Last Name, Email, Phone, Address, City, State, Zip Code, Active). Edit the phone number, save, then undo.",
+      "Expectation": "All 9 fields are visible and labeled. Edit-save-undo flow feels smooth. Validation errors (if triggered) are clear. The back button returns to the list without confusion.",
+      "Passes": false,
+      "Feedback": "It seems that Undo only works for dirty records (prior to save).  If that's by design, that's OK."
+    },
+    {
+      "FunctionalArea": "Orders",
+      "Subarea": "Orders List",
+      "ItemLabel": "Order grid is informative and well-styled",
+      "HumanAction": "Navigate to Orders via the drawer. Review the grid: column headers (Order #, Retail Business Contact, Order Date, Status, Total, Ship Date), status chip colors, and record count.",
+      "Expectation": "Status chips use distinct colors that communicate meaning (e.g., Pending vs. Delivered). Currency formatting is correct. Dates are readable. The grid does not feel cramped.",
+      "Passes": false,
+      "Feedback": "I would default currency and dates to right-justified."
+    },
+    {
+      "FunctionalArea": "Orders",
+      "Subarea": "Order Detail",
+      "ItemLabel": "Order detail layout is clear and well-organized",
+      "HumanAction": "Click an order row to view the detail page. Review the header (Order #, status chip, customer name), the form fields (Customer, Total, Order Date, Ship Date, Notes), and the tabs (Items, Notes).",
+      "Expectation": "The status chip is prominent and clear. Form fields are readable. The Items tab shows product details with correct line totals. The Notes tab shows author, date, and note text. Tab switching is smooth.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Orders",
+      "Subarea": "Order Detail",
+      "ItemLabel": "Order timestamps and audit trail feel trustworthy",
+      "HumanAction": "On the order detail page, review the Created and Modified timestamps at the bottom. Compare the displayed data with what feels reasonable.",
+      "Expectation": "Timestamps are formatted readably. Created and Modified dates make sense relative to each other. The audit trail does not feel hidden or afterthought-like.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Reports",
+      "Subarea": "Orders by Retail Business",
+      "ItemLabel": "Report parameter form and output feel professional",
+      "HumanAction": "Navigate to Reports > Orders by Retail Business via the drawer. Fill in Start Date (01/01/2025) and End Date (12/31/2025). Click Run Report. Review the output.",
+      "Expectation": "Date pickers are easy to use. The Run button clearly enables after both dates are filled. Report output is formatted and readable. Data aligns in columns. The page feels like a real report, not raw data.",
+      "Passes": false,
+      "Feedback": "No results for that date range"
+    },
+    {
+      "FunctionalArea": "Reports",
+      "Subarea": "PDF Export",
+      "ItemLabel": "PDF export produces a reasonable document",
+      "HumanAction": "After running the Orders by Retail Business report, click Export to PDF. Open the downloaded file.",
+      "Expectation": "The PDF downloads promptly with a meaningful filename. The content is formatted, readable, and resembles the on-screen report. Headers, alignment, and page breaks are reasonable.",
+      "Passes": false,
+      "Feedback": "I can't assess page breaks.  We need to re-rerun this test with data."
+    },
+    {
+      "FunctionalArea": "Reports",
+      "Subarea": "Sales by Product",
+      "ItemLabel": "Sales by Product report renders correctly",
+      "HumanAction": "Navigate to Reports > Sales by Product. Fill dates and run. Review output and try PDF export.",
+      "Expectation": "Report renders with product sales data. Output is formatted and readable. PDF export works and produces a reasonable document.",
+      "Passes": false,
+      "Feedback": "No data"
+    },
+    {
+      "FunctionalArea": "Admin",
+      "Subarea": "Product Management",
+      "ItemLabel": "Admin product grid and edit dialog are functional",
+      "HumanAction": "Sign in as admin@acmecoffee.com. Navigate to Admin > Product Management. Search for a product by name. Click the Edit button on a row. Review the edit dialog layout. Make a small change, save, then restore.",
+      "Expectation": "The search filters promptly. The edit dialog is well-laid-out with clear labels. Save/Cancel buttons work. The availability toggle is clear. After save, the grid reflects the change.",
+      "Passes": true,
+      "Feedback": "It would be nice if the Save Button was enabled with On Change, rather than On Lose Focus (or whatever it is).  That said, if this is the default way that MudBlazor behaves, users can get used to it."
+    },
+    {
+      "FunctionalArea": "Admin",
+      "Subarea": "Product Management",
+      "ItemLabel": "Add Product dialog validation is helpful",
+      "HumanAction": "Click Add Product on the admin products page. Try to submit with empty fields. Then fill in valid data and create a product. Verify it appears in the grid. Clean up by editing or archiving the test product.",
+      "Expectation": "Validation messages are clear and disappear when corrected. The Create button enables only when valid. After creation, the product appears in the grid without needing a manual refresh. The dialog closes cleanly.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin",
+      "Subarea": "User Management",
+      "ItemLabel": "User management scope and actions are understandable",
+      "HumanAction": "Sign in as sloane.reyes@acmecoffee.com (regional sales rep with multi-org admin). Navigate to Admin > User Management. Switch to a managed retail organization. Review the scope banner, user grid, and grant/revoke actions.",
+      "Expectation": "The scope banner clearly names the active organization. The user grid shows relevant users. Grant/revoke actions are clearly labeled and feel scoped to the active organization. Snackbar feedback after an action is clear.",
+      "Passes": false,
+      "Feedback": "Admin is not visible, and I can't navigate to the url directly (I tried admin/user-management and admin/usermanagement)"
+    },
+    {
+      "FunctionalArea": "Authentication",
+      "Subarea": "Login Page",
+      "ItemLabel": "Login page is clean and easy to use",
+      "HumanAction": "Sign out (or open in incognito). Navigate to /login. Review the page layout, the email field, the Send sign-in link button, and the overall design.",
+      "Expectation": "The login page looks professional and trustworthy. The email field is clearly labeled. The button is prominent. The page does not look like a developer test screen.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Authentication",
+      "Subarea": "Magic Link Flow",
+      "ItemLabel": "Magic link sign-in flow feels coherent",
+      "HumanAction": "On the login page, enter james.smith@example.com and click Send sign-in link. Review the confirmation message. Then use the seeded-session helper to sign in as that user and verify the orders page loads.",
+      "Expectation": "The confirmation message clearly explains what to do next. The signed-in state feels customer-scoped. The orders page shows only the customer's own orders. The experience feels designed, not accidental.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Authentication",
+      "Subarea": "Access Denied",
+      "ItemLabel": "Access denied page is clear and non-alarming",
+      "HumanAction": "Sign in as james.smith@example.com (Customer role). Navigate to /customers (which is blocked for Customer role). Review the access denied page.",
+      "Expectation": "The access denied page explains the situation without technical jargon. It provides a clear path forward (sign-in link). The page does not feel like an error or crash.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Accessibility and Contrast",
+      "ItemLabel": "Text is readable throughout the application",
+      "HumanAction": "Browse through the main pages (Dashboard, Products, Customers, Orders, Reports). Pay attention to text contrast: headings, body text, labels, status chips, and nav drawer items against their backgrounds.",
+      "Expectation": "All text is easily readable. No light-on-light or dark-on-dark combinations. Selected nav items have good contrast. Status chips have readable text. Nothing requires squinting.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Spacing and Layout Consistency",
+      "ItemLabel": "Spacing feels consistent across pages",
+      "HumanAction": "Compare the layout rhythm across the Products list, Customers list, and Orders list pages. Look at margins, padding, and how content relates to the app bar and drawer.",
+      "Expectation": "Pages share a consistent layout rhythm. Content margins feel even. Grids are consistently styled. No page feels noticeably different from the others in terms of spacing or alignment.",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Keyboard Navigation",
+      "ItemLabel": "Key workflows are keyboard-operable",
+      "HumanAction": "On the Products detail page, try navigating between fields using Tab. Try editing a field and pressing Enter or Tab to move forward. Check that focus rings are visible as you tab.",
+      "Expectation": "Tab order follows a logical path through the form. Focus indicators are visible. The experience feels intentional rather than haphazard. Critical actions (Save, Undo) are reachable via keyboard.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Overall Impression",
+      "ItemLabel": "The application feels demo-ready",
+      "HumanAction": "Step back and consider the application as a whole. Imagine showing it to a stakeholder or potential customer. Navigate through the main workflow: Dashboard > Orders > click an order > back > Products > click a product > edit and save > back to dashboard.",
+      "Expectation": "The application feels cohesive and professional. Transitions are smooth. Nothing feels broken or half-finished. The overall impression is that this is a real application, not a work-in-progress prototype.",
+      "Passes": true,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "General",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "General",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Orders",
+      "Subarea": "General",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin",
+      "Subarea": "General",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "General",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "App Bar and Branding",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "\n"
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "Drawer Navigation",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "Is this intentional ... the Page Access tab shows \"No pages registered. Register pages via options.RegisterPages() at startup.\"  The Entity Access tab shows \"No entities registered. Register entities via options.RegisterEntities() at startup.\"  And likewise with Endpoint Access, Control Permissions, and Row filters.  Are these things no longer configurable in runtime?  Also, the user Role Assignments tab has no users."
+    },
+    {
+      "FunctionalArea": "Shell and Navigation",
+      "Subarea": "Organization Switching",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Dashboard",
+      "Subarea": "Layout and Cards",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Dashboard",
+      "Subarea": "Search and Quick Actions",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "Products List",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "Product Filter Panel",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Products",
+      "Subarea": "Product Detail",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Retail Businesses",
+      "Subarea": "Customer List",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Retail Businesses",
+      "Subarea": "Customer Detail",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Orders",
+      "Subarea": "Orders List",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Orders",
+      "Subarea": "Order Detail",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Reports",
+      "Subarea": "Orders by Retail Business",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Reports",
+      "Subarea": "PDF Export",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Reports",
+      "Subarea": "Sales by Product",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin",
+      "Subarea": "Product Management",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Admin",
+      "Subarea": "User Management",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Authentication",
+      "Subarea": "Login Page",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Authentication",
+      "Subarea": "Magic Link Flow",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Authentication",
+      "Subarea": "Access Denied",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Accessibility and Contrast",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Spacing and Layout Consistency",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": "The font sizes for the filter boxes and the grid are different sizes.  That might be OK, but if sould also be OK for the filter box font size to be a little smaller -- same size as the grid font."
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Keyboard Navigation",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    },
+    {
+      "FunctionalArea": "Cross-Cutting Quality",
+      "Subarea": "Overall Impression",
+      "ItemLabel": "Other",
+      "IsOtherItem": true,
+      "HumanAction": "",
+      "Expectation": "",
+      "Passes": false,
+      "Feedback": ""
+    }
+  ],
+  "Configuration": {
+    "reviewWidths": [
+      "6%",
+      "14%",
+      "28%",
+      "8%",
+      "44%"
+    ]
+  }
+}

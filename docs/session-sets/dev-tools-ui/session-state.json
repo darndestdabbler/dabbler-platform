@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "dev-tools-ui",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Build DevToolsMenu + three dialogs + TestAuthClient",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Relocate scripts, remove Login dev block, doc refresh",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-17T11:29:33.899Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
+}
