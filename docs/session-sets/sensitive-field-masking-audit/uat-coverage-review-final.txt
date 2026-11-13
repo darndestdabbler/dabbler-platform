@@ -1,0 +1,75 @@
+## Analysis
+
+### 1. Method exists
+`SensitiveFieldMasking_FullUatScenarioAsync` — **confirmed** as a `[Fact]` in `SensitiveFieldMaskingUatCoverageTests`.
+
+### 2. Non-judgment items step-by-step
+
+| Item | Step | Action covered | Verifications covered | Notes |
+|------|------|:-:|:-:|-------|
+| **UAT-1** | 1 | ✅ `SeededSignInAsync(…, roles: BackofficeUserRole)` | — | |
+| | 2 | ✅ `GotoAsync(…/customers/{customerId})` | — | |
+| | 3 | ✅ | ✅ `Expect(…"field-ssn-wrapper").ToBeVisibleAsync` | |
+| | 4 | ✅ | ✅ `Expect(maskedSpan).ToBeVisibleAsync` + `ToContainTextAsync("XXX-XX-")` | |
+| **UAT-2** | 1 | ✅ `SeededSignInAsync(…, roles: "SystemAdmin")` | — | |
+| | 2 | ✅ `GotoAsync(…/admin/security)` | — | |
+| | 3 | ✅ Tab click | ✅ `Expect(…"role-master-grid").ToBeVisibleAsync` | |
+| | 4 | ✅ `roleRow.ClickAsync()` | ✅ `Expect(roleRow).ToBeVisibleAsync` + `Expect(…"role-details-section").ToBeVisibleAsync` | |
+| | 5 | ✅ Tab click | ✅ `Expect(…"mask-exemptions-subtab").ToBeVisibleAsync` | |
+| | 6 | ✅ Dropdown click + select "Customer" | — | |
+| | 7 | ✅ `ToBeEnabledAsync` + dropdown click + select "SocialSecurityNumber" | — | |
+| | 8 | ✅ `addButton.ClickAsync()` | ✅ `Expect(addButton).ToBeEnabledAsync` | |
+| | 9 | ✅ | ✅ `Expect(…"mask-exemption-status-active-Customer-SocialSecurityNumber").ToBeVisibleAsync` | |
+| **UAT-3** | 1 | ✅ `SeededSignInAsync(…, roles: BackofficeUserRole)` | — | |
+| | 2 | ✅ `GotoAsync(…/customers/{customerId})` | — | |
+| | 3 | ✅ | ✅ `Expect(…"field-ssn-wrapper").ToBeVisibleAsync` | |
+| | 4 | ✅ | ✅ `Expect(…"field-ssn").ToBeVisibleAsync` | Verification 2 is explanatory; covered by visibility check |
+| **UAT-4** | 1 | ✅ `SeededSignInAsync(…, roles: "CrossOrgMonitor")` | — | |
+| | 2 | ✅ `GotoAsync(…/admin/security)` | — | |
+| | 3 | ✅ Tab click | — | |
+| | 4 | ✅ | ✅ `Expect(…"compliance-review-tab").ToBeVisibleAsync` | |
+| | 5 | ✅ | ✅ `Expect(…"compliance-review-grid-scroll-region").ToBeVisibleAsync` | |
+| | 6 | ✅ `entityFilter.FillAsync(EntityKey)` | ✅ `Expect(entityFilter).ToBeVisibleAsync` | |
+| | 7 | ✅ | ✅ `Expect(…"event-chip"…"ExemptionGranted").ToBeVisibleAsync` | |
+| | 8 | ✅ | ✅ `Expect(…"event-chip"…"FieldUnmaskedRead").ToBeVisibleAsync` | |
+| **UAT-6** | 1 | ✅ `SeededSignInAsync(…, roles: "CrossOrgMonitor")` | — | |
+| | 2 | ✅ Navigate + tab click | ✅ `Expect(…"compliance-review-tab").ToBeVisibleAsync` | |
+| | 3 | ✅ | ✅ `Expect(exportButton).ToBeEnabledAsync` | |
+| | 4 | ✅ `exportButton.ClickAsync()` | — | |
+| | 5 | ✅ | ✅ `Expect(…".mud-snackbar"…"Exported").ToBeVisibleAsync` | |
+
+### 3. Judgment item UAT-5
+- `IsJudgmentItem: true` ✅
+- `JudgmentJustification` present and non-empty ✅
+- Method exists ✅
+- Test code implements all six UAT-5 steps including expand-cell click, expander container visibility, and cluster-table-or-empty assertion ✅
+
+### 4. Wording divergences
+No significant divergences found. Test-id strings, role names, filter labels, and assertion semantics align 1:1 with the checklist.
+
+---
+
+**VERIFIED**
+
+---
+**Verification (gpt-5-4, openai):** ISSUES_FOUND
+
+**Issue 1** [? / ?]: S_FOUND",
+  "confidence": "medium",
+  "summary": "The reviewed answer was too absolute in concluding VERIFIED. It missed at least one meaningful divergence: UAT-6 says the export action triggers a download, but the test only verifies the snackbar and never asserts a browser download event.",
+  "issues": [
+    {
+      "category": "Correctness",
+      "severity": "Major",
+      "title": "Missed UAT-6 download-verification gap/divergence",
+      "details": "The answer states 'No significant divergences found' and returns VERIFIED, but UAT-6 is titled 'Export CSV button triggers a download and shows a success snackbar' while the test only does `exportButton.ClickAsync()` and asserts a snackbar containing 'Exported'. There is no Playwright download assertion such as waiting for a download event or validating a downloaded file. Even if you interpret the checklist steps as only requiring the click + snackbar, this is still a significant wording divergence that should have been called out instead of declaring a clean VERIFIED."
+    },
+    {
+      "category": "Completeness",
+      "severity": "Minor",
+      "title": "Unqualified acceptance of 'first customer by DB ID' coverage",
+      "details": "For UAT-1/UAT-3 step 2, the answer treats navigation to the seeded SSN customer as fully proven. In the shown test file, that relies on `GetCustomersAsync(adminId, pageSize: 1)` plus a helper comment; the file does not explicitly show ordering by DB ID or direct validation of SSN `123-45-6789`. This may still be acceptable coverage, but given the prompt's preference for false-positive ISSUES_FOUND over false-negative VERIFIED, the answer should have noted the assumption instead of giving an unqualified VERIFIED."
+    }
+  ]
+}
+```

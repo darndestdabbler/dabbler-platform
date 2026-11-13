@@ -1,0 +1,200 @@
+{
+  "sessionSetName": "restore-devidp",
+  "createdDate": "2026-04-27T22:27:42.742655+00:00",
+  "totalSessions": 2,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/ai-assignment",
+      "dateTime": "2026-04-27T22:28:58.909580+00:00",
+      "description": "Authored ai-assignment.md via routed analysis (gemini-pro)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 2739,
+          "outputTokens": 1214,
+          "costUsd": 0.0156
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/restore-source",
+      "dateTime": "2026-04-27T22:31:50.527803+00:00",
+      "description": "Restored 14 DevIdp files from 8730107^ to src/Libs/Dabbler.Security.DevIdp/",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/launch-profile-rename",
+      "dateTime": "2026-04-27T22:31:50.528803+00:00",
+      "description": "Renamed launchSettings profile from Dabbler.Security.DevIdp to https for spec parity",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/solution-wireup",
+      "dateTime": "2026-04-27T22:31:50.528803+00:00",
+      "description": "dotnet sln add for Dabbler.Security.DevIdp.csproj",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/build-and-run",
+      "dateTime": "2026-04-27T22:31:50.529803+00:00",
+      "description": "dotnet build clean (0 errors, 184 warnings); DevIdp launched, OIDC discovery returned issuer=https://localhost:5100/, all expected endpoints/scopes present",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/test",
+      "dateTime": "2026-04-27T22:31:50.530194+00:00",
+      "description": "dotnet test (excl Playwright): 709 passed, 0 failed across 6 assemblies",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-27T22:35:26.698674+00:00",
+      "description": "Cross-provider verification via Opus: VERIFIED. Two advisory notes for Session 2 (redirect URI port match, scp:openid omission is benign).",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 10930,
+          "outputTokens": 7045,
+          "costUsd": 0.692325
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/oidc-roundtrip-config",
+      "dateTime": "2026-04-27T23:08:26.065294+00:00",
+      "description": "Aligned `acmecoffee-dev` redirect URIs in DevIdp seed (5020/7020/5010 instead of bad 7002); SeedClientAsync now accepts an array.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/enable-sso",
+      "dateTime": "2026-04-27T23:08:26.065631+00:00",
+      "description": "Set Authentication.ShowSsoButton=true in appsettings.Development.json (no Test config present).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/retire-safe-fail",
+      "dateTime": "2026-04-27T23:08:26.065631+00:00",
+      "description": "Removed try/catch around ChallengeAsync in /auth/challenge handler and dropped sso-unavailable case from Login.razor _queryError.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/oidc-backchannel-cert",
+      "dateTime": "2026-04-27T23:08:26.066659+00:00",
+      "description": "Added Development-only PostConfigure<OpenIdConnectOptions> that trusts localhost dev cert on the OIDC back-channel HttpClient.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/playwright-coverage",
+      "dateTime": "2026-04-27T23:08:26.066659+00:00",
+      "description": "Added SsoOidcWorkflowTests.cs (full SSO happy path) + extended PlaywrightFixture with EnsureDevIdpRunningAsync + IgnoreHTTPSErrors page contexts. Test currently [Skip] pending Docker cross-container OIDC issuer wiring (see test rationale).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/docker",
+      "dateTime": "2026-04-27T23:08:26.067718+00:00",
+      "description": "Added Dockerfile.DevIdp + devidp service in docker-compose.app.yml (port 5100). Cross-container OIDC issuer/metadata alignment intentionally deferred \u2014 scaffolding only.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/test",
+      "dateTime": "2026-04-27T23:08:26.067718+00:00",
+      "description": "dotnet build clean (0 errors). dotnet test (excl Playwright): 709 passed, 0 failed across 6 assemblies.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 8,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-27T23:14:05.667121+00:00",
+      "description": "Cross-provider verification via opus; raw verdict saved to session-002.md",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 42811,
+          "outputTokens": 7049,
+          "costUsd": 1.17084
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 9,
+      "stepKey": "session-2/next-set-recommendation",
+      "dateTime": "2026-04-27T23:16:39.234789+00:00",
+      "description": "Routed analysis (gemini-pro): NEXT-SET=sensitive-field-masking-audit (resumes role-rearchitecture roadmap after restore-devidp side-quest)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "analysis",
+          "inputTokens": 1024,
+          "outputTokens": 54,
+          "costUsd": 0.0018
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 10,
+      "stepKey": "session-2/change-log",
+      "dateTime": "2026-04-27T23:16:39.234789+00:00",
+      "description": "Routed summarization (gemini-flash, max_tier=1) authored docs/session-sets/restore-devidp/change-log.md; minor factual fixes hand-edited.",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-flash",
+          "taskType": "summarization",
+          "inputTokens": 1500,
+          "outputTokens": 600,
+          "costUsd": 0.0014
+        }
+      ]
+    }
+  ]
+}

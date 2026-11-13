@@ -1,0 +1,14 @@
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background:
+        radial-gradient(circle at top, rgba(126, 180, 160, 0.22), transparent 38%),
+        linear-gradient(180deg, #f7f3eb 0%, #f1eadf 100%);
+}
+
+.auth-shell__content {
+    width: min(100%, 32rem);
+}

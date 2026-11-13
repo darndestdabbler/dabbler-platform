@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 006 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 006 transcript</h1>
+<p class="stamp">Rendered 2026-11-07T17:11:19.401Z by dabbler-ai-router 3.29.0 at 6101210c1a31d9fd7781c94b8d49ec036885eb77.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-07T11:55:03.603-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 6: Move Expressions into Dabbler.Reports.Core</h3>
+<ol><li>Register.</li><li>Move the nine files in <code>src/Libs/Dabbler.Components/Expressions/</code> to <code>src/Libs/Dabbler.Reports.Core/Expressions/</code> under the namespace <code>Dabbler.Reports.Core.Expressions</code>, with no change in behaviour. Fix the usings in <code>BandLayoutEngine.cs</code>, <code>LayoutEvaluationContext.cs</code> and every other caller, tests included.</li><li>In <code>Dabbler.Reports.Core.csproj</code>, remove both <code>Dabbler.Components</code> references (the <code>&lt;ProjectReference&gt;</code> and the pack-time <code>&lt;PackageReference&gt;</code>), and remove <code>InternalsVisibleTo Dabbler.Components.Tests</code> if nothing needs it any more. Update the dependency statements in the Reports.Core README and in <code>docs/platform-overview.md</code>. <code>Dabbler.Platform.Stubs.Reports</code> keeps its <code>Dabbler.Components</code> reference, because it uses <code>Data.Metadata</code>.</li><li>Cross-provider verification.</li><li>The <code>unit</code> suite once against the verified tree, recorded as the run of record. <code>Dabbler.Reports.Blazor.Tests</code> is the engine's coverage.</li><li>Close-out.</li></ol>
+<h2>Work Plan</h2>
+<p>Move the report expression engine out of Dabbler.Components into Dabbler.Reports.Core, its only consumer. The nine files in src/Libs/Dabbler.Components/Expressions/ move (git mv) to src/Libs/Dabbler.Reports.Core/Expressions/ with their namespace changed from Dabbler.Components.Expressions to Dabbler.Reports.Core.Expressions and no other change; BandLayoutEngine.cs and LayoutEvaluationContext.cs, the only callers (no test references the namespace), have their usings fixed. Dabbler.Reports.Core.csproj then drops both Dabbler.Components references (the development ProjectReference and the pack-time PackageReference) and the now-unneeded InternalsVisibleTo Dabbler.Components.Tests (that test project references no Reports project). The dependency statements are updated: the Reports.Core README no longer lists Dabbler.Components as a prerequisite or related package and says the expression engine is its own, docs/platform-overview.md stops attributing the expression engine to Dabbler.Components, and the stale ExpressionEngine row is removed from the Dabbler.Components README surface table.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/a454c8b732dce2e5bd31ea1947eff8dd5aedd768"><code>a454c8b732dce2e5bd31ea1947eff8dd5aedd768</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Move expressions</td><td><p>git mv the nine files from src/Libs/Dabbler.Components/Expressions/ to src/Libs/Dabbler.Reports.Core/Expressions/, change each file's namespace to Dabbler.Reports.Core.Expressions, and change the using in BandLayoutEngine.cs and LayoutEvaluationContext.cs to the new namespace (or drop it where the enclosing Dabbler.Reports.Core namespace already resolves it). Nothing else changes.</p></td><td></td><td><code>dotnet build src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj</code><br><code>pwsh -NoProfile -Command git grep -q --untracked -e 'Dabbler.Components.Expressions' -- src tests; if ($LASTEXITCODE -eq 1) { exit 0 } else { exit 1 }</code><br><code>pwsh -NoProfile -Command if (Test-Path src/Libs/Dabbler.Components/Expressions) { exit 1 }; if ((Get-ChildItem src/Libs/Dabbler.Reports.Core/Expressions -Filter *.cs).Count -ne 9) { exit 1 }</code></td><td>yes</td></tr>
+<tr><td>Drop components reference</td><td><p>In src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj remove the Dabbler.Components ProjectReference and PackageReference (with their now-empty conditional ItemGroups and comments) and the InternalsVisibleTo Dabbler.Components.Tests entry, keeping InternalsVisibleTo Dabbler.Reports.Export.</p></td><td></td><td><code>dotnet build Dabbler.Platform.sln</code><br><code>pwsh -NoProfile -Command if (Select-String -Path src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj -Pattern 'Dabbler.Components' -SimpleMatch -Quiet) { exit 1 }</code></td><td>yes</td></tr>
+<tr><td>Update dependency docs</td><td><p>Update the dependency statements: in src/Libs/Dabbler.Reports.Core/README.md drop the Dabbler.Components prerequisite and related-package bullets and state that the expression engine (Dabbler.Reports.Core.Expressions) ships in this package; in docs/platform-overview.md move the expression engine out of the Dabbler.Components surface table and deep-dive bullet; in src/Libs/Dabbler.Components/README.md remove the ExpressionEngine surface row.</p></td><td></td><td><code>pwsh -NoProfile -Command if (Select-String -Path src/Libs/Dabbler.Reports.Core/README.md -Pattern 'Dabbler.Components' -SimpleMatch -Quiet) { exit 1 }; if (-not (Select-String -Path src/Libs/Dabbler.Reports.Core/README.md -Pattern 'Dabbler.Reports.Core.Expressions' -SimpleMatch -Quiet)) { exit 1 }</code><br><code>pwsh -NoProfile -Command if (Select-String -Path docs/platform-overview.md,src/Libs/Dabbler.Components/README.md -Pattern '`ExpressionEngine` | Expression-based','filter UI, expression engine' -SimpleMatch -Quiet) { exit 1 }</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No behaviour change in the expression engine: no renames, refactors, visibility changes or new tests beyond the namespace line.</li><li>Dabbler.Platform.Stubs.Reports keeps its Dabbler.Components reference (it uses Data.Metadata); Dabbler.Reports.Blazor keeps its own direct Dabbler.Components reference; Dabbler.Reports.Export keeps its InternalsVisibleTo entries.</li><li>No version bump, packaging or release work, and no edits to historical records under docs/session-sets/ or docs/planning/solution-plan.md.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[16:55:03]</span> <span class="muted">run-started</span> session=006 mode=pull</div>
+<div class="line"><span class="at">[16:55:03]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[16:59:46]</span> <span class="muted">run-resumed</span> session=006 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[16:59:46]</span> <span class="muted">plan-accepted</span> steps=[&quot;move-expressions&quot;,&quot;drop-components-reference&quot;,&quot;update-dependency-docs&quot;] non_goals=3</div>
+<div class="line"><span class="at">[16:59:59]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[16:59:59]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=move-expressions</div>
+<div class="line"><span class="at">[17:02:12]</span> <span class="muted">run-resumed</span> session=006 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/AggregateFunction.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionEngine.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionEvaluationException.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionEvaluator.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionLexer.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionNode.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionParser.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionToken.cs</div>
+<div class="line"><span class="at">[17:02:23]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/IEvaluationContext.cs</div>
+<div class="line"><span class="at">[17:02:50]</span> <span class="muted">check-passed</span> step=move-expressions argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj&quot;]</div>
+<div class="line"><span class="at">[17:02:50]</span> <span class="muted">check-passed</span> step=move-expressions argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;git grep -q --untracked -e 'Dabbler.Components.Expressions' -- src tests; if ($LASTEXITCODE -eq 1) { exit 0 } else { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[17:02:50]</span> <span class="muted">check-failed</span> step=move-expressions argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (Test-Path src/Libs/Dabbler.Components/Expressions) { exit 1 }; if ((Get-ChildItem src/Libs/Dabbler.Reports.Core/Expressions -Filter *.cs).Count -ne 9) { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[17:02:50]</span> <span class="muted">report-rejected</span> seq=2 step=move-expressions rejection=1 reasons=[&quot;[check-failed] check failed: pwsh -NoProfile -Command if (Test-Path src/Libs/Dabbler.Components/Expressions) { exit 1 }; if ((Get-ChildItem src/Libs/Dabbler.Reports.Core/Expressions -Filter *.cs).Count -ne 9) { exit 1 } -&gt; exit 1\nA check that no longer describes its step is amended, not fought: dabbler session plan amend --step &lt;id&gt; --checks-file &lt;path&gt; --reason \&quot;&lt;why&gt;\&quot;. A step that cannot be done is reported --status blocked, with the reason in --notes.&quot;]</div>
+<div class="line"><span class="at">[17:02:50]</span> <span class="muted">instruction-issued</span> seq=3 kind=rejection step=move-expressions reasons=1</div>
+<div class="line"><span class="at">[17:04:01]</span> <span class="muted">run-resumed</span> session=006 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/AggregateFunction.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionEngine.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionEvaluationException.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionEvaluator.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionLexer.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionNode.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionParser.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/ExpressionToken.cs</div>
+<div class="line"><span class="at">[17:04:08]</span> <span class="muted">step-file-unchanged</span> step=move-expressions file=src/Libs/Dabbler.Components/Expressions/IEvaluationContext.cs</div>
+<div class="line"><span class="at">[17:04:28]</span> <span class="muted">check-passed</span> step=move-expressions argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj&quot;]</div>
+<div class="line"><span class="at">[17:04:28]</span> <span class="muted">check-passed</span> step=move-expressions argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;git grep -q --untracked -e 'Dabbler.Components.Expressions' -- src tests; if ($LASTEXITCODE -eq 1) { exit 0 } else { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[17:04:28]</span> <span class="muted">check-passed</span> step=move-expressions argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (Test-Path src/Libs/Dabbler.Components/Expressions) { exit 1 }; if ((Get-ChildItem src/Libs/Dabbler.Reports.Core/Expressions -Filter *.cs).Count -ne 9) { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[17:04:35]</span> <span class="muted">report-accepted</span> seq=3 step=move-expressions files=[] notes=Removed the empty Dabbler.Components/Expressions directory git mv left behind; nine files live in Dabbler.Reports.Core/Expressions under Dabbler.Reports.Core.Expressions</div>
+<div class="line"><span class="at">[17:04:35]</span> <span class="muted">instruction-issued</span> seq=4 kind=step step=drop-components-reference</div>
+<div class="line"><span class="at">[17:05:41]</span> <span class="muted">run-resumed</span> session=006 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[17:06:06]</span> <span class="muted">check-passed</span> step=drop-components-reference argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;]</div>
+<div class="line"><span class="at">[17:06:06]</span> <span class="muted">check-passed</span> step=drop-components-reference argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (Select-String -Path src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj -Pattern 'Dabbler.Components' -SimpleMatch -Quiet) { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[17:06:10]</span> <span class="muted">report-accepted</span> seq=4 step=drop-components-reference files=[] notes=Removed Dabbler.Components ProjectReference/PackageReference and InternalsVisibleTo Dabbler.Components.Tests from Dabbler.Reports.Core.csproj; solution builds</div>
+<div class="line"><span class="at">[17:06:10]</span> <span class="muted">instruction-issued</span> seq=5 kind=step step=update-dependency-docs</div>
+<div class="line"><span class="at">[17:07:03]</span> <span class="muted">run-resumed</span> session=006 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[17:07:14]</span> <span class="muted">check-passed</span> step=update-dependency-docs argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (Select-String -Path src/Libs/Dabbler.Reports.Core/README.md -Pattern 'Dabbler.Components' -SimpleMatch -Quiet) { exit 1 }; if (-not (Select-String -Path src/Libs/Dabbler.Reports.Core/README.md -Pattern 'Dabbler.Reports.Core.Expressions' -SimpleMatch -Quiet)) { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[17:07:14]</span> <span class="muted">check-passed</span> step=update-dependency-docs argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (Select-String -Path docs/platform-overview.md,src/Libs/Dabbler.Components/README.md -Pattern '`ExpressionEngine` | Expression-based','filter UI, expression engine' -SimpleMatch -Quiet) { exit 1 }&quot;]</div>
+<div class="line"><span class="at">[17:07:15]</span> <span class="muted">report-accepted</span> seq=5 step=update-dependency-docs files=[] notes=Reports.Core README drops Dabbler.Components bullets and names its own Dabbler.Reports.Core.Expressions engine; platform-overview and Components README no longer list the expression engine under Dabbler.Components</div>
+<div class="line"><span class="at">[17:07:15]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[17:07:17]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[17:07:25]</span> <span class="muted">job-started</span> name=verification pid=56060 log=.dabbler/runs/s6/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[17:08:20]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s6/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[17:08:20]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[17:08:20]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[17:08:24]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[17:08:24]</span> <span class="muted">job-started</span> name=run of record: unit pid=57224 log=.dabbler/runs/s6/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[17:10:22]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s6/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[17:10:22]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[17:10:42]</span> <span class="muted">landed</span> commit=a454c8b732dce2e5bd31ea1947eff8dd5aedd768</div>
+<div class="line"><span class="at">[17:10:42]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[17:10:43]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[17:10:43]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[17:10:44]</span> <span class="muted">job-started</span> name=close pid=22104 log=.dabbler/runs/s6/driver/jobs/close.log</div>
+<div class="line"><span class="at">[17:11:19]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s6/driver/jobs/close.log</div>
+<div class="line"><span class="at">[17:11:19]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="good">passed</span></td><td>103s</td><td>574</td><td>0</td><td>0</td><td><span class="mono">dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;AccessDeniedCardTests|AcmeCoffeeNavigationDataProviderTests|AuditLogPageTests|BakedInPrivilegesPanelTests|BandLayoutEngineComposerTests|CallerLevelPdfExportTests|ColumnRestrictionsSubTabTests|CompatibilitySurfaceTests|ComplianceReviewTabTests|ContractHomeSmokeTests|CreateBackofficeUserDialogTests|CsvExportServiceTests|CustomerDetailEditSessionTests|CustomersFilterConfigTests|DabblerReportPageTests|DabblerRoleSwitcherTests|DabblerSecuredTests|DabblerSecurityDashboardTests|DabblerSecurityNavTests|DabblerShellTests|DeclarativeFilterPanelTests|DefaultMasksGridTests|DefaultMasksTabTests|DevIdpToolTests|DevToolsEndpointContractTests|DevToolsMenuTests|DiagnosticTests|DirtyAwareActionRowTests|EditSessionTests|FilterPanelAccessibilityTests|FilterPanelTests|HomePageConfigurationTests|LoginPageOidcTests|LoginPageTests|MagicLinksDialogTests|MaskExemptionsSubTabTests|MasterDetailExpansionShellTests|MfaPageTests|MudBlazorRebuildConformanceTests|NotesDrivenAlignmentGuardrailTests|NupkgArtifactTests|ObservabilitySmokeTests|OrderDetailEditSessionTests|OrderDetailStateNestedItemsTests|OrderDetailStateTests|OrdersFilterConfigTests|OrganizationDetailsFormTests|OrganizationMasterGridTests|ParameterPromptFormTests|PdfExportTitleRegressionTests|PickOrAddDialogTests|ProductionSplitTests|ReportViewerTests|RestrictedFormFieldTests|RestrictedGridColumnTests|RestrictionBinderExpiredAuditTests|RestrictionBinderTests|RestrictionBinderUnmaskedReadAuditTests|RoleAssignmentPageTests|RoleDetailsSectionTests|RoleDocumentationTabTests|RoleListPageTests|RoleMasterDetailsTabTests|ShellSessionStateLoaderTests|StubGridDataProviderTests|StubPlatformRegistrationTests|TestAuthClientTests|UserContextBarTests|UserEditPageTests|UserListPageExternalLoginTests|UserListPageTests|UserManagementPageTests|UserRoleAssignmentDetailsTests|UsersMasterGridTests|WebGuardrailTests|WebHealthEndpointTests|WorkflowAssetSmokeTests&quot;</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,694 @@
+@namespace Dabbler.Components.MasterDetail
+@typeparam TEntity
+@using System.Globalization
+@using System.Linq.Expressions
+@using Dabbler.Components.Data
+@using Microsoft.JSInterop
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+<div role="search" aria-label="@AriaLabel" data-testid="@TestId">
+    <MudGrid Spacing="2">
+        @foreach (var prop in Config.Properties)
+        {
+            var propName = FilterProperty<TEntity>.GetPropertyName(prop.Property);
+            @if (prop is FilterProperty<TEntity>.Text)
+            {
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    <MudTextField T="string"
+                                  Label="@LabelFor(prop, propName)"
+                                  Value="@(_filterState.GetValueOrDefault(propName) as string)"
+                                  ValueChanged="@(v => OnTextChangedAsync(propName, v))"
+                                  Immediate="true"
+                                  DebounceInterval="300"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Clearable="true" />
+                </MudItem>
+            }
+            else if (prop is FilterProperty<TEntity>.EnumVal)
+            {
+                var enumType = FilterProperty<TEntity>.GetPropertyType(prop.Property);
+                var enumValues = System.Enum.GetValues(enumType).Cast<object>().ToList();
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    <MudSelect T="object"
+                               Label="@LabelFor(prop, propName)"
+                               Value="@(_filterState.GetValueOrDefault(propName))"
+                               ValueChanged="@(v => OnEnumChangedAsync(propName, v))"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Clearable="true"
+                               Dense="true">
+                        @foreach (var item in enumValues)
+                        {
+                            <MudSelectItem T="object" Value="@item">@item</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            }
+            else if (prop is FilterProperty<TEntity>.Bool)
+            {
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    <MudCheckBox T="bool?"
+                                 Label="@LabelFor(prop, propName)"
+                                 Value="@(_filterState.GetValueOrDefault(propName) as bool?)"
+                                 ValueChanged="@(v => OnBoolChangedAsync(propName, v))"
+                                 TriState="true"
+                                 Dense="true"
+                                 Class="mt-3" />
+                </MudItem>
+            }
+            else if (prop is FilterProperty<TEntity>.Numeric numericProp)
+            {
+                if (numericProp.AsRange)
+                {
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudNumericField T="decimal?"
+                                         Label="@(numericProp.MinPlaceholder ?? ("Min " + LabelFor(prop, propName)))"
+                                         Placeholder="@(numericProp.MinPlaceholder ?? ("Min " + LabelFor(prop, propName)))"
+                                         Value="@(_filterState.GetValueOrDefault(propName + "_min") as decimal?)"
+                                         ValueChanged="@(v => OnNumericChangedAsync(propName + "_min", v))"
+                                         Immediate="true"
+                                         DebounceInterval="300"
+                                         Variant="Variant.Outlined"
+                                         Margin="Margin.Dense"
+                                         Clearable="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudNumericField T="decimal?"
+                                         Label="@(numericProp.MaxPlaceholder ?? ("Max " + LabelFor(prop, propName)))"
+                                         Placeholder="@(numericProp.MaxPlaceholder ?? ("Max " + LabelFor(prop, propName)))"
+                                         Value="@(_filterState.GetValueOrDefault(propName + "_max") as decimal?)"
+                                         ValueChanged="@(v => OnNumericChangedAsync(propName + "_max", v))"
+                                         Immediate="true"
+                                         DebounceInterval="300"
+                                         Variant="Variant.Outlined"
+                                         Margin="Margin.Dense"
+                                         Clearable="true" />
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudNumericField T="decimal?"
+                                         Label="@LabelFor(prop, propName)"
+                                         Placeholder="@(numericProp.Placeholder ?? LabelFor(prop, propName))"
+                                         Value="@(_filterState.GetValueOrDefault(propName) as decimal?)"
+                                         ValueChanged="@(v => OnNumericChangedAsync(propName, v))"
+                                         Immediate="true"
+                                         DebounceInterval="300"
+                                         Variant="Variant.Outlined"
+                                         Margin="Margin.Dense"
+                                         Clearable="true" />
+                    </MudItem>
+                }
+            }
+            else if (prop is FilterProperty<TEntity>.Date dateProp)
+            {
+                if (dateProp.AsRange)
+                {
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudDatePicker Label="@("From " + LabelFor(prop, propName))"
+                                       Date="@(_filterState.GetValueOrDefault(propName + "_start") as DateTime?)"
+                                       DateChanged="@(v => OnDateChangedAsync(propName + "_start", v))"
+                                       Variant="Variant.Outlined"
+                                       Margin="Margin.Dense"
+                                       Clearable="true"
+                                       DateFormat="MM/dd/yyyy" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudDatePicker Label="@("To " + LabelFor(prop, propName))"
+                                       Date="@(_filterState.GetValueOrDefault(propName + "_end") as DateTime?)"
+                                       DateChanged="@(v => OnDateChangedAsync(propName + "_end", v))"
+                                       Variant="Variant.Outlined"
+                                       Margin="Margin.Dense"
+                                       Clearable="true"
+                                       DateFormat="MM/dd/yyyy" />
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudDatePicker Label="@LabelFor(prop, propName)"
+                                       Date="@(_filterState.GetValueOrDefault(propName) as DateTime?)"
+                                       DateChanged="@(v => OnDateChangedAsync(propName, v))"
+                                       Variant="Variant.Outlined"
+                                       Margin="Margin.Dense"
+                                       Clearable="true"
+                                       DateFormat="MM/dd/yyyy" />
+                    </MudItem>
+                }
+            }
+            else if (prop.IsForeignKey)
+            {
+                @* ForeignKey: items loaded async during OnInitializedAsync via LoadLookupItemsAsync *@
+                var fkItems = _lookupItems.GetValueOrDefault(propName) ?? [];
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    <MudSelect T="object"
+                               Label="@LabelFor(prop, propName)"
+                               Value="@(_filterState.GetValueOrDefault(propName))"
+                               ValueChanged="@(v => OnForeignKeyChangedAsync(propName, v))"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Clearable="true"
+                               Dense="true">
+                        @foreach (var (item, display) in fkItems)
+                        {
+                            <MudSelectItem T="object" Value="@item">@display</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            }
+        }
+    </MudGrid>
+
+    @* ── Filter actions ──────────────────────────────────────────────── *@
+    @if (HasActiveFilters())
+    {
+        <div class="d-flex align-center gap-2 mt-1">
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Default"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Clear"
+                       OnClick="@ClearAllAsync">
+                Clear All
+            </MudButton>
+        </div>
+    }
+
+    @* ── Active filter chips ─────────────────────────────────────────── *@
+    @if (HasActiveFilters())
+    {
+        <MudChipSet T="string" ReadOnly="false" Class="mt-1">
+            @foreach (var chip in BuildActiveChips())
+            {
+                var chipKey = chip.Key;
+                <MudChip T="string"
+                         Text="@chip.Label"
+                         Size="Size.Small"
+                         Variant="Variant.Filled"
+                         Color="Color.Primary"
+                         OnClose="@(() => ClearOneFilterAsync(chipKey))" />
+            }
+        </MudChipSet>
+    }
+</div>
+
+@code {
+    private readonly Dictionary<string, object?> _filterState = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, IReadOnlyList<(object Value, string Display)>> _lookupItems = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>The declarative filter configuration driving this panel.</summary>
+    [Parameter, EditorRequired]
+    public FilterConfig<TEntity> Config { get; set; } = default!;
+
+    /// <summary>Raised when the filter state changes, emitting the latest composite descriptor.</summary>
+    [Parameter]
+    public EventCallback<CompositeFilterDescriptor?> FilterChanged { get; set; }
+
+    /// <summary><c>aria-label</c> for the outer search container. Defaults to <c>"Filter panel"</c>.</summary>
+    [Parameter]
+    public string AriaLabel { get; set; } = "Filter panel";
+
+    /// <summary><c>data-testid</c> for the outer container. Defaults to <c>"declarative-filter-panel"</c>.</summary>
+    [Parameter]
+    public string TestId { get; set; } = "declarative-filter-panel";
+
+    /// <summary>
+    /// Optional pre-seeded filter values keyed by state key (property name, or
+    /// <c>PropertyName_min</c> / <c>PropertyName_max</c> for range filters). Values
+    /// are applied once during initialization, before URL restore, so that URL params
+    /// can still override them. Use this to forward page-level search terms
+    /// (e.g., an <c>InitialSearchTerm</c> parameter) into the panel on first render.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyDictionary<string, object?>? InitialValues { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadForeignKeyItemsAsync();
+
+        // Apply consumer-supplied initial values before URL restore so URL params take precedence.
+        if (InitialValues != null)
+        {
+            foreach (var (key, value) in InitialValues)
+            {
+                if (value != null)
+                    _filterState[key] = value;
+            }
+        }
+
+        if (Config.Mode == FilterMode.ServerSide)
+        {
+            RestoreFromQueryString(); // may overwrite or supplement InitialValues
+        }
+
+        // Fire FilterChanged only if we have actual state to report.
+        // Avoid overwriting any initial filter the parent set before child components initialized.
+        if (_filterState.Count > 0)
+        {
+            if (Config.Mode == FilterMode.ServerSide)
+                await TryUpdateUrlAsync();
+            await InvokeFilterChangedAsync();
+        }
+        // If state is empty and mode is ClientSide, the parent controls the initial filter state.
+    }
+
+    private async Task LoadForeignKeyItemsAsync()
+    {
+        foreach (var prop in Config.Properties)
+        {
+            if (!prop.IsForeignKey)
+                continue;
+
+            var propName = FilterProperty<TEntity>.GetPropertyName(prop.Property);
+            var items = await prop.LoadLookupItemsAsync();
+            if (items != null)
+                _lookupItems[propName] = items;
+        }
+    }
+
+    // ── Filter state mutators ────────────────────────────────────────────
+
+    private async Task OnTextChangedAsync(string propName, string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            _filterState.Remove(propName);
+        else
+            _filterState[propName] = value;
+
+        await NotifyAsync();
+    }
+
+    private async Task OnEnumChangedAsync(string propName, object? value)
+    {
+        if (value is null)
+            _filterState.Remove(propName);
+        else
+            _filterState[propName] = value;
+
+        await NotifyAsync();
+    }
+
+    private async Task OnBoolChangedAsync(string propName, bool? value)
+    {
+        if (value is null)
+            _filterState.Remove(propName);
+        else
+            _filterState[propName] = value;
+
+        await NotifyAsync();
+    }
+
+    private async Task OnNumericChangedAsync(string stateKey, decimal? value)
+    {
+        if (value is null)
+            _filterState.Remove(stateKey);
+        else
+            _filterState[stateKey] = value;
+
+        await NotifyAsync();
+    }
+
+    private async Task OnDateChangedAsync(string stateKey, DateTime? value)
+    {
+        if (value is null)
+            _filterState.Remove(stateKey);
+        else
+            _filterState[stateKey] = value;
+
+        await NotifyAsync();
+    }
+
+    private async Task OnForeignKeyChangedAsync(string propName, object? value)
+    {
+        if (value is null)
+            _filterState.Remove(propName);
+        else
+            _filterState[propName] = value;
+
+        await NotifyAsync();
+    }
+
+    private async Task ClearAllAsync()
+    {
+        _filterState.Clear();
+        await NotifyAsync();
+    }
+
+    private async Task ClearOneFilterAsync(string stateKey)
+    {
+        _filterState.Remove(stateKey);
+        await NotifyAsync();
+    }
+
+    private async Task NotifyAsync()
+    {
+        if (Config.Mode == FilterMode.ServerSide)
+            await TryUpdateUrlAsync();
+
+        await InvokeFilterChangedAsync();
+        StateHasChanged();
+    }
+
+    private async Task InvokeFilterChangedAsync()
+    {
+        await FilterChanged.InvokeAsync(BuildCompositeFilter());
+    }
+
+    // ── URL persistence ──────────────────────────────────────────────────
+
+    private void RestoreFromQueryString()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var queryParams = ParseQueryString(uri.Query);
+
+        foreach (var prop in Config.Properties)
+        {
+            var propName = FilterProperty<TEntity>.GetPropertyName(prop.Property);
+
+            switch (prop)
+            {
+                case FilterProperty<TEntity>.Text:
+                    if (queryParams.TryGetValue(propName, out var textVal) && !string.IsNullOrEmpty(textVal))
+                        _filterState[propName] = textVal;
+                    break;
+
+                case FilterProperty<TEntity>.EnumVal:
+                    if (queryParams.TryGetValue(propName, out var enumStr) && !string.IsNullOrEmpty(enumStr))
+                    {
+                        var enumType = FilterProperty<TEntity>.GetPropertyType(prop.Property);
+                        try
+                        {
+                            var parsed = System.Enum.Parse(enumType, enumStr, ignoreCase: true);
+                            _filterState[propName] = parsed;
+                        }
+                        catch (ArgumentException) { }
+                    }
+                    break;
+
+                case FilterProperty<TEntity>.Bool:
+                    if (queryParams.TryGetValue(propName, out var boolStr) && bool.TryParse(boolStr, out var boolVal))
+                        _filterState[propName] = boolVal;
+                    break;
+
+                case FilterProperty<TEntity>.Numeric { AsRange: true }:
+                    if (queryParams.TryGetValue(propName + "_min", out var minStr) &&
+                        decimal.TryParse(minStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var minVal))
+                        _filterState[propName + "_min"] = minVal;
+                    if (queryParams.TryGetValue(propName + "_max", out var maxStr) &&
+                        decimal.TryParse(maxStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var maxVal))
+                        _filterState[propName + "_max"] = maxVal;
+                    break;
+
+                case FilterProperty<TEntity>.Numeric:
+                    if (queryParams.TryGetValue(propName, out var numStr) &&
+                        decimal.TryParse(numStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var numVal))
+                        _filterState[propName] = numVal;
+                    break;
+
+                case FilterProperty<TEntity>.Date { AsRange: true }:
+                    if (queryParams.TryGetValue(propName + "_start", out var startStr) &&
+                        DateTime.TryParse(startStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var startVal))
+                        _filterState[propName + "_start"] = startVal;
+                    if (queryParams.TryGetValue(propName + "_end", out var endStr) &&
+                        DateTime.TryParse(endStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var endVal))
+                        _filterState[propName + "_end"] = endVal;
+                    break;
+
+                case FilterProperty<TEntity>.Date:
+                    if (queryParams.TryGetValue(propName, out var dateStr) &&
+                        DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dateVal))
+                        _filterState[propName] = dateVal;
+                    break;
+            }
+        }
+    }
+
+    private async Task TryUpdateUrlAsync()
+    {
+        try
+        {
+            var newUrl = BuildUrlWithQueryParams();
+            await JS.InvokeVoidAsync("history.replaceState", null, "", newUrl);
+        }
+        catch
+        {
+            // JS interop may not be available during prerendering; swallow silently.
+        }
+    }
+
+    private string BuildUrlWithQueryParams()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var baseUrl = $"{uri.Scheme}://{uri.Authority}{uri.AbsolutePath}";
+
+        // Collect the set of query-string keys owned by this component.
+        var ownedKeys = GetOwnedQueryKeys();
+
+        // Preserve non-filter raw query-string fragments verbatim to avoid re-encoding
+        // '+' (form-encoded space) as '%2B' or collapsing repeated keys.
+        var rawQuery = uri.Query.TrimStart('?');
+        var parts = new List<string>();
+
+        if (!string.IsNullOrEmpty(rawQuery))
+        {
+            foreach (var fragment in rawQuery.Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var eq = fragment.IndexOf('=');
+                if (eq > 0)
+                {
+                    var key = Uri.UnescapeDataString(fragment[..eq]);
+                    if (!ownedKeys.Contains(key))
+                        parts.Add(fragment); // preserve raw — no re-encoding
+                }
+                else
+                {
+                    // Valueless flag param (e.g., ?debug); always preserve verbatim.
+                    parts.Add(fragment);
+                }
+            }
+        }
+
+        // Add / replace filter params with invariant-culture serialization.
+        foreach (var prop in Config.Properties)
+        {
+            var propName = FilterProperty<TEntity>.GetPropertyName(prop.Property);
+
+            switch (prop)
+            {
+                case FilterProperty<TEntity>.Text:
+                case FilterProperty<TEntity>.EnumVal:
+                    if (_filterState.TryGetValue(propName, out var sv) && sv != null)
+                        parts.Add($"{propName}={Uri.EscapeDataString(sv.ToString()!)}");
+                    break;
+
+                case FilterProperty<TEntity>.Bool:
+                    if (_filterState.TryGetValue(propName, out var bv) && bv != null)
+                        parts.Add($"{propName}={Uri.EscapeDataString(bv.ToString()!.ToLowerInvariant())}");
+                    break;
+
+                case FilterProperty<TEntity>.Numeric { AsRange: true }:
+                    if (_filterState.TryGetValue(propName + "_min", out var minV) && minV is decimal minD)
+                        parts.Add($"{propName}_min={Uri.EscapeDataString(minD.ToString(CultureInfo.InvariantCulture))}");
+                    if (_filterState.TryGetValue(propName + "_max", out var maxV) && maxV is decimal maxD)
+                        parts.Add($"{propName}_max={Uri.EscapeDataString(maxD.ToString(CultureInfo.InvariantCulture))}");
+                    break;
+
+                case FilterProperty<TEntity>.Numeric:
+                    if (_filterState.TryGetValue(propName, out var nv) && nv is decimal nd)
+                        parts.Add($"{propName}={Uri.EscapeDataString(nd.ToString(CultureInfo.InvariantCulture))}");
+                    break;
+
+                case FilterProperty<TEntity>.Date { AsRange: true }:
+                    if (_filterState.TryGetValue(propName + "_start", out var ds) && ds is DateTime dt1)
+                        parts.Add($"{propName}_start={Uri.EscapeDataString(dt1.ToString("o", CultureInfo.InvariantCulture))}");
+                    if (_filterState.TryGetValue(propName + "_end", out var de) && de is DateTime dt2)
+                        parts.Add($"{propName}_end={Uri.EscapeDataString(dt2.ToString("o", CultureInfo.InvariantCulture))}");
+                    break;
+
+                case FilterProperty<TEntity>.Date:
+                    if (_filterState.TryGetValue(propName, out var dv) && dv is DateTime dt)
+                        parts.Add($"{propName}={Uri.EscapeDataString(dt.ToString("o", CultureInfo.InvariantCulture))}");
+                    break;
+
+                default:
+                    // ForeignKey values are complex objects; skip URL persistence (no stable string key).
+                    break;
+            }
+        }
+
+        var queryPart = parts.Count > 0 ? "?" + string.Join("&", parts) : string.Empty;
+        return baseUrl + queryPart + uri.Fragment;
+    }
+
+    private HashSet<string> GetOwnedQueryKeys()
+    {
+        var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var prop in Config.Properties)
+        {
+            // ForeignKey values are not persisted to the URL, so do not mark them as owned.
+            // Marking them owned would strip an existing URL param with the same name.
+            if (prop.IsForeignKey)
+                continue;
+
+            var propName = FilterProperty<TEntity>.GetPropertyName(prop.Property);
+            keys.Add(propName);
+
+            if (prop is FilterProperty<TEntity>.Numeric { AsRange: true })
+            {
+                keys.Add(propName + "_min");
+                keys.Add(propName + "_max");
+            }
+            else if (prop is FilterProperty<TEntity>.Date { AsRange: true })
+            {
+                keys.Add(propName + "_start");
+                keys.Add(propName + "_end");
+            }
+        }
+        return keys;
+    }
+
+    // ── Filter descriptor builder ────────────────────────────────────────
+
+    private CompositeFilterDescriptor? BuildCompositeFilter()
+    {
+        var descriptors = new List<FilterDescriptor>();
+
+        foreach (var prop in Config.Properties)
+        {
+            var propName = FilterProperty<TEntity>.GetPropertyName(prop.Property);
+
+            switch (prop)
+            {
+                case FilterProperty<TEntity>.Text:
+                    if (_filterState.TryGetValue(propName, out var tv) && tv is string ts && !string.IsNullOrEmpty(ts))
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Contains, ts));
+                    break;
+
+                case FilterProperty<TEntity>.EnumVal:
+                    if (_filterState.TryGetValue(propName, out var ev) && ev != null)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, ev));
+                    break;
+
+                case FilterProperty<TEntity>.Bool:
+                    if (_filterState.TryGetValue(propName, out var bv) && bv is bool b)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, b));
+                    break;
+
+                case FilterProperty<TEntity>.Numeric { AsRange: true }:
+                    if (_filterState.TryGetValue(propName + "_min", out var minV) && minV is decimal minD)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.GreaterThanOrEqual, minD));
+                    if (_filterState.TryGetValue(propName + "_max", out var maxV) && maxV is decimal maxD)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.LessThanOrEqual, maxD));
+                    break;
+
+                case FilterProperty<TEntity>.Numeric:
+                    if (_filterState.TryGetValue(propName, out var nv) && nv is decimal nd)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, nd));
+                    break;
+
+                case FilterProperty<TEntity>.Date { AsRange: true }:
+                    if (_filterState.TryGetValue(propName + "_start", out var ds) && ds is DateTime dt1)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.GreaterThanOrEqual, dt1));
+                    if (_filterState.TryGetValue(propName + "_end", out var de) && de is DateTime dt2)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.LessThanOrEqual, dt2));
+                    break;
+
+                case FilterProperty<TEntity>.Date:
+                    if (_filterState.TryGetValue(propName, out var dv) && dv is DateTime dt)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, dt));
+                    break;
+
+                default:
+                    // ForeignKey: emits the selected TForeign object as Value. When the consuming
+                    // data provider needs a scalar key (e.g., CategoryId), it should extract the
+                    // key from the object. A future KeyProperty selector on ForeignKey<TForeign>
+                    // will make this provider-agnostic; deferred until ForeignKey is used in a page.
+                    if (prop.IsForeignKey && _filterState.TryGetValue(propName, out var fkv) && fkv != null)
+                        descriptors.Add(new FilterDescriptor(propName, FilterOperators.Equals, fkv));
+                    break;
+            }
+        }
+
+        return descriptors.Count > 0
+            ? new CompositeFilterDescriptor { Filters = descriptors }
+            : null;
+    }
+
+    // ── Chip helpers ─────────────────────────────────────────────────────
+
+    private bool HasActiveFilters() => _filterState.Count > 0;
+
+    private IEnumerable<(string Key, string Label)> BuildActiveChips()
+    {
+        foreach (var prop in Config.Properties)
+        {
+            var propName = FilterProperty<TEntity>.GetPropertyName(prop.Property);
+            var displayName = LabelFor(prop, propName);
+
+            if (prop is FilterProperty<TEntity>.Numeric { AsRange: true })
+            {
+                // Each bound gets its own chip so closing one doesn't silently leave the other active.
+                if (_filterState.TryGetValue(propName + "_min", out var minV) && minV != null)
+                    yield return (propName + "_min", $"{displayName} ≥ {minV}");
+                if (_filterState.TryGetValue(propName + "_max", out var maxV) && maxV != null)
+                    yield return (propName + "_max", $"{displayName} ≤ {maxV}");
+            }
+            else if (prop is FilterProperty<TEntity>.Date { AsRange: true })
+            {
+                if (_filterState.TryGetValue(propName + "_start", out var ds) && ds is DateTime startDt)
+                    yield return (propName + "_start", $"{displayName} from {startDt:d}");
+                if (_filterState.TryGetValue(propName + "_end", out var de) && de is DateTime endDt)
+                    yield return (propName + "_end", $"{displayName} to {endDt:d}");
+            }
+            else
+            {
+                if (_filterState.TryGetValue(propName, out var v) && v != null)
+                {
+                    // For ForeignKey, show the display string if available
+                    string displayValue;
+                    if (prop.IsForeignKey && _lookupItems.TryGetValue(propName, out var lookup))
+                        displayValue = lookup.FirstOrDefault(l => l.Value == v).Display ?? v.ToString()!;
+                    else
+                        displayValue = v.ToString()!;
+
+                    yield return (propName, $"{displayName}: {displayValue}");
+                }
+            }
+        }
+    }
+
+    // ── Static helpers ───────────────────────────────────────────────────
+
+    private static string LabelFor(FilterProperty<TEntity> prop, string propName)
+        => prop.Label ?? propName;
+
+    private static IReadOnlyDictionary<string, string> ParseQueryString(string? queryString)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrEmpty(queryString))
+            return result;
+
+        var query = queryString.TrimStart('?');
+        foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var eq = part.IndexOf('=');
+            if (eq > 0)
+            {
+                // Decode both %-encoding and form-encoded '+' (space substitute).
+                var key = Uri.UnescapeDataString(part[..eq].Replace('+', ' '));
+                var val = Uri.UnescapeDataString(part[(eq + 1)..].Replace('+', ' '));
+                result[key] = val;
+            }
+            // Valueless flag params (e.g., ?debug) are not key-value pairs; skip for restoration.
+        }
+
+        return result;
+    }
+
+    // ── Internal test surface ────────────────────────────────────────────
+
+    /// <summary>Returns the current raw filter state for testing purposes.</summary>
+    internal IReadOnlyDictionary<string, object?> GetFilterState() => _filterState;
+}

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="bunit" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Libs\Dabbler.Reports.Blazor\Dabbler.Reports.Blazor.csproj" />
+    <ProjectReference Include="..\..\src\Libs\Dabbler.Platform.Stubs\Dabbler.Platform.Stubs.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Liberation Sans (SIL OFL 1.1), vendored from ../dabbler-pdf: the TrueType
+         fixture for the ReportFonts tests, so they run on any OS. -->
+    <None Update="Fonts\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
