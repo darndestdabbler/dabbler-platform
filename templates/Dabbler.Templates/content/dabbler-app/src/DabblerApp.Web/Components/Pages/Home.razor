@@ -1,0 +1,30 @@
+@page "/"
+@attribute [DabblerPageAuthorize("/")]
+<PageTitle>Home — DabblerApp</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Welcome to DabblerApp</MudText>
+
+<MudText Class="mb-3">
+    This app was scaffolded from the <strong>dabbler-app</strong> template. It demonstrates:
+</MudText>
+
+<MudList T="string" Dense="true">
+    <MudListItem Icon="@Icons.Material.Filled.Security">
+        Magic-link authentication + restriction-based authorization (Dabbler.Security)
+    </MudListItem>
+    <MudListItem Icon="@Icons.Material.Filled.TableChart">
+        CRUD list with QBE filter and dirty-tracking edit session (Dabbler.Components)
+    </MudListItem>
+    <MudListItem Icon="@Icons.Material.Filled.PictureAsPdf">
+        Parameterized report with PDF export (Dabbler.Reports)
+    </MudListItem>
+    <MudListItem Icon="@Icons.Material.Filled.BugReport">
+        Stub-backed bUnit tests (Dabbler.Platform.Stubs)
+    </MudListItem>
+</MudList>
+
+<MudAlert Severity="Severity.Info" Class="mt-4">
+    Signed in as <strong>admin@local.test</strong>? Navigate to
+    <MudLink Href="/items">Sample Items</MudLink> or
+    <MudLink Href="/reports/sample">Sample Report</MudLink> to explore.
+</MudAlert>

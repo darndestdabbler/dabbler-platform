@@ -1,0 +1,110 @@
+@page "/admin/audit"
+@using Dabbler.Security.Models
+@using Dabbler.Security.Abstractions
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@attribute [Authorize(Roles = "UserAdministrator")]
+@inject IAuditService AuditService
+
+@*
+/// <summary>
+/// Displays a filterable audit log of changes made to security-related entities.
+/// This page is restricted to users with the "UserAdministrator" role.
+/// </summary>
+*@
+
+<PageTitle>Audit Log</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h1" Class="mb-4">Audit Log</MudText>
+
+    <MudPaper Elevation="3" Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="3">
+                <MudDatePicker Label="From Date" @bind-Date="_fromDate" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudDatePicker Label="To Date" @bind-Date="_toDate" />
+            </MudItem>
+            <MudItem xs="12" sm="12" md="6" Class="d-flex align-end">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadData" Class="mr-2">Filter</MudButton>
+                <MudButton Variant="Variant.Outlined" OnClick="ResetFilters">Reset</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudTable Items="@_entries" Dense="true" Hover="true" Loading="@_loading" Striped="true">
+        <HeaderContent>
+            <MudTh>Timestamp</MudTh>
+            <MudTh>Entity Type</MudTh>
+            <MudTh>Entity ID</MudTh>
+            <MudTh>Operation</MudTh>
+            <MudTh>Changed By</MudTh>
+            <MudTh>Details</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Timestamp">@context.Timestamp.ToLocalTime().ToString("g")</MudTd>
+            <MudTd DataLabel="Entity Type">@context.EntityType</MudTd>
+            <MudTd DataLabel="Entity ID">@context.EntityId</MudTd>
+            <MudTd DataLabel="Operation">
+                <MudChip T="string" Size="Size.Small" Color="@GetOperationColor(context.Operation ?? string.Empty)">
+                    @context.Operation
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Changed By">@context.ChangedBy</MudTd>
+            <MudTd DataLabel="Details">@context.Details</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private bool _loading = true;
+    private List<AuditEntry> _entries = new();
+    private DateTime? _fromDate = DateTime.Today.AddDays(-7);
+    private DateTime? _toDate = DateTime.Today.AddDays(1);
+    private int _page = 1;
+    private int _pageSize = 100;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        try
+        {
+            var from = _fromDate ?? DateTime.MinValue;
+            var to = _toDate ?? DateTime.MaxValue;
+            
+            _entries = await AuditService.GetAllChangesAsync(from, to, _page, _pageSize);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task ResetFilters()
+    {
+        _fromDate = DateTime.Today.AddDays(-7);
+        _toDate = DateTime.Today.AddDays(1);
+        await LoadData();
+    }
+
+    private Color GetOperationColor(string operation)
+    {
+        return operation.ToLowerInvariant() switch
+        {
+            "created" or "assigned" or "enrolled/verified" => Color.Success,
+            "deleted" or "removed" => Color.Error,
+            "updated" => Color.Info,
+            _ => Color.Default
+        };
+    }
+}

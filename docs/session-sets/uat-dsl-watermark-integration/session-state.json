@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "uat-dsl-watermark-integration",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Catalog crawler \u2014 flag watermarked routes",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "DSL grammar + compiler \u2014 `WAIT FOR ACTIONS QUIET` verb",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Prompt update + end-to-end smoke + close",
+      "status": "complete",
+      "startedAt": "2026-04-29T12:02:32.942870-04:00",
+      "completedAt": "2026-04-29T12:22:35.296253-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

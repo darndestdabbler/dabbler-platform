@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 034 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 034 transcript</h1>
+<p class="stamp">Rendered 2026-11-13T12:08:50.381Z by dabbler-ai-router 3.32.4 at f9876031df9d22cff3e4f411ada7500ffc8421dc.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-13T06:07:29.304-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 34: Move bUnit to 2.x</h3>
+<p>Runs after Session 33.</p>
+<ol><li>Register.</li><li>Session 32 lifted bUnit's transitive <code>AngleSharp</code> to <code>1.5.0</code> past GHSA-pgww-w46g-26qg, but <code>AngleSharp</code> <code>1.5.0</code> moved <code>IHtmlCollection&lt;T&gt;</code>'s int indexer onto <code>IReadOnlyList&lt;T&gt;</code>, so <code>bunit</code> <code>1.37.7</code>'s compiled <code>FindAll(...)[i]</code> throws <code>MissingMethodException</code>. Session 32 worked around it with <code>ElementAt(i)</code> in three tests and a comment in the <code>dabbler-app</code> template; a consumer who indexes <code>FindAll</code> results in a generated test still hits it. <code>bunit</code> <code>2.15.2</code> is built against <code>AngleSharp</code> <code>1.10.1</code>. Raise the <code>bunit</code> pin in <code>Directory.Packages.props</code> and the template's <code>Version=&quot;1.37.7&quot;</code> to <code>2.15.2</code>. Every <code>bunit</code> 2.x that targets <code>net10.0</code> with a patched AngleSharp depends on <code>Microsoft.AspNetCore.Components.*</code> <code>10.0.10</code> or later (<code>2.15.2</code>: <code>10.0.13</code>), which would make the direct <code>10.0.5</code> reference in <code>tests/Dabbler.Security.Blazor.Tests</code> an NU1605 downgrade: raise the <code>Microsoft.AspNetCore.Components.Web</code> and <code>Microsoft.AspNetCore.Components.Authorization</code> pins to <code>10.0.15</code>, within the 10.x policy in <code>docs/MAINTAINING.md</code>. Remove the <code>AngleSharp</code> <code>PackageVersion</code>, the five direct references and the template's reference and comment. Port the bUnit test code to the 2.x API (<code>TestContext</code> → <code>BunitContext</code>, <code>RenderComponent</code> → <code>Render</code>, <code>SetParametersAndRender</code> → <code>Render</code>, and whatever else the build reports) in <code>tests/AcmeCoffeeOnline.Web.Tests</code>, <code>tests/Dabbler.Components.Tests</code>, <code>tests/Dabbler.Reports.Blazor.Tests</code>, <code>tests/Dabbler.Security.Blazor.Tests</code>, <code>tests/Dabbler.Testing.Blazor.Tests</code> and the template's <code>SampleItemListTests.cs</code>, and return Session 32's three <code>ElementAt(i)</code> calls to <code>[i]</code>. Update the bUnit example in <code>src/Libs/Dabbler.Platform.Stubs/README.md</code> to the 2.x API. The step's checks: the restore of each of the five test projects with <code>--force</code> prints no NU1901, NU1902, NU1903 or NU1904; <code>dotnet test</code> of each passes; then, after a Release build and <code>tools/pack.ps1 -OutputDir pack-output -CleanOutput</code>, <code>dotnet test tests/Dabbler.Templates.Tests</code> passes.</li><li>Cross-provider verification.</li><li>The <code>unit</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no public API change; no raise of the other <code>Microsoft.AspNetCore.*</code> 10.0.5 pins; no change to <code>DabblerVersion</code> or <code>CHANGELOG.md</code> (Session 37's).</p>
+<p>Why now (2026-11-13): the operator wants no audited package and no workaround left in the solution or the templates, and accepted the bUnit major to get there.</p>
+<h2>Work Plan</h2>
+<p>Move the solution and the <code>dabbler-app</code> template from <code>bunit</code> 1.37.7 to 2.15.2, which is built against <code>AngleSharp</code> 1.10.1, so Session 32's AngleSharp lift and its <code>ElementAt(i)</code> workaround both go. In <code>Directory.Packages.props</code> the <code>bunit</code> pin moves to 2.15.2, the <code>Microsoft.AspNetCore.Components.Web</code> and <code>Microsoft.AspNetCore.Components.Authorization</code> pins move from 10.0.5 to 10.0.15 (bUnit 2.15.2 depends on <code>Microsoft.AspNetCore.Components.*</code> 10.0.13, which would make the direct 10.0.5 reference in <code>tests/Dabbler.Security.Blazor.Tests</code> an NU1605 downgrade; 10.0.15 is within the 10.x policy in <code>docs/MAINTAINING.md</code>), and the <code>AngleSharp</code> <code>PackageVersion</code> is removed together with the direct <code>AngleSharp</code> references in <code>tests/AcmeCoffeeOnline.Web.Tests</code>, <code>tests/Dabbler.Components.Tests</code>, <code>tests/Dabbler.Reports.Blazor.Tests</code>, <code>tests/Dabbler.Security.Blazor.Tests</code> and <code>tests/Dabbler.Testing.Blazor.Tests</code>. The template's generated test project raises <code>Version=&quot;1.37.7&quot;</code> to <code>2.15.2</code> and drops its <code>AngleSharp</code> reference and comment. The bUnit test code in those five projects and the template's <code>SampleItemListTests.cs</code> is ported to the 2.x API (<code>TestContext</code> -&gt; <code>BunitContext</code>, <code>RenderComponent</code> -&gt; <code>Render</code>, <code>IRenderedFragment</code> -&gt; <code>IRenderedComponent&lt;...&gt;</code>, <code>AddTestAuthorization</code> -&gt; <code>AddAuthorization</code>, <code>TestServiceProvider</code> -&gt; <code>BunitServiceProvider</code>, and whatever else the build reports), Session 32's three <code>ElementAt(i)</code> calls in <code>ReportViewerTests.cs</code> and <code>UserEditPageTests.cs</code> return to <code>[i]</code>, and the bUnit example in <code>src/Libs/Dabbler.Platform.Stubs/README.md</code> moves to the 2.x API.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/aec43f33a80202426f269e2e4c75a6bbbe564b5c"><code>aec43f33a80202426f269e2e4c75a6bbbe564b5c</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Bunit 2x</td><td><p>In Directory.Packages.props set <code>bunit</code> to 2.15.2, <code>Microsoft.AspNetCore.Components.Authorization</code> and <code>Microsoft.AspNetCore.Components.Web</code> to 10.0.15, and remove the <code>AngleSharp</code> PackageVersion. Remove <code>&lt;PackageReference Include=&quot;AngleSharp&quot; /&gt;</code> from the five bUnit test projects. In the dabbler-app template's DabblerApp.Web.Tests.csproj set <code>bunit</code> to <code>Version=&quot;2.15.2&quot;</code> and remove the AngleSharp reference and its comment. Port the bUnit code in the listed test files and the template's SampleItemListTests.cs to the bUnit 2.x API (TestContext -&gt; BunitContext, RenderComponent -&gt; Render, SetParametersAndRender -&gt; Render, IRenderedFragment -&gt; IRenderedComponent&lt;...&gt;, AddTestAuthorization -&gt; AddAuthorization, TestServiceProvider -&gt; BunitServiceProvider, and whatever else the build reports), changing nothing else in the tests. Return the three <code>ElementAt(i)</code> calls in ReportViewerTests.cs and UserEditPageTests.cs to <code>[i]</code>. Update the bUnit example in src/Libs/Dabbler.Platform.Stubs/README.md to the 2.x API.</p></td><td></td><td><code>dotnet restore tests/AcmeCoffeeOnline.Web.Tests/AcmeCoffeeOnline.Web.Tests.csproj --force -warnaserror:NU1901;NU1902;NU1903;NU1904</code><br><code>dotnet restore tests/Dabbler.Components.Tests/Dabbler.Components.Tests.csproj --force -warnaserror:NU1901;NU1902;NU1903;NU1904</code><br><code>dotnet restore tests/Dabbler.Reports.Blazor.Tests/Dabbler.Reports.Blazor.Tests.csproj --force -warnaserror:NU1901;NU1902;NU1903;NU1904</code><br><code>dotnet restore tests/Dabbler.Security.Blazor.Tests/Dabbler.Security.Blazor.Tests.csproj --force -warnaserror:NU1901;NU1902;NU1903;NU1904</code><br><code>dotnet restore tests/Dabbler.Testing.Blazor.Tests/Dabbler.Testing.Blazor.Tests.csproj --force -warnaserror:NU1901;NU1902;NU1903;NU1904</code><br><code>dotnet test tests/AcmeCoffeeOnline.Web.Tests</code><br><code>dotnet test tests/Dabbler.Components.Tests</code><br><code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code><br><code>dotnet test tests/Dabbler.Security.Blazor.Tests</code><br><code>dotnet test tests/Dabbler.Testing.Blazor.Tests</code><br><code>pwsh -NoProfile -Command $x=[xml](Get-Content -Raw templates/Dabbler.Templates/content/dabbler-app/tests/DabblerApp.Web.Tests/DabblerApp.Web.Tests.csproj); $r=@($x.Project.ItemGroup.PackageReference); if (@($r | Where-Object Include -eq 'AngleSharp').Count -ne 0) { throw 'dabbler-app test project still references AngleSharp' }; $b=@($r | Where-Object Include -eq 'bunit'); if ($b.Count -ne 1 -or $b[0].Version -ne '2.15.2') { throw 'dabbler-app test project does not reference bunit 2.15.2' }</code><br><code>dotnet build Dabbler.Publish.slnf -c Release</code><br><code>pwsh -NoProfile -File tools/pack.ps1 -OutputDir pack-output -CleanOutput</code><br><code>dotnet test tests/Dabbler.Templates.Tests</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No public API change in any Dabbler package.</li><li>No raise of the other <code>Microsoft.AspNetCore.*</code> 10.0.5 pins.</li><li>No change to <code>DabblerVersion</code> in <code>Directory.Build.props</code> or to <code>CHANGELOG.md</code>; both belong to Session 37.</li><li>No change to test behaviour beyond the mechanical 2.x port: no test is added, removed or rewritten for any other reason.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[11:07:29]</span> <span class="muted">run-started</span> session=034 mode=pull</div>
+<div class="line"><span class="at">[11:07:29]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[11:09:41]</span> <span class="muted">run-resumed</span> session=034 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[11:09:41]</span> <span class="muted">plan-accepted</span> steps=[&quot;bunit-2x&quot;] non_goals=4</div>
+<div class="line"><span class="at">[11:09:42]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[11:09:42]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=bunit-2x</div>
+<div class="line"><span class="at">[11:22:00]</span> <span class="muted">run-resumed</span> session=034 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/AcmeCoffeeOnline.Web.Tests/AcmeCoffeeOnline.Web.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Components.Tests/Dabbler.Components.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/Dabbler.Reports.Blazor.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Security.Blazor.Tests/Dabbler.Security.Blazor.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Testing.Blazor.Tests/Dabbler.Testing.Blazor.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/AcmeCoffeeOnline.Web.Tests&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Components.Tests&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Security.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Testing.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$x=[xml](Get-Content -Raw templates/Dabbler.Templates/content/dabbler-app/tests/DabblerApp.Web.Tests/DabblerApp.Web.Tests.csproj); $r=@($x.Project.ItemGroup.PackageReference); if (@($r | Where-Object Include -eq 'AngleSharp').Count -ne 0) { throw 'dabbler-app test project still references AngleSharp' }; $b=@($r | Where-Object Include -eq 'bunit'); if ($b.Count -ne 1 -or $b[0].Version -ne '2.15.2') { throw 'dabbler-app test project does not reference bunit 2.15.2' }&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Publish.slnf&quot;,&quot;-c&quot;,&quot;Release&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-File&quot;,&quot;tools/pack.ps1&quot;,&quot;-OutputDir&quot;,&quot;pack-output&quot;,&quot;-CleanOutput&quot;]</div>
+<div class="line"><span class="at">[11:24:09]</span> <span class="muted">check-passed</span> step=bunit-2x argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Templates.Tests&quot;]</div>
+<div class="line"><span class="at">[11:24:36]</span> <span class="muted">named-tests-passed</span> step=bunit-2x suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;AccessDeniedCardTests|AuditLogPageTests|BakedInPrivilegesPanelTests|ColumnRestrictionsSubTabTests|ComplianceReviewTabTests|CreateBackofficeUserDialogTests|CustomerListTests|CustomersFilterConfigTests|DabblerDownloadExtensionsTests|DabblerReportPageTests|DabblerRoleSwitcherTests|DabblerSecuredTests|DabblerSecurityDashboardTests|DabblerSecurityNavTests|DeclarativeFilterPanelTests|DefaultMasksGridTests|DefaultMasksTabTests|DevToolsMenuTests|DiagnosticTests|DirtyAwareActionRowTests|FilterPanelAccessibilityTests|FilterPanelTests|LoginPageOidcTests|LoginPageTests|MagicLinksDialogTests|MaskExemptionsSubTabTests|MasterDetailExpansionShellTests|MfaPageTests|OrdersFilterConfigTests|OrganizationDetailsFormTests|OrganizationMasterGridTests|ParameterPromptFormTests|PickOrAddDialogTests|ReportViewerTests|RestrictedFormFieldTests|RestrictedGridColumnTests|RoleAssignmentPageTests|RoleDetailsSectionTests|RoleDocumentationTabTests|RoleListPageTests|RoleMasterDetailsTabTests|TestReadinessProbeTests|TrackedComponentBaseTests|UserContextBarTests|UserEditPageTests|UserListPageExternalLoginTests|UserListPageTests|UserManagementPageTests|UserRoleAssignmentDetailsTests|UsersMasterGridTests&quot;</div>
+<div class="line"><span class="at">[11:24:36]</span> <span class="muted">report-accepted</span> seq=2 step=bunit-2x files=[] notes=bunit 2.15.2 + Components.Web/Authorization 10.0.15; AngleSharp pin/refs/comment removed; tests ported to 2.x (BunitContext, Render, IRenderedComponent&lt;ContainerFragment&gt;, AddAuthorization) and to async disposal (await using / IAsyncLifetime) because bUnit 2's sync Dispose throws on MudBlazor's IAsyncDisposable-only services; ElementAt(i) back to [i]; Stubs README updated. Template scaffold bUnit test also verified via Packaging.Smoke DabblerApp_ScaffoldedBUnit_AllTestsPass.</div>
+<div class="line"><span class="at">[11:24:36]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[11:24:37]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[11:24:38]</span> <span class="muted">job-started</span> name=verification pid=15276 log=.dabbler/runs/s34/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[11:25:28]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s34/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[11:25:28]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[11:25:28]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[11:25:28]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 134s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[11:25:28]</span> <span class="muted">job-started</span> name=run of record: unit pid=26600 log=.dabbler/runs/s34/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[11:26:40]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s34/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[11:26:41]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[11:26:41]</span> <span class="muted">job-started</span> name=run of record: smoke pid=54536 log=.dabbler/runs/s34/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[11:42:29]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s34/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[11:42:30]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[11:42:30]</span> <span class="muted">job-started</span> name=run of record: e2e pid=47580 log=.dabbler/runs/s34/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[11:53:39]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="bad">1</span> log=.dabbler/runs/s34/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[11:53:39]</span> <span class="muted">tests-failed</span> command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[11:53:39]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=fix-run-of-record</div>
+<div class="line"><span class="at">[11:55:48]</span> <span class="muted">run-resumed</span> session=034 phase=<span class="milestone">run-of-record</span> mode=pull</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/AcmeCoffeeOnline.Web.Tests/AcmeCoffeeOnline.Web.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Components.Tests/Dabbler.Components.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/Dabbler.Reports.Blazor.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Security.Blazor.Tests/Dabbler.Security.Blazor.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;restore&quot;,&quot;tests/Dabbler.Testing.Blazor.Tests/Dabbler.Testing.Blazor.Tests.csproj&quot;,&quot;--force&quot;,&quot;-warnaserror:NU1901;NU1902;NU1903;NU1904&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/AcmeCoffeeOnline.Web.Tests&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Components.Tests&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Security.Blazor.Tests&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Testing.Blazor.Tests&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$x=[xml](Get-Content -Raw templates/Dabbler.Templates/content/dabbler-app/tests/DabblerApp.Web.Tests/DabblerApp.Web.Tests.csproj); $r=@($x.Project.ItemGroup.PackageReference); if (@($r | Where-Object Include -eq 'AngleSharp').Count -ne 0) { throw 'dabbler-app test project still references AngleSharp' }; $b=@($r | Where-Object Include -eq 'bunit'); if ($b.Count -ne 1 -or $b[0].Version -ne '2.15.2') { throw 'dabbler-app test project does not reference bunit 2.15.2' }&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Publish.slnf&quot;,&quot;-c&quot;,&quot;Release&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-File&quot;,&quot;tools/pack.ps1&quot;,&quot;-OutputDir&quot;,&quot;pack-output&quot;,&quot;-CleanOutput&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:47]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Templates.Tests&quot;] owner=bunit-2x</div>
+<div class="line"><span class="at">[11:57:48]</span> <span class="muted">report-accepted</span> seq=3 step=fix-run-of-record files=[] notes=No change: intermittent e2e flake outside this session's diff. OrderProductLinePickerWorkflowTests.AddProduct_PickFillAndSave_PersistsOrderItemAsync timed out in WaitForQuietAsync with a save action still in flight; rerun alone against the same stack it failed 1 of 3 and passed 2 of 3. The diff only touches test code and compile-time pins: the web container runs ASP.NET Core 10.0.15 and /app ships no Components DLLs, so the app binary behaves the same before and after the Components.Web/Authorization 10.0.15 raise.</div>
+<div class="line"><span class="at">[11:57:49]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[11:57:50]</span> <span class="muted">run-of-record-standing</span> suite=unit reason=fresh, green, recorded 2026-11-13T06:26:40.658000-05:00</div>
+<div class="line"><span class="at">[11:57:50]</span> <span class="muted">run-of-record-standing</span> suite=smoke reason=fresh, green, recorded 2026-11-13T06:42:29.487000-05:00</div>
+<div class="line"><span class="at">[11:57:51]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[11:57:51]</span> <span class="muted">job-started</span> name=run of record: e2e pid=43664 log=.dabbler/runs/s34/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[12:08:11]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="good">0</span> log=.dabbler/runs/s34/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[12:08:11]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[12:08:22]</span> <span class="muted">landed</span> commit=aec43f33a80202426f269e2e4c75a6bbbe564b5c</div>
+<div class="line"><span class="at">[12:08:22]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[12:08:23]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[12:08:23]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[12:08:25]</span> <span class="muted">job-started</span> name=close pid=32952 log=.dabbler/runs/s34/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:08:50]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s34/driver/jobs/close.log</div>
+<div class="line"><span class="at">[12:08:50]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="good">passed</span></td><td>70s</td><td>580</td><td>0</td><td>0</td><td><span class="mono">dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;AccessDeniedCardTests|AcmeCoffeeNavigationDataProviderTests|AuditLogPageTests|BakedInPrivilegesPanelTests|BandLayoutEngineComposerTests|CallerLevelPdfExportTests|ColumnRestrictionsSubTabTests|CompatibilitySurfaceTests|ComplianceReviewTabTests|ContractHomeSmokeTests|CreateBackofficeUserDialogTests|CsvExportServiceTests|CustomerDetailEditSessionTests|CustomerListTests|CustomersFilterConfigTests|DabblerDownloadExtensionsTests|DabblerReportPageTests|DabblerRoleSwitcherTests|DabblerSecuredTests|DabblerSecurityDashboardTests|DabblerSecurityNavTests|DeclarativeFilterPanelTests|DefaultMasksGridTests|DefaultMasksTabTests|DevIdpToolTests|DevToolsEndpointContractTests|DevToolsMenuTests|DiagnosticTests|DirtyAwareActionRowTests|EditSessionTests|FilterPanelAccessibilityTests|FilterPanelTests|GridDataProviderExtensionsTests|HomePageConfigurationTests|LoginPageOidcTests|LoginPageTests|MagicLinksDialogTests|MaskExemptionsSubTabTests|MasterDetailExpansionShellTests|MfaPageTests|MudBlazorRebuildConformanceTests|NotesDrivenAlignmentGuardrailTests|NupkgArtifactTests|ObservabilitySmokeTests|OpenPdfTextMeasurerTests|OrderDetailEditSessionTests|OrderDetailStateNestedItemsTests|OrderDetailStateTests|OrdersFilterConfigTests|OrganizationDetailsFormTests|OrganizationMasterGridTests|ParameterPromptFormTests|PdfExportTitleRegressionTests|PdfExporterTests|PdfPageRendererTests|PickOrAddDialogTests|ProductionSplitTests|ReportFontResolverTests|ReportFontsServiceCollectionExtensionsTests|ReportFontsTests|ReportPdfExporterFactoryTests|ReportViewerTests|RestrictedFormFieldTests|RestrictedGridColumnTests|RoleAssignmentPageTests|RoleDetailsSectionTests|RoleDocumentationTabTests|RoleListPageTests|RoleMasterDetailsTabTests|ShellSessionStateLoaderTests|StaticWebAssetHostTests|StubGridDataProviderTests|StubPlatformRegistrationTests|TestAuthClientTests|TestReadinessProbeTests|TrackedComponentBaseTests|UserContextBarTests|UserEditPageTests|UserListPageExternalLoginTests|UserListPageTests|UserManagementPageTests|UserRoleAssignmentDetailsTests|UsersMasterGridTests|WebGuardrailTests|WebHealthEndpointTests|WorkflowAssetSmokeTests&quot;</span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>946s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="bad">failed</span></td><td>666s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="good">passed</span></td><td>617s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-e2e</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

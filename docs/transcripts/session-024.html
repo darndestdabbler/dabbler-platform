@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 024 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 024 transcript</h1>
+<p class="stamp">Rendered 2026-11-12T17:38:42.282Z by dabbler-ai-router 3.32.4 at 85d19329a9557f6dbfcf8873b066b0d43e551c6a.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-12T12:16:04.266-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 24: The Debug solution build is green under .NET SDK 11.0.100</h3>
+<ol><li>Register.</li><li>Stop <code>tools/Dabbler.Security.DevIdp.Tool</code> failing the Debug build. Under .NET SDK 11.0.100, <code>dotnet build Dabbler.Platform.sln</code> fails in that project with &quot;The following scoped css bundles do not have matching endpoints: <code>_framework/Microsoft.NET.Sdk.BlazorWeb.HotReload#[.{fingerprint}]!.lib.module.js</code>&quot;. In Debug, SDK 11 adds a Hot Reload browser-tools module to every <code>Microsoft.NET.Sdk.Web</code> project, and this tool has no static web assets for it to attach to. The Release build passes. Set <code>&lt;StaticWebAssetsEnabled&gt;false&lt;/StaticWebAssetsEnabled&gt;</code> in <code>Dabbler.Security.DevIdp.Tool.csproj</code>, with a comment that says why: the tool serves no static files (no <code>wwwroot</code>, no <code>UseStaticFiles</code> or <code>MapStaticAssets</code>). No other project changes. The step's checks: <code>dotnet build Dabbler.Platform.sln</code> succeeds; <code>dotnet build Dabbler.Platform.sln -c Release</code> succeeds; <code>dotnet run --project tools/Dabbler.Security.DevIdp.Tool -- --help</code> exits 0.</li><li>Cross-provider verification.</li><li>The <code>unit</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no <code>global.json</code> SDK pin; no change to the DevIdp tool's behaviour; no change to <code>ci.yml</code>, <code>build.yml</code> or <code>dabbler.yaml</code>; no version or <code>CHANGELOG.md</code> change (Session 30's).</p>
+<p>Why now (2026-11-12): SDK 11.0.100 was installed on the development machine on 2026-11-10, after Session 22's last green run. The first attempt at the shell move (now Session 25) was rolled back because its <code>dotnet build Dabbler.Platform.sln</code> check failed in this project, a project the move does not touch. Every session whose checks build the solution in Debug fails the same way until this is fixed. Setting the property on the command line was confirmed to fix the Debug build, and <code>--help</code> still runs with it.</p>
+<p>&gt; <strong>Sessions 25–30</strong> answer the maintainer findings a downstream consumer &gt; (the TRIMS application, on the <code>1.0.0</code> packages) sent on 2026-11-12, and &gt; the operator's request for Unicode report text the same day. Session 23 &gt; was cancelled, so <code>1.0.1</code> is still unreleased and <code>1.1.0</code> was never made; &gt; both fold into <code>2.0.0</code>. The findings about DabblerPdf are Sessions 13–15 &gt; of <code>../dabbler-pdf</code>, which release DabblerPdf <code>1.2.0</code>, and Unicode is its &gt; Sessions 16–18, which release <code>1.3.0</code>. Session 28 here takes <code>1.2.0</code> and &gt; Session 29 takes <code>1.3.0</code>; <code>2.0.0</code> waits for both. Sessions 25–27 depend on &gt; neither and run while DabblerPdf is being released.</p>
+<h2>Work Plan</h2>
+<p>Make the Debug solution build green under .NET SDK 11.0.100 by setting &lt;StaticWebAssetsEnabled&gt;false&lt;/StaticWebAssetsEnabled&gt; in tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj, with a comment explaining that the tool serves no static files (no wwwroot, no UseStaticFiles or MapStaticAssets), so SDK 11's Debug-only Hot Reload browser-tools module has no static web assets to attach to and otherwise fails the build. No other project changes.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/0bde5b0fc1c89f2e61c23f78fc8e39ba5c32593b"><code>0bde5b0fc1c89f2e61c23f78fc8e39ba5c32593b</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Devidp static web assets</td><td><p>Add &lt;StaticWebAssetsEnabled&gt;false&lt;/StaticWebAssetsEnabled&gt; to the PropertyGroup of tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj, with a comment saying the tool serves no static files (no wwwroot, no UseStaticFiles or MapStaticAssets) and that under SDK 11 the Debug build otherwise fails on the Hot Reload browser-tools module having no matching static asset endpoint.</p></td><td><span class="mono">tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj</span></td><td><code>dotnet build Dabbler.Platform.sln</code><br><code>dotnet build Dabbler.Platform.sln -c Release</code><br><code>dotnet run --project tools/Dabbler.Security.DevIdp.Tool -- --help</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No global.json SDK pin.</li><li>No change to the DevIdp tool's behaviour (Program.cs and the Dabbler.Security.DevIdp library are untouched).</li><li>No change to ci.yml, build.yml or dabbler.yaml.</li><li>No version or CHANGELOG.md change (Session 30's).</li><li>No change to any project other than Dabbler.Security.DevIdp.Tool.csproj (the shell move is Session 25's).</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[17:16:04]</span> <span class="muted">run-started</span> session=024 mode=pull</div>
+<div class="line"><span class="at">[17:16:04]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[17:16:25]</span> <span class="muted">run-resumed</span> session=024 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[17:16:25]</span> <span class="muted">plan-accepted</span> steps=[&quot;devidp-static-web-assets&quot;] non_goals=5</div>
+<div class="line"><span class="at">[17:16:26]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[17:16:26]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=devidp-static-web-assets</div>
+<div class="line"><span class="at">[17:16:43]</span> <span class="muted">run-resumed</span> session=024 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[17:17:04]</span> <span class="muted">check-passed</span> step=devidp-static-web-assets argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;]</div>
+<div class="line"><span class="at">[17:17:04]</span> <span class="muted">check-passed</span> step=devidp-static-web-assets argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;,&quot;-c&quot;,&quot;Release&quot;]</div>
+<div class="line"><span class="at">[17:17:04]</span> <span class="muted">check-passed</span> step=devidp-static-web-assets argv=[&quot;dotnet&quot;,&quot;run&quot;,&quot;--project&quot;,&quot;tools/Dabbler.Security.DevIdp.Tool&quot;,&quot;--&quot;,&quot;--help&quot;]</div>
+<div class="line"><span class="at">[17:17:05]</span> <span class="muted">report-accepted</span> seq=2 step=devidp-static-web-assets files=[&quot;tools/Dabbler.Security.DevIdp.Tool/Dabbler.Security.DevIdp.Tool.csproj&quot;] notes=Set StaticWebAssetsEnabled=false in the DevIdp tool csproj with a comment why; Debug build of the tool now succeeds.</div>
+<div class="line"><span class="at">[17:17:05]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[17:17:05]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[17:17:05]</span> <span class="muted">job-started</span> name=verification pid=60056 log=.dabbler/runs/s24/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[17:17:24]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s24/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[17:17:24]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[17:17:24]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[17:17:24]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[17:17:24]</span> <span class="muted">job-started</span> name=run of record: unit pid=58132 log=.dabbler/runs/s24/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[17:17:26]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s24/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[17:17:26]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[17:17:26]</span> <span class="muted">job-started</span> name=run of record: smoke pid=18696 log=.dabbler/runs/s24/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[17:17:58]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s24/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[17:17:59]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[17:17:59]</span> <span class="muted">job-started</span> name=run of record: e2e pid=60212 log=.dabbler/runs/s24/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[17:28:26]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="bad">1</span> log=.dabbler/runs/s24/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[17:28:26]</span> <span class="muted">tests-failed</span> command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[17:28:26]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=fix-run-of-record</div>
+<div class="line"><span class="at">[17:28:55]</span> <span class="muted">run-resumed</span> session=024 phase=<span class="milestone">run-of-record</span> mode=pull</div>
+<div class="line"><span class="at">[17:29:04]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;] owner=devidp-static-web-assets</div>
+<div class="line"><span class="at">[17:29:04]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;,&quot;-c&quot;,&quot;Release&quot;] owner=devidp-static-web-assets</div>
+<div class="line"><span class="at">[17:29:04]</span> <span class="muted">check-passed</span> step=fix-run-of-record argv=[&quot;dotnet&quot;,&quot;run&quot;,&quot;--project&quot;,&quot;tools/Dabbler.Security.DevIdp.Tool&quot;,&quot;--&quot;,&quot;--help&quot;] owner=devidp-static-web-assets</div>
+<div class="line"><span class="at">[17:29:04]</span> <span class="muted">report-accepted</span> seq=3 step=fix-run-of-record files=[] notes=No change: OrderProductLinePickerWorkflowTests.AddProduct_PickFillAndSave timed out in WaitForQuietAsync with a save action still in flight (166/172 passed); a timing flake unrelated to the DevIdp tool csproj property, which no e2e app service uses.</div>
+<div class="line"><span class="at">[17:29:04]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[17:29:05]</span> <span class="muted">run-of-record-standing</span> suite=unit reason=fresh, green, recorded 2026-11-12T12:17:25.989000-05:00</div>
+<div class="line"><span class="at">[17:29:05]</span> <span class="muted">run-of-record-standing</span> suite=smoke reason=fresh, green, recorded 2026-11-12T12:17:58.825000-05:00</div>
+<div class="line"><span class="at">[17:29:06]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[17:29:06]</span> <span class="muted">job-started</span> name=run of record: e2e pid=54824 log=.dabbler/runs/s24/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[17:38:31]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="good">0</span> log=.dabbler/runs/s24/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[17:38:31]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[17:38:35]</span> <span class="muted">landed</span> commit=0bde5b0fc1c89f2e61c23f78fc8e39ba5c32593b</div>
+<div class="line"><span class="at">[17:38:35]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[17:38:35]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[17:38:35]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[17:38:35]</span> <span class="muted">job-started</span> name=close pid=8816 log=.dabbler/runs/s24/driver/jobs/close.log</div>
+<div class="line"><span class="at">[17:38:42]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s24/driver/jobs/close.log</div>
+<div class="line"><span class="at">[17:38:42]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="bad">none-selected</span></td><td>1s</td><td></td><td></td><td></td><td><span class="mono"></span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>32s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="bad">failed</span></td><td>626s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="good">passed</span></td><td>565s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-e2e</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

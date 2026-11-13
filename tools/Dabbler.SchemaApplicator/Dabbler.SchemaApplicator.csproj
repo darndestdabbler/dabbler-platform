@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Dabbler.SchemaApplicator</RootNamespace>
+    <AssemblyName>Dabbler.SchemaApplicator</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,22 @@
+{
+  "status": "completed",
+  "summary": "Session 3 of 3 (template-scaffolding-followup-fixes): Removed NU5110/NU5111 pack warnings from Dabbler.Templates and authored the set's change-log.md. Root cause: NuGet flags any .ps1 file anywhere in a package with NU5110/NU5111; Apply-T1EntitySchema.ps1 is a post-scaffolding developer helper, not a NuGet install script — a false-positive for template packages. Fix: renamed Apply-T1EntitySchema.ps1 to Apply-T1EntitySchema.dabbler-ps in the template source directory; added a sources[].rename entry to dabbler-crud-page/.template.config/template.json mapping the .dabbler-ps source path to Apply-T1EntitySchema.ps1 on scaffold output. The existing entity/entityPlural fileRename symbols apply token substitution to the rename target, producing Apply-{Entity}Schema.ps1 in the developer's project. No NoWarn added to Dabbler.Templates.csproj — warnings are eliminated by removing the .ps1 from the package, not by suppressing detection. Full validation bundle: dotnet pack (zero NU5110/NU5111), nupkg inspection (Apply-T1EntitySchema.dabbler-ps present; no .ps1 in package), scaffold smoke (Apply-ProductSchema.ps1 correctly emitted), tools/pack.ps1 (30 packages, no warnings), PackagingSmokeTests 4/4, Dabbler.CrudSlice.Tests 29/29. change-log.md authored covering all 3 sessions with deferred items listed. Cross-provider session-verification by Gemini Pro (cross-provider against Claude Sonnet / Anthropic) VERIFIED on Round 1 with zero findings. Total Session 3 routed cost $0.1298 (first Opus verification call $0.126045 — result lost to UnicodeEncodeError in print path, call itself completed; second Gemini Pro call $0.003729 — VERIFIED). This is the final session; the session set closes as complete.",
+  "files_changed": [
+    "docs/session-sets/template-scaffolding-followup-fixes/spec.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/ai-assignment.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/activity-log.json",
+    "docs/session-sets/template-scaffolding-followup-fixes/session-state.json",
+    "docs/session-sets/template-scaffolding-followup-fixes/change-log.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/session-reviews/session-003.md",
+    "docs/session-sets/template-scaffolding-followup-fixes/disposition.json",
+    "templates/Dabbler.Templates/content/dabbler-crud-page/.template.config/template.json",
+    "templates/Dabbler.Templates/content/dabbler-crud-page/Components/Pages/T2EntityPlural/Apply-T1EntitySchema.dabbler-ps",
+    "ai_router/router-metrics.jsonl",
+    "pack-output/Dabbler.Templates.0.1.0-preview.1.nupkg",
+    "pack-output/Dabbler.Templates.0.1.0-preview.1.snupkg"
+  ],
+  "verification_method": "api",
+  "verification_message_ids": [],
+  "next_orchestrator": null,
+  "blockers": []
+}
