@@ -1,0 +1,42 @@
+[
+  {
+    "round": 1,
+    "severity": "Major",
+    "category": "Correctness",
+    "title": "Failed API calls bypass budget cap",
+    "status": "fixed",
+    "fix": "Moved self._calls += 1 to before ar.route() with explanatory comment"
+  },
+  {
+    "round": 1,
+    "severity": "Major",
+    "category": "Completeness",
+    "title": "task-prompts.md and router-config.yaml not in verification prompt (context gap)",
+    "status": "fixed",
+    "fix": "Included full uat-failure-triage section and relevant config lines in Round 2 prompt"
+  },
+  {
+    "round": 1,
+    "severity": "Minor",
+    "category": "Correctness",
+    "title": "Redundant import re inside _parse_step_number",
+    "status": "fixed",
+    "fix": "Removed duplicate import; module-level import already present"
+  },
+  {
+    "round": 1,
+    "severity": "Minor",
+    "category": "Correctness",
+    "title": "Fragile late-import using string replacement on __file__",
+    "status": "fixed",
+    "fix": "Replaced with Path(__file__).resolve().parents[1]"
+  },
+  {
+    "round": 1,
+    "severity": "Minor",
+    "category": "Correctness",
+    "title": "RunReport.triage_results typed as bare list",
+    "status": "fixed",
+    "fix": "Changed to list[Any] with from typing import Any, Iterable"
+  }
+]
