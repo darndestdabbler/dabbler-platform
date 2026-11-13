@@ -8,6 +8,7 @@
     <PackageReference Include="AngleSharp" />
     <PackageReference Include="bunit" />
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" VersionOverride="9.0.23" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
