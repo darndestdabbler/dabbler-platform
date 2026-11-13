@@ -1389,15 +1389,157 @@ Runs after Session 33.
 
 Non-goals: no public API change; no raise of the other
 `Microsoft.AspNetCore.*` 10.0.5 pins; no change to `DabblerVersion` or
-`CHANGELOG.md` (Session 35's).
+`CHANGELOG.md` (Session 37's).
 
 Why now (2026-11-13): the operator wants no audited package and no
 workaround left in the solution or the templates, and accepted the bUnit
 major to get there.
 
-### Session 35: Bump to 2.0.2
+### Session 35: Clear the shipped packages' build warnings
 
 Runs after Session 34.
+
+1. Register.
+2. XML-comment warnings. `src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs`
+   has fifteen CS1591: `GridQueryRequest.PageIndex`, `.PageSize`, `.Sorts`
+   and `.Filter`; `GridCompositeFilter.Logic`, `.Filters` and `.Children`;
+   `GridFilterLogic.And` and `.Or`; and the seven members of
+   `GridQueryResponse<T>`. Give each a `<summary>` that says what it carries
+   (zero-based `PageIndex`, the `PageSize` default of 25, `TotalPages` as
+   zero when `PageSize` is not positive, and so on, as the code does). In
+   `src/Libs/Dabbler.Security/Services/`: a `<summary>` on
+   `EmailAlreadyExistsException.Email` (CS1591); a `<param name="ct">` on
+   the two `ClaimsPrincipal` overloads in `IAdminUserQueryService.cs`
+   (CS1573, lines 104 and 108); and in `RoleAssignmentAuthority.cs` (CS1734,
+   `targetCurrentRoles`) and `RowRestrictionExpressionBuilder.cs` (CS1734
+   `tokens`, CS1735 `T`) a class-level `paramref`/`typeparamref` that names
+   no parameter of the class: point it at the member that has it, or make
+   it `<c>`. The step's checks: `dotnet build` of
+   `src/Libs/Dabbler.Api.Querying` and of `src/Libs/Dabbler.Security` with
+   `-c Release --no-incremental` prints no CS1591, CS1573, CS1734 or CS1735.
+3. `AdminUserQueryService.cs` (CS8604, lines 40 and 136): the no-argument
+   `GetUsersAsync` and `GetActorAssignedOrganizationIdsAsync` pass
+   `HttpContext?.User`, which can be null, to the `ClaimsPrincipal`
+   overloads. The private helpers underneath already take
+   `ClaimsPrincipal?` and fail closed on null. Route both entry points
+   through the nullable path, so a null `HttpContext` keeps today's empty
+   result, without a `!` and without changing a public signature or its
+   nullability. The step's checks: the Release build of
+   `src/Libs/Dabbler.Security` prints no CS8604; `dotnet test
+   tests/Dabbler.Security.Tests` passes.
+4. CS0618 in the libraries' own code. `Dabbler.Security` still loads,
+   saves and evaluates its legacy configuration members (`Roles`,
+   `EntityPermissions`, `FieldPermissions`, `PagePermissions`,
+   `ControlPermissions`, `EndpointPermissions`, `RowFilters`,
+   `RoleSwitching`, `RoleDefinition.InheritsFrom`) on purpose until a major
+   removes them: `Persistence/EfCoreSecurityStore.cs` (19 uses),
+   `Services/RowFilterService.cs` (line 55), and
+   `src/Libs/Dabbler.Security.Blazor/Components/DabblerRoleSwitcher.razor`
+   (line 92). Wrap each use in a `#pragma warning disable CS0618` /
+   `restore` pair, as narrow as the uses allow, with a one-line comment
+   saying the legacy member stays supported until it is removed; no
+   project-level `NoWarn`, and no behaviour change. The step's checks: the
+   Release builds of `src/Libs/Dabbler.Security` and
+   `src/Libs/Dabbler.Security.Blazor` print no CS0618; `dotnet test
+   tests/Dabbler.Security.Tests` and `dotnet test
+   tests/Dabbler.Security.Blazor.Tests` pass.
+5. `src/Libs/Dabbler.Components/MasterDetail/MasterDetailExpansionShell.razor`
+   (MUD0002, line 15) sets `DisableGutters="true"` on `MudExpansionPanel`,
+   which MudBlazor 7 removed. Since 2.0.0 the panel has rendered with
+   gutters and a stray `disablegutters` HTML attribute. Replace it with
+   `Gutters="false"`, which restores the layout it was written for (the
+   operator chose this over deleting the attribute, 2026-11-13). Add a test
+   to the shell's test file asserting that the panel renders without
+   MudBlazor's gutters class. The step's checks: `dotnet build
+   Dabbler.Publish.slnf -c Release --no-incremental` prints no warning;
+   `dotnet test tests/Dabbler.Components.Tests` passes.
+6. Cross-provider verification.
+7. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+8. Close-out.
+
+Non-goals: no public API change, and no removal of an obsolete member (that
+is a major); no change to the apps, the test projects other than the
+shell's test file, or the workflows (Session 36's); no
+`TreatWarningsAsErrors` (the operator declined a gate, 2026-11-13); no
+change to `DabblerVersion` or `CHANGELOG.md` (Session 37's).
+
+Why now (2026-11-13): the `nuget-v2.0.1` run's annotations showed
+CS1591 and MUD0002 warnings in the packed libraries. GitHub stops at ten
+warning annotations per step; a local Release build shows the whole set.
+The gutters one is a visible bug in `Dabbler.Components`, so it belongs in
+2.0.2.
+
+### Session 36: Clear the apps', tests' and workflows' warnings
+
+Runs after Session 35.
+
+1. Register.
+2. `src/Apps/AcmeCoffeeOnline.Web`: `Components/Pages/Orders/OrderDetail.razor`
+   (MUD0002) passes `Title=` to a `MudButton` (line 103) and to two
+   `MudIconButton`s (lines 204 and 210); write it `title=`, which renders
+   the same HTML attribute. The `Title` on `PropertyColumn` and
+   `TemplateColumn` is a real parameter and stays. In
+   `Components/Shared/UserContextBar.razor.cs` (CS0618, line 101), wrap the
+   `RoleSwitching` use the way Session 35 wraps the libraries' uses. The
+   step's checks: `dotnet build
+   src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj -c Release
+   --no-incremental` prints no warning; `dotnet test
+   tests/AcmeCoffeeOnline.Web.Tests` passes.
+3. The test projects. These test the legacy `Dabbler.Security` members on
+   purpose, so each takes one file-level `#pragma warning disable CS0618`
+   with a one-line comment saying so:
+   `tests/AcmeCoffeeOnline.Web.Tests/Components/Shared/UserContextBarTests.cs`,
+   `tests/Dabbler.Security.Blazor.Tests/Components/DabblerRoleSwitcherTests.cs`,
+   and `EfCoreSecurityStoreTests.cs`, `JsonFileSecurityStoreTests.cs`,
+   `SecurityConfigurationManagerTests.cs` (under `Configuration/`) and
+   `Services/RowFilterServiceTests.cs` in `tests/Dabbler.Security.Tests`.
+   Then fix the rest at their cause: `WebGuardrailTests.cs` line 173
+   (CS8604) asserts the organization name is not null before using it;
+   `PdfPageRendererTests.cs` line 70 (CS8619) returns a list whose element
+   type matches what `ShowText.Text` gives; `RoleListPageTests.cs` line 134
+   (MUD0012) reads `Visible` through `GetState(x => x.Visible)`;
+   `tests/AcmeCoffeeOnline.Playwright/OrderCustomerPickerWorkflowTests.cs`
+   line 90 (xUnit2031) uses `Assert.Single(customers, c => c.Email ==
+   email)`. Session 34 rewrites the bUnit tests, so the line numbers may
+   have moved: the scope is whatever the Release build reports in a test
+   project after Session 34. The step's checks: `dotnet build
+   Dabbler.Platform.sln -c Release --no-incremental` prints no warning;
+   `dotnet test` of each changed test project, other than
+   `AcmeCoffeeOnline.Playwright` (the `e2e` suite), passes.
+4. The Node.js 20 notice. `.github/workflows/ci.yml` and `build.yml` pin
+   `actions/checkout`, `actions/setup-dotnet`, `actions/upload-artifact`
+   and `actions/download-artifact` at v4 commits that run on Node.js 20.
+   Move each pin to the latest release, still by full commit SHA with the
+   version in the trailing comment: `actions/checkout` v7.0.1
+   (`3d3c42e5aac5ba805825da76410c181273ba90b1`), `actions/setup-dotnet`
+   v6.1.0 (`0f4a354dd5547a28c70b7853dbd95d5b67886e73`),
+   `actions/upload-artifact` v7.0.2
+   (`cf430e030ddbb5b0abf93d22962f4752f3646cd9`) and
+   `actions/download-artifact` v8.0.2
+   (`9000827ccba6bdab643e8b6fd33ac0654aef8333`), all on Node.js 24.
+   `NuGet/login` v1.2.0 already runs on Node.js 24 and stays. Read each
+   action's release notes between v4 and the new version against the
+   inputs these workflows pass, and change an input only where a release
+   requires it. The step's checks: neither workflow names any of the four
+   old SHAs, and each names every new SHA it uses; both files parse as
+   YAML. The proof that they run is the operator's `2.0.2` dry run after
+   Session 37.
+5. Cross-provider verification.
+6. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+7. Close-out.
+
+Non-goals: no change to the shipped libraries (Session 35's); no
+`TreatWarningsAsErrors`; no change to `dabbler.yaml`; no change to
+`DabblerVersion` or `CHANGELOG.md` (Session 37's).
+
+Why now (2026-11-13): the operator asked for the warnings to be taken care
+of, all of them, after the `nuget-v2.0.1` run.
+
+### Session 37: Bump to 2.0.2
+
+Runs after Session 36.
 
 1. Register.
 2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
@@ -1407,7 +1549,10 @@ Runs after Session 34.
    test project moves from `bunit` `1.37.7` to `2.15.2` and drops its direct
    `AngleSharp` reference; the `Microsoft.AspNetCore.Components.Web` and
    `.Authorization` dependencies move from `10.0.5` to `10.0.15`; the
-   `Dabbler.Platform.Stubs` README shows the bUnit 2.x API. The step's
+   `Dabbler.Platform.Stubs` README shows the bUnit 2.x API;
+   `MasterDetailExpansionShell` renders without gutters again, as it did
+   before MudBlazor 7 dropped `DisableGutters` (Session 35); and the
+   packed libraries document every public member. The step's
    checks: `Directory.Build.props` and `tools/pack.ps1` name `2.0.2` and no
    longer name `2.0.1` as the version or the default; `CHANGELOG.md` has
    `## 2.0.2` directly above `## 2.0.1`; then, after a Release build and
@@ -1418,13 +1563,14 @@ Runs after Session 34.
    recorded as the run of record.
 5. Close-out.
 
-Non-goals: no API or dependency change beyond Session 34; no change to
-`ci.yml`, `build.yml` or `dabbler.yaml`.
+Non-goals: no API or dependency change beyond Sessions 34 to 36; no change
+to `ci.yml`, `build.yml` or `dabbler.yaml`.
 
 Proposed version: **2.0.2 (patch)**, for the operator to approve: no
 Dabbler API changes; existing consumers receive a higher
-`Microsoft.AspNetCore.Components.*` floor within 10.x, and only projects
-newly generated from `dabbler-app` see bUnit 2.x.
+`Microsoft.AspNetCore.Components.*` floor within 10.x and the gutters fix
+in `MasterDetailExpansionShell`, and only projects newly generated from
+`dabbler-app` see bUnit 2.x.
 
 This is a bump session, not a `(release: 2.0.2)` session, for the reason
 Session 30 gives. After the session has pushed, the operator runs the
