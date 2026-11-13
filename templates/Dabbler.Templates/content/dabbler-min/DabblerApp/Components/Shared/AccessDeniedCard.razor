@@ -1,0 +1,33 @@
+@inject NavigationManager NavigationManager
+
+<div data-testid="access-denied-card"
+     class="d-flex justify-center align-center"
+     style="min-height: 60vh; width: 100%;"
+     role="alert"
+     aria-live="assertive">
+    <MudCard Elevation="4" Class="pa-6" Style="max-width: 480px; width: 100%;">
+        <MudCardContent>
+            <div class="d-flex flex-column align-center text-center">
+                <MudIcon Icon="@Icons.Material.Filled.Lock"
+                         Color="Color.Error"
+                         Size="Size.Large"
+                         Class="mb-3" />
+                <MudText Typo="Typo.h5" GutterBottom="true">Access denied</MudText>
+                <MudText Typo="Typo.body1" Class="mud-text-secondary mb-4">
+                    You don't have access to this page. If you need access, please request it from your administrator.
+                </MudText>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="GoHome"
+                           data-testid="access-denied-back-button">
+                    Back to home
+                </MudButton>
+            </div>
+        </MudCardContent>
+    </MudCard>
+</div>
+
+@code {
+    private void GoHome() => NavigationManager.NavigateTo("/");
+}

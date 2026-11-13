@@ -1,0 +1,58 @@
+[
+  {
+    "id": "C1",
+    "severity": "Critical",
+    "title": "SharedSecret leaked to browser via QuickSignInDialog JS interop",
+    "status": "deferred",
+    "rationale": "The spec explicitly says to reuse wwwroot/dev-quick-signin.js in QuickSignInDialog, which is what the existing Login.razor already does. The secret is validated to only be non-empty in Development/Test environments (AppAuthenticationOptionsValidator enforces this), so the secret never lands in a prod bundle. Fixing this would require a new browser-originated endpoint (a scope-creep change beyond what the spec authorized). Recommended as a Session 2 or future follow-up along with the explicitly-deferred items (env badge, persona sourcing, keyboard shortcut)."
+  },
+  {
+    "id": "M1",
+    "severity": "Major",
+    "title": "TestAuthClient conditional registration could fail DI if dialogs resolved before gate",
+    "status": "fixed",
+    "fix": "Registered TestAuthClient unconditionally in Program.cs. The gate is still enforced by DevToolsMenu reading AuthOptions.Value.SeededSession.Enabled; TestAuthClient.IsEnabled mirrors the same flag."
+  },
+  {
+    "id": "M2",
+    "severity": "Major",
+    "title": "DevEmailInbox registration lifetime unverified",
+    "status": "verified",
+    "rationale": "Confirmed DevEmailInbox is TryAddSingleton in Dabbler.Security.Extensions.ServiceCollectionExtensions.cs:133, so the dialog's TestAuthClient and the /test-auth/magic-links endpoint share the same instance."
+  },
+  {
+    "id": "M3",
+    "severity": "Major",
+    "title": "DevToolsMenu tests don't verify clicking a menu item opens its dialog",
+    "status": "deferred",
+    "rationale": "MudMenu renders items inside a popover that JS interop materializes on click. bUnit's Loose JS mode cannot expand it, and MudBlazor does not render the items into the markup until open. Added a comment in DevToolsMenuTests noting the gap; the click-opens-dialog behavior is covered by the Session 2 Playwright smoke test and by MagicLinksDialogTests which instantiates the dialog directly via IDialogService."
+  },
+  {
+    "id": "m1",
+    "severity": "Minor",
+    "title": "Hardcoded persona list",
+    "status": "deferred",
+    "rationale": "Spec explicitly defers 'persona sourcing from security-config.json' to future work."
+  },
+  {
+    "id": "m3",
+    "severity": "Minor",
+    "title": "Integration tests hardcode the shared secret",
+    "status": "fixed",
+    "fix": "DevToolsEndpointContractTests now resolves the secret via IOptions<AppAuthenticationOptions> so the tests track appsettings changes."
+  },
+  {
+    "id": "m4",
+    "severity": "Minor",
+    "title": "TestAuthClient duplicates endpoint session-info logic",
+    "status": "fixed",
+    "fix": "Added a cross-reference comment in TestAuthClient.GetSessionInfoAsync pointing to the endpoint in Program.cs and the contract test."
+  },
+  {
+    "id": "m5",
+    "severity": "Minor",
+    "title": "Dialog filter uses Contains while endpoint uses Equals",
+    "status": "fixed",
+    "fix": "Added a comment in MagicLinksDialog explaining the intentional difference (substring match is better UX)."
+  }
+]

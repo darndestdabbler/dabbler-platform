@@ -1,0 +1,180 @@
+@typeparam TRow
+@typeparam TEntity
+@typeparam TLink
+@using MudBlazor
+@namespace Dabbler.Components.MasterDetail
+
+<MudDialog DefaultFocus="DefaultFocus.FirstChild">
+    <DialogContent>
+        <MasterDetailExpansionShell TRow="TRow" TEntity="TEntity" TLink="TLink"
+                                    @ref="_shell"
+                                    TestId="@TestId"
+                                    ShowGrid="@ShowGrid"
+                                    ShowAddAction="@ShowAddAction"
+                                    ShowRowUseAction="@ShowRowUseAction"
+                                    AllowLinkOnly="@AllowLinkOnly"
+                                    TargetEditability="@TargetEditability"
+                                    ShowLinkData="@ShowLinkData"
+                                    LinkDataHeading="@LinkDataHeading"
+                                    TargetCardHeading="@TargetCardHeading"
+                                    EditRecordLabel="@EditRecordLabel"
+                                    LockRecordLabel="@LockRecordLabel"
+                                    SaveAndUseLabel="@SaveAndUseLabel"
+                                    UseLabel="@UseLabel"
+                                    CancelLabel="@CancelLabel"
+                                    ExpandedHeaderText="@ExpandedHeaderText"
+                                    Working="@_working"
+                                    FilterContent="@FilterContent"
+                                    GridContent="@GridContent"
+                                    RowUseAction="@RowUseAction"
+                                    DetailsContent="@DetailsContent"
+                                    LinkDataContent="@LinkDataContent"
+                                    OnUseRequested="HandleUseRequestedAsync"
+                                    OnSaveAndUseRequested="HandleSaveAndUseRequestedAsync"
+                                    OnAddRequested="OnAdd"
+                                    OnTargetEditingToggled="HandleTargetEditingToggledAsync"
+                                    OnCancelRequested="HandleCancelRequestedAsync" />
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    /// <summary>Test id forwarded to the hosted shell.</summary>
+    [Parameter]
+    public string TestId { get; set; } = "pick-or-add-dialog";
+
+    [Parameter] public bool ShowGrid { get; set; } = true;
+    [Parameter] public bool ShowAddAction { get; set; }
+    [Parameter] public bool ShowRowUseAction { get; set; } = true;
+    [Parameter] public bool AllowLinkOnly { get; set; } = true;
+    [Parameter] public TargetEditability TargetEditability { get; set; } = TargetEditability.Editable;
+    [Parameter] public bool ShowLinkData { get; set; }
+    [Parameter] public string LinkDataHeading { get; set; } = "Link Data";
+    [Parameter] public string TargetCardHeading { get; set; } = "Details";
+    [Parameter] public string EditRecordLabel { get; set; } = "Edit record";
+    [Parameter] public string LockRecordLabel { get; set; } = "Lock record";
+    [Parameter] public string SaveAndUseLabel { get; set; } = "Save and Use";
+    [Parameter] public string UseLabel { get; set; } = "Use";
+    [Parameter] public string CancelLabel { get; set; } = "Cancel";
+    [Parameter] public string ExpandedHeaderText { get; set; } = "Results";
+
+    /// <summary>Optional callback when the user toggles target editability (ReadOnlyWithToggle mode).</summary>
+    [Parameter] public EventCallback<bool> OnTargetEditingToggled { get; set; }
+
+    [Parameter] public RenderFragment? FilterContent { get; set; }
+    [Parameter] public RenderFragment? GridContent { get; set; }
+    [Parameter] public RenderFragment<TRow>? RowUseAction { get; set; }
+    [Parameter] public RenderFragment? DetailsContent { get; set; }
+    [Parameter] public RenderFragment? LinkDataContent { get; set; }
+
+    /// <summary>
+    /// Invoked when the user picks a row via "Use" (no save). The consumer
+    /// resolves the row to a result value (typically an id) that becomes the
+    /// dialog's <see cref="DialogResult.Data"/>. Returning <c>null</c>
+    /// cancels the dialog close.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public Func<TRow, Task<object?>>? OnUsePicked { get; set; }
+
+    /// <summary>
+    /// Invoked when the user clicks "Save and Use". The consumer persists
+    /// the entity (and link, in Scenario 4) and returns the result payload
+    /// (typically the new entity id). Returning <c>null</c> leaves the
+    /// dialog open so the consumer can surface validation errors.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public Func<SaveRequest<TEntity, TLink>, Task<object?>>? OnSaveAndUse { get; set; }
+
+    /// <summary>
+    /// Invoked when the user clicks the Add button (<see cref="ShowAddAction"/>),
+    /// after the shell has reset the selection. The consumer typically resets
+    /// its entity buffer so a fresh form is presented.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    private MasterDetailExpansionShell<TRow, TEntity, TLink>? _shell;
+    private bool _working;
+
+    /// <summary>
+    /// Effective row-use template surfaced to consumers' GridContent.
+    /// Falls back to the shell's default <c>MudIconButton</c> template.
+    /// </summary>
+    public RenderFragment<TRow>? EffectiveRowUseAction => _shell?.EffectiveRowUseAction;
+
+    /// <summary>
+    /// The shell's <see cref="DetailsContext{TEntity}"/>. Surfaced so the
+    /// dialog's host (a concrete wrapper like <c>CustomerPickerDialog</c>)
+    /// can call <c>SetDirty()</c> in field <c>ValueChanged</c> handlers
+    /// without having to consume the cascading value from inside its own
+    /// <see cref="DetailsContent"/> render fragment.
+    /// </summary>
+    public DetailsContext<TEntity>? DetailsContext => _shell?.DetailsContext;
+
+    /// <summary>
+    /// Records a row as the selected row so the shell's primary-action label
+    /// flips to "Use" when <c>AllowLinkOnly</c> is true. Pass-through to the
+    /// hosted shell's <c>NotifyRowSelected</c>. Consumers wire this from their
+    /// <c>MudDataGrid.RowClick</c> handler inside <see cref="GridContent"/>.
+    /// </summary>
+    public void NotifyRowSelected(TRow row) => _shell?.NotifyRowSelected(row);
+
+    /// <summary>
+    /// The shell's <see cref="LinkContext{TLink}"/>. Surfaced so the dialog's
+    /// host can call <c>SetLinkDirty()</c> from outside the cascading-value
+    /// subtree (same pattern as <see cref="DetailsContext"/>).
+    /// </summary>
+    public LinkContext<TLink>? LinkContext => _shell?.LinkContext;
+
+    private async Task HandleUseRequestedAsync(TRow row)
+    {
+        if (OnUsePicked is null) return;
+        _working = true;
+        try
+        {
+            var result = await OnUsePicked(row);
+            if (result is not null)
+                Dialog.Close(DialogResult.Ok(result));
+        }
+        finally
+        {
+            _working = false;
+        }
+    }
+
+    private async Task HandleSaveAndUseRequestedAsync(SaveRequest<TEntity, TLink> request)
+    {
+        if (OnSaveAndUse is null) return;
+        _working = true;
+        try
+        {
+            var result = await OnSaveAndUse(request);
+            if (result is not null)
+            {
+                Dialog.Close(DialogResult.Ok(result));
+                return;
+            }
+            // Save failed (validation or downstream error). Throw so the shell
+            // preserves dirty state instead of resetting it — the user's next
+            // edit doesn't have to re-dirty the form before the label flips
+            // back to "Save and Use".
+            throw new OperationCanceledException();
+        }
+        finally
+        {
+            _working = false;
+        }
+    }
+
+    private Task HandleTargetEditingToggledAsync(bool isReadOnly) =>
+        OnTargetEditingToggled.HasDelegate
+            ? OnTargetEditingToggled.InvokeAsync(isReadOnly)
+            : Task.CompletedTask;
+
+    private Task HandleCancelRequestedAsync()
+    {
+        Dialog.Cancel();
+        return Task.CompletedTask;
+    }
+}

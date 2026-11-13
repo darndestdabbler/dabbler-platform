@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 018 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 018 transcript</h1>
+<p class="stamp">Rendered 2026-11-09T14:47:03.145Z by dabbler-ai-router 3.29.0 at b2be2e4e3a3596f2ae804f699fe1cbbc0936e40d.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-09T09:32:53.773-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 18: Scaffolded-app restores take their sources from nuget.config</h3>
+<ol><li>Register.</li><li>Stop passing nuget.org to <code>dotnet restore</code> on the command line. Four restores of a scaffolded app pass <code>--source &quot;&lt;pack output&gt;&quot; --source &quot;https://api.nuget.org/v3/index.json&quot;</code>: <code>tests/Dabbler.Templates.Tests/CrudServiceTemplateTests.cs</code> and <code>CrudPageTemplateTests.cs</code> (one each), and <code>tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs</code> (in <code>DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape</code> and <code>DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest</code>). The .NET 10.0.403 SDK on the runner resolves that URL as a path under the project directory (<code>NU1301: The local source '&lt;tempdir&gt;\https:\api.nuget.org\v3\index.json' doesn't exist</code>); the same defect on a <code>.slnx</code> is already recorded in <code>DabblerApp_Template_InstallsAndBuildsClean</code> in <code>PackagingSmokeTests.cs</code>, and the fix there was a local <code>nuget.config</code> and no inline source. Apply the same fix to all four: each test already writes, or (the <code>dabbler-min</code> restore) is made to write with the file's existing <code>WriteLocalNugetConfig</code>, a <code>nuget.config</code> that clears the sources and lists the pack output and nuget.org, so <code>dotnet restore</code> runs with no <code>--source</code>. No test changes what it asserts. The step's checks: no <code>--source &quot;https://api.nuget.org</code> remains under <code>tests/</code>; then, with <code>DABBLER_PACK_OUTPUT</code> pointing at a fresh <code>tools/pack.ps1</code> output, <code>dotnet test tests/Dabbler.Templates.Tests</code> shows 4 passed and 0 skipped, and <code>dotnet test tests/Dabbler.Packaging.Smoke --filter &quot;FullyQualifiedName!~ServesBelowFiveHundred&quot;</code> passes.</li><li>Cross-provider verification.</li><li>The <code>unit</code> suite once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no change to <code>ci.yml</code>, <code>build.yml</code> or the SDK the workflows install, and no <code>global.json</code>; no change to the CRUD templates themselves.</p>
+<p>Why now (2026-11-09): with Session 17's pack step in place, the push build on <code>master</code> (run 42621003718) ran the pack-dependent tests for the first time: Api.Tests 51/51, PublicSurface 41/41 and CrudSlice 29/29 with nothing skipped, but three of the four <code>Dabbler.Templates.Tests</code> failed with the <code>NU1301</code> above. The operator's machine passes because its default SDK is an 11.0 preview. <code>build.yml</code>'s *Validate And Pack* job runs the same smoke restores on the same SDK, so a <code>nuget-v1.0.0</code> tag would fail there too. The operator's confirmation is the first green push build on <code>master</code> after this session lands; then the <code>1.0.0</code> dry run (<code>gh workflow run build.yml -f version=1.0.0</code>) and the tag.</p>
+<h2>Work Plan</h2>
+<p>Make the four scaffolded-app restores in the test suites take their package sources from a local nuget.config instead of inline --source arguments, because the .NET 10.0.403 SDK resolves an inline nuget.org URL as a path under the project directory (NU1301). In tests/Dabbler.Templates.Tests/CrudServiceTemplateTests.cs and CrudPageTemplateTests.cs the tests already write a nuget.config (clear, pack output, nuget.org) into the temp dir, so the restore simply drops both --source arguments. In tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs, DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape is made to call the file's existing WriteLocalNugetConfig before its restore, DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest (which already writes it) drops the --source arguments, and WriteLocalNugetConfig itself is made to clear the sources and list the pack output and nuget.org (matching the Templates helpers), with the comment in DabblerApp_Template_InstallsAndBuildsClean that claimed the .csproj restore was unaffected corrected. No test changes what it asserts.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/ad94925b309e7da73e943cbd370b67687c9b4430"><code>ad94925b309e7da73e943cbd370b67687c9b4430</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Restores from nuget config</td><td><p>Remove the inline <code>--source &quot;&lt;pack output&gt;&quot; --source &quot;https://api.nuget.org/v3/index.json&quot;</code> from the dotnet restore in CrudServiceTemplateTests.cs, CrudPageTemplateTests.cs, and in PackagingSmokeTests.cs's DabblerMin_Template_InstallsAndBuildsClean_SingleProjectShape and DabblerApp_ScaffoldedHost_ServesBelowFiveHundredOnRootRequest. Make the DabblerMin test call WriteLocalNugetConfig(tempDir, PackOutputDir) before its restore. Make PackagingSmokeTests.WriteLocalNugetConfig write &lt;clear /&gt;, the pack output and nuget.org (as the Templates helpers do), update its doc comment, and correct the DabblerApp_Template_InstallsAndBuildsClean comment that says the .csproj restore is unaffected. No assertion changes.</p></td><td><span class="mono">tests/Dabbler.Templates.Tests/CrudServiceTemplateTests.cs</span><br><span class="mono">tests/Dabbler.Templates.Tests/CrudPageTemplateTests.cs</span><br><span class="mono">tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs</span></td><td><code>pwsh -NoProfile -Command if (git grep -n -E -e '--source .https://api[.]nuget[.]org' -- tests) { exit 1 } else { exit 0 }</code><br><code>pwsh -NoProfile -Command dotnet build Dabbler.Publish.slnf -c Release --nologo -v minimal; if ($LASTEXITCODE) { exit 1 }; foreach ($p in 'src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj','src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj') { dotnet build $p -c Release --nologo -v minimal; if ($LASTEXITCODE) { exit 1 } }; pwsh -NoProfile -File tools/pack.ps1 -OutputDir pack-output -CleanOutput; exit $LASTEXITCODE</code><br><code>pwsh -NoProfile -Command $env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; $r = Join-Path ([IO.Path]::GetTempPath()) ('s18-trx-' + [guid]::NewGuid()); dotnet test tests/Dabbler.Templates.Tests --logger 'trx;LogFileName=t.trx' --results-directory $r; if ($LASTEXITCODE) { exit 1 }; $c = ([xml](Get-Content (Join-Path $r 't.trx') -Raw)).TestRun.ResultSummary.Counters; Write-Host ('total=' + $c.total + ' passed=' + $c.passed + ' notExecuted=' + $c.notExecuted); if ($c.total -ne '4' -or $c.passed -ne '4' -or $c.notExecuted -ne '0') { exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command $env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No change to .github/workflows/ci.yml, .github/workflows/build.yml or the SDK the workflows install, and no global.json.</li><li>No change to the CRUD templates themselves (templates/Dabbler.Templates).</li><li>No change to what any test asserts, and no change to tests/Dabbler.CrudSlice.Tests, which passes no inline --source.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[14:32:53]</span> <span class="muted">run-started</span> session=018 mode=pull</div>
+<div class="line"><span class="at">[14:32:53]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[14:35:02]</span> <span class="muted">run-resumed</span> session=018 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[14:35:02]</span> <span class="muted">plan-accepted</span> steps=[&quot;restores-from-nuget-config&quot;] non_goals=3</div>
+<div class="line"><span class="at">[14:35:16]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[14:35:16]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=restores-from-nuget-config</div>
+<div class="line"><span class="at">[14:36:22]</span> <span class="muted">run-resumed</span> session=018 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[14:38:38]</span> <span class="muted">check-passed</span> step=restores-from-nuget-config argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (git grep -n -E -e '--source .https://api[.]nuget[.]org' -- tests) { exit 1 } else { exit 0 }&quot;]</div>
+<div class="line"><span class="at">[14:38:38]</span> <span class="muted">check-passed</span> step=restores-from-nuget-config argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;dotnet build Dabbler.Publish.slnf -c Release --nologo -v minimal; if ($LASTEXITCODE) { exit 1 }; foreach ($p in 'src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj','src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj') { dotnet build $p -c Release --nologo -v minimal; if ($LASTEXITCODE) { exit 1 } }; pwsh -NoProfile -File tools/pack.ps1 -OutputDir pack-output -CleanOutput; exit $LASTEXITCODE&quot;]</div>
+<div class="line"><span class="at">[14:38:38]</span> <span class="muted">check-passed</span> step=restores-from-nuget-config argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; $r = Join-Path ([IO.Path]::GetTempPath()) ('s18-trx-' + [guid]::NewGuid()); dotnet test tests/Dabbler.Templates.Tests --logger 'trx;LogFileName=t.trx' --results-directory $r; if ($LASTEXITCODE) { exit 1 }; $c = ([xml](Get-Content (Join-Path $r 't.trx') -Raw)).TestRun.ResultSummary.Counters; Write-Host ('total=' + $c.total + ' passed=' + $c.passed + ' notExecuted=' + $c.notExecuted); if ($c.total -ne '4' -or $c.passed -ne '4' -or $c.notExecuted -ne '0') { exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[14:38:38]</span> <span class="muted">check-passed</span> step=restores-from-nuget-config argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;]</div>
+<div class="line"><span class="at">[14:40:01]</span> <span class="muted">named-tests-passed</span> step=restores-from-nuget-config suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;CrudPageTemplateTests|CrudServiceTemplateTests|PackagingSmokeTests&quot;</div>
+<div class="line"><span class="at">[14:40:05]</span> <span class="muted">report-accepted</span> seq=2 step=restores-from-nuget-config files=[&quot;tests/Dabbler.Templates.Tests/CrudServiceTemplateTests.cs&quot;,&quot;tests/Dabbler.Templates.Tests/CrudPageTemplateTests.cs&quot;,&quot;tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs&quot;] notes=Four scaffolded-app restores drop inline --source; DabblerMin now writes the local nuget.config; smoke WriteLocalNugetConfig clears sources and lists pack output + nuget.org; stale .csproj-unaffected comment corrected; no assertion changed.</div>
+<div class="line"><span class="at">[14:40:05]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[14:40:08]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[14:40:16]</span> <span class="muted">job-started</span> name=verification pid=21864 log=.dabbler/runs/s18/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[14:41:37]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s18/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[14:41:37]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[14:41:37]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[14:41:42]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 60s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[14:41:42]</span> <span class="muted">job-started</span> name=run of record: unit pid=29228 log=.dabbler/runs/s18/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[14:43:21]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s18/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[14:43:24]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[14:43:24]</span> <span class="muted">job-started</span> name=run of record: smoke pid=21120 log=.dabbler/runs/s18/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[14:44:38]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s18/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[14:44:38]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[14:45:20]</span> <span class="muted">landed</span> commit=ad94925b309e7da73e943cbd370b67687c9b4430</div>
+<div class="line"><span class="at">[14:45:20]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[14:45:26]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[14:45:26]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[14:45:30]</span> <span class="muted">job-started</span> name=close pid=45564 log=.dabbler/runs/s18/driver/jobs/close.log</div>
+<div class="line"><span class="at">[14:47:03]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s18/driver/jobs/close.log</div>
+<div class="line"><span class="at">[14:47:03]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="good">passed</span></td><td>78s</td><td>4</td><td>0</td><td>0</td><td><span class="mono">dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;CrudPageTemplateTests|CrudServiceTemplateTests|PackagingSmokeTests&quot;</span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>60s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

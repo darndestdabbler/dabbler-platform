@@ -1,0 +1,198 @@
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Registration
+@using Dabbler.Security.Services
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Role
+@inject SecurityConfigurationManager ConfigManager
+@inject MetadataRegistry Metadata
+@inject ISnackbar Snackbar
+
+<div data-testid="ui-restrictions-subtab">
+    <MudText Typo="Typo.subtitle1" Class="mb-2">Other UI Restrictions</MudText>
+    <MudText Typo="Typo.caption" Class="mb-3">
+        Hide or disable a specific page or a single control on a page for this
+        role. The first control option, <i>Entire Page</i>, restricts the whole
+        page.
+    </MudText>
+
+    <MudPaper Class="pa-3 mb-3" Elevation="0" Outlined="true">
+        <div class="d-flex flex-wrap align-center gap-2">
+            <MudSelect T="string" Label="Page" @bind-Value="_newPageKey"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       data-testid="ui-restriction-new-page"
+                       Style="min-width:200px;">
+                @foreach (var pg in Metadata.Pages)
+                {
+                    <MudSelectItem T="string" Value="@pg.Key">@pg.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect T="string" Label="Control" @bind-Value="_newControlKey"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       Disabled="@string.IsNullOrEmpty(_newPageKey)"
+                       data-testid="ui-restriction-new-control"
+                       Style="min-width:200px;">
+                <MudSelectItem T="string" Value="@(MetadataRegistry.EntirePageControlKey)">
+                    @(MetadataRegistry.EntirePageDisplayName)
+                </MudSelectItem>
+                @foreach (var control in Metadata.GetControls(_newPageKey ?? string.Empty))
+                {
+                    <MudSelectItem T="string" Value="@control.Key">@control.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudToggleGroup T="UiRestrictionKind"
+                            @bind-Value="_newKind"
+                            SelectionMode="SelectionMode.SingleSelection"
+                            Color="Color.Primary"
+                            Size="Size.Small"
+                            data-testid="ui-restriction-new-kind">
+                <MudToggleItem T="UiRestrictionKind"
+                               Value="UiRestrictionKind.Disabled">Disabled</MudToggleItem>
+                <MudToggleItem T="UiRestrictionKind"
+                               Value="UiRestrictionKind.Hidden">Hidden</MudToggleItem>
+            </MudToggleGroup>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="AddAsync"
+                       Disabled="@(!CanAdd)"
+                       data-testid="ui-restriction-add-button">
+                Add
+            </MudButton>
+        </div>
+    </MudPaper>
+
+    @if (Role.UiRestrictions.Count == 0)
+    {
+        <MudText Typo="Typo.body2" Class="pa-3" data-testid="ui-restriction-empty">
+            No UI restrictions configured. This role can see and interact with
+            every registered page and control.
+        </MudText>
+    }
+    else
+    {
+        <MudTable Items="@Role.UiRestrictions" Dense="true" Hover="true"
+                  Bordered="true" Striped="true"
+                  data-testid="ui-restriction-grid">
+            <HeaderContent>
+                <MudTh>Page</MudTh>
+                <MudTh>Control</MudTh>
+                <MudTh>Restriction</MudTh>
+                <MudTh Style="width:48px;text-align:center;">Remove</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="row">
+                <MudTd DataLabel="Page">@ResolvePageDisplay(row.PageKey)</MudTd>
+                <MudTd DataLabel="Control">@ResolveControlDisplay(row.PageKey, row.ControlKey)</MudTd>
+                <MudTd DataLabel="Restriction">
+                    <MudToggleGroup T="UiRestrictionKind"
+                                    Value="row.Kind"
+                                    ValueChanged="@(v => OnKindChangedAsync(row, v))"
+                                    SelectionMode="SelectionMode.SingleSelection"
+                                    Color="Color.Primary"
+                                    Size="Size.Small"
+                                    data-testid="@($"ui-restriction-kind-{row.PageKey}-{row.ControlKey}")">
+                        <MudToggleItem T="UiRestrictionKind"
+                                       Value="UiRestrictionKind.Disabled">Disabled</MudToggleItem>
+                        <MudToggleItem T="UiRestrictionKind"
+                                       Value="UiRestrictionKind.Hidden">Hidden</MudToggleItem>
+                    </MudToggleGroup>
+                </MudTd>
+                <MudTd Style="text-align:center;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="@(() => RemoveAsync(row))"
+                                   title="Remove restriction"
+                                   aria-label="@($"Remove UI restriction on {row.PageKey} {row.ControlKey}")"
+                                   data-testid="@($"ui-restriction-remove-{row.PageKey}-{row.ControlKey}")" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Inline-editable grid of <see cref="UiRestriction"/> rows for the given
+    /// user-type role. Page and Control cascade; the Control dropdown's first
+    /// item is "Entire Page" which maps to <see cref="MetadataRegistry.EntirePageControlKey"/>.
+    /// Restriction kind renders as a <see cref="MudToggleGroup{T}"/>.
+    /// </summary>
+
+    /// <summary>
+    /// The user-type role being edited. Required.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public RoleDefinition Role { get; set; } = default!;
+
+    /// <summary>
+    /// Raised after the role's <see cref="RoleDefinition.UiRestrictions"/>
+    /// list changes and the configuration has been persisted.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnPersisted { get; set; }
+
+    private string? _newPageKey;
+    private string? _newControlKey;
+    private UiRestrictionKind _newKind = UiRestrictionKind.Hidden;
+
+    private bool CanAdd =>
+        !string.IsNullOrEmpty(_newPageKey)
+        && !string.IsNullOrEmpty(_newControlKey)
+        && !Role.UiRestrictions.Any(r =>
+            string.Equals(r.PageKey, _newPageKey, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(r.ControlKey, _newControlKey, StringComparison.OrdinalIgnoreCase));
+
+    private async Task AddAsync()
+    {
+        if (!CanAdd) return;
+
+        Role.UiRestrictions.Add(new UiRestriction
+        {
+            PageKey = _newPageKey!,
+            ControlKey = _newControlKey!,
+            Kind = _newKind,
+        });
+
+        await PersistAsync("UI restriction added.");
+
+        _newPageKey = null;
+        _newControlKey = null;
+        _newKind = UiRestrictionKind.Hidden;
+    }
+
+    private async Task RemoveAsync(UiRestriction row)
+    {
+        Role.UiRestrictions.Remove(row);
+        await PersistAsync("UI restriction removed.");
+    }
+
+    private async Task OnKindChangedAsync(UiRestriction row, UiRestrictionKind newKind)
+    {
+        if (row.Kind == newKind) return;
+        row.Kind = newKind;
+        await PersistAsync("UI restriction updated.");
+    }
+
+    private async Task PersistAsync(string successMessage)
+    {
+        await ConfigManager.SaveAsync(ConfigManager.Current);
+        Snackbar.Add(successMessage, Severity.Success);
+        if (OnPersisted.HasDelegate)
+            await OnPersisted.InvokeAsync();
+    }
+
+    private string ResolvePageDisplay(string key) =>
+        Metadata.GetPage(key)?.DisplayName ?? key;
+
+    private string ResolveControlDisplay(string pageKey, string controlKey)
+    {
+        if (string.Equals(controlKey, MetadataRegistry.EntirePageControlKey, StringComparison.Ordinal))
+            return MetadataRegistry.EntirePageDisplayName;
+
+        var ctrl = Metadata.GetControls(pageKey)
+            .FirstOrDefault(c => string.Equals(c.Key, controlKey, StringComparison.OrdinalIgnoreCase));
+        return ctrl?.DisplayName ?? controlKey;
+    }
+}

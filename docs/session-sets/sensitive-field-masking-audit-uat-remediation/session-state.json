@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "sensitive-field-masking-audit-uat-remediation",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Real-login UAT remediation",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "User Administration vs. Users-and-Role-Assignment audit",
+      "status": "complete",
+      "startedAt": "2026-04-30T07:51:42.251259-04:00",
+      "completedAt": "2026-05-01T12:40:00.000000+00:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

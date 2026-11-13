@@ -1,0 +1,19 @@
+@page "/customers"
+@attribute [DabblerPageAuthorize("/customers")]
+@using AcmeCoffeeOnline.Shared.DTOs
+@using Dabbler.Components.Data
+
+<PageTitle>Retail Businesses — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">Retail Businesses</MudText>
+    </MudStack>
+
+    <CustomerList DataProvider="CustomerDataProvider" />
+</MudContainer>
+
+@code {
+    [Inject]
+    private IGridDataProvider<CustomerDto> CustomerDataProvider { get; set; } = default!;
+}

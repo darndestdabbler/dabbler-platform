@@ -1,0 +1,9 @@
+{
+  "admin@acmecoffee.com": [ "SystemAdmin", "BackofficeUser", "CrossOrgMonitor" ],
+  "asmith@acmecoffee.com": [ "CrossOrgUserAdmin" ],
+  "mwilson@acmecoffee.com": [ "BackofficeUser" ],
+  "kbrown@acmecoffee.com": [ "BackofficeUser" ],
+  "tjones@acmecoffee.com": [ "BackofficeUser" ],
+  "juser@acmecoffee.com": [ "User" ],
+  "manager@acmecoffee.com": [ "UserAdmin" ]
+}

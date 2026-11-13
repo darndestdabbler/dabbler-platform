@@ -1,0 +1,69 @@
+{
+  "UserTypeRoles": [
+    {
+      "RoleName": "BackofficeUser",
+      "DisplayAlias": "Backoffice User",
+      "Description": "Internal staff with read/update access to all retail-business accounts and orders.",
+      "ColumnRestrictions": [
+        { "EntityKey": "Product", "ColumnKey": "UnitPrice", "RestrictionKind": "ViewOnly" },
+        { "EntityKey": "Customer", "ColumnKey": "IsActive", "RestrictionKind": "ViewOnly" }
+      ],
+      "RowRestrictions": [],
+      "UiRestrictions": [
+        { "PageKey": "/admin/products", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/security", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/products", "ControlKey": "CreateProductButton", "Kind": "Hidden" },
+        { "PageKey": "/products", "ControlKey": "EditPriceButton", "Kind": "Hidden" },
+        { "PageKey": "/customers", "ControlKey": "DeleteCustomerButton", "Kind": "Hidden" }
+      ]
+    },
+    {
+      "RoleName": "WarehouseUser",
+      "DisplayAlias": "Warehouse User",
+      "Description": "Warehouse staff with read access to product availability but no visibility into pricing. Provides the Hidden-path reference for the data-bound restriction enforcement seam.",
+      "ColumnRestrictions": [
+        { "EntityKey": "Product", "ColumnKey": "UnitPrice", "RestrictionKind": "Hidden" }
+      ],
+      "RowRestrictions": [],
+      "UiRestrictions": [
+        { "PageKey": "/admin/products", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/users", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/security", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/customers", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/orders", "ControlKey": "*", "Kind": "Hidden" }
+      ]
+    },
+    {
+      "RoleName": "Customer",
+      "DisplayAlias": "Customer",
+      "Description": "Retail-business account with self-service access to its own orders and profile.",
+      "ColumnRestrictions": [
+        { "EntityKey": "Product", "ColumnKey": "UnitPrice", "RestrictionKind": "ViewOnly" },
+        { "EntityKey": "Customer", "ColumnKey": "Email", "RestrictionKind": "ViewOnly" },
+        { "EntityKey": "Customer", "ColumnKey": "IsActive", "RestrictionKind": "Hidden" },
+        { "EntityKey": "Order", "ColumnKey": "Status", "RestrictionKind": "ViewOnly" }
+      ],
+      "RowRestrictions": [
+        { "EntityKey": "Order", "FilterExpression": "CustomerId == @CurrentUserCustomerId" }
+      ],
+      "UiRestrictions": [
+        { "PageKey": "/customers", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/users", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/products", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/admin/security", "ControlKey": "*", "Kind": "Hidden" },
+        { "PageKey": "/products", "ControlKey": "CreateProductButton", "Kind": "Hidden" },
+        { "PageKey": "/products", "ControlKey": "EditPriceButton", "Kind": "Hidden" },
+        { "PageKey": "/orders", "ControlKey": "DeleteOrderButton", "Kind": "Hidden" },
+        { "PageKey": "/orders", "ControlKey": "UpdateStatusButton", "Kind": "Hidden" }
+      ]
+    }
+  ],
+  "OrganizationSwitching": {
+    "AllowedRoles": []
+  },
+  "DefaultMasks": [
+    { "EntityKey": "Customer", "ColumnKey": "SocialSecurityNumber", "MaskFormat": "XXX-XX-{last4}" }
+  ],
+  "MaskExemptions": [],
+  "BakedInRoleAliasOverrides": {}
+}

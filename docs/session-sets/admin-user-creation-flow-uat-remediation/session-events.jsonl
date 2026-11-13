@@ -1,0 +1,2 @@
+{"timestamp": "2026-05-11T20:13:11.350003Z", "session_number": 1, "event_type": "work_started"}
+{"timestamp": "2026-05-11T20:54:25.077617Z", "session_number": 1, "event_type": "closeout_succeeded", "forced": false, "method": "snapshot_flip", "verdict": "VERIFIED"}
