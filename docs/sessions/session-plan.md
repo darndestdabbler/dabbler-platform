@@ -1189,3 +1189,105 @@ nothing (Session 11 of `../dabbler-pdf`). After the session has pushed, the
 operator runs the `2.0.0` dry run (`gh workflow run build.yml -f
 version=2.0.0`) and tags `nuget-v2.0.0` by hand when it is green; `1.0.1` is
 never tagged.
+
+### Session 31: Clear the release build's nullable and vulnerability warnings
+
+1. Register.
+2. The Release build of `Dabbler.Components` prints CS8669 ("The annotation
+   for nullable reference types should only be used in code within a
+   '#nullable' annotations context") some twenty times, every one in the
+   code generated from
+   `src/Libs/Dabbler.Components/MasterDetail/DeclarativeFilterPanel.razor`.
+   That file passes nullable reference types as markup type arguments
+   (`<MudTextField T="string?"` at line 18, `<MudSelect T="object?"` and
+   `<MudSelectItem T="object?"` at lines 147 and 157), which the Razor
+   compiler copies into generated code outside a `#nullable` context.
+   Remove the warning at its cause, by dropping the `?` from those
+   reference-type arguments or by whatever smaller change does it, without
+   a `NoWarn` and without changing what the panel renders or emits; the
+   `bool?` and `decimal?` arguments are value types and stay.
+   `src/Apps/AcmeCoffeeOnline.Web/Components/Pages/Customers/CustomerDetail.razor`
+   has the same `T="string?"` at five places: fix it the same way. The
+   step's checks: `dotnet build
+   src/Libs/Dabbler.Components/Dabbler.Components.csproj -c Release
+   --no-incremental` and the same build of
+   `src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj` print no
+   CS8669; `dotnet test tests/Dabbler.Components.Tests` passes.
+3. Restoring `Dabbler.Publish.slnf` reports two audited packages:
+   - `Microsoft.Build.Tasks.Git` `8.0.0` (NU1902, GHSA-23fw-v26w-5fgq), in
+     every packable project, brought by the `Microsoft.SourceLink.GitHub`
+     `8.0.0` pin in `Directory.Packages.props`. It is `PrivateAssets="All"`,
+     so it reaches no consumer. Raise the pin to the lowest version the
+     advisory names as patched.
+   - `System.Security.Cryptography.Pkcs` `9.0.4` (NU1903,
+     GHSA-846f-f764-76mx, and NU1902, GHSA-2fmv-rv2c-59x7), which
+     `Dabbler.Security` brings through
+     `Microsoft.EntityFrameworkCore.SqlServer` `10.0.5` and
+     `Microsoft.Data.SqlClient` `6.1.1`. This one does reach every consumer
+     of `Dabbler.Security` and `Dabbler.Security.Blazor`. Raise it to a
+     version both advisories name as patched, in the way that also raises
+     it for consumers: a newer `Microsoft.EntityFrameworkCore.SqlServer`
+     or `Microsoft.Data.SqlClient` within the 10.x policy in
+     `docs/MAINTAINING.md` if one carries it, otherwise a direct
+     `PackageReference` from `Dabbler.Security`.
+
+   The step's checks: `dotnet restore Dabbler.Publish.slnf --force` prints
+   no NU1901, NU1902, NU1903 or NU1904; then, after a Release build and
+   `tools/pack.ps1 -OutputDir pack-output -CleanOutput`, the `.nuspec`
+   inside the packed `Dabbler.Security` nupkg declares the dependency that
+   was raised at its new version, and `dotnet test
+   tests/Dabbler.PublicSurface.Tests` passes.
+4. Release step 4 of `docs/MAINTAINING.md` ("Unlist retired IDs") says only
+   to unlist. Unlisting hides a package from search and tells an existing
+   consumer nothing; deprecating is what warns them and names the
+   replacement. Rewrite the step to do both for every retired ID: deprecate
+   as *Legacy*, with `Dabbler.Platform.Stubs` as the alternate package for
+   the three retired `Dabbler.Platform.Stubs.*` providers and none for
+   `Dabbler.Components.Compat`, then unlist. The step's check: the step
+   names both actions and the alternate package.
+5. Cross-provider verification.
+6. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+7. Close-out.
+
+Non-goals: no public API change; no fix to the XML-comment, obsolete-member
+and possible-null warnings in `Dabbler.Security`; no change to the action
+pins in `ci.yml` or `build.yml` (the Node.js 20 notice); no change to
+`DabblerVersion` or `CHANGELOG.md` (Session 32's).
+
+Why now (2026-11-13): the `nuget-v2.0.0` run was green and noisy, and the
+operator asked what the nullable warnings were. Reading the same log showed
+that `Dabbler.Security` `2.0.0` ships a transitive dependency with a
+high-severity advisory, which is the part that needs a release.
+
+### Session 32: Bump to 2.0.1
+
+Runs after Session 31.
+
+1. Register.
+2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
+   default in `tools/pack.ps1` with the version its help text names, to
+   `2.0.1`. Add a `## 2.0.1` entry to `CHANGELOG.md`, directly above
+   `## 2.0.0`: no API change since `2.0.0`; the dependency Session 31 raised
+   in `Dabbler.Security`, by name, with its old and new versions and the
+   two advisories it clears. The step's checks: `Directory.Build.props` and
+   `tools/pack.ps1` name `2.0.1` and no longer name `2.0.0` as the version
+   or the default; `CHANGELOG.md` has `## 2.0.1` directly above `## 2.0.0`;
+   then, after a Release build and `tools/pack.ps1 -OutputDir pack-output
+   -CleanOutput`, the `smoke` suite passes against the `2.0.1` packages.
+3. Cross-provider verification.
+4. The `unit`, `smoke` and `e2e` suites once against the verified tree,
+   recorded as the run of record.
+5. Close-out.
+
+Non-goals: no API or dependency change beyond Session 31's; no change to
+`ci.yml`, `build.yml` or `dabbler.yaml`.
+
+Proposed version: **2.0.1 (patch)**, for the operator to approve: no API
+changes, and the one thing a consumer receives is a patched transitive
+dependency.
+
+This is a bump session, not a `(release: 2.0.1)` session, for the reason
+Session 30 gives. After the session has pushed, the operator runs the
+`2.0.1` dry run (`gh workflow run build.yml -f version=2.0.1`) and tags
+`nuget-v2.0.1` by hand when it is green.
