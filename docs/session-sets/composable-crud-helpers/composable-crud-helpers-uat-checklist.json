@@ -1,0 +1,620 @@
+{
+  "ProjectName": "AcmeCoffeeOnline - composable-crud-helpers",
+  "ReleaseLabel": "composable-crud-helpers Session 6 (final)",
+  "DocumentDate": "5/14/2026",
+  "RequiresAppStateReset": false,
+  "Review": [
+    {
+      "FunctionalArea": "Products - DirtyAwareActionRow",
+      "Subarea": "Save Button Lifecycle",
+      "ItemLabel": "UAT-1: Products detail Save button is disabled initially, enabled after edit, disabled after save",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": [
+            {
+              "Text": "Page shows confirmation that sign-in link was sent"
+            }
+          ]
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/products/10\"",
+          "Verifications": [
+            {
+              "Text": "Product detail for 'Medium Roast - Regular - Drip' (product #10) loads. SAVE button is visible and disabled. UNDO button is visible and disabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK INPUT with label \"Name\" and enter \"Medium Roast - Regular - Drip (UAT-1 edit)\"",
+          "Verifications": [
+            {
+              "Text": "SAVE button becomes enabled after the field value changes. UNDO button becomes enabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"SAVE\"",
+          "Verifications": [
+            {
+              "Text": "Save succeeds with no error shown. SAVE button is disabled again. UNDO button is disabled again."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "ProductsWorkflowTests.E2E_WF_Products_EditSave_DirtyAwareActionRow_SaveButtonLifecycleAsync",
+      "IsJudgmentItem": false,
+      "Passes": null,
+      "Feedback": "Persona: admin@acmecoffee.com (System Admin). Product #10 = 'Medium Roast - Regular - Drip' in the seeded data. The product name is changed and saved; this is a persistent DB change - run against a fresh container or restore the name manually after UAT."
+    },
+    {
+      "FunctionalArea": "Products - DirtyAwareActionRow",
+      "Subarea": "Undo Behavior",
+      "ItemLabel": "UAT-2: Products Undo restores the edited field and disables Save",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/products/6\"",
+          "Verifications": [
+            {
+              "Text": "Product detail for 'Dark Roast - Regular - Drip' (product #6) loads. Note the current name in the Name field. SAVE and UNDO buttons are both disabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK INPUT with label \"Name\" and enter \"TEMP EDIT - should be undone\"",
+          "Verifications": [
+            {
+              "Text": "SAVE button becomes enabled. UNDO button becomes enabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"UNDO\"",
+          "Verifications": [
+            {
+              "Text": "Name field is restored to its original value ('Dark Roast - Regular - Drip'). SAVE button is disabled. UNDO button is disabled."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "ProductsWorkflowTests.E2E_WF_Products_Undo_RestoresFieldAndDisablesSaveAsync",
+      "IsJudgmentItem": false,
+      "Passes": null,
+      "Feedback": "Persona: admin@acmecoffee.com (System Admin). Product #6 = 'Dark Roast - Regular - Drip'. Undo does NOT persist to the DB - the name is only reverted in memory. No DB cleanup needed after this item."
+    },
+    {
+      "FunctionalArea": "Products - Toggle Availability",
+      "Subarea": "Activate/Deactivate Toggle",
+      "ItemLabel": "UAT-3: Toggle Availability button activates an unavailable product and the change persists after reload",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/products/17\"",
+          "Verifications": [
+            {
+              "Text": "Product detail for 'Blonde Roast - Decaf - Espresso' (product #17, seeded as unavailable) loads. ACTIVATE button is visible (indicating the product is currently unavailable)."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"ACTIVATE\"",
+          "Verifications": [
+            {
+              "Text": "The page updates immediately. The button label changes from 'ACTIVATE' to 'DEACTIVATE' - indicating the product is now available. No error is shown."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "NAVIGATE TO \"http://localhost:5010/products/17\"",
+          "Verifications": [
+            {
+              "Text": "After reloading the product detail, the toggle button shows 'DEACTIVATE' (the product is now available). The availability change persisted across navigation."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "ProductsWorkflowTests.E2E_WF_Products_ToggleAvailability_PersistsAcrossNavigationAsync",
+      "IsJudgmentItem": true,
+      "Passes": null,
+      "Feedback": "Judgment item - the button label change from ACTIVATE to DEACTIVATE is the key visual signal. The label 'DEACTIVATE' is not in the component catalog (catalog was crawled against a deactivated product, so only ACTIVATE appears), making the post-click label a human judgment step. Persona: admin@acmecoffee.com. Product #17 = 'Blonde Roast - Decaf - Espresso' (IsAvailable=false in seed data). Run against a fresh seeded DB or manually run DEACTIVATE on Product #17 afterward to restore the seeded unavailable state."
+    },
+    {
+      "FunctionalArea": "Products - DeclarativeFilterPanel",
+      "Subarea": "URL Query-String Persistence",
+      "ItemLabel": "UAT-4: Products filter state is restored from the URL when the page is loaded with filter query parameters",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/products?RoastLevel=Dark\"",
+          "Verifications": [
+            {
+              "Text": "Products page loads with the Roast Level filter pre-applied to 'Dark'. A filter chip is visible in the filter panel. The grid shows only Dark Roast products (Deep Dark Roast and Dark Roast variants). The Roast Level dropdown in the filter panel shows 'Dark' as selected. This confirms filter state is restored from the URL."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "ProductsFilterQueryStringTests.ProductsFilter_QueryStringPersistedAndRestored_OnReloadAsync",
+      "IsJudgmentItem": true,
+      "Passes": null,
+      "Feedback": "Judgment item - the filter chip and filtered grid are the primary visual signals. To also test the 'filter updates URL' direction: navigate to /products (unfiltered), click the Roast Level dropdown, select 'Dark', and observe the URL updates to include ?RoastLevel=Dark. Persona: admin@acmecoffee.com."
+    },
+    {
+      "FunctionalArea": "Orders - DirtyAwareActionRow",
+      "Subarea": "Save and Undo",
+      "ItemLabel": "UAT-5: Orders detail Save button lifecycle and Undo work correctly",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/355\"",
+          "Verifications": [
+            {
+              "Text": "Order #355 detail loads. SAVE button is visible and disabled. UNDO button is visible and disabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK INPUT with label \"Notes\" and enter \"UAT-5 undo test\"",
+          "Verifications": [
+            {
+              "Text": "SAVE button becomes enabled. UNDO button becomes enabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"UNDO\"",
+          "Verifications": [
+            {
+              "Text": "Notes field is restored to its original value. SAVE button becomes disabled. UNDO button becomes disabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT with label \"Notes\" and enter \"UAT-5 save test\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK BUTTON with caption \"SAVE\"",
+          "Verifications": [
+            {
+              "Text": "Save succeeds with no error. SAVE button becomes disabled. UNDO button becomes disabled."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "OrdersMigrationTests.OrderDetail_DirtyAwareActionRow_SaveAndUndo_BehaviorAsync",
+      "IsJudgmentItem": false,
+      "Passes": null,
+      "Feedback": "Persona: admin@acmecoffee.com (System Admin). Uses Order #355 (catalog-known seeded order). Tests full Save lifecycle and Undo. The Notes field is used as the test target. The Notes field edit in step 10 is persisted to the DB. Run against a fresh seeded DB or restore the original Notes value manually after UAT."
+    },
+    {
+      "FunctionalArea": "Orders - Status Workflow",
+      "Subarea": "Status Transition Buttons",
+      "ItemLabel": "UAT-6: Orders status workflow button transitions the order to the next status",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/355\"",
+          "Verifications": [
+            {
+              "Text": "Order #355 detail loads. Note the current status chip. Status workflow buttons (e.g., SHIPPED, CONFIRMED, CANCELLED) are visible in the action row depending on current order status."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"SHIPPED\"",
+          "Verifications": [
+            {
+              "Text": "The status chip updates immediately to show 'Shipped'. No error is shown. The SHIPPED button may become hidden or disabled (order is now in shipped state). The transition is server-persisted."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "OrdersMigrationTests.OrderDetail_StatusTransitionButton_UpdatesStatusChipAsync",
+      "IsJudgmentItem": true,
+      "Passes": null,
+      "Feedback": "Judgment item - the status chip label after transition is the key visual signal. If Order #355 is already in 'Shipped' or a terminal state from prior UAT runs, use any order from /orders list that has a non-terminal status (not Delivered or Cancelled) and click its available transition button. The catalog shows SHIPPED and CANCELLED buttons for /orders/{OrderId}. Persona: admin@acmecoffee.com. The SHIPPED status transition is persisted to the DB. Order #355 will need to remain in a non-terminal state for re-runs; run against a fresh seeded DB or use a different qualifying order."
+    },
+    {
+      "FunctionalArea": "Orders - DeclarativeFilterPanel",
+      "Subarea": "URL Query-String Persistence",
+      "ItemLabel": "UAT-7: Orders filter state is restored from the URL when the page is loaded with filter query parameters",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders?Status=Pending\"",
+          "Verifications": [
+            {
+              "Text": "Orders page loads with Status filter pre-applied. The Status filter input shows 'Pending' as selected. A filter chip is visible in the filter panel. The grid shows only Pending orders. This confirms filter state is restored from URL query parameters."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "OrdersMigrationTests.OrdersFilter_QueryStringPersistedAndRestored_OnReloadAsync",
+      "IsJudgmentItem": true,
+      "Passes": null,
+      "Feedback": "Judgment item - the filter chip and filtered grid are the primary visual signals. If '?Status=Pending' does not restore the filter (e.g., the enum value differs), navigate to /orders, select 'Pending' from the Status dropdown, copy the resulting URL, and use that. Persona: admin@acmecoffee.com."
+    },
+    {
+      "FunctionalArea": "Customers - DirtyAwareActionRow",
+      "Subarea": "Save and Undo",
+      "ItemLabel": "UAT-8: Customers detail Save and Undo work correctly",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/customers/1\"",
+          "Verifications": [
+            {
+              "Text": "Customer detail for James Smith (customer #1, seeded first) loads. SAVE and UNDO buttons are visible and disabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK INPUT with label \"Phone\" and enter \"555-UAT8\"",
+          "Verifications": [
+            {
+              "Text": "SAVE button becomes enabled. UNDO button becomes enabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"SAVE\"",
+          "Verifications": [
+            {
+              "Text": "Save succeeds. SAVE button is disabled."
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "CLICK INPUT with label \"Phone\" and enter \"000-0000\"",
+          "Verifications": [
+            {
+              "Text": "SAVE button becomes enabled again."
+            }
+          ]
+        },
+        {
+          "StepNumber": 10,
+          "Action": "CLICK BUTTON with caption \"UNDO\"",
+          "Verifications": [
+            {
+              "Text": "Phone field is restored to '555-UAT8' (the last saved value). SAVE button becomes disabled. This verifies that EditSession.CommitFrom() updated the snapshot after the save in step 8."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "CustomersMigrationTests.CustomerDetail_DirtyAwareActionRow_SaveAndUndo_WorksAsync",
+      "IsJudgmentItem": false,
+      "Passes": null,
+      "Feedback": "Persona: admin@acmecoffee.com (System Admin). Customer #1 = James Smith (first seeded customer). Tests Save lifecycle + Undo-to-last-saved-snapshot. The Undo in step 10 should restore to '555-UAT8', not to the original seeded phone - demonstrating CommitFrom() correctly updates the baseline after save. The Phone edit in step 8 is persisted to the DB. Run against a fresh seeded DB or restore customer #1 phone manually after UAT."
+    },
+    {
+      "FunctionalArea": "Customers - DeclarativeFilterPanel",
+      "Subarea": "URL Query-String Persistence",
+      "ItemLabel": "UAT-9: Customers filter state is restored from the URL when the page is loaded with filter query parameters",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/customers?LastName=Smith\"",
+          "Verifications": [
+            {
+              "Text": "Retail Businesses page loads with the Last Name filter pre-applied. The Last Name input in the filter panel shows 'Smith'. The grid shows only customers with last name 'Smith'. This confirms text filter state is restored from the URL."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "CustomersMigrationTests.CustomerFilter_QueryString_Persists_And_Restores_On_ReloadAsync",
+      "IsJudgmentItem": false,
+      "Passes": null,
+      "Feedback": "Persona: admin@acmecoffee.com (System Admin). Navigates directly to the customers page with a LastName=Smith query parameter. Verifies that the DeclarativeFilterPanel restores text filter value from URL on load. 'Smith' is the first seeded last name so at least one row should appear."
+    },
+    {
+      "FunctionalArea": "Orders - Nested OrderItems (Session 5)",
+      "Subarea": "Add Item and Save Parent",
+      "ItemLabel": "UAT-10: Add a product line item to an order via the nested Items tab, save the parent order, and verify persistence",
+      "Steps": [
+        {
+          "StepNumber": 1,
+          "Action": "NAVIGATE TO \"http://localhost:5010/login\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 2,
+          "Action": "CLICK INPUT with label \"Email address\" and enter \"admin@acmecoffee.com\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 3,
+          "Action": "CLICK BUTTON with caption \"Send sign-in link\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 4,
+          "Action": "NAVIGATE TO \"http://localhost:5010/dev/email-inbox\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 5,
+          "Action": "CLICK LINK with text \"Open\"",
+          "Verifications": []
+        },
+        {
+          "StepNumber": 6,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/355\"",
+          "Verifications": [
+            {
+              "Text": "Order #355 detail loads. An 'ITEMS' tab is visible. The current item count is shown in the tab label (e.g., 'ITEMS (1)'). Note this count."
+            }
+          ]
+        },
+        {
+          "StepNumber": 7,
+          "Action": "CLICK BUTTON with caption \"ADD PRODUCT\"",
+          "Verifications": [
+            {
+              "Text": "A product picker dialog opens showing available products. Select 'Medium Roast - Regular - Drip' from the list and confirm the selection. The dialog closes. The ITEMS tab count increments by 1. The parent SAVE button becomes enabled (the in-memory order is now dirty)."
+            }
+          ]
+        },
+        {
+          "StepNumber": 8,
+          "Action": "CLICK BUTTON with caption \"SAVE\"",
+          "Verifications": [
+            {
+              "Text": "The parent order saves. SAVE button becomes disabled. The ITEMS tab count still shows the updated count (original + 1)."
+            }
+          ]
+        },
+        {
+          "StepNumber": 9,
+          "Action": "NAVIGATE TO \"http://localhost:5010/orders/355\"",
+          "Verifications": [
+            {
+              "Text": "After reloading the order, the ITEMS tab count includes the newly added item. The 'Medium Roast - Regular - Drip' row appears in the items grid under the ITEMS tab. The add persisted to the database via the parent save."
+            }
+          ]
+        }
+      ],
+      "E2ETestReference": "OrderNestedItemsSaveTests.OrderDetail_NestedItems_AddItemAndSave_PersistsToDbAsync",
+      "IsJudgmentItem": true,
+      "Passes": null,
+      "Feedback": "Judgment item - the nested item form controls (product picker dialog, row expansion form) are behind click-driven navigation and are not in the component catalog. Step 7 opens the ADD PRODUCT dialog (CLICK BUTTON 'ADD PRODUCT' is catalog-grounded for /orders/{OrderId}); the dialog interaction and subsequent SAVE are visual confirmations. The W2-compiled test will partially exercise this item (opening the dialog) but will not complete the full dialog interaction. Persona: admin@acmecoffee.com. The added OrderItem and parent Order save are persisted to the DB. Order #355 will have one more item after UAT; run against a fresh seeded DB if re-running this item."
+    }
+  ]
+}

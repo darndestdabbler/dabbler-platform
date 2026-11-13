@@ -1,0 +1,35 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY Directory.Build.props Directory.Packages.props Dabbler.Platform.sln ./
+COPY src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj       src/Apps/AcmeCoffeeOnline.Web/
+COPY src/Apps/AcmeCoffeeOnline.Shared/AcmeCoffeeOnline.Shared.csproj src/Apps/AcmeCoffeeOnline.Shared/
+COPY src/Libs/Dabbler.Components/Dabbler.Components.csproj            src/Libs/Dabbler.Components/
+COPY src/Libs/Dabbler.Platform.Stubs/Dabbler.Platform.Stubs.csproj   src/Libs/Dabbler.Platform.Stubs/
+COPY src/Libs/Dabbler.Reports.Blazor/Dabbler.Reports.Blazor.csproj   src/Libs/Dabbler.Reports.Blazor/
+COPY src/Libs/Dabbler.Reports.Core/Dabbler.Reports.Core.csproj       src/Libs/Dabbler.Reports.Core/
+COPY src/Libs/Dabbler.Reports.Export/Dabbler.Reports.Export.csproj   src/Libs/Dabbler.Reports.Export/
+COPY src/Libs/Dabbler.Security.Blazor/Dabbler.Security.Blazor.csproj src/Libs/Dabbler.Security.Blazor/
+COPY src/Libs/Dabbler.Security/Dabbler.Security.csproj               src/Libs/Dabbler.Security/
+
+RUN dotnet restore src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj
+
+COPY . .
+# NOTE: do NOT add --no-restore here. Under .NET 10 SDK, publishing with
+# --no-restore after a csproj-only restore skips the Blazor static-asset
+# discovery pass that registers /_framework/blazor.web.js in the endpoints
+# manifest. The redundant restore is a no-op for package resolution but is
+# required to trigger source-aware static-asset targets.
+RUN dotnet publish src/Apps/AcmeCoffeeOnline.Web/AcmeCoffeeOnline.Web.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "AcmeCoffeeOnline.Web.dll"]

@@ -1,0 +1,57 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!--
+    Package metadata defaults shared by every packable library.
+    Proposal §3.1 + Session 6 ledger §9.4. Per-library .csproj overrides
+    only the distinctive metadata: PackageId, Description, PackageTags,
+    PackageReadmeFile.
+  -->
+  <PropertyGroup>
+    <!-- Package identity -->
+    <Authors>Dabbler Platform contributors</Authors>
+    <Company>Dabbler Platform</Company>
+    <Copyright>Copyright (c) Dabbler Platform contributors</Copyright>
+
+    <!-- Repository link -->
+    <RepositoryUrl>https://github.com/darndestdabbler/dabbler-platform</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/darndestdabbler/dabbler-platform</PackageProjectUrl>
+
+    <!-- License (libraries themselves are MIT) -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+    <!-- Reproducible build + symbols -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!--
+      Single repository version. Overridable via /p:DabblerVersion=...
+      Lock-step versioning per ledger §3.6.
+    -->
+    <DabblerVersion Condition="'$(DabblerVersion)' == ''">2.0.2</DabblerVersion>
+    <Version>$(DabblerVersion)</Version>
+    <PackageVersion>$(DabblerVersion)</PackageVersion>
+    <AssemblyVersion>$(DabblerVersion.Split('-')[0])</AssemblyVersion>
+    <FileVersion>$(DabblerVersion.Split('-')[0])</FileVersion>
+  </PropertyGroup>
+
+  <!--
+    SourceLink for GitHub: lands in every packable library so consumers
+    can F12-step into Dabbler code against the published commit.
+    PrivateAssets="All" keeps it from leaking as a runtime dependency.
+  -->
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

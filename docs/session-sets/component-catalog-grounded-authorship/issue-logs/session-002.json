@@ -1,0 +1,18 @@
+[
+  {
+    "id": "session-2/issue-1",
+    "severity": "Suggestion",
+    "location": "ai-router/prompt-templates/task-prompts.md - uat-script-author Hard requirement 1",
+    "issue": "Schema recap listed only required Review-item fields; Feedback and IsJudgmentItem were used by Hard requirement 5 but not enumerated.",
+    "status": "fixed",
+    "resolution": "Updated Hard requirement 1 to enumerate optional Review-item fields (Feedback, IsJudgmentItem, IsOtherItem, Passes, HumanAction/Expectation legacy pair) so the field list matches actual schema and the prompt is self-consistent."
+  },
+  {
+    "id": "session-2/issue-2",
+    "severity": "Suggestion",
+    "location": "sensitive-field-masking-audit-uat-remediation-uat-checklist.json UAT-3 Step 16",
+    "issue": "Uses free-form VERIFY for the negative SSN-not-masked assertion because the W0 grammar does not have a negated VERIFY TEXT form.",
+    "status": "deferred",
+    "resolution": "Free-form VERIFY is the only option today per the grammar at https://github.com/darndestdabbler/dabbler-uat-dsl/blob/main/grammar/DabblerUatDsl.g4 (verifyTextStep has equals/contains/matches but no negation). Free-form emits // PENDING in generated test code per the grammar comments. Tracking as a W0 grammar-enhancement request: add  and  forms. Defer to W2 (uat-runner-and-triage-feedback) or a dedicated W0 patch."
+  }
+]

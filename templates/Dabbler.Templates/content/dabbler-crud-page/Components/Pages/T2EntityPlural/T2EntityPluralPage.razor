@@ -1,0 +1,28 @@
+@page "/T9RouteName"
+@attribute [DabblerPageAuthorize("/T9RouteName")]
+@using T5DtoNs
+@using Dabbler.Components.Data
+@using Dabbler.Security.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+<PageTitle>T2EntityPlural</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">T2EntityPlural</MudText>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Href="/T9RouteName/new">
+            New T1Entity
+        </MudButton>
+    </MudStack>
+
+    <T1EntityList DataProvider="DataProvider" />
+</MudContainer>
+
+@code {
+    [Inject]
+    private IGridDataProvider<T1EntityDto> DataProvider { get; set; } = default!;
+}
