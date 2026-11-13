@@ -58,6 +58,8 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
             .Include(f => f.Role)
             .ToListAsync(ct);
 
+        // The legacy configuration members stay supported until they are removed.
+#pragma warning disable CS0618
         return new SecurityConfiguration
         {
             Roles = roles.Select(r => new RoleDefinition
@@ -133,6 +135,7 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
                 Description = f.Description
             }).ToList()
         };
+#pragma warning restore CS0618
     }
 
     /// <inheritdoc />
@@ -182,7 +185,10 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
         var existing = await db.AppRolePermissions.ToListAsync(ct);
         db.AppRolePermissions.RemoveRange(existing);
 
+        // The legacy EntityPermissions member stays supported until it is removed.
+#pragma warning disable CS0618
         foreach (var entityPerm in config.EntityPermissions)
+#pragma warning restore CS0618
         {
             foreach (var rp in entityPerm.RolePermissions)
             {
@@ -209,7 +215,10 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
         var existing = await db.AppFieldPermissions.ToListAsync(ct);
         db.AppFieldPermissions.RemoveRange(existing);
 
+        // The legacy FieldPermissions member stays supported until it is removed.
+#pragma warning disable CS0618
         foreach (var fieldPerm in config.FieldPermissions)
+#pragma warning restore CS0618
         {
             foreach (var rp in fieldPerm.RolePermissions)
             {
@@ -234,7 +243,10 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
         var existing = await db.AppPagePermissions.ToListAsync(ct);
         db.AppPagePermissions.RemoveRange(existing);
 
+        // The legacy PagePermissions member stays supported until it is removed.
+#pragma warning disable CS0618
         foreach (var pagePerm in config.PagePermissions)
+#pragma warning restore CS0618
         {
             foreach (var roleName in pagePerm.AllowedRoles)
             {
@@ -268,7 +280,10 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
         var existing = await db.AppEndpointPermissions.ToListAsync(ct);
         db.AppEndpointPermissions.RemoveRange(existing);
 
+        // The legacy EndpointPermissions member stays supported until it is removed.
+#pragma warning disable CS0618
         foreach (var ep in config.EndpointPermissions)
+#pragma warning restore CS0618
         {
             foreach (var roleName in ep.AllowedRoles)
             {
@@ -302,7 +317,10 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
         var existing = await db.AppControlPermissions.ToListAsync(ct);
         db.AppControlPermissions.RemoveRange(existing);
 
+        // The legacy ControlPermissions member stays supported until it is removed.
+#pragma warning disable CS0618
         foreach (var cp in config.ControlPermissions)
+#pragma warning restore CS0618
         {
             foreach (var rp in cp.RolePermissions)
             {
@@ -327,7 +345,10 @@ public sealed class EfCoreSecurityStore : ISecurityConfigurationStore
         var existing = await db.AppRowFilters.ToListAsync(ct);
         db.AppRowFilters.RemoveRange(existing);
 
+        // The legacy RowFilters member stays supported until it is removed.
+#pragma warning disable CS0618
         foreach (var rf in config.RowFilters)
+#pragma warning restore CS0618
         {
             if (!rolesByName.TryGetValue(rf.RoleName, out var role)) continue;
             db.AppRowFilters.Add(new AppRowFilter

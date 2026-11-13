@@ -12,7 +12,7 @@
         <MudExpansionPanels MultiExpansion="false" Elevation="0">
             <MudExpansionPanel Expanded="@IsExpanded"
                                ExpandedChanged="@HandleExpandedChanged"
-                               DisableGutters="true">
+                               Gutters="false">
                 <TitleContent>
                     <div class="d-flex align-center gap-2" data-testid="@($"{TestId}-header")">
                         @if (IsExpanded)

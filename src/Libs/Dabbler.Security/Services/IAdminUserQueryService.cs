@@ -101,10 +101,12 @@ public interface IAdminUserQueryService
 
     /// <inheritdoc cref="GetUsersAsync(CancellationToken)" />
     /// <param name="actor">The actor's <see cref="ClaimsPrincipal"/> from <c>AuthenticationStateProvider</c>.</param>
+    /// <param name="ct">Cancellation token.</param>
     Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(ClaimsPrincipal actor, CancellationToken ct = default);
 
     /// <inheritdoc cref="GetActorAssignedOrganizationIdsAsync(CancellationToken)" />
     /// <param name="actor">The actor's <see cref="ClaimsPrincipal"/> from <c>AuthenticationStateProvider</c>.</param>
+    /// <param name="ct">Cancellation token.</param>
     Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal actor, CancellationToken ct = default);
 
     /// <inheritdoc cref="GetActorActiveAdminRole()" />

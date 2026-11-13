@@ -89,7 +89,10 @@
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
+        // The legacy RoleSwitching member stays supported until it is removed.
+#pragma warning disable CS0618
         _allowedSwitchRoles = ConfigManager.Current.RoleSwitching.AllowedRoles;
+#pragma warning restore CS0618
         _visible = _allowedSwitchRoles.Any(r => user.IsInRole(r));
 
         if (RoleSwitcher.IsRoleSwitched)

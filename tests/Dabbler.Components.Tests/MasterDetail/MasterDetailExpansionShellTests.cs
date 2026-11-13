@@ -97,6 +97,22 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
+    public async Task Shell_ExpansionPanel_RendersWithoutGutters()
+    {
+        await using var ctx = Build();
+
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
+            .Add(c => c.TestId, "test-shell")
+            .Add(c => c.ExpandedHeaderText, "Results")
+            .Add(c => c.IsExpanded, true));
+
+        var panel = cut.Find("[data-testid='test-shell'] .mud-expand-panel");
+        panel.ClassList.Should().NotContain("mud-expand-panel-gutters");
+        panel.HasAttribute("disablegutters").Should().BeFalse();
+        cut.FindAll("[data-testid='test-shell'] .mud-expand-panel-header-gutters").Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Shell_FilterContent_RendersInsideExpansionBody()
     {
         await using var ctx = Build();

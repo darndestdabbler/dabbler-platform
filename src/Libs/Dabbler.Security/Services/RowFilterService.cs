@@ -52,9 +52,12 @@ public class RowFilterService : IRowFilterService
     {
         var config = _manager.Current;
 
+        // The legacy RowFilters member stays supported until it is removed.
+#pragma warning disable CS0618
         var rowFilter = config.RowFilters.FirstOrDefault(f =>
             string.Equals(f.EntityKey, entityKey, StringComparison.OrdinalIgnoreCase) &&
             string.Equals(f.RoleName, roleName, StringComparison.OrdinalIgnoreCase));
+#pragma warning restore CS0618
 
         if (rowFilter == null || string.IsNullOrWhiteSpace(rowFilter.FilterExpression))
             return Passthrough<T>();

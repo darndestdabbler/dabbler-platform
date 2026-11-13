@@ -8,5 +8,6 @@ namespace Dabbler.Security.Services;
 public sealed class EmailAlreadyExistsException(string email)
     : Exception($"A user with email '{email}' already exists.")
 {
+    /// <summary>The email address that already belongs to an existing user.</summary>
     public string Email { get; } = email;
 }

@@ -28,7 +28,7 @@ namespace Dabbler.Security.Services;
 ///   <item>A non-user-type target (SystemAdmin / CrossOrgUserAdmin /
 ///     CrossOrgMonitor / UserAdmin) may not accumulate additional roles,
 ///     except that a UserAdmin may hold UserAdmin for a different
-///     organization (tracked by <paramref name="targetCurrentRoles"/>).</item>
+///     organization (tracked by the <c>targetCurrentRoles</c> argument of <c>Evaluate</c>).</item>
 /// </list>
 /// <para>
 /// No state is held; all inputs are passed explicitly. The result

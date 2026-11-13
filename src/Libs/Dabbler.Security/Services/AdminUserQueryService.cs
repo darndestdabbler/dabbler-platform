@@ -37,10 +37,14 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
 
     /// <inheritdoc />
     public Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(CancellationToken ct = default)
-        => GetUsersAsync(_httpContextAccessor.HttpContext?.User, ct);
+        => QueryUsersAsync(_httpContextAccessor.HttpContext?.User, ct);
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(ClaimsPrincipal actor, CancellationToken ct = default)
+    public Task<IReadOnlyList<AdminUserRow>> GetUsersAsync(ClaimsPrincipal actor, CancellationToken ct = default)
+        => QueryUsersAsync(actor, ct);
+
+    // A null actor (no HttpContext) fails closed to an empty list.
+    private async Task<IReadOnlyList<AdminUserRow>> QueryUsersAsync(ClaimsPrincipal? actor, CancellationToken ct)
     {
         // Use a single fresh context for the entire call. Earlier revisions
         // reused a scoped DbContext, which crashed the Users tab with
@@ -133,10 +137,14 @@ public sealed class AdminUserQueryService : IAdminUserQueryService
 
     /// <inheritdoc />
     public Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(CancellationToken ct = default)
-        => GetActorAssignedOrganizationIdsAsync(_httpContextAccessor.HttpContext?.User, ct);
+        => QueryActorAssignedOrganizationIdsAsync(_httpContextAccessor.HttpContext?.User, ct);
 
     /// <inheritdoc />
-    public async Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal actor, CancellationToken ct = default)
+    public Task<IReadOnlySet<int>> GetActorAssignedOrganizationIdsAsync(ClaimsPrincipal actor, CancellationToken ct = default)
+        => QueryActorAssignedOrganizationIdsAsync(actor, ct);
+
+    // A null actor (no HttpContext) fails closed to an empty set.
+    private async Task<IReadOnlySet<int>> QueryActorAssignedOrganizationIdsAsync(ClaimsPrincipal? actor, CancellationToken ct)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
         return await LoadActorAssignedOrganizationIdsAsync(db, actor, ct);

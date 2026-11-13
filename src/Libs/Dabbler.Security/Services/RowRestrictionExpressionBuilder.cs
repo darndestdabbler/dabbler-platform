@@ -25,8 +25,8 @@ namespace Dabbler.Security.Services;
 /// </list>
 /// <para>
 /// Returns <c>null</c> when the expression cannot be parsed, when the named
-/// property does not exist on <typeparamref name="T"/>, or when a required
-/// token has no value in <paramref name="tokens"/>. Callers decide whether a
+/// property does not exist on the entity type <c>T</c>, or when a required
+/// token has no value in <c>tokens</c>. Callers decide whether a
 /// <c>null</c> result means deny-all (fail-closed, matching the prior service)
 /// or passthrough.
 /// </para>
