@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "admin-user-creation-flow-uat-remediation",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Session 1",
+      "status": "complete",
+      "startedAt": "2026-05-11T16:13:11.351016-04:00",
+      "completedAt": "2026-05-11T16:54:25.078170-04:00",
+      "orchestrator": {
+        "engine": "claude-code",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

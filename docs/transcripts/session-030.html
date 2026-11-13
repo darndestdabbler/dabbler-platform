@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 030 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 030 transcript</h1>
+<p class="stamp">Rendered 2026-11-13T01:25:27.548Z by dabbler-ai-router 3.32.4 at 5dbc1b9541502c9b28d1137cbb727859bf961fa5.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-12T19:41:00.267-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 30: Bump to 2.0.0</h3>
+<ol><li>Register.</li><li>Set <code>DabblerVersion</code> in <code>Directory.Build.props</code>, and the <code>-Version</code> default in <code>tools/pack.ps1</code> with the version its help text names, to <code>2.0.0</code>. In <code>CHANGELOG.md</code>, the unreleased <code>## 1.0.1</code> entry becomes <code>## 2.0.0</code>, keeps what it has, and states:</li></ol>
+<ul><li>breaking: <code>MasterDetailExpansionShell</code>, its context types and <code>PickOrAddDialog</code> moved from <code>Dabbler.Security.Blazor</code> (namespace <code>Dabbler.Security.Blazor.Components.Admin.Shared</code>) to <code>Dabbler.Components</code> (namespace <code>Dabbler.Components.MasterDetail</code>);</li><li>breaking: <code>ShowAddAction</code> now renders an Add button and defaults to <code>false</code>; <code>Mode</code>, <code>ShellMode</code> and the shell's and dialog's <code>OnRowSelected</code> are removed;</li><li>breaking: <code>DeclarativeFilterPanel</code> emits the <code>FilterOperators</code> constants, not <code>&quot;contains&quot;</code>, <code>&quot;eq&quot;</code>, <code>&quot;gte&quot;</code> and <code>&quot;lte&quot;</code>;</li><li>breaking: <code>Dabbler.Api.Querying</code> throws <code>GridQueryException</code> for an unknown property, an unknown or unsupported operator and an unconvertible value, where it used to skip the filter;</li><li>added: <code>AddLabel</code>; <code>DateOnly</code>, <code>TimeOnly</code>, <code>DateTimeOffset</code>, <code>Guid</code>, enum and <code>In</code> filters in <code>Dabbler.Api.Querying</code>; <code>GridQueryException</code>; <code>DownloadFileAsync</code>; <code>ReportFonts</code> and <code>AddDabblerReportFonts</code> for Unicode TrueType report fonts;</li><li>changed: PDF report text keeps runs of spaces, breaks a word wider than its field, and is measured with the font and size it is drawn with; <code>DabblerReportPage</code> measures <code>CanGrow</code> and <code>CanShrink</code> fields, so their bands grow and shrink in the shipped page;</li><li>changed: the <code>DabblerPdf</code> dependency moves from <code>1.1.2</code> to <code>1.3.0</code>.</li></ul>
+<p>It gives the one-line migration for each breaking change. The step's checks: neither file names <code>1.0.1</code>; <code>CHANGELOG.md</code> has <code>## 2.0.0</code> directly above <code>## 1.0.0</code>; then, after a Release build and <code>tools/pack.ps1 -OutputDir pack-output -CleanOutput</code>, the <code>smoke</code> suite passes against the <code>2.0.0</code> packages.</p>
+<ol><li>Cross-provider verification.</li><li>The <code>unit</code>, <code>smoke</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no API or dependency change beyond Sessions 25–29; no change to <code>ci.yml</code>, <code>build.yml</code> or <code>dabbler.yaml</code>.</p>
+<p>Proposed version: <strong>2.0.0 (major)</strong>, approved by the operator on 2026-11-12: a public type changes assembly and namespace, parameters are removed, and two behaviours callers could rely on change.</p>
+<p>This is a bump session, not a <code>(release: 2.0.0)</code> session: with the pack-only <code>packaging:</code> block the router makes a <code>session-&lt;N&gt;</code> tag that publishes nothing (Session 11 of <code>../dabbler-pdf</code>). After the session has pushed, the operator runs the <code>2.0.0</code> dry run (<code>gh workflow run build.yml -f version=2.0.0</code>) and tags <code>nuget-v2.0.0</code> by hand when it is green; <code>1.0.1</code> is never tagged.</p>
+<h2>Work Plan</h2>
+<p>Bump the single repository version from the unreleased 1.0.1 to 2.0.0 (major, approved by the operator on 2026-11-12). Set DabblerVersion in Directory.Build.props, and the -Version default and the versions its help text names in tools/pack.ps1, to 2.0.0. Turn the unreleased <code>## 1.0.1</code> entry of CHANGELOG.md into <code>## 2.0.0</code> directly above <code>## 1.0.0</code>, recording what Sessions 25-29 changed relative to 1.0.0: the breaking moves and removals (MasterDetailExpansionShell, its context types and PickOrAddDialog moving to Dabbler.Components / Dabbler.Components.MasterDetail; ShowAddAction rendering an Add button and defaulting to false, with Mode, ShellMode and OnRowSelected removed; DeclarativeFilterPanel emitting the FilterOperators constants; Dabbler.Api.Querying throwing GridQueryException instead of skipping a filter), each with its one-line migration; what was added (AddLabel, the new filter types and In, GridQueryException, DownloadFileAsync, ReportFonts and AddDabblerReportFonts); and what changed (PDF report text layout and measurement, DabblerReportPage measuring CanGrow/CanShrink fields, and DabblerPdf moving from 1.1.2 to 1.3.0, which supersedes the entry's 1.1.3 line and its 'No API changes' line, both no longer true). Prove the bump with a Release build, a pack into pack-output and the smoke suite against the 2.0.0 packages.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/912dbd6dc81c02427fa9c6705f06851690a3b81e"><code>912dbd6dc81c02427fa9c6705f06851690a3b81e</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Changelog</td><td><p>In CHANGELOG.md, rename the unreleased <code>## 1.0.1</code> entry to <code>## 2.0.0</code>, kept directly above <code>## 1.0.0</code>. Replace its now-untrue 'No API changes since 1.0.0' line and its DabblerPdf 1.1.2 -&gt; 1.1.3 line with the 2.0.0 content the session plan lists: the four breaking changes, each with its one-line migration; the added APIs (AddLabel; DateOnly, TimeOnly, DateTimeOffset, Guid, enum and In filters in Dabbler.Api.Querying; GridQueryException; DownloadFileAsync; ReportFonts and AddDabblerReportFonts); and the changes (PDF report text keeps runs of spaces, breaks a word wider than its field and is measured with the font and size it is drawn with; DabblerReportPage measures CanGrow and CanShrink fields so their bands grow and shrink; DabblerPdf 1.1.2 -&gt; 1.3.0). The file names 1.0.1 nowhere afterwards.</p></td><td><span class="mono">CHANGELOG.md</span></td><td><code>pwsh -NoProfile -Command if (Select-String -Path CHANGELOG.md -SimpleMatch '1.0.1' -Quiet) { Write-Error 'CHANGELOG.md names 1.0.1'; exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command $h = @(Select-String -Path CHANGELOG.md -Pattern '^## ' | ForEach-Object { $_.Line.Trim() }); $i = [array]::IndexOf($h, '## 2.0.0'); if ($i -lt 0 -or $i + 1 -ge $h.Count -or $h[$i + 1] -ne '## 1.0.0') { Write-Error ('## 2.0.0 is not directly above ## 1.0.0: ' + ($h -join ' | ')); exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command $t = Get-Content CHANGELOG.md -Raw; $missing = @('Dabbler.Components.MasterDetail', 'ShowAddAction', 'FilterOperators', 'GridQueryException', 'AddLabel', 'DownloadFileAsync', 'ReportFonts', 'AddDabblerReportFonts', 'CanGrow', '1.3.0') | Where-Object { -not $t.Contains($_) }; if ($missing) { Write-Error ('CHANGELOG.md is missing: ' + ($missing -join ', ')); exit 1 }; exit 0</code></td><td>yes</td></tr>
+<tr><td>Bump version</td><td><p>Set DabblerVersion in Directory.Build.props to 2.0.0, and in tools/pack.ps1 the -Version default and the versions its help text names (the example, the default it states and the example invocation) to 2.0.0. Neither file names 1.0.1 afterwards. Then a Release build of the solution, a pack into pack-output and the smoke suite against the 2.0.0 packages prove the bump.</p></td><td><span class="mono">Directory.Build.props</span><br><span class="mono">tools/pack.ps1</span></td><td><code>pwsh -NoProfile -Command $hits = Select-String -Path Directory.Build.props, tools/pack.ps1 -SimpleMatch '1.0.1'; if ($hits) { Write-Error ($hits | Out-String); exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command if (-not (Select-String -Path Directory.Build.props -Pattern '&lt;DabblerVersion [^&gt;]*&gt;2\.0\.0&lt;/DabblerVersion&gt;' -Quiet)) { Write-Error 'DabblerVersion is not 2.0.0'; exit 1 }; if (-not (Select-String -Path tools/pack.ps1 -Pattern '\[string\]\s*\$Version\s*=\s*.2\.0\.0.,' -Quiet)) { Write-Error 'the pack.ps1 -Version default is not 2.0.0'; exit 1 }; exit 0</code><br><code>dotnet build Dabbler.Platform.sln -c Release</code><br><code>pwsh -NoProfile -File tools/pack.ps1 -OutputDir pack-output -CleanOutput</code><br><code>pwsh -NoProfile -Command $all = @(Get-ChildItem pack-output -Filter *.nupkg); $v2 = @($all | Where-Object { $_.Name -like '*.2.0.0.nupkg' }); if ($all.Count -eq 0 -or $v2.Count -ne $all.Count) { Write-Error ('pack-output holds packages other than 2.0.0: ' + ($all.Name -join ', ')); exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command $env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No API or dependency change beyond what Sessions 25-29 already made; this session edits only version numbers and the changelog.</li><li>No change to .github/workflows/ci.yml, .github/workflows/build.yml or dabbler.yaml.</li><li>No publish and no nuget-v2.0.0 tag: the operator runs the 2.0.0 dry run and tags by hand after the session has pushed; 1.0.1 is never tagged.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[00:41:00]</span> <span class="muted">run-started</span> session=030 mode=pull</div>
+<div class="line"><span class="at">[00:41:00]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[00:42:19]</span> <span class="muted">run-resumed</span> session=030 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[00:42:19]</span> <span class="muted">plan-accepted</span> steps=[&quot;changelog&quot;,&quot;bump-version&quot;] non_goals=3</div>
+<div class="line"><span class="at">[00:42:20]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[00:42:20]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=changelog</div>
+<div class="line"><span class="at">[00:42:59]</span> <span class="muted">run-resumed</span> session=030 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[00:43:01]</span> <span class="muted">check-passed</span> step=changelog argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (Select-String -Path CHANGELOG.md -SimpleMatch '1.0.1' -Quiet) { Write-Error 'CHANGELOG.md names 1.0.1'; exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[00:43:01]</span> <span class="muted">check-passed</span> step=changelog argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$h = @(Select-String -Path CHANGELOG.md -Pattern '^## ' | ForEach-Object { $_.Line.Trim() }); $i = [array]::IndexOf($h, '## 2.0.0'); if ($i -lt 0 -or $i + 1 -ge $h.Count -or $h[$i + 1] -ne '## 1.0.0') { Write-Error ('## 2.0.0 is not directly above ## 1.0.0: ' + ($h -join ' | ')); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[00:43:01]</span> <span class="muted">check-passed</span> step=changelog argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content CHANGELOG.md -Raw; $missing = @('Dabbler.Components.MasterDetail', 'ShowAddAction', 'FilterOperators', 'GridQueryException', 'AddLabel', 'DownloadFileAsync', 'ReportFonts', 'AddDabblerReportFonts', 'CanGrow', '1.3.0') | Where-Object { -not $t.Contains($_) }; if ($missing) { Write-Error ('CHANGELOG.md is missing: ' + ($missing -join ', ')); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[00:43:02]</span> <span class="muted">report-accepted</span> seq=2 step=changelog files=[&quot;CHANGELOG.md&quot;] notes=The unreleased 1.0.1 entry becomes 2.0.0 above 1.0.0, with the four breaking changes and one-line migrations, the added APIs and the changes; its stale 'No API changes' and DabblerPdf 1.1.3 lines are replaced.</div>
+<div class="line"><span class="at">[00:43:02]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=bump-version</div>
+<div class="line"><span class="at">[00:43:17]</span> <span class="muted">run-resumed</span> session=030 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$hits = Select-String -Path Directory.Build.props, tools/pack.ps1 -SimpleMatch '1.0.1'; if ($hits) { Write-Error ($hits | Out-String); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (-not (Select-String -Path Directory.Build.props -Pattern '&lt;DabblerVersion [^&gt;]*&gt;2\\.0\\.0&lt;/DabblerVersion&gt;' -Quiet)) { Write-Error 'DabblerVersion is not 2.0.0'; exit 1 }; if (-not (Select-String -Path tools/pack.ps1 -Pattern '\\[string\\]\\s*\\$Version\\s*=\\s*.2\\.0\\.0.,' -Quiet)) { Write-Error 'the pack.ps1 -Version default is not 2.0.0'; exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;,&quot;-c&quot;,&quot;Release&quot;]</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-File&quot;,&quot;tools/pack.ps1&quot;,&quot;-OutputDir&quot;,&quot;pack-output&quot;,&quot;-CleanOutput&quot;]</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$all = @(Get-ChildItem pack-output -Filter *.nupkg); $v2 = @($all | Where-Object { $_.Name -like '*.2.0.0.nupkg' }); if ($all.Count -eq 0 -or $v2.Count -ne $all.Count) { Write-Error ('pack-output holds packages other than 2.0.0: ' + ($all.Name -join ', ')); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;]</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">report-accepted</span> seq=3 step=bump-version files=[&quot;Directory.Build.props&quot;,&quot;tools/pack.ps1&quot;] notes=DabblerVersion, the pack.ps1 -Version default and its help text's versions are 2.0.0; neither file names 1.0.1.</div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[00:59:22]</span> <span class="muted">job-started</span> name=verification pid=36776 log=.dabbler/runs/s30/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[00:59:45]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s30/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[00:59:45]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[00:59:45]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[00:59:45]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 106s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[00:59:45]</span> <span class="muted">job-started</span> name=run of record: unit pid=33216 log=.dabbler/runs/s30/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[00:59:47]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s30/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[00:59:47]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[00:59:47]</span> <span class="muted">job-started</span> name=run of record: smoke pid=55888 log=.dabbler/runs/s30/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[01:15:22]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s30/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[01:15:23]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[01:15:23]</span> <span class="muted">job-started</span> name=run of record: e2e pid=62292 log=.dabbler/runs/s30/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[01:25:15]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="good">0</span> log=.dabbler/runs/s30/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[01:25:15]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[01:25:19]</span> <span class="muted">landed</span> commit=912dbd6dc81c02427fa9c6705f06851690a3b81e</div>
+<div class="line"><span class="at">[01:25:19]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[01:25:20]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[01:25:20]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[01:25:20]</span> <span class="muted">job-started</span> name=close pid=53408 log=.dabbler/runs/s30/driver/jobs/close.log</div>
+<div class="line"><span class="at">[01:25:27]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s30/driver/jobs/close.log</div>
+<div class="line"><span class="at">[01:25:27]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td><details><summary>1 finding</summary></details></td></tr><tr class="findings"><td colspan="7"><table>
+<tr><th>#</th><th>Severity</th><th>Finding</th><th>Response</th></tr>
+<tr><td>0</td><td><strong>minor</strong></td><td>**Nit:** The `ShowAddAction` migration says to delete “any `Mode` or `OnRowSelected` attribute,” but does not explicitly name the removed `ShellMode` attribute. State that `ShellMode` must also be removed so consumers with that exact attribute do not retain a compile-breaking migration omission.</td><td>not answered</td></tr>
+</table></td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="bad">none-selected</span></td><td>1s</td><td></td><td></td><td></td><td><span class="mono"></span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>934s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="good">passed</span></td><td>591s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-e2e</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

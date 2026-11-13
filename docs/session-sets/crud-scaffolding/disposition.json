@@ -1,0 +1,99 @@
+{
+  "status": "completed",
+  "summary": "Session 2 of 5 (dabbler-crud-service Template). Shipped the service-tier template (interface + EF Core-backed implementation + POST /query controller) and its consumer smoke test. Scope expanded by user direction to promote GridQueryRequest + QueryableExtensions (and a new GridQueryResponse<T>) out of AcmeCoffeeOnline.* into a new packable library Dabbler.Api.Querying so the scaffolded slice is self-contained against the published Dabbler packages. Template uses non-overlapping T1Entity..T10PkRoute substitution tokens with fileRename for entity/entityPlural, coalesce generator for effectiveAuthPolicyPrefix (--auth-policy-prefix override or fall back to --entity), switch generator for derivedPkRouteConstraint (int->:int, long->:long, Guid->:guid), and dotnetcli.host.json for kebab-case CLI aliases. Default service emits reflection-based MapToDto/MapToEntity/CopyTo with a NonCopyablePropertiesFromDto seam (excludes PK by default to prevent create-time key injection and update-time key-mismatch). 3 cross-provider verification rounds via GPT-5.4: Round 1 ISSUES (Critical mapping stub + Major spec drift + Major stale doc + Minor test gap), Round 2 ISSUES (Major non-int PK route constraint + Major PK-injection via reflection copy + Major spec-compliance camelCase CLI + Minor stale snippet), Round 3 ISSUES with 2 Minor docs only (applied inline post-verification). Three smoke variants pass: default-policy-prefix, auth-policy-prefix override, long-PK route constraint.",
+  "verification_method": "api",
+  "files_changed": [
+    "src/Libs/Dabbler.Api.Querying/Dabbler.Api.Querying.csproj",
+    "src/Libs/Dabbler.Api.Querying/README.md",
+    "src/Libs/Dabbler.Api.Querying/GridQueryRequest.cs",
+    "src/Libs/Dabbler.Api.Querying/QueryableExtensions.cs",
+    "src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj",
+    "tests/AcmeCoffeeOnline.Api.Tests/QueryableExtensionsTests.cs",
+    "templates/Dabbler.Templates/content/dabbler-crud-service/.template.config/template.json",
+    "templates/Dabbler.Templates/content/dabbler-crud-service/.template.config/dotnetcli.host.json",
+    "templates/Dabbler.Templates/content/dabbler-crud-service/Services/IT1EntityService.cs",
+    "templates/Dabbler.Templates/content/dabbler-crud-service/Services/T1EntityService.cs",
+    "templates/Dabbler.Templates/content/dabbler-crud-service/Controllers/T2EntityPluralController.cs",
+    "tests/Dabbler.Templates.Tests/Dabbler.Templates.Tests.csproj",
+    "tests/Dabbler.Templates.Tests/CrudServiceTemplateTests.cs",
+    "tests/Dabbler.Templates.Tests/Fixtures/SmokeApi/SmokeApi.csproj",
+    "tests/Dabbler.Templates.Tests/Fixtures/SmokeApi/Smoke.cs",
+    "tests/Dabbler.Templates.Tests/Fixtures/SmokeApi/SmokeDto.cs",
+    "tests/Dabbler.Templates.Tests/Fixtures/SmokeApi/Data/SmokeDbContext.cs",
+    "tests/Dabbler.Templates.Tests/Fixtures/SmokeApi/Program.cs",
+    "tests/Dabbler.Templates.Tests/Fixtures/smoke.dabbler-entity.json",
+    "tools/pack.ps1",
+    "tests/Dabbler.Packaging.Smoke/PackagingSmokeTests.cs",
+    "Dabbler.Platform.sln",
+    "docs/session-sets/crud-scaffolding/request-contract-decision.md",
+    "docs/session-sets/crud-scaffolding/qbe-helper-api.md",
+    "docs/session-sets/crud-scaffolding/ai-assignment.md",
+    "docs/session-sets/crud-scaffolding/activity-log.json",
+    "docs/session-sets/crud-scaffolding/session-state.json",
+    "docs/session-sets/crud-scaffolding/session-events.jsonl",
+    "docs/session-sets/crud-scaffolding/session-reviews/session-002.md",
+    "docs/session-sets/crud-scaffolding/disposition.json"
+  ],
+  "verification_message_ids": [],
+  "verification_rounds": [
+    {
+      "round": 1,
+      "verifier_model": "gpt-5-4",
+      "verdict": "ISSUES_FOUND",
+      "cost_usd": 0.1423,
+      "issues_resolved_inline": [
+        "Critical/correctness: MapToDto only copied Id; MapToEntity/CopyTo empty. Resolved by reflection-based CopySameNamedProperties helper.",
+        "Major/spec-compliance: auth-policy-prefix not implemented. Resolved by adding authPolicyPrefix parameter + effectiveAuthPolicyPrefix coalesce generator.",
+        "Major/documentation: request-contract-decision.md Response DTO section still said PagedResponse<T>. Resolved by Session 2 supersession note pointing at GridQueryResponse<T>.",
+        "Minor/test-coverage: Smoke test did not verify spec-defined CLI shape or auth-policy-prefix. Resolved by adding 2 SkippableFact variants (default + authPolicyPrefix override) with controller-source assertions."
+      ]
+    },
+    {
+      "round": 2,
+      "verifier_model": "gpt-5-4",
+      "verdict": "ISSUES_FOUND",
+      "cost_usd": 0.1911,
+      "issues_resolved_inline": [
+        "Major/spec-compliance: camelCase CLI options. Resolved by adding .template.config/dotnetcli.host.json with symbolInfo.longName aliases; all smoke tests now use spec-compliant kebab-case form.",
+        "Major/correctness: non-int PKs still emitted {id:int}. Resolved by dropping manual pkRouteConstraint param and adding derivedPkRouteConstraint via switch generator (int->:int, long->:long, Guid->:guid, otherwise empty). Added long-PK smoke case.",
+        "Major/correctness: default copy injected DTO.Id into entity. Resolved by adding NonCopyablePropertiesFromDto seam (default {'Id'}); MapToEntity and CopyTo skip listed properties.",
+        "Minor/documentation: stale controller snippet in request-contract-decision.md. Resolved by refreshing the snippet to match the implemented controller (QueryAsync, ActionResult<GridQueryResponse<TDto>>, [DabblerEndpointAuthorize(\"Query{AuthPolicyPrefix}\")])."
+      ]
+    },
+    {
+      "round": 3,
+      "verifier_model": "gpt-5-4",
+      "verdict": "ISSUES_FOUND",
+      "cost_usd": 0.1453,
+      "issues_resolved_inline": [
+        "Minor/documentation: doc prose still used camelCase --authPolicyPrefix in example. Fixed inline to --auth-policy-prefix.",
+        "Minor/documentation: entityPlural symbol description misstated that it drives auth-policy names. Fixed inline to clarify it drives controller/DbSet naming; auth-policy comes from --auth-policy-prefix."
+      ],
+      "note": "Per workflow Step 7, max 2 retries after initial verification; both Round-3 findings were Minor docs (no Critical/Major), fixed inline without a 4th verification round per workflow rule 6 (Critical/Major would block commit, Minor does not)."
+    }
+  ],
+  "final_verdict": "VERIFIED_WITH_INLINE_MINOR_FIXES",
+  "tests_run": {
+    "Dabbler.Templates.Tests": {
+      "DabblerCrudService_Template_DefaultPolicyPrefix_ScaffoldsAndBuildsClean": "PASSED",
+      "DabblerCrudService_Template_WithAuthPolicyPrefixOverride_ScaffoldsAndBuildsClean": "PASSED",
+      "DabblerCrudService_Template_WithLongPkType_EmitsCorrectRouteConstraint": "PASSED"
+    },
+    "AcmeCoffeeOnline.Api.Tests": "51 passed, 0 failed (validates moved QueryableExtensionsTests after lib promotion)",
+    "Dabbler.Packaging.Smoke": "5 passed, 2 skipped (Session-10 deferred)"
+  },
+  "tests_not_run_with_rationale": {
+    "AcmeCoffeeOnline.Playwright": "Out of scope for Session 2; requires Docker app stack; first full-solution dotnet test run hung after 24 min on Playwright tests without compose up. Targeted test runs used instead."
+  },
+  "next_orchestrator": {
+    "engine": "claude-code",
+    "provider": "anthropic",
+    "model": "claude-opus-4-7",
+    "effort": "max",
+    "reason": {
+      "code": "continue-current-trajectory",
+      "specifics": "Stay on Opus 4.7 (same engine/provider/model as Session 2) but bump effort high -> max for Session 3. Session 3's core challenge is schema-driven property iteration in Razor + C# templates, which dotnet new doesn't natively support; Opus @ high still required 3 verification rounds for Session 2, so maximum effort is appropriate to generate the novel templating logic and reduce verification cycles. Routed analysis (Gemini Pro, $0.003)."
+    }
+  },
+  "blockers": []
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "number": 1,
+    "severity": "Major",
+    "status": "deferred",
+    "title": "Wrapper div may conflict with MudTabs internal key handling",
+    "note": "MudBlazor 8.x MudTabs does not bind ArrowLeft/ArrowRight/Home/End on its internal tab buttons \u2014 confirmed via prior UAT finding that drove this session's work. Double-nav risk Opus raised is not observed in practice; no code change. Surfacing here so future MudBlazor upgrades that add built-in arrow support are caught."
+  },
+  {
+    "number": 2,
+    "severity": "Major",
+    "status": "fixed",
+    "title": "@onkeydown:preventDefault off-by-one would break Tab navigation after an arrow press",
+    "note": "Removed @onkeydown:preventDefault and the _preventDefaultTabKey field entirely. Arrow keys and Home/End on a non-scrollable wrapper div do not trigger a browser default, and this wrapper is not focusable directly. The handler still fires via bubbling from MudTabs buttons."
+  },
+  {
+    "number": 3,
+    "severity": "Minor",
+    "status": "deferred",
+    "title": "Save() is internal void, not async Task",
+    "note": "Current MudDialog.Close path is synchronous; void is correct for the existing Blazor event pipeline. Worth revisiting only if the Close path becomes async."
+  },
+  {
+    "number": 4,
+    "severity": "Minor",
+    "status": "deferred",
+    "title": "bUnit tests bypass the real focus model",
+    "note": "Acknowledged. The NextPanelIndex Theory covers the pure logic. Real focus behavior across MudTabs children is the right job for Playwright; adding a browser-level test of the seven-tab arrow-key flow is a reasonable follow-up but outside the session's scope."
+  },
+  {
+    "number": 5,
+    "severity": "Minor",
+    "status": "fixed",
+    "title": "ExistingRoleNames not passed in OpenEditDialogAsync",
+    "note": "Now passed in both the Add and Edit paths for defense-in-depth consistency."
+  },
+  {
+    "number": 6,
+    "severity": "Minor",
+    "status": "deferred",
+    "title": "Potential stale element reference in RoleFormDialog test",
+    "note": "The button element is captured and clicked inside the same InvokeAsync; in practice MudDialog does not detach the DialogActions node on render. If flakiness surfaces, re-query after the async operation."
+  },
+  {
+    "number": 7,
+    "severity": "Nit",
+    "status": "fixed",
+    "title": "role=presentation on focusable wrapper violates ARIA",
+    "note": "Dropped both tabindex=-1 and role=presentation. The wrapper is a non-interactive DOM pass-through; MudTabs owns the real roles."
+  },
+  {
+    "number": 8,
+    "severity": "Nit",
+    "status": "fixed",
+    "title": "Nullable annotation inconsistency in IsDuplicateRoleName",
+    "note": "Parameter is now IEnumerable<string>? to match the runtime null guard."
+  }
+]

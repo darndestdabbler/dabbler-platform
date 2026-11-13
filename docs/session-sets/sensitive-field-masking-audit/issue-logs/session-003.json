@@ -1,0 +1,23 @@
+[
+  {
+    "id": "S3-01",
+    "severity": "moderate",
+    "category": "Spec adherence / DI wiring",
+    "status": "fixed",
+    "fix_summary": "Added defensive TryAddScoped<IRenderCorrelationScope, RenderCorrelationScope>() in AddDabblerSecurityBlazor() so a Blazor-only host (without the core extensions) still gets a working scope. Verifier hypothesized the registration was missing because the core ServiceCollectionExtensions wasn't included in the prompt; it actually exists at line 156 of Dabbler.Security/Extensions/ServiceCollectionExtensions.cs (Session 2 artifact)."
+  },
+  {
+    "id": "S3-02",
+    "severity": "low",
+    "category": "Layer separation / architecture",
+    "status": "deferred",
+    "fix_summary": "Deferred. RenderCorrelationScope's NavigationManager dependency is gracefully optional (resolved via IServiceProvider.GetService, guarded against uninitialized RemoteNavigationManager). Microsoft.AspNetCore.App is already a framework reference for Dabbler.Security via AuthenticationStateProvider + IHttpContextAccessor, so consuming NavigationManager here does not introduce a new dependency tier. Moving the impl would require relocating the existing Session 2 DI registration in core extensions and split the file across two assemblies for marginal architectural purity. Captured rationale in the new RenderCorrelationScope.cs <remarks> block."
+  },
+  {
+    "id": "S3-03",
+    "severity": "low",
+    "category": "File organization / spec adherence",
+    "status": "fixed",
+    "fix_summary": "Split into two files per spec 'Creates' list: IRenderCorrelationScope.cs (interface only, no Blazor usings) and RenderCorrelationScope.cs (implementation)."
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "access-migration-generator-consumption",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Decide the generator acquisition mechanism (architecture)",
+      "status": "complete",
+      "startedAt": "2026-06-20T18:28:28.234195-04:00",
+      "completedAt": "2026-06-20T18:45:12.967668-04:00",
+      "orchestrator": {
+        "engine": "claude",
+        "provider": "anthropic",
+        "model": "opus",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    },
+    {
+      "number": 2,
+      "title": "Implement the chosen mechanism + consumer-validation gate",
+      "status": "complete",
+      "startedAt": "2026-06-20T18:54:25.802888-04:00",
+      "completedAt": "2026-06-20T19:40:54.468696-04:00",
+      "orchestrator": {
+        "engine": "claude",
+        "provider": "anthropic",
+        "model": "opus",
+        "effort": "high"
+      },
+      "verificationVerdict": "VERIFIED"
+    }
+  ]
+}

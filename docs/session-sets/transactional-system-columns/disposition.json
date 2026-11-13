@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "sessionSet": "transactional-system-columns",
+  "sessionNumber": 1,
+  "isFinalSession": true,
+  "verificationVerdict": "VERIFIED",
+  "verifierModel": "gpt-5-4",
+  "verifierProvider": "openai",
+  "verifierRound": 1,
+  "scopeDeviations": [
+    {
+      "spec_step": "Generate and apply the EF migration",
+      "actual": "Used EnsureCreated + idempotent raw-SQL DDL (existing codebase pattern)",
+      "rationale": "AcmeCoffeeDbContext does not use EF migrations (no Migrations/ folder; uses EnsureCreatedAsync + ad-hoc DDL in EnsureAcmeCoffeeSchemaAsync for the SocialSecurityNumber column upgrade). The human chose this path before the session started (Option A in the architectural question) to honor the existing pattern and keep the set 1-session sized; switching to migrations would have been a multi-session refactor."
+    },
+    {
+      "spec_step": "Integration tests against Docker SQL Server",
+      "actual": "Tests run against LocalDB (mssqllocaldb), which is the existing test-infrastructure pattern in the repo",
+      "rationale": "LocalDB is SQL Server 2019+ and supports temporal tables fully. The spec's 'Docker SQL Server' was meant to exclude in-memory providers; LocalDB satisfies that intent. Other API integration tests in the repo use the same LocalDB path."
+    }
+  ],
+  "deferredItems": [],
+  "followOnSpecsCalledOut": [
+    "org-scoping-global-filter",
+    "actor-audit-columns"
+  ],
+  "buildResult": "clean (0 errors, 29 pre-existing warnings)",
+  "testResult": "864 pass; 5 pre-existing TemplateSeedSmokeTests failures unrelated to this session (confirmed via git stash baseline)",
+  "newTestsAdded": [
+    "TemporalTablesTests.AllFiveTransactionalTables_AreSystemVersionedAsync",
+    "TemporalTablesTests.AllFiveHistoryTables_ExistWithExpectedNamesAsync",
+    "TemporalTablesTests.Product_Update_CreatesHistoryRowAsync",
+    "TemporalTablesTests.Product_Delete_PreservesRowInHistoryAsync",
+    "TemporalTablesTests.Customer_TemporalAsOf_ReturnsValueAtPointInTimeAsync",
+    "TemporalTablesTests.Order_TemporalAll_ReturnsCurrentAndHistoricalVersionsAsync"
+  ],
+  "filesTouched": [
+    "src/Apps/AcmeCoffeeOnline.Api/Data/Configuration/ProductConfiguration.cs",
+    "src/Apps/AcmeCoffeeOnline.Api/Data/Configuration/OrderConfiguration.cs",
+    "src/Apps/AcmeCoffeeOnline.Api/Data/Configuration/OrderItemConfiguration.cs",
+    "src/Apps/AcmeCoffeeOnline.Api/Data/Configuration/CustomerConfiguration.cs",
+    "src/Apps/AcmeCoffeeOnline.Api/Data/Configuration/OrderNoteConfiguration.cs",
+    "src/Apps/AcmeCoffeeOnline.Api/Data/DatabaseInitializer.cs",
+    "tests/AcmeCoffeeOnline.Api.Tests/TemporalTablesTests.cs"
+  ]
+}

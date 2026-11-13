@@ -1,0 +1,303 @@
+@using Dabbler.Security.Authorization
+@using Dabbler.Security.Configuration
+@using Dabbler.Security.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@namespace Dabbler.Security.Blazor.Components.Admin.Users
+@inject SecurityConfigurationManager ConfigManager
+@inject IBakedInRoleProvider BakedInRoleProvider
+@inject IAdminUserQueryService UserQueryService
+@inject IBackofficeUserCreationService CreationService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Add User</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_isFormValid" data-testid="create-user-dialog-form">
+            <MudTextField T="string"
+                          @bind-Value="_displayName"
+                          Label="Display Name"
+                          Required="true"
+                          RequiredError="Display name is required."
+                          Margin="Margin.Dense"
+                          Class="mb-3"
+                          data-testid="create-user-display-name" />
+
+            <MudTextField T="string"
+                          @bind-Value="_email"
+                          Label="Email"
+                          Required="true"
+                          RequiredError="Email is required."
+                          Validation="@((string v) => ValidateEmail(v))"
+                          InputType="InputType.Email"
+                          Margin="Margin.Dense"
+                          Class="mb-3"
+                          data-testid="create-user-email" />
+
+            <MudSelect T="string"
+                       @bind-Value="_initialRoleName"
+                       Label="Initial Role"
+                       Required="true"
+                       RequiredError="Initial role is required."
+                       Margin="Margin.Dense"
+                       Class="mb-3"
+                       data-testid="create-user-role-select">
+                @foreach (var role in _assignableRoles)
+                {
+                    <MudSelectItem Value="@role.RoleName"
+                                   data-testid="@($"create-user-role-option-{role.RoleName}")">
+                        @role.DisplayLabel
+                    </MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect T="int"
+                       Value="@_initialOrganizationId"
+                       ValueChanged="OnOrgSelectedAsync"
+                       Label="Initial Organization"
+                       Required="true"
+                       RequiredError="Initial organization is required."
+                       Margin="Margin.Dense"
+                       Class="mb-3"
+                       data-testid="create-user-org-select">
+                @foreach (var org in _grantableOrgs)
+                {
+                    <MudSelectItem Value="@org.OrganizationId"
+                                   data-testid="@($"create-user-org-option-{org.OrganizationId}")">
+                        @org.OrganizationName
+                    </MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error"
+                          Variant="Variant.Text"
+                          Class="mt-2"
+                          data-testid="create-user-error-message">
+                    @_errorMessage
+                </MudAlert>
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CancelAsync"
+                   data-testid="create-user-cancel-button">
+            Cancel
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@(!CanSubmit)"
+                   OnClick="SubmitAsync"
+                   data-testid="create-user-submit-button">
+            Create User
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    /// <summary>Raised when a user is successfully created, supplying the new user's row.</summary>
+    [Parameter]
+    public EventCallback<AdminUserRow> OnCreated { get; set; }
+
+    private MudForm? _form;
+    private bool _isFormValid;
+    private bool _isSubmitting;
+    private string _displayName = string.Empty;
+    private string _email = string.Empty;
+    private string _initialRoleName = string.Empty;
+    private int _initialOrganizationId;
+    private string _errorMessage = string.Empty;
+
+    private string? _actorActiveRole;
+    private string _actorUserId = string.Empty;
+    private IReadOnlySet<int> _actorOrganizationIds = new HashSet<int>();
+    private List<AssignableRole> _assignableRoles = [];
+    private IReadOnlyList<AdminUserOrganization> _grantableOrgs = [];
+
+    private bool CanSubmit =>
+        _isFormValid
+        && !string.IsNullOrEmpty(_initialRoleName)
+        && _initialOrganizationId != 0
+        && !_isSubmitting;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigManager.EnsureLoadedAsync();
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var actor = authState.User;
+
+        _actorActiveRole = UserQueryService.GetActorActiveAdminRole(actor);
+        _actorUserId = UserQueryService.GetActorUserId(actor);
+        _actorOrganizationIds = await UserQueryService.GetActorAssignedOrganizationIdsAsync(actor);
+        _grantableOrgs = await UserQueryService.GetGrantableOrganizationsAsync(actor);
+
+        BuildAssignableRoles();
+    }
+
+    private Task OnOrgSelectedAsync(int orgId)
+    {
+        _initialOrganizationId = orgId;
+        BuildAssignableRoles();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void BuildAssignableRoles()
+    {
+        if (string.IsNullOrEmpty(_actorActiveRole))
+        {
+            _assignableRoles = [];
+            return;
+        }
+
+        var bakedInRoles = BakedInRoleProvider.GetBakedInRoles();
+        var userTypeRoles = ConfigManager.Current.UserTypeRoles;
+        var aliasOverrides = ConfigManager.Current.BakedInRoleAliasOverrides;
+        var candidates = new List<AssignableRole>();
+
+        foreach (var bakedIn in bakedInRoles)
+        {
+            var label = aliasOverrides.TryGetValue(bakedIn.Name, out var alias) && !string.IsNullOrWhiteSpace(alias)
+                ? $"{alias} ({bakedIn.Name})"
+                : $"{bakedIn.DefaultDisplayAlias} ({bakedIn.Name})";
+            candidates.Add(new AssignableRole(bakedIn.Name, label));
+        }
+
+        foreach (var userTypeRole in userTypeRoles)
+        {
+            var label = string.IsNullOrWhiteSpace(userTypeRole.DisplayAlias)
+                ? userTypeRole.RoleName
+                : $"{userTypeRole.DisplayAlias} ({userTypeRole.RoleName})";
+            candidates.Add(new AssignableRole(userTypeRole.RoleName, label));
+        }
+
+        // When an org is selected, include it in the target context so the filter
+        // accurately reflects what the granter can assign to a user in that org.
+        // Before org selection, use an empty set (shows all potentially-assignable roles).
+        var targetOrgIds = _initialOrganizationId != 0
+            ? (IReadOnlySet<int>)new HashSet<int> { _initialOrganizationId }
+            : (IReadOnlySet<int>)new HashSet<int>();
+
+        _assignableRoles = candidates
+            .Where(c => RoleAssignmentAuthority.Evaluate(
+                granterRoleName: _actorActiveRole!,
+                granterUserId: _actorUserId,
+                granterAssignedOrganizationIds: _actorOrganizationIds,
+                targetUserId: "new-user",
+                targetAssignedOrganizationIds: targetOrgIds,
+                targetCurrentRoles: [],
+                proposedRoleName: c.RoleName).IsAllowed)
+            .OrderBy(c => c.RoleName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        // If currently selected role is no longer assignable, clear the selection.
+        if (!string.IsNullOrEmpty(_initialRoleName)
+            && !_assignableRoles.Any(r => string.Equals(r.RoleName, _initialRoleName, StringComparison.OrdinalIgnoreCase)))
+        {
+            _initialRoleName = string.Empty;
+        }
+    }
+
+    private static string? ValidateEmail(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "Email is required.";
+        }
+
+        if (!value.Contains('@') || value.IndexOf('@') == 0 || value.LastIndexOf('.') <= value.IndexOf('@'))
+        {
+            return "Enter a valid email address.";
+        }
+
+        return null;
+    }
+
+    private Task CancelAsync()
+    {
+        MudDialog.Cancel();
+        return Task.CompletedTask;
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (_form is not null)
+        {
+            await _form.ValidateAsync();
+        }
+
+        if (!CanSubmit)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _errorMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var actor = authState.User;
+
+            var request = new CreateBackofficeUserRequest(
+                DisplayName: _displayName.Trim(),
+                Email: _email.Trim(),
+                InitialRoleName: _initialRoleName,
+                InitialOrganizationId: _initialOrganizationId);
+
+            var result = await CreationService.CreateAsync(
+                request,
+                actor,
+                NavigationManager.BaseUri.TrimEnd('/'),
+                CancellationToken.None);
+
+            if (!result.MagicLinkSent && result.MagicLinkError is not null)
+            {
+                Snackbar.Add(
+                    $"User created but invitation email could not be sent: {result.MagicLinkError}",
+                    Severity.Warning);
+            }
+            else
+            {
+                Snackbar.Add($"User '{result.User.DisplayName}' created successfully.", Severity.Success);
+            }
+
+            if (OnCreated.HasDelegate)
+            {
+                await OnCreated.InvokeAsync(result.User);
+            }
+
+            MudDialog.Close(DialogResult.Ok(result.User));
+        }
+        catch (EmailAlreadyExistsException)
+        {
+            _errorMessage = "A user with this email already exists.";
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to create user: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private sealed record AssignableRole(string RoleName, string DisplayLabel);
+}
