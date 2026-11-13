@@ -15,7 +15,7 @@
             @if (prop is FilterProperty<TEntity>.Text)
             {
                 <MudItem xs="12" sm="6" md="4" lg="3">
-                    <MudTextField T="string?"
+                    <MudTextField T="string"
                                   Label="@LabelFor(prop, propName)"
                                   Value="@(_filterState.GetValueOrDefault(propName) as string)"
                                   ValueChanged="@(v => OnTextChangedAsync(propName, v))"
@@ -144,7 +144,7 @@
                 @* ForeignKey: items loaded async during OnInitializedAsync via LoadLookupItemsAsync *@
                 var fkItems = _lookupItems.GetValueOrDefault(propName) ?? [];
                 <MudItem xs="12" sm="6" md="4" lg="3">
-                    <MudSelect T="object?"
+                    <MudSelect T="object"
                                Label="@LabelFor(prop, propName)"
                                Value="@(_filterState.GetValueOrDefault(propName))"
                                ValueChanged="@(v => OnForeignKeyChangedAsync(propName, v))"
@@ -154,7 +154,7 @@
                                Dense="true">
                         @foreach (var (item, display) in fkItems)
                         {
-                            <MudSelectItem T="object?" Value="@item">@display</MudSelectItem>
+                            <MudSelectItem T="object" Value="@item">@display</MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>

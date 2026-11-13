@@ -78,7 +78,7 @@ else if (_record is not null)
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string?"
+                <MudTextField T="string"
                               Value="@_record.Phone"
                               ValueChanged="@((string? v) => { _record.Phone = v; _session?.NotifyChanged(); })"
                               Label="Phone"
@@ -88,7 +88,7 @@ else if (_record is not null)
             </MudItem>
 
             <MudItem xs="12" md="8">
-                <MudTextField T="string?"
+                <MudTextField T="string"
                               Value="@_record.Address"
                               ValueChanged="@((string? v) => { _record.Address = v; _session?.NotifyChanged(); })"
                               Label="Address"
@@ -98,7 +98,7 @@ else if (_record is not null)
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string?"
+                <MudTextField T="string"
                               Value="@_record.City"
                               ValueChanged="@((string? v) => { _record.City = v; _session?.NotifyChanged(); })"
                               Label="City"
@@ -108,7 +108,7 @@ else if (_record is not null)
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string?"
+                <MudTextField T="string"
                               Value="@_record.State"
                               ValueChanged="@((string? v) => { _record.State = v; _session?.NotifyChanged(); })"
                               Label="State"
@@ -118,7 +118,7 @@ else if (_record is not null)
             </MudItem>
 
             <MudItem xs="12" md="4">
-                <MudTextField T="string?"
+                <MudTextField T="string"
                               Value="@_record.ZipCode"
                               ValueChanged="@((string? v) => { _record.ZipCode = v; _session?.NotifyChanged(); })"
                               Label="Zip Code"

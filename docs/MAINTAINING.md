@@ -85,12 +85,17 @@ machine: CI publishes through trusted publishing (OIDC).
    `.github/workflows/build.yml` validates, packs, runs PublicSurface and
    Packaging.Smoke, then pushes to nuget.org. A manual dispatch of the same
    workflow with a version dry-runs the publish to GitHub Packages instead.
-4. **Unlist retired IDs.** Once the new version is listed on nuget.org,
-   unlist (never delete) every version of each package ID that is no longer
-   published, so that new adopters do not find it. Today that is
-   `Dabbler.Components.Compat`, `Dabbler.Platform.Stubs.Components`,
-   `Dabbler.Platform.Stubs.Reports` and `Dabbler.Platform.Stubs.Security`.
-   Unlisting is done on nuget.org under *Manage package*.
+4. **Deprecate, then unlist, retired IDs.** Once the new version is listed
+   on nuget.org, take every version of each package ID that is no longer
+   published through both actions on nuget.org under *Manage package*:
+   first deprecate it as *Legacy*, then unlist it (never delete it).
+   Deprecation warns existing consumers at restore and names the
+   replacement; unlisting hides the ID from new adopters. Today the
+   retired IDs are:
+   - `Dabbler.Platform.Stubs.Components`, `Dabbler.Platform.Stubs.Reports`
+     and `Dabbler.Platform.Stubs.Security`: alternate package
+     `Dabbler.Platform.Stubs`.
+   - `Dabbler.Components.Compat`: no alternate package.
 
 ## Dependencies and the MudBlazor policy
 

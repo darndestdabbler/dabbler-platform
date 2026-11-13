@@ -23,8 +23,8 @@
     omits these to keep the service-tier compile surface minimal.
   -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.15" />
     <PackageReference Include="MudBlazor" Version="9.12.0" />
     <PackageReference Include="Dabbler.Api.Querying" Version="0.1.0-preview.1" />
     <PackageReference Include="Dabbler.Components" Version="0.1.0-preview.1" />
