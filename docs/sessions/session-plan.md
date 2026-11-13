@@ -1260,9 +1260,60 @@ operator asked what the nullable warnings were. Reading the same log showed
 that `Dabbler.Security` `2.0.0` ships a transitive dependency with a
 high-severity advisory, which is the part that needs a release.
 
-### Session 32: Bump to 2.0.1
+### Session 32: Clear the solution's remaining audited packages
 
 Runs after Session 31.
+
+1. Register.
+2. `Microsoft.OpenApi` `2.0.0` (NU1903, GHSA-v5pm-xwqc-g5wc, patched in
+   `2.7.5`) reaches `src/Apps/AcmeCoffeeOnline.Api` and
+   `tests/AcmeCoffeeOnline.Api.Tests` through the
+   `Microsoft.AspNetCore.OpenApi` `10.0.5` pin in `Directory.Packages.props`.
+   `Microsoft.AspNetCore.OpenApi` `10.0.15` depends on `Microsoft.OpenApi`
+   `[2.13.0, 3.0.0)`: raise that one pin to `10.0.15`, within the 10.x
+   policy in `docs/MAINTAINING.md`. No shipped package and no template
+   references it. The step's checks: `dotnet restore
+   src/Apps/AcmeCoffeeOnline.Api/AcmeCoffeeOnline.Api.csproj --force` and
+   the same restore of `tests/AcmeCoffeeOnline.Api.Tests` print no NU1901,
+   NU1902, NU1903 or NU1904; `dotnet test tests/AcmeCoffeeOnline.Api.Tests`
+   passes.
+3. `AngleSharp` `1.1.2` (NU1902, GHSA-pgww-w46g-26qg, patched in `1.5.0`)
+   reaches every bUnit test project through `bunit` `1.37.7` →
+   `bunit.web`: `tests/AcmeCoffeeOnline.Web.Tests`,
+   `tests/Dabbler.Components.Tests`, `tests/Dabbler.Reports.Blazor.Tests`,
+   `tests/Dabbler.Security.Blazor.Tests` and
+   `tests/Dabbler.Testing.Blazor.Tests`. It also reaches the test project
+   that the `dabbler-app` template generates
+   (`templates/Dabbler.Templates/content/dabbler-app/tests/DabblerApp.Web.Tests/DabblerApp.Web.Tests.csproj`,
+   which pins `bunit` `1.37.7`), so it reaches consumers of
+   `Dabbler.Templates`. No `bunit` 1.x carries a patched AngleSharp (`1.40.0`
+   brings `1.2.0`), and `bunit` 2.x is a breaking major that this session
+   does not take. Add a `PackageVersion` for `AngleSharp` at `1.5.0`, the
+   lowest patched version, and a direct `PackageReference` to it in each of
+   the five test projects. Add the same reference at `Version="1.5.0"` to
+   the template's test project, with a one-line comment saying it lifts
+   bUnit's transitive AngleSharp past the advisory. The step's checks: the
+   restore of each of the five test projects with `--force` prints no
+   NU1901, NU1902, NU1903 or NU1904; `dotnet test` of each passes; then,
+   after a Release build and `tools/pack.ps1 -OutputDir pack-output
+   -CleanOutput`, `dotnet test tests/Dabbler.Templates.Tests` passes.
+4. Cross-provider verification.
+5. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+6. Close-out.
+
+Non-goals: no move to `bunit` 2.x; no raise of the other
+`Microsoft.AspNetCore.*` 10.0.5 pins; no public API change; no change to
+`DabblerVersion` or `CHANGELOG.md` (Session 33's).
+
+Why now (2026-11-13): Session 31 cleared every advisory in
+`Dabbler.Publish.slnf`. A restore of the whole solution still reports these
+two, and the operator asked for them to be cleared. The AngleSharp one ships
+in the `dabbler-app` template, so it belongs in the 2.0.1 release.
+
+### Session 33: Bump to 2.0.1
+
+Runs after Session 32.
 
 1. Register.
 2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
@@ -1270,7 +1321,9 @@ Runs after Session 31.
    `2.0.1`. Add a `## 2.0.1` entry to `CHANGELOG.md`, directly above
    `## 2.0.0`: no API change since `2.0.0`; the dependency Session 31 raised
    in `Dabbler.Security`, by name, with its old and new versions and the
-   two advisories it clears. The step's checks: `Directory.Build.props` and
+   two advisories it clears; and the `AngleSharp` `1.5.0` reference Session
+   32 added to the `dabbler-app` template's test project, with the advisory
+   it clears. The step's checks: `Directory.Build.props` and
    `tools/pack.ps1` name `2.0.1` and no longer name `2.0.0` as the version
    or the default; `CHANGELOG.md` has `## 2.0.1` directly above `## 2.0.0`;
    then, after a Release build and `tools/pack.ps1 -OutputDir pack-output
@@ -1280,12 +1333,13 @@ Runs after Session 31.
    recorded as the run of record.
 5. Close-out.
 
-Non-goals: no API or dependency change beyond Session 31's; no change to
-`ci.yml`, `build.yml` or `dabbler.yaml`.
+Non-goals: no API or dependency change beyond Sessions 31 and 32; no
+change to `ci.yml`, `build.yml` or `dabbler.yaml`.
 
 Proposed version: **2.0.1 (patch)**, for the operator to approve: no API
-changes, and the one thing a consumer receives is a patched transitive
-dependency.
+changes, and what a consumer receives is a patched transitive dependency
+of `Dabbler.Security` and a patched AngleSharp in the `dabbler-app`
+template's test project.
 
 This is a bump session, not a `(release: 2.0.1)` session, for the reason
 Session 30 gives. After the session has pushed, the operator runs the
