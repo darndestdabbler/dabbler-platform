@@ -38,7 +38,7 @@ public class CreateBackofficeUserDialogTests
     [Fact]
     public async Task EmptyRender_ShowsAllFormFields()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var provider = SetupTestContext(ctx, BakedInRoles.SystemAdmin, "1",
             [InternalOrg, ExternalOrg]);
 
@@ -55,7 +55,7 @@ public class CreateBackofficeUserDialogTests
     [Fact]
     public async Task SubmitButton_DisabledWhileFormInvalid()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var provider = SetupTestContext(ctx, BakedInRoles.SystemAdmin, "1", [InternalOrg]);
 
         await OpenDialogAsync(ctx, provider);
@@ -68,7 +68,7 @@ public class CreateBackofficeUserDialogTests
     [Fact]
     public async Task AuthFilter_ExcludesRolesGranterCannotAssign()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         // UserAdmin (org 10 only) — cannot assign SystemAdmin or CrossOrgUserAdmin.
         var provider = SetupTestContext(ctx, BakedInRoles.UserAdmin, "5",
             [InternalOrg], actorOrgIds: new HashSet<int> { 10 });
@@ -85,7 +85,7 @@ public class CreateBackofficeUserDialogTests
     [Fact]
     public async Task SuccessfulSubmit_CallsServiceOnce_AndRaisesOnCreated()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var creationMock = new Mock<IBackofficeUserCreationService>();
         creationMock
             .Setup(s => s.CreateAsync(
@@ -137,13 +137,13 @@ public class CreateBackofficeUserDialogTests
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Sets up a bUnit TestContext with MudBlazor services and returns the
+    /// Sets up a bUnit BunitContext with MudBlazor services and returns the
     /// MudDialogProvider rendered component so tests can search dialog content.
     /// The provider is the correct search root because MudBlazor renders dialog
     /// content inside the provider, not inside the MudDialog component itself.
     /// </summary>
     private static IRenderedComponent<MudDialogProvider> SetupTestContext(
-        TestContext ctx,
+        BunitContext ctx,
         string actorRole,
         string actorUserId,
         IReadOnlyList<AdminUserOrganization> grantableOrgs,
@@ -153,7 +153,7 @@ public class CreateBackofficeUserDialogTests
         var resolvedOrgIds = actorOrgIds
             ?? grantableOrgs.Select(o => o.OrganizationId).ToHashSet();
 
-        var authCtx = ctx.AddTestAuthorization();
+        var authCtx = ctx.AddAuthorization();
         authCtx.SetAuthorized("testuser@test.local");
         authCtx.SetRoles([actorRole]);
 
@@ -194,15 +194,15 @@ public class CreateBackofficeUserDialogTests
 
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
-        ctx.RenderComponent<MudPopoverProvider>();
-        var dialogProvider = ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        var dialogProvider = ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
 
         return dialogProvider;
     }
 
     private static async Task OpenDialogAsync(
-        TestContext ctx,
+        BunitContext ctx,
         IRenderedComponent<MudDialogProvider> provider,
         Action<AdminUserRow>? onCreated = null)
     {

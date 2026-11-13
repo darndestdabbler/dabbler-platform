@@ -28,9 +28,9 @@ public class DabblerSecuredTests
     }
 
     [Fact]
-    public void UserTypeRole_WithHiddenUiRestriction_RendersNothing()
+    public async Task UserTypeRole_WithHiddenUiRestriction_RendersNothing()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             UserTypeRoles =
@@ -49,7 +49,7 @@ public class DabblerSecuredTests
             roles: ["Restricted"],
             configureServices: svc => RegisterSecuredServices(svc, config));
 
-        var cut = ctx.RenderComponent<DabblerSecured>(p => p
+        var cut = ctx.Render<DabblerSecured>(p => p
             .Add(c => c.PageKey, "dashboard")
             .Add(c => c.ControlKey, "secret-btn")
             .Add(c => c.ChildContent, (RenderFragment)(b => b.AddMarkupContent(0, "<span>Secret</span>"))));
@@ -58,9 +58,9 @@ public class DabblerSecuredTests
     }
 
     [Fact]
-    public void UserTypeRole_WithDisabledUiRestriction_RendersWithDisabledWrapper()
+    public async Task UserTypeRole_WithDisabledUiRestriction_RendersWithDisabledWrapper()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             UserTypeRoles =
@@ -79,7 +79,7 @@ public class DabblerSecuredTests
             roles: ["Viewer"],
             configureServices: svc => RegisterSecuredServices(svc, config));
 
-        var cut = ctx.RenderComponent<DabblerSecured>(p => p
+        var cut = ctx.Render<DabblerSecured>(p => p
             .Add(c => c.PageKey, "orders")
             .Add(c => c.ControlKey, "delete-btn")
             .Add(c => c.ChildContent, (RenderFragment)(b => b.AddMarkupContent(0, "<button>Delete</button>"))));
@@ -89,9 +89,9 @@ public class DabblerSecuredTests
     }
 
     [Fact]
-    public void UserTypeRole_WithNoRestriction_RendersNormally()
+    public async Task UserTypeRole_WithNoRestriction_RendersNormally()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             UserTypeRoles = [new RoleDefinition { RoleName = "Editor" }],
@@ -100,7 +100,7 @@ public class DabblerSecuredTests
             roles: ["Editor"],
             configureServices: svc => RegisterSecuredServices(svc, config));
 
-        var cut = ctx.RenderComponent<DabblerSecured>(p => p
+        var cut = ctx.Render<DabblerSecured>(p => p
             .Add(c => c.PageKey, "admin")
             .Add(c => c.ControlKey, "create-btn")
             .Add(c => c.ChildContent, (RenderFragment)(b => b.AddMarkupContent(0, "<button>Create</button>"))));
@@ -110,9 +110,9 @@ public class DabblerSecuredTests
     }
 
     [Fact]
-    public void BakedInRole_AlwaysRendersEnabled()
+    public async Task BakedInRole_AlwaysRendersEnabled()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         // Even with a UiRestriction on the SystemAdmin name, baked-in roles bypass
         // user-type restrictions (they are not stored in UserTypeRoles).
         var config = new SecurityConfiguration();
@@ -120,7 +120,7 @@ public class DabblerSecuredTests
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterSecuredServices(svc, config));
 
-        var cut = ctx.RenderComponent<DabblerSecured>(p => p
+        var cut = ctx.Render<DabblerSecured>(p => p
             .Add(c => c.PageKey, "admin")
             .Add(c => c.ControlKey, "danger-btn")
             .Add(c => c.ChildContent, (RenderFragment)(b => b.AddMarkupContent(0, "<button>Danger</button>"))));
@@ -130,9 +130,9 @@ public class DabblerSecuredTests
     }
 
     [Fact]
-    public void EntirePageHiddenRestriction_HidesEveryControl()
+    public async Task EntirePageHiddenRestriction_HidesEveryControl()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             UserTypeRoles =
@@ -151,7 +151,7 @@ public class DabblerSecuredTests
             roles: ["Banned"],
             configureServices: svc => RegisterSecuredServices(svc, config));
 
-        var cut = ctx.RenderComponent<DabblerSecured>(p => p
+        var cut = ctx.Render<DabblerSecured>(p => p
             .Add(c => c.PageKey, "secret")
             .Add(c => c.ControlKey, "any-control-at-all")
             .Add(c => c.ChildContent, (RenderFragment)(b => b.AddMarkupContent(0, "<span>Visible?</span>"))));
@@ -160,15 +160,15 @@ public class DabblerSecuredTests
     }
 
     [Fact]
-    public void UnauthenticatedUser_RendersNothing()
+    public async Task UnauthenticatedUser_RendersNothing()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration();
 
         ctx.SetupForDabbler(
             configureServices: svc => RegisterSecuredServices(svc, config));
 
-        var cut = ctx.RenderComponent<DabblerSecured>(p => p
+        var cut = ctx.Render<DabblerSecured>(p => p
             .Add(c => c.PageKey, "page")
             .Add(c => c.ControlKey, "btn")
             .Add(c => c.ChildContent, (RenderFragment)(b => b.AddMarkupContent(0, "<span>Secured</span>"))));

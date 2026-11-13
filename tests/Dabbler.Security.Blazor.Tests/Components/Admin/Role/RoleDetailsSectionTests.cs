@@ -51,15 +51,15 @@ public class RoleDetailsSectionTests
     }
 
     [Fact]
-    public void UserTypeSelection_RendersFourSubTabs()
+    public async Task UserTypeSelection_RendersFourSubTabs()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, null));
 
         var role = new RoleDefinition { RoleName = "BackofficeUser", Description = "Internal staff." };
-        var cut = ctx.RenderComponent<RoleDetailsSection>(p => p
+        var cut = ctx.Render<RoleDetailsSection>(p => p
             .Add(c => c.Selection, RoleDetailsSection.RoleSelection.ForUserType(role)));
 
         cut.Markup.Should().Contain("Data Column Restrictions");
@@ -70,9 +70,9 @@ public class RoleDetailsSectionTests
     }
 
     [Fact]
-    public void BakedInSelection_RendersMaskExemptionsAndCompiledPrivileges()
+    public async Task BakedInSelection_RendersMaskExemptionsAndCompiledPrivileges()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, null));
@@ -80,7 +80,7 @@ public class RoleDetailsSectionTests
         var provider = new PlatformBakedInRoleProvider();
         var baked = provider.TryGetBakedInRole(BakedInRoles.SystemAdmin)!;
 
-        var cut = ctx.RenderComponent<RoleDetailsSection>(p => p
+        var cut = ctx.Render<RoleDetailsSection>(p => p
             .Add(c => c.Selection, RoleDetailsSection.RoleSelection.ForBakedIn(baked, aliasOverride: null)));
 
         cut.Markup.Should().Contain("Mask Exemptions");
@@ -91,9 +91,9 @@ public class RoleDetailsSectionTests
     }
 
     [Fact]
-    public void BakedInSelection_ShowsBakedInChipInHeader()
+    public async Task BakedInSelection_ShowsBakedInChipInHeader()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, null));
@@ -101,7 +101,7 @@ public class RoleDetailsSectionTests
         var provider = new PlatformBakedInRoleProvider();
         var baked = provider.TryGetBakedInRole(BakedInRoles.User)!;
 
-        var cut = ctx.RenderComponent<RoleDetailsSection>(p => p
+        var cut = ctx.Render<RoleDetailsSection>(p => p
             .Add(c => c.Selection, RoleDetailsSection.RoleSelection.ForBakedIn(baked, null)));
 
         var header = cut.Find("[data-testid='role-details-section']");

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Dabbler.Testing.Blazor.Tests;
 
-public sealed class TestReadinessProbeTests : TestContext
+public sealed class TestReadinessProbeTests : BunitContext
 {
     public TestReadinessProbeTests()
     {
@@ -22,7 +22,7 @@ public sealed class TestReadinessProbeTests : TestContext
 
         var setReady = JSInterop.SetupVoid("dabbler.setReady");
 
-        var cut = RenderComponent<TestReadinessProbe>();
+        var cut = Render<TestReadinessProbe>();
         Assert.Single(setReady.Invocations);
 
         cut.Render();
@@ -38,7 +38,7 @@ public sealed class TestReadinessProbeTests : TestContext
 
         var setReady = JSInterop.SetupVoid("dabbler.setReady");
 
-        RenderComponent<TestReadinessProbe>();
+        Render<TestReadinessProbe>();
 
         Assert.Empty(setReady.Invocations);
     }

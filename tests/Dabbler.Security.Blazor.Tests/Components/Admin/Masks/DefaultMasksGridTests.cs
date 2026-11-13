@@ -14,10 +14,10 @@ namespace Dabbler.Security.Blazor.Tests.Components.Admin.Masks;
 
 public class DefaultMasksGridTests
 {
-    private static (TestContext Ctx, SecurityConfigurationManager Manager) Build(
+    private static (BunitContext Ctx, SecurityConfigurationManager Manager) Build(
         SecurityConfiguration config)
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         var store = new Mock<ISecurityConfigurationStore>();
         store.Setup(s => s.LoadAsync(default)).ReturnsAsync(config);
         store.Setup(s => s.SaveAsync(It.IsAny<SecurityConfiguration>(), default))
@@ -57,18 +57,18 @@ public class DefaultMasksGridTests
     }
 
     [Fact]
-    public void Empty_ShowsEmptyMessage()
+    public async Task Empty_ShowsEmptyMessage()
     {
         var (ctx, _) = Build(new SecurityConfiguration());
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<DefaultMasksGrid>();
+        var cut = ctx.Render<DefaultMasksGrid>();
 
         cut.Find("[data-testid='default-mask-empty']").Should().NotBeNull();
     }
 
     [Fact]
-    public void WithRows_RendersGridAndCount()
+    public async Task WithRows_RendersGridAndCount()
     {
         var config = new SecurityConfiguration
         {
@@ -79,9 +79,9 @@ public class DefaultMasksGridTests
             ],
         };
         var (ctx, _) = Build(config);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<DefaultMasksGrid>();
+        var cut = ctx.Render<DefaultMasksGrid>();
 
         cut.Find("[data-testid='default-mask-grid']").Should().NotBeNull();
         cut.Find("[data-testid='default-mask-remove-Customer-SocialSecurityNumber']").Should().NotBeNull();
@@ -100,10 +100,10 @@ public class DefaultMasksGridTests
             ],
         };
         var (ctx, _) = Build(config);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
         var persistedCount = 0;
-        var cut = ctx.RenderComponent<DefaultMasksGrid>(p =>
+        var cut = ctx.Render<DefaultMasksGrid>(p =>
             p.Add(c => c.OnPersisted, () => { persistedCount++; return Task.CompletedTask; }));
 
         cut.Find("[data-testid='default-mask-remove-Customer-SocialSecurityNumber']").Click();
@@ -126,9 +126,9 @@ public class DefaultMasksGridTests
             ],
         };
         var (ctx, _) = Build(config);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<DefaultMasksGrid>();
+        var cut = ctx.Render<DefaultMasksGrid>();
 
         // Sanity: unfiltered state shows all three rows.
         cut.Find("[data-testid='default-mask-count']").TextContent.Should().Contain("3 of 3");
@@ -167,10 +167,10 @@ public class DefaultMasksGridTests
             ],
         };
         var (ctx, _) = Build(config);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
         var filterChangedCount = 0;
-        var cut = ctx.RenderComponent<DefaultMasksGrid>(parameters => parameters
+        var cut = ctx.Render<DefaultMasksGrid>(parameters => parameters
             .Add(x => x.FiltersChanged, () =>
             {
                 filterChangedCount++;

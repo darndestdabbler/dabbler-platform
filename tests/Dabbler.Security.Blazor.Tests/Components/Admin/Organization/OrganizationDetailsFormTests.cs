@@ -11,9 +11,9 @@ namespace Dabbler.Security.Blazor.Tests.Components.Admin.Organization;
 public class OrganizationDetailsFormTests
 {
     [Fact]
-    public void DetailsForm_SaveNewOrganization_PersistsRow()
+    public async Task DetailsForm_SaveNewOrganization_PersistsRow()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         DbContextOptions<DabblerSecurityDbContext>? dbOptions = null;
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -21,7 +21,7 @@ public class OrganizationDetailsFormTests
             dbOptions = RegisterDbContext(services);
         });
 
-        var cut = ctx.RenderComponent<OrganizationDetailsForm>(parameters => parameters
+        var cut = ctx.Render<OrganizationDetailsForm>(parameters => parameters
             .Add(x => x.Selection, OrganizationDetailsForm.OrganizationSelection.CreateNew()));
 
         cut.Find("[data-testid='organization-key-field'] input").Change("customer-202");
@@ -36,9 +36,9 @@ public class OrganizationDetailsFormTests
     }
 
     [Fact]
-    public void DetailsForm_ArchiveExistingOrganization_MarksRowInactive()
+    public async Task DetailsForm_ArchiveExistingOrganization_MarksRowInactive()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         DbContextOptions<DabblerSecurityDbContext>? dbOptions = null;
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -57,7 +57,7 @@ public class OrganizationDetailsFormTests
             });
         });
 
-        var cut = ctx.RenderComponent<OrganizationDetailsForm>(parameters => parameters
+        var cut = ctx.Render<OrganizationDetailsForm>(parameters => parameters
             .Add(x => x.Selection, OrganizationDetailsForm.OrganizationSelection.ForExisting(5)));
 
         cut.Find("[data-testid='organization-archive-button']").Click();
@@ -70,9 +70,9 @@ public class OrganizationDetailsFormTests
     }
 
     [Fact]
-    public void DetailsForm_EditExistingOrganization_PersistsChanges()
+    public async Task DetailsForm_EditExistingOrganization_PersistsChanges()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         DbContextOptions<DabblerSecurityDbContext>? dbOptions = null;
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -91,7 +91,7 @@ public class OrganizationDetailsFormTests
             });
         });
 
-        var cut = ctx.RenderComponent<OrganizationDetailsForm>(parameters => parameters
+        var cut = ctx.Render<OrganizationDetailsForm>(parameters => parameters
             .Add(x => x.Selection, OrganizationDetailsForm.OrganizationSelection.ForExisting(9)));
 
         cut.Find("[data-testid='organization-name-field'] input").Change("Updated Retail 404");
@@ -108,9 +108,9 @@ public class OrganizationDetailsFormTests
     }
 
     [Fact]
-    public void DetailsForm_DuplicateKey_WithDifferentCasing_DoesNotPersistSecondRow()
+    public async Task DetailsForm_DuplicateKey_WithDifferentCasing_DoesNotPersistSecondRow()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         DbContextOptions<DabblerSecurityDbContext>? dbOptions = null;
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -129,7 +129,7 @@ public class OrganizationDetailsFormTests
             });
         });
 
-        var cut = ctx.RenderComponent<OrganizationDetailsForm>(parameters => parameters
+        var cut = ctx.Render<OrganizationDetailsForm>(parameters => parameters
             .Add(x => x.Selection, OrganizationDetailsForm.OrganizationSelection.CreateNew()));
 
         cut.Find("[data-testid='organization-key-field'] input").Change("Existing-Key");

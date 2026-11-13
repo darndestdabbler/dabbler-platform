@@ -5,6 +5,7 @@ using AcmeCoffeeOnline.Web.Components.Pages.Admin;
 using AcmeCoffeeOnline.Web.Services;
 using AcmeCoffeeOnline.Web.Tests.Infrastructure;
 using Bunit;
+using Bunit.Rendering;
 using Dabbler.Security.Authorization;
 using Dabbler.Security.Services;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -14,8 +15,12 @@ using MudBlazor.Services;
 
 namespace AcmeCoffeeOnline.Web.Tests.Pages.Admin;
 
-public sealed class UserManagementPageTests : TestContext
+public sealed class UserManagementPageTests : BunitContext, IAsyncLifetime
 {
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    Task IAsyncLifetime.DisposeAsync() => DisposeAsync().AsTask();
+
     [Fact]
     public void RendersActiveScopeBannerAndScopedUsersFromApiClient()
     {
@@ -140,7 +145,7 @@ public sealed class UserManagementPageTests : TestContext
             BaseAddress = new Uri("https://acme.test/")
         };
 
-    private IRenderedFragment RenderPage(string? activeRole = null)
+    private IRenderedComponent<ContainerFragment> RenderPage(string? activeRole = null)
     {
         Services.AddSingleton<IBakedInRoleProvider, PlatformBakedInRoleProvider>();
         Services.AddSingleton<IRoleSwitcher>(new StubRoleSwitcher(activeRole));

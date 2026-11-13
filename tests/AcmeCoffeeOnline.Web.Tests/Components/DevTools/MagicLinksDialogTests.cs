@@ -14,8 +14,12 @@ using MudBlazor.Services;
 
 namespace AcmeCoffeeOnline.Web.Tests.Components.DevTools;
 
-public sealed class MagicLinksDialogTests : TestContext
+public sealed class MagicLinksDialogTests : BunitContext, IAsyncLifetime
 {
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    Task IAsyncLifetime.DisposeAsync() => DisposeAsync().AsTask();
+
     private readonly DevEmailInbox _inbox = new();
 
     public MagicLinksDialogTests()
@@ -153,7 +157,7 @@ public sealed class MagicLinksDialogTests : TestContext
 
     private IRenderedComponent<DialogHost> OpenDialog()
     {
-        var host = RenderComponent<DialogHost>();
+        var host = Render<DialogHost>();
         host.InvokeAsync(() => host.Instance.Show()).GetAwaiter().GetResult();
         return host;
     }

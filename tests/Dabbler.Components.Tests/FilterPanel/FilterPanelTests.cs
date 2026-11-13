@@ -40,11 +40,11 @@ public class FilterPanelTests
     ];
 
     [Fact]
-    public void RendersFilterFieldsForEachFilterableColumn()
+    public async Task RendersFilterFieldsForEachFilterableColumn()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         // One MudGrid should exist for the default group
@@ -55,12 +55,12 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void TextFilter_SetFilterUpdatesCoordinatorAndRaisesFilterChanged()
+    public async Task TextFilter_SetFilterUpdatesCoordinatorAndRaisesFilterChanged()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
         CompositeFilterDescriptor? receivedFilter = null;
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p => p
+        var cut = ctx.Render<FilterPanel<StubRow>>(p => p
             .Add(x => x.Columns, TestColumns)
             .Add(x => x.FilterChanged, filter => receivedFilter = filter));
 
@@ -76,12 +76,12 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void ClearAll_ResetsAllFiltersAndRaisesFilterChanged()
+    public async Task ClearAll_ResetsAllFiltersAndRaisesFilterChanged()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
         CompositeFilterDescriptor? lastFilter = null;
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p => p
+        var cut = ctx.Render<FilterPanel<StubRow>>(p => p
             .Add(x => x.Columns, TestColumns)
             .Add(x => x.FilterChanged, filter => lastFilter = filter));
 
@@ -98,11 +98,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void AddGroup_CreatesNewOrGroup()
+    public async Task AddGroup_CreatesNewOrGroup()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         cut.Instance.Coordinator.Groups.Groups.Should().HaveCount(1);
@@ -116,11 +116,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void RemoveGroup_RemovesOrGroup()
+    public async Task RemoveGroup_RemovesOrGroup()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         var newGroup = cut.Instance.Coordinator.AddGroup();
@@ -134,11 +134,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void RemoveGroup_CannotRemoveLastGroup()
+    public async Task RemoveGroup_CannotRemoveLastGroup()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         var onlyGroup = cut.Instance.Coordinator.Groups.Groups[0];
@@ -148,11 +148,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void FilterChips_ShowWhenFiltersAreActive()
+    public async Task FilterChips_ShowWhenFiltersAreActive()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p => p
+        var cut = ctx.Render<FilterPanel<StubRow>>(p => p
             .Add(x => x.Columns, TestColumns)
             .Add(x => x.ShowFilterChips, true));
 
@@ -170,11 +170,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void FilterChips_HiddenWhenShowFilterChipsIsFalse()
+    public async Task FilterChips_HiddenWhenShowFilterChipsIsFalse()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p => p
+        var cut = ctx.Render<FilterPanel<StubRow>>(p => p
             .Add(x => x.Columns, TestColumns)
             .Add(x => x.ShowFilterChips, false));
 
@@ -185,11 +185,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void ClearAll_ButtonAppearsOnlyWhenFiltersAreActive()
+    public async Task ClearAll_ButtonAppearsOnlyWhenFiltersAreActive()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         cut.Markup.Should().NotContain("Clear All");
@@ -201,11 +201,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void AddOrGroupButton_AppearsWhenShowAddGroupIsTrue()
+    public async Task AddOrGroupButton_AppearsWhenShowAddGroupIsTrue()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p => p
+        var cut = ctx.Render<FilterPanel<StubRow>>(p => p
             .Add(x => x.Columns, TestColumns)
             .Add(x => x.ShowAddGroup, true));
 
@@ -213,11 +213,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void AddOrGroupButton_HiddenWhenShowAddGroupIsFalse()
+    public async Task AddOrGroupButton_HiddenWhenShowAddGroupIsFalse()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p => p
+        var cut = ctx.Render<FilterPanel<StubRow>>(p => p
             .Add(x => x.Columns, TestColumns)
             .Add(x => x.ShowAddGroup, false));
 
@@ -225,11 +225,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void ComboBoxFilter_RendersSelectItems()
+    public async Task ComboBoxFilter_RendersSelectItems()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         // The Category column should render with its label
@@ -237,11 +237,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void GetFilterSummary_ReturnsReadableText()
+    public async Task GetFilterSummary_ReturnsReadableText()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         cut.Instance.Coordinator.SetFilter(0, "Name", FilterOperators.Contains, "Espresso");
@@ -252,11 +252,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void ClearFilter_RemovesSpecificPropertyFilter()
+    public async Task ClearFilter_RemovesSpecificPropertyFilter()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         cut.Instance.Coordinator.SetFilter(0, "Name", FilterOperators.Contains, "Blend");
@@ -272,11 +272,11 @@ public class FilterPanelTests
     }
 
     [Fact]
-    public void Dispose_UnsubscribesFromCoordinatorEvents()
+    public async Task Dispose_UnsubscribesFromCoordinatorEvents()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         var coordinator = cut.Instance.Coordinator;

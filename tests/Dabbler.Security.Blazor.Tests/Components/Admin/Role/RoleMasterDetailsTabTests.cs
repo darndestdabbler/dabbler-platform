@@ -85,9 +85,9 @@ public class RoleMasterDetailsTabTests
     }
 
     [Fact]
-    public void RoleMasterDetailsTab_RendersAllBakedInAndUserTypeRoles()
+    public async Task RoleMasterDetailsTab_RendersAllBakedInAndUserTypeRoles()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(
@@ -96,7 +96,7 @@ public class RoleMasterDetailsTabTests
                     new RoleDefinition { RoleName = "BackofficeUser", Description = "Internal staff." },
                     new RoleDefinition { RoleName = "Customer", Description = "External customer." })));
 
-        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var cut = ctx.Render<RoleMasterDetailsTab>();
 
         cut.Find("[data-testid='role-row-SystemAdmin']").Should().NotBeNull();
         cut.Find("[data-testid='role-row-CrossOrgUserAdmin']").Should().NotBeNull();
@@ -108,45 +108,45 @@ public class RoleMasterDetailsTabTests
     }
 
     [Fact]
-    public void RoleMasterDetailsTab_BakedInRows_CarryBakedInChip()
+    public async Task RoleMasterDetailsTab_BakedInRows_CarryBakedInChip()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, SeedConfiguration()));
 
-        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var cut = ctx.Render<RoleMasterDetailsTab>();
 
         cut.Find("[data-testid='role-row-SystemAdmin-baked-in-chip']").Should().NotBeNull();
     }
 
     [Fact]
-    public void RoleMasterDetailsTab_UserTypeRows_DoNotCarryBakedInChip()
+    public async Task RoleMasterDetailsTab_UserTypeRows_DoNotCarryBakedInChip()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(
                 svc,
                 SeedConfiguration(new RoleDefinition { RoleName = "BackofficeUser" })));
 
-        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var cut = ctx.Render<RoleMasterDetailsTab>();
 
         var action = () => cut.Find("[data-testid='role-row-BackofficeUser-baked-in-chip']");
         action.Should().Throw<Bunit.ElementNotFoundException>();
     }
 
     [Fact]
-    public void RoleMasterDetailsTab_SystemAdmin_SeesAddAndArchiveAffordances()
+    public async Task RoleMasterDetailsTab_SystemAdmin_SeesAddAndArchiveAffordances()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(
                 svc,
                 SeedConfiguration(new RoleDefinition { RoleName = "BackofficeUser" })));
 
-        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var cut = ctx.Render<RoleMasterDetailsTab>();
 
         // Add button is enabled for SystemAdmin.
         var addButton = cut.Find("[data-testid='role-master-add-button']");
@@ -159,17 +159,17 @@ public class RoleMasterDetailsTabTests
     }
 
     [Fact]
-    public void RoleMasterDetailsTab_NonSystemAdmin_AddButtonIsDisabled()
+    public async Task RoleMasterDetailsTab_NonSystemAdmin_AddButtonIsDisabled()
     {
         // Note: in production the dashboard gates Role Master Details so only
         // SystemAdmin can reach this tab. CanManageRoles is still evaluated
         // here to make the affordance state self-documenting.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.UserAdmin],
             configureServices: svc => RegisterServices(svc, SeedConfiguration()));
 
-        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var cut = ctx.Render<RoleMasterDetailsTab>();
 
         var addButton = cut.Find("[data-testid='role-master-add-button']");
         addButton.HasAttribute("disabled").Should().BeTrue();
@@ -178,14 +178,14 @@ public class RoleMasterDetailsTabTests
     [Fact]
     public async Task RoleMasterDetailsTab_FilterChange_ReexpandsShellAndClearsSummaryState()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(
                 svc,
                 SeedConfiguration(new RoleDefinition { RoleName = "BackofficeUser" })));
 
-        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var cut = ctx.Render<RoleMasterDetailsTab>();
         var grid = cut.FindComponent<RoleMasterGrid>();
 
         await cut.InvokeAsync(() => grid.Instance.SelectedRoleChanged.InvokeAsync(new RoleMasterGrid.RoleRow
@@ -210,9 +210,9 @@ public class RoleMasterDetailsTabTests
     }
 
     [Fact]
-    public void RoleMasterDetailsTab_DisplayAliasEditor_UsesWrappedBodySizedEditor()
+    public async Task RoleMasterDetailsTab_DisplayAliasEditor_UsesWrappedBodySizedEditor()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(
@@ -223,7 +223,7 @@ public class RoleMasterDetailsTabTests
                     DisplayAlias = "Backoffice User",
                 })));
 
-        var cut = ctx.RenderComponent<RoleMasterDetailsTab>();
+        var cut = ctx.Render<RoleMasterDetailsTab>();
         var aliasField = cut.Find("[data-testid='role-row-BackofficeUser-alias']");
 
         cut.Markup.Should().Contain("font-size:0.875rem");

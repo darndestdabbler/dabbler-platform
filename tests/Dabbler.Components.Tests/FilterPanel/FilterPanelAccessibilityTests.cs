@@ -32,11 +32,11 @@ public class FilterPanelAccessibilityTests
     ];
 
     [Fact]
-    public void FilterPanel_HasSearchRoleAndAriaLabel()
+    public async Task FilterPanel_HasSearchRoleAndAriaLabel()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         var searchRegion = cut.Find("[role='search']");
@@ -45,11 +45,11 @@ public class FilterPanelAccessibilityTests
     }
 
     [Fact]
-    public void FilterInputs_HaveLabelAttributes()
+    public async Task FilterInputs_HaveLabelAttributes()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         // MudBlazor renders labels as part of the input component.
@@ -61,11 +61,11 @@ public class FilterPanelAccessibilityTests
     }
 
     [Fact]
-    public void OrGroupRemoveButton_HasAriaLabel()
+    public async Task OrGroupRemoveButton_HasAriaLabel()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         cut.Instance.Coordinator.AddGroup();
@@ -76,11 +76,11 @@ public class FilterPanelAccessibilityTests
     }
 
     [Fact]
-    public void FilterPanel_UsesResponsiveGridLayout()
+    public async Task FilterPanel_UsesResponsiveGridLayout()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         // MudGrid items should have responsive breakpoints
@@ -89,11 +89,11 @@ public class FilterPanelAccessibilityTests
     }
 
     [Fact]
-    public void FilterInputs_UseOutlinedVariantForVisibility()
+    public async Task FilterInputs_UseOutlinedVariantForVisibility()
     {
-        using var ctx = new TestContext().SetupForDabblerComponents();
+        await using var ctx = new BunitContext().SetupForDabblerComponents();
 
-        var cut = ctx.RenderComponent<FilterPanel<StubRow>>(p =>
+        var cut = ctx.Render<FilterPanel<StubRow>>(p =>
             p.Add(x => x.Columns, TestColumns));
 
         // MudBlazor outlined variant adds specific CSS class

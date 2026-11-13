@@ -60,18 +60,18 @@ public class OrdersFilterConfigTests
             },
         });
 
-    private static TestContext CreateContext()
+    private static BunitContext CreateContext()
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         ctx.Services.AddMudServices(cfg =>
         {
             cfg.SnackbarConfiguration.ShowTransitionDuration = 0;
             cfg.SnackbarConfiguration.HideTransitionDuration = 0;
         });
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-        ctx.RenderComponent<MudPopoverProvider>();
-        ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
         return ctx;
     }
 
@@ -129,10 +129,10 @@ public class OrdersFilterConfigTests
     [Fact]
     public async Task StatusFilter_EnumChanged_EmitsEqDescriptor()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<OrderFilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<OrderFilterTestDto>>(p => p
             .Add(x => x.Config, _config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -150,10 +150,10 @@ public class OrdersFilterConfigTests
     [Fact]
     public async Task CustomerNameFilter_TextChanged_EmitsContainsDescriptor()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<OrderFilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<OrderFilterTestDto>>(p => p
             .Add(x => x.Config, _config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -171,10 +171,10 @@ public class OrdersFilterConfigTests
     [Fact]
     public async Task TotalRangeFilter_MinSet_EmitsGteDescriptor()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<OrderFilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<OrderFilterTestDto>>(p => p
             .Add(x => x.Config, _config)
             .Add(x => x.FilterChanged, f => captured = f));
 

@@ -14,11 +14,11 @@ namespace Dabbler.Security.Blazor.Tests.Components.Admin.Role;
 
 public class ColumnRestrictionsSubTabTests
 {
-    private static (TestContext Ctx, SecurityConfigurationManager Manager) Build(
+    private static (BunitContext Ctx, SecurityConfigurationManager Manager) Build(
         RoleDefinition role,
         Action<IServiceCollection>? extra = null)
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         var config = new SecurityConfiguration { UserTypeRoles = [role] };
 
         var store = new Mock<ISecurityConfigurationStore>();
@@ -60,19 +60,19 @@ public class ColumnRestrictionsSubTabTests
     }
 
     [Fact]
-    public void Empty_ShowsEmptyMessage()
+    public async Task Empty_ShowsEmptyMessage()
     {
         var role = new RoleDefinition { RoleName = "BackofficeUser" };
         var (ctx, _) = Build(role);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<ColumnRestrictionsSubTab>(p => p.Add(c => c.Role, role));
+        var cut = ctx.Render<ColumnRestrictionsSubTab>(p => p.Add(c => c.Role, role));
 
         cut.Find("[data-testid='column-restriction-empty']").Should().NotBeNull();
     }
 
     [Fact]
-    public void PopulatedRole_RendersGridWithRows()
+    public async Task PopulatedRole_RendersGridWithRows()
     {
         var role = new RoleDefinition
         {
@@ -84,9 +84,9 @@ public class ColumnRestrictionsSubTabTests
             ],
         };
         var (ctx, _) = Build(role);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<ColumnRestrictionsSubTab>(p => p.Add(c => c.Role, role));
+        var cut = ctx.Render<ColumnRestrictionsSubTab>(p => p.Add(c => c.Role, role));
 
         cut.Find("[data-testid='column-restriction-grid']").Should().NotBeNull();
         cut.Find("[data-testid='column-restriction-remove-Product-UnitPrice']").Should().NotBeNull();
@@ -108,9 +108,9 @@ public class ColumnRestrictionsSubTabTests
             ],
         };
         var (ctx, _) = Build(role);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<ColumnRestrictionsSubTab>(p => p.Add(c => c.Role, role));
+        var cut = ctx.Render<ColumnRestrictionsSubTab>(p => p.Add(c => c.Role, role));
 
         // Select Table=Customer through the backing field and re-render.
         await cut.InvokeAsync(() =>
@@ -152,10 +152,10 @@ public class ColumnRestrictionsSubTabTests
             ],
         };
         var (ctx, manager) = Build(role);
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
         var persistedCount = 0;
-        var cut = ctx.RenderComponent<ColumnRestrictionsSubTab>(p => p
+        var cut = ctx.Render<ColumnRestrictionsSubTab>(p => p
             .Add(c => c.Role, role)
             .Add(c => c.OnPersisted, () => { persistedCount++; return Task.CompletedTask; }));
 

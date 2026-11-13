@@ -7,15 +7,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Admin;
 
-public class UserEditPageTests : IDisposable
+public class UserEditPageTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly Mock<IUserService> _userSvcMock;
     private readonly Mock<IExternalLoginService> _extLoginSvcMock;
 
     public UserEditPageTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _userSvcMock = new Mock<IUserService>();
         _extLoginSvcMock = new Mock<IExternalLoginService>();
         _extLoginSvcMock.Setup(s => s.GetExternalLoginsForUserAsync(It.IsAny<int>()))
@@ -29,7 +29,9 @@ public class UserEditPageTests : IDisposable
             });
     }
 
-    public void Dispose() => _ctx.Dispose();
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync() => _ctx.DisposeAsync().AsTask();
 
     private static AppUser ExistingUser(int id = 2) => new()
     {
@@ -45,7 +47,7 @@ public class UserEditPageTests : IDisposable
     [Fact]
     public void UserEditPage_CreateMode_ShowsEmailAndDisplayNameInputs()
     {
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>();
 
         cut.Markup.Should().Contain("Email");
         cut.Markup.Should().Contain("Display Name");
@@ -54,7 +56,7 @@ public class UserEditPageTests : IDisposable
     [Fact]
     public void UserEditPage_CreateMode_DoesNotShowDeleteButton()
     {
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>();
 
         cut.Markup.Should().NotContain("Delete");
     }
@@ -66,12 +68,12 @@ public class UserEditPageTests : IDisposable
             .Setup(s => s.CreateAsync("new@test.local", "New User", It.IsAny<int>()))
             .ReturnsAsync(new AppUser { Id = 99, Email = "new@test.local", DisplayName = "New User", Roles = [] });
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>();
 
         var inputs = cut.FindAll("input");
         // Email is first, DisplayName is second
-        inputs.ElementAt(0).Change("new@test.local");
-        inputs.ElementAt(1).Change("New User");
+        inputs[0].Change("new@test.local");
+        inputs[1].Change("New User");
 
         await cut.InvokeAsync(() => cut.Find("form").Submit());
 
@@ -87,7 +89,7 @@ public class UserEditPageTests : IDisposable
         var user = ExistingUser();
         _userSvcMock.Setup(s => s.GetByIdCachedAsync(user.Id)).ReturnsAsync(user);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
             p => p.Add(x => x.Id, user.Id));
 
         cut.WaitForAssertion(() =>
@@ -103,7 +105,7 @@ public class UserEditPageTests : IDisposable
         var user = ExistingUser();
         _userSvcMock.Setup(s => s.GetByIdCachedAsync(user.Id)).ReturnsAsync(user);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
             p => p.Add(x => x.Id, user.Id));
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Delete"));
@@ -115,7 +117,7 @@ public class UserEditPageTests : IDisposable
         var user = ExistingUser();
         _userSvcMock.Setup(s => s.GetByIdCachedAsync(user.Id)).ReturnsAsync(user);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
             p => p.Add(x => x.Id, user.Id));
 
         cut.WaitForAssertion(() =>
@@ -134,14 +136,14 @@ public class UserEditPageTests : IDisposable
         _userSvcMock.Setup(s => s.UpdateAsync(user.Id, It.IsAny<string>(), It.IsAny<bool>()))
             .Returns(Task.CompletedTask);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
             p => p.Add(x => x.Id, user.Id));
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Existing User"));
 
         // Change DisplayName
         var editableInputs = cut.FindAll("input:not([disabled]):not([readonly])");
-        editableInputs.ElementAt(0).Change("Updated Name");
+        editableInputs[0].Change("Updated Name");
 
         await cut.InvokeAsync(() => cut.Find("form").Submit());
 
@@ -154,7 +156,7 @@ public class UserEditPageTests : IDisposable
     {
         _userSvcMock.Setup(s => s.GetByIdCachedAsync(999)).ReturnsAsync((AppUser?)null);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserEditPage>(
             p => p.Add(x => x.Id, 999));
 
         // After load, either shows an error message or navigates away

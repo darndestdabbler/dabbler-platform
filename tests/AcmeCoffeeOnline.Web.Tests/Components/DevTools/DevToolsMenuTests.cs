@@ -1,14 +1,19 @@
 using AcmeCoffeeOnline.Web.Components.Shared.DevTools;
 using AcmeCoffeeOnline.Web.Configuration;
 using Bunit;
+using Bunit.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;
 
 namespace AcmeCoffeeOnline.Web.Tests.Components.DevTools;
 
-public sealed class DevToolsMenuTests : TestContext
+public sealed class DevToolsMenuTests : BunitContext, IAsyncLifetime
 {
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    Task IAsyncLifetime.DisposeAsync() => DisposeAsync().AsTask();
+
     public DevToolsMenuTests()
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
@@ -42,7 +47,7 @@ public sealed class DevToolsMenuTests : TestContext
     // IDialogService. The test below guards the gate-off branch so no menu leaks
     // into production DOM.
 
-    private IRenderedFragment RenderMenu()
+    private IRenderedComponent<ContainerFragment> RenderMenu()
     {
         return Render(builder =>
         {

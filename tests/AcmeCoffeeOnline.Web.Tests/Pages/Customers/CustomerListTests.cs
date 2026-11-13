@@ -7,8 +7,12 @@ using MudBlazor.Services;
 
 namespace AcmeCoffeeOnline.Web.Tests.Pages.Customers;
 
-public sealed class CustomerListTests : TestContext
+public sealed class CustomerListTests : BunitContext, IAsyncLifetime
 {
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    Task IAsyncLifetime.DisposeAsync() => DisposeAsync().AsTask();
+
     public CustomerListTests()
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
@@ -19,7 +23,7 @@ public sealed class CustomerListTests : TestContext
     public async Task CanceledLoad_DoesNotShowErrorOrClearTheNextResult()
     {
         var provider = new FirstCallBlocksUntilCanceledProvider();
-        var cut = RenderComponent<CustomerList>(p => p
+        var cut = Render<CustomerList>(p => p
             .Add(c => c.DataProvider, provider)
             .Add(c => c.AutoLoadOnFilterChange, false));
 

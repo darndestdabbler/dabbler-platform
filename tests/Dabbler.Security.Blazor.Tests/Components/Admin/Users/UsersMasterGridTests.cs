@@ -28,15 +28,15 @@ public class UsersMasterGridTests
         []);
 
     [Fact]
-    public void Renders_AllRowsReturnedByQueryService()
+    public async Task Renders_AllRowsReturnedByQueryService()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterQueryService(services, Alice, Bob, InactiveCarol);
         });
 
-        var cut = ctx.RenderComponent<UsersMasterGrid>();
+        var cut = ctx.Render<UsersMasterGrid>();
 
         cut.Markup.Should().Contain("3 of 3 users");
         cut.Find("[data-testid='users-row-1-role-SystemAdmin']").Should().NotBeNull();
@@ -45,18 +45,18 @@ public class UsersMasterGridTests
     }
 
     [Fact]
-    public void Filter_ByEmail_NarrowsVisibleRows()
+    public async Task Filter_ByEmail_NarrowsVisibleRows()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterQueryService(services, Alice, Bob);
         });
 
-        var cut = ctx.RenderComponent<UsersMasterGrid>();
+        var cut = ctx.Render<UsersMasterGrid>();
         var filterPanel = cut.FindComponent<FilterPanel<AdminUserRow>>();
 
-        cut.InvokeAsync(() =>
+        _ = cut.InvokeAsync(() =>
             filterPanel.Instance.Coordinator.SetFilter(
                 0,
                 nameof(AdminUserRow.Email),
@@ -68,18 +68,18 @@ public class UsersMasterGridTests
     }
 
     [Fact]
-    public void Filter_ByRole_UsesAnyRoleContains()
+    public async Task Filter_ByRole_UsesAnyRoleContains()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterQueryService(services, Alice, Bob, InactiveCarol);
         });
 
-        var cut = ctx.RenderComponent<UsersMasterGrid>();
+        var cut = ctx.Render<UsersMasterGrid>();
         var filterPanel = cut.FindComponent<FilterPanel<AdminUserRow>>();
 
-        cut.InvokeAsync(() =>
+        _ = cut.InvokeAsync(() =>
             filterPanel.Instance.Coordinator.SetFilter(
                 0,
                 "ActiveRole",
@@ -92,14 +92,14 @@ public class UsersMasterGridTests
     [Fact]
     public async Task RefreshWithSelectedId_RaisesSelectedUserChangedWithFreshRow()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterQueryService(services, Alice);
         });
 
         AdminUserRow? received = null;
-        var cut = ctx.RenderComponent<UsersMasterGrid>(parameters => parameters
+        var cut = ctx.Render<UsersMasterGrid>(parameters => parameters
             .Add(x => x.SelectedUserChanged, row => received = row));
 
         await cut.InvokeAsync(() => cut.Instance.RefreshAsync(Alice.UserId));
@@ -109,9 +109,9 @@ public class UsersMasterGridTests
     }
 
     [Fact]
-    public void RefreshButton_ReloadsFromQueryService()
+    public async Task RefreshButton_ReloadsFromQueryService()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var queryMock = new Mock<IAdminUserQueryService>();
         queryMock.SetupSequence(q => q.GetUsersAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync([Alice])
@@ -132,7 +132,7 @@ public class UsersMasterGridTests
             services.AddSingleton(queryMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UsersMasterGrid>();
+        var cut = ctx.Render<UsersMasterGrid>();
         cut.Markup.Should().Contain("1 of 1 users");
 
         cut.Find("[data-testid='users-grid-refresh-button']").Click();
@@ -141,16 +141,16 @@ public class UsersMasterGridTests
     }
 
     [Fact]
-    public void FilterChange_RaisesFiltersChanged_AndKeepsScrollRegionScopedToGrid()
+    public async Task FilterChange_RaisesFiltersChanged_AndKeepsScrollRegionScopedToGrid()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterQueryService(services, Alice, Bob, InactiveCarol);
         });
 
         var filterChangedCount = 0;
-        var cut = ctx.RenderComponent<UsersMasterGrid>(parameters => parameters
+        var cut = ctx.Render<UsersMasterGrid>(parameters => parameters
             .Add(x => x.FiltersChanged, () =>
             {
                 filterChangedCount++;
@@ -158,7 +158,7 @@ public class UsersMasterGridTests
             }));
 
         var filterPanel = cut.FindComponent<FilterPanel<AdminUserRow>>();
-        cut.InvokeAsync(() =>
+        _ = cut.InvokeAsync(() =>
             filterPanel.Instance.Coordinator.SetFilter(
                 0,
                 nameof(AdminUserRow.Email),

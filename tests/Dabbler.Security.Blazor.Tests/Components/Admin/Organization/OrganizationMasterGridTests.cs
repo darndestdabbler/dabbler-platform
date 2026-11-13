@@ -13,15 +13,15 @@ namespace Dabbler.Security.Blazor.Tests.Components.Admin.Organization;
 public class OrganizationMasterGridTests
 {
     [Fact]
-    public void Grid_RendersOrganizationsAndMembershipCounts()
+    public async Task Grid_RendersOrganizationsAndMembershipCounts()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterDbContext(services, SeedOrganizations);
         });
 
-        var cut = ctx.RenderComponent<OrganizationMasterGrid>();
+        var cut = ctx.Render<OrganizationMasterGrid>();
 
         cut.Find("[data-testid='organization-row-1-key']").TextContent.Should().Contain("internal");
         cut.Find("[data-testid='organization-row-2-key']").TextContent.Should().Contain("customer-101");
@@ -30,18 +30,18 @@ public class OrganizationMasterGridTests
     }
 
     [Fact]
-    public void Grid_FilterByActiveStatus_NarrowsVisibleRows()
+    public async Task Grid_FilterByActiveStatus_NarrowsVisibleRows()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterDbContext(services, SeedOrganizations);
         });
 
-        var cut = ctx.RenderComponent<OrganizationMasterGrid>();
+        var cut = ctx.Render<OrganizationMasterGrid>();
         var filterPanel = cut.FindComponent<FilterPanel<OrganizationMasterGrid.OrganizationRow>>();
 
-        cut.InvokeAsync(() =>
+        _ = cut.InvokeAsync(() =>
             filterPanel.Instance.Coordinator.SetFilter(
                 0,
                 nameof(OrganizationMasterGrid.OrganizationRow.IsActive),
@@ -59,7 +59,7 @@ public class OrganizationMasterGridTests
     [InlineData("customer-", 1)]       // full prefix WITH a dash must still match
     [InlineData("mer-1", 1)]           // substring spanning a dash must match
     [InlineData("cust-", 0)]           // literal "cust-" is not a substring of "customer-101"
-    public void Grid_FilterByKeyContains_HandlesDashCharacter(string needle, int expectedVisibleCount)
+    public async Task Grid_FilterByKeyContains_HandlesDashCharacter(string needle, int expectedVisibleCount)
     {
         // Session 4 of security-dashboard-uat-remediation — Finding 3 sub-issue:
         // UAT flagged that filter `Key contains 'cust-'` returned nothing while
@@ -67,16 +67,16 @@ public class OrganizationMasterGridTests
         // dash-aware, not that "cust-" is treated as a prefix. The seed is
         // "customer-101" so "cust-" is correctly absent; "customer-" and
         // "mer-1" both span the dash and must match.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterDbContext(services, SeedOrganizations);
         });
 
-        var cut = ctx.RenderComponent<OrganizationMasterGrid>();
+        var cut = ctx.Render<OrganizationMasterGrid>();
         var filterPanel = cut.FindComponent<FilterPanel<OrganizationMasterGrid.OrganizationRow>>();
 
-        cut.InvokeAsync(() =>
+        _ = cut.InvokeAsync(() =>
             filterPanel.Instance.Coordinator.SetFilter(
                 0,
                 nameof(OrganizationMasterGrid.OrganizationRow.Key),
@@ -87,9 +87,9 @@ public class OrganizationMasterGridTests
     }
 
     [Fact]
-    public void Grid_NewOrganizationButton_RaisesCreateRequested()
+    public async Task Grid_NewOrganizationButton_RaisesCreateRequested()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var createRequested = false;
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -97,7 +97,7 @@ public class OrganizationMasterGridTests
             RegisterDbContext(services, SeedOrganizations);
         });
 
-        var cut = ctx.RenderComponent<OrganizationMasterGrid>(parameters => parameters
+        var cut = ctx.Render<OrganizationMasterGrid>(parameters => parameters
             .Add(x => x.CreateRequested, () => createRequested = true));
 
         cut.Find("[data-testid='organization-grid-add-button']").Click();
@@ -106,16 +106,16 @@ public class OrganizationMasterGridTests
     }
 
     [Fact]
-    public void Grid_FilterChange_RaisesFiltersChanged_AndKeepsScrollRegionScopedToGrid()
+    public async Task Grid_FilterChange_RaisesFiltersChanged_AndKeepsScrollRegionScopedToGrid()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: services =>
         {
             RegisterDbContext(services, SeedOrganizations);
         });
 
         var filterChangedCount = 0;
-        var cut = ctx.RenderComponent<OrganizationMasterGrid>(parameters => parameters
+        var cut = ctx.Render<OrganizationMasterGrid>(parameters => parameters
             .Add(x => x.FiltersChanged, () =>
             {
                 filterChangedCount++;
@@ -123,7 +123,7 @@ public class OrganizationMasterGridTests
             }));
         var filterPanel = cut.FindComponent<FilterPanel<OrganizationMasterGrid.OrganizationRow>>();
 
-        cut.InvokeAsync(() =>
+        _ = cut.InvokeAsync(() =>
             filterPanel.Instance.Coordinator.SetFilter(
                 0,
                 nameof(OrganizationMasterGrid.OrganizationRow.Key),

@@ -15,12 +15,12 @@ public class BakedInPrivilegesPanelTests
         new PlatformBakedInRoleProvider().TryGetBakedInRole(BakedInRoles.User)!;
 
     [Fact]
-    public void Panel_RendersRoleName_AndBakedInChip()
+    public async Task Panel_RendersRoleName_AndBakedInChip()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler();
 
-        var cut = ctx.RenderComponent<BakedInPrivilegesPanel>(parameters => parameters
+        var cut = ctx.Render<BakedInPrivilegesPanel>(parameters => parameters
             .Add(p => p.Role, SystemAdminRole())
             .Add(p => p.AliasOverride, null));
 
@@ -30,12 +30,12 @@ public class BakedInPrivilegesPanelTests
     }
 
     [Fact]
-    public void Panel_ShowsAliasOverride_WhenPresent()
+    public async Task Panel_ShowsAliasOverride_WhenPresent()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler();
 
-        var cut = ctx.RenderComponent<BakedInPrivilegesPanel>(parameters => parameters
+        var cut = ctx.Render<BakedInPrivilegesPanel>(parameters => parameters
             .Add(p => p.Role, SystemAdminRole())
             .Add(p => p.AliasOverride, "Super Admin"));
 
@@ -44,12 +44,12 @@ public class BakedInPrivilegesPanelTests
     }
 
     [Fact]
-    public void Panel_ShowsDefaultAlias_WhenNoOverride()
+    public async Task Panel_ShowsDefaultAlias_WhenNoOverride()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler();
 
-        var cut = ctx.RenderComponent<BakedInPrivilegesPanel>(parameters => parameters
+        var cut = ctx.Render<BakedInPrivilegesPanel>(parameters => parameters
             .Add(p => p.Role, SystemAdminRole()));
 
         cut.Markup.Should().Contain("Default display alias");
@@ -57,12 +57,12 @@ public class BakedInPrivilegesPanelTests
     }
 
     [Fact]
-    public void Panel_SystemAdmin_ShowsAllCapabilitiesTrue()
+    public async Task Panel_SystemAdmin_ShowsAllCapabilitiesTrue()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler();
 
-        var cut = ctx.RenderComponent<BakedInPrivilegesPanel>(parameters => parameters
+        var cut = ctx.Render<BakedInPrivilegesPanel>(parameters => parameters
             .Add(p => p.Role, SystemAdminRole()));
 
         // HasAllPrivileges flag renders the success icon.
@@ -70,12 +70,12 @@ public class BakedInPrivilegesPanelTests
     }
 
     [Fact]
-    public void Panel_User_IsUserTypeTrue_HasAllPrivilegesFalse()
+    public async Task Panel_User_IsUserTypeTrue_HasAllPrivilegesFalse()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler();
 
-        var cut = ctx.RenderComponent<BakedInPrivilegesPanel>(parameters => parameters
+        var cut = ctx.Render<BakedInPrivilegesPanel>(parameters => parameters
             .Add(p => p.Role, UserRole()));
 
         cut.Find("[data-testid='privilege-value-is-user-type-true']").Should().NotBeNull();

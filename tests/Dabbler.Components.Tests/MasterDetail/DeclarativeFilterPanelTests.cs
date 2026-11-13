@@ -30,18 +30,18 @@ internal enum FilterTestRoast { Dark, Medium, Light }
 
 public sealed class DeclarativeFilterPanelTests
 {
-    private static TestContext CreateContext()
+    private static BunitContext CreateContext()
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         ctx.Services.AddMudServices(cfg =>
         {
             cfg.SnackbarConfiguration.ShowTransitionDuration = 0;
             cfg.SnackbarConfiguration.HideTransitionDuration = 0;
         });
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-        ctx.RenderComponent<MudPopoverProvider>();
-        ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
         return ctx;
     }
 
@@ -108,19 +108,19 @@ public sealed class DeclarativeFilterPanelTests
     }
 
     [Fact]
-    public void Renders_SearchRole_OnOuterDiv()
+    public async Task Renders_SearchRole_OnOuterDiv()
     {
-        using var ctx = CreateContext();
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        await using var ctx = CreateContext();
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, MakeConfig()));
 
         cut.Find("[role='search']").Should().NotBeNull();
     }
 
     [Fact]
-    public void Renders_EnumSelect_WithLabel()
+    public async Task Renders_EnumSelect_WithLabel()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         var config = MakeConfig(props: new FilterProperty<FilterTestDto>[]
         {
             new FilterProperty<FilterTestDto>.EnumVal
@@ -130,7 +130,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config));
 
         cut.Markup.Should().Contain("Roast Level");
@@ -139,7 +139,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task EnumSelect_ValueChanged_EmitsCompositeFilter()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -151,7 +151,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -168,10 +168,10 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task TextFilter_ValueChanged_EmitsContainsFilter()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, MakeConfig())
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -188,7 +188,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task NumericRange_BothSet_EmitsTwoDescriptors()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -203,7 +203,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -223,7 +223,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task NumericRange_OnlyMin_EmitsOnlyGte()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -237,7 +237,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -254,7 +254,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task BoolFilter_SetTrue_EmitsEqTrue()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -266,7 +266,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -282,7 +282,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task BoolFilter_Cleared_EmitsNullFilter()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -294,7 +294,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -312,9 +312,9 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task ActiveFilter_ShowsMudChip()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, MakeConfig()));
 
         var panel = cut.Instance;
@@ -328,7 +328,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task ClearAll_RemovesAllFilters()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -337,7 +337,7 @@ public sealed class DeclarativeFilterPanelTests
             new FilterProperty<FilterTestDto>.Bool { Property = e => (object?)e.IsAvailable, Label = "Available" },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -363,9 +363,9 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task ClientSide_DoesNotCallHistoryReplaceState()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, MakeConfig(FilterMode.ClientSide)));
 
         var panel = cut.Instance;
@@ -379,9 +379,9 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task ServerSide_CallsHistoryReplaceState_OnFilterChange()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, MakeConfig(FilterMode.ServerSide)));
 
         var panel = cut.Instance;
@@ -395,7 +395,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task ForeignKeyFilter_AsyncLoader_LoadsItemsOnInit()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
         var items = new[] { new FilterTestDto { Name = "Async Item" } };
         var loaderInvoked = false;
@@ -414,7 +414,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config));
 
         loaderInvoked.Should().BeTrue();
@@ -422,9 +422,9 @@ public sealed class DeclarativeFilterPanelTests
     }
 
     [Fact]
-    public void RestoreFromQueryString_EnumValue()
+    public async Task RestoreFromQueryString_EnumValue()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
         // Navigate to URL with query param before rendering
         ctx.Services.GetRequiredService<NavigationManager>()
@@ -439,7 +439,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config));
 
         var state = cut.Instance.GetFilterState();
@@ -450,7 +450,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task DateFilter_ValueSet_EmitsEqFilter()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -462,7 +462,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -479,7 +479,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task DateRangeFilter_BothSet_EmitsGteLteFilters()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -492,7 +492,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -514,7 +514,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task ForeignKeyFilter_StaticLookup_LoadsItemsOnInit()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
         var lookupItems = new[] { new FilterTestDto { Name = "A" }, new FilterTestDto { Name = "B" } };
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -528,7 +528,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config));
 
         // After rendering, lookup items should be loaded
@@ -543,7 +543,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task ForeignKeyFilter_ValueSelected_EmitsEqFilter()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var selectedItem = new FilterTestDto { Name = "Alpha" };
@@ -558,7 +558,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -575,7 +575,7 @@ public sealed class DeclarativeFilterPanelTests
     [Fact]
     public async Task RaisedDescriptors_PassedUnchangedToStubGridDataProvider_FilterItsRows()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
         var config = new FilterConfig<FilterTestDto>(FilterMode.ClientSide, new FilterProperty<FilterTestDto>[]
@@ -585,7 +585,7 @@ public sealed class DeclarativeFilterPanelTests
             new FilterProperty<FilterTestDto>.Date { Property = e => (object?)e.RoastedOn, Label = "Roasted", AsRange = true },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -620,9 +620,9 @@ public sealed class DeclarativeFilterPanelTests
     }
 
     [Fact]
-    public void RestoreFromQueryString_NumericRange()
+    public async Task RestoreFromQueryString_NumericRange()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
         ctx.Services.GetRequiredService<NavigationManager>()
             .NavigateTo("http://localhost/?UnitPrice_min=10&UnitPrice_max=50");
@@ -638,7 +638,7 @@ public sealed class DeclarativeFilterPanelTests
             },
         });
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<FilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<FilterTestDto>>(p => p
             .Add(x => x.Config, config));
 
         var state = cut.Instance.GetFilterState();

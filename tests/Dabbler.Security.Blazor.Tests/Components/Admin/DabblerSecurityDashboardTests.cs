@@ -70,14 +70,14 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_SystemAdmin_RendersAllSixTabs()
+    public async Task Dashboard_SystemAdmin_RendersAllSixTabs()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterDashboardServices(svc));
 
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
+        var cut = ctx.Render<DabblerSecurityDashboard>();
 
         cut.Markup.Should().Contain("Role Master Details");
         cut.Markup.Should().Contain("Default Masks");
@@ -89,14 +89,14 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_UserAdmin_RendersOnlyPermittedTabs()
+    public async Task Dashboard_UserAdmin_RendersOnlyPermittedTabs()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.UserAdmin],
             configureServices: svc => RegisterDashboardServices(svc));
 
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
+        var cut = ctx.Render<DabblerSecurityDashboard>();
 
         cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo(
             "Users and Role Assignment", "Role Documentation");
@@ -104,14 +104,14 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_CrossOrgUserAdmin_SeesFourTabs()
+    public async Task Dashboard_CrossOrgUserAdmin_SeesFourTabs()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.CrossOrgUserAdmin],
             configureServices: svc => RegisterDashboardServices(svc));
 
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
+        var cut = ctx.Render<DabblerSecurityDashboard>();
 
         cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo(
             "Organization Master Details", "Users and Role Assignment",
@@ -120,28 +120,28 @@ public class DabblerSecurityDashboardTests
     }
 
     [Fact]
-    public void Dashboard_PlainUser_SeesOnlyRoleDocumentation()
+    public async Task Dashboard_PlainUser_SeesOnlyRoleDocumentation()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.User],
             configureServices: svc => RegisterDashboardServices(svc));
 
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
+        var cut = ctx.Render<DabblerSecurityDashboard>();
 
         cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo("Role Documentation");
         cut.Instance.TabCount.Should().Be(1);
     }
 
     [Fact]
-    public void Dashboard_CrossOrgMonitor_SeesRoleDocumentationAndComplianceReview()
+    public async Task Dashboard_CrossOrgMonitor_SeesRoleDocumentationAndComplianceReview()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.CrossOrgMonitor],
             configureServices: svc => RegisterDashboardServices(svc));
 
-        var cut = ctx.RenderComponent<DabblerSecurityDashboard>();
+        var cut = ctx.Render<DabblerSecurityDashboard>();
 
         cut.Instance.VisibleTabs.Select(t => t.Label).Should().BeEquivalentTo(
             "Role Documentation", "Compliance Review");

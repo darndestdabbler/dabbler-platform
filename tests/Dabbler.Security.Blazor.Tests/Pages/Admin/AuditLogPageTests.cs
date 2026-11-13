@@ -6,21 +6,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Admin;
 
-public class AuditLogPageTests : IDisposable
+public class AuditLogPageTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly Mock<IAuditService> _auditSvcMock;
 
     public AuditLogPageTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _auditSvcMock = new Mock<IAuditService>();
         _ctx.SetupForDabbler(
             roles: ["UserAdministrator"],
             configureServices: s => s.AddSingleton(_auditSvcMock.Object));
     }
 
-    public void Dispose() => _ctx.Dispose();
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync() => _ctx.DisposeAsync().AsTask();
 
     private static List<AuditEntry> MakeEntries(int count = 3) =>
         Enumerable.Range(1, count).Select(i => new AuditEntry
@@ -40,7 +42,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync([]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
 
         cut.Markup.Should().Contain("Audit Log");
     }
@@ -52,7 +54,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync([]);
 
-        _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
 
         _auditSvcMock.Verify(s =>
             s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100), Times.Once);
@@ -66,7 +68,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync(entries);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
 
         cut.WaitForAssertion(() =>
         {
@@ -82,7 +84,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync([]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
 
         cut.Markup.Should().Contain("From Date");
         cut.Markup.Should().Contain("To Date");
@@ -95,7 +97,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync([]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
 
         cut.Markup.Should().Contain("Filter");
         cut.Markup.Should().Contain("Reset");
@@ -108,7 +110,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync([]);
 
-        var act = () => _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        var act = () => _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
         act.Should().NotThrow();
     }
 
@@ -119,7 +121,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync([]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
 
         cut.Markup.Should().Contain("Timestamp");
         cut.Markup.Should().Contain("Entity Type");
@@ -134,7 +136,7 @@ public class AuditLogPageTests : IDisposable
             .Setup(s => s.GetAllChangesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1, 100))
             .ReturnsAsync([]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.AuditLogPage>();
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Filter"));
 
         var filterButton = cut.FindAll("button")

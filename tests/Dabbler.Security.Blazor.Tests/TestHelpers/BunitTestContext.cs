@@ -14,23 +14,23 @@ namespace Dabbler.Security.Blazor.Tests.TestHelpers;
 /// <summary>
 /// Extension helpers for wiring up MudBlazor and Blazor authorization in bUnit tests.
 ///
-/// ORDERING MATTERS in bUnit: AddTestAuthorization must be called before AddMudServices
+/// ORDERING MATTERS in bUnit: AddAuthorization must be called before AddMudServices
 /// because AddMudServices triggers internal service resolution that locks the bUnit
-/// TestServiceProvider, preventing further registrations.
+/// BunitServiceProvider, preventing further registrations.
 /// </summary>
 public static class BunitContextExtensions
 {
     /// <summary>
-    /// Configure a <see cref="TestContext"/> with authorization and MudBlazor.
+    /// Configure a <see cref="BunitContext"/> with authorization and MudBlazor.
     /// Call this before rendering ANY component.
     /// </summary>
-    public static TestContext SetupForDabbler(
-        this TestContext ctx,
+    public static BunitContext SetupForDabbler(
+        this BunitContext ctx,
         string[]? roles = null,
         Action<IServiceCollection>? configureServices = null)
     {
         // ── 1. Authorization MUST come first — before anything that locks the provider ──
-        var authContext = ctx.AddTestAuthorization();
+        var authContext = ctx.AddAuthorization();
         if (roles is { Length: > 0 })
         {
             authContext.SetAuthorized("testuser@test.local");
@@ -66,9 +66,9 @@ public static class BunitContextExtensions
 
         // ── 6. Mount MudBlazor infrastructure providers after all services are registered ──
         // MudBlazor ≥ 7 requires these to be present in the same render tree.
-        ctx.RenderComponent<MudPopoverProvider>();
-        ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
 
         return ctx;
     }

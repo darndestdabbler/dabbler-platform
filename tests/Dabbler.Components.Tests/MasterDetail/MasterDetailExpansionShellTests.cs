@@ -10,19 +10,19 @@ namespace Dabbler.Components.Tests.MasterDetail;
 
 public class MasterDetailExpansionShellTests
 {
-    private static TestContext Build()
+    private static BunitContext Build()
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         ctx.SetupForDabblerComponents();
         return ctx;
     }
 
     [Fact]
-    public void Shell_Expanded_RendersExpandedHeaderText()
+    public async Task Shell_Expanded_RendersExpandedHeaderText()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Roles")
             .Add(c => c.IsExpanded, true)
@@ -40,11 +40,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_Collapsed_RendersSummaryTextAndOptionalBadge()
+    public async Task Shell_Collapsed_RendersSummaryTextAndOptionalBadge()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Roles")
             .Add(c => c.CollapsedSummaryText, "Role: BackofficeUser")
@@ -61,11 +61,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_Collapsed_NoBadge_WhenBadgeParameterIsBlank()
+    public async Task Shell_Collapsed_NoBadge_WhenBadgeParameterIsBlank()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Roles")
             .Add(c => c.CollapsedSummaryText, "Role: BackofficeUser")
@@ -80,11 +80,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_Collapsed_BlankSummary_FallsBackToExpandedHeaderText()
+    public async Task Shell_Collapsed_BlankSummary_FallsBackToExpandedHeaderText()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Roles")
             .Add(c => c.CollapsedSummaryText, string.Empty)
@@ -97,11 +97,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_FilterContent_RendersInsideExpansionBody()
+    public async Task Shell_FilterContent_RendersInsideExpansionBody()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Results")
             .Add(c => c.IsExpanded, true)
@@ -116,11 +116,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_DetailsContent_RendersOutsideExpansionPanel()
+    public async Task Shell_DetailsContent_RendersOutsideExpansionPanel()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Results")
             .Add(c => c.IsExpanded, true)
@@ -136,11 +136,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowGridFalse_DoesNotRenderExpansionPanel()
+    public async Task Shell_ShowGridFalse_DoesNotRenderExpansionPanel()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Results")
             .Add(c => c.ShowGrid, false));
@@ -154,22 +154,22 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowAddAction_DefaultsToNoAddButton()
+    public async Task Shell_ShowAddAction_DefaultsToNoAddButton()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell"));
 
         cut.FindAll("[data-testid='test-shell-add-button']").Should().BeEmpty();
     }
 
     [Fact]
-    public void Shell_ShowAddAction_RendersAddButtonWithAddLabelAboveGrid()
+    public async Task Shell_ShowAddAction_RendersAddButtonWithAddLabelAboveGrid()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowAddAction, true)
             .Add(c => c.AddLabel, "Add Product")
@@ -188,13 +188,13 @@ public class MasterDetailExpansionShellTests
     [Fact]
     public async Task Shell_AddButtonClick_ResetsSelectionThenRaisesOnAddRequestedOnce()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
         var raised = 0;
         bool? entityDirtyWhenRaised = null;
         bool? linkDirtyWhenRaised = null;
         MasterDetailExpansionShell<TestRow, object, object>? shell = null;
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowAddAction, true)
             .Add(c => c.AllowLinkOnly, true)
@@ -222,11 +222,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_AddButton_DisabledWhileWorking()
+    public async Task Shell_AddButton_DisabledWhileWorking()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowAddAction, true)
             .Add(c => c.Working, true));
@@ -235,11 +235,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowGridFalse_NoAddButtonEvenWithShowAddAction()
+    public async Task Shell_ShowGridFalse_NoAddButtonEvenWithShowAddAction()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowGrid, false)
             .Add(c => c.ShowAddAction, true)
@@ -249,11 +249,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_Collapsed_CollapsedSummaryContent_OverridesTextAndBadge()
+    public async Task Shell_Collapsed_CollapsedSummaryContent_OverridesTextAndBadge()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ExpandedHeaderText, "Roles")
             .Add(c => c.CollapsedSummaryText, "Role: BackofficeUser")
@@ -270,13 +270,13 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_Collapsed_StillRendersGridContentInDom()
+    public async Task Shell_Collapsed_StillRendersGridContentInDom()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
         // MudExpansionPanel hides child content via CSS, not by removing it from
         // the DOM. GridContent must remain present so component lifecycles work.
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.IsExpanded, false)
             .Add(c => c.GridContent, builder =>
@@ -288,11 +288,11 @@ public class MasterDetailExpansionShellTests
     // ── Session 2: ShowGrid=false / Add-Only layout tests ──────────────────
 
     [Fact]
-    public void Shell_ShowGridFalse_DetailsContent_RenderedInMudPaper()
+    public async Task Shell_ShowGridFalse_DetailsContent_RenderedInMudPaper()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowGrid, false)
             .Add(c => c.DetailsContent, builder =>
@@ -307,11 +307,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowGridFalse_DefaultSaveAndCancelButtons_Rendered()
+    public async Task Shell_ShowGridFalse_DefaultSaveAndCancelButtons_Rendered()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowGrid, false)
             .Add(c => c.DetailsContent, _ => { }));
@@ -321,11 +321,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowGridFalse_SaveButton_IncrementsSessionCount()
+    public async Task Shell_ShowGridFalse_SaveButton_IncrementsSessionCount()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowGrid, false)
             .Add(c => c.DetailsContent, _ => { })
@@ -341,12 +341,12 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowGridFalse_CancelButton_RaisesOnCancelRequested()
+    public async Task Shell_ShowGridFalse_CancelButton_RaisesOnCancelRequested()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
         var cancelRequested = false;
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowGrid, false)
             .Add(c => c.DetailsContent, _ => { })
@@ -361,11 +361,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowGridFalse_SessionSummaryContent_NotRendered_WhenNotProvided()
+    public async Task Shell_ShowGridFalse_SessionSummaryContent_NotRendered_WhenNotProvided()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<object, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<object, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowGrid, false));
 
@@ -377,11 +377,11 @@ public class MasterDetailExpansionShellTests
     [Fact]
     public async Task RaiseUseRequestedAsync_InvokesOnUseRequestedCallbackWithRow()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
         var requestedRow = new TestRow { Id = 1, Name = "Test" };
         TestRow? capturedRow = null;
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowRowUseAction, true)
             .Add(c => c.OnUseRequested, EventCallback.Factory.Create<TestRow>(this, row =>
@@ -398,10 +398,10 @@ public class MasterDetailExpansionShellTests
     [Fact]
     public async Task PrimaryActionLabel_AllowLinkOnly_SwapsCorrectlyWithSelectionAndDirtyState()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
         var selectedRow = new TestRow { Id = 1, Name = "Test" };
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowRowUseAction, true)
             .Add(c => c.AllowLinkOnly, true)
@@ -423,10 +423,10 @@ public class MasterDetailExpansionShellTests
     [Fact]
     public async Task ResetSelection_ClearsSelectionAndDirtyState()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
         var selectedRow = new TestRow { Id = 1, Name = "Test" };
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowRowUseAction, true)
             .Add(c => c.AllowLinkOnly, true)
@@ -451,11 +451,11 @@ public class MasterDetailExpansionShellTests
     // ── Session 4: Link-data UI, read-only toggles, and multi-dirty state ─
 
     [Fact]
-    public void Shell_ShowLinkData_RendersLinkCardWithHeading()
+    public async Task Shell_ShowLinkData_RendersLinkCardWithHeading()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowLinkData, true)
             .Add(c => c.LinkDataHeading, "Line details")
@@ -471,11 +471,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_ShowLinkData_RendersTargetCardWithHeading()
+    public async Task Shell_ShowLinkData_RendersTargetCardWithHeading()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowLinkData, true)
             .Add(c => c.TargetCardHeading, "Product")
@@ -488,11 +488,11 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_TargetEditability_ReadOnly_NoToggleButton()
+    public async Task Shell_TargetEditability_ReadOnly_NoToggleButton()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.TargetEditability, TargetEditability.ReadOnly)
             .Add(c => c.ShowLinkData, true)
@@ -504,12 +504,12 @@ public class MasterDetailExpansionShellTests
     }
 
     [Fact]
-    public void Shell_TargetEditability_ReadOnlyWithToggle_ToggleButtonFlipsState_AndFiresCallback()
+    public async Task Shell_TargetEditability_ReadOnlyWithToggle_ToggleButtonFlipsState_AndFiresCallback()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
         bool? firedValue = null;
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.TargetEditability, TargetEditability.ReadOnlyWithToggle)
             .Add(c => c.ShowLinkData, true)
@@ -528,9 +528,9 @@ public class MasterDetailExpansionShellTests
     [Fact]
     public async Task Shell_LinkDirty_AloneFlipsPrimaryActionLabelToSaveAndUse()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowRowUseAction, true)
             .Add(c => c.AllowLinkOnly, true)
@@ -549,9 +549,9 @@ public class MasterDetailExpansionShellTests
     [Fact]
     public async Task Shell_ToggleWithoutChange_PreservesUseLabel()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.TargetEditability, TargetEditability.ReadOnlyWithToggle)
             .Add(c => c.ShowRowUseAction, true)
@@ -571,10 +571,10 @@ public class MasterDetailExpansionShellTests
     [Fact]
     public async Task Shell_SaveRequest_CarriesBothDirtyFlags_OnPrimaryAction()
     {
-        using var ctx = Build();
+        await using var ctx = Build();
         SaveRequest<object, object>? capturedRequest = null;
 
-        var cut = ctx.RenderComponent<MasterDetailExpansionShell<TestRow, object, object>>(p => p
+        var cut = ctx.Render<MasterDetailExpansionShell<TestRow, object, object>>(p => p
             .Add(c => c.TestId, "test-shell")
             .Add(c => c.ShowRowUseAction, true)
             .Add(c => c.DetailsContent, (RenderFragment)(b =>

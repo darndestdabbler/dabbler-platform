@@ -48,7 +48,7 @@ public class RestrictedGridColumnTests
         };
 
     [Fact]
-    public void HiddenRestriction_DoesNotInvokeChildContent()
+    public async Task HiddenRestriction_DoesNotInvokeChildContent()
     {
         var config = new SecurityConfiguration
         {
@@ -64,12 +64,12 @@ public class RestrictedGridColumnTests
                 },
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Warehouse"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedGridColumn>(p => p
+        var cut = ctx.Render<RestrictedGridColumn>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));
@@ -79,7 +79,7 @@ public class RestrictedGridColumnTests
     }
 
     [Fact]
-    public void ViewOnlyRestriction_PassesReadOnlyState()
+    public async Task ViewOnlyRestriction_PassesReadOnlyState()
     {
         var config = new SecurityConfiguration
         {
@@ -95,12 +95,12 @@ public class RestrictedGridColumnTests
                 },
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Backoffice"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedGridColumn>(p => p
+        var cut = ctx.Render<RestrictedGridColumn>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));
@@ -112,18 +112,18 @@ public class RestrictedGridColumnTests
     }
 
     [Fact]
-    public void NoRestriction_PassesEditableState()
+    public async Task NoRestriction_PassesEditableState()
     {
         var config = new SecurityConfiguration
         {
             UserTypeRoles = [new RoleDefinition { RoleName = "Open" }],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Open"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedGridColumn>(p => p
+        var cut = ctx.Render<RestrictedGridColumn>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));
@@ -132,7 +132,7 @@ public class RestrictedGridColumnTests
     }
 
     [Fact]
-    public void DefaultMask_NoExemption_StillInvokesChildWithMaskedState()
+    public async Task DefaultMask_NoExemption_StillInvokesChildWithMaskedState()
     {
         // Grid columns leave masked rendering to the consumer (per-row
         // CellTemplate); the wrapper just surfaces the IsMasked flag.
@@ -144,12 +144,12 @@ public class RestrictedGridColumnTests
                 new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" }
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Customer"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedGridColumn>(p => p
+        var cut = ctx.Render<RestrictedGridColumn>(p => p
             .Add(c => c.EntityKey, "Customer")
             .Add(c => c.ColumnKey, "SocialSecurityNumber")
             .Add(c => c.ChildContent, StateProbe()));
@@ -167,7 +167,7 @@ public class RestrictedGridColumnTests
         {
             UserTypeRoles = [new RoleDefinition { RoleName = "Switcher" }],
         });
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Switcher"],
             configureServices: svc =>
@@ -177,7 +177,7 @@ public class RestrictedGridColumnTests
                 svc.AddScoped<IRestrictionBinder, RestrictionBinder>();
             });
 
-        var cut = ctx.RenderComponent<RestrictedGridColumn>(p => p
+        var cut = ctx.Render<RestrictedGridColumn>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));

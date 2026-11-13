@@ -23,9 +23,9 @@ public class PickOrAddDialogTests
     private sealed record TestRow { public int Id { get; init; } }
     private sealed record TestEntity { public string Name { get; init; } = ""; }
 
-    private static IRenderedComponent<MudDialogProvider> SetupContext(TestContext ctx)
+    private static IRenderedComponent<MudDialogProvider> SetupContext(BunitContext ctx)
     {
-        var authCtx = ctx.AddTestAuthorization();
+        var authCtx = ctx.AddAuthorization();
         authCtx.SetAuthorized("testuser@test.local");
 
         ctx.Services.AddMudServices(cfg =>
@@ -36,9 +36,9 @@ public class PickOrAddDialogTests
 
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
-        ctx.RenderComponent<MudPopoverProvider>();
-        var dialogProvider = ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        var dialogProvider = ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
         return dialogProvider;
     }
 
@@ -54,7 +54,7 @@ public class PickOrAddDialogTests
     [Fact]
     public async Task OnUsePicked_ReturningNonNull_ClosesDialogWithResult()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var provider = SetupContext(ctx);
         var dialogService = ctx.Services.GetRequiredService<IDialogService>();
         var rowToPick = new TestRow { Id = 123 };
@@ -87,7 +87,7 @@ public class PickOrAddDialogTests
     [Fact]
     public async Task OnUsePicked_ReturningNull_KeepsDialogOpen()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var provider = SetupContext(ctx);
         var dialogService = ctx.Services.GetRequiredService<IDialogService>();
         var rowToPick = new TestRow { Id = 123 };
@@ -117,7 +117,7 @@ public class PickOrAddDialogTests
     [Fact]
     public async Task OnSaveAndUse_ReturningNonNull_ClosesDialogWithResult()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var provider = SetupContext(ctx);
         var dialogService = ctx.Services.GetRequiredService<IDialogService>();
         const string expectedResult = "Saved-Result-456";
@@ -156,7 +156,7 @@ public class PickOrAddDialogTests
     [Fact]
     public async Task OnSaveAndUse_ReturningNull_KeepsDialogOpen()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var provider = SetupContext(ctx);
         var dialogService = ctx.Services.GetRequiredService<IDialogService>();
 
@@ -185,7 +185,7 @@ public class PickOrAddDialogTests
     [Fact]
     public async Task OnAdd_RaisedWhenAddButtonClicked()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var provider = SetupContext(ctx);
         var dialogService = ctx.Services.GetRequiredService<IDialogService>();
         var addCount = 0;

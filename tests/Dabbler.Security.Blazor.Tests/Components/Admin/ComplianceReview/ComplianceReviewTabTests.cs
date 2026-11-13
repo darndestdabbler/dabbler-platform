@@ -29,10 +29,10 @@ public sealed class ComplianceReviewTabTests
         public DabblerSecurityDbContext CreateDbContext() => new(_options);
     }
 
-    private static (TestContext Ctx, DbContextOptions<DabblerSecurityDbContext> Options) Build(
+    private static (BunitContext Ctx, DbContextOptions<DabblerSecurityDbContext> Options) Build(
         Action<DabblerSecurityDbContext>? seed = null)
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
 
         var options = new DbContextOptionsBuilder<DabblerSecurityDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
@@ -56,12 +56,12 @@ public sealed class ComplianceReviewTabTests
     }
 
     [Fact]
-    public void Tab_HeaderAndScrollRegion_RenderForAnyRole()
+    public async Task Tab_HeaderAndScrollRegion_RenderForAnyRole()
     {
         var (ctx, _) = Build();
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<ComplianceReviewTab>();
+        var cut = ctx.Render<ComplianceReviewTab>();
 
         cut.Find("[data-testid='compliance-review-tab']").Should().NotBeNull();
         cut.Find("[data-testid='compliance-review-grid-scroll-region']").Should().NotBeNull();
@@ -69,7 +69,7 @@ public sealed class ComplianceReviewTabTests
     }
 
     [Fact]
-    public void Grid_RendersSeededRowsWithEventChips()
+    public async Task Grid_RendersSeededRowsWithEventChips()
     {
         var correlation = Guid.NewGuid();
         var (ctx, _) = Build(seed =>
@@ -94,9 +94,9 @@ public sealed class ComplianceReviewTabTests
                 ColumnKey = "SocialSecurityNumber",
             });
         });
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<ComplianceReviewTab>();
+        var cut = ctx.Render<ComplianceReviewTab>();
 
         // Wait for ServerData callback to populate.
         cut.WaitForAssertion(() =>
@@ -133,9 +133,9 @@ public sealed class ComplianceReviewTabTests
                     RoleName = "CrossOrgUserAdmin",
                 });
         });
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<ComplianceReviewTab>();
+        var cut = ctx.Render<ComplianceReviewTab>();
 
         cut.WaitForAssertion(() =>
             cut.Find("[data-testid='compliance-review-count']")
@@ -158,7 +158,7 @@ public sealed class ComplianceReviewTabTests
     }
 
     [Fact]
-    public void RowExpander_ListsCorrelationSiblings_ExcludingAnchor()
+    public async Task RowExpander_ListsCorrelationSiblings_ExcludingAnchor()
     {
         var correlation = Guid.NewGuid();
         var (ctx, _) = Build(seed =>
@@ -186,9 +186,9 @@ public sealed class ComplianceReviewTabTests
                     ColumnKey = "SocialSecurityNumber",
                 });
         });
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<ComplianceReviewTab>();
+        var cut = ctx.Render<ComplianceReviewTab>();
 
         cut.WaitForAssertion(() =>
             cut.Find("[data-testid='compliance-review-count']")
@@ -235,7 +235,7 @@ public sealed class ComplianceReviewTabTests
                 GranterUserId = 5,
             });
         });
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
         // Capture the dynamic ES-module reference + downloadFile call. bUnit
         // routes JS interop through its mock; loose mode means the import call
@@ -246,7 +246,7 @@ public sealed class ComplianceReviewTabTests
         var downloadHandler = importHandler.SetupVoid(
             "downloadFile", _ => true);
 
-        var cut = ctx.RenderComponent<ComplianceReviewTab>();
+        var cut = ctx.Render<ComplianceReviewTab>();
 
         cut.WaitForAssertion(() =>
         {

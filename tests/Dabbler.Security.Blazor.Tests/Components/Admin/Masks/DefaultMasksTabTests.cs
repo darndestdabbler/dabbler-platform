@@ -14,10 +14,10 @@ namespace Dabbler.Security.Blazor.Tests.Components.Admin.Masks;
 
 public class DefaultMasksTabTests
 {
-    private static (TestContext Ctx, SecurityConfigurationManager Manager) Build(
+    private static (BunitContext Ctx, SecurityConfigurationManager Manager) Build(
         SecurityConfiguration config)
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         var store = new Mock<ISecurityConfigurationStore>();
         store.Setup(s => s.LoadAsync(default)).ReturnsAsync(config);
         store.Setup(s => s.SaveAsync(It.IsAny<SecurityConfiguration>(), default))
@@ -49,12 +49,12 @@ public class DefaultMasksTabTests
     }
 
     [Fact]
-    public void Renders_HeaderAndGrid_WithoutSafetyNet()
+    public async Task Renders_HeaderAndGrid_WithoutSafetyNet()
     {
         var (ctx, _) = Build(new SecurityConfiguration());
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<DefaultMasksTab>();
+        var cut = ctx.Render<DefaultMasksTab>();
 
         cut.Find("[data-testid='default-masks-tab']").Should().NotBeNull();
         cut.Find("[data-testid='default-masks-grid-container']").Should().NotBeNull();
@@ -76,9 +76,9 @@ public class DefaultMasksTabTests
                 new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" },
             ],
         });
-        using var _1 = ctx;
+        await using var _1 = ctx;
 
-        var cut = ctx.RenderComponent<DefaultMasksTab>();
+        var cut = ctx.Render<DefaultMasksTab>();
         var grid = cut.FindComponent<DefaultMasksGrid>();
 
         cut.Find("[data-testid='default-masks-shell-header']").Click();

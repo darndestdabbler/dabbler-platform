@@ -18,9 +18,9 @@ public class DirtyAwareActionRowTests
     /// markup. The project's <c>SetupForDabblerComponents</c> helper renders
     /// the provider but does not return it.
     /// </summary>
-    private static (TestContext Ctx, IRenderedComponent<MudDialogProvider> DialogProvider) CreateContextWithDialogProvider()
+    private static (BunitContext Ctx, IRenderedComponent<MudDialogProvider> DialogProvider) CreateContextWithDialogProvider()
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         ctx.Services.AddMudServices(cfg =>
         {
             cfg.SnackbarConfiguration.ShowTransitionDuration = 0;
@@ -28,31 +28,31 @@ public class DirtyAwareActionRowTests
         });
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
-        ctx.RenderComponent<MudPopoverProvider>();
-        var dialogProvider = ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        var dialogProvider = ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
 
         return (ctx, dialogProvider);
     }
 
     [Fact]
-    public void Renders_SaveButton_WithDefaultTestId()
+    public async Task Renders_SaveButton_WithDefaultTestId()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>();
+            var cut = ctx.Render<DirtyAwareActionRow>();
             cut.Find("[data-testid='save-button']").Should().NotBeNull();
         }
     }
 
     [Fact]
-    public void SaveButton_IsDisabled_WhenNotDirty()
+    public async Task SaveButton_IsDisabled_WhenNotDirty()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, false));
 
             cut.Find("[data-testid='save-button']").HasAttribute("disabled").Should().BeTrue();
@@ -60,12 +60,12 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void SaveButton_IsEnabled_WhenDirtyAndNotSaving()
+    public async Task SaveButton_IsEnabled_WhenDirtyAndNotSaving()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, true)
                 .Add(x => x.Saving, false));
 
@@ -74,12 +74,12 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void SaveButton_IsDisabled_WhenSaving()
+    public async Task SaveButton_IsDisabled_WhenSaving()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, true)
                 .Add(x => x.Saving, true));
 
@@ -88,13 +88,13 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void SaveButton_OnClick_InvokesOnSaveCallback()
+    public async Task SaveButton_OnClick_InvokesOnSaveCallback()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
             var onSaveCalled = false;
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, true)
                 .Add(x => x.OnSave, EventCallback.Factory.Create(this, () => onSaveCalled = true)));
 
@@ -105,35 +105,35 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CancelButton_RendersByDefault_WithDefaultTestId()
+    public async Task CancelButton_RendersByDefault_WithDefaultTestId()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>();
+            var cut = ctx.Render<DirtyAwareActionRow>();
             cut.Find("[data-testid='cancel-button']").Should().NotBeNull();
         }
     }
 
     [Fact]
-    public void CancelButton_IsNotRendered_WhenShowCancelIsFalse()
+    public async Task CancelButton_IsNotRendered_WhenShowCancelIsFalse()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.ShowCancel, false));
             cut.FindAll("[data-testid='cancel-button']").Should().BeEmpty();
         }
     }
 
     [Fact]
-    public void CancelButton_LabelIsClose_WhenNotDirty()
+    public async Task CancelButton_LabelIsClose_WhenNotDirty()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, false)
                 .Add(x => x.CloseLabel, "Test Close"));
             cut.Find("[data-testid='cancel-button']").TextContent.Trim().Should().Be("Test Close");
@@ -141,12 +141,12 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CancelButton_LabelIsCancel_WhenDirty()
+    public async Task CancelButton_LabelIsCancel_WhenDirty()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, true)
                 .Add(x => x.CancelLabel, "Test Cancel"));
             cut.Find("[data-testid='cancel-button']").TextContent.Trim().Should().Be("Test Cancel");
@@ -154,13 +154,13 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CancelButton_OnClick_InvokesOnCancelDirectly_WhenNotDirty()
+    public async Task CancelButton_OnClick_InvokesOnCancelDirectly_WhenNotDirty()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
             var onCancelCalled = false;
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, false)
                 .Add(x => x.OnCancel, EventCallback.Factory.Create(this, () => onCancelCalled = true)));
 
@@ -171,13 +171,13 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CancelButton_OnClick_ShowsDialogAndInvokesOnCancel_WhenDirtyAndConfirmed()
+    public async Task CancelButton_OnClick_ShowsDialogAndInvokesOnCancel_WhenDirtyAndConfirmed()
     {
         var (ctx, dialogProvider) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
             var onCancelCalled = false;
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, true)
                 .Add(x => x.OnCancel, EventCallback.Factory.Create(this, () => onCancelCalled = true)));
 
@@ -195,13 +195,13 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CancelButton_OnClick_ShowsDialogAndDoesNotInvokeOnCancel_WhenDirtyAndDismissed()
+    public async Task CancelButton_OnClick_ShowsDialogAndDoesNotInvokeOnCancel_WhenDirtyAndDismissed()
     {
         var (ctx, dialogProvider) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
             var onCancelCalled = false;
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.IsDirty, true)
                 .Add(x => x.OnCancel, EventCallback.Factory.Create(this, () => onCancelCalled = true)));
 
@@ -219,35 +219,35 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void DeleteButton_IsNotRendered_WhenOnDeleteHasNoDelegate()
+    public async Task DeleteButton_IsNotRendered_WhenOnDeleteHasNoDelegate()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>();
+            var cut = ctx.Render<DirtyAwareActionRow>();
             cut.FindAll("[data-testid='delete-button']").Should().BeEmpty();
         }
     }
 
     [Fact]
-    public void DeleteButton_IsRendered_WhenOnDeleteHasDelegate()
+    public async Task DeleteButton_IsRendered_WhenOnDeleteHasDelegate()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.OnDelete, EventCallback.Factory.Create(this, () => { })));
             cut.Find("[data-testid='delete-button']").Should().NotBeNull();
         }
     }
 
     [Fact]
-    public void DeleteButton_IsDisabled_WhenCanDeleteIsFalse()
+    public async Task DeleteButton_IsDisabled_WhenCanDeleteIsFalse()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.OnDelete, EventCallback.Factory.Create(this, () => { }))
                 .Add(x => x.CanDelete, false));
             cut.Find("[data-testid='delete-button']").HasAttribute("disabled").Should().BeTrue();
@@ -255,13 +255,13 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void DeleteButton_OnClick_ShowsDialogAndInvokesOnDelete_WhenConfirmed()
+    public async Task DeleteButton_OnClick_ShowsDialogAndInvokesOnDelete_WhenConfirmed()
     {
         var (ctx, dialogProvider) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
             var onDeleteCalled = false;
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.OnDelete, EventCallback.Factory.Create(this, () => onDeleteCalled = true)));
 
             cut.Find("[data-testid='delete-button']").Click();
@@ -278,13 +278,13 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void DeleteButton_OnClick_DoesNotInvokeOnDelete_WhenConfirmationDismissed()
+    public async Task DeleteButton_OnClick_DoesNotInvokeOnDelete_WhenConfirmationDismissed()
     {
         var (ctx, dialogProvider) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
             var onDeleteCalled = false;
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.OnDelete, EventCallback.Factory.Create(this, () => onDeleteCalled = true)));
 
             cut.Find("[data-testid='delete-button']").Click();
@@ -301,12 +301,12 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CustomActions_AreRendered()
+    public async Task CustomActions_AreRendered()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.CustomActions,
                     builder => builder.AddMarkupContent(0, "<div data-testid='custom-action'></div>")));
             cut.Find("[data-testid='custom-action']").Should().NotBeNull();
@@ -314,12 +314,12 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CustomActions_RenderAtEnd_ByDefault()
+    public async Task CustomActions_RenderAtEnd_ByDefault()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.OnDelete, EventCallback.Factory.Create(this, () => { }))
                 .Add(x => x.CustomActions,
                     builder => builder.AddMarkupContent(0, "<button data-testid='custom-action'></button>")));
@@ -345,12 +345,12 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CustomActions_RenderAtStart_WhenPositionIsStart()
+    public async Task CustomActions_RenderAtStart_WhenPositionIsStart()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.OnDelete, EventCallback.Factory.Create(this, () => { }))
                 .Add(x => x.CustomActionsPosition, ActionRowSlot.Start)
                 .Add(x => x.CustomActions,
@@ -376,12 +376,12 @@ public class DirtyAwareActionRowTests
     }
 
     [Fact]
-    public void CustomTestIds_AreAppliedToButtons()
+    public async Task CustomTestIds_AreAppliedToButtons()
     {
         var (ctx, _) = CreateContextWithDialogProvider();
-        using (ctx)
+        await using (ctx)
         {
-            var cut = ctx.RenderComponent<DirtyAwareActionRow>(p => p
+            var cut = ctx.Render<DirtyAwareActionRow>(p => p
                 .Add(x => x.OnDelete, EventCallback.Factory.Create(this, () => { }))
                 .Add(x => x.SaveTestId, "my-save")
                 .Add(x => x.CancelTestId, "my-cancel")

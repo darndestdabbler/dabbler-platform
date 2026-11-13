@@ -12,36 +12,36 @@ namespace Dabbler.Security.Blazor.Tests;
 public class DiagnosticTests
 {
     [Fact]
-    public void FreshContext_CanAddServices()
+    public async Task FreshContext_CanAddServices()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         // Can we add any service on a brand-new context?
         ctx.Services.AddSingleton<string>("hello");
         // No assertion needed — just check it doesn't throw
     }
 
     [Fact]
-    public void FreshContext_AddTestAuthorization_Works()
+    public async Task FreshContext_AddTestAuthorization_Works()
     {
-        using var ctx = new TestContext();
-        // AddTestAuthorization immediately on a fresh context
-        ctx.AddTestAuthorization();
+        await using var ctx = new BunitContext();
+        // AddAuthorization immediately on a fresh context
+        ctx.AddAuthorization();
     }
 
     [Fact]
-    public void FreshContext_AddMudServices_ThenAddSingleton_Works()
+    public async Task FreshContext_AddMudServices_ThenAddSingleton_Works()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.Services.AddMudServices();
         // Can we still add services after AddMudServices?
         ctx.Services.AddSingleton<string>("hello");
     }
 
     [Fact]
-    public void FreshContext_AddMudServices_ThenAddTestAuthorization_Works()
+    public async Task FreshContext_AddMudServices_ThenAddTestAuthorization_Works()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.Services.AddMudServices();
-        ctx.AddTestAuthorization(); // is this still possible?
+        ctx.AddAuthorization(); // is this still possible?
     }
 }

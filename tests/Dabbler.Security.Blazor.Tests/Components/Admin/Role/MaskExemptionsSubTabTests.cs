@@ -25,23 +25,23 @@ public class MaskExemptionsSubTabTests
     }
 
     [Fact]
-    public void NoDefaultMasks_ShowsGuidanceAlert()
+    public async Task NoDefaultMasks_ShowsGuidanceAlert()
     {
         var config = new SecurityConfiguration(); // no DefaultMasks
 
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, config));
 
-        var cut = ctx.RenderComponent<MaskExemptionsSubTab>(p => p
+        var cut = ctx.Render<MaskExemptionsSubTab>(p => p
             .Add(c => c.TargetRoleName, "BackofficeUser"));
 
         cut.Find("[data-testid='mask-exemption-no-defaults']").Should().NotBeNull();
     }
 
     [Fact]
-    public void ExistingExemptionForRole_RendersInGrid()
+    public async Task ExistingExemptionForRole_RendersInGrid()
     {
         var config = new SecurityConfiguration
         {
@@ -63,12 +63,12 @@ public class MaskExemptionsSubTabTests
             ],
         };
 
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, config));
 
-        var cut = ctx.RenderComponent<MaskExemptionsSubTab>(p => p
+        var cut = ctx.Render<MaskExemptionsSubTab>(p => p
             .Add(c => c.TargetRoleName, "BackofficeUser"));
 
         cut.Find("[data-testid='mask-exemption-grid']").Should().NotBeNull();
@@ -77,7 +77,7 @@ public class MaskExemptionsSubTabTests
     }
 
     [Fact]
-    public void ExpiredExemption_RendersWithExpiredChipAndRenewAction()
+    public async Task ExpiredExemption_RendersWithExpiredChipAndRenewAction()
     {
         var config = new SecurityConfiguration
         {
@@ -99,12 +99,12 @@ public class MaskExemptionsSubTabTests
             ],
         };
 
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, config));
 
-        var cut = ctx.RenderComponent<MaskExemptionsSubTab>(p => p
+        var cut = ctx.Render<MaskExemptionsSubTab>(p => p
             .Add(c => c.TargetRoleName, "BackofficeUser"));
 
         cut.Find("[data-testid='mask-exemption-status-expired-Customer-SocialSecurityNumber']")
@@ -114,7 +114,7 @@ public class MaskExemptionsSubTabTests
     }
 
     [Fact]
-    public void ExemptionsForDifferentRole_DoNotAppear()
+    public async Task ExemptionsForDifferentRole_DoNotAppear()
     {
         var config = new SecurityConfiguration
         {
@@ -135,12 +135,12 @@ public class MaskExemptionsSubTabTests
             ],
         };
 
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => RegisterServices(svc, config));
 
-        var cut = ctx.RenderComponent<MaskExemptionsSubTab>(p => p
+        var cut = ctx.Render<MaskExemptionsSubTab>(p => p
             .Add(c => c.TargetRoleName, "BackofficeUser"));
 
         cut.Find("[data-testid='mask-exemption-empty']").Should().NotBeNull();

@@ -6,21 +6,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Admin;
 
-public class UserListPageTests : IDisposable
+public class UserListPageTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly Mock<IUserService> _userSvcMock;
 
     public UserListPageTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _userSvcMock = new Mock<IUserService>();
         _ctx.SetupForDabbler(
             roles: ["UserAdministrator"],
             configureServices: s => s.AddSingleton(_userSvcMock.Object));
     }
 
-    public void Dispose() => _ctx.Dispose();
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync() => _ctx.DisposeAsync().AsTask();
 
     private static AppUser MakeUser(int id, string email, bool active = true, string[]? roles = null) =>
         new()
@@ -42,7 +44,7 @@ public class UserListPageTests : IDisposable
     public void UserListPage_RendersHeading()
     {
         _userSvcMock.Setup(s => s.GetAllAsync()).ReturnsAsync([]);
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
         cut.Markup.Should().Contain("User Management");
     }
 
@@ -56,7 +58,7 @@ public class UserListPageTests : IDisposable
         };
         _userSvcMock.Setup(s => s.GetAllAsync()).ReturnsAsync(users);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() =>
         {
@@ -71,7 +73,7 @@ public class UserListPageTests : IDisposable
         _userSvcMock.Setup(s => s.GetAllAsync())
             .ReturnsAsync([MakeUser(1, "active@test.local", active: true)]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Active"));
     }
@@ -82,7 +84,7 @@ public class UserListPageTests : IDisposable
         _userSvcMock.Setup(s => s.GetAllAsync())
             .ReturnsAsync([MakeUser(2, "inactive@test.local", active: false)]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Inactive"));
     }
@@ -93,7 +95,7 @@ public class UserListPageTests : IDisposable
         _userSvcMock.Setup(s => s.GetAllAsync())
             .ReturnsAsync([MakeUser(1, "admin@test.local", roles: ["UserAdministrator", "Manager"])]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() =>
         {
@@ -106,7 +108,7 @@ public class UserListPageTests : IDisposable
     public void UserListPage_HasNewUserButton()
     {
         _userSvcMock.Setup(s => s.GetAllAsync()).ReturnsAsync([]);
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
         cut.Markup.Should().Contain("New User");
     }
 
@@ -116,7 +118,7 @@ public class UserListPageTests : IDisposable
         _userSvcMock.Setup(s => s.GetAllAsync())
             .ReturnsAsync([MakeUser(7, "alice@test.local")]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() =>
         {
@@ -129,7 +131,7 @@ public class UserListPageTests : IDisposable
     public void UserListPage_EmptyList_RendersWithoutError()
     {
         _userSvcMock.Setup(s => s.GetAllAsync()).ReturnsAsync([]);
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
         cut.Markup.Should().NotBeNullOrEmpty();
     }
 
@@ -137,7 +139,7 @@ public class UserListPageTests : IDisposable
     public void UserListPage_ClickNewUser_NavigatesToCreatePage()
     {
         _userSvcMock.Setup(s => s.GetAllAsync()).ReturnsAsync([]);
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() => cut.FindAll("button").Should().NotBeEmpty());
         var buttons = cut.FindAll("button");

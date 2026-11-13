@@ -46,7 +46,7 @@ public class RestrictedFormFieldTests
         };
 
     [Fact]
-    public void HiddenRestriction_RendersNothing()
+    public async Task HiddenRestriction_RendersNothing()
     {
         var config = new SecurityConfiguration
         {
@@ -62,12 +62,12 @@ public class RestrictedFormFieldTests
                 },
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Warehouse"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));
@@ -77,7 +77,7 @@ public class RestrictedFormFieldTests
     }
 
     [Fact]
-    public void ViewOnlyRestriction_PassesReadOnlyStateToChild()
+    public async Task ViewOnlyRestriction_PassesReadOnlyStateToChild()
     {
         var config = new SecurityConfiguration
         {
@@ -93,12 +93,12 @@ public class RestrictedFormFieldTests
                 },
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Backoffice"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));
@@ -110,18 +110,18 @@ public class RestrictedFormFieldTests
     }
 
     [Fact]
-    public void NoRestriction_PassesEditableStateToChild()
+    public async Task NoRestriction_PassesEditableStateToChild()
     {
         var config = new SecurityConfiguration
         {
             UserTypeRoles = [new RoleDefinition { RoleName = "Open" }],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Open"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));
@@ -132,7 +132,7 @@ public class RestrictedFormFieldTests
     }
 
     [Fact]
-    public void BakedInRole_BypassesRestriction()
+    public async Task BakedInRole_BypassesRestriction()
     {
         var config = new SecurityConfiguration
         {
@@ -148,12 +148,12 @@ public class RestrictedFormFieldTests
                 },
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: [BakedInRoles.SystemAdmin],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));
@@ -164,7 +164,7 @@ public class RestrictedFormFieldTests
     }
 
     [Fact]
-    public void DefaultMask_NoExemption_RendersPlaceholderInsteadOfChild()
+    public async Task DefaultMask_NoExemption_RendersPlaceholderInsteadOfChild()
     {
         var config = new SecurityConfiguration
         {
@@ -174,12 +174,12 @@ public class RestrictedFormFieldTests
                 new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" }
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Customer"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Customer")
             .Add(c => c.ColumnKey, "SocialSecurityNumber")
             .Add(c => c.ChildContent, StateProbe()));
@@ -194,7 +194,7 @@ public class RestrictedFormFieldTests
     }
 
     [Fact]
-    public void DefaultMask_CustomMaskedTemplate_OverridesPlaceholder()
+    public async Task DefaultMask_CustomMaskedTemplate_OverridesPlaceholder()
     {
         var config = new SecurityConfiguration
         {
@@ -204,7 +204,7 @@ public class RestrictedFormFieldTests
                 new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" }
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Customer"],
             configureServices: svc => Register(svc, config));
@@ -214,7 +214,7 @@ public class RestrictedFormFieldTests
             b.AddMarkupContent(0, $"<span data-testid='custom-mask' data-fmt='{state.MaskFormat}'>fancy</span>");
         };
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Customer")
             .Add(c => c.ColumnKey, "SocialSecurityNumber")
             .Add(c => c.MaskedTemplate, custom)
@@ -227,7 +227,7 @@ public class RestrictedFormFieldTests
     }
 
     [Fact]
-    public void DefaultMask_WithStoredValue_RendersTokenSubstitutedMask()
+    public async Task DefaultMask_WithStoredValue_RendersTokenSubstitutedMask()
     {
         // Spec §Session 1 step 6: Customer.SocialSecurityNumber = "123-45-6789" +
         // default mask "XXX-XX-{last4}" → renders as "XXX-XX-6789".
@@ -239,12 +239,12 @@ public class RestrictedFormFieldTests
                 new DefaultMaskRule { EntityKey = "Customer", ColumnKey = "SocialSecurityNumber", MaskFormat = "XXX-XX-{last4}" }
             ],
         };
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Customer"],
             configureServices: svc => Register(svc, config));
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Customer")
             .Add(c => c.ColumnKey, "SocialSecurityNumber")
             .Add(c => c.Value, "123-45-6789")
@@ -263,7 +263,7 @@ public class RestrictedFormFieldTests
             UserTypeRoles = [new RoleDefinition { RoleName = "Open" }],
         };
         var manager = BuildManager(initialConfig);
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(
             roles: ["Open"],
             configureServices: svc =>
@@ -273,7 +273,7 @@ public class RestrictedFormFieldTests
                 svc.AddScoped<IRestrictionBinder, RestrictionBinder>();
             });
 
-        var cut = ctx.RenderComponent<RestrictedFormField>(p => p
+        var cut = ctx.Render<RestrictedFormField>(p => p
             .Add(c => c.EntityKey, "Product")
             .Add(c => c.ColumnKey, "UnitPrice")
             .Add(c => c.ChildContent, StateProbe()));

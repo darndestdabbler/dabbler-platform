@@ -7,15 +7,15 @@ using RichardSzalay.MockHttp;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Auth;
 
-public class LoginPageTests : IDisposable
+public class LoginPageTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly MockHttpMessageHandler _mock;
 
     public LoginPageTests()
     {
         _mock = new MockHttpMessageHandler();
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _ctx.SetupForDabbler(configureServices: services =>
         {
             var client = _mock.ToHttpClient();
@@ -24,9 +24,11 @@ public class LoginPageTests : IDisposable
         });
     }
 
-    public void Dispose()
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public async Task DisposeAsync()
     {
-        _ctx.Dispose();
+        await _ctx.DisposeAsync();
         _mock.Dispose();
     }
 
@@ -43,7 +45,7 @@ public class LoginPageTests : IDisposable
     public void LoginPage_InitialRender_ShowsEmailInput()
     {
         NavigateToLogin();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Find("input").Should().NotBeNull();
         cut.Markup.Should().Contain("Sign In");
@@ -53,7 +55,7 @@ public class LoginPageTests : IDisposable
     public void LoginPage_InitialRender_ShowsSendLoginLinkButton()
     {
         NavigateToLogin();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().Contain("Send Login Link");
     }
@@ -65,7 +67,7 @@ public class LoginPageTests : IDisposable
             .Respond(HttpStatusCode.OK, "application/json", "{}");
 
         NavigateToLogin();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Find("input").Change("user@test.local");
         await cut.InvokeAsync(() => cut.Find("form").Submit());
@@ -82,7 +84,7 @@ public class LoginPageTests : IDisposable
             .Respond(HttpStatusCode.InternalServerError);
 
         NavigateToLogin();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Find("input").Change("user@test.local");
         await cut.InvokeAsync(() => cut.Find("form").Submit());
@@ -99,7 +101,7 @@ public class LoginPageTests : IDisposable
                 """{"requiresMfa":false,"success":true}""");
 
         NavigateToLogin(token: "auto-token-abc123");
-        _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         // Wait briefly for OnInitializedAsync to call /auth/verify
         await Task.Delay(200);
@@ -117,7 +119,7 @@ public class LoginPageTests : IDisposable
                 """{"requiresMfa":true,"userId":7}""");
 
         NavigateToLogin();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         // Step 1: request magic link
         cut.Find("input").Change("mfa@test.local");
@@ -145,7 +147,7 @@ public class LoginPageTests : IDisposable
                 """{"requiresMfa":false,"success":true}""");
 
         NavigateToLogin();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Find("input").Change("user@test.local");
         await cut.InvokeAsync(() => cut.Find("form").Submit());

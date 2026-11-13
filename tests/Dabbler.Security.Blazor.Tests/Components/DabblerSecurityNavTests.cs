@@ -8,7 +8,7 @@ using Moq;
 namespace Dabbler.Security.Blazor.Tests.Components;
 
 /// <summary>
-/// Each test gets its own TestContext so roles can differ between tests.
+/// Each test gets its own BunitContext so roles can differ between tests.
 /// DabblerSecurityNav now uses IUserRoleStore for role-based filtering
 /// instead of the declarative AuthorizeView approach.
 /// </summary>
@@ -23,57 +23,57 @@ public class DabblerSecurityNavTests
     }
 
     [Fact]
-    public void SystemAdministrator_RendersNavGroup()
+    public async Task SystemAdministrator_RendersNavGroup()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStore = BuildRoleStore("SystemAdministrator");
         ctx.SetupForDabbler(
             roles: ["SystemAdministrator"],
             configureServices: svc => svc.AddSingleton(roleStore.Object));
 
-        var cut = ctx.RenderComponent<DabblerSecurityNav>();
+        var cut = ctx.Render<DabblerSecurityNav>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Security Admin"));
     }
 
     [Fact]
-    public void UserAdministrator_RendersNavGroup()
+    public async Task UserAdministrator_RendersNavGroup()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStore = BuildRoleStore("UserAdministrator");
         ctx.SetupForDabbler(
             roles: ["UserAdministrator"],
             configureServices: svc => svc.AddSingleton(roleStore.Object));
 
-        var cut = ctx.RenderComponent<DabblerSecurityNav>();
+        var cut = ctx.Render<DabblerSecurityNav>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Security Admin"));
     }
 
     [Fact]
-    public void SystemAdministrator_ShowsSecurityDashboardLink()
+    public async Task SystemAdministrator_ShowsSecurityDashboardLink()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStore = BuildRoleStore("SystemAdministrator");
         ctx.SetupForDabbler(
             roles: ["SystemAdministrator"],
             configureServices: svc => svc.AddSingleton(roleStore.Object));
 
-        var cut = ctx.RenderComponent<DabblerSecurityNav>();
+        var cut = ctx.Render<DabblerSecurityNav>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("/admin/security"));
     }
 
     [Fact]
-    public void SystemAdministrator_RendersNavigationLandmark()
+    public async Task SystemAdministrator_RendersNavigationLandmark()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStore = BuildRoleStore("SystemAdministrator");
         ctx.SetupForDabbler(
             roles: ["SystemAdministrator"],
             configureServices: svc => svc.AddSingleton(roleStore.Object));
 
-        var cut = ctx.RenderComponent<DabblerSecurityNav>();
+        var cut = ctx.Render<DabblerSecurityNav>();
 
         cut.WaitForAssertion(() =>
         {
@@ -83,15 +83,15 @@ public class DabblerSecurityNavTests
     }
 
     [Fact]
-    public void SystemAdministrator_ShowsUsersAndAuditLinks()
+    public async Task SystemAdministrator_ShowsUsersAndAuditLinks()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStore = BuildRoleStore("SystemAdministrator");
         ctx.SetupForDabbler(
             roles: ["SystemAdministrator"],
             configureServices: svc => svc.AddSingleton(roleStore.Object));
 
-        var cut = ctx.RenderComponent<DabblerSecurityNav>();
+        var cut = ctx.Render<DabblerSecurityNav>();
 
         cut.WaitForAssertion(() =>
         {
@@ -101,30 +101,30 @@ public class DabblerSecurityNavTests
     }
 
     [Fact]
-    public void NonAdminUser_RendersNothing()
+    public async Task NonAdminUser_RendersNothing()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStore = BuildRoleStore("Viewer");
         ctx.SetupForDabbler(
             roles: ["Viewer"],
             configureServices: svc => svc.AddSingleton(roleStore.Object));
 
-        var cut = ctx.RenderComponent<DabblerSecurityNav>();
+        var cut = ctx.Render<DabblerSecurityNav>();
 
         cut.WaitForAssertion(() =>
             cut.Markup.Trim().Should().NotContain("Security Admin"));
     }
 
     [Fact]
-    public void AnonymousUser_RendersNothing()
+    public async Task AnonymousUser_RendersNothing()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStore = BuildRoleStore(); // no roles
         ctx.SetupForDabbler(
             roles: [], // unauthenticated
             configureServices: svc => svc.AddSingleton(roleStore.Object));
 
-        var cut = ctx.RenderComponent<DabblerSecurityNav>();
+        var cut = ctx.Render<DabblerSecurityNav>();
 
         // When unauthenticated, IsAuthenticated = false → _showSecurityAdmin stays false
         cut.Markup.Trim().Should().NotContain("Security Admin");

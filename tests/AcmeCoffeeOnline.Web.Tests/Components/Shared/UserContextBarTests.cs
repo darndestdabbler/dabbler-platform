@@ -1,6 +1,7 @@
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Web.Components.Shared;
 using Bunit;
+using Bunit.Rendering;
 using Dabbler.Security.Abstractions;
 using Dabbler.Security.Configuration;
 using Dabbler.Security.Services;
@@ -12,8 +13,12 @@ using MudBlazor.Services;
 
 namespace AcmeCoffeeOnline.Web.Tests.Components.Shared;
 
-public sealed class UserContextBarTests : TestContext
+public sealed class UserContextBarTests : BunitContext, IAsyncLifetime
 {
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    Task IAsyncLifetime.DisposeAsync() => DisposeAsync().AsTask();
+
     public UserContextBarTests()
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
@@ -362,7 +367,7 @@ public sealed class UserContextBarTests : TestContext
         Assert.Equal(initialUri, nav.Uri);
     }
 
-    private IRenderedFragment RenderBar(
+    private IRenderedComponent<ContainerFragment> RenderBar(
         string userName,
         IReadOnlyList<string> userRoles,
         string activeOrgName,
@@ -429,7 +434,7 @@ public sealed class UserContextBarTests : TestContext
             }
         ];
 
-    private static void AssertLinkEnabled(IRenderedFragment cut, string testId, string expectedText)
+    private static void AssertLinkEnabled(IRenderedComponent<ContainerFragment> cut, string testId, string expectedText)
     {
         var link = cut.Find($"[data-testid='{testId}']");
         Assert.Contains(expectedText, link.TextContent);
@@ -438,7 +443,7 @@ public sealed class UserContextBarTests : TestContext
             $"Expected link '{testId}' to be enabled, but aria-disabled=true");
     }
 
-    private static void AssertLinkDisabled(IRenderedFragment cut, string testId, string expectedText)
+    private static void AssertLinkDisabled(IRenderedComponent<ContainerFragment> cut, string testId, string expectedText)
     {
         var link = cut.Find($"[data-testid='{testId}']");
         Assert.Contains(expectedText, link.TextContent);

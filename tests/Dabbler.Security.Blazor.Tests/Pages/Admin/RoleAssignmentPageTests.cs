@@ -8,14 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Admin;
 
-public class RoleAssignmentPageTests : IDisposable
+public class RoleAssignmentPageTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly Mock<IUserService> _userSvcMock;
 
     public RoleAssignmentPageTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _userSvcMock = new Mock<IUserService>();
         _ctx.SetupForDabbler(
             roles: ["UserAdministrator"],
@@ -28,7 +28,9 @@ public class RoleAssignmentPageTests : IDisposable
             });
     }
 
-    public void Dispose() => _ctx.Dispose();
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync() => _ctx.DisposeAsync().AsTask();
 
     private DabblerSecurityDbContext GetDb() =>
         _ctx.Services.GetRequiredService<DabblerSecurityDbContext>();
@@ -60,7 +62,7 @@ public class RoleAssignmentPageTests : IDisposable
         db.AppRoles.Add(managerRole);
         await db.SaveChangesAsync();
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
             p => p.Add(x => x.UserId, 10));
 
         cut.WaitForAssertion(() =>
@@ -82,7 +84,7 @@ public class RoleAssignmentPageTests : IDisposable
         db.AppRoles.AddRange(managerRole, viewerRole);
         await db.SaveChangesAsync();
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
             p => p.Add(x => x.UserId, 11));
 
         cut.WaitForAssertion(() =>
@@ -103,7 +105,7 @@ public class RoleAssignmentPageTests : IDisposable
         db.AppRoles.Add(managerRole);
         await db.SaveChangesAsync();
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
             p => p.Add(x => x.UserId, 12));
 
         cut.WaitForAssertion(() =>
@@ -118,7 +120,7 @@ public class RoleAssignmentPageTests : IDisposable
     {
         _userSvcMock.Setup(s => s.GetByIdCachedAsync(999)).ReturnsAsync((AppUser?)null);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
             p => p.Add(x => x.UserId, 999));
 
         cut.WaitForAssertion(() =>
@@ -131,7 +133,7 @@ public class RoleAssignmentPageTests : IDisposable
         var user = MakeUser(13);
         _userSvcMock.Setup(s => s.GetByIdCachedAsync(13)).ReturnsAsync(user);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleAssignmentPage>(
             p => p.Add(x => x.UserId, 13));
 
         cut.WaitForAssertion(() => cut.FindAll("button").Should().NotBeEmpty());

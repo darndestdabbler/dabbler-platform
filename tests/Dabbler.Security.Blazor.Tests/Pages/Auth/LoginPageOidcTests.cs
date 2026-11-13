@@ -7,20 +7,22 @@ using RichardSzalay.MockHttp;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Auth;
 
-public class LoginPageOidcTests : IDisposable
+public class LoginPageOidcTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly MockHttpMessageHandler _mock;
 
     public LoginPageOidcTests()
     {
         _mock = new MockHttpMessageHandler();
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
     }
 
-    public void Dispose()
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public async Task DisposeAsync()
     {
-        _ctx.Dispose();
+        await _ctx.DisposeAsync();
         _mock.Dispose();
     }
 
@@ -51,7 +53,7 @@ public class LoginPageOidcTests : IDisposable
             o.ClientId = "test-client-id";
         }));
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().Contain("Sign in with your organization account");
     }
@@ -66,7 +68,7 @@ public class LoginPageOidcTests : IDisposable
             o.DisplayName = "Sign in with Contoso";
         }));
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().Contain("Sign in with Contoso");
     }
@@ -76,7 +78,7 @@ public class LoginPageOidcTests : IDisposable
     {
         Setup();
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().NotContain("Sign in with your organization account");
         cut.Markup.Should().Contain("Send Login Link");
@@ -91,7 +93,7 @@ public class LoginPageOidcTests : IDisposable
             o.ClientId = "test-client-id";
         }));
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().Contain("or sign in with email");
     }
@@ -101,7 +103,7 @@ public class LoginPageOidcTests : IDisposable
     {
         Setup();
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().NotContain("or sign in with email");
     }
@@ -123,7 +125,7 @@ public class LoginPageOidcTests : IDisposable
             });
         });
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().Contain("Sign in with Google");
         cut.Markup.Should().Contain("Sign in with GitHub");
@@ -138,7 +140,7 @@ public class LoginPageOidcTests : IDisposable
             o.ClientId = "test-client-id";
         }));
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         var providerButton = cut.FindAll("button")
             .FirstOrDefault(b => b.TextContent.Contains("Sign in with your organization account"));
@@ -158,7 +160,7 @@ public class LoginPageOidcTests : IDisposable
             o.ClientId = "test-client-id";
         }));
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.LoginPage>();
 
         cut.Markup.Should().Contain("Send Login Link");
         cut.Markup.Should().Contain("Email Address");

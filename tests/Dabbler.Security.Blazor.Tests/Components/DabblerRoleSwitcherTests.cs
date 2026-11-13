@@ -22,9 +22,9 @@ public class DabblerRoleSwitcherTests
     }
 
     [Fact]
-    public void HiddenWhenUserNotInAllowedRoles()
+    public async Task HiddenWhenUserNotInAllowedRoles()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             RoleSwitching = new RoleSwitchingPermission { AllowedRoles = ["SystemAdministrator"] }
@@ -38,16 +38,16 @@ public class DabblerRoleSwitcherTests
                 svc.AddSingleton<AuthorizationStateNotifier>();
             });
 
-        var cut = ctx.RenderComponent<DabblerRoleSwitcher>();
+        var cut = ctx.Render<DabblerRoleSwitcher>();
 
         // The switcher div should not be rendered
         cut.Markup.Should().NotContain("Switch role");
     }
 
     [Fact]
-    public void VisibleWhenUserIsInAllowedRoles()
+    public async Task VisibleWhenUserIsInAllowedRoles()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             Roles =
@@ -66,15 +66,15 @@ public class DabblerRoleSwitcherTests
                 svc.AddSingleton<AuthorizationStateNotifier>();
             });
 
-        var cut = ctx.RenderComponent<DabblerRoleSwitcher>();
+        var cut = ctx.Render<DabblerRoleSwitcher>();
 
         cut.Markup.Should().Contain("Switch role");
     }
 
     [Fact]
-    public void VisibleSwitcher_RendersAccessibleActivatorAttributes()
+    public async Task VisibleSwitcher_RendersAccessibleActivatorAttributes()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             Roles =
@@ -92,7 +92,7 @@ public class DabblerRoleSwitcherTests
                 svc.AddSingleton<AuthorizationStateNotifier>();
             });
 
-        var cut = ctx.RenderComponent<DabblerRoleSwitcher>();
+        var cut = ctx.Render<DabblerRoleSwitcher>();
 
         cut.WaitForAssertion(() =>
         {
@@ -104,9 +104,9 @@ public class DabblerRoleSwitcherTests
     }
 
     [Fact]
-    public void NoAllowedRoles_AlwaysHidden()
+    public async Task NoAllowedRoles_AlwaysHidden()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             RoleSwitching = new RoleSwitchingPermission { AllowedRoles = [] } // empty
@@ -120,7 +120,7 @@ public class DabblerRoleSwitcherTests
                 svc.AddSingleton<AuthorizationStateNotifier>();
             });
 
-        var cut = ctx.RenderComponent<DabblerRoleSwitcher>();
+        var cut = ctx.Render<DabblerRoleSwitcher>();
 
         cut.Markup.Should().NotContain("Switch role");
     }
@@ -128,7 +128,7 @@ public class DabblerRoleSwitcherTests
     [Fact]
     public async Task SwitchButton_CallsRoleSwitcherSwitchToRole()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var config = new SecurityConfiguration
         {
             Roles =
@@ -156,7 +156,7 @@ public class DabblerRoleSwitcherTests
                 svc.AddScoped(_ => roleSwitcherMock.Object);
             });
 
-        var cut = ctx.RenderComponent<DabblerRoleSwitcher>();
+        var cut = ctx.Render<DabblerRoleSwitcher>();
 
         // Switch button is disabled until a role is selected — just verify the component renders.
         // MudSelect options render inside MudPopoverProvider (outside the component's own markup),

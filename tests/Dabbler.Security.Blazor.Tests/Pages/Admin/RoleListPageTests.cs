@@ -11,13 +11,13 @@ namespace Dabbler.Security.Blazor.Tests.Pages.Admin;
 /// Tests for RoleListPage. The page uses DabblerSecurityDbContext directly,
 /// so we provide an EF Core InMemory database seeded with test data.
 /// </summary>
-public class RoleListPageTests : IDisposable
+public class RoleListPageTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
 
     public RoleListPageTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _ctx.SetupForDabbler(
             roles: ["UserAdministrator"],
             configureServices: s =>
@@ -27,7 +27,9 @@ public class RoleListPageTests : IDisposable
             });
     }
 
-    public void Dispose() => _ctx.Dispose();
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync() => _ctx.DisposeAsync().AsTask();
 
     private DabblerSecurityDbContext GetDb() =>
         _ctx.Services.GetRequiredService<DabblerSecurityDbContext>();
@@ -43,7 +45,7 @@ public class RoleListPageTests : IDisposable
     public async Task RoleListPage_RendersHeading()
     {
         await SeedRolesAsync();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
         cut.Markup.Should().Contain("Role Management");
     }
 
@@ -51,7 +53,7 @@ public class RoleListPageTests : IDisposable
     public async Task RoleListPage_ShowsReadOnlyNotice()
     {
         await SeedRolesAsync();
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
         cut.Markup.Should().Contain("migration metadata");
     }
 
@@ -63,7 +65,7 @@ public class RoleListPageTests : IDisposable
             new AppRole { Id = 2, Name = "Viewer",  Description = "Read only" }
         );
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
 
         cut.WaitForAssertion(() =>
         {
@@ -79,7 +81,7 @@ public class RoleListPageTests : IDisposable
             new AppRole { Id = 3, Name = "UserAdministrator", Description = "System role", IsSystemRole = true }
         );
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("System"));
     }
@@ -91,7 +93,7 @@ public class RoleListPageTests : IDisposable
             new AppRole { Id = 1, Name = "Manager", Description = string.Empty }
         );
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("View Permissions"));
     }
@@ -104,7 +106,7 @@ public class RoleListPageTests : IDisposable
             new AppRole { Id = 2, Name = "Deleted Role", Description = string.Empty, DeletedAt = DateTime.UtcNow.AddDays(-1) }
         );
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
 
         cut.WaitForAssertion(() =>
         {
@@ -120,7 +122,7 @@ public class RoleListPageTests : IDisposable
             new AppRole { Id = 1, Name = "Manager", Description = string.Empty }
         );
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.RoleListPage>();
         cut.WaitForAssertion(() => cut.FindAll("button").Any(b => b.TextContent.Contains("View Permissions")).Should().BeTrue());
 
         var btn = cut.FindAll("button").First(b => b.TextContent.Contains("View Permissions"));

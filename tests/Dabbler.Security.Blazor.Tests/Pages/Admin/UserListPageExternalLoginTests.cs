@@ -6,21 +6,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Admin;
 
-public class UserListPageExternalLoginTests : IDisposable
+public class UserListPageExternalLoginTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly Mock<IUserService> _userSvcMock;
 
     public UserListPageExternalLoginTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _userSvcMock = new Mock<IUserService>();
         _ctx.SetupForDabbler(
             roles: ["UserAdministrator"],
             configureServices: s => s.AddSingleton(_userSvcMock.Object));
     }
 
-    public void Dispose() => _ctx.Dispose();
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync() => _ctx.DisposeAsync().AsTask();
 
     private static AppUser MakeUser(
         int id, string email,
@@ -59,7 +61,7 @@ public class UserListPageExternalLoginTests : IDisposable
         _userSvcMock.Setup(s => s.GetAllAsync())
             .ReturnsAsync([MakeUser(1, "admin@contoso.local", externalProviders: ["EntraId"])]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("EntraId"));
     }
@@ -70,7 +72,7 @@ public class UserListPageExternalLoginTests : IDisposable
         _userSvcMock.Setup(s => s.GetAllAsync())
             .ReturnsAsync([MakeUser(1, "user@test.local")]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Magic Link"));
     }
@@ -80,7 +82,7 @@ public class UserListPageExternalLoginTests : IDisposable
     {
         _userSvcMock.Setup(s => s.GetAllAsync()).ReturnsAsync([]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.Markup.Should().Contain("Auth");
     }
@@ -91,7 +93,7 @@ public class UserListPageExternalLoginTests : IDisposable
         _userSvcMock.Setup(s => s.GetAllAsync())
             .ReturnsAsync([MakeUser(1, "user@test.local", externalProviders: ["EntraId", "Google"])]);
 
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Admin.UserListPage>();
 
         cut.WaitForAssertion(() =>
         {

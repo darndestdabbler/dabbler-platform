@@ -7,15 +7,15 @@ using RichardSzalay.MockHttp;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Auth;
 
-public class MfaPageTests : IDisposable
+public class MfaPageTests : IAsyncLifetime
 {
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly MockHttpMessageHandler _mock;
 
     public MfaPageTests()
     {
         _mock = new MockHttpMessageHandler();
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _ctx.SetupForDabbler(configureServices: services =>
         {
             var client = _mock.ToHttpClient();
@@ -24,9 +24,11 @@ public class MfaPageTests : IDisposable
         });
     }
 
-    public void Dispose()
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public async Task DisposeAsync()
     {
-        _ctx.Dispose();
+        await _ctx.DisposeAsync();
         _mock.Dispose();
     }
 
@@ -46,7 +48,7 @@ public class MfaPageTests : IDisposable
     public void MfaPage_ValidUserId_RendersCodeInput()
     {
         NavigateToMfa(5);
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
 
         cut.Markup.Should().Contain("Two-Factor Authentication");
         cut.Markup.Should().Contain("Authenticator Code");
@@ -57,7 +59,7 @@ public class MfaPageTests : IDisposable
     {
         NavigateToMfa(0);
 
-        _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
+        _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
 
         var navMan = _ctx.Services.GetRequiredService<NavigationManager>();
         navMan.Uri.Should().Contain("/login");
@@ -70,7 +72,7 @@ public class MfaPageTests : IDisposable
             .Respond(HttpStatusCode.OK, "application/json", """{"success":true}""");
 
         NavigateToMfa(3, "/dashboard");
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
 
         cut.Find("input").Change("123456");
         await cut.InvokeAsync(() => cut.Find("form").Submit());
@@ -89,7 +91,7 @@ public class MfaPageTests : IDisposable
             .Respond(HttpStatusCode.BadRequest, "text/plain", "Invalid TOTP code");
 
         NavigateToMfa(3);
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
 
         cut.Find("input").Change("000000");
         await cut.InvokeAsync(() => cut.Find("form").Submit());
@@ -102,7 +104,7 @@ public class MfaPageTests : IDisposable
     public void MfaPage_RendersVerifyButton()
     {
         NavigateToMfa(1);
-        var cut = _ctx.RenderComponent<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
+        var cut = _ctx.Render<Dabbler.Security.Blazor.Pages.Auth.MfaPage>();
 
         cut.Markup.Should().Contain("Verify");
     }

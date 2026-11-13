@@ -13,7 +13,7 @@ public sealed class DabblerDownloadExtensionsTests
     [Fact]
     public async Task DownloadFileAsync_ImportsTheShippedDownloadModule()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var module = ctx.JSInterop.SetupModule(ModulePath);
         module.SetupVoid("downloadFile", _ => true).SetVoidResult();
 
@@ -26,7 +26,7 @@ public sealed class DabblerDownloadExtensionsTests
     [Fact]
     public async Task DownloadFileAsync_PassesFileNameBase64ContentAndMimeType()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var module = ctx.JSInterop.SetupModule(ModulePath);
         var download = module.SetupVoid("downloadFile", _ => true);
         download.SetVoidResult();
@@ -41,7 +41,7 @@ public sealed class DabblerDownloadExtensionsTests
     [Fact]
     public async Task DownloadFileAsync_NullContent_Throws()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
 
         var act = () => ctx.JSInterop.JSRuntime.DownloadFileAsync("a.txt", null!, "text/plain");
 

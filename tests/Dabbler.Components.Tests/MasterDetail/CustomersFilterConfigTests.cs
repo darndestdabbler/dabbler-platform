@@ -59,18 +59,18 @@ public class CustomersFilterConfigTests
             },
         });
 
-    private static TestContext CreateContext()
+    private static BunitContext CreateContext()
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         ctx.Services.AddMudServices(cfg =>
         {
             cfg.SnackbarConfiguration.ShowTransitionDuration = 0;
             cfg.SnackbarConfiguration.HideTransitionDuration = 0;
         });
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-        ctx.RenderComponent<MudPopoverProvider>();
-        ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
         return ctx;
     }
 
@@ -138,10 +138,10 @@ public class CustomersFilterConfigTests
     [Fact]
     public async Task LastNameFilter_TextChanged_EmitsContainsDescriptor()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<CustomerFilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<CustomerFilterTestDto>>(p => p
             .Add(x => x.Config, _config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -159,10 +159,10 @@ public class CustomersFilterConfigTests
     [Fact]
     public async Task IsActiveFilter_BoolChanged_EmitsEqDescriptor()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = null;
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<CustomerFilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<CustomerFilterTestDto>>(p => p
             .Add(x => x.Config, _config)
             .Add(x => x.FilterChanged, f => captured = f));
 
@@ -180,10 +180,10 @@ public class CustomersFilterConfigTests
     [Fact]
     public async Task ClearFilter_EmitsNull()
     {
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         CompositeFilterDescriptor? captured = new CompositeFilterDescriptor();
 
-        var cut = ctx.RenderComponent<DeclarativeFilterPanel<CustomerFilterTestDto>>(p => p
+        var cut = ctx.Render<DeclarativeFilterPanel<CustomerFilterTestDto>>(p => p
             .Add(x => x.Config, _config)
             .Add(x => x.FilterChanged, f => captured = f));
 

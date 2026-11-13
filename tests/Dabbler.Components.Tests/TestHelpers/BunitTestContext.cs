@@ -7,7 +7,7 @@ namespace Dabbler.Components.Tests.TestHelpers;
 
 public static class BunitContextExtensions
 {
-    public static TestContext SetupForDabblerComponents(this TestContext ctx)
+    public static BunitContext SetupForDabblerComponents(this BunitContext ctx)
     {
         ctx.Services.AddMudServices(cfg =>
         {
@@ -17,9 +17,9 @@ public static class BunitContextExtensions
 
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
-        ctx.RenderComponent<MudPopoverProvider>();
-        ctx.RenderComponent<MudDialogProvider>();
-        ctx.RenderComponent<MudSnackbarProvider>();
+        ctx.Render<MudPopoverProvider>();
+        ctx.Render<MudDialogProvider>();
+        ctx.Render<MudSnackbarProvider>();
 
         return ctx;
     }

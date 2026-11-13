@@ -6,8 +6,12 @@ using MudBlazor.Services;
 
 namespace AcmeCoffeeOnline.Web.Tests.Components.Shared;
 
-public sealed class AccessDeniedCardTests : TestContext
+public sealed class AccessDeniedCardTests : BunitContext, IAsyncLifetime
 {
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    Task IAsyncLifetime.DisposeAsync() => DisposeAsync().AsTask();
+
     public AccessDeniedCardTests()
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
@@ -17,7 +21,7 @@ public sealed class AccessDeniedCardTests : TestContext
     [Fact]
     public void Renders_ApprovedCopy_HeadingAndBody()
     {
-        var cut = RenderComponent<AccessDeniedCard>();
+        var cut = Render<AccessDeniedCard>();
 
         var card = cut.Find("[data-testid='access-denied-card']");
         Assert.Contains("Access denied", card.TextContent);
@@ -29,7 +33,7 @@ public sealed class AccessDeniedCardTests : TestContext
     [Fact]
     public void Renders_BackToDashboardButton()
     {
-        var cut = RenderComponent<AccessDeniedCard>();
+        var cut = Render<AccessDeniedCard>();
 
         var button = cut.Find("[data-testid='access-denied-back-button']");
         Assert.Contains("Back to dashboard", button.TextContent);
@@ -38,7 +42,7 @@ public sealed class AccessDeniedCardTests : TestContext
     [Fact]
     public void BackButton_Click_NavigatesToDashboard()
     {
-        var cut = RenderComponent<AccessDeniedCard>();
+        var cut = Render<AccessDeniedCard>();
         var navigationManager = Services.GetRequiredService<NavigationManager>();
 
         cut.Find("[data-testid='access-denied-back-button']").Click();
@@ -49,7 +53,7 @@ public sealed class AccessDeniedCardTests : TestContext
     [Fact]
     public void Wrapper_Has_AlertRole_ForScreenReaders()
     {
-        var cut = RenderComponent<AccessDeniedCard>();
+        var cut = Render<AccessDeniedCard>();
 
         var card = cut.Find("[data-testid='access-denied-card']");
         Assert.Equal("alert", card.GetAttribute("role"));

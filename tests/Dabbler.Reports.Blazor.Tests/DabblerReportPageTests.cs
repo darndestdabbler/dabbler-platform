@@ -13,9 +13,9 @@ namespace Dabbler.Reports.Blazor.Tests;
 public class DabblerReportPageTests
 {
     [Fact]
-    public void AutoRun_CoreReportWorkflowLoadsRdfExecutesQueryAndComposesPages()
+    public async Task AutoRun_CoreReportWorkflowLoadsRdfExecutesQueryAndComposesPages()
     {
-        using var ctx = new TestContext().SetupForDabblerReports();
+        await using var ctx = new BunitContext().SetupForDabblerReports();
 
         var provider = new StubReportDataProvider()
             .AddQueryResult(
@@ -35,7 +35,7 @@ public class DabblerReportPageTests
             ["EndDate"] = new DateTime(2026, 1, 31)
         };
 
-        var cut = ctx.RenderComponent<DabblerReportPage>(parameters => parameters
+        var cut = ctx.Render<DabblerReportPage>(parameters => parameters
             .Add(x => x.RdfPath, "reports/test-sales.rdf.json")
             .Add(x => x.RdfLoader, _ => Task.FromResult(TestSalesReportRdf))
             .Add(x => x.DataProvider, provider)
@@ -59,9 +59,9 @@ public class DabblerReportPageTests
     }
 
     [Fact]
-    public void AutoRun_CanGrowFieldWithThreeLinesComposesTallerThanDesigned()
+    public async Task AutoRun_CanGrowFieldWithThreeLinesComposesTallerThanDesigned()
     {
-        using var ctx = new TestContext().SetupForDabblerReports();
+        await using var ctx = new BunitContext().SetupForDabblerReports();
 
         const string notes = "Line one\nLine two\nLine three";
         var provider = new StubReportDataProvider()
@@ -73,7 +73,7 @@ public class DabblerReportPageTests
                 return table;
             });
 
-        var cut = ctx.RenderComponent<DabblerReportPage>(parameters => parameters
+        var cut = ctx.Render<DabblerReportPage>(parameters => parameters
             .Add(x => x.RdfPath, "reports/can-grow.rdf.json")
             .Add(x => x.RdfLoader, _ => Task.FromResult(CanGrowReportRdf))
             .Add(x => x.DataProvider, provider)
@@ -89,10 +89,10 @@ public class DabblerReportPageTests
     }
 
     [Fact]
-    public void AutoRun_CanGrowFieldInARegisteredFamilyGrowsToTheHeightMeasuredWithThatFont()
+    public async Task AutoRun_CanGrowFieldInARegisteredFamilyGrowsToTheHeightMeasuredWithThatFont()
     {
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "LiberationSans-Regular.ttf");
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.Services.AddDabblerReportFonts(fonts => fonts.Register("Liberation Sans", fontPath));
         ctx.SetupForDabblerReports();
 
@@ -107,7 +107,7 @@ public class DabblerReportPageTests
                 return table;
             });
 
-        var cut = ctx.RenderComponent<DabblerReportPage>(parameters => parameters
+        var cut = ctx.Render<DabblerReportPage>(parameters => parameters
             .Add(x => x.RdfPath, "reports/can-grow-unicode.rdf.json")
             .Add(x => x.RdfLoader, _ => Task.FromResult(UnicodeCanGrowReportRdf))
             .Add(x => x.DataProvider, provider)

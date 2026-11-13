@@ -19,32 +19,32 @@ public class UserRoleAssignmentDetailsTests
         ["Customer"]);
 
     [Fact]
-    public void RendersEmptyState_WhenNoUserSelected()
+    public async Task RendersEmptyState_WhenNoUserSelected()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: RegisterCommonServices);
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>();
+        var cut = ctx.Render<UserRoleAssignmentDetails>();
 
         cut.Find("[data-testid='user-role-assignment-empty']").Should().NotBeNull();
     }
 
     [Fact]
-    public void RendersCurrentRoles_AsChips()
+    public async Task RendersCurrentRoles_AsChips()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: RegisterCommonServices);
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target));
 
         cut.Find("[data-testid='user-role-assignment-current-Customer']").Should().NotBeNull();
     }
 
     [Fact]
-    public void AssignableRoles_FilteredByAuthorityForCrossOrgUserAdmin()
+    public async Task AssignableRoles_FilteredByAuthorityForCrossOrgUserAdmin()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var queryMock = new Mock<IAdminUserQueryService>();
         queryMock.Setup(q => q.GetActorActiveAdminRole()).Returns(BakedInRoles.CrossOrgUserAdmin);
         queryMock.Setup(q => q.GetActorUserId()).Returns("99");
@@ -59,7 +59,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(queryMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target));
 
         var assignable = GetAssignableRoleNames(cut.Instance);
@@ -74,9 +74,9 @@ public class UserRoleAssignmentDetailsTests
     }
 
     [Fact]
-    public void AssignableRoles_EmptyWhenActorHasNoAdminRole()
+    public async Task AssignableRoles_EmptyWhenActorHasNoAdminRole()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var queryMock = new Mock<IAdminUserQueryService>();
         queryMock.Setup(q => q.GetActorActiveAdminRole()).Returns((string?)null);
         queryMock.Setup(q => q.GetActorUserId()).Returns(string.Empty);
@@ -91,7 +91,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(queryMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target));
 
         cut.Find("[data-testid='user-role-assignment-no-actor-role']").Should().NotBeNull();
@@ -100,7 +100,7 @@ public class UserRoleAssignmentDetailsTests
     [Fact]
     public async Task AssignAsync_RejectsUnknownRoleName_WithoutCallingStore()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStoreMock = new Mock<IUserRoleStore>();
         var raisedFor = string.Empty;
 
@@ -111,7 +111,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(roleStoreMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target)
             .Add(x => x.RolesChanged, userId => raisedFor = userId));
 
@@ -143,7 +143,7 @@ public class UserRoleAssignmentDetailsTests
         // _pendingRoleName carrying a static canonical name like
         // "SystemAdmin" must not be accepted just because the static helper
         // BakedInRoles.IsBakedIn recognises it.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStoreMock = new Mock<IUserRoleStore>();
 
         // Provider that only exposes UserAdmin + User; SystemAdmin is not
@@ -174,7 +174,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(providerMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target));
 
         await cut.InvokeAsync(() =>
@@ -200,7 +200,7 @@ public class UserRoleAssignmentDetailsTests
         // Defense in depth: even if the dropdown filter excluded SystemAdmin
         // for a CrossOrgUserAdmin actor, a tampered _pendingRoleName must
         // still be rejected at submit time.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStoreMock = new Mock<IUserRoleStore>();
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -219,7 +219,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(queryMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target));
 
         await cut.InvokeAsync(() =>
@@ -245,7 +245,7 @@ public class UserRoleAssignmentDetailsTests
         // Defense in depth: a UserAdmin actor whose scope does not intersect
         // the target's orgs must not be able to remove a role even if the
         // chip's OnClose handler is somehow triggered.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStoreMock = new Mock<IUserRoleStore>();
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -265,7 +265,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(queryMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target));
 
         await cut.InvokeAsync(() =>
@@ -284,7 +284,7 @@ public class UserRoleAssignmentDetailsTests
     [Fact]
     public async Task AssignAsync_CallsUserRoleStoreAndRaisesRolesChanged()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStoreMock = new Mock<IUserRoleStore>();
         roleStoreMock.Setup(s => s.AddRoleAsync(Target.UserId, "BackofficeUser", It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -297,7 +297,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(roleStoreMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target)
             .Add(x => x.RolesChanged, userId => raisedFor = userId));
 
@@ -322,9 +322,9 @@ public class UserRoleAssignmentDetailsTests
     }
 
     [Fact]
-    public void RemoveRole_CallsUserRoleStoreAndRaisesRolesChanged()
+    public async Task RemoveRole_CallsUserRoleStoreAndRaisesRolesChanged()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStoreMock = new Mock<IUserRoleStore>();
         roleStoreMock.Setup(s => s.RemoveRoleAsync(Target.UserId, "Customer", It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -337,7 +337,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(roleStoreMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target)
             .Add(x => x.RolesChanged, userId => raisedFor = userId));
 
@@ -360,12 +360,12 @@ public class UserRoleAssignmentDetailsTests
         []);
 
     [Fact]
-    public void ExcludeUserAdminAssignment_True_FiltersUserAdminFromDropdown()
+    public async Task ExcludeUserAdminAssignment_True_FiltersUserAdminFromDropdown()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: RegisterCommonServices);
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, TargetNoRoles)
             .Add(x => x.ExcludeUserAdminAssignment, true));
 
@@ -375,12 +375,12 @@ public class UserRoleAssignmentDetailsTests
     }
 
     [Fact]
-    public void ExcludeUserAdminAssignment_False_IncludesUserAdminInDropdown()
+    public async Task ExcludeUserAdminAssignment_False_IncludesUserAdminInDropdown()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: RegisterCommonServices);
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, TargetNoRoles)
             .Add(x => x.ExcludeUserAdminAssignment, false));
 
@@ -389,14 +389,14 @@ public class UserRoleAssignmentDetailsTests
     }
 
     [Fact]
-    public void ExcludeUserAdminAssignment_True_RendersUserAdminChipAsReadOnly_WhenAlreadyAssigned()
+    public async Task ExcludeUserAdminAssignment_True_RendersUserAdminChipAsReadOnly_WhenAlreadyAssigned()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: RegisterCommonServices);
 
         var targetWithUserAdmin = Target with { Roles = [BakedInRoles.UserAdmin, "Customer"] };
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, targetWithUserAdmin)
             .Add(x => x.ExcludeUserAdminAssignment, true));
 
@@ -408,12 +408,12 @@ public class UserRoleAssignmentDetailsTests
     }
 
     [Fact]
-    public void ExcludeUserAdminAssignment_True_ShowsOrgAdminCrossLinkBanner_WhenUserHasOrgs()
+    public async Task ExcludeUserAdminAssignment_True_ShowsOrgAdminCrossLinkBanner_WhenUserHasOrgs()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupForDabbler(configureServices: RegisterCommonServices);
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target)
             .Add(x => x.ExcludeUserAdminAssignment, true));
 
@@ -424,7 +424,7 @@ public class UserRoleAssignmentDetailsTests
     }
 
     [Fact]
-    public void NoAssignableRoles_RendersExplanationAlert_InsteadOfEmptyDropdown()
+    public async Task NoAssignableRoles_RendersExplanationAlert_InsteadOfEmptyDropdown()
     {
         // UAT-3 finding (admin-users-cross-links Session 1 closeout, 2026-05-11):
         // SystemAdmin selected own row in seeded data — every candidate role failed
@@ -435,7 +435,7 @@ public class UserRoleAssignmentDetailsTests
         // UserTypeRoles config so `candidates` is [] before the authority filter
         // runs. The exact mechanism by which candidates becomes empty is
         // immaterial to this test — what matters is the rendered behavior.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var emptyProvider = new Mock<IBakedInRoleProvider>();
         emptyProvider.Setup(p => p.GetBakedInRoles()).Returns([]);
         emptyProvider.Setup(p => p.TryGetBakedInRole(It.IsAny<string>())).Returns((BakedInRoleDefinition?)null);
@@ -463,7 +463,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(queryMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target)
             .Add(x => x.ExcludeUserAdminAssignment, true));
 
@@ -476,7 +476,7 @@ public class UserRoleAssignmentDetailsTests
     [Fact]
     public async Task ExcludeUserAdminAssignment_True_BlocksAssignUserAdminAtActionLevel()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var roleStoreMock = new Mock<IUserRoleStore>();
 
         ctx.SetupForDabbler(configureServices: services =>
@@ -486,7 +486,7 @@ public class UserRoleAssignmentDetailsTests
             services.AddSingleton(roleStoreMock.Object);
         });
 
-        var cut = ctx.RenderComponent<UserRoleAssignmentDetails>(parameters => parameters
+        var cut = ctx.Render<UserRoleAssignmentDetails>(parameters => parameters
             .Add(x => x.User, Target)
             .Add(x => x.ExcludeUserAdminAssignment, true));
 

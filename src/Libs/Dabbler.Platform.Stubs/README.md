@@ -66,7 +66,7 @@ A bUnit test that wires a stub grid provider for `Customer`:
 [Fact]
 public void CustomersGrid_RendersStubRows()
 {
-    using var ctx = new TestContext();
+    using var ctx = new BunitContext();
     ctx.AddDabblerStubs(StubDefinitions.MinimalCustomer());
     ctx.Services.AddStubGridDataProvider<Customer>(new[]
     {
@@ -74,7 +74,7 @@ public void CustomersGrid_RendersStubRows()
         new Customer(102, "Grace Hopper"),
     });
 
-    var cut = ctx.RenderComponent<CustomersGrid>();
+    var cut = ctx.Render<CustomersGrid>();
     Assert.Contains("Ada Lovelace", cut.Markup);
 }
 ```

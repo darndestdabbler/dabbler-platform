@@ -14,7 +14,7 @@ namespace DabblerApp.Web.Tests;
 /// bUnit smoke test for the SampleItems page using stub providers (§4.4).
 /// Proves the component renders without the API host or a running SQL database.
 /// </summary>
-public sealed class SampleItemListTests : TestContext, IDisposable
+public sealed class SampleItemListTests : BunitContext, IAsyncLifetime
 {
     private readonly AppDbContext _db;
 
@@ -44,13 +44,15 @@ public sealed class SampleItemListTests : TestContext, IDisposable
     public void SampleItemsPage_RendersGrid()
     {
         // The page uses MudDataGrid — verify it renders without exceptions.
-        var cut = RenderComponent<SampleItems>();
+        var cut = Render<SampleItems>();
         cut.WaitForElement("[data-testid='sample-items-grid']");
     }
 
-    public new void Dispose()
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    async Task IAsyncLifetime.DisposeAsync()
     {
         _db.Dispose();
-        base.Dispose();
+        await DisposeAsync();
     }
 }

@@ -17,7 +17,7 @@ namespace Dabbler.Testing.Blazor.Tests;
 // context while awaiting JS.InvokeVoidAsync, and the JS completion needs the
 // same context to marshal, causing a deadlock. Lifecycle-triggered tests (via
 // OnParametersSetAsync) also fail because bUnit does not fully await async
-// lifecycle tasks before RenderComponent returns, so assertions execute before
+// lifecycle tasks before Render returns, so assertions execute before
 // the JS calls fire.
 //
 // Edge-case tests (exception safety and concurrent in-flight IDs) use plain
@@ -28,7 +28,7 @@ namespace Dabbler.Testing.Blazor.Tests;
 //
 // The full enabled-path behaviour (watermark transition [id] → [] in a browser)
 // remains covered by the Playwright proof test E2E_WF_04.
-public sealed class TrackedComponentBaseBunitTests : TestContext
+public sealed class TrackedComponentBaseBunitTests : BunitContext
 {
     public TrackedComponentBaseBunitTests()
     {
@@ -44,7 +44,7 @@ public sealed class TrackedComponentBaseBunitTests : TestContext
         var begin = JSInterop.SetupVoid("dabbler.beginAction", _ => true);
         var end = JSInterop.SetupVoid("dabbler.endAction", _ => true);
 
-        var cut = RenderComponent<HarnessComponent>();
+        var cut = Render<HarnessComponent>();
 
         var ranWork = false;
         await cut.InvokeAsync(() => cut.Instance.RunAsync("save", () =>

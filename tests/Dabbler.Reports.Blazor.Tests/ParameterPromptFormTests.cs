@@ -15,7 +15,7 @@ public class ParameterPromptFormTests
     [Fact]
     public async Task InitialValuesAndLookups_LoadStubbedChoicesAndConvertTypedRunValues()
     {
-        using var ctx = new TestContext().SetupForDabblerReports();
+        await using var ctx = new BunitContext().SetupForDabblerReports();
 
         var provider = new RecordingReportDataProvider();
         provider.AddLookupResult("LOOKUP_REGIONS", CreateLookupTable(("North", "north"), ("South", "south")));
@@ -35,7 +35,7 @@ public class ParameterPromptFormTests
             ["MaxRows"] = 25m
         };
 
-        var cut = ctx.RenderComponent<ParameterPromptForm>(parameters => parameters
+        var cut = ctx.Render<ParameterPromptForm>(parameters => parameters
             .Add(x => x.Parameters, BuildContractParameters())
             .Add(x => x.DataProvider, provider)
             .Add(x => x.InitialValues, initialValues)
@@ -73,10 +73,10 @@ public class ParameterPromptFormTests
     [Fact]
     public async Task MissingRequiredValue_ShowsValidationMessageAndPreventsRun()
     {
-        using var ctx = new TestContext().SetupForDabblerReports();
+        await using var ctx = new BunitContext().SetupForDabblerReports();
 
         Dictionary<string, object?>? submittedValues = null;
-        var cut = ctx.RenderComponent<ParameterPromptForm>(parameters => parameters
+        var cut = ctx.Render<ParameterPromptForm>(parameters => parameters
             .Add(x => x.Parameters,
             [
                 new ParameterDefinition

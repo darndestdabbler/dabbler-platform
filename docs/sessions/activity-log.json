@@ -289,6 +289,13 @@
       "dateTime": "2026-11-13T04:25:11.636000-05:00",
       "task": "Bump the single repository version from 2.0.0 to 2.0.1 (patch, as the session plan proposes). Set DabblerVersion in Directory.Build.props, and the -Version default and the versions its help text names in tools/pack.ps1, to 2.0.1. Add a `## 2.0.1` entry to CHANGELOG.md directly above `## 2.0.0` saying there is no API change since 2.0.0, that `Dabbler.Security`'s `Microsoft.EntityFrameworkCore.SqlServer` dependency moves from 10.0.5 to 10.0.15 (Session 31), which brings `System.Security.Cryptography.Pkcs` 10.0.13 and clears GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7, and that the `dabbler-app` template's test project references `AngleSharp` 1.5.0 (Session 32), lifting bUnit's transitive AngleSharp past GHSA-pgww-w46g-26qg. Prove the bump with a Release build, a pack into pack-output and the smoke suite against the 2.0.1 packages.",
       "releasable": false
+    },
+    {
+      "kind": "task-declaration",
+      "sessionNumber": 34,
+      "dateTime": "2026-11-13T06:09:41.459000-05:00",
+      "task": "Move the solution and the `dabbler-app` template from `bunit` 1.37.7 to 2.15.2, which is built against `AngleSharp` 1.10.1, so Session 32's AngleSharp lift and its `ElementAt(i)` workaround both go. In `Directory.Packages.props` the `bunit` pin moves to 2.15.2, the `Microsoft.AspNetCore.Components.Web` and `Microsoft.AspNetCore.Components.Authorization` pins move from 10.0.5 to 10.0.15 (bUnit 2.15.2 depends on `Microsoft.AspNetCore.Components.*` 10.0.13, which would make the direct 10.0.5 reference in `tests/Dabbler.Security.Blazor.Tests` an NU1605 downgrade; 10.0.15 is within the 10.x policy in `docs/MAINTAINING.md`), and the `AngleSharp` `PackageVersion` is removed together with the direct `AngleSharp` references in `tests/AcmeCoffeeOnline.Web.Tests`, `tests/Dabbler.Components.Tests`, `tests/Dabbler.Reports.Blazor.Tests`, `tests/Dabbler.Security.Blazor.Tests` and `tests/Dabbler.Testing.Blazor.Tests`. The template's generated test project raises `Version=\"1.37.7\"` to `2.15.2` and drops its `AngleSharp` reference and comment. The bUnit test code in those five projects and the template's `SampleItemListTests.cs` is ported to the 2.x API (`TestContext` -> `BunitContext`, `RenderComponent` -> `Render`, `IRenderedFragment` -> `IRenderedComponent<...>`, `AddTestAuthorization` -> `AddAuthorization`, `TestServiceProvider` -> `BunitServiceProvider`, and whatever else the build reports), Session 32's three `ElementAt(i)` calls in `ReportViewerTests.cs` and `UserEditPageTests.cs` return to `[i]`, and the bUnit example in `src/Libs/Dabbler.Platform.Stubs/README.md` moves to the 2.x API.",
+      "releasable": false
     }
   ]
 }

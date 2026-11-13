@@ -12,10 +12,10 @@ namespace Dabbler.Security.Blazor.Tests.Components.Admin.Documentation;
 
 public class RoleDocumentationTabTests
 {
-    private static TestContext Build(SecurityConfiguration? config = null)
+    private static BunitContext Build(SecurityConfiguration? config = null)
     {
         config ??= new SecurityConfiguration();
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         var store = new Mock<ISecurityConfigurationStore>();
         store.Setup(s => s.LoadAsync(default)).ReturnsAsync(config);
         store.Setup(s => s.SaveAsync(It.IsAny<SecurityConfiguration>(), default))
@@ -32,10 +32,10 @@ public class RoleDocumentationTabTests
     }
 
     [Fact]
-    public void Renders_AllFiveBakedInRolePanels()
+    public async Task Renders_AllFiveBakedInRolePanels()
     {
-        using var ctx = Build();
-        var cut = ctx.RenderComponent<RoleDocumentationTab>();
+        await using var ctx = Build();
+        var cut = ctx.Render<RoleDocumentationTab>();
 
         cut.Find("[data-testid='role-documentation-tab']").Should().NotBeNull();
         foreach (var role in BakedInRoles.All)
@@ -45,20 +45,20 @@ public class RoleDocumentationTabTests
     }
 
     [Fact]
-    public void Renders_UserTypeDefaultsPanel_AndDefaultMasksPanel()
+    public async Task Renders_UserTypeDefaultsPanel_AndDefaultMasksPanel()
     {
-        using var ctx = Build();
-        var cut = ctx.RenderComponent<RoleDocumentationTab>();
+        await using var ctx = Build();
+        var cut = ctx.Render<RoleDocumentationTab>();
 
         cut.Find("[data-testid='role-doc-panel-user-type-defaults']").Should().NotBeNull();
         cut.Find("[data-testid='role-doc-panel-default-masks']").Should().NotBeNull();
     }
 
     [Fact]
-    public void SystemAdmin_CapabilitiesList_IncludesAllPrivilegesLine()
+    public async Task SystemAdmin_CapabilitiesList_IncludesAllPrivilegesLine()
     {
-        using var ctx = Build();
-        var cut = ctx.RenderComponent<RoleDocumentationTab>();
+        await using var ctx = Build();
+        var cut = ctx.Render<RoleDocumentationTab>();
 
         var caps = cut.Find($"[data-testid='role-doc-caps-{BakedInRoles.SystemAdmin}']");
         caps.TextContent.Should().Contain("Has every platform privilege");
@@ -66,10 +66,10 @@ public class RoleDocumentationTabTests
     }
 
     [Fact]
-    public void CrossOrgMonitor_CapabilitiesList_MarksReadOnly()
+    public async Task CrossOrgMonitor_CapabilitiesList_MarksReadOnly()
     {
-        using var ctx = Build();
-        var cut = ctx.RenderComponent<RoleDocumentationTab>();
+        await using var ctx = Build();
+        var cut = ctx.Render<RoleDocumentationTab>();
 
         var caps = cut.Find($"[data-testid='role-doc-caps-{BakedInRoles.CrossOrgMonitor}']");
         caps.TextContent.Should().Contain("Read-only");
@@ -77,17 +77,17 @@ public class RoleDocumentationTabTests
     }
 
     [Fact]
-    public void User_Panel_ShowsUserTypeCapability()
+    public async Task User_Panel_ShowsUserTypeCapability()
     {
-        using var ctx = Build();
-        var cut = ctx.RenderComponent<RoleDocumentationTab>();
+        await using var ctx = Build();
+        var cut = ctx.Render<RoleDocumentationTab>();
 
         var caps = cut.Find($"[data-testid='role-doc-caps-{BakedInRoles.User}']");
         caps.TextContent.Should().Contain("User-type role");
     }
 
     [Fact]
-    public void AliasOverride_FromConfiguration_IsSurfacedForRole()
+    public async Task AliasOverride_FromConfiguration_IsSurfacedForRole()
     {
         var config = new SecurityConfiguration
         {
@@ -97,8 +97,8 @@ public class RoleDocumentationTabTests
             },
         };
 
-        using var ctx = Build(config);
-        var cut = ctx.RenderComponent<RoleDocumentationTab>();
+        await using var ctx = Build(config);
+        var cut = ctx.Render<RoleDocumentationTab>();
 
         var canonical = cut.Find($"[data-testid='role-doc-canonical-{BakedInRoles.SystemAdmin}']");
         canonical.TextContent.Should().Contain("Platform Owner");

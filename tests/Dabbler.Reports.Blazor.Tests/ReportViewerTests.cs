@@ -10,17 +10,17 @@ namespace Dabbler.Reports.Blazor.Tests;
 public class ReportViewerTests
 {
     [Fact]
-    public void ContractSurface_RendersAccessibleDocumentPagesAndResolvedElements()
+    public async Task ContractSurface_RendersAccessibleDocumentPagesAndResolvedElements()
     {
-        using var ctx = new TestContext().SetupForDabblerReports();
+        await using var ctx = new BunitContext().SetupForDabblerReports();
 
-        var cut = ctx.RenderComponent<ReportViewer>(parameters => parameters
+        var cut = ctx.Render<ReportViewer>(parameters => parameters
             .Add(x => x.Report, BuildReportDefinition())
             .Add(x => x.Pages, BuildPages()));
 
         cut.Find(".report-viewer").GetAttribute("aria-label").Should().Be("Contract Report, 2 pages");
         cut.FindAll(".report-page").Should().HaveCount(2);
-        cut.FindAll(".report-page").ElementAt(0).GetAttribute("aria-label").Should().Be("Page 1 of 2");
+        cut.FindAll(".report-page")[0].GetAttribute("aria-label").Should().Be("Page 1 of 2");
         cut.FindAll(".report-band-bg").Should().ContainSingle();
         cut.FindAll(".report-text").Should().HaveCount(3);
         cut.Find(".report-text").GetAttribute("style").Should().Contain("font-weight:bold");
@@ -33,11 +33,11 @@ public class ReportViewerTests
     }
 
     [Fact]
-    public void Scale_ChangesPageDimensionsAndTextSizing()
+    public async Task Scale_ChangesPageDimensionsAndTextSizing()
     {
-        using var ctx = new TestContext().SetupForDabblerReports();
+        await using var ctx = new BunitContext().SetupForDabblerReports();
 
-        var cut = ctx.RenderComponent<ReportViewer>(parameters => parameters
+        var cut = ctx.Render<ReportViewer>(parameters => parameters
             .Add(x => x.Report, BuildReportDefinition())
             .Add(x => x.Pages, BuildPages())
             .Add(x => x.Scale, 1.5));
