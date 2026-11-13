@@ -43,7 +43,8 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 29 | Report text can use a Unicode TrueType font | no | 2026-11-12 |
 | 30 | Bump to 2.0.0 | no | 2026-11-12 |
 | 31 | Clear the release build's nullable and vulnerability warnings | no | 2026-11-13 |
-| 32 | Bump to 2.0.1 | — | not declared |
+| 32 | Clear the solution's remaining audited packages | no | 2026-11-13 |
+| 33 | Bump to 2.0.1 | — | not declared |
 
 ### Session 1 — Author or import the solution plan
 
@@ -243,3 +244,13 @@ Bump the single repository version from the unreleased 1.0.1 to 2.0.0 (major, ap
 **Releasable: no.**
 
 Clear the Release build's CS8669 warnings and the restore's NuGet audit warnings, and make the release procedure deprecate retired package IDs as well as unlist them. CS8669 is removed at its cause by dropping the `?` from the reference-type markup type arguments (`T="string?"` on the text filter and `T="object?"` on the foreign-key `MudSelect`/`MudSelectItem` in `DeclarativeFilterPanel.razor`, and the five `T="string?"` in `CustomerDetail.razor`), leaving the `bool?`/`decimal?` value-type arguments, the bound values and the rendered output unchanged. The audit warnings are cleared by raising pins in `Directory.Packages.props`: `Microsoft.SourceLink.GitHub` from 8.0.0 to 10.0.111, the lowest version GHSA-23fw-v26w-5fgq names as patched (no 8.x fix exists), which brings `Microsoft.Build.Tasks.Git` 10.0.111; and the EF Core family (`Microsoft.EntityFrameworkCore`, `.Design`, `.InMemory`, `.Sqlite`, `.SqlServer`) from 10.0.5 to 10.0.15, within the 10.x policy. `Microsoft.EntityFrameworkCore.SqlServer` 10.0.15 depends on `System.Security.Cryptography.Pkcs` 10.0.13, which both GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7 name as patched, so the fix reaches every consumer of `Dabbler.Security` through its nuspec without a direct `PackageReference`. `Microsoft.EntityFrameworkCore.Sqlite` 10.0.15 also brings `SQLitePCLRaw` 2.1.13, which clears the NU1903 on `SQLitePCLRaw.lib.e_sqlite3` 2.1.11 (GHSA-2m69-gcr7-jv3q) in `Dabbler.Security.DevIdp`; the restore check requires that too. Because a consumer that pins EF Core 10.0.5 directly while referencing `Dabbler.Security` would hit an NU1605 downgrade, the EF pins in the `dabbler-min` and `dabbler-app` templates and in the `SmokeApp`/`SmokeApi` template-test fixtures move to 10.0.15 with it. Release step 4 of `docs/MAINTAINING.md` is rewritten so that each retired ID is deprecated as *Legacy* (alternate package `Dabbler.Platform.Stubs` for the three `Dabbler.Platform.Stubs.*` providers, none for `Dabbler.Components.Compat`) and then unlisted.
+
+### Session 32 — Clear the solution's remaining audited packages
+
+**Releasable: no.**
+
+Clear the two NuGet audit findings that a restore of the whole solution still reports after Session 31. `Microsoft.OpenApi` 2.0.0 (NU1903, GHSA-v5pm-xwqc-g5wc, patched in 2.7.5) reaches `src/Apps/AcmeCoffeeOnline.Api` and `tests/AcmeCoffeeOnline.Api.Tests` through the `Microsoft.AspNetCore.OpenApi` 10.0.5 pin; that one pin in `Directory.Packages.props` moves to 10.0.15, which depends on `Microsoft.OpenApi` [2.13.0, 3.0.0), within the 10.x policy in `docs/MAINTAINING.md`. `AngleSharp` 1.1.2 (NU1902, GHSA-pgww-w46g-26qg, patched in 1.5.0) reaches every bUnit test project through `bunit` 1.37.7 -> `bunit.web`, and no bUnit 1.x carries a patched AngleSharp, so a `PackageVersion` for `AngleSharp` at 1.5.0 is added to `Directory.Packages.props` with a direct `PackageReference` in each of `tests/AcmeCoffeeOnline.Web.Tests`, `tests/Dabbler.Components.Tests`, `tests/Dabbler.Reports.Blazor.Tests`, `tests/Dabbler.Security.Blazor.Tests` and `tests/Dabbler.Testing.Blazor.Tests`, and the same reference at `Version="1.5.0"`, with a one-line comment saying it lifts bUnit's transitive AngleSharp past the advisory, in the `dabbler-app` template's generated test project, so the fix reaches consumers of `Dabbler.Templates`.
+
+**Amended after acceptance:**
+
+- 2026-11-13 — step 'anglesharp-lift': its files: AngleSharp 1.5.0 moved IHtmlCollection<T>'s int indexer onto IReadOnlyList<T>, so bunit 1.37.7's compiled RefreshableElementCollection indexer throws MissingMethodException; the three FindAll(...)[i] call sites in ReportViewerTests and UserEditPageTests move to ElementAt(i) (enumeration is unaffected), keeping the advisory fix without bunit 2.x. (claude-code (anthropic, claude-opus-5-5))

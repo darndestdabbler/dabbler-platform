@@ -70,8 +70,8 @@ public class UserEditPageTests : IDisposable
 
         var inputs = cut.FindAll("input");
         // Email is first, DisplayName is second
-        inputs[0].Change("new@test.local");
-        inputs[1].Change("New User");
+        inputs.ElementAt(0).Change("new@test.local");
+        inputs.ElementAt(1).Change("New User");
 
         await cut.InvokeAsync(() => cut.Find("form").Submit());
 
@@ -141,7 +141,7 @@ public class UserEditPageTests : IDisposable
 
         // Change DisplayName
         var editableInputs = cut.FindAll("input:not([disabled]):not([readonly])");
-        editableInputs[0].Change("Updated Name");
+        editableInputs.ElementAt(0).Change("Updated Name");
 
         await cut.InvokeAsync(() => cut.Find("form").Submit());
 

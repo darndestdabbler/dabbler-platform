@@ -20,7 +20,7 @@ public class ReportViewerTests
 
         cut.Find(".report-viewer").GetAttribute("aria-label").Should().Be("Contract Report, 2 pages");
         cut.FindAll(".report-page").Should().HaveCount(2);
-        cut.FindAll(".report-page")[0].GetAttribute("aria-label").Should().Be("Page 1 of 2");
+        cut.FindAll(".report-page").ElementAt(0).GetAttribute("aria-label").Should().Be("Page 1 of 2");
         cut.FindAll(".report-band-bg").Should().ContainSingle();
         cut.FindAll(".report-text").Should().HaveCount(3);
         cut.Find(".report-text").GetAttribute("style").Should().Contain("font-weight:bold");
