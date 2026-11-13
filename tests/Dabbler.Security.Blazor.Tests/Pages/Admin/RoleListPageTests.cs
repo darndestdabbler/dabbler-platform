@@ -4,6 +4,7 @@ using Dabbler.Security.Data;
 using Dabbler.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Extensions;
 
 namespace Dabbler.Security.Blazor.Tests.Pages.Admin;
 
@@ -133,7 +134,7 @@ public class RoleListPageTests : IAsyncLifetime
         cut.WaitForAssertion(() =>
         {
             var dialog = cut.FindComponent<MudBlazor.MudDialog>();
-            dialog.Instance.Visible.Should().BeTrue();
+            dialog.Instance.GetState(x => x.Visible).Should().BeTrue();
         });
     }
 }

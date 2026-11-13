@@ -52,7 +52,7 @@ public class PdfPageRendererTests
         Styles = { style }
     };
 
-    private static async Task<IReadOnlyList<string>> DrawAsync(
+    private static async Task<IReadOnlyList<string?>> DrawAsync(
         ReportDefinition report, string text, string styleName, double widthInches, double heightInches)
     {
         var page = new PageLayout { PageNumber = 1, TotalPages = 1 };

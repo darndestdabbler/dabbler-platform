@@ -170,6 +170,7 @@ public sealed class WebGuardrailTests : IClassFixture<WebApplicationFactory<Prog
         var switchedUsersContent = await switchedUsersResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, switchedUsersResponse.StatusCode);
+        Assert.NotNull(retailOrganization.OrganizationName);
         Assert.Contains(retailOrganization.OrganizationName, switchedUsersContent);
 
         var switchedSession = await client.GetFromJsonAsync<SessionInfoResponse>(

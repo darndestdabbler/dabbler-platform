@@ -87,7 +87,7 @@ public sealed class OrderCustomerPickerWorkflowTests
 
             // Verify the new customer exists in the DB via the API
             var customers = await _fixture.GetCustomersAsync(userId, 1, 1000);
-            var newCustomer = Assert.Single(customers.Where(c => c.Email == email));
+            var newCustomer = Assert.Single(customers, c => c.Email == email);
             Assert.Equal(firstName, newCustomer.FirstName);
             Assert.Equal(lastName, newCustomer.LastName);
         }

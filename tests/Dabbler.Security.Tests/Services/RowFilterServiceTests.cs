@@ -1,3 +1,6 @@
+// These tests cover the obsolete legacy Dabbler.Security members on purpose.
+#pragma warning disable CS0618
+
 using Dabbler.Security.Abstractions;
 using Dabbler.Security.Configuration;
 using Dabbler.Security.Services;

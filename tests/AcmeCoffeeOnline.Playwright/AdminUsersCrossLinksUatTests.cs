@@ -58,6 +58,8 @@ public sealed class AdminUsersCrossLinksUatTests
             var captionLocator = page.Locator("[data-testid='users-master-grid-container']")
                 .GetByText(new Regex(@"\d+ of \d+ users"));
             await Assertions.Expect(captionLocator).ToBeVisibleAsync(new() { Timeout = 15_000 });
+            // The caption renders "0 of 0 users" before the first load returns; wait past it.
+            await Assertions.Expect(captionLocator.First).Not.ToHaveTextAsync(new Regex(@"^0 of 0 users"), new() { Timeout = 15_000 });
             var caption = await captionLocator.First.InnerTextAsync();
             _output.WriteLine($"User-count caption: {caption}");
             Assert.False(caption.StartsWith("0 of"),

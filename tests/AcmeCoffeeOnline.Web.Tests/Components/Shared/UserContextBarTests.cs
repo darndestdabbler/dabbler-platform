@@ -1,3 +1,6 @@
+// These tests cover the obsolete legacy Dabbler.Security members on purpose.
+#pragma warning disable CS0618
+
 using AcmeCoffeeOnline.Shared.DTOs;
 using AcmeCoffeeOnline.Web.Components.Shared;
 using Bunit;

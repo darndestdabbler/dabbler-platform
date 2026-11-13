@@ -1,3 +1,6 @@
+// These tests cover the obsolete legacy Dabbler.Security members on purpose.
+#pragma warning disable CS0618
+
 using Bunit;
 using Dabbler.Security.Abstractions;
 using Dabbler.Security.Blazor.Components;

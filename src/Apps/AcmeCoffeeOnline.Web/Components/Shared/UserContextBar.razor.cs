@@ -98,7 +98,10 @@ public partial class UserContextBar : ComponentBase, IDisposable
             ? string.Empty
             : ActiveOrganizationName!;
 
+        // The legacy RoleSwitching member stays supported until it is removed.
+#pragma warning disable CS0618
         var configuredRoles = ConfigManager.Current.RoleSwitching?.AllowedRoles ?? [];
+#pragma warning restore CS0618
         var rolesSet = new HashSet<string>(UserRoles, StringComparer.OrdinalIgnoreCase);
         // Show only the roles the user actually holds that appear in AllowedRoles.
         // This prevents the menu from offering roles the user doesn't have.

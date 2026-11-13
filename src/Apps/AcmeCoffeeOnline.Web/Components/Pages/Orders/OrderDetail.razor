@@ -100,7 +100,7 @@ else if (State.Record is not null)
                                    StartIcon="@Icons.Material.Filled.Search"
                                    OnClick="@(() => OpenCustomerPickerAsync(inspectToDecide: true))"
                                    data-testid="inspect-customer-button"
-                                   Title="Inspect (target locked, unlock to edit)">
+                                   title="Inspect (target locked, unlock to edit)">
                             Inspect
                         </MudButton>
                     }
@@ -201,13 +201,13 @@ else if (State.Record is not null)
                                                            Color="Color.Primary"
                                                            OnClick="@(() => BeginEditItem(context.Item))"
                                                            data-testid="edit-item-button"
-                                                           Title="Edit line" />
+                                                           title="Edit line" />
                                             <MudIconButton Icon="@Icons.Material.Filled.Search"
                                                            Size="Size.Small"
                                                            Color="Color.Default"
                                                            OnClick="@(() => OpenProductLineInspectorAsync(context.Item))"
                                                            data-testid="inspect-item-button"
-                                                           Title="Review line (target read-only, unlock to edit)" />
+                                                           title="Review line (target read-only, unlock to edit)" />
                                             <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                                            Size="Size.Small"
                                                            Color="Color.Error"
@@ -455,7 +455,18 @@ else
 
     // ── Save ────────────────────────────────────────────────────────
 
-    private Task HandleSaveAsync() => TrackAction("save", async () =>
+    private async Task HandleSaveAsync()
+    {
+        if (State.Record is null) return;
+
+        await TrackAction("save", SaveAsync);
+
+        // Raised after the tracked save, so its completion reaches the watermark
+        // before a parent that navigates away (OrderCreatePage) disposes this component.
+        await OnSaved.InvokeAsync();
+    }
+
+    private async Task SaveAsync()
     {
         if (State.Record is null) return;
 
@@ -476,14 +487,12 @@ else
                     _session = new EditSession<OrderDto>(State.Record);
                 }
             }
-
-            await OnSaved.InvokeAsync();
         }
         finally
         {
             _saving = false;
         }
-    });
+    }
 
     // ── Status Workflow ─────────────────────────────────────────────
 
