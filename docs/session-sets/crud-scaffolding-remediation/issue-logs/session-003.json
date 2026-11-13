@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "round": 1,
+    "category": "Correctness",
+    "severity": "Major",
+    "summary": "Generated API endpoint block did not match Api/Program.cs:135-139 (singular Query/Get) \u2014 single block was emitted using the Web-side plural/ById shape.",
+    "status": "fixed",
+    "resolution": "Split AppendEndpointBlock into AppendApiEndpointBlock (singular: Query{Entity}, Get{Entity}) and AppendWebEndpointBlock (plural/ById: Query{EntityPlural}, Get{Entity}ById). The pre-existing Api-vs-Web identifier drift is documented in the emitted header. Tests renamed and split. Round-2 verifier confirmed: 'Round-1 Issue 1 is fixed.'"
+  },
+  {
+    "id": 2,
+    "round": 1,
+    "subId": "a",
+    "category": "Completeness",
+    "severity": "Minor",
+    "summary": "Implementation made registration emit default-on with --skip-registrations opt-out instead of providing an explicit --emit-registrations CLI mode.",
+    "status": "fixed",
+    "resolution": "Added --emit-registrations as a no-op CLI alias that explicitly opts in to the default behavior. Spec text 'or a companion generator invoked by the wrapper' authorizes the default-on shape; the new alias satisfies the literal CLI surface. Round-2 verifier explicitly accepted: 'I also accept the resolution for Issue 2(a).'"
+  },
+  {
+    "id": 3,
+    "round": 2,
+    "subId": "b",
+    "category": "Completeness",
+    "severity": "Minor",
+    "summary": "Registration shape templates were not placed under tools/Dabbler.CrudSlice/Templates/ as the spec's Creates list named.",
+    "status": "fixed",
+    "resolution": "Extracted every block shape into a .template file under tools/Dabbler.CrudSlice/Templates/ (ApiEntityBlock, EntityFieldRow, ApiEndpointBlock, WebPageBlock, WebEndpointBlock). Added <EmbeddedResource Include=\"Templates\\*.template\" /> in the csproj. Refactored RegistrationReferenceEmitter.Render(...) to load + apply the templates via a tiny {{Placeholder}}-substitution helper (ApplyTemplate / LoadTemplate). Templates/README.md documents the placeholder grammar. Tests: 29/29 pass against the refactored emitter. Round-3 verifier returned VERIFIED."
+  }
+]

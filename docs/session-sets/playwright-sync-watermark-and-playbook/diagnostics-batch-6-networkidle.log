@@ -1,0 +1,407 @@
+=== Diagnostic stress: E2E_WF_04, 20 iterations, suffix=batch-6-networkidle ===
+Started: 2026-04-29T08:16:47-04:00
+
+--- Run 1/20 (2026-04-29T08:16:47-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.31]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.36]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.38]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.66]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 8.0940 Seconds
+Run 1: PASS
+
+--- Run 2/20 (2026-04-29T08:16:56-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.41]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8451 Seconds
+Run 2: PASS
+
+--- Run 3/20 (2026-04-29T08:17:04-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.43]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8573 Seconds
+Run 3: PASS
+
+--- Run 4/20 (2026-04-29T08:17:13-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.14]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T12:17:19.489Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T12:17:19.498Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=gi2MWAZtl-U1FJufHThNFg.
+    [log] [dabbler] setReady 274.7
+[xUnit.net 00:00:12.23]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:12.23]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:12.23]       Stack Trace:
+[xUnit.net 00:00:12.24]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:12.24]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:12.24]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:12.24]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:12.24]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:12.24]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(70,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:12.24]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(99,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:12.24]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:12.30]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 70
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 99
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.7300 Seconds
+Run 4: FAIL (exit 1)
+
+--- Run 5/20 (2026-04-29T08:17:26-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.50]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.9043 Seconds
+Run 5: PASS
+
+--- Run 6/20 (2026-04-29T08:17:35-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.14]   Starting:    AcmeCoffeeOnline.Playwright
+=== WaitForQuietAsync diagnostic dump ===
+  console messages captured: 3
+    [info] [2026-04-29T12:17:41.392Z] Information: Normalizing '_blazor' to 'http://localhost:5010/_blazor'.
+    [info] [2026-04-29T12:17:41.402Z] Information: WebSocket connected to ws://localhost:5010/_blazor?id=XZNCSkL-FMbHPNBceI_w6g.
+    [log] [dabbler] setReady 321.9
+[xUnit.net 00:00:12.05]     AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [FAIL]
+[xUnit.net 00:00:12.05]       Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+[xUnit.net 00:00:12.05]       Stack Trace:
+[xUnit.net 00:00:12.05]         /_/src/Playwright/Core/AssertionsBase.cs(87,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title)
+[xUnit.net 00:00:12.05]         /_/src/Playwright/Core/AssertionsBase.cs(65,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:12.05]         /_/src/Playwright/Core/AssertionsBase.cs(57,0): at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options)
+[xUnit.net 00:00:12.05]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1078,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:12.05]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs(1084,0): at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page)
+[xUnit.net 00:00:12.05]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(70,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:12.05]         C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs(99,0): at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync()
+[xUnit.net 00:00:12.05]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:12.13]   Finished:    AcmeCoffeeOnline.Playwright
+  Failed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [10 s]
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have attribute 'data-actions-in-flight' '[]'
+But was: 'null' 
+Call log:
+  - Expect "ToHaveAttributeAsync" with timeout 5000ms
+  - waiting for Locator("html")
+    9 × locator resolved to <html lang="en" data-test-mode="true" data-blazor-ready="true">…</html>
+      - unexpected value "null"
+  Stack Trace:
+     at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, FrameExpectOptions expectOptions, Object expected, String message, String title) in /_/src/Playwright/Core/AssertionsBase.cs:line 87
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue[] expectedText, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 65
+   at Microsoft.Playwright.Core.AssertionsBase.ExpectImplAsync(String expression, ExpectedTextValue textValue, Object expected, String message, String title, FrameExpectOptions options) in /_/src/Playwright/Core/AssertionsBase.cs:line 57
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1078
+   at AcmeCoffeeOnline.Playwright.Infrastructure.PlaywrightFixture.WaitForQuietAsync(IPage page) in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\Infrastructure\PlaywrightFixture.cs:line 1084
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 70
+   at AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync() in C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\ProductAdministrationWorkflowTests.cs:line 99
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 12.6021 Seconds
+Run 6: FAIL (exit 1)
+
+--- Run 7/20 (2026-04-29T08:17:48-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.14]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.45]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8798 Seconds
+Run 7: PASS
+
+--- Run 8/20 (2026-04-29T08:17:57-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.43]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8669 Seconds
+Run 8: PASS
+
+--- Run 9/20 (2026-04-29T08:18:05-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.36]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8046 Seconds
+Run 9: PASS
+
+--- Run 10/20 (2026-04-29T08:18:14-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.61]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 8.0468 Seconds
+Run 10: PASS
+
+--- Run 11/20 (2026-04-29T08:18:23-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.46]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8802 Seconds
+Run 11: PASS
+
+--- Run 12/20 (2026-04-29T08:18:31-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.46]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8465 Seconds
+Run 12: PASS
+
+--- Run 13/20 (2026-04-29T08:18:40-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.43]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8589 Seconds
+Run 13: PASS
+
+--- Run 14/20 (2026-04-29T08:18:48-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.30]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.7017 Seconds
+Run 14: PASS
+
+--- Run 15/20 (2026-04-29T08:18:57-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.14]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.43]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8470 Seconds
+Run 15: PASS
+
+--- Run 16/20 (2026-04-29T08:19:05-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.14]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.39]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8369 Seconds
+Run 16: PASS
+
+--- Run 17/20 (2026-04-29T08:19:14-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.46]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.9213 Seconds
+Run 17: PASS
+
+--- Run 18/20 (2026-04-29T08:19:22-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.44]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.8601 Seconds
+Run 18: PASS
+
+--- Run 19/20 (2026-04-29T08:19:31-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.06]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.10]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.12]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.29]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.7278 Seconds
+Run 19: PASS
+
+--- Run 20/20 (2026-04-29T08:19:39-04:00) ---
+Test run for C:\Users\denmi\source\repos\dabbler-platform\tests\AcmeCoffeeOnline.Playwright\bin\Debug\net10.0\AcmeCoffeeOnline.Playwright.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.5)
+[xUnit.net 00:00:00.07]   Discovering: AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.11]   Discovered:  AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:00.13]   Starting:    AcmeCoffeeOnline.Playwright
+[xUnit.net 00:00:07.38]   Finished:    AcmeCoffeeOnline.Playwright
+  Passed AcmeCoffeeOnline.Playwright.ProductAdministrationWorkflowTests.E2E_WF_04_SystemAdmin_TogglesProductAvailabilityThroughBrowserAndRestoresStateAsync [5 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.7918 Seconds
+Run 20: PASS
+
+=== Summary ===
+Iterations: 20
+Pass: 18
+Fail: 2
+Results: 1:PASS 2:PASS 3:PASS 4:FAIL 5:PASS 6:FAIL 7:PASS 8:PASS 9:PASS 10:PASS 11:PASS 12:PASS 13:PASS 14:PASS 15:PASS 16:PASS 17:PASS 18:PASS 19:PASS 20:PASS
+Finished: 2026-04-29T08:19:48-04:00
