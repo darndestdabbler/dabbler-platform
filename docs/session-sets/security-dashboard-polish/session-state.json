@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 4,
+  "sessionSetName": "security-dashboard-polish",
+  "status": "complete",
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Access-denied flow",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 2,
+      "title": "Page Access matrix \u2014 switch + layout",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 3,
+      "title": "Endpoint Access matrix \u2014 same pattern",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 4,
+      "title": "Entity Access matrix \u2014 CRUD icons, no scroll",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 5,
+      "title": "Control Permissions \u2014 state icons",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 6,
+      "title": "Inherited vs. explicit visualization",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 7,
+      "title": "User Assignments \u2014 unassigned filter toggle",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": null,
+      "orchestrator": null,
+      "verificationVerdict": null
+    },
+    {
+      "number": 8,
+      "title": "Tab-strip keyboard nav + error-path demo",
+      "status": "complete",
+      "startedAt": null,
+      "completedAt": "2026-04-18T06:35:46.498Z",
+      "orchestrator": null,
+      "verificationVerdict": null
+    }
+  ]
+}

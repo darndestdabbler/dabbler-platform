@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 033 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 033 transcript</h1>
+<p class="stamp">Rendered 2026-11-13T10:09:09.881Z by dabbler-ai-router 3.32.4 at 02e4a44a86ebdf81aa5b37e83be38bfae0e834c9.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-13T04:24:06.076-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 33: Bump to 2.0.1</h3>
+<p>Runs after Session 32.</p>
+<ol><li>Register.</li><li>Set <code>DabblerVersion</code> in <code>Directory.Build.props</code>, and the <code>-Version</code> default in <code>tools/pack.ps1</code> with the version its help text names, to <code>2.0.1</code>. Add a <code>## 2.0.1</code> entry to <code>CHANGELOG.md</code>, directly above <code>## 2.0.0</code>: no API change since <code>2.0.0</code>; the dependency Session 31 raised in <code>Dabbler.Security</code>, by name, with its old and new versions and the two advisories it clears; and the <code>AngleSharp</code> <code>1.5.0</code> reference Session 32 added to the <code>dabbler-app</code> template's test project, with the advisory it clears. The step's checks: <code>Directory.Build.props</code> and <code>tools/pack.ps1</code> name <code>2.0.1</code> and no longer name <code>2.0.0</code> as the version or the default; <code>CHANGELOG.md</code> has <code>## 2.0.1</code> directly above <code>## 2.0.0</code>; then, after a Release build and <code>tools/pack.ps1 -OutputDir pack-output -CleanOutput</code>, the <code>smoke</code> suite passes against the <code>2.0.1</code> packages.</li><li>Cross-provider verification.</li><li>The <code>unit</code>, <code>smoke</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no API or dependency change beyond Sessions 31 and 32; no change to <code>ci.yml</code>, <code>build.yml</code> or <code>dabbler.yaml</code>.</p>
+<p>Proposed version: <strong>2.0.1 (patch)</strong>, for the operator to approve: no API changes, and what a consumer receives is a patched transitive dependency of <code>Dabbler.Security</code> and a patched AngleSharp in the <code>dabbler-app</code> template's test project.</p>
+<p>This is a bump session, not a <code>(release: 2.0.1)</code> session, for the reason Session 30 gives. After the session has pushed, the operator runs the <code>2.0.1</code> dry run (<code>gh workflow run build.yml -f version=2.0.1</code>) and tags <code>nuget-v2.0.1</code> by hand when it is green.</p>
+<h2>Work Plan</h2>
+<p>Bump the single repository version from 2.0.0 to 2.0.1 (patch, as the session plan proposes). Set DabblerVersion in Directory.Build.props, and the -Version default and the versions its help text names in tools/pack.ps1, to 2.0.1. Add a <code>## 2.0.1</code> entry to CHANGELOG.md directly above <code>## 2.0.0</code> saying there is no API change since 2.0.0, that <code>Dabbler.Security</code>'s <code>Microsoft.EntityFrameworkCore.SqlServer</code> dependency moves from 10.0.5 to 10.0.15 (Session 31), which brings <code>System.Security.Cryptography.Pkcs</code> 10.0.13 and clears GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7, and that the <code>dabbler-app</code> template's test project references <code>AngleSharp</code> 1.5.0 (Session 32), lifting bUnit's transitive AngleSharp past GHSA-pgww-w46g-26qg. Prove the bump with a Release build, a pack into pack-output and the smoke suite against the 2.0.1 packages.</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/f2b980bb2523cfafbea266641e404926bea3cccc"><code>f2b980bb2523cfafbea266641e404926bea3cccc</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Changelog</td><td><p>In CHANGELOG.md, add a <code>## 2.0.1</code> entry directly above <code>## 2.0.0</code>: no API changes since <code>2.0.0</code>; the <code>Microsoft.EntityFrameworkCore.SqlServer</code> dependency of <code>Dabbler.Security</code> moves from <code>10.0.5</code> to <code>10.0.15</code>, which brings <code>System.Security.Cryptography.Pkcs</code> <code>10.0.13</code> and clears GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7; and the <code>dabbler-app</code> template's test project references <code>AngleSharp</code> <code>1.5.0</code>, lifting bUnit's transitive AngleSharp past GHSA-pgww-w46g-26qg.</p></td><td><span class="mono">CHANGELOG.md</span></td><td><code>pwsh -NoProfile -Command $h = @(Select-String -Path CHANGELOG.md -Pattern '^## ' | ForEach-Object { $_.Line.Trim() }); if ($h.Count -lt 2 -or $h[0] -ne '## 2.0.1' -or $h[1] -ne '## 2.0.0') { Write-Error ('## 2.0.1 is not the first entry, directly above ## 2.0.0: ' + ($h -join ' | ')); exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command $t = Get-Content CHANGELOG.md -Raw; $i = $t.IndexOf('## 2.0.1'); $j = $t.IndexOf('## 2.0.0'); if ($i -lt 0 -or $j -le $i) { Write-Error 'no 2.0.1 entry'; exit 1 }; $e = $t.Substring($i, $j - $i); $missing = @('No API change', 'Dabbler.Security', 'Microsoft.EntityFrameworkCore.SqlServer', '10.0.5', '10.0.15', 'GHSA-846f-f764-76mx', 'GHSA-2fmv-rv2c-59x7', 'dabbler-app', 'AngleSharp', '1.5.0', 'GHSA-pgww-w46g-26qg') | Where-Object { -not $e.Contains($_) }; if ($missing) { Write-Error ('the 2.0.1 entry is missing: ' + ($missing -join ', ')); exit 1 }; exit 0</code></td><td>yes</td></tr>
+<tr><td>Bump version</td><td><p>Set DabblerVersion in Directory.Build.props to 2.0.1, and in tools/pack.ps1 the -Version default and the versions its help text names (the example, the default it states and the example invocation) to 2.0.1. Neither file names 2.0.0 afterwards. Then a Release build of the solution, a pack into pack-output and the smoke suite against the 2.0.1 packages prove the bump.</p></td><td><span class="mono">Directory.Build.props</span><br><span class="mono">tools/pack.ps1</span></td><td><code>pwsh -NoProfile -Command $hits = Select-String -Path Directory.Build.props, tools/pack.ps1 -Pattern '(?&lt;![\d.])2\.0\.0(?![\d.])'; if ($hits) { Write-Error ($hits | Out-String); exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command if (-not (Select-String -Path Directory.Build.props -Pattern '&lt;DabblerVersion [^&gt;]*&gt;2\.0\.1&lt;/DabblerVersion&gt;' -Quiet)) { Write-Error 'DabblerVersion is not 2.0.1'; exit 1 }; if (-not (Select-String -Path tools/pack.ps1 -Pattern '\[string\]\s*\$Version\s*=\s*.2\.0\.1.,' -Quiet)) { Write-Error 'the pack.ps1 -Version default is not 2.0.1'; exit 1 }; exit 0</code><br><code>dotnet build Dabbler.Platform.sln -c Release</code><br><code>pwsh -NoProfile -File tools/pack.ps1 -OutputDir pack-output -CleanOutput</code><br><code>pwsh -NoProfile -Command $all = @(Get-ChildItem pack-output -Filter *.nupkg); $v = @($all | Where-Object { $_.Name -like '*.2.0.1.nupkg' }); if ($all.Count -eq 0 -or $v.Count -ne $all.Count) { Write-Error ('pack-output holds packages other than 2.0.1: ' + ($all.Name -join ', ')); exit 1 }; exit 0</code><br><code>pwsh -NoProfile -Command $env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No API or dependency change beyond what Sessions 31 and 32 already made; this session edits only version numbers and the changelog.</li><li>No change to .github/workflows/ci.yml, .github/workflows/build.yml or dabbler.yaml.</li><li>No publish and no nuget-v2.0.1 tag: the operator runs the 2.0.1 dry run and tags by hand after the session has pushed.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[09:24:06]</span> <span class="muted">run-started</span> session=033 mode=pull</div>
+<div class="line"><span class="at">[09:24:06]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[09:25:11]</span> <span class="muted">run-resumed</span> session=033 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[09:25:11]</span> <span class="muted">plan-accepted</span> steps=[&quot;changelog&quot;,&quot;bump-version&quot;] non_goals=3</div>
+<div class="line"><span class="at">[09:25:12]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[09:25:12]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=changelog</div>
+<div class="line"><span class="at">[09:25:30]</span> <span class="muted">run-resumed</span> session=033 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[09:25:33]</span> <span class="muted">check-passed</span> step=changelog argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$h = @(Select-String -Path CHANGELOG.md -Pattern '^## ' | ForEach-Object { $_.Line.Trim() }); if ($h.Count -lt 2 -or $h[0] -ne '## 2.0.1' -or $h[1] -ne '## 2.0.0') { Write-Error ('## 2.0.1 is not the first entry, directly above ## 2.0.0: ' + ($h -join ' | ')); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[09:25:33]</span> <span class="muted">check-passed</span> step=changelog argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content CHANGELOG.md -Raw; $i = $t.IndexOf('## 2.0.1'); $j = $t.IndexOf('## 2.0.0'); if ($i -lt 0 -or $j -le $i) { Write-Error 'no 2.0.1 entry'; exit 1 }; $e = $t.Substring($i, $j - $i); $missing = @('No API change', 'Dabbler.Security', 'Microsoft.EntityFrameworkCore.SqlServer', '10.0.5', '10.0.15', 'GHSA-846f-f764-76mx', 'GHSA-2fmv-rv2c-59x7', 'dabbler-app', 'AngleSharp', '1.5.0', 'GHSA-pgww-w46g-26qg') | Where-Object { -not $e.Contains($_) }; if ($missing) { Write-Error ('the 2.0.1 entry is missing: ' + ($missing -join ', ')); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[09:25:33]</span> <span class="muted">report-accepted</span> seq=2 step=changelog files=[&quot;CHANGELOG.md&quot;] notes=Added the 2.0.1 entry directly above 2.0.0.</div>
+<div class="line"><span class="at">[09:25:33]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=bump-version</div>
+<div class="line"><span class="at">[09:25:55]</span> <span class="muted">run-resumed</span> session=033 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$hits = Select-String -Path Directory.Build.props, tools/pack.ps1 -Pattern '(?&lt;![\\d.])2\\.0\\.0(?![\\d.])'; if ($hits) { Write-Error ($hits | Out-String); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;if (-not (Select-String -Path Directory.Build.props -Pattern '&lt;DabblerVersion [^&gt;]*&gt;2\\.0\\.1&lt;/DabblerVersion&gt;' -Quiet)) { Write-Error 'DabblerVersion is not 2.0.1'; exit 1 }; if (-not (Select-String -Path tools/pack.ps1 -Pattern '\\[string\\]\\s*\\$Version\\s*=\\s*.2\\.0\\.1.,' -Quiet)) { Write-Error 'the pack.ps1 -Version default is not 2.0.1'; exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;dotnet&quot;,&quot;build&quot;,&quot;Dabbler.Platform.sln&quot;,&quot;-c&quot;,&quot;Release&quot;]</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-File&quot;,&quot;tools/pack.ps1&quot;,&quot;-OutputDir&quot;,&quot;pack-output&quot;,&quot;-CleanOutput&quot;]</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$all = @(Get-ChildItem pack-output -Filter *.nupkg); $v = @($all | Where-Object { $_.Name -like '*.2.0.1.nupkg' }); if ($all.Count -eq 0 -or $v.Count -ne $all.Count) { Write-Error ('pack-output holds packages other than 2.0.1: ' + ($all.Name -join ', ')); exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="muted">check-passed</span> step=bump-version argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;]</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="muted">report-accepted</span> seq=3 step=bump-version files=[&quot;Directory.Build.props&quot;,&quot;tools/pack.ps1&quot;] notes=DabblerVersion, the pack.ps1 -Version default and its help text set to 2.0.1.</div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[09:42:08]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[09:42:09]</span> <span class="muted">job-started</span> name=verification pid=3960 log=.dabbler/runs/s33/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[09:42:38]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s33/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[09:42:38]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[09:42:38]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[09:42:39]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 108s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[09:42:39]</span> <span class="muted">job-started</span> name=run of record: unit pid=27224 log=.dabbler/runs/s33/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[09:42:42]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s33/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[09:42:42]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[09:42:42]</span> <span class="muted">job-started</span> name=run of record: smoke pid=55004 log=.dabbler/runs/s33/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[09:58:20]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s33/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[09:58:21]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[09:58:21]</span> <span class="muted">job-started</span> name=run of record: e2e pid=52696 log=.dabbler/runs/s33/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[10:08:47]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="good">0</span> log=.dabbler/runs/s33/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[10:08:47]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[10:08:55]</span> <span class="muted">landed</span> commit=f2b980bb2523cfafbea266641e404926bea3cccc</div>
+<div class="line"><span class="at">[10:08:55]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[10:08:55]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[10:08:55]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[10:08:56]</span> <span class="muted">job-started</span> name=close pid=31560 log=.dabbler/runs/s33/driver/jobs/close.log</div>
+<div class="line"><span class="at">[10:09:09]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s33/driver/jobs/close.log</div>
+<div class="line"><span class="at">[10:09:09]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td>0</td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="bad">none-selected</span></td><td>1s</td><td></td><td></td><td></td><td><span class="mono"></span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>936s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="good">passed</span></td><td>625s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-e2e</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

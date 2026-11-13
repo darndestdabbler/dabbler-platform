@@ -1,0 +1,289 @@
+{
+  "sessionSetName": "user-context-bar",
+  "createdDate": "2026-04-17T07:57:52.471355+00:00",
+  "totalSessions": 3,
+  "entries": [
+    {
+      "sessionNumber": 1,
+      "stepNumber": 1,
+      "stepKey": "session-1/read-principles",
+      "dateTime": "2026-04-17T07:57:52.472364+00:00",
+      "description": "Read guiding-principles.md and lessons-learned.md",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 2,
+      "stepKey": "session-1/confirm-data-shape",
+      "dateTime": "2026-04-17T07:57:52.472364+00:00",
+      "description": "Confirmed ShellSessionStateLoader, IRoleSwitcher, SecurityConfigurationManager, RoleSwitching.AllowedRoles",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 3,
+      "stepKey": "session-1/usercontextbar-component",
+      "dateTime": "2026-04-17T08:05:42.231727+00:00",
+      "description": "Created UserContextBar.razor + code-behind with three-link sentence, enable/disable logic, role and org menus, sign-out dialog open",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 4,
+      "stepKey": "session-1/signout-dialog",
+      "dateTime": "2026-04-17T08:05:42.232734+00:00",
+      "description": "Created SignOutConfirmationDialog.razor using IMudDialogInstance and DialogResult.Ok(true)",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 5,
+      "stepKey": "session-1/role-and-org-menus",
+      "dateTime": "2026-04-17T08:05:42.232734+00:00",
+      "description": "Wired role menu with allowed-switch roles via IRoleSwitcher; org menu reuses /auth/switch-organization redirect",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 6,
+      "stepKey": "session-1/bunit-tests",
+      "dateTime": "2026-04-17T08:05:42.232734+00:00",
+      "description": "Added 7 bUnit tests covering enable/disable matrix (SystemAdmin, Customer, BackofficeUserAdmin, BackofficeUser), testid presence, sentence structure, sign-out dialog opens",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 7,
+      "stepKey": "session-1/build-and-test",
+      "dateTime": "2026-04-17T08:05:42.233735+00:00",
+      "description": "Full solution build clean; all 7 new UserContextBar tests pass. Pre-existing test failure WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates due to missing docs/workflow-auth-observability.md removed in commit 8730107 \u2014 unrelated to this session.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 8,
+      "stepKey": "session-1/verification",
+      "dateTime": "2026-04-17T08:06:47.802156+00:00",
+      "description": "Cross-provider session verification via router (session-verification task)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 9015,
+          "outputTokens": 1425,
+          "costUsd": 0.2421
+        }
+      ]
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 9,
+      "stepKey": "session-1/issue-remediation",
+      "dateTime": "2026-04-17T08:08:55.816667+00:00",
+      "description": "Addressed verifier Minor #5 (test coverage: confirm/cancel navigation) and Minor #7 (Dispose null-check). Deferred other items with rationale (verifier self-downgraded Majors; remaining Minors not behavioral defects).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 1,
+      "stepNumber": 10,
+      "stepKey": "session-1/verification-round2",
+      "dateTime": "2026-04-17T08:09:58.187638+00:00",
+      "description": "Re-verification after round-1 remediation (complexity_hint=85 per Major-flag policy)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 11658,
+          "outputTokens": 1376,
+          "costUsd": 0.27807
+        }
+      ]
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 1,
+      "stepKey": "session-2/maintlayout-swap",
+      "dateTime": "2026-04-17T08:39:06.115230+00:00",
+      "description": "Removed lines 27-84 in MainLayout.razor (active-org summary, Switch-Org menu, DabblerRoleSwitcher, user-icon menu, dividers). Inserted <UserContextBar /> with UserName, UserRoles, ActiveOrganizationName, OrganizationOptions parameters.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 2,
+      "stepKey": "session-2/cleanup-codebehind",
+      "dateTime": "2026-04-17T08:39:06.115790+00:00",
+      "description": "Removed @using Dabbler.Security.Blazor.Components, _activeOrganizationKey field, SwitchOrganizationAsync method. Kept _isAdmin/_isSystemAdmin (used by nav drawer).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 3,
+      "stepKey": "session-2/preserve-testids",
+      "dateTime": "2026-04-17T08:39:06.116307+00:00",
+      "description": "data-testid='active-organization-label' preserved on the org link span via UserContextBar's _orgLinkAttributes dictionary (verified in bUnit tests from Session 1).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 4,
+      "stepKey": "session-2/update-conformance",
+      "dateTime": "2026-04-17T08:39:06.116828+00:00",
+      "description": "Conformance tests MudBlazorRebuildConformanceTests still pass (no structural count changes needed; MainLayout still contains MudLayout/MudAppBar/MudDrawer/MudMainContent/MudNavMenu/MudNavLink/MudThemeProvider).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 5,
+      "stepKey": "session-2/playwright",
+      "dateTime": "2026-04-17T08:39:06.116828+00:00",
+      "description": "Updated PlaywrightFixture.SwitchOrganizationFromShellAsync to click the org-link data-testid='active-organization-label' instead of the removed 'Switch org' button. Ran full Playwright suite: 67/75 passed. 8 failures are PRE-EXISTING on master (confirmed by stashed-baseline re-run) and unrelated to Session 2: drawer 'Admin'/'Retail Businesses' text not visible, layout-spacing assertion, ReportValidation enablement. These were not caused by the MainLayout/UserContextBar swap.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 6,
+      "stepKey": "session-2/build-and-test",
+      "dateTime": "2026-04-17T08:39:06.117353+00:00",
+      "description": "dotnet build: 0 warnings, 0 errors. dotnet test (unit/integration, no Playwright): 525 passed, 1 pre-existing failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates, unrelated, already logged in Session 1). dotnet test Playwright: 67/75 passed, 8 pre-existing failures confirmed unchanged from master baseline.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 2,
+      "stepNumber": 7,
+      "stepKey": "session-2/verification",
+      "dateTime": "2026-04-17T08:40:49.292114+00:00",
+      "description": "Cross-provider session verification via router (session-verification task)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 18652,
+          "outputTokens": 653,
+          "costUsd": 0.32875499999999996
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 1,
+      "stepKey": "session-3/a11y",
+      "dateTime": "2026-04-17T09:32:13.136446+00:00",
+      "description": "Added role=\"group\" aria-label=\"User context\" on the bar; aria-hidden=\"true\" on the \"as\"/\"for\" connectors so screen readers read the three aria-labeled links coherently; confirmed keyboard tab order follows DOM (User \u2192 Role \u2192 Org) and MudLink disabled state renders non-focusable spans.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 2,
+      "stepKey": "session-3/responsive",
+      "dateTime": "2026-04-17T09:32:13.137441+00:00",
+      "description": "Added .user-context-bar CSS class with max-width/text-overflow:ellipsis truncation on user and org names (18ch default, 12ch \u2264960px, 8ch \u2264600px); role name stays un-truncated (known short values); added HTML title attribute on user/org links so hover exposes full value when truncated.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 3,
+      "stepKey": "session-3/screenshots",
+      "dateTime": "2026-04-17T09:32:13.137441+00:00",
+      "description": "No-op: grep for old-cluster references under docs/ found only session-set change logs and the Dabbler.Security.Blazor README for the library-local DabblerRoleSwitcher; no image assets in docs/ pictured the old cluster.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 4,
+      "stepKey": "session-3/bunit-tests",
+      "dateTime": "2026-04-17T09:32:13.138438+00:00",
+      "description": "Added 4 new bUnit tests to UserContextBarTests: Bar_HasGroupRoleAndAriaLabel_ForScreenReaders, ConnectorWords_AreAriaHidden, UserAndOrgLinks_ExposeTitleAttribute_ForHoverTooltip, Links_CarryResponsiveCssClasses_ForTruncation. 13/13 UserContextBar tests pass.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 5,
+      "stepKey": "session-3/contrast-check",
+      "dateTime": "2026-04-17T09:32:13.138438+00:00",
+      "description": "Verified AppbarText=#424242 on AppbarBackground=#FFFFFF yields 9.6:1 contrast (WCAG AAA 7:1 for normal text passes). MudLink disabled state uses reduced opacity but disabled controls are exempt from WCAG 1.4.3 per spec note.",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 6,
+      "stepKey": "session-3/build-and-test",
+      "dateTime": "2026-04-17T09:32:13.139437+00:00",
+      "description": "dotnet build: 0 errors, 19 pre-existing warnings. dotnet test (non-Playwright): 529 passed, 1 pre-existing failure (WorkflowAssetSmokeTests.AiRouterConfig_LoadsNestedPromptTemplates \u2014 same pre-existing failure logged in Session 1 and Session 2). dotnet test Playwright: 75/75 passed, zero failures (Session 2s 8 pre-existing failures were fixed in commit 6791ae4 between sessions).",
+      "status": "complete",
+      "routedApiCalls": []
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 7,
+      "stepKey": "session-3/verification",
+      "dateTime": "2026-04-17T09:34:43.342460+00:00",
+      "description": "Cross-provider session verification via router (session-verification task)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 7979,
+          "outputTokens": 1650,
+          "costUsd": 0.243435
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 8,
+      "stepKey": "session-3/verification-round2",
+      "dateTime": "2026-04-17T09:36:35.200196+00:00",
+      "description": "Re-verification after round-1 remediation",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "opus",
+          "taskType": "session-verification",
+          "inputTokens": 8799,
+          "outputTokens": 1187,
+          "costUsd": 0.22100999999999998
+        }
+      ]
+    },
+    {
+      "sessionNumber": 3,
+      "stepNumber": 9,
+      "stepKey": "session-3/change-log",
+      "dateTime": "2026-04-17T09:42:13.596133+00:00",
+      "description": "Generated change-log.md via router (documentation task)",
+      "status": "complete",
+      "routedApiCalls": [
+        {
+          "model": "gemini-pro",
+          "taskType": "documentation",
+          "inputTokens": 12359,
+          "outputTokens": 1620,
+          "costUsd": 0.03164875
+        }
+      ]
+    }
+  ]
+}

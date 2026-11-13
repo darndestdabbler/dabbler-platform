@@ -1,0 +1,20 @@
+[
+  {
+    "severity": "Major",
+    "category": "SpecFidelity",
+    "round": 1,
+    "file": "tools/ComponentCatalogCrawler/CrawlerOrchestrator.cs",
+    "description": "Catalog entries written with route.TemplatePath (raw .NET constraints) instead of normalized form.",
+    "status": "fixed",
+    "fix_summary": "Added RouteEnumerator.NormalizeTemplatePath stripping :int / :guid suffix; orchestrator now passes normalized template like /customers/{CustomerId}."
+  },
+  {
+    "severity": "Major",
+    "category": "Coverage",
+    "round": 1,
+    "file": "tools/ComponentCatalogCrawler/AccessibilityTreeScraper.cs",
+    "description": "Unmapped DOM/ARIA roles silently dropped instead of recorded as Element catchall.",
+    "status": "fixed",
+    "fix_summary": "Added ElementCatchallRoles set covering navigation/main/banner/etc. when they carry an accessible name; emit elementRole=Element. New catalog has 41 Element entries."
+  }
+]

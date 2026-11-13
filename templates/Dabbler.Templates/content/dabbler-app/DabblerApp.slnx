@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DabblerApp.Api/DabblerApp.Api.csproj" />
+    <Project Path="src/DabblerApp.Shared/DabblerApp.Shared.csproj" />
+    <Project Path="src/DabblerApp.Web/DabblerApp.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DabblerApp.Web.Tests/DabblerApp.Web.Tests.csproj" />
+  </Folder>
+</Solution>

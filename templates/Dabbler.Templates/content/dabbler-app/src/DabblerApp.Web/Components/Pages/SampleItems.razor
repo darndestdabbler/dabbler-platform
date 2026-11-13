@@ -1,0 +1,32 @@
+@page "/items"
+@attribute [DabblerPageAuthorize("/items")]
+@using Dabbler.Components.Data
+
+<PageTitle>Sample Items — DabblerApp</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-3">Sample Items</MudText>
+
+<MudDataGrid T="SampleItem"
+             ServerData="_provider.ToServerDataFunc<SampleItem>()"
+             Filterable="false"
+             SortMode="SortMode.None"
+             Bordered="true"
+             Dense="true"
+             RowsPerPage="20"
+             data-testid="sample-items-grid">
+
+    <Columns>
+        <PropertyColumn Property="item => item.Name" Title="Name" />
+        <PropertyColumn Property="item => item.Description" Title="Description" />
+        <PropertyColumn Property="item => item.Value" Title="Value"
+                        CellStyle="text-align:right; max-width:130px"
+                        HeaderStyle="text-align:right; max-width:130px"
+                        Format="C2" />
+        <PropertyColumn Property="item => item.IsActive" Title="Active" />
+    </Columns>
+</MudDataGrid>
+
+@code {
+    [Inject]
+    private IGridDataProvider<SampleItem> _provider { get; set; } = default!;
+}
