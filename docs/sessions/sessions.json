@@ -785,9 +785,9 @@
     {
       "number": 37,
       "title": "Bump to 2.0.2",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-13T12:25:04.656000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-13T13:11:30.157000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
