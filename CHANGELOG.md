@@ -4,6 +4,18 @@ All `Dabbler.*` packages, the `Dabbler.Templates` template pack and the tools
 share one version (`DabblerVersion` in `Directory.Build.props`) and are
 published to nuget.org together.
 
+## 2.0.2
+
+- No API changes since `2.0.1`.
+- The `dabbler-app` template's test project moves from `bunit` `1.37.7` to
+  `2.15.2` and drops its direct `AngleSharp` reference.
+- The `Microsoft.AspNetCore.Components.Web` and `.Authorization`
+  dependencies move from `10.0.5` to `10.0.15`.
+- The `Dabbler.Platform.Stubs` README shows the bUnit 2.x API.
+- `MasterDetailExpansionShell` renders without gutters again, as it did
+  before MudBlazor 7 dropped `DisableGutters`.
+- The packed libraries document every public member.
+
 ## 2.0.1
 
 - No API changes since `2.0.0`.
