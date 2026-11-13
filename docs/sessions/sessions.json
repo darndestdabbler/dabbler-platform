@@ -763,9 +763,9 @@
     {
       "number": 36,
       "title": "Clear the apps', tests' and workflows' warnings",
-      "status": "in-progress",
+      "status": "complete",
       "startedAt": "2026-11-13T08:11:33.782000-05:00",
-      "completedAt": null,
+      "completedAt": "2026-11-13T10:19:09.144000-05:00",
       "orchestrator": {
         "engine": "claude-code",
         "provider": "anthropic",
