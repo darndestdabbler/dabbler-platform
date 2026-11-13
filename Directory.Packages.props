@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageVersion Include="bunit" Version="2.15.2" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="FluentAssertions" Version="6.12.2" />
+    <PackageVersion Include="FluentAssertions" Version="8.11.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.15" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.15" />
