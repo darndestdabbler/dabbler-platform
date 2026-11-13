@@ -1345,3 +1345,88 @@ This is a bump session, not a `(release: 2.0.1)` session, for the reason
 Session 30 gives. After the session has pushed, the operator runs the
 `2.0.1` dry run (`gh workflow run build.yml -f version=2.0.1`) and tags
 `nuget-v2.0.1` by hand when it is green.
+
+### Session 34: Move bUnit to 2.x
+
+Runs after Session 33.
+
+1. Register.
+2. Session 32 lifted bUnit's transitive `AngleSharp` to `1.5.0` past
+   GHSA-pgww-w46g-26qg, but `AngleSharp` `1.5.0` moved
+   `IHtmlCollection<T>`'s int indexer onto `IReadOnlyList<T>`, so `bunit`
+   `1.37.7`'s compiled `FindAll(...)[i]` throws `MissingMethodException`.
+   Session 32 worked around it with `ElementAt(i)` in three tests and a
+   comment in the `dabbler-app` template; a consumer who indexes `FindAll`
+   results in a generated test still hits it. `bunit` `2.15.2` is built
+   against `AngleSharp` `1.10.1`. Raise the `bunit` pin in
+   `Directory.Packages.props` and the template's `Version="1.37.7"` to
+   `2.15.2`. Every `bunit` 2.x that targets `net10.0` with a patched
+   AngleSharp depends on `Microsoft.AspNetCore.Components.*` `10.0.10` or
+   later (`2.15.2`: `10.0.13`), which would make the direct `10.0.5`
+   reference in `tests/Dabbler.Security.Blazor.Tests` an NU1605 downgrade:
+   raise the `Microsoft.AspNetCore.Components.Web` and
+   `Microsoft.AspNetCore.Components.Authorization` pins to `10.0.15`,
+   within the 10.x policy in `docs/MAINTAINING.md`. Remove the `AngleSharp`
+   `PackageVersion`, the five direct references and the template's
+   reference and comment. Port the bUnit test code to the 2.x API
+   (`TestContext` → `BunitContext`, `RenderComponent` → `Render`,
+   `SetParametersAndRender` → `Render`, and whatever else the build
+   reports) in `tests/AcmeCoffeeOnline.Web.Tests`,
+   `tests/Dabbler.Components.Tests`, `tests/Dabbler.Reports.Blazor.Tests`,
+   `tests/Dabbler.Security.Blazor.Tests`, `tests/Dabbler.Testing.Blazor.Tests`
+   and the template's `SampleItemListTests.cs`, and return Session 32's
+   three `ElementAt(i)` calls to `[i]`. Update the bUnit example in
+   `src/Libs/Dabbler.Platform.Stubs/README.md` to the 2.x API. The step's
+   checks: the restore of each of the five test projects with `--force`
+   prints no NU1901, NU1902, NU1903 or NU1904; `dotnet test` of each
+   passes; then, after a Release build and `tools/pack.ps1 -OutputDir
+   pack-output -CleanOutput`, `dotnet test tests/Dabbler.Templates.Tests`
+   passes.
+3. Cross-provider verification.
+4. The `unit` and `e2e` suites once against the verified tree, recorded as
+   the run of record.
+5. Close-out.
+
+Non-goals: no public API change; no raise of the other
+`Microsoft.AspNetCore.*` 10.0.5 pins; no change to `DabblerVersion` or
+`CHANGELOG.md` (Session 35's).
+
+Why now (2026-11-13): the operator wants no audited package and no
+workaround left in the solution or the templates, and accepted the bUnit
+major to get there.
+
+### Session 35: Bump to 2.0.2
+
+Runs after Session 34.
+
+1. Register.
+2. Set `DabblerVersion` in `Directory.Build.props`, and the `-Version`
+   default in `tools/pack.ps1` with the version its help text names, to
+   `2.0.2`. Add a `## 2.0.2` entry to `CHANGELOG.md`, directly above
+   `## 2.0.1`: no API change since `2.0.1`; the `dabbler-app` template's
+   test project moves from `bunit` `1.37.7` to `2.15.2` and drops its direct
+   `AngleSharp` reference; the `Microsoft.AspNetCore.Components.Web` and
+   `.Authorization` dependencies move from `10.0.5` to `10.0.15`; the
+   `Dabbler.Platform.Stubs` README shows the bUnit 2.x API. The step's
+   checks: `Directory.Build.props` and `tools/pack.ps1` name `2.0.2` and no
+   longer name `2.0.1` as the version or the default; `CHANGELOG.md` has
+   `## 2.0.2` directly above `## 2.0.1`; then, after a Release build and
+   `tools/pack.ps1 -OutputDir pack-output -CleanOutput`, the `smoke` suite
+   passes against the `2.0.2` packages.
+3. Cross-provider verification.
+4. The `unit`, `smoke` and `e2e` suites once against the verified tree,
+   recorded as the run of record.
+5. Close-out.
+
+Non-goals: no API or dependency change beyond Session 34; no change to
+`ci.yml`, `build.yml` or `dabbler.yaml`.
+
+Proposed version: **2.0.2 (patch)**, for the operator to approve: no
+Dabbler API changes; existing consumers receive a higher
+`Microsoft.AspNetCore.Components.*` floor within 10.x, and only projects
+newly generated from `dabbler-app` see bUnit 2.x.
+
+This is a bump session, not a `(release: 2.0.2)` session, for the reason
+Session 30 gives. After the session has pushed, the operator runs the
+`2.0.2` dry run (`gh workflow run build.yml -f version=2.0.2`) and tags
+`nuget-v2.0.2` by hand when it is green.
