@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 029 transcript</title>
+<style>
+:root {
+  --page: #ffffff;
+  --ink: #1f1f1f;
+  --faint: #e4e4e4;
+  --panel: #f6f6f6;
+  --tone-milestone: #2a5db0;
+  --tone-good: #256029;
+  --tone-warn: #8a6100;
+  --tone-bad: #a31515;
+  --tone-muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1e1e1e;
+    --ink: #d4d4d4;
+    --faint: #3a3a3a;
+    --panel: #252526;
+  --tone-milestone: #3874db;
+  --tone-good: #54a33b;
+  --tone-warn: #b79427;
+  --tone-bad: #f14c4c;
+  --tone-muted: #8c8c8c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px 64px;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+main { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; border-bottom: 1px solid var(--faint); padding-bottom: .3rem; }
+.stamp { color: var(--tone-muted); font-size: .85rem; margin: 0 0 .25rem; }
+.mono, pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lines { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.line { white-space: pre-wrap; word-break: break-word; padding-left: 10.5ch; text-indent: -10.5ch; }
+.at { color: var(--tone-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid var(--faint); vertical-align: top; }
+th { color: var(--tone-muted); font-weight: 600; }
+details { margin: .5rem 0; }
+summary { cursor: pointer; }
+td details { margin: 0; }
+tr:has(details:not([open])) + tr.findings { display: none; }
+tr.findings > td { padding: 0 0 .5rem 1.5rem; }
+pre { background: var(--panel); padding: .75rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.stop, .cancelled { border-left: 3px solid var(--tone-bad); background: var(--panel); padding: .6rem .9rem; }
+.milestone { color: var(--tone-milestone); }
+.good { color: var(--tone-good); }
+.warn { color: var(--tone-warn); }
+.bad { color: var(--tone-bad); }
+.muted { color: var(--tone-muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 029 transcript</h1>
+<p class="stamp">Rendered 2026-11-12T22:42:40.340Z by dabbler-ai-router 3.32.4 at 133ac81990a347e98954f8dc3e76d884862f9055.</p>
+<p class="stamp">Engine cli, last phase <span class="milestone">log</span>, started 2026-11-12T17:07:54.403-05:00.</p>
+<h2>Session Plan</h2>
+<h3>Session 29: Report text can use a Unicode TrueType font</h3>
+<p>Runs after Session 28, which takes DabblerPdf <code>1.3.0</code> and adds the font resolver this session extends.</p>
+<ol><li>Register.</li><li>Every PDF report font is one of the Base 14 with Windows-1252, so Polish, Cyrillic, Greek and CJK text prints as <code>?</code>, and <code>src/Libs/Dabbler.Reports.Export/README.md</code> says custom fonts are given &quot;through the report definition&quot;, which nothing reads. Add a public <code>ReportFonts</code> in <code>Dabbler.Reports.Core</code> that registers a family name (case-insensitive) against a regular <code>.ttf</code> file and, optionally, bold, italic and bold-italic files. The font resolver from Session 28 uses a registered family, when a style's family or the report's default family names one, through <code>BaseFont.CreateFont(path, BaseFont.IdentityH, true)</code>, choosing the file for the style's weight and slant and falling back to the regular file (no synthetic bold or italic); any other family keeps the Base 14 mapping. <code>OpenPdfTextMeasurer</code> and <code>PdfExporter</code> take an optional <code>ReportFonts</code>; <code>services.AddDabblerReportFonts(fonts =&gt; …)</code> registers one, and <code>DabblerReportPage</code> and the PDF export it starts use it when it is registered. Vendor the Liberation Sans fixture with its licence, as <code>../dabbler-pdf</code> does, under <code>tests/</code>. Tests in <code>tests/Dabbler.Reports.Blazor.Tests</code>, in files named after the classes they test: a report whose field holds Polish, Cyrillic and Greek text in a registered family exports a PDF from which PdfPig extracts that text; that field's <code>CanGrow</code> height is the one <code>TextLayout.MeasureHeight</code> gives with the registered font; a bold style in a family registered with only a regular file uses the regular file; an unregistered family still maps to the Base 14. Rewrite the README's font paragraph: the Base 14 families and their Windows-1252 limit, how to register a Unicode font, and what it does not do (no shaping or right-to-left text, nothing beyond U+FFFF, no fallback between fonts). The step's checks: <code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code> passes; the README no longer says &quot;through the report definition&quot;.</li><li>Cross-provider verification.</li><li>The <code>unit</code> and <code>e2e</code> suites once against the verified tree, recorded as the run of record.</li><li>Close-out.</li></ol>
+<p>Non-goals: no font file shipped in any package (consumers bring their own); no RDF syntax for fonts; no change to the HTML <code>ReportViewer</code>, which the browser draws with its own fonts; no use of fonts in the reference app; no change to <code>DabblerVersion</code> or <code>CHANGELOG.md</code>.</p>
+<p>Why now (2026-11-12): the operator asked for Unicode report text. DabblerPdf 1.3.0 draws it from an embedded, subset TrueType font, but the platform creates every font as a Base 14 one, so taking 1.3.0 alone (Session 28) changes nothing.</p>
+<h2>Work Plan</h2>
+<p>Let report text print in a Unicode TrueType font. Add a public ReportFonts in Dabbler.Reports.Core (namespace Dabbler.Reports.Core.Layout) that registers a family name, case-insensitively, against a regular .ttf file and optional bold, italic and bold-italic files. The internal ReportFontResolver from Session 28 takes an optional ReportFonts: when a style's family, or the report's DefaultFontFamily, names a registered family it creates the font with BaseFont.CreateFont(path, BaseFont.IdentityH, true), choosing the file for the style's weight and slant and falling back to the regular file (no synthetic bold or italic); any other family keeps the Base 14 mapping. OpenPdfTextMeasurer and PdfExporter take an optional ReportFonts and pass it to the resolver (PdfExporter through PdfStyleResolver), so text is measured and drawn in the same font. Dabbler.Reports.Blazor gains services.AddDabblerReportFonts(fonts =&gt; ...), which registers one ReportFonts singleton; DabblerReportPage resolves it when registered and hands it to the OpenPdfTextMeasurer it composes with and, through ReportPdfExporterFactory.Create, to the PdfExporter its PDF export uses. The Liberation Sans fixture and its licence are vendored from ../dabbler-pdf under tests/Dabbler.Reports.Blazor.Tests/Fonts. Tests in tests/Dabbler.Reports.Blazor.Tests, in files named after the classes they test, prove: PdfPig extracts Polish, Cyrillic and Greek text from a PDF exported with a registered family; that field's CanGrow height equals what TextLayout.MeasureHeight gives with the registered font; a bold style in a family registered with only a regular file uses the regular file; an unregistered family still maps to the Base 14. Finally the Dabbler.Reports.Export README's font paragraph is rewritten: the Base 14 families and their Windows-1252 limit, how to register a Unicode font, and what it does not do (no shaping or right-to-left text, nothing beyond U+FFFF, no fallback between fonts).</p>
+<p>Landed <a href="https://github.com/darndestdabbler/dabbler-platform/commit/34a0e1f62360ae3b8808ce106c9f88ec7d79849a"><code>34a0e1f62360ae3b8808ce106c9f88ec7d79849a</code></a>.</p>
+<table>
+<tr><th>Step</th><th>Ask</th><th>Files</th><th>Checks</th><th>Accepted</th></tr>
+<tr><td>Report fonts core</td><td><p>Vendor LiberationSans-Regular.ttf and its LICENSE from ../dabbler-pdf/tests/DabblerPdf.Tests/Fonts into tests/Dabbler.Reports.Blazor.Tests/Fonts and copy them to the test output. Add public ReportFonts (Register(family, regularPath, boldPath?, italicPath?, boldItalicPath?), case-insensitive family lookup). Give ReportFontResolver an optional ReportFonts: a registered family resolves through BaseFont.CreateFont(path, BaseFont.IdentityH, true) with the file for the style's weight and slant, falling back to the regular file; others keep the Base 14 mapping. Give OpenPdfTextMeasurer(ReportDefinition, ReportFonts?) and PdfExporter(ReportDefinition, ReportFonts?) an optional ReportFonts, passed through PdfStyleResolver. Tests: ReportFontsTests (registration, case-insensitive lookup, argument validation); ReportFontResolverTests (bold style in a regular-only registered family uses the regular file; unregistered family maps to the Base 14); OpenPdfTextMeasurerTests (a CanGrow field of Polish, Cyrillic and Greek text in a registered family measures to TextLayout.MeasureHeight with that font, plus padding); PdfExporterTests (PdfPig extracts that Polish, Cyrillic and Greek text from the exported PDF).</p></td><td><span class="mono">tests/Dabbler.Reports.Blazor.Tests/Fonts/LiberationSans-Regular.ttf</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/Fonts/LICENSE</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/Dabbler.Reports.Blazor.Tests.csproj</span><br><span class="mono">src/Libs/Dabbler.Reports.Core/Layout/ReportFonts.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Core/Layout/ReportFontResolver.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Core/Layout/OpenPdfTextMeasurer.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Export/PdfExporter.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Export/PdfStyleResolver.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/ReportFontsTests.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/ReportFontResolverTests.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/OpenPdfTextMeasurerTests.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/PdfExporterTests.cs</span></td><td><code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code></td><td>yes</td></tr>
+<tr><td>Report fonts blazor</td><td><p>Add ReportFontsServiceCollectionExtensions.AddDabblerReportFonts(this IServiceCollection, Action&lt;ReportFonts&gt;) to Dabbler.Reports.Blazor, registering one configured ReportFonts singleton. Give ReportPdfExporterFactory.Create an optional ReportFonts it passes to PdfExporter. Have DabblerReportPage resolve ReportFonts from its service provider when registered (absent otherwise) and pass it to the OpenPdfTextMeasurer it composes with and to ReportPdfExporterFactory.Create in ExportToPdfAsync. Tests: ReportFontsServiceCollectionExtensionsTests (the configured ReportFonts is resolvable as a singleton); ReportPdfExporterFactoryTests (the created exporter draws with the given fonts); DabblerReportPageTests (with AddDabblerReportFonts registered, a CanGrow field in the registered family composes to the height measured with that font).</p></td><td><span class="mono">src/Libs/Dabbler.Reports.Blazor/ReportFontsServiceCollectionExtensions.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Blazor/ReportPdfExporterFactory.cs</span><br><span class="mono">src/Libs/Dabbler.Reports.Blazor/DabblerReportPage.razor.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/ReportFontsServiceCollectionExtensionsTests.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/ReportPdfExporterFactoryTests.cs</span><br><span class="mono">tests/Dabbler.Reports.Blazor.Tests/DabblerReportPageTests.cs</span></td><td><code>dotnet test tests/Dabbler.Reports.Blazor.Tests</code></td><td>yes</td></tr>
+<tr><td>Report fonts readme</td><td><p>Rewrite the font paragraph of src/Libs/Dabbler.Reports.Export/README.md: the Base 14 families (Helvetica, Times, Courier) and their Windows-1252 limit; how to register a Unicode TrueType font with ReportFonts / AddDabblerReportFonts and name it as a style's or the report's default family; and what it does not do (no shaping or right-to-left text, nothing beyond U+FFFF, no fallback between fonts, no synthetic bold or italic). Remove the claim that custom fonts are given through the report definition.</p></td><td><span class="mono">src/Libs/Dabbler.Reports.Export/README.md</span></td><td><code>pwsh -NoProfile -Command $t = Get-Content -Raw src/Libs/Dabbler.Reports.Export/README.md; if ($t -match 'through the report definition') { exit 1 }; if ($t -notmatch 'AddDabblerReportFonts' -or $t -notmatch 'Windows-1252') { exit 1 }; exit 0</code></td><td>yes</td></tr>
+</table>
+<p>Non-goals:</p>
+<ul><li>No font file shipped in any package; consumers bring their own .ttf files (the Liberation Sans fixture lives only under tests/).</li><li>No RDF syntax for fonts: fonts are registered in code, never in the report definition.</li><li>No change to the HTML ReportViewer, which the browser draws with its own fonts.</li><li>No use of registered fonts in the AcmeCoffeeOnline reference app.</li><li>No change to DabblerVersion in Directory.Build.props or to CHANGELOG.md.</li><li>No text shaping, right-to-left layout, characters beyond U+FFFF, or fallback from one font to another; no synthetic bold or italic.</li></ul>
+<h2>What the framework said</h2>
+<div class="lines"><div class="line"><span class="at">[22:07:54]</span> <span class="muted">run-started</span> session=029 mode=pull</div>
+<div class="line"><span class="at">[22:07:54]</span> <span class="muted">instruction-issued</span> seq=1 kind=step step=plan</div>
+<div class="line"><span class="at">[22:09:09]</span> <span class="muted">run-resumed</span> session=029 phase=<span class="milestone">plan</span> mode=pull</div>
+<div class="line"><span class="at">[22:09:09]</span> <span class="muted">plan-accepted</span> steps=[&quot;report-fonts-core&quot;,&quot;report-fonts-blazor&quot;,&quot;report-fonts-readme&quot;] non_goals=6</div>
+<div class="line"><span class="at">[22:09:09]</span> <span class="milestone">phase</span> phase=<span class="milestone">work</span></div>
+<div class="line"><span class="at">[22:09:09]</span> <span class="muted">instruction-issued</span> seq=2 kind=step step=report-fonts-core</div>
+<div class="line"><span class="at">[22:11:37]</span> <span class="muted">run-resumed</span> session=029 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[22:11:42]</span> <span class="muted">check-passed</span> step=report-fonts-core argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[22:12:13]</span> <span class="muted">named-tests-passed</span> step=report-fonts-core suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;OpenPdfTextMeasurerTests|PdfExporterTests|ReportFontResolverTests|ReportFontsTests&quot;</div>
+<div class="line"><span class="at">[22:12:13]</span> <span class="muted">report-accepted</span> seq=2 step=report-fonts-core files=[&quot;tests/Dabbler.Reports.Blazor.Tests/Fonts/LiberationSans-Regular.ttf&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/Fonts/LICENSE&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/Dabbler.Reports.Blazor.Tests.csproj&quot;,&quot;src/Libs/Dabbler.Reports.Core/Layout/ReportFonts.cs&quot;,&quot;src/Libs/Dabbler.Reports.Core/Layout/ReportFontResolver.cs&quot;,&quot;src/Libs/Dabbler.Reports.Core/Layout/OpenPdfTextMeasurer.cs&quot;,&quot;src/Libs/Dabbler.Reports.Export/PdfExporter.cs&quot;,&quot;src/Libs/Dabbler.Reports.Export/PdfStyleResolver.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/ReportFontsTests.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/ReportFontResolverTests.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/OpenPdfTextMeasurerTests.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/PdfExporterTests.cs&quot;] notes=ReportFonts registers TrueType families; the resolver embeds a registered family Identity-H (regular-file fallback) and keeps Base 14 otherwise; measurer and exporter take an optional ReportFonts via new overloads</div>
+<div class="line"><span class="at">[22:12:13]</span> <span class="muted">instruction-issued</span> seq=3 kind=step step=report-fonts-blazor</div>
+<div class="line"><span class="at">[22:13:26]</span> <span class="muted">run-resumed</span> session=029 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[22:13:31]</span> <span class="muted">check-passed</span> step=report-fonts-blazor argv=[&quot;dotnet&quot;,&quot;test&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests&quot;]</div>
+<div class="line"><span class="at">[22:13:50]</span> <span class="muted">named-tests-passed</span> step=report-fonts-blazor suite=unit command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;DabblerReportPageTests|ReportFontsServiceCollectionExtensionsTests|ReportPdfExporterFactoryTests&quot;</div>
+<div class="line"><span class="at">[22:13:50]</span> <span class="muted">report-accepted</span> seq=3 step=report-fonts-blazor files=[&quot;src/Libs/Dabbler.Reports.Blazor/ReportFontsServiceCollectionExtensions.cs&quot;,&quot;src/Libs/Dabbler.Reports.Blazor/ReportPdfExporterFactory.cs&quot;,&quot;src/Libs/Dabbler.Reports.Blazor/DabblerReportPage.razor.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/ReportFontsServiceCollectionExtensionsTests.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/ReportPdfExporterFactoryTests.cs&quot;,&quot;tests/Dabbler.Reports.Blazor.Tests/DabblerReportPageTests.cs&quot;] notes=AddDabblerReportFonts registers a ReportFonts singleton; DabblerReportPage resolves it optionally and passes it to its measurer and, via a new ReportPdfExporterFactory.Create overload, to the PDF exporter</div>
+<div class="line"><span class="at">[22:13:50]</span> <span class="muted">instruction-issued</span> seq=4 kind=step step=report-fonts-readme</div>
+<div class="line"><span class="at">[22:14:09]</span> <span class="muted">run-resumed</span> session=029 phase=<span class="milestone">work</span> mode=pull</div>
+<div class="line"><span class="at">[22:14:10]</span> <span class="muted">check-passed</span> step=report-fonts-readme argv=[&quot;pwsh&quot;,&quot;-NoProfile&quot;,&quot;-Command&quot;,&quot;$t = Get-Content -Raw src/Libs/Dabbler.Reports.Export/README.md; if ($t -match 'through the report definition') { exit 1 }; if ($t -notmatch 'AddDabblerReportFonts' -or $t -notmatch 'Windows-1252') { exit 1 }; exit 0&quot;]</div>
+<div class="line"><span class="at">[22:14:11]</span> <span class="muted">report-accepted</span> seq=4 step=report-fonts-readme files=[&quot;src/Libs/Dabbler.Reports.Export/README.md&quot;] notes=Rewrote the font caveat: Base 14 mapping and Windows-1252 limit, registering a TrueType family with ReportFonts/AddDabblerReportFonts, and the limits (no synthetic styles, shaping, RTL, &gt;U+FFFF, or fallback)</div>
+<div class="line"><span class="at">[22:14:11]</span> <span class="milestone">phase</span> phase=<span class="milestone">preverify</span></div>
+<div class="line"><span class="at">[22:14:11]</span> <span class="milestone">phase</span> phase=<span class="milestone">verify</span></div>
+<div class="line"><span class="at">[22:14:11]</span> <span class="muted">job-started</span> name=verification pid=60116 log=.dabbler/runs/s29/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[22:15:27]</span> <span class="muted">job-finished</span> name=verification exit=<span class="good">0</span> log=.dabbler/runs/s29/driver/jobs/verification.log</div>
+<div class="line"><span class="at">[22:15:27]</span> <span class="muted">verification-passed</span></div>
+<div class="line"><span class="at">[22:15:27]</span> <span class="milestone">phase</span> phase=<span class="milestone">run-of-record</span></div>
+<div class="line"><span class="at">[22:15:27]</span> <span class="muted">run-of-record</span> suite=unit stage=final-targeted why=the last whole run of unit took 273s, past 106s command=dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m</div>
+<div class="line"><span class="at">[22:15:27]</span> <span class="muted">job-started</span> name=run of record: unit pid=46828 log=.dabbler/runs/s29/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[22:16:35]</span> <span class="muted">job-finished</span> name=run of record: unit exit=<span class="good">0</span> log=.dabbler/runs/s29/driver/jobs/run-of-record-unit.log</div>
+<div class="line"><span class="at">[22:16:36]</span> <span class="muted">run-of-record</span> suite=smoke stage=final-full why=smoke declares no select command=pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</div>
+<div class="line"><span class="at">[22:16:36]</span> <span class="muted">job-started</span> name=run of record: smoke pid=60240 log=.dabbler/runs/s29/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[22:32:13]</span> <span class="muted">job-finished</span> name=run of record: smoke exit=<span class="good">0</span> log=.dabbler/runs/s29/driver/jobs/run-of-record-smoke.log</div>
+<div class="line"><span class="at">[22:32:14]</span> <span class="muted">run-of-record</span> suite=e2e stage=final-full why=e2e declares no select command=pwsh -NoProfile -File tools/e2e.ps1</div>
+<div class="line"><span class="at">[22:32:14]</span> <span class="muted">job-started</span> name=run of record: e2e pid=61860 log=.dabbler/runs/s29/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[22:42:29]</span> <span class="muted">job-finished</span> name=run of record: e2e exit=<span class="good">0</span> log=.dabbler/runs/s29/driver/jobs/run-of-record-e2e.log</div>
+<div class="line"><span class="at">[22:42:29]</span> <span class="milestone">phase</span> phase=<span class="milestone">land</span></div>
+<div class="line"><span class="at">[22:42:32]</span> <span class="muted">landed</span> commit=34a0e1f62360ae3b8808ce106c9f88ec7d79849a</div>
+<div class="line"><span class="at">[22:42:32]</span> <span class="milestone">phase</span> phase=<span class="milestone">publish</span></div>
+<div class="line"><span class="at">[22:42:33]</span> <span class="muted">publish-skipped</span> reason=an ordinary session never publishes</div>
+<div class="line"><span class="at">[22:42:33]</span> <span class="milestone">phase</span> phase=<span class="milestone">close</span></div>
+<div class="line"><span class="at">[22:42:33]</span> <span class="muted">job-started</span> name=close pid=61656 log=.dabbler/runs/s29/driver/jobs/close.log</div>
+<div class="line"><span class="at">[22:42:40]</span> <span class="muted">job-finished</span> name=close exit=<span class="good">0</span> log=.dabbler/runs/s29/driver/jobs/close.log</div>
+<div class="line"><span class="at">[22:42:40]</span> <span class="milestone">phase</span> phase=<span class="milestone">log</span></div></div>
+<h2>Verification</h2>
+<table>
+<tr><th>Round</th><th>Phase</th><th>Verdict</th><th>Reviewer</th><th>Provider</th><th>Transport</th><th>Findings</th></tr>
+<tr><td>1</td><td>full</td><td><span class="good">VERIFIED</span></td><td>gpt-5.6-terra</td><td>openai</td><td>api</td><td><details><summary>3 findings</summary></details></td></tr><tr class="findings"><td colspan="7"><table>
+<tr><th>#</th><th>Severity</th><th>Finding</th><th>Response</th></tr>
+<tr><td>0</td><td><strong>minor</strong></td><td>**Nit:** The Unicode-export test splits Polish, Cyrillic, and Greek across three separate PDFs rather than exporting one field containing all three scripts, as the plan specifies.</td><td>not answered</td></tr>
+<tr><td>1</td><td><strong>minor</strong></td><td>**Location:** `tests/Dabbler.Reports.Blazor.Tests/PdfExporterTests.cs`</td><td>not answered</td></tr>
+<tr><td>2</td><td><strong>minor</strong></td><td>**Fix:** With Liberation Sans registered, export one `TextField` containing `&quot;Zażółć gęślą jaźń. Съешь же ещё этих булок. Ξεσκεπάζω την ψυχοφθόρα.&quot;` and assert PdfPig extraction matches the complete source text (allowing only the existing whitespace normalization).</td><td>not answered</td></tr>
+</table></td></tr>
+</table>
+<h2>Test runs</h2>
+<table>
+<tr><th>Suite</th><th>Stage</th><th>Outcome</th><th>Duration</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Command</th></tr>
+<tr><td>unit</td><td>final-targeted</td><td><span class="good">passed</span></td><td>66s</td><td>398</td><td>0</td><td>0</td><td><span class="mono">dotnet test Dabbler.Unit.slnf -m:1 --blame-hang-timeout 5m --filter &quot;AccessDeniedCardTests|AcmeCoffeeNavigationDataProviderTests|BandLayoutEngineComposerTests|CallerLevelPdfExportTests|CompatibilitySurfaceTests|ContractHomeSmokeTests|CsvExportServiceTests|CustomerDetailEditSessionTests|CustomerListTests|CustomersFilterConfigTests|DabblerDownloadExtensionsTests|DabblerReportPageTests|DeclarativeFilterPanelTests|DevIdpToolTests|DevToolsEndpointContractTests|DevToolsMenuTests|DirtyAwareActionRowTests|EditSessionTests|FilterPanelAccessibilityTests|FilterPanelTests|GridDataProviderExtensionsTests|HomePageConfigurationTests|MagicLinksDialogTests|MasterDetailExpansionShellTests|MudBlazorRebuildConformanceTests|NotesDrivenAlignmentGuardrailTests|NupkgArtifactTests|ObservabilitySmokeTests|OpenPdfTextMeasurerTests|OrderDetailEditSessionTests|OrderDetailStateNestedItemsTests|OrderDetailStateTests|OrdersFilterConfigTests|ParameterPromptFormTests|PdfExportTitleRegressionTests|PdfExporterTests|PdfPageRendererTests|PickOrAddDialogTests|ProductionSplitTests|ReportFontResolverTests|ReportFontsServiceCollectionExtensionsTests|ReportFontsTests|ReportPdfExporterFactoryTests|ReportViewerTests|ShellSessionStateLoaderTests|StaticWebAssetHostTests|StubGridDataProviderTests|StubPlatformRegistrationTests|TestAuthClientTests|UserContextBarTests|UserManagementPageTests|WebGuardrailTests|WebHealthEndpointTests|WorkflowAssetSmokeTests&quot;</span></td></tr>
+<tr><td>smoke</td><td>final-full</td><td><span class="good">passed</span></td><td>937s</td><td>5</td><td>0</td><td>2</td><td><span class="mono">pwsh -NoProfile -Command &quot;$env:DABBLER_PACK_OUTPUT = (Resolve-Path pack-output -ErrorAction Stop).Path; dotnet test tests/Dabbler.Packaging.Smoke --filter FullyQualifiedName!~ServesBelowFiveHundred; exit $LASTEXITCODE&quot;</span></td></tr>
+<tr><td>e2e</td><td>final-full</td><td><span class="good">passed</span></td><td>614s</td><td></td><td></td><td></td><td><span class="mono">pwsh -NoProfile -File tools/e2e.ps1</span></td></tr>
+</table>
+<h2>Jobs</h2>
+<div><strong>close</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-e2e</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-smoke</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>run-of-record-unit</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+<div><strong>verification</strong> exit <span class="good">0</span> <span class="muted">(passed -- output not carried; dabbler transcript --full carries it)</span></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,16 @@
+[
+  {
+    "severity": "Major",
+    "description": "Duplicate email in Playwright tests: BatchEntry_Save and BatchEntry_TwoRecords both used batchentry-{RunId}-1@test.local, causing second test to fail with unique constraint.",
+    "location": "CustomerBatchEntryWorkflowTests.cs",
+    "status": "fixed",
+    "fix": "Changed test 2 to use -s2@, test 3 to use -s3a@ and -s3b@ suffixes."
+  },
+  {
+    "severity": "Minor",
+    "description": "HandleCancel fire-and-forgot _form.ResetAsync() -- exception would be swallowed.",
+    "location": "CustomerBatchEntryPage.razor -- HandleCancel",
+    "status": "fixed",
+    "fix": "Made HandleCancel async Task, awaiting _form.ResetAsync()."
+  }
+]

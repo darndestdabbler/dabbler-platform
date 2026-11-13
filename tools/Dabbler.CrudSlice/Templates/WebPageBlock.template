@@ -1,0 +1,1 @@
+pages.Add("/{{PathPlural}}", "{{EntityPlural}}", "{{Entity}} management");
