@@ -12,8 +12,8 @@
     from their approved feeds.
 
 .PARAMETER Version
-    The DabblerVersion to stamp across all packages (e.g. 2.0.0).
-    Defaults to the current Directory.Build.props value (2.0.0).
+    The DabblerVersion to stamp across all packages (e.g. 2.0.1).
+    Defaults to the current Directory.Build.props value (2.0.1).
 
 .PARAMETER OutputDir
     Directory for produced .nupkg files. Default: ./pack-output
@@ -30,10 +30,10 @@
     Fails the pack when dotnet pack emits warnings. Recommended for publish CI.
 
 .EXAMPLE
-    pwsh tools/pack.ps1 -Version 2.0.0
+    pwsh tools/pack.ps1 -Version 2.0.1
 #>
 param(
-    [string] $Version       = "2.0.0",
+    [string] $Version       = "2.0.1",
     [string] $OutputDir     = "pack-output",
     [string] $ScratchCacheDir = "pack-output/.nuget-cache",
     [switch] $CleanOutput,

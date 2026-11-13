@@ -39,7 +39,7 @@
       Single repository version. Overridable via /p:DabblerVersion=...
       Lock-step versioning per ledger §3.6.
     -->
-    <DabblerVersion Condition="'$(DabblerVersion)' == ''">2.0.0</DabblerVersion>
+    <DabblerVersion Condition="'$(DabblerVersion)' == ''">2.0.1</DabblerVersion>
     <Version>$(DabblerVersion)</Version>
     <PackageVersion>$(DabblerVersion)</PackageVersion>
     <AssemblyVersion>$(DabblerVersion.Split('-')[0])</AssemblyVersion>

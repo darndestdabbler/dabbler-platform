@@ -44,7 +44,9 @@ The numbered sessions are declared from `session-plan.md`; each one's task is wh
 | 30 | Bump to 2.0.0 | no | 2026-11-12 |
 | 31 | Clear the release build's nullable and vulnerability warnings | no | 2026-11-13 |
 | 32 | Clear the solution's remaining audited packages | no | 2026-11-13 |
-| 33 | Bump to 2.0.1 | — | not declared |
+| 33 | Bump to 2.0.1 | no | 2026-11-13 |
+| 34 | Move bUnit to 2.x | — | not declared |
+| 35 | Bump to 2.0.2 | — | not declared |
 
 ### Session 1 — Author or import the solution plan
 
@@ -254,3 +256,9 @@ Clear the two NuGet audit findings that a restore of the whole solution still re
 **Amended after acceptance:**
 
 - 2026-11-13 — step 'anglesharp-lift': its files: AngleSharp 1.5.0 moved IHtmlCollection<T>'s int indexer onto IReadOnlyList<T>, so bunit 1.37.7's compiled RefreshableElementCollection indexer throws MissingMethodException; the three FindAll(...)[i] call sites in ReportViewerTests and UserEditPageTests move to ElementAt(i) (enumeration is unaffected), keeping the advisory fix without bunit 2.x. (claude-code (anthropic, claude-opus-5-5))
+
+### Session 33 — Bump to 2.0.1
+
+**Releasable: no.**
+
+Bump the single repository version from 2.0.0 to 2.0.1 (patch, as the session plan proposes). Set DabblerVersion in Directory.Build.props, and the -Version default and the versions its help text names in tools/pack.ps1, to 2.0.1. Add a `## 2.0.1` entry to CHANGELOG.md directly above `## 2.0.0` saying there is no API change since 2.0.0, that `Dabbler.Security`'s `Microsoft.EntityFrameworkCore.SqlServer` dependency moves from 10.0.5 to 10.0.15 (Session 31), which brings `System.Security.Cryptography.Pkcs` 10.0.13 and clears GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7, and that the `dabbler-app` template's test project references `AngleSharp` 1.5.0 (Session 32), lifting bUnit's transitive AngleSharp past GHSA-pgww-w46g-26qg. Prove the bump with a Release build, a pack into pack-output and the smoke suite against the 2.0.1 packages.

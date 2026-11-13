@@ -4,6 +4,16 @@ All `Dabbler.*` packages, the `Dabbler.Templates` template pack and the tools
 share one version (`DabblerVersion` in `Directory.Build.props`) and are
 published to nuget.org together.
 
+## 2.0.1
+
+- No API changes since `2.0.0`.
+- The `Microsoft.EntityFrameworkCore.SqlServer` dependency of
+  `Dabbler.Security` moves from `10.0.5` to `10.0.15`, which brings
+  `System.Security.Cryptography.Pkcs` `10.0.13` and clears
+  GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7.
+- The `dabbler-app` template's test project references `AngleSharp` `1.5.0`,
+  lifting bUnit's transitive AngleSharp past GHSA-pgww-w46g-26qg.
+
 ## 2.0.0
 
 Breaking changes:
