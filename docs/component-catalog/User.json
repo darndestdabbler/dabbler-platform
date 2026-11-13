@@ -1,0 +1,3799 @@
+{
+  "appName": "AcmeCoffeeOnline",
+  "generatedAt": "2026-05-11T19:01:07Z",
+  "schemaVersion": "1.1",
+  "entries": [
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "AcmeCoffeeDistributors Dashboard",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Reports",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Orders",
+      "testId": "search-orders",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Products",
+      "testId": "search-products",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Product Administration",
+      "htmlTag": "h4",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "ADD PRODUCT",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Price",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Actions",
+      "htmlTag": "th",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Edit product",
+      "ariaLabel": "Edit product",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Remove product from catalog",
+      "ariaLabel": "Remove product from catalog",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "1",
+      "ariaLabel": "Current page 1",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "2",
+      "ariaLabel": "Page 2",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": true
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Tab",
+      "userVisibleLabel": "ROLE DOCUMENTATION",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "Role Documentation Read-only reference for the baked-in roles, the defaults for user-type roles, and the Default Masks / Mask Exemptions semantics. Canonical role names are immutable; the display alia",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/security",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Role Documentation",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Manage Organization Admins",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Internal Operations",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Add filter",
+      "ariaLabel": "Add filter",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Email",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Active",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roles In Scope",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Other Organizations",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Actions",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "GRANT USERADMIN",
+      "testId": "grant-useradmin-3",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/admin/users",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "REMOVE USERADMIN",
+      "testId": "revoke-useradmin-5",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Counter",
+      "htmlTag": "h1",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Snackbar",
+      "userVisibleLabel": "Current count: 0",
+      "htmlTag": "p",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/counter",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Click me",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "Last Name Email City State Active",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Last Name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Email",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "City",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "State",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Primary Contact First Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Primary Contact Last Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Account Email",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Phone",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "City",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "State",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Active",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to retail businesses",
+      "ariaLabel": "Back to retail businesses",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Business #42",
+      "testId": "customer-detail-title",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "First Name",
+      "testId": "field-first-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Last Name",
+      "testId": "field-last-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Email",
+      "testId": "field-email",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Phone",
+      "testId": "field-phone",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Address",
+      "testId": "field-address",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "City",
+      "testId": "field-city",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "State",
+      "testId": "field-state",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Zip Code",
+      "testId": "field-zip-code",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/customers/{CustomerId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Social Security Number",
+      "testId": "field-ssn",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "AcmeCoffeeDistributors Dashboard",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Reports",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Orders",
+      "testId": "search-orders",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/dashboard",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Search Products",
+      "testId": "search-products",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/not-found",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Not Found",
+      "htmlTag": "h3",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "Status Retail Business Order Date From Order Date To Min Total Max Total",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Status",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Retail Business",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date From",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date To",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Total",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Total",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Order #",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Retail Business Contact",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Order Date",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Status",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Total",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Ship Date",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "355",
+      "testId": "order-detail-link-355",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "65",
+      "testId": "order-detail-link-65",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "64",
+      "testId": "order-detail-link-64",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "63",
+      "testId": "order-detail-link-63",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "62",
+      "testId": "order-detail-link-62",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "61",
+      "testId": "order-detail-link-61",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "60",
+      "testId": "order-detail-link-60",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "59",
+      "testId": "order-detail-link-59",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "58",
+      "testId": "order-detail-link-58",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "57",
+      "testId": "order-detail-link-57",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "56",
+      "testId": "order-detail-link-56",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "55",
+      "testId": "order-detail-link-55",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "54",
+      "testId": "order-detail-link-54",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "53",
+      "testId": "order-detail-link-53",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "52",
+      "testId": "order-detail-link-52",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "51",
+      "testId": "order-detail-link-51",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "50",
+      "testId": "order-detail-link-50",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "49",
+      "testId": "order-detail-link-49",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "48",
+      "testId": "order-detail-link-48",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "47",
+      "testId": "order-detail-link-47",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "46",
+      "testId": "order-detail-link-46",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "45",
+      "testId": "order-detail-link-45",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "44",
+      "testId": "order-detail-link-44",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "43",
+      "testId": "order-detail-link-43",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "42",
+      "testId": "order-detail-link-42",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to orders",
+      "ariaLabel": "Back to orders",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Order #355",
+      "testId": "order-detail-title",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "SHIPPED",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "CANCELLED",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Customer",
+      "testId": "field-customer-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Date",
+      "testId": "field-order-date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Ship Date",
+      "testId": "field-ship-date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Total",
+      "testId": "field-total",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Notes",
+      "testId": "field-notes",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Tab",
+      "userVisibleLabel": "ITEMS (1)",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Tab",
+      "userVisibleLabel": "NOTES (1)",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "ADD PRODUCT Product Qty Unit Price Discount % Line Total Deep Dark Roast - Regular - Drip 3 $18.49 0 $55.47",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "ADD PRODUCT",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Product",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Qty",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Discount %",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/orders/{OrderId}",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Line Total",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "Roast Level Caffeine Grind Type Available Min Price Max Price",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "ADD PRODUCT",
+      "testId": "add-product-button",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Products",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "Roast Level Caffeine Grind Type Available Min Price Max Price",
+      "ariaLabel": "Filter panel",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Min Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Max Price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "ADD PRODUCT",
+      "testId": "add-product-button",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Name",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Sort",
+      "ariaLabel": "Sort",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Column options",
+      "ariaLabel": "Column options",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Caffeine",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Grind Type",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Available",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "Column",
+      "userVisibleLabel": "Unit Price",
+      "htmlTag": "th",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "First page",
+      "ariaLabel": "First page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Previous page",
+      "ariaLabel": "Previous page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Next page",
+      "ariaLabel": "Next page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/catalog",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Last page",
+      "ariaLabel": "Last page",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Back to products",
+      "ariaLabel": "Back to products",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Product #21",
+      "testId": "product-detail-title",
+      "htmlTag": "h4",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "SAVE",
+      "testId": "save-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "UNDO",
+      "testId": "undo-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "ACTIVATE",
+      "testId": "toggle-availability-button",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Name",
+      "testId": "field-name",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Unit Price",
+      "testId": "field-unit-price",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Increment",
+      "ariaLabel": "Increment",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Decrement",
+      "ariaLabel": "Decrement",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Representative Playwright automation product.",
+      "testId": "field-description",
+      "htmlTag": "textarea",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/products/{ProductId}",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Image URL",
+      "testId": "field-image-url",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "Orders by Retail Business Report Parameters Start Date Start Date is required End Date End Date is required Order Status Filter Summary RUN REPORT 100% Set parameters and click \u0022Run Report\u0022 to generat",
+      "ariaLabel": "Orders by Retail Business",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Report Parameters",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Start Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "End Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Order Status",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Filter Summary",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "RUN REPORT",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom out",
+      "ariaLabel": "Zoom out",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom in",
+      "ariaLabel": "Zoom in",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Export to PDF",
+      "ariaLabel": "Export to PDF",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/orders-by-customer",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Print",
+      "ariaLabel": "Print",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Element",
+      "userVisibleLabel": "Sales by Product Report Parameters Start Date Start Date is required End Date End Date is required Roast Level Filter Summary RUN REPORT 100% Set parameters and click \u0022Run Report\u0022 to generate the repo",
+      "ariaLabel": "Sales by Product",
+      "htmlTag": "div",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Report Parameters",
+      "htmlTag": "h6",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Start Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Open",
+      "ariaLabel": "Open",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "End Date",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Roast Level",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Input",
+      "userVisibleLabel": "Filter Summary",
+      "htmlTag": "input",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "RUN REPORT",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom out",
+      "ariaLabel": "Zoom out",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Zoom in",
+      "ariaLabel": "Zoom in",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Export to PDF",
+      "ariaLabel": "Export to PDF",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/reports/sales-by-product",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Print",
+      "ariaLabel": "Print",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "IconButton",
+      "userVisibleLabel": "Toggle navigation menu",
+      "ariaLabel": "Toggle navigation menu",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Platform Admin",
+      "ariaLabel": "Internal Platform Admin, sign out",
+      "testId": "user-context-user",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Internal Operations",
+      "ariaLabel": "Internal Operations, switch organization",
+      "testId": "active-organization-label",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Retail Businesses",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Products",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Reports",
+      "ariaLabel": "Toggle Reports",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Orders by Retail Business",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Sales by Product",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Button",
+      "userVisibleLabel": "Admin",
+      "ariaLabel": "Toggle Admin",
+      "htmlTag": "button",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Link",
+      "userVisibleLabel": "Security Dashboard",
+      "htmlTag": "a",
+      "isWatermarked": false
+    },
+    {
+      "routePath": "/weather",
+      "role": "User",
+      "elementRole": "Text",
+      "userVisibleLabel": "Weather",
+      "htmlTag": "h1",
+      "isWatermarked": false
+    }
+  ]
+}

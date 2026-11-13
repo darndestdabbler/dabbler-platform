@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>SmokeApp</RootNamespace>
+    <AssemblyName>SmokeApp</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <!-- Suppress missing-XML-doc warnings in the consumer skeleton; we are
+         exercising the scaffolded slice's compile, not the fixture project. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    The smoke test runs this csproj in a temp dir OUTSIDE the repo's central-package-management
+    scope (Directory.Packages.props), so explicit Version attributes are required on every
+    PackageReference for `dotnet restore` to succeed.
+
+    This fixture differs from SmokeApi/ in that it also pulls in MudBlazor + Dabbler.Components
+    + Dabbler.Security.Blazor — packages the dabbler-crud-page template's Razor components
+    depend on. The crud-service-only smoke (CrudServiceTemplateTests) uses SmokeApi/ which
+    omits these to keep the service-tier compile surface minimal.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.15" />
+    <PackageReference Include="MudBlazor" Version="9.12.0" />
+    <PackageReference Include="Dabbler.Api.Querying" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Components" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Security" Version="0.1.0-preview.1" />
+    <PackageReference Include="Dabbler.Security.Blazor" Version="0.1.0-preview.1" />
+  </ItemGroup>
+
+</Project>

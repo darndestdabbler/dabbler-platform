@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "severity": "Major",
+    "category": "Correctness",
+    "title": "has_failures silently swallows dotnet-test failure when trx is empty/missing",
+    "details": "If dotnet test exits non-zero but the .trx file is absent, empty, or has no UnitTestResult elements, _parse_trx returned empty lists and has_failures returned False, so main() exited 0 \u2014 silently swallowing infra/build failures. Fixed: has_failures now also returns True when test_invoked and test_exit_code != 0.",
+    "status": "fixed"
+  }
+]

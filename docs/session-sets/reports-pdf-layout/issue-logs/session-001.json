@@ -1,0 +1,18 @@
+[
+  {
+    "id": "S1-I1",
+    "severity": "Minor",
+    "status": "deferred-to-session-2",
+    "summary": "ComposeEmptyReport has the same inverted band-order bug",
+    "detail": "In BandLayoutEngine.ComposeEmptyReport (around line 294-308), the sequence is StartNewPage() first (which emits PageHeader), then ReportHeader via EmitBand, then NoData band, then ReportFooter. This mirrors the bug in ComposeDataReport. Session 2's fix must be applied at a level that covers BOTH paths -- either by refactoring StartNewPage to emit PageHeader conditionally (not on first call of page 1), or by having both ComposeDataReport and ComposeEmptyReport call a shared 'start-first-page-with-report-header-first' helper.",
+    "action": "Fold into Session 2 implementation scope."
+  },
+  {
+    "id": "S1-I2",
+    "severity": "Minor",
+    "status": "deferred",
+    "summary": "PdfExporter.Title and Author properties are unused (metadata not written to PDF)",
+    "detail": "PdfExporter declares Title and Author properties but never passes them to the underlying DabblerPdf Document (no AddTitle/AddAuthor calls). Writing them to PDF metadata is orthogonal to the visible-title bug that this session set targets. The spec (Risk Notes and Goals) limits scope to visible page layout, and Session 2 Step 5 only mentions Title as 'fallback content title' gated by a new opt-in property -- not mandatory. Adding metadata writes is a 'fix while you're there' that should be done, but is not blocking for the UAT feedback that drove this set.",
+    "action": "Optional: Session 2 may fold this in. If it does, the change should be purely additive (Title/Author written to PDF metadata) and MUST NOT affect visible layout. If not picked up, open a separate spec."
+  }
+]

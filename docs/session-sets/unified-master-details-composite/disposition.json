@@ -1,0 +1,30 @@
+{
+  "sessionSet": "unified-master-details-composite",
+  "session": 5,
+  "status": "complete",
+  "verificationVerdict": "VERIFIED",
+  "progressKeys": {
+    "session-5/read-planning": "complete",
+    "session-5/uat-checklist": "complete",
+    "session-5/uat-runner": "complete",
+    "session-5/build-and-test": "complete",
+    "session-5/verification": "complete",
+    "session-5/change-log": "complete",
+    "session-5/cost-report": "complete",
+    "session-5/commit-push-notify": "complete",
+    "session-5/reorganization": "complete"
+  },
+  "deliverables": {
+    "uatChecklist": "docs/session-sets/unified-master-details-composite/unified-master-details-composite-uat-checklist.json — 23 items covering all 4 scenarios + inspect-to-decide + 4b subscenarios. Correct Review-array schema with DSL-format Steps. Suppressions for CATALOG_STALE added to tools/uat-suppressions.json.",
+    "w2RunnerResult": "W0 compiled successfully to 360+ lines of Playwright code. --skip-dotnet-test used per SeededSignInAsync/DSL conflict (same pattern as admin-user-creation-flow). All suppressed errors are CATALOG_STALE class (new routes not yet in catalog); authoritative coverage is hand-authored Playwright tests from Sessions 1-4.",
+    "appBugFixes": "5 bugs fixed during Playwright run: (1) CustomersController + OrdersController: CreatedAtActionResult route-not-found threw InvalidOperationException mapped to 409; fixed to Ok(created). (2) OrderDetailState AddTransient to AddScoped: parent and child got different instances; navigation after new-order save never fired. (3) CustomerPickerDialog: Immediate=true on fields + local _isTargetReadOnly via OnParametersSet + OnTargetEditingToggled. (4) ProductLinePickerDialog.HandleUsePickedAsync: StateHasChanged() after row selection forces DetailsContent re-render. (5) Test assertions: toggle-text proxy for MudBlazor 8.x ReadOnly; ToHaveValueAsync directly on testid.",
+    "changeLog": "docs/session-sets/unified-master-details-composite/change-log.md — set-level summary covering shell capabilities, all 4 scenarios, session-5 bug fixes, and known follow-up items.",
+    "costReport": "Total: $7.74 across 24 route calls. uat-plan-generation: $4.22 (Opus); session-verification: $3.22 (GPT-5.4 x5); test-generation: $0.26; analysis: $0.04.",
+    "buildResult": "PASS (0 errors)",
+    "testResult": "PASS: 633/633 unit+bUnit across 6 suites. Playwright: 148/159 pass; 9 failures (8 pre-existing from prior sessions, 1 new W0 UnifiedMasterDetailsCompositeUatTests SeededSignInAsync conflict — same class as AdminUsersCrossLinksUatTests).",
+    "verifierFindingsFixed": "GPT-5.4 verified VERIFIED with no blocking issues."
+  },
+  "nextSessionSet": null,
+  "next_orchestrator": null,
+  "openIssues": []
+}

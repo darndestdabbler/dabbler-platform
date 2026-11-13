@@ -1,0 +1,34 @@
+@page "/orders/new"
+@using AcmeCoffeeOnline.Web.Services
+@attribute [DabblerPageAuthorize("/orders")]
+@inject NavigationManager NavigationManager
+@inject OrderDetailState State
+
+<PageTitle>New Order — AcmeCoffeeDistributors</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4" data-testid="order-create-page">
+    <MudStack Spacing="1" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => NavigationManager.NavigateTo("/orders"))"
+                           aria-label="Back to orders" />
+            <MudText Typo="Typo.h4" data-testid="order-create-title">New order</MudText>
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            Pick or add a customer, then save the order header to begin adding items.
+        </MudText>
+    </MudStack>
+
+    <OrderDetail IsNew="true"
+                 IsReadOnly="false"
+                 OnSaved="OnOrderSavedAsync" />
+</MudContainer>
+
+@code {
+    private Task OnOrderSavedAsync()
+    {
+        if (State.Record is not null && State.Record.Id > 0)
+            NavigationManager.NavigateTo($"/orders/{State.Record.Id}");
+        return Task.CompletedTask;
+    }
+}
